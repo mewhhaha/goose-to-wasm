@@ -278,14 +278,68 @@ Two changes from the start of the day are part of the commit. Something only kno
 
 73 calls, not traced yet with these changes in. The method stands: the trace of first appearances, one call at a time, upstream's rule for it read, the eleven tests and the corpus on what results.
 
+## Types where a call lands a store (`e7cb7c9`)
+
+The same request, continued from 73. Committed as `e7cb7c9`, [qualified](runs/qualification-e7cb7c9.json).
+
+| | `df28ece` | `e7cb7c9` |
+| --- | --- | --- |
+| corpus, default build | | 0 of 4,355 sources differ ([report](runs/corpus-default-fingerprints-e7cb7c9.json)) |
+| corpus, every call class-keyed | 14 / 33 / 21 | the same 14, 33 and 21 sources ([list](runs/corpus-every-call-class-keyed-categories-e7cb7c9.json)) |
+| self-check and the eleven upstream tests, every call class-keyed | no error; all eleven report | the same |
+| blot2: calls where a class-rooted value first meets shallower storage | 1,157 | 509 |
+| blot2, errors of the first pass | 73 | 64 ([list](runs/blot2-diagnostics-e7cb7c9.txt)) |
+| blot2, frames / alternatives | 52,972 / 45.7 M | 52,940 / 48.5 M ([progress](runs/blot2-progress-e7cb7c9.txt)) |
+| blot2, bootstrapped compiler | 284 s wall, 6.8 GiB | 257 s wall, 246 s CPU, 7.0 GiB ([run](runs/blot2-run-e7cb7c9.json)) |
+
+**The error count rose on the last step and that step is kept.** Each step below only takes pairs away from what a call lands, and the count went 73, 73, 84, 83, 52, 42, 42, 64. A refused store does not land and is reported once, at the call that refuses it; no longer refused there, it lands, is passed up, and is judged at every caller above. The count is of calls with a refusal, and a wrong pair removed low in the call tree can add callers to it. The number that fell with every step that did anything is the one `tools/dbgdefer.py` counts: the calls whose mapping first makes a pair of a class-rooted value and shallower storage (4,237 that morning, 1,157 at `df28ece`, 509 now).
+
+### One refusal, followed down
+
+`tools/dbgwatch.py` prints every store of one root into another, by their numbers (`DBG_WATCH=PLACE,VALUE` in the environment, no rebuild between runs), with the callee and the callee alternatives that became the value: one run of blot2 for each level down. `tools/dbgintro.py` prints where an exact storage-class alternative of one target type first enters global storage. From `quoteEffectsContextWorkspace` (`check/staging_core.goose:305`), refused for storing its `remaining: i64&` in global storage:
+
+```
+visit (263) <- handle (256) <- effectHandleProvider (257) <- ... <- loanCallback (178):
+    var scoped=scopedNamed(self_,self_.locals,self_.loop_owner,owner,self_.active_calls,self_.decision_owner);
+    let error=scoped.node(id,parameters,closed_rows,depth+1);
+    publishNamed(self_,scoped);
+```
+
+At `scoped.node(...)` the callee's effect was "storage of type `ModuleRef` that `self_` refers to takes a reference to `i64` storage that `self_` refers to". `struct ModuleRef { value: const Module& }` cannot hold a reference to an `i64`. Both sides were "what the argument's storage holds", read as two pointee types, and a call maps each side to everything of that kind and lands the product. `scoped` is a local view whose fields were all read out of `self_`; its contents are one alternative at `self_`'s storage class, the target types of the fields merged away.
+
+### What was changed, in order
+
+| step | errors | alternatives |
+| --- | --- | --- |
+| `df28ece` | 73 | 45.7 M |
+| a reference argument remembers the type its expression reaches (`LifeValue.reached`, kept beside its class in `map_types`), for an argument that points at part of something read out, whose alternative has no type | 73 | 45.8 M |
+| a store into an argument class keeps its reached type too; where the call's reference has a type of its own, that one is taken | 84 | 45.4 M |
+| a literal's fields and a call's result built in an assignment's or a builtin's destination reach what that destination does (`dest_place`, `dest_reached`) | 83 | |
+| **a stored reference of known pointee lands only in storage whose type holds a reference to such a pointee** (`life_refers`, `life_place_holds`, `life_referable`) | 52 | 45.4 M |
+| what a storage class holds, taken as one pointee, is a reference to that pointee (`life_typed_held`) | 42 | 50.7 M |
+| something only reached from storage of one pointee type is followed through what that type holds a reference to (`life_deep`) | 42 | 50.5 M |
+| storage of a type that holds no reference takes no store and leads nowhere | 64 | 48.5 M |
+
+Untyped stores into a class root recorded at a call went from 9,466 calls to 4,766 over these steps (`tools/dbgwhy.py`); in bodies, 38,194 statements still store into an argument class with no reached type, most of them a constructor filling its result.
+
+### What is left
+
+509 calls still first make a wrong pair, and the 64 errors are what becomes of them. What the traces show of them:
+
+- **One class for everything an argument's storage refers to.** `self_`'s tables, its module, its locals and its counters are one root unless a storage class of their pointee type exists, and those are cut to 8 a frame once the pass holds 4 M alternatives. A store of a `u32[:]` parameter into a `Locals` that `self_` refers to is then held by "what `self_` refers to", and read back as what a `Module` holds, which has `u32[:]` tables of its own. Types cannot tell those apart; a class per pointee type would. There is room to try more of them now (48.5 M of 79.5 M alternatives).
+- **13 of the 64** are calls of `node` in `check/staging_core.goose` whose value is "something reached from `Module`, `ModuleRef` or `i64` storage of `self_`": the last now leads nowhere, the other two reach everything through the untyped class.
+- **Large view types.** `Module` and the type tables hold references to nearly every type, so "what this type can refer to" removes little there.
+
 ## Not right yet
 
-- **blot2's 73 errors** (`df28ece`). The next step is the next call the trace names: see "Two stores found by where they first go wrong".
+- **blot2's 64 errors** (`e7cb7c9`), from 509 calls that first make a wrong pair. See "Types where a call lands a store", what is left.
 - **The 33 corpus sources where the class path misses an error**, unchanged.
-- **Memory.** 45.7 M alternatives of 79.5 M after one pass; later passes and validation have not run. The 2 GiB is `GS_STACK_RESERVE`, the address space the runtime reserves per region, and a C compiler flag raises it (the 8 GiB runs above). Upstream's compiler has `--stack-reserve` for this, and since `707c546` so has this one ([qualification](runs/qualification-707c546.json): the generated C is unchanged without the option; a program that resizes one array to 300 M `i64` overflows as built before and runs with `--stack-reserve 8G`). The compiler's own bootstrap still uses the default.
-- **Peak RSS is 6.8 GiB** for the one pass, which takes 284 s.
+- **Memory.** 48.5 M alternatives of 79.5 M after one pass; later passes and validation have not run. The 2 GiB is `GS_STACK_RESERVE`, the address space the runtime reserves per region, and a C compiler flag raises it (the 8 GiB runs above). Upstream's compiler has `--stack-reserve` for this, and since `707c546` so has this one ([qualification](runs/qualification-707c546.json): the generated C is unchanged without the option; a program that resizes one array to 300 M `i64` overflows as built before and runs with `--stack-reserve 8G`). The compiler's own bootstrap still uses the default.
+- **Peak RSS is 7.0 GiB** for the one pass, which takes 257 s.
 
 ## Tools
+
+`trace.sh` builds a work copy with `dbgstore2.py`, `dbgdefer.py` and `dbgwhy.py` (where a store into a class root is recorded without a reached type) and prints their tallies for blot2. `dbgwatch.py`, `dbgintro.py` and `watch.sh PLACE VALUE` follow one store down the calls, as under "One refusal, followed down".
 
 `cycle.sh NAME` builds a work copy with every call class-keyed and with the progress counters, runs the eleven upstream tests and the self-check, then blot2. `dbgdefer.py` (after `dbgstore2.py`) prints where a store of something class-rooted into shallower storage first appears: in a body, at a call whose callee had none, between two class storages in a body, of one argument into another.
 
