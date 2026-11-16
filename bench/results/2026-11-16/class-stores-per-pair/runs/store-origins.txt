@@ -1,0 +1,54 @@
+Refused stores of blot2's first pass at 3ddf811, by the statement whose evaluation first made the store
+(tools/dbgstore2.py 1 + tools/dbgorigin.py; a summary entry keeps the first statement that stored into its place,
+so later stores merged into the same entry are counted under it)
+
+2036 refused stores, 43 distinct origins
+  672  33.0%  support/pooled_buffer.goose:12:70
+  658  65.3%  support/option.goose:12:48
+  277  78.9%  reuse/epoch_resolution_cache.goose:12:102
+  114  84.5%  support/pooled_buffer.goose:16:123
+  109  89.9%  support/option.goose:11:60
+   43  92.0%  check/types.goose:2300:37
+   34  93.7%  check/solver_worklist.goose:54:33
+   18  94.5%  eval/type_evidence.goose:743:44
+   11  95.1%  support/pooled_map.goose:20:94
+   11  95.6%  check/check.goose:3012:1014
+    9  96.1%  backend/wasm.goose:958:100
+    8  96.5%  support/pooled_buffer.goose:18:125
+    7  96.8%  (none)
+    6  97.1%  reuse/specialization_receipt.goose:242:93
+    6  97.4%  check/check.goose:2392:21
+    5  97.6%  check/package_core.goose:236:34
+    4  97.8%  check/types.goose:2198:37
+    4  98.0%  check/capability_contracts.goose:358:36
+    4  98.2%  /home/user/goose-to-wasm/stdlib/dictionary.goose:176:12
+    3  98.4%  check/effects.goose:472:58
+    3  98.5%  check/check.goose:2480:44
+    3  98.7%  check/scheme_dependencies.goose:14:27
+    2  98.8%  eval/implementation_evidence.goose:46:41
+    2  98.9%  eval/completed_specialization_query.goose:39:89
+    2  99.0%  check/check.goose:2389:106
+    2  99.1%  check/check.goose:1340:512
+    2  99.2%  ?
+    2  99.3%  support/pooled_buffer.goose:17:59
+    1  99.3%  check/scheme_equations.goose:163:111
+    1  99.4%  check/staging_core.goose:351:74
+    1  99.4%  eval/implementation_evidence.goose:151:36
+    1  99.5%  check/capability_lifetimes.goose:115:239
+    1  99.5%  reuse/constant_receipt.goose:602:763
+    1  99.6%  check/types.goose:2041:59
+    1  99.6%  eval/purity_type_key.goose:14:35
+    1  99.7%  check/check_scheme_import.goose:214:37
+    1  99.7%  check/check.goose:2495:441
+    1  99.8%  check/capability_contracts.goose:372:109
+    1  99.8%  support/pooled_map.goose:46:99
+    1  99.9%  backend/storage_deferred_join.goose:11:34
+by file:
+  796  support/pooled_buffer.goose
+  767  support/option.goose
+  277  reuse/epoch_resolution_cache.goose
+   48  check/types.goose
+   34  check/solver_worklist.goose
+   25  check/check.goose
+   18  eval/type_evidence.goose
+   12  support/pooled_map.goose

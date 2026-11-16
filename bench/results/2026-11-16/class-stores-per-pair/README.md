@@ -75,15 +75,55 @@ Each was built and run on blot2; "ends" means the first discovery pass ended.
 | 256 typed classes a frame, and a set with more than 6 of them names the untyped class that covers them instead | 2,329 errors and 86 M alternatives when the fold widened deep reads to "anything reached"; 3,069 errors and 120.8 M when it kept the read depth. And it loses an error: the shrink check does not treat the untyped class as covering a typed one (`test/errors_tc/emptied_callee_shrink_first.goose` accepted). The source of this variant is kept as [runs/checker_lifetimes.fold-and-typed-filter.goose.txt](runs/checker_lifetimes.fold-and-typed-filter.goose.txt) |
 | at most 8 typed classes, place filter by "holds no reference" only | ends: 1,890 errors, 61.8 M alternatives, 269 s; the same 58 false errors on the self-check with every call class-keyed. Kept, with the limit made 256 below 4 M alternatives |
 
+| *(after `f4d1d02`)* no candidates for a read out of a class root | 1,566 errors. But `test/errors_tc/store_reached_table.goose` and `construct_use_bound_holder_ref.goose` are then accepted: both are upstream's tests of exactly this rule, for a destination and for a use while constructing |
+| the same, with the argument-class type filter | 1,741 errors: the count moves by a few hundred with any change to what the limits cut off |
+| candidates kept in the body and stripped from what a store stores, directly and where a call maps an argument | no change on blot2 (107 sets in 38,000 class frames had a recognizable candidate: a projection clears the mark), and `test/errors_tc/shrink_class_copy_kept_own.goose` is accepted, because the body's own shrink check needs the reference |
+| no smaller limit on typed classes under pressure, 8 GiB regions | stopped at 12.8 GiB resident, 19,000 frames in: 234 M alternatives, 48 to a set. A root per pointee type cannot be how this program gets its types |
+
 The last row against the committed one is the trade made: 291 fewer blot2 errors for 58 false errors on a program the class path can otherwise check exactly. Given point 1 above, exactness on programs where the answer is known won.
+
+## Later the same day: filtering by type where a call maps (`3ddf811`)
+
+Two more changes, qualified and pushed as `3ddf811` ([qualification](runs/qualification-3ddf811.json)), and what was learned getting to them.
+
+| | `f4d1d02` | `3ddf811` |
+| --- | --- | --- |
+| corpus, default build | | 0 of 4,355 sources differ |
+| corpus and self-check, every call class-keyed | 14 / 33 / 21 / 71, no error | the same |
+| blot2, errors of the first pass | 2,181 | 1,992 ([list](runs/blot2-diagnostics-3ddf811.txt)) |
+| blot2, frames / alternatives | 51,757 / 66.4 M | 54,307 / 68.3 M |
+| blot2, bootstrapped compiler | 278 s, 7.2 GiB | 283 s, 7.4 GiB ([run](runs/blot2-run-3ddf811.json)) |
+
+- **An argument class knows the type its parameters point at** (`LifeRoot.class_pointee`), and a read of one pointee type out of storage does not take an exact reference to an argument class whose type holds no such value. Upstream's `CanContain` decides the same for a binding root.
+- **A reference read out of a class's storage carries the pointee it was read as, and a call maps it only onto what can hold one** (`life_map_onto`): the held reference's own pointee, the root's type or the argument class's parameter type must hold the value inline. This is the typed storage classes' filter without a root per type, so it also works where a frame is past its limit of typed classes.
+
+### What upstream does, read from its source
+
+`aardappel/goose` at `d92c4315`: `FitsAt` (`typecheck_exprs.h` 1086), `ShrinkTargets` (`typecheck_builtins.h` 2898), `RootCandidates` (`typecheck_types.h` 1349).
+
+- A store through a reference that was read out of storage (an inexact root) may land in the root, **in every global that can hold the type the destination reached, and in every parameter's storage that can**, and the value must outlive each. So upstream does name other parameters and globals for a read-out reference, but as *destinations and aliases*, filtered by the reached type.
+- The *value* of a read-out reference is rooted at its container's class, inexactly; no candidate is put into it. A store event carries the pointee and the reached type, and a call re-derives the rest from its own arguments.
+- A store of something read out of a container back into that container is a permutation and records nothing.
+
+Here a read-out reference's value carries the candidates themselves, as exact references to the other argument classes (`life_class_candidates`, the default path's rule). That is what the body's alias and shrink rules use, and two of upstream's own tests need it (below). It is also what makes most of blot2's errors: see next.
+
+### Where the refused stores come from
+
+Each store effect was tagged with the statement whose evaluation first made it, through every replay ([tools/dbgorigin.py](tools/dbgorigin.py)):
+
+- **The 2,036 refused stores of that run go back to 43 statements, and five of them to 90%** ([table](runs/store-origins.txt)): the two assignments of `support/pooled_buffer.goose` that keep a buffer's slices (`buffer.storage = replacement`, `buffer.items = buffer.storage[..length]`), `self_.items = default<Entry[:]>()` in `reuse/epoch_resolution_cache.goose`, and the results of `none<T>()` and `someValue<T>()` in `support/option.goose`. A summary entry keeps the first statement that stored into its place, so these are the first stores into the places concerned, not necessarily the ones that carry the refused value.
+- **By kind** ([table](runs/store-kinds.txt)): 1,436 store an argument class of the calling function, exactly, into "something in global storage"; 207 into another argument class that holds only globals.
+- **Seen from the callee** (a run with [tools/dbgvia.py](tools/dbgvia.py), which maps each of the callee's alternatives alone; it disturbs the analysis, 1,911 refusals instead of 1,613 on the variant it was run on): the place is a storage class in 1,701 of 1,911 (untyped in 1,103), and the alternative that becomes the refused source is the callee's own argument class in 591, which is a reference the caller passed that carried a candidate with it.
+
+So the pattern is: a function reads a reference out of its parameter and passes it on; the argument is the storage class *and* an exact candidate; a class of two alternatives is one class in the callee; everything the callee stores of that parameter maps back to both, and the candidate is the caller's own parameter, exactly. The pooled-buffer stores are simply the most common stores there are.
 
 ## Not right yet
 
-- **blot2's 2,181 errors**, as described above.
+- **blot2's 1,992 errors** (`3ddf811`), as described above. The next step is to stop a read-out reference's value carrying its candidates: let the alias, shrink and destination rules name them from the types when they ask (as upstream's `RootCandidates` does), so that an argument that was read out of a parameter is one alternative and its class a plain renaming.
 - **The 33 corpus sources where the class path misses an error**, unchanged.
-- **Memory.** 66.4 M alternatives of 79.5 M after one pass; later passes and validation have not run. The 2 GiB is `GS_STACK_RESERVE`, the address space the runtime reserves per region, and a C compiler flag raises it (the 8 GiB runs above). Upstream's compiler has `--stack-reserve` for this; this compiler's driver does not have the option yet.
-- **Peak RSS is 7.2 GiB** for the one pass.
+- **Memory.** 68.3 M alternatives of 79.5 M after one pass; later passes and validation have not run. The 2 GiB is `GS_STACK_RESERVE`, the address space the runtime reserves per region, and a C compiler flag raises it (the 8 GiB runs above). Upstream's compiler has `--stack-reserve` for this; this compiler's driver does not have the option yet.
+- **Peak RSS is 7.4 GiB** for the one pass.
 
 ## Tools
 
-In [tools/](tools/), beside those of the earlier page: `corpus0.sh` builds a source directory with the state fingerprints at the default limit and at 0 and compares both with a baseline over the corpus; `catsum.py` counts the differing diagnostics; `variant.sh` builds the every-call-class-keyed compiler with one edit applied, for bisecting; `gdbhook.py`, `gdbcmds.txt` and `gdbstacks.py` sample the call stack of one in 2,503 new sets under gdb and aggregate them; `dbgstore2.py` describes refused stores and `dbgpool.py` what first stores a reference into one named global; `setsites.py` and `bigsets.py` are updated for the current source.
+In [tools/](tools/), beside those of the earlier page: `corpus0.sh` builds a source directory with the state fingerprints at the default limit and at 0 and compares both with a baseline over the corpus; `catsum.py` counts the differing diagnostics; `variant.sh` builds the every-call-class-keyed compiler with one edit applied, for bisecting; `gdbhook.py`, `gdbcmds.txt` and `gdbstacks.py` sample the call stack of one in 2,503 new sets under gdb and aggregate them; `dbgstore2.py` describes refused stores and `dbgpool.py` what first stores a reference into one named global; `setsites.py` and `bigsets.py` are updated for the current source; `dbgorigin.py` tags each store with the statement that first made it and `origins.py` counts refused stores by it; `dbgvia.py` and `viacats.py` say which of the callee's alternatives became the refused source and the destination; `storecats.py` counts refused stores by kind.

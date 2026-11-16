@@ -40,7 +40,7 @@ fn dbg_store(p: Program&, l: Lifetimes&, kind: i64, node: i64, source: LifeAlt, 
     for failure in l.failures { if failure.node == node { return; } }
     while dbg_kinds.len < 4 { dbg_kinds.push(0); }
     dbg_kinds[kind] += 1;
-    if (dbg_kinds[0] + dbg_kinds[1] + dbg_kinds[2]) % EVERY != 1 { return; }
+    if (dbg_kinds[0] + dbg_kinds[1] + dbg_kinds[2] - 1) % EVERY != 0 { return; }
     var o: u8[>..] = []; o.append("DBGSTORE kind="); dbg_d(o, kind); o.append(" at="); dbg_at(p, o, node);
     o.append(" frame="); dbg_d(o, l.frame); o.append(" fn="); if l.frame > 0 { dbg_at(p, o, l.frames[l.frame].function_node); }
     o.append(" island="); dbg_d(o, l.island);
