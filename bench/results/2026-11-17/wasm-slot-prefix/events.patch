@@ -1,0 +1,45 @@
+--- a/selfhost/wasm.goose
++++ b/selfhost/wasm.goose
+@@ -0,0 +1,2 @@
++import std;
++
+@@ -256 +258,7 @@
+-    var slot_type: i64[>..] = []; var slot_free: i64[>..] = []; var slot_of: i64[>..] = []; slot_of.resize(total, -1);
++    var slot_type: i64[>..] = []; var slot_of: i64[>..] = []; slot_of.resize(total, -1);
++    // A slot becomes available immediately after its previous span ends.
++    var release: i64[>..] = []; release.resize(instructions.len + 1, 0);
++    var release_next: i64[>..] = [];
++    // Each chunk records 64 slot indices for every local value type byte.
++    var masks: u64[>..] = [];
++    var available: i64[128];
+@@ -257,0 +266,7 @@
++        var ended = release[position] - 1;
++        while ended >= 0 {
++            let kind = slot_type[ended];
++            masks[(ended >> 6) * 128 + kind] |= (1 as u64) << (ended & 63);
++            available[kind]++;
++            ended = release_next[ended] - 1;
++        }
+@@ -260,4 +275,18 @@
+-            let kind = locals[member - params]; var chosen = -1;
+-            for free, slot in slot_free { if free < position && slot_type[slot] == kind { chosen = slot; break; } }
+-            if chosen < 0 { chosen = slot_type.len; slot_type.push(kind); slot_free.push(-1); }
+-            slot_free[chosen] = last[member]; slot_of[member] = chosen; member = next[member];
++            let kind = locals[member - params];
++            var chosen = slot_type.len;
++            if available[kind] != 0 {
++                var word = kind;
++                while masks[word] == 0 { word += 128; }
++                chosen = (word >> 7) * 64 + ctz(masks[word]);
++                masks[word] &= masks[word] - 1;
++                available[kind]--;
++            } else {
++                if (chosen & 63) == 0 { masks.resize(masks.len + 128, 0); }
++                slot_type.push(kind);
++                release_next.push(0);
++            }
++            let end = last[member] + 1;
++            release_next[chosen] = release[end];
++            release[end] = chosen + 1;
++            slot_of[member] = chosen;
++            member = next[member];

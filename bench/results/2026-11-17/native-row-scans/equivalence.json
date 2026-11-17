@@ -1,0 +1,164 @@
+{
+  "combined_compiler_sha256": "6dc908de22b44263c36c7f8b31b6c44047df1e126cf465a71ee527116e7f1030",
+  "runtime_only_compiler_sha256": "e7807a460611e43bb9007717af6c347d312228d236c170daa796ac80edfef894",
+  "compared": 10049,
+  "changed": 26,
+  "matches": [
+    {
+      "source": "tests/fixtures/contracts/native-relative-runs/row-map.goose",
+      "mode": "native0",
+      "baseline_c_sha256": "d617e34c6498d8b5e1c270eca48e364ecf58ea397ccf68c9dba0070e9d98984f",
+      "combined_and_isolated_c_sha256": "82236b4ed184de7143c07a93dc6eb6f383063c493e8b7e15462e4cecd4ac0043"
+    },
+    {
+      "source": "tests/fixtures/contracts/native-relative-runs/row-map.goose",
+      "mode": "native2",
+      "baseline_c_sha256": "d2d9709af34542d7ded17a0587717783304da337069990f6b0768b0200697141",
+      "combined_and_isolated_c_sha256": "b4ac867e44eda6672fa89c79f4356c67bdefa92ae6ea775af1f517707038ecd6"
+    },
+    {
+      "source": "tests/fixtures/contracts/native-relative-runs/row-push-growth.goose",
+      "mode": "native0",
+      "baseline_c_sha256": "ae899f0c4a62f4fef1c6b6e4769e3e91ba7dbf54fdc3c798688e4f41e0f7ce87",
+      "combined_and_isolated_c_sha256": "2eb1de53e30ef42eb432ce6f4585a99be3d00c8fdadd43778457feb97e61fe2b"
+    },
+    {
+      "source": "tests/fixtures/contracts/native-relative-runs/row-push-growth.goose",
+      "mode": "native2",
+      "baseline_c_sha256": "ae899f0c4a62f4fef1c6b6e4769e3e91ba7dbf54fdc3c798688e4f41e0f7ce87",
+      "combined_and_isolated_c_sha256": "2eb1de53e30ef42eb432ce6f4585a99be3d00c8fdadd43778457feb97e61fe2b"
+    },
+    {
+      "source": "tests/fixtures/contracts/native-relative-runs/run-parameter-replace.goose",
+      "mode": "native0",
+      "baseline_c_sha256": "c6370096af5a069c06ba9d49bc0f436d788364a1eb10df34bef4896f1e4f6171",
+      "combined_and_isolated_c_sha256": "3cdc802b61458454151de5faa88383f76e10005c1fc04abbdeaca5d767bc1f64"
+    },
+    {
+      "source": "tests/fixtures/contracts/native-relative-runs/run-parameter-replace.goose",
+      "mode": "native2",
+      "baseline_c_sha256": "9c73123b30417994f5033a579b4c59c811e0e1157b80077f4f7522abfcbb6992",
+      "combined_and_isolated_c_sha256": "de736bb553e7b5bbb2536c8125c7ac30d0584321e7de8e1847fc363e2ad8a06c"
+    },
+    {
+      "source": "tests/fixtures/contracts/native-relative-runs/run-param-alias-call.goose",
+      "mode": "native0",
+      "baseline_c_sha256": "ade0a13d7f54136a2bc3828a8f78bef6f95af9480591af9cde2c46ea0c15f71a",
+      "combined_and_isolated_c_sha256": "902f9f7ae7fb6a2dc8497bc60adc168272cf758425cf6740b9ea3226eb594192"
+    },
+    {
+      "source": "tests/fixtures/contracts/native-relative-runs/run-param-alias-call.goose",
+      "mode": "native2",
+      "baseline_c_sha256": "a60b3ce51dd207c4d861cafd55367ee58d57f4b7d3834e18ec8edfbe18fcfa26",
+      "combined_and_isolated_c_sha256": "c7555bb95ad56c921f8efb3f1313f3bcab28be515ba10a6f8e358259026d57fd"
+    },
+    {
+      "source": "tests/fixtures/contracts/native-relative-runs/run-borrow-mutate.goose",
+      "mode": "native0",
+      "baseline_c_sha256": "b12be34b2af65652a252a6bafc3656aa087157835cc69797a8aceb7b9f27d4f1",
+      "combined_and_isolated_c_sha256": "e4332949ef428ba6a58c5e9946306028edc383c09c6935bcdbcf6053d32817f0"
+    },
+    {
+      "source": "tests/fixtures/contracts/native-relative-runs/run-borrow-mutate.goose",
+      "mode": "native2",
+      "baseline_c_sha256": "b12be34b2af65652a252a6bafc3656aa087157835cc69797a8aceb7b9f27d4f1",
+      "combined_and_isolated_c_sha256": "e4332949ef428ba6a58c5e9946306028edc383c09c6935bcdbcf6053d32817f0"
+    },
+    {
+      "source": "tests/fixtures/contracts/native-relative-runs/run-varint-padding.goose",
+      "mode": "native0",
+      "baseline_c_sha256": "8a5972e752e3863c04515439606d3f0120febde749bac1c6b50fe2917e1be9a7",
+      "combined_and_isolated_c_sha256": "7de3940cc563493932e40daf01ca65790be616c375a62b0c42a8dd6e4adeb93e"
+    },
+    {
+      "source": "tests/fixtures/contracts/native-relative-runs/run-varint-padding.goose",
+      "mode": "native2",
+      "baseline_c_sha256": "8a5972e752e3863c04515439606d3f0120febde749bac1c6b50fe2917e1be9a7",
+      "combined_and_isolated_c_sha256": "7de3940cc563493932e40daf01ca65790be616c375a62b0c42a8dd6e4adeb93e"
+    },
+    {
+      "source": "tests/fixtures/contracts/native-relative-runs/optional-param.goose",
+      "mode": "native0",
+      "baseline_c_sha256": "e46d7ca33a936d04abf861e08083775f1fd233c91d1af908ea8023baa8f57719",
+      "combined_and_isolated_c_sha256": "989a3fa1175a2adfd4d20a5b535a347d004ee7db713e189ebff83173ff901d92"
+    },
+    {
+      "source": "tests/fixtures/contracts/native-relative-runs/optional-param.goose",
+      "mode": "native2",
+      "baseline_c_sha256": "0a1a3c04b8a24c819e159d73a3515367170efdb4998b5b2728602590d8edd82d",
+      "combined_and_isolated_c_sha256": "e8a472487a7beaa6e51e390dffd5867f41e82540275427522806aaad49855573"
+    },
+    {
+      "source": "tests/fixtures/contracts/native-relative-runs/foreach-append-exits.goose",
+      "mode": "native0",
+      "baseline_c_sha256": "3c5337edb3612cfb8c10d59807e743385b5dc1b182be0066c1df8c82efa0e063",
+      "combined_and_isolated_c_sha256": "6194ef345211b83dadeaad2e1d7463cd914afaf8195832140353b916671436fc"
+    },
+    {
+      "source": "tests/fixtures/contracts/native-relative-runs/foreach-append-exits.goose",
+      "mode": "native2",
+      "baseline_c_sha256": "3c5337edb3612cfb8c10d59807e743385b5dc1b182be0066c1df8c82efa0e063",
+      "combined_and_isolated_c_sha256": "6194ef345211b83dadeaad2e1d7463cd914afaf8195832140353b916671436fc"
+    },
+    {
+      "source": "tests/fixtures/contracts/native-relative-runs/row-branch-return.goose",
+      "mode": "native0",
+      "baseline_c_sha256": "5e48a3d6a778c772ab9274748994bf1bc08c615be48b3cb9ba4ea68423b49aae",
+      "combined_and_isolated_c_sha256": "b9310ceaf2f953e8e41abb07b72785efdd0bc30c0a352ce2c166405dd5582620"
+    },
+    {
+      "source": "tests/fixtures/contracts/native-relative-runs/row-branch-return.goose",
+      "mode": "native2",
+      "baseline_c_sha256": "00727fcec76d58d8d051b198e85eb08e53f1c0ac6482c70077fadc6fd55baf0f",
+      "combined_and_isolated_c_sha256": "aa2e834f48f21feecffef5847b03a2ec570c0d4af25b69594812f7aaca1739c4"
+    },
+    {
+      "source": "tests/fixtures/contracts/native-relative-runs/ordinary-row-return.goose",
+      "mode": "native0",
+      "baseline_c_sha256": "99bcc4afd001342b365863233eb80b16c1d68964a05818a3e95ac5089f762b7d",
+      "combined_and_isolated_c_sha256": "85fb499a6abcd8a645cd33d9fa1a7034dde58a5c9337fe5a1a5ca222ea8a34af"
+    },
+    {
+      "source": "tests/fixtures/contracts/native-relative-runs/ordinary-row-return.goose",
+      "mode": "native2",
+      "baseline_c_sha256": "3ce5e73a8441a15a31c784388ff6bf937f771044a75fe3da25503e0750afe6df",
+      "combined_and_isolated_c_sha256": "0cdeb9764442b0410288137965fbadb3841ee07db0378a111110eff19ffeed44"
+    },
+    {
+      "source": "tests/fixtures/contracts/native-relative-runs/unused-null-nonlocal.goose",
+      "mode": "native0",
+      "baseline_c_sha256": "d90407d3e1a3964cf0e75dce4091d462e1ae6b7f91d04a47786012d30b574e98",
+      "combined_and_isolated_c_sha256": "5c6593c20d0fbc3d05f06a7c04e25b89923325e172c38dfc90bdcba5f1aa0598"
+    },
+    {
+      "source": "tests/fixtures/contracts/native-relative-runs/unused-null-nonlocal.goose",
+      "mode": "native2",
+      "baseline_c_sha256": "6f3aec6b55933abc90ad75f2e8f8f5dfe8712c645529301bb051ae3df3be437c",
+      "combined_and_isolated_c_sha256": "9e5243ac68e5b72394ccb0ccbcd250b348c855e4aba29919c2b6ffd98654ed22"
+    },
+    {
+      "source": "tests/fixtures/contracts/native-multi-interaction-v2/multi-row-fields.goose",
+      "mode": "native0",
+      "baseline_c_sha256": "03f04384883e2e0e3290c60d94101d4b3a89bbbdfff3225a6c7f39aaf9581bfc",
+      "combined_and_isolated_c_sha256": "1a9e82643aab1493a87d9d07ea66e5b0b9eb6195b4b06c25f74bb42eebee6766"
+    },
+    {
+      "source": "tests/fixtures/contracts/native-multi-interaction-v2/multi-row-fields.goose",
+      "mode": "native2",
+      "baseline_c_sha256": "7d66282c4545f68721711313030a7ec0579c3c34c52ca40f5056c61ca60c0864",
+      "combined_and_isolated_c_sha256": "9b1b38b9da883a6ea4f05f371451133408ec26c0ae56253b38c3a0fd5d8b593d"
+    },
+    {
+      "source": "tests/fixtures/contracts/native-multi-interaction-v2/multi-before-root-replace.goose",
+      "mode": "native0",
+      "baseline_c_sha256": "1b5b1d52ba23a06f5ef795e6066fd7701c71c55287dc161f1d1889a7ab8c6ce1",
+      "combined_and_isolated_c_sha256": "2b521961bac624a30fe0165a91858698d584250527f80aaf1f6b7109e47fc189"
+    },
+    {
+      "source": "tests/fixtures/contracts/native-multi-interaction-v2/multi-before-root-replace.goose",
+      "mode": "native2",
+      "baseline_c_sha256": "e618b1440a82652b150fbaa817c988ab16a7ba3d8b2f56d68a5904cb33d2b864",
+      "combined_and_isolated_c_sha256": "f21c7356858c4428b7407029c733470db48d23b406180a85853a05a5c889476a"
+    }
+  ]
+}

@@ -1,0 +1,158 @@
+{
+  "c_sha256": "9be3e59d9e7cb68e5d6312c5f6dace2452570968bd4e05afaf2a4a4cc340ff75",
+  "elf_sha256": "3601e8e2c78aefc746f2666d7205c357c5ce8833708478b8c4ee828130476864",
+  "seconds": 58.039810629001295,
+  "cpus": [
+    5,
+    7
+  ],
+  "commands": [
+    {
+      "argv": [
+        "clang-23",
+        "-std=gnu11",
+        "-O2",
+        "-DG_RUNTIME_UNIT",
+        "-c",
+        "runtime.c",
+        "-o",
+        "runtime.o"
+      ],
+      "seconds": 0.5034929339963128
+    },
+    {
+      "argv": [
+        "clang-23",
+        "-std=gnu11",
+        "-O2",
+        "-DG_UNITS=8",
+        "-DG_UNIT=0",
+        "-c",
+        "goose.c",
+        "-o",
+        "unit0.o"
+      ],
+      "seconds": 11.662462116000825
+    },
+    {
+      "argv": [
+        "clang-23",
+        "-std=gnu11",
+        "-O2",
+        "-DG_UNITS=8",
+        "-DG_UNIT=1",
+        "-c",
+        "goose.c",
+        "-o",
+        "unit1.o"
+      ],
+      "seconds": 13.178104815997358
+    },
+    {
+      "argv": [
+        "clang-23",
+        "-std=gnu11",
+        "-O2",
+        "-DG_UNITS=8",
+        "-DG_UNIT=2",
+        "-c",
+        "goose.c",
+        "-o",
+        "unit2.o"
+      ],
+      "seconds": 14.653202747998876
+    },
+    {
+      "argv": [
+        "clang-23",
+        "-std=gnu11",
+        "-O2",
+        "-DG_UNITS=8",
+        "-DG_UNIT=3",
+        "-c",
+        "goose.c",
+        "-o",
+        "unit3.o"
+      ],
+      "seconds": 14.99743986500107
+    },
+    {
+      "argv": [
+        "clang-23",
+        "-std=gnu11",
+        "-O2",
+        "-DG_UNITS=8",
+        "-DG_UNIT=4",
+        "-c",
+        "goose.c",
+        "-o",
+        "unit4.o"
+      ],
+      "seconds": 13.449151738001092
+    },
+    {
+      "argv": [
+        "clang-23",
+        "-std=gnu11",
+        "-O2",
+        "-DG_UNITS=8",
+        "-DG_UNIT=5",
+        "-c",
+        "goose.c",
+        "-o",
+        "unit5.o"
+      ],
+      "seconds": 13.413444118996267
+    },
+    {
+      "argv": [
+        "clang-23",
+        "-std=gnu11",
+        "-O2",
+        "-DG_UNITS=8",
+        "-DG_UNIT=6",
+        "-c",
+        "goose.c",
+        "-o",
+        "unit6.o"
+      ],
+      "seconds": 16.992039251999813
+    },
+    {
+      "argv": [
+        "clang-23",
+        "-std=gnu11",
+        "-O2",
+        "-DG_UNITS=8",
+        "-DG_UNIT=7",
+        "-c",
+        "goose.c",
+        "-o",
+        "unit7.o"
+      ],
+      "seconds": 15.848950351995882
+    },
+    {
+      "argv": [
+        "clang-23",
+        "-std=gnu11",
+        "-O2",
+        "runtime.o",
+        "unit0.o",
+        "unit1.o",
+        "unit2.o",
+        "unit3.o",
+        "unit4.o",
+        "unit5.o",
+        "unit6.o",
+        "unit7.o",
+        "-lm",
+        "-ldl",
+        "-pthread",
+        "-o",
+        "goose"
+      ],
+      "seconds": 0.06359846299892524
+    }
+  ]
+}

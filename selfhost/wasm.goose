@@ -254,12 +254,28 @@ fn wb_reuse_locals(locals: i64[>..]&, code: u8[>..]&, params: i64) {
     var local = total - 1;
     while local >= params { if first[local] >= 0 { next[local] = head[first[local]]; head[first[local]] = local; } local--; }
     var slot_type: i64[>..] = []; var slot_free: i64[>..] = []; var slot_of: i64[>..] = []; slot_of.resize(total, -1);
+    // A skipped prefix contains only busy slots of this type and slots of
+    // other types. It stays skippable until its first same-type span ends.
+    var prefix_len: i64[128] = [0; 128];
+    var prefix_end: i64[128] = [0; 128];
     for position in 0..instructions.len {
         var member = head[position];
         while member >= 0 {
-            let kind = locals[member - params]; var chosen = -1;
-            for free, slot in slot_free { if free < position && slot_type[slot] == kind { chosen = slot; break; } }
-            if chosen < 0 { chosen = slot_type.len; slot_type.push(kind); slot_free.push(-1); }
+            let kind = locals[member - params];
+            var chosen = prefix_len[kind];
+            var until = prefix_end[kind];
+            if until < position { chosen = 0; until = instructions.len; }
+            while chosen < slot_free.len {
+                if slot_type[chosen] == kind {
+                    let end = slot_free[chosen];
+                    if end < position { break; }
+                    if end < until { until = end; }
+                }
+                chosen++;
+            }
+            prefix_len[kind] = chosen;
+            prefix_end[kind] = until;
+            if chosen == slot_type.len { slot_type.push(kind); slot_free.push(-1); }
             slot_free[chosen] = last[member]; slot_of[member] = chosen; member = next[member];
         }
     }

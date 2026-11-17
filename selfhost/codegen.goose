@@ -2099,7 +2099,7 @@ recursive fn cg_emit_sequence(p: Program&, m: CgModule&, f: CgBody&, recipe: i64
 }
 // Only private numeric locals may be written between visits to the encoded
 // elements. Calls, indirect stores and rebindings need a fresh prefix walk.
-recursive fn cg_stable_varint_body(p: Program&, function: i64, node: i64) -> bool {
+recursive fn cg_stable_scan_body(p: Program&, function: i64, node: i64, row_fields: bool = false) -> bool {
     if node < 0 { return true; }
     let n = p.nodes[node];
     if n.kind == N_NAME || n.kind == N_INTEGER || n.kind == N_FLOAT || n.kind == N_BOOL { return true; }
@@ -2110,13 +2110,16 @@ recursive fn cg_stable_varint_body(p: Program&, function: i64, node: i64) -> boo
         let stored = p.symbols[symbol];
         if stored.owner != function || (stored.flags & (S_CAPTURE | S_GLOBAL)) != 0 || !cg_scalar_slot_type(p, stored.type_id) { return false; }
         if n.first >= 0 { return false; }
-        return cg_stable_varint_body(p, function, n.right);
+        return cg_stable_scan_body(p, function, n.right, row_fields);
     }
-    if n.kind == N_CAST { return cg_stable_varint_body(p, function, n.left); }
+    if row_fields && n.kind == N_MEMBER && n.symbol >= 0 && n.symbol < p.nodes.len && p.nodes[n.symbol].kind == N_FIELD {
+        return cg_stable_scan_body(p, function, n.left, row_fields);
+    }
+    if n.kind == N_CAST { return cg_stable_scan_body(p, function, n.left, row_fields); }
     if n.kind != N_BLOCK && n.kind != N_BINARY && n.kind != N_UNARY && n.kind != N_IF &&
        n.kind != N_BREAK && n.kind != N_CONTINUE && n.kind != N_EXPR_STMT { return false; }
-    if !cg_stable_varint_body(p, function, n.left) || !cg_stable_varint_body(p, function, n.right) || !cg_stable_varint_body(p, function, n.third) { return false; }
-    var child = n.first; while child >= 0 { if !cg_stable_varint_body(p, function, child) { return false; } child = p.nodes[child].next; }
+    if !cg_stable_scan_body(p, function, n.left, row_fields) || !cg_stable_scan_body(p, function, n.right, row_fields) || !cg_stable_scan_body(p, function, n.third, row_fields) { return false; }
+    var child = n.first; while child >= 0 { if !cg_stable_scan_body(p, function, child, row_fields) { return false; } child = p.nodes[child].next; }
     return true;
 }
 fn cg_varint_cursor(p: Program&, function: i64, node: i64) -> bool {
@@ -2130,10 +2133,10 @@ fn cg_varint_cursor(p: Program&, function: i64, node: i64) -> bool {
     let body = p.nodes[function].right; if body < 0 { return false; }
     var statement = p.nodes[body].first;
     while statement >= 0 && statement != node {
-        if !cg_stable_varint_body(p, function, statement) { return false; }
+        if !cg_stable_scan_body(p, function, statement) { return false; }
         statement = p.nodes[statement].next;
     }
-    return statement == node && cg_stable_varint_body(p, function, loop_node.right);
+    return statement == node && cg_stable_scan_body(p, function, loop_node.right);
 }
 recursive fn cg_for(p: Program&, m: CgModule&, f: CgBody&, node: i64) {
     let n = p.nodes[node]; let iterable = p.nodes[n.left]; var type_id = iterable.type_id;

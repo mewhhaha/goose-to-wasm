@@ -32,7 +32,7 @@ class BootstrapOptimizationTests(unittest.TestCase):
     def stage(self, seed_level, requested=None, verify=False, converge=False, seed_only=False,
               profile=None, version='clang version 21.1.0', fail_profile=False, changed=False, canonical_seed=False,
               jobs=None, cache=None, dependencies=('sources/main.goose', 'stdlib/base.goose', 'native/runtime.h'),
-              library_asset=b''):
+              library_asset=b'', reused=None, failure=None):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             source = root / 'selfhost'; source.mkdir()
@@ -169,10 +169,25 @@ class BootstrapOptimizationTests(unittest.TestCase):
                 args += ['--jobs', str(jobs)]
             if cache:
                 args += ['--cache-dir', str(cache)]
+            if reused is not None:
+                compiler = root / 'prior-goose'
+                compiler.write_bytes(b'prior verified binary')
+                compiler.chmod(0o755)
+                receipt = root / 'toolchain.json'
+                metadata = dict(schema='goose-toolchain-v2', implementation='goose', fixed_point=True,
+                                compiler=str(compiler), compiler_sha256=sha(compiler.read_bytes()))
+                metadata.update(reused)
+                receipt.write_text(json.dumps(metadata))
+                args += ['--reuse-toolchain', str(receipt)]
             self.compiles = commands
-            with patch.object(sys, 'argv', args), patch.object(module.subprocess, 'run', run), contextlib.redirect_stdout(io.StringIO()):
-                self.assertEqual(module.main(), 0)
+            with (patch.object(sys, 'argv', args), patch.object(module.subprocess, 'run', run),
+                  contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(io.StringIO())):
+                self.assertEqual(module.main(), int(failure is not None))
             report = json.loads((output / 'report.json').read_text())
+            if failure:
+                self.assertIn(failure, report['error'])
+                self.assertEqual(emissions, [])
+                return report, emissions
             self.assertEqual(report['status'], 'passed')
             self.assertEqual(report['input_sha256'], report['input_sha256_after'])
             for command in commands:
@@ -325,6 +340,23 @@ class BootstrapOptimizationTests(unittest.TestCase):
         self.assertEqual(len(report['builds']), 1)
         self.assertTrue(report['fixed_point'])
 
+    def test_reused_toolchain_checks_current_sources_and_records_both_anchors(self):
+        report, emissions = self.stage(2, canonical_seed=True, profile={}, reused={})
+        reused = report['reused_toolchain']
+        self.assertEqual(report['input_sha256'][reused['receipt']], reused['receipt_sha256'])
+        self.assertEqual(report['input_sha256'][reused['compiler']], reused['compiler_sha256'])
+        self.assertTrue(any(path.endswith('seed.c.gz') for path in report['input_sha256']))
+        self.assertNotIn('build-seed', report['builds'])
+        self.assertTrue(report['profile_used'])
+        self.assertTrue(report['fixed_point'])
+        self.assertEqual([Path(argv[0]).name for argv in emissions], ['seed', 'goose'])
+
+    def test_reused_toolchain_rejects_unverified_and_mismatched_compilers(self):
+        for metadata, failure in [({'fixed_point': False}, 'requires a verified'),
+                                  ({'compiler_sha256': 'different'}, 'compiler checksum differs')]:
+            with self.subTest(metadata=metadata):
+                self.stage(2, reused=metadata, failure=failure)
+
     def test_invalid_or_missing_sidecars_fall_back(self):
         for profile, reason in [('missing-data', 'data absent'),
                                 ('invalid-json', 'invalid profile metadata'),
@@ -385,12 +417,16 @@ class BootstrapOptimizationTests(unittest.TestCase):
                          ['build-seed-profile', 'build-seed'])
 
     def test_installer_forwards_level_and_records_actual_report(self):
-        for requested, report_level in [(None, 2), (0, 0), (1, 1), (None, None)]:
-            with self.subTest(requested=requested, report_level=report_level), tempfile.TemporaryDirectory() as directory:
+        cases = [(None, 2, False), (0, 0, False), (1, 1, False), (None, None, False), (2, 2, True)]
+        for requested, report_level, reuse_toolchain in cases:
+            with (self.subTest(requested=requested, report_level=report_level, reuse_toolchain=reuse_toolchain),
+                  tempfile.TemporaryDirectory() as directory):
                 root = Path(directory); library = root / 'stdlib'; library.mkdir()
                 (library / 'base.goose').write_text('// stdlib\n')
                 build = root / 'build'; module = load('scripts/bootstrap.py'); module.ROOT = root
                 captured = []
+                receipt = root / 'prior' / 'toolchain.json'
+                reused = {'receipt': str(receipt), 'compiler_sha256': 'prior compiler hash'}
 
                 def run(argv, **kwargs):
                     captured.append(argv)
@@ -402,12 +438,16 @@ class BootstrapOptimizationTests(unittest.TestCase):
                                   executable_build={'profile_used': True, 'profile_sha256': 'actual profile'})
                     if report_level is not None:
                         report['goose_optimization'] = report_level
+                    if reuse_toolchain:
+                        report['reused_toolchain'] = reused
                     (stage / 'report.json').write_text(json.dumps(report))
                     return subprocess.CompletedProcess(argv, 0)
 
                 args = ['bootstrap', '--build-dir', str(build)]
                 if requested is not None:
                     args += ['--optimization', str(requested)]
+                if reuse_toolchain:
+                    args += ['--reuse-toolchain', str(receipt)]
                 with patch.object(sys, 'argv', args), patch.object(module.subprocess, 'run', run), contextlib.redirect_stdout(io.StringIO()):
                     self.assertEqual(module.main(), 0)
                 expected = requested
@@ -418,6 +458,9 @@ class BootstrapOptimizationTests(unittest.TestCase):
                 if expected_metadata is None:
                     expected_metadata = 0
                 metadata = json.loads((build / 'toolchain.json').read_text())
+                if reuse_toolchain:
+                    self.assertEqual(captured[0][captured[0].index('--reuse-toolchain') + 1], str(receipt))
+                    self.assertEqual(metadata['reused_toolchain'], reused)
                 self.assertEqual(metadata['goose_optimization'], expected_metadata)
                 self.assertTrue(metadata['profile_used'])
                 self.assertEqual(metadata['executable_c_sha256'], 'actual C')

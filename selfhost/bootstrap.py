@@ -46,6 +46,27 @@ def staged_dependencies(manifest, inputs):
     return 'sources/main.goose' in loaded and loaded.items() <= inputs.items()
 
 
+def reuse_toolchain(path, staged):
+    receipt = path.resolve()
+    data = receipt.read_bytes()
+    metadata = json.loads(data)
+    if (not isinstance(metadata, dict) or metadata.get('schema') != 'goose-toolchain-v2'
+            or metadata.get('implementation') != 'goose' or metadata.get('fixed_point') is not True):
+        raise RuntimeError('reused toolchain requires a verified Goose toolchain receipt')
+    compiler_path = metadata.get('compiler')
+    if not isinstance(compiler_path, str) or not Path(compiler_path).is_absolute():
+        raise RuntimeError('reused toolchain receipt has no absolute compiler path')
+    compiler = Path(compiler_path)
+    shutil.copy2(compiler, staged)
+    checksum = digest(staged)
+    if checksum != metadata.get('compiler_sha256'):
+        raise RuntimeError('reused toolchain compiler checksum differs')
+    if not os.access(staged, os.X_OK):
+        raise RuntimeError('reused toolchain compiler is not executable')
+    return {'receipt': str(receipt), 'receipt_sha256': hashlib.sha256(data).hexdigest(),
+            'compiler': str(compiler), 'compiler_sha256': checksum}
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--source-dir', type=Path, default=ROOT / 'selfhost')
@@ -58,6 +79,8 @@ def main():
                         help='Goose optimization level for compiler emission (default: 2)')
     parser.add_argument('--verify', action='store_true', help='require identical next-generation C output')
     parser.add_argument('--seed-only', action='store_true', help='build the frozen seed, without compiling current sources')
+    parser.add_argument('--reuse-toolchain', type=Path,
+                        help='start from a local verified toolchain.json and verify the new build')
     parser.add_argument('--timeout', type=float, default=900)
     parser.add_argument('--cache-dir', type=Path,
                         help='reuse native builds and closed seed emissions for identical inputs')
@@ -67,6 +90,8 @@ def main():
     args = parser.parse_args()
     if args.jobs < 1:
         parser.error('--jobs must be at least 1')
+    if args.seed_only and args.reuse_toolchain:
+        parser.error('--seed-only and --reuse-toolchain cannot be combined')
     out = args.output_dir.resolve()
     out.mkdir(parents=True, exist_ok=False)
     report = {'schema': 'goose-bootstrap-v2', 'status': 'running', 'commands': [],
@@ -269,7 +294,13 @@ def main():
             return row
 
         seed_executable = out / 'seed'
-        actual_build = build(c_source, seed_executable, 'build-seed', pin.get('goose_optimization', 0))
+        if args.reuse_toolchain:
+            reused = reuse_toolchain(args.reuse_toolchain, seed_executable)
+            report['reused_toolchain'] = reused
+            report['input_sha256'].update({reused['receipt']: reused['receipt_sha256'],
+                                           reused['compiler']: reused['compiler_sha256']})
+        else:
+            actual_build = build(c_source, seed_executable, 'build-seed', pin.get('goose_optimization', 0))
         executable = out / 'goose'
         if args.seed_only:
             shutil.copyfile(seed_executable, executable)
@@ -312,7 +343,8 @@ def main():
                             seed_library[member.name.removeprefix('stdlib/')] = hashlib.sha256(data).hexdigest()
             generated = out / 'compiler.c'
             invocation = ['sources/main.goose', '--stdlib', 'stdlib', '--target', 'native', f'-O{args.optimization}']
-            if (source_hashes == pin['source_sha256'] and report['stdlib_sha256'] == seed_library and
+            if (args.reuse_toolchain is None and source_hashes == pin['source_sha256'] and
+                    report['stdlib_sha256'] == seed_library and
                     assets == pin.get('asset_sha256', {}) and
                     pin.get('goose_optimization', 0) == args.optimization):
                 shutil.copyfile(c_source, generated)
@@ -326,7 +358,7 @@ def main():
                 actual_build = build(generated, executable, 'build-goose', args.optimization)
             report['generated_c_sha256'] = digest(generated)
             report['executable_c_sha256'] = digest(generated)
-            if args.verify:
+            if args.verify or args.reuse_toolchain:
                 following = out / 'next-generation.c'
                 command([executable, *invocation, '-o', following], 'verify-selfhost')
                 report['next_generation_c_sha256'] = digest(following)

@@ -564,9 +564,9 @@ inline fn life_leaf_offered(l: Lifetimes&, leaf: i64) -> bool {
     return l.class_frames == 0 && (stamp >> 32) > f.activation && f.chain >= l.leaf_floors[leaf] as i64;
 }
 // The current activation has offered the read with these places.
-fn life_leaf_stamp(l: Lifetimes&, leaf: i64, offered: const LifeEffect&) {
-    let f: const LifeFrame& = l.frames[l.frame]; let reach = life_effect_far(l, offered);
-    var floor: i64 = 1; if reach.far != 9223372036854775807 { floor = f.chain - reach.far + 1; }
+fn life_leaf_stamp(l: Lifetimes&, leaf: i64, far: i64) {
+    let f: const LifeFrame& = l.frames[l.frame];
+    var floor: i64 = 1; if far != 9223372036854775807 { floor = f.chain - far + 1; }
     if floor > 2147483647 { return; }
     l.leaf_stamps[leaf] = f.activation * 4294967296 + l.recursion_epoch; l.leaf_floors[leaf] = floor as i32;
 }
@@ -798,7 +798,7 @@ fn life_read_merge(l: Lifetimes&, frame: i64, leaf: i64, key: i64, outside: bool
 // life_effect for a construct read in discovery while summaries hold their
 // reads by leaf: the same walk up the chain, each frame that takes the
 // effect as external taking it in its reads.
-fn life_read_offer(l: Lifetimes&, leaf: i64, effect: const LifeEffect&) {
+fn life_read_offer(l: Lifetimes&, leaf: i64, effect: const LifeEffect&) -> i64 {
     l.offer_count += 1;
     let reach = life_effect_far(l, effect); let far = reach.far; let outside = far == 9223372036854775807;
     if reach.cyclic { l.offer_recursive = true; }
@@ -813,7 +813,7 @@ fn life_read_offer(l: Lifetimes&, leaf: i64, effect: const LifeEffect&) {
     let chained = !reach.cyclic && far > 0 && context >= 0 && context < 2147483647 && !l.frames[l.frame].validated;
     if chained {
         own = life_read_find(l, l.frame, key);
-        if own >= 0 && l.summary_reads[own].seen as i64 == leaf && l.summary_reads[own].sent as i64 == context { return; }
+        if own >= 0 && l.summary_reads[own].seen as i64 == leaf && l.summary_reads[own].sent as i64 == context { return far; }
     }
     var frame = l.frame; var depth = 0; let chain = l.frames[l.frame].chain; var settled = false;
     while frame > 0 {
@@ -837,20 +837,23 @@ fn life_read_offer(l: Lifetimes&, leaf: i64, effect: const LifeEffect&) {
         if own < 0 { own = life_read_find(l, l.frame, key); }
         if own >= 0 && l.summary_reads[own].seen as i64 == leaf { l.summary_reads[own].sent = context as i32; }
     }
+    return far;
 }
-fn life_effect(l: Lifetimes&, effect: LifeEffect) {
+// Returns the reach of the effect for the leaf's stamp, or -1 if the
+// effect was handled without examining its places.
+fn life_effect(l: Lifetimes&, effect: LifeEffect) -> i64 {
     // With class-keyed frames in use, a discovery summary is kept only where
     // it is read: by an island's root frame, which every call maps it from,
     // and by a recursive frame, whose back edges replay it. A frame outside
     // every island with no recursive frame above it is evaluated once a pass
     // and its effects have landed where they land; were it called again
     // where a summary is wanted, it is evaluated again (life_function).
-    if l.discovery && l.class_frames > 0 && l.island == 0 && life_nearest_recursive(l, l.frame) == 0 { return; }
+    if l.discovery && l.class_frames > 0 && l.island == 0 && life_nearest_recursive(l, l.frame) == 0 { return -1; }
     var site = effect.node;
     if l.class_frames > 0 && (effect.kind == 1 || effect.kind == 2 || effect.kind == 3 || effect.kind == 8) { site = -2; }
     l.offer_count += 1;
     // A repeated offer is recorded only where no frame of the chain is recursive.
-    if l.discovery && l.frame > 0 && life_offer_repeated(l, effect) { return; }
+    if l.discovery && l.frame > 0 && life_offer_repeated(l, effect) { return -1; }
     let reach = life_effect_far(l, effect); let far = reach.far; let outside = far == 9223372036854775807;
     if reach.cyclic { l.offer_recursive = true; }
     let ordered = effect.kind == 1 || effect.kind == 4 || effect.kind == 6 || effect.kind == 7;
@@ -885,7 +888,7 @@ fn life_effect(l: Lifetimes&, effect: LifeEffect) {
                 if effect.kind == 4 && effect.places != 0 { key += (l.alts[l.sets[effect.places].first].root as i64) * 31; }
                 bucket = key % l.summary_heads.len; summary_key = life_summary_key(effect, frame, site);
                 let merged = life_effect_merge(l, effect, frame, bucket, summary_key, outside, site);
-                if merged == 2 { if outside { return; } settled = true; }
+                if merged == 2 { if outside { return far; } settled = true; }
                 if merged != 0 { external = false; }
             }
             if external && !l.discovery && !ordered {
@@ -897,7 +900,7 @@ fn life_effect(l: Lifetimes&, effect: LifeEffect) {
                 life_index_reserve(l);
                 indexed = indexed_key + frame * 1000003;
                 let found = life_effect_indexed(l, effect, frame, life_index_bucket(l, indexed), outside);
-                if found == 2 { if outside { return; } settled = true; }
+                if found == 2 { if outside { return far; } settled = true; }
                 if found != 0 { external = false; }
             }
             if external && !l.discovery && ordered && life_effect_repeated(l, effect, last) { external = false; }
@@ -934,6 +937,7 @@ fn life_effect(l: Lifetimes&, effect: LifeEffect) {
         if frame == island { break; }
         frame = l.frames[frame].parent; depth += 1;
     }
+    return far;
 }
 
 fn life_error(p: Program&, l: Lifetimes&, node: i64, message: const u8[:]) {
@@ -3137,6 +3141,9 @@ fn life_shrink_array(p: Program&, l: Lifetimes&, node: i64, receiver: LifeValue,
 fn life_shrink(p: Program&, l: Lifetimes&, node: i64, given: LifeValue, balanced: bool = false) {
     var receiver = given; receiver.place = life_place_candidates(l, given.place);
     if receiver.type_id < 0 { return; }
+    let kind = p.types[receiver.type_id].kind;
+    if kind == TY_ARRAY { life_shrink_array(p, l, node, receiver, balanced); return; }
+    if kind != TY_STRUCT && kind != TY_ENUM { return; }
     var work: i64[>..] = [receiver.type_id]; var at = 0;
     while at < work.len {
         let ty = work[at]; at += 1; let t: const Type& = p.types[ty];
@@ -3190,8 +3197,12 @@ fn life_offer_once(l: Lifetimes&, offer: LifeEffect, known: i64) {
     if leaf < 0 { leaf = life_leaf(l, offer.kind, offer.node, offer.value); offered = stamps && life_leaf_offered(l, leaf); }
     if !offered {
         let offers = l.offer_count; let cyclic = l.offer_recursive; l.offer_recursive = false;
-        if compact { life_read_offer(l, leaf, offer); } else { life_effect(l, offer); }
-        if stamps && l.offer_count > offers && !l.offer_recursive { life_leaf_stamp(l, leaf, offer); }
+        var far: i64 = 0;
+        if compact { far = life_read_offer(l, leaf, offer); } else { far = life_effect(l, offer); }
+        if stamps && l.offer_count > offers && !l.offer_recursive {
+            if far < 0 { far = life_effect_far(l, offer).far; }
+            life_leaf_stamp(l, leaf, far);
+        }
         if cyclic { l.offer_recursive = true; }
     }
 }
@@ -3203,15 +3214,15 @@ fn life_construct_read(p: Program&, l: Lifetimes&, node: i64, value: LifeValue, 
     if l.discovery { return; }
     var places = value.place;
     if value.type_id >= 0 && p.types[value.type_id].kind == TY_REF { places = value.refs; }
+    var type_id = value.type_id;
+    if type_id >= 0 && p.types[type_id].kind == TY_REF { type_id = p.types[type_id].element; }
     for index in l.hold_floor..l.hold_count {
-        let hold = l.holds[index];
-        var type_id = value.type_id;
-        if type_id >= 0 && p.types[type_id].kind == TY_REF { type_id = p.types[type_id].element; }
+        let hold: const LifeHold& = l.holds[index]; if hold.kind != 2 { continue; }
         var element_read = value.element_array != -1;
         if value.element_array >= 0 && hold.value.type_id >= 0 && p.types[hold.value.type_id].kind == TY_ARRAY {
             element_read = life_same(p, value.element_array, hold.value.type_id) || life_contains(p, l, p.types[hold.value.type_id].element, value.element_array);
         }
-        if hold.kind == 2 && life_overlaps(l, hold.value.place, places) &&
+        if life_overlaps(l, hold.value.place, places) &&
            (element_read || life_contains(p, l, type_id, hold.value.type_id) || life_cached_size_class(p, l, type_id) > 0 && life_contains(p, l, hold.value.type_id, type_id)) {
             life_error(p, l, node, "whole assignment reads storage while its replacement is being constructed");
         }

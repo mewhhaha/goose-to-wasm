@@ -1,0 +1,1408 @@
+{
+  "schema": "goose-local-bootstrap-measurements-v1",
+  "source_commit": "90d4d19fe26337d0e777aec83cf0ab667b16e428",
+  "compiler_source_inputs": {
+    "checker.goose": "ad0d41166fab91eedf7890f551a30b79be2c8e10b2729782133cae2a5f3a5fbb",
+    "checker_lifetimes.goose": "fd68474c7cfd70e0ed2d8aebe16c8ce0bd4fdc328ece88cfccd82e6e9615117f",
+    "checker_operations.goose": "30c41cdc001f0512d2c5d3017368a80dbfc824dfd1f11e1c53a5213f5114927f",
+    "checker_rendering.goose": "cd8b3602c9117914a8c35da201321183ae43c3a407642d7526379b3fe69bbe97",
+    "checker_validation.goose": "1d0a53fcf7f8607d4c4dbfaa210799f17859b683226a4310e9215d87ca298561",
+    "codegen.goose": "a8edeb3f4155189a5c726743289cb800d513379a531619b021de2faffec6546b",
+    "codegen_c.goose": "a43c5b63a56e17822a3c7fd783d36d953f48d78c3317f2e3c2cf5922680424cc",
+    "codegen_c_images.goose": "4addca16891b21ad19db5e04576ab530a339eb5dacc925e87d4b090f3cbefd14",
+    "codegen_c_storage.goose": "9cabe8c10c57f783c9962ff62cb7e26767dc30e39f497918d4cbbf44abea78a9",
+    "codegen_c_threads.goose": "f52675b945cf777a89231d6befc1c195e96f802d3bf6497e817e32d33cff66e5",
+    "driver.goose": "8429930c492da9e91e069bfc0d0600f080ee86c6d26fad9df9a4047cb943f2b5",
+    "expansion_bind.goose": "42951b1303d7dca17558283dd7250b5d86b7eb1d35699ece0d6933166aa15641",
+    "lexer.goose": "70744dd80512f8f1e6ed36520bf62d9b22d942a06041028fe88e594365e2a5f2",
+    "main.goose": "aedbadf2bb4536fc059812d4eeec6151d57de2bf25c1005fa6f5d4470aa45d1e",
+    "model.goose": "db82acd43762c4deda04a30953053705ae7d240cc4d6f179c5c5fc31237cba5a",
+    "optimizer.goose": "5db9272660c8772d3ee80933564638f22a4e92c68f4112f84396ab52971f3a56",
+    "parser.goose": "2707f6d42796cff5712e3225e0648fa3a78c21c24678f1682a611d9d2937cc18",
+    "region_plan.goose": "ea7804e188178980bd4f89ebdc8e230092cac5db55890ccb0bedbf89b46a77fb",
+    "sources.goose": "34c593056216efd45f091dba7e7bbaa40ebeb1058dba1412ffb30872965042c0",
+    "thread_plan.goose": "73e2ed70ce4c83ae7469b0e818c7b7d2df51035286537f84959cd3272dfbe594",
+    "wasm.goose": "2a58b1f04ca35a07280bc0e94fcdeb1bd3ee40985ab33bce9160124ca6517808"
+  },
+  "stdlib_inputs": {
+    "base64.goose": "fa1111ce46e9534311f825880dbd2988953430aeb3f1f52d8f0eaecbbc298a61",
+    "binary.goose": "6973e209428668c2db856eaa941de5d93938cfb1749ed07cac534bf9fe4cb031",
+    "csv.goose": "a49b0647f4a2f8ca36170e5a184ab6c6e505492434d0a10a5e05127e96da61ba",
+    "dictionary.goose": "fb39f896731faf3799e81727f7261849a62bdfbdc92d5fdbc36405a85830f322",
+    "exception.goose": "093863eda5433176750182b597aa6760a93808d86b0c9b713681443d2fb29160",
+    "ffi.goose": "e092b245fbe13ee2fdc71599b7b8eb44198e5261cad9600b7681e13ad75a6c2e",
+    "json.goose": "0e58291ed9051e4ecb8da1ad420290549d723336516507aed33cf7ced89dc29b",
+    "math.goose": "b4c1aee33b5b7033d36a4ddc5c6522c73b21cafe204dc20e8860cdeba22467da",
+    "os.goose": "2193f394d44469daffd993ed204a91b068084fd8db13e261e11156b40c66e934",
+    "regex.goose": "be0e50bab2a1db9f85e856250bcc592dfe25aca73c2ed900410047fbefb4b035",
+    "slice_pool.goose": "74ffe0d7b153a8728ced2974d493743576ed264c8b463f8bd5fe0bfade3a4424",
+    "slice_pool_internal.goose": "34a7eae1269a87c59487e3c15ea13b3332d14d9cd4bee8306bb520fd828eb121",
+    "slot_pool.goose": "e83b975bfff2806df0401afc3e37e147618c5673a9c98690007e6beb3bd51745",
+    "std.goose": "2243c2ef52ba5045b275eea35252d09f36544987c6884f4a8d35579fa6f781ff",
+    "vec.goose": "2cac168c72047834433bfb419734c38455c9429ea045b1273898031c53faa82e"
+  },
+  "embedded_native_inputs": {
+    "native/runtime/runtime.h": "5ac9487568c78c7cdf6e141d90d644da50436b1b7188047e6bfca09c7b801132",
+    "native/runtime/runtime_impl.h": "717f6d243575fa7e5de8229799cf86c22934dc202a4e6880c699db339b596bf1",
+    "native/runtime/runtime_threads.h": "b6a2a8f5ecde191093af1c6bde1939d172ef275156bd60e2e9e725d67f0a4285",
+    "native/storage.h": "52e3954130687897538ed20b6fb3f7208f915aff9c7f1817de6b5d2d1c45943c",
+    "native/relative.h": "4b3c41b7b929e3706412aaebb62b84640578f8963e473312fe66f0c597c296ba",
+    "native/pools.h": "052962725edfd70e0edacc6b372de04e93a941c4cbcc92cd750a056dc052c6cc",
+    "native/slice_pool.h": "576d87376a557c4febb9ae9338add4d8a8059d75fee581b82cc2c1ef57bf2a1a",
+    "native/images.h": "6107261de647a67474c407c7da739aab8fbd2600e04f29a6e3bffccd43b15290",
+    "native/runs.h": "1458624355d3ea8e0da05523e5f0b5328b21d827381cd609f0541ec92b897f3c",
+    "native/threads.h": "bd9b605086d3475d86d76bb630f9d408ca987efe359f824a36b06d76e49c6cb4",
+    "native/units.h": "23b0395c15dc4ea9a7fc3545560a49427007d1d1f0019a9a46a920b3de5d5560",
+    "native/runtime_unit.h": "e11a0d180a048b95a8dd827d7e2664526a3ad3e368dc602a78d363f34bc13a58"
+  },
+  "machine": {
+    "cpu": "AMD Ryzen 7 3800X",
+    "logical_cpu_pairs": [
+      [
+        0,
+        8
+      ],
+      [
+        1,
+        9
+      ],
+      [
+        2,
+        10
+      ],
+      [
+        3,
+        11
+      ]
+    ]
+  },
+  "toolchain": {
+    "cc": "/usr/bin/clang-23",
+    "cc_version": "clang version 23.1.5\nTarget: x86_64-pc-linux-gnu\nThread model: posix\nInstalledDir: /usr/bin\n",
+    "cc_target": "x86_64-pc-linux-gnu",
+    "cc_sha256": "ca0d2f7fbe94836762f36c7e73292289bc4d5e4b9b5defc320ef0856259a2855",
+    "seed_c_sha256": "28f1af08daba0f4de86b6f5e2c5ef1adfd25f5ce2921162ea67fa5df78998970"
+  },
+  "previous_compiler_sha256": "94c6428f4d203a2c2db83a6e89b37160407ca3d01abee466b265ba852b45e952",
+  "profiled_seed_executable_sha256": "26447151e5b55abc7883d8c48e336c4dff402215096d47b59cf4fb82f3e0d434",
+  "script_sha256": {
+    "scripts/bootstrap.py": "c58368d4a483f6f0ab4185951f65a7c91fa7aea7c8f76bbae0ab2696e037c94c",
+    "selfhost/bootstrap.py": "b2f71c5fe204bf272d350ec5c2bf5b706aba81acd554102c048327ace1fd0058"
+  },
+  "prototype_script_sha256": "ac0e61dd6db9f9043bc849c7ee8b844c39b5072d660c10661b9b0f2acbabc4c9",
+  "direct_emission_core": 3,
+  "direct_emission": {
+    "prior": {
+      "seconds": 4.095,
+      "user_seconds": 3.871,
+      "system_seconds": 0.168,
+      "output_c_sha256": "fc7fbbff387041f0234df658e00b2e80d762b1590e8c34a36621e27d35601ff9"
+    },
+    "profile": {
+      "seconds": 33.607,
+      "user_seconds": 33.088,
+      "system_seconds": 0.263,
+      "output_c_sha256": "fc7fbbff387041f0234df658e00b2e80d762b1590e8c34a36621e27d35601ff9"
+    },
+    "changed-prior": {
+      "seconds": 3.981,
+      "user_seconds": 3.771,
+      "system_seconds": 0.159,
+      "output_c_sha256": "72942bf7e58f09d5458cf17b1c1b9688e237053da68ed6a068b3ea6fa2172e70"
+    },
+    "changed-profile": {
+      "seconds": 29.118,
+      "user_seconds": 28.776,
+      "system_seconds": 0.112,
+      "output_c_sha256": "72942bf7e58f09d5458cf17b1c1b9688e237053da68ed6a068b3ea6fa2172e70"
+    }
+  },
+  "fresh_final_warm_canonical_seed": [
+    {
+      "name": "changed-control",
+      "timing": {
+        "command": [
+          "taskset",
+          "-c",
+          "3",
+          "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+          "/home/jacobt/src/goose-to-wasm/build/cold-bootstrap-trial-2/bootstrap-control.py",
+          "--source-dir",
+          "/home/jacobt/src/goose-to-wasm/build/cold-bootstrap-trial-2/changed/sources",
+          "--stdlib",
+          "/home/jacobt/src/goose-to-wasm/build/cold-bootstrap-trial-2/changed/stdlib",
+          "--native-dir",
+          "/home/jacobt/src/goose-to-wasm/build/cold-bootstrap-trial-2/changed/native",
+          "--seed-dir",
+          "/home/jacobt/src/goose-to-wasm/build/cold-bootstrap-trial-2/frozen/bootstrap",
+          "--output-dir",
+          "/home/jacobt/src/goose-to-wasm/build/cold-bootstrap-trial-2/changed-control",
+          "--cache-dir",
+          "/home/jacobt/src/goose-to-wasm/build/cold-bootstrap-trial-2/changed-control.cache",
+          "--cc",
+          "clang",
+          "--verify"
+        ],
+        "start_load": [
+          5.78173828125,
+          8.83935546875,
+          15.4169921875
+        ],
+        "seconds": 152.8428523399998,
+        "status": 0,
+        "user_seconds": 148.33994,
+        "system_seconds": 1.482623,
+        "max_rss_kib": 1774980
+      },
+      "report": {
+        "status": "passed",
+        "fixed_point": true,
+        "generated_c_sha256": "72942bf7e58f09d5458cf17b1c1b9688e237053da68ed6a068b3ea6fa2172e70",
+        "next_generation_c_sha256": "72942bf7e58f09d5458cf17b1c1b9688e237053da68ed6a068b3ea6fa2172e70",
+        "executable_sha256": "4fe745f24fe6e35409a4734e3247388213d7ced945f4c648318e426376d36e5f",
+        "builds": {
+          "build-seed": {
+            "c_sha256": "28f1af08daba0f4de86b6f5e2c5ef1adfd25f5ce2921162ea67fa5df78998970",
+            "goose_optimization": 2,
+            "profile_used": true,
+            "profile_reason": "exact profile identity matched",
+            "cache": {
+              "hit": true,
+              "key": "068b9fee3dc468beee7ebe14a866106d9c0a2b795bf7a218fd8724a8592990d5"
+            },
+            "profile_sha256": "1ca21eb5334b98b50987b031fed5acf114a2ad69b999d811c93619e09f7017c3"
+          },
+          "build-goose": {
+            "c_sha256": "72942bf7e58f09d5458cf17b1c1b9688e237053da68ed6a068b3ea6fa2172e70",
+            "goose_optimization": 2,
+            "profile_used": false,
+            "profile_reason": "profile identity differs: c_sha256",
+            "cache": {
+              "hit": false,
+              "key": "06ce768d8a92b71aa97686e00f36afe39e3ad675bcdb5522d14f678aa3c41e2f"
+            }
+          }
+        },
+        "seed_emission_cache": {
+          "hit": false,
+          "key": "a8a89a9824e63b7b7ee9969b87182dc00e8785d26ba0b2cd09b90d702e986560"
+        },
+        "input_hashes_closed": true,
+        "commands": [
+          {
+            "name": "cc-version",
+            "command": [
+              "/usr/bin/clang-23",
+              "--version"
+            ],
+            "seconds": 0.017719711002428085,
+            "exit_code": 0
+          },
+          {
+            "name": "cc-target",
+            "command": [
+              "/usr/bin/clang-23",
+              "-dumpmachine"
+            ],
+            "seconds": 0.014715042001625989,
+            "exit_code": 0
+          },
+          {
+            "name": "seed-help",
+            "command": [
+              "/home/jacobt/src/goose-to-wasm/build/cold-bootstrap-trial-2/changed-control/seed",
+              "--help"
+            ],
+            "seconds": 0.002701844001421705,
+            "exit_code": 0
+          },
+          {
+            "name": "compile-goose",
+            "command": [
+              "/home/jacobt/src/goose-to-wasm/build/cold-bootstrap-trial-2/changed-control/seed",
+              "sources/main.goose",
+              "--stdlib",
+              "stdlib",
+              "--target",
+              "native",
+              "-O2",
+              "-o",
+              "/home/jacobt/src/goose-to-wasm/build/cold-bootstrap-trial-2/changed-control/compiler.c",
+              "--wasm-deps",
+              "/home/jacobt/src/goose-to-wasm/build/cold-bootstrap-trial-2/changed-control/seed-dependencies.json"
+            ],
+            "seconds": 32.79935052699875,
+            "exit_code": 0
+          },
+          {
+            "name": "build-goose",
+            "command": [
+              "/usr/bin/clang-23",
+              "-std=gnu11",
+              "-O2",
+              "seed.c",
+              "-lm",
+              "-ldl",
+              "-pthread",
+              "-o",
+              "/home/jacobt/src/goose-to-wasm/build/cold-bootstrap-trial-2/changed-control/goose"
+            ],
+            "seconds": 115.30405005899956,
+            "exit_code": 0
+          },
+          {
+            "name": "verify-selfhost",
+            "command": [
+              "/home/jacobt/src/goose-to-wasm/build/cold-bootstrap-trial-2/changed-control/goose",
+              "sources/main.goose",
+              "--stdlib",
+              "stdlib",
+              "--target",
+              "native",
+              "-O2",
+              "-o",
+              "/home/jacobt/src/goose-to-wasm/build/cold-bootstrap-trial-2/changed-control/next-generation.c"
+            ],
+            "seconds": 3.928006195004855,
+            "exit_code": 0
+          }
+        ]
+      }
+    },
+    {
+      "name": "changed-alternate",
+      "timing": {
+        "command": [
+          "taskset",
+          "-c",
+          "1",
+          "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+          "/home/jacobt/src/goose-to-wasm/build/cold-bootstrap-trial-2/bootstrap-alternate.py",
+          "--source-dir",
+          "/home/jacobt/src/goose-to-wasm/build/cold-bootstrap-trial-2/changed/sources",
+          "--stdlib",
+          "/home/jacobt/src/goose-to-wasm/build/cold-bootstrap-trial-2/changed/stdlib",
+          "--native-dir",
+          "/home/jacobt/src/goose-to-wasm/build/cold-bootstrap-trial-2/changed/native",
+          "--seed-dir",
+          "/home/jacobt/src/goose-to-wasm/build/cold-bootstrap-trial-2/frozen/bootstrap",
+          "--output-dir",
+          "/home/jacobt/src/goose-to-wasm/build/cold-bootstrap-trial-2/changed-alternate",
+          "--cache-dir",
+          "/home/jacobt/src/goose-to-wasm/build/cold-bootstrap-trial-2/changed-alternate.cache",
+          "--cc",
+          "clang",
+          "--verify",
+          "--trial-executable",
+          "/home/jacobt/src/goose-to-wasm/build/cold-bootstrap-trial-2/prior-goose"
+        ],
+        "start_load": [
+          5.78173828125,
+          8.83935546875,
+          15.4169921875
+        ],
+        "seconds": 124.18205428099463,
+        "status": 0,
+        "user_seconds": 121.648277,
+        "system_seconds": 1.211332,
+        "max_rss_kib": 1774816
+      },
+      "report": {
+        "status": "passed",
+        "fixed_point": true,
+        "generated_c_sha256": "72942bf7e58f09d5458cf17b1c1b9688e237053da68ed6a068b3ea6fa2172e70",
+        "next_generation_c_sha256": "72942bf7e58f09d5458cf17b1c1b9688e237053da68ed6a068b3ea6fa2172e70",
+        "executable_sha256": "4fe745f24fe6e35409a4734e3247388213d7ced945f4c648318e426376d36e5f",
+        "builds": {
+          "build-goose": {
+            "c_sha256": "72942bf7e58f09d5458cf17b1c1b9688e237053da68ed6a068b3ea6fa2172e70",
+            "goose_optimization": 2,
+            "profile_used": false,
+            "profile_reason": "profile identity differs: c_sha256",
+            "cache": {
+              "hit": false,
+              "key": "06ce768d8a92b71aa97686e00f36afe39e3ad675bcdb5522d14f678aa3c41e2f"
+            }
+          }
+        },
+        "seed_emission_cache": {
+          "hit": false,
+          "key": "fa78ecf35012d7021a17e26a991ef7fd8f1ac63b5470f0069552bbae56db4e4f"
+        },
+        "input_hashes_closed": true,
+        "commands": [
+          {
+            "name": "cc-version",
+            "command": [
+              "/usr/bin/clang-23",
+              "--version"
+            ],
+            "seconds": 0.017659788005403243,
+            "exit_code": 0
+          },
+          {
+            "name": "cc-target",
+            "command": [
+              "/usr/bin/clang-23",
+              "-dumpmachine"
+            ],
+            "seconds": 0.014718980004545301,
+            "exit_code": 0
+          },
+          {
+            "name": "seed-help",
+            "command": [
+              "/home/jacobt/src/goose-to-wasm/build/cold-bootstrap-trial-2/changed-alternate/seed",
+              "--help"
+            ],
+            "seconds": 0.0025541129944031127,
+            "exit_code": 0
+          },
+          {
+            "name": "compile-goose",
+            "command": [
+              "/home/jacobt/src/goose-to-wasm/build/cold-bootstrap-trial-2/changed-alternate/seed",
+              "sources/main.goose",
+              "--stdlib",
+              "stdlib",
+              "--target",
+              "native",
+              "-O2",
+              "-o",
+              "/home/jacobt/src/goose-to-wasm/build/cold-bootstrap-trial-2/changed-alternate/compiler.c",
+              "--wasm-deps",
+              "/home/jacobt/src/goose-to-wasm/build/cold-bootstrap-trial-2/changed-alternate/seed-dependencies.json"
+            ],
+            "seconds": 4.050102835004509,
+            "exit_code": 0
+          },
+          {
+            "name": "build-goose",
+            "command": [
+              "/usr/bin/clang-23",
+              "-std=gnu11",
+              "-O2",
+              "seed.c",
+              "-lm",
+              "-ldl",
+              "-pthread",
+              "-o",
+              "/home/jacobt/src/goose-to-wasm/build/cold-bootstrap-trial-2/changed-alternate/goose"
+            ],
+            "seconds": 115.60386032899987,
+            "exit_code": 0
+          },
+          {
+            "name": "verify-selfhost",
+            "command": [
+              "/home/jacobt/src/goose-to-wasm/build/cold-bootstrap-trial-2/changed-alternate/goose",
+              "sources/main.goose",
+              "--stdlib",
+              "stdlib",
+              "--target",
+              "native",
+              "-O2",
+              "-o",
+              "/home/jacobt/src/goose-to-wasm/build/cold-bootstrap-trial-2/changed-alternate/next-generation.c"
+            ],
+            "seconds": 3.763236015001894,
+            "exit_code": 0
+          }
+        ]
+      }
+    }
+  ],
+  "fresh_final_public_local_install": {
+    "name": "public-local",
+    "timing": {
+      "seconds": 122.415,
+      "user_seconds": 119.742,
+      "system_seconds": 1.205
+    },
+    "report": {
+      "status": "passed",
+      "fixed_point": true,
+      "generated_c_sha256": "72942bf7e58f09d5458cf17b1c1b9688e237053da68ed6a068b3ea6fa2172e70",
+      "next_generation_c_sha256": "72942bf7e58f09d5458cf17b1c1b9688e237053da68ed6a068b3ea6fa2172e70",
+      "executable_sha256": "4fe745f24fe6e35409a4734e3247388213d7ced945f4c648318e426376d36e5f",
+      "builds": {
+        "build-goose": {
+          "c_sha256": "72942bf7e58f09d5458cf17b1c1b9688e237053da68ed6a068b3ea6fa2172e70",
+          "goose_optimization": 2,
+          "profile_used": false,
+          "profile_reason": "profile identity differs: c_sha256",
+          "cache": {
+            "hit": false,
+            "key": "06ce768d8a92b71aa97686e00f36afe39e3ad675bcdb5522d14f678aa3c41e2f"
+          }
+        }
+      },
+      "seed_emission_cache": {
+        "hit": false,
+        "key": "fa78ecf35012d7021a17e26a991ef7fd8f1ac63b5470f0069552bbae56db4e4f"
+      },
+      "reused_toolchain": {
+        "receipt": "/home/jacobt/src/goose-to-wasm/build/cold-bootstrap-trial-2/public-local/toolchain.json",
+        "receipt_sha256": "8429e1322e63537260d10ba2d0438eb744fcf7cf6403afd2862ebe45500b0cd3",
+        "compiler": "/home/jacobt/src/goose-to-wasm/build/cold-bootstrap-trial-2/public-local/bin/goose",
+        "compiler_sha256": "94c6428f4d203a2c2db83a6e89b37160407ca3d01abee466b265ba852b45e952"
+      },
+      "input_hashes_closed": true,
+      "commands": [
+        {
+          "name": "cc-version",
+          "command": [
+            "/usr/bin/clang-23",
+            "--version"
+          ],
+          "seconds": 0.015592809999361634,
+          "exit_code": 0
+        },
+        {
+          "name": "cc-target",
+          "command": [
+            "/usr/bin/clang-23",
+            "-dumpmachine"
+          ],
+          "seconds": 0.015840940999623854,
+          "exit_code": 0
+        },
+        {
+          "name": "seed-help",
+          "command": [
+            "/home/jacobt/src/goose-to-wasm/build/tmp/goose-bootstrap-jv1rdq43/compiler/seed",
+            "--help"
+          ],
+          "seconds": 0.002320047999091912,
+          "exit_code": 0
+        },
+        {
+          "name": "compile-goose",
+          "command": [
+            "/home/jacobt/src/goose-to-wasm/build/tmp/goose-bootstrap-jv1rdq43/compiler/seed",
+            "sources/main.goose",
+            "--stdlib",
+            "stdlib",
+            "--target",
+            "native",
+            "-O2",
+            "-o",
+            "/home/jacobt/src/goose-to-wasm/build/tmp/goose-bootstrap-jv1rdq43/compiler/compiler.c",
+            "--wasm-deps",
+            "/home/jacobt/src/goose-to-wasm/build/tmp/goose-bootstrap-jv1rdq43/compiler/seed-dependencies.json"
+          ],
+          "seconds": 3.7381048730021575,
+          "exit_code": 0
+        },
+        {
+          "name": "build-goose",
+          "command": [
+            "/usr/bin/clang-23",
+            "-std=gnu11",
+            "-O2",
+            "seed.c",
+            "-lm",
+            "-ldl",
+            "-pthread",
+            "-o",
+            "/home/jacobt/src/goose-to-wasm/build/tmp/goose-bootstrap-jv1rdq43/compiler/goose"
+          ],
+          "seconds": 113.92403750000085,
+          "exit_code": 0
+        },
+        {
+          "name": "verify-selfhost",
+          "command": [
+            "/home/jacobt/src/goose-to-wasm/build/tmp/goose-bootstrap-jv1rdq43/compiler/goose",
+            "sources/main.goose",
+            "--stdlib",
+            "stdlib",
+            "--target",
+            "native",
+            "-O2",
+            "-o",
+            "/home/jacobt/src/goose-to-wasm/build/tmp/goose-bootstrap-jv1rdq43/compiler/next-generation.c"
+          ],
+          "seconds": 3.978887940000277,
+          "exit_code": 0
+        }
+      ]
+    }
+  },
+  "cached_native_builds_cold_emission_pairs": [
+    [
+      {
+        "name": "repeat-canonical-1",
+        "timing": {
+          "command": [
+            "taskset",
+            "-c",
+            "0",
+            "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+            "/home/jacobt/src/goose-to-wasm/scripts/bootstrap.py",
+            "--source-dir",
+            "/home/jacobt/src/goose-to-wasm/build/cold-bootstrap-trial-2/changed/sources",
+            "--stdlib",
+            "/home/jacobt/src/goose-to-wasm/build/cold-bootstrap-trial-2/changed/stdlib",
+            "--native-dir",
+            "/home/jacobt/src/goose-to-wasm/build/cold-bootstrap-trial-2/changed/native",
+            "--seed-dir",
+            "/home/jacobt/src/goose-to-wasm/build/cold-bootstrap-trial-2/frozen/bootstrap",
+            "--build-dir",
+            "/home/jacobt/src/goose-to-wasm/build/cold-bootstrap-trial-2/repeat-canonical-1",
+            "--cache-dir",
+            "/home/jacobt/src/goose-to-wasm/build/cold-bootstrap-trial-2/repeat-canonical-1.cache",
+            "--cc",
+            "clang",
+            "--verify"
+          ],
+          "start_load": [
+            6.4453125,
+            7.896484375,
+            13.8544921875
+          ],
+          "seconds": 37.160081531998,
+          "status": 0,
+          "user_seconds": 36.362652,
+          "system_seconds": 0.342678,
+          "max_rss_kib": 636192
+        },
+        "report": {
+          "status": "passed",
+          "fixed_point": true,
+          "generated_c_sha256": "72942bf7e58f09d5458cf17b1c1b9688e237053da68ed6a068b3ea6fa2172e70",
+          "next_generation_c_sha256": "72942bf7e58f09d5458cf17b1c1b9688e237053da68ed6a068b3ea6fa2172e70",
+          "executable_sha256": "4fe745f24fe6e35409a4734e3247388213d7ced945f4c648318e426376d36e5f",
+          "builds": {
+            "build-seed": {
+              "c_sha256": "28f1af08daba0f4de86b6f5e2c5ef1adfd25f5ce2921162ea67fa5df78998970",
+              "goose_optimization": 2,
+              "profile_used": true,
+              "profile_reason": "exact profile identity matched",
+              "cache": {
+                "hit": true,
+                "key": "068b9fee3dc468beee7ebe14a866106d9c0a2b795bf7a218fd8724a8592990d5"
+              },
+              "profile_sha256": "1ca21eb5334b98b50987b031fed5acf114a2ad69b999d811c93619e09f7017c3"
+            },
+            "build-goose": {
+              "c_sha256": "72942bf7e58f09d5458cf17b1c1b9688e237053da68ed6a068b3ea6fa2172e70",
+              "goose_optimization": 2,
+              "profile_used": false,
+              "profile_reason": "profile identity differs: c_sha256",
+              "cache": {
+                "hit": true,
+                "key": "06ce768d8a92b71aa97686e00f36afe39e3ad675bcdb5522d14f678aa3c41e2f"
+              }
+            }
+          },
+          "seed_emission_cache": {
+            "hit": false,
+            "key": "a8a89a9824e63b7b7ee9969b87182dc00e8785d26ba0b2cd09b90d702e986560"
+          },
+          "input_hashes_closed": true,
+          "commands": [
+            {
+              "name": "cc-version",
+              "command": [
+                "/usr/bin/clang-23",
+                "--version"
+              ],
+              "seconds": 0.014948545998777263,
+              "exit_code": 0
+            },
+            {
+              "name": "cc-target",
+              "command": [
+                "/usr/bin/clang-23",
+                "-dumpmachine"
+              ],
+              "seconds": 0.015707929000200238,
+              "exit_code": 0
+            },
+            {
+              "name": "seed-help",
+              "command": [
+                "/home/jacobt/src/goose-to-wasm/build/tmp/goose-bootstrap-9vn4zs1o/compiler/seed",
+                "--help"
+              ],
+              "seconds": 0.0021953819959890097,
+              "exit_code": 0
+            },
+            {
+              "name": "compile-goose",
+              "command": [
+                "/home/jacobt/src/goose-to-wasm/build/tmp/goose-bootstrap-9vn4zs1o/compiler/seed",
+                "sources/main.goose",
+                "--stdlib",
+                "stdlib",
+                "--target",
+                "native",
+                "-O2",
+                "-o",
+                "/home/jacobt/src/goose-to-wasm/build/tmp/goose-bootstrap-9vn4zs1o/compiler/compiler.c",
+                "--wasm-deps",
+                "/home/jacobt/src/goose-to-wasm/build/tmp/goose-bootstrap-9vn4zs1o/compiler/seed-dependencies.json"
+              ],
+              "seconds": 32.49945835999824,
+              "exit_code": 0
+            },
+            {
+              "name": "verify-selfhost",
+              "command": [
+                "/home/jacobt/src/goose-to-wasm/build/tmp/goose-bootstrap-9vn4zs1o/compiler/goose",
+                "sources/main.goose",
+                "--stdlib",
+                "stdlib",
+                "--target",
+                "native",
+                "-O2",
+                "-o",
+                "/home/jacobt/src/goose-to-wasm/build/tmp/goose-bootstrap-9vn4zs1o/compiler/next-generation.c"
+              ],
+              "seconds": 3.783471875998657,
+              "exit_code": 0
+            }
+          ]
+        }
+      },
+      {
+        "name": "repeat-local-1",
+        "timing": {
+          "command": [
+            "taskset",
+            "-c",
+            "0",
+            "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+            "/home/jacobt/src/goose-to-wasm/scripts/bootstrap.py",
+            "--source-dir",
+            "/home/jacobt/src/goose-to-wasm/build/cold-bootstrap-trial-2/changed/sources",
+            "--stdlib",
+            "/home/jacobt/src/goose-to-wasm/build/cold-bootstrap-trial-2/changed/stdlib",
+            "--native-dir",
+            "/home/jacobt/src/goose-to-wasm/build/cold-bootstrap-trial-2/changed/native",
+            "--seed-dir",
+            "/home/jacobt/src/goose-to-wasm/build/cold-bootstrap-trial-2/frozen/bootstrap",
+            "--build-dir",
+            "/home/jacobt/src/goose-to-wasm/build/cold-bootstrap-trial-2/repeat-local-1",
+            "--cache-dir",
+            "/home/jacobt/src/goose-to-wasm/build/cold-bootstrap-trial-2/repeat-local-1.cache",
+            "--cc",
+            "clang",
+            "--reuse-toolchain",
+            "/home/jacobt/src/goose-to-wasm/build/cold-bootstrap-trial-2/prior-toolchain.json"
+          ],
+          "start_load": [
+            5.86669921875,
+            7.59033203125,
+            13.53076171875
+          ],
+          "seconds": 8.416233612006181,
+          "status": 0,
+          "user_seconds": 7.980199000000006,
+          "system_seconds": 0.280846,
+          "max_rss_kib": 636192
+        },
+        "report": {
+          "status": "passed",
+          "fixed_point": true,
+          "generated_c_sha256": "72942bf7e58f09d5458cf17b1c1b9688e237053da68ed6a068b3ea6fa2172e70",
+          "next_generation_c_sha256": "72942bf7e58f09d5458cf17b1c1b9688e237053da68ed6a068b3ea6fa2172e70",
+          "executable_sha256": "4fe745f24fe6e35409a4734e3247388213d7ced945f4c648318e426376d36e5f",
+          "builds": {
+            "build-goose": {
+              "c_sha256": "72942bf7e58f09d5458cf17b1c1b9688e237053da68ed6a068b3ea6fa2172e70",
+              "goose_optimization": 2,
+              "profile_used": false,
+              "profile_reason": "profile identity differs: c_sha256",
+              "cache": {
+                "hit": true,
+                "key": "06ce768d8a92b71aa97686e00f36afe39e3ad675bcdb5522d14f678aa3c41e2f"
+              }
+            }
+          },
+          "seed_emission_cache": {
+            "hit": false,
+            "key": "fa78ecf35012d7021a17e26a991ef7fd8f1ac63b5470f0069552bbae56db4e4f"
+          },
+          "reused_toolchain": {
+            "receipt": "/home/jacobt/src/goose-to-wasm/build/cold-bootstrap-trial-2/prior-toolchain.json",
+            "receipt_sha256": "478e0053b98408c16cacaccb8b0c253fb8eec2dc5945fbe2c7b2cc790ac22dc6",
+            "compiler": "/home/jacobt/src/goose-to-wasm/build/cold-bootstrap-trial-2/prior-goose",
+            "compiler_sha256": "94c6428f4d203a2c2db83a6e89b37160407ca3d01abee466b265ba852b45e952"
+          },
+          "input_hashes_closed": true,
+          "commands": [
+            {
+              "name": "cc-version",
+              "command": [
+                "/usr/bin/clang-23",
+                "--version"
+              ],
+              "seconds": 0.02447740299976431,
+              "exit_code": 0
+            },
+            {
+              "name": "cc-target",
+              "command": [
+                "/usr/bin/clang-23",
+                "-dumpmachine"
+              ],
+              "seconds": 0.03058020000025863,
+              "exit_code": 0
+            },
+            {
+              "name": "seed-help",
+              "command": [
+                "/home/jacobt/src/goose-to-wasm/build/tmp/goose-bootstrap-rav6dpk6/compiler/seed",
+                "--help"
+              ],
+              "seconds": 0.0021835290026501752,
+              "exit_code": 0
+            },
+            {
+              "name": "compile-goose",
+              "command": [
+                "/home/jacobt/src/goose-to-wasm/build/tmp/goose-bootstrap-rav6dpk6/compiler/seed",
+                "sources/main.goose",
+                "--stdlib",
+                "stdlib",
+                "--target",
+                "native",
+                "-O2",
+                "-o",
+                "/home/jacobt/src/goose-to-wasm/build/tmp/goose-bootstrap-rav6dpk6/compiler/compiler.c",
+                "--wasm-deps",
+                "/home/jacobt/src/goose-to-wasm/build/tmp/goose-bootstrap-rav6dpk6/compiler/seed-dependencies.json"
+              ],
+              "seconds": 3.822334005999437,
+              "exit_code": 0
+            },
+            {
+              "name": "verify-selfhost",
+              "command": [
+                "/home/jacobt/src/goose-to-wasm/build/tmp/goose-bootstrap-rav6dpk6/compiler/goose",
+                "sources/main.goose",
+                "--stdlib",
+                "stdlib",
+                "--target",
+                "native",
+                "-O2",
+                "-o",
+                "/home/jacobt/src/goose-to-wasm/build/tmp/goose-bootstrap-rav6dpk6/compiler/next-generation.c"
+              ],
+              "seconds": 3.7892769719983335,
+              "exit_code": 0
+            }
+          ]
+        }
+      }
+    ],
+    [
+      {
+        "name": "repeat-local-2",
+        "timing": {
+          "command": [
+            "taskset",
+            "-c",
+            "0",
+            "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+            "/home/jacobt/src/goose-to-wasm/scripts/bootstrap.py",
+            "--source-dir",
+            "/home/jacobt/src/goose-to-wasm/build/cold-bootstrap-trial-2/changed/sources",
+            "--stdlib",
+            "/home/jacobt/src/goose-to-wasm/build/cold-bootstrap-trial-2/changed/stdlib",
+            "--native-dir",
+            "/home/jacobt/src/goose-to-wasm/build/cold-bootstrap-trial-2/changed/native",
+            "--seed-dir",
+            "/home/jacobt/src/goose-to-wasm/build/cold-bootstrap-trial-2/frozen/bootstrap",
+            "--build-dir",
+            "/home/jacobt/src/goose-to-wasm/build/cold-bootstrap-trial-2/repeat-local-2",
+            "--cache-dir",
+            "/home/jacobt/src/goose-to-wasm/build/cold-bootstrap-trial-2/repeat-local-2.cache",
+            "--cc",
+            "clang",
+            "--reuse-toolchain",
+            "/home/jacobt/src/goose-to-wasm/build/cold-bootstrap-trial-2/prior-toolchain.json"
+          ],
+          "start_load": [
+            5.5791015625,
+            7.47119140625,
+            13.42822265625
+          ],
+          "seconds": 8.339896320001571,
+          "status": 0,
+          "user_seconds": 7.921391999999997,
+          "system_seconds": 0.29141300000000003,
+          "max_rss_kib": 636192
+        },
+        "report": {
+          "status": "passed",
+          "fixed_point": true,
+          "generated_c_sha256": "72942bf7e58f09d5458cf17b1c1b9688e237053da68ed6a068b3ea6fa2172e70",
+          "next_generation_c_sha256": "72942bf7e58f09d5458cf17b1c1b9688e237053da68ed6a068b3ea6fa2172e70",
+          "executable_sha256": "4fe745f24fe6e35409a4734e3247388213d7ced945f4c648318e426376d36e5f",
+          "builds": {
+            "build-goose": {
+              "c_sha256": "72942bf7e58f09d5458cf17b1c1b9688e237053da68ed6a068b3ea6fa2172e70",
+              "goose_optimization": 2,
+              "profile_used": false,
+              "profile_reason": "profile identity differs: c_sha256",
+              "cache": {
+                "hit": true,
+                "key": "06ce768d8a92b71aa97686e00f36afe39e3ad675bcdb5522d14f678aa3c41e2f"
+              }
+            }
+          },
+          "seed_emission_cache": {
+            "hit": false,
+            "key": "fa78ecf35012d7021a17e26a991ef7fd8f1ac63b5470f0069552bbae56db4e4f"
+          },
+          "reused_toolchain": {
+            "receipt": "/home/jacobt/src/goose-to-wasm/build/cold-bootstrap-trial-2/prior-toolchain.json",
+            "receipt_sha256": "478e0053b98408c16cacaccb8b0c253fb8eec2dc5945fbe2c7b2cc790ac22dc6",
+            "compiler": "/home/jacobt/src/goose-to-wasm/build/cold-bootstrap-trial-2/prior-goose",
+            "compiler_sha256": "94c6428f4d203a2c2db83a6e89b37160407ca3d01abee466b265ba852b45e952"
+          },
+          "input_hashes_closed": true,
+          "commands": [
+            {
+              "name": "cc-version",
+              "command": [
+                "/usr/bin/clang-23",
+                "--version"
+              ],
+              "seconds": 0.01518321200273931,
+              "exit_code": 0
+            },
+            {
+              "name": "cc-target",
+              "command": [
+                "/usr/bin/clang-23",
+                "-dumpmachine"
+              ],
+              "seconds": 0.014961711000069045,
+              "exit_code": 0
+            },
+            {
+              "name": "seed-help",
+              "command": [
+                "/home/jacobt/src/goose-to-wasm/build/tmp/goose-bootstrap-umwkql8q/compiler/seed",
+                "--help"
+              ],
+              "seconds": 0.0021840999979758635,
+              "exit_code": 0
+            },
+            {
+              "name": "compile-goose",
+              "command": [
+                "/home/jacobt/src/goose-to-wasm/build/tmp/goose-bootstrap-umwkql8q/compiler/seed",
+                "sources/main.goose",
+                "--stdlib",
+                "stdlib",
+                "--target",
+                "native",
+                "-O2",
+                "-o",
+                "/home/jacobt/src/goose-to-wasm/build/tmp/goose-bootstrap-umwkql8q/compiler/compiler.c",
+                "--wasm-deps",
+                "/home/jacobt/src/goose-to-wasm/build/tmp/goose-bootstrap-umwkql8q/compiler/seed-dependencies.json"
+              ],
+              "seconds": 3.7248421999975108,
+              "exit_code": 0
+            },
+            {
+              "name": "verify-selfhost",
+              "command": [
+                "/home/jacobt/src/goose-to-wasm/build/tmp/goose-bootstrap-umwkql8q/compiler/goose",
+                "sources/main.goose",
+                "--stdlib",
+                "stdlib",
+                "--target",
+                "native",
+                "-O2",
+                "-o",
+                "/home/jacobt/src/goose-to-wasm/build/tmp/goose-bootstrap-umwkql8q/compiler/next-generation.c"
+              ],
+              "seconds": 3.873909881003783,
+              "exit_code": 0
+            }
+          ]
+        }
+      },
+      {
+        "name": "repeat-canonical-2",
+        "timing": {
+          "command": [
+            "taskset",
+            "-c",
+            "0",
+            "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+            "/home/jacobt/src/goose-to-wasm/scripts/bootstrap.py",
+            "--source-dir",
+            "/home/jacobt/src/goose-to-wasm/build/cold-bootstrap-trial-2/changed/sources",
+            "--stdlib",
+            "/home/jacobt/src/goose-to-wasm/build/cold-bootstrap-trial-2/changed/stdlib",
+            "--native-dir",
+            "/home/jacobt/src/goose-to-wasm/build/cold-bootstrap-trial-2/changed/native",
+            "--seed-dir",
+            "/home/jacobt/src/goose-to-wasm/build/cold-bootstrap-trial-2/frozen/bootstrap",
+            "--build-dir",
+            "/home/jacobt/src/goose-to-wasm/build/cold-bootstrap-trial-2/repeat-canonical-2",
+            "--cache-dir",
+            "/home/jacobt/src/goose-to-wasm/build/cold-bootstrap-trial-2/repeat-canonical-2.cache",
+            "--cc",
+            "clang",
+            "--verify"
+          ],
+          "start_load": [
+            5.49658203125,
+            7.38916015625,
+            13.33740234375
+          ],
+          "seconds": 36.18806846100051,
+          "status": 0,
+          "user_seconds": 34.55837699999999,
+          "system_seconds": 0.353932,
+          "max_rss_kib": 636216
+        },
+        "report": {
+          "status": "passed",
+          "fixed_point": true,
+          "generated_c_sha256": "72942bf7e58f09d5458cf17b1c1b9688e237053da68ed6a068b3ea6fa2172e70",
+          "next_generation_c_sha256": "72942bf7e58f09d5458cf17b1c1b9688e237053da68ed6a068b3ea6fa2172e70",
+          "executable_sha256": "4fe745f24fe6e35409a4734e3247388213d7ced945f4c648318e426376d36e5f",
+          "builds": {
+            "build-seed": {
+              "c_sha256": "28f1af08daba0f4de86b6f5e2c5ef1adfd25f5ce2921162ea67fa5df78998970",
+              "goose_optimization": 2,
+              "profile_used": true,
+              "profile_reason": "exact profile identity matched",
+              "cache": {
+                "hit": true,
+                "key": "068b9fee3dc468beee7ebe14a866106d9c0a2b795bf7a218fd8724a8592990d5"
+              },
+              "profile_sha256": "1ca21eb5334b98b50987b031fed5acf114a2ad69b999d811c93619e09f7017c3"
+            },
+            "build-goose": {
+              "c_sha256": "72942bf7e58f09d5458cf17b1c1b9688e237053da68ed6a068b3ea6fa2172e70",
+              "goose_optimization": 2,
+              "profile_used": false,
+              "profile_reason": "profile identity differs: c_sha256",
+              "cache": {
+                "hit": true,
+                "key": "06ce768d8a92b71aa97686e00f36afe39e3ad675bcdb5522d14f678aa3c41e2f"
+              }
+            }
+          },
+          "seed_emission_cache": {
+            "hit": false,
+            "key": "a8a89a9824e63b7b7ee9969b87182dc00e8785d26ba0b2cd09b90d702e986560"
+          },
+          "input_hashes_closed": true,
+          "commands": [
+            {
+              "name": "cc-version",
+              "command": [
+                "/usr/bin/clang-23",
+                "--version"
+              ],
+              "seconds": 0.015034228999866173,
+              "exit_code": 0
+            },
+            {
+              "name": "cc-target",
+              "command": [
+                "/usr/bin/clang-23",
+                "-dumpmachine"
+              ],
+              "seconds": 0.015111355001863558,
+              "exit_code": 0
+            },
+            {
+              "name": "seed-help",
+              "command": [
+                "/home/jacobt/src/goose-to-wasm/build/tmp/goose-bootstrap-0fv176xk/compiler/seed",
+                "--help"
+              ],
+              "seconds": 0.002374541996687185,
+              "exit_code": 0
+            },
+            {
+              "name": "compile-goose",
+              "command": [
+                "/home/jacobt/src/goose-to-wasm/build/tmp/goose-bootstrap-0fv176xk/compiler/seed",
+                "sources/main.goose",
+                "--stdlib",
+                "stdlib",
+                "--target",
+                "native",
+                "-O2",
+                "-o",
+                "/home/jacobt/src/goose-to-wasm/build/tmp/goose-bootstrap-0fv176xk/compiler/compiler.c",
+                "--wasm-deps",
+                "/home/jacobt/src/goose-to-wasm/build/tmp/goose-bootstrap-0fv176xk/compiler/seed-dependencies.json"
+              ],
+              "seconds": 31.539853169997514,
+              "exit_code": 0
+            },
+            {
+              "name": "verify-selfhost",
+              "command": [
+                "/home/jacobt/src/goose-to-wasm/build/tmp/goose-bootstrap-0fv176xk/compiler/goose",
+                "sources/main.goose",
+                "--stdlib",
+                "stdlib",
+                "--target",
+                "native",
+                "-O2",
+                "-o",
+                "/home/jacobt/src/goose-to-wasm/build/tmp/goose-bootstrap-0fv176xk/compiler/next-generation.c"
+              ],
+              "seconds": 3.7989715630028513,
+              "exit_code": 0
+            }
+          ]
+        }
+      }
+    ],
+    [
+      {
+        "name": "repeat-canonical-3",
+        "timing": {
+          "command": [
+            "taskset",
+            "-c",
+            "0",
+            "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+            "/home/jacobt/src/goose-to-wasm/scripts/bootstrap.py",
+            "--source-dir",
+            "/home/jacobt/src/goose-to-wasm/build/cold-bootstrap-trial-2/changed/sources",
+            "--stdlib",
+            "/home/jacobt/src/goose-to-wasm/build/cold-bootstrap-trial-2/changed/stdlib",
+            "--native-dir",
+            "/home/jacobt/src/goose-to-wasm/build/cold-bootstrap-trial-2/changed/native",
+            "--seed-dir",
+            "/home/jacobt/src/goose-to-wasm/build/cold-bootstrap-trial-2/frozen/bootstrap",
+            "--build-dir",
+            "/home/jacobt/src/goose-to-wasm/build/cold-bootstrap-trial-2/repeat-canonical-3",
+            "--cache-dir",
+            "/home/jacobt/src/goose-to-wasm/build/cold-bootstrap-trial-2/repeat-canonical-3.cache",
+            "--cc",
+            "clang",
+            "--verify"
+          ],
+          "start_load": [
+            6.5234375,
+            7.42626953125,
+            13.12890625
+          ],
+          "seconds": 35.72924181700364,
+          "status": 0,
+          "user_seconds": 34.822698,
+          "system_seconds": 0.340009,
+          "max_rss_kib": 636216
+        },
+        "report": {
+          "status": "passed",
+          "fixed_point": true,
+          "generated_c_sha256": "72942bf7e58f09d5458cf17b1c1b9688e237053da68ed6a068b3ea6fa2172e70",
+          "next_generation_c_sha256": "72942bf7e58f09d5458cf17b1c1b9688e237053da68ed6a068b3ea6fa2172e70",
+          "executable_sha256": "4fe745f24fe6e35409a4734e3247388213d7ced945f4c648318e426376d36e5f",
+          "builds": {
+            "build-seed": {
+              "c_sha256": "28f1af08daba0f4de86b6f5e2c5ef1adfd25f5ce2921162ea67fa5df78998970",
+              "goose_optimization": 2,
+              "profile_used": true,
+              "profile_reason": "exact profile identity matched",
+              "cache": {
+                "hit": true,
+                "key": "068b9fee3dc468beee7ebe14a866106d9c0a2b795bf7a218fd8724a8592990d5"
+              },
+              "profile_sha256": "1ca21eb5334b98b50987b031fed5acf114a2ad69b999d811c93619e09f7017c3"
+            },
+            "build-goose": {
+              "c_sha256": "72942bf7e58f09d5458cf17b1c1b9688e237053da68ed6a068b3ea6fa2172e70",
+              "goose_optimization": 2,
+              "profile_used": false,
+              "profile_reason": "profile identity differs: c_sha256",
+              "cache": {
+                "hit": true,
+                "key": "06ce768d8a92b71aa97686e00f36afe39e3ad675bcdb5522d14f678aa3c41e2f"
+              }
+            }
+          },
+          "seed_emission_cache": {
+            "hit": false,
+            "key": "a8a89a9824e63b7b7ee9969b87182dc00e8785d26ba0b2cd09b90d702e986560"
+          },
+          "input_hashes_closed": true,
+          "commands": [
+            {
+              "name": "cc-version",
+              "command": [
+                "/usr/bin/clang-23",
+                "--version"
+              ],
+              "seconds": 0.014841814001556486,
+              "exit_code": 0
+            },
+            {
+              "name": "cc-target",
+              "command": [
+                "/usr/bin/clang-23",
+                "-dumpmachine"
+              ],
+              "seconds": 0.01438973499898566,
+              "exit_code": 0
+            },
+            {
+              "name": "seed-help",
+              "command": [
+                "/home/jacobt/src/goose-to-wasm/build/tmp/goose-bootstrap-_ej_3gg5/compiler/seed",
+                "--help"
+              ],
+              "seconds": 0.002166227000998333,
+              "exit_code": 0
+            },
+            {
+              "name": "compile-goose",
+              "command": [
+                "/home/jacobt/src/goose-to-wasm/build/tmp/goose-bootstrap-_ej_3gg5/compiler/seed",
+                "sources/main.goose",
+                "--stdlib",
+                "stdlib",
+                "--target",
+                "native",
+                "-O2",
+                "-o",
+                "/home/jacobt/src/goose-to-wasm/build/tmp/goose-bootstrap-_ej_3gg5/compiler/compiler.c",
+                "--wasm-deps",
+                "/home/jacobt/src/goose-to-wasm/build/tmp/goose-bootstrap-_ej_3gg5/compiler/seed-dependencies.json"
+              ],
+              "seconds": 31.17766323399701,
+              "exit_code": 0
+            },
+            {
+              "name": "verify-selfhost",
+              "command": [
+                "/home/jacobt/src/goose-to-wasm/build/tmp/goose-bootstrap-_ej_3gg5/compiler/goose",
+                "sources/main.goose",
+                "--stdlib",
+                "stdlib",
+                "--target",
+                "native",
+                "-O2",
+                "-o",
+                "/home/jacobt/src/goose-to-wasm/build/tmp/goose-bootstrap-_ej_3gg5/compiler/next-generation.c"
+              ],
+              "seconds": 3.7264319419991807,
+              "exit_code": 0
+            }
+          ]
+        }
+      },
+      {
+        "name": "repeat-local-3",
+        "timing": {
+          "command": [
+            "taskset",
+            "-c",
+            "0",
+            "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+            "/home/jacobt/src/goose-to-wasm/scripts/bootstrap.py",
+            "--source-dir",
+            "/home/jacobt/src/goose-to-wasm/build/cold-bootstrap-trial-2/changed/sources",
+            "--stdlib",
+            "/home/jacobt/src/goose-to-wasm/build/cold-bootstrap-trial-2/changed/stdlib",
+            "--native-dir",
+            "/home/jacobt/src/goose-to-wasm/build/cold-bootstrap-trial-2/changed/native",
+            "--seed-dir",
+            "/home/jacobt/src/goose-to-wasm/build/cold-bootstrap-trial-2/frozen/bootstrap",
+            "--build-dir",
+            "/home/jacobt/src/goose-to-wasm/build/cold-bootstrap-trial-2/repeat-local-3",
+            "--cache-dir",
+            "/home/jacobt/src/goose-to-wasm/build/cold-bootstrap-trial-2/repeat-local-3.cache",
+            "--cc",
+            "clang",
+            "--reuse-toolchain",
+            "/home/jacobt/src/goose-to-wasm/build/cold-bootstrap-trial-2/prior-toolchain.json"
+          ],
+          "start_load": [
+            7.31689453125,
+            7.55908203125,
+            12.96337890625
+          ],
+          "seconds": 8.736357545996725,
+          "status": 0,
+          "user_seconds": 8.318638000000007,
+          "system_seconds": 0.27735299999999996,
+          "max_rss_kib": 636216
+        },
+        "report": {
+          "status": "passed",
+          "fixed_point": true,
+          "generated_c_sha256": "72942bf7e58f09d5458cf17b1c1b9688e237053da68ed6a068b3ea6fa2172e70",
+          "next_generation_c_sha256": "72942bf7e58f09d5458cf17b1c1b9688e237053da68ed6a068b3ea6fa2172e70",
+          "executable_sha256": "4fe745f24fe6e35409a4734e3247388213d7ced945f4c648318e426376d36e5f",
+          "builds": {
+            "build-goose": {
+              "c_sha256": "72942bf7e58f09d5458cf17b1c1b9688e237053da68ed6a068b3ea6fa2172e70",
+              "goose_optimization": 2,
+              "profile_used": false,
+              "profile_reason": "profile identity differs: c_sha256",
+              "cache": {
+                "hit": true,
+                "key": "06ce768d8a92b71aa97686e00f36afe39e3ad675bcdb5522d14f678aa3c41e2f"
+              }
+            }
+          },
+          "seed_emission_cache": {
+            "hit": false,
+            "key": "fa78ecf35012d7021a17e26a991ef7fd8f1ac63b5470f0069552bbae56db4e4f"
+          },
+          "reused_toolchain": {
+            "receipt": "/home/jacobt/src/goose-to-wasm/build/cold-bootstrap-trial-2/prior-toolchain.json",
+            "receipt_sha256": "478e0053b98408c16cacaccb8b0c253fb8eec2dc5945fbe2c7b2cc790ac22dc6",
+            "compiler": "/home/jacobt/src/goose-to-wasm/build/cold-bootstrap-trial-2/prior-goose",
+            "compiler_sha256": "94c6428f4d203a2c2db83a6e89b37160407ca3d01abee466b265ba852b45e952"
+          },
+          "input_hashes_closed": true,
+          "commands": [
+            {
+              "name": "cc-version",
+              "command": [
+                "/usr/bin/clang-23",
+                "--version"
+              ],
+              "seconds": 0.01434713300113799,
+              "exit_code": 0
+            },
+            {
+              "name": "cc-target",
+              "command": [
+                "/usr/bin/clang-23",
+                "-dumpmachine"
+              ],
+              "seconds": 0.014030532001925167,
+              "exit_code": 0
+            },
+            {
+              "name": "seed-help",
+              "command": [
+                "/home/jacobt/src/goose-to-wasm/build/tmp/goose-bootstrap-03crgky9/compiler/seed",
+                "--help"
+              ],
+              "seconds": 0.0021250690042506903,
+              "exit_code": 0
+            },
+            {
+              "name": "compile-goose",
+              "command": [
+                "/home/jacobt/src/goose-to-wasm/build/tmp/goose-bootstrap-03crgky9/compiler/seed",
+                "sources/main.goose",
+                "--stdlib",
+                "stdlib",
+                "--target",
+                "native",
+                "-O2",
+                "-o",
+                "/home/jacobt/src/goose-to-wasm/build/tmp/goose-bootstrap-03crgky9/compiler/compiler.c",
+                "--wasm-deps",
+                "/home/jacobt/src/goose-to-wasm/build/tmp/goose-bootstrap-03crgky9/compiler/seed-dependencies.json"
+              ],
+              "seconds": 3.809732866997365,
+              "exit_code": 0
+            },
+            {
+              "name": "verify-selfhost",
+              "command": [
+                "/home/jacobt/src/goose-to-wasm/build/tmp/goose-bootstrap-03crgky9/compiler/goose",
+                "sources/main.goose",
+                "--stdlib",
+                "stdlib",
+                "--target",
+                "native",
+                "-O2",
+                "-o",
+                "/home/jacobt/src/goose-to-wasm/build/tmp/goose-bootstrap-03crgky9/compiler/next-generation.c"
+              ],
+              "seconds": 4.187914646994614,
+              "exit_code": 0
+            }
+          ]
+        }
+      }
+    ]
+  ],
+  "cached_native_build_medians": {
+    "canonical": {
+      "wall_seconds": 36.18806846100051,
+      "cpu_seconds": 35.162707000000005
+    },
+    "local": {
+      "wall_seconds": 8.416233612006181,
+      "cpu_seconds": 8.261045000000006
+    }
+  },
+  "seed_construction_trials": {
+    "clang_O1": {
+      "cpu": 2,
+      "build": {
+        "seconds": 89.643,
+        "user_seconds": 87.65,
+        "system_seconds": 1.113
+      },
+      "emission": {
+        "seconds": 38.359,
+        "user_seconds": 37.82,
+        "system_seconds": 0.228
+      },
+      "output_c_sha256": "fc7fbbff387041f0234df658e00b2e80d762b1590e8c34a36621e27d35601ff9"
+    },
+    "clang_O0": {
+      "cpu": 0,
+      "build": {
+        "seconds": 33.224,
+        "user_seconds": 31.468,
+        "system_seconds": 1.362
+      },
+      "emission": {
+        "seconds": 2.895,
+        "user_seconds": 2.802,
+        "system_seconds": 0.053
+      },
+      "error": "goose runtime error: native call stack overflow (<native>:0)",
+      "64_MiB_stack_retry": {
+        "seconds_lower_bound": 216,
+        "stopped_before_c_output": true
+      }
+    },
+    "gcc_O0": {
+      "cpu": 1,
+      "gcc_version": "gcc (GCC) 16.2.1 20260810",
+      "build": {
+        "seconds": 161.029,
+        "user_seconds": 153.085,
+        "system_seconds": 6.366
+      },
+      "emission": {
+        "seconds": 3.751,
+        "user_seconds": 3.687,
+        "system_seconds": 0.028
+      },
+      "error": "goose runtime error: native call stack overflow (<native>:0)"
+    },
+    "tinycc": {
+      "cpu": 3,
+      "version": "tcc version 0.9.28rc (x86_64 Linux)",
+      "executable_sha256": "83c19b3f52dc2eac2cb350785b8f8fccb02fc4d63a48fcc8f5475bc14013942a",
+      "build": {
+        "seconds": 0.032,
+        "user_seconds": 0.006,
+        "system_seconds": 0.013
+      },
+      "error": "../../construction-speed/cold-base-probe/cc-build-seed/seed.c:4131: error: ';' expected (got 'g_signed_min')"
+    }
+  }
+}
