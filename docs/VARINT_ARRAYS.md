@@ -25,14 +25,13 @@ use bounded sequential walks. Sparse reads may map bytes without advancing the
 physical producer cursor. Rendering snapshots the exact encoded span before
 later arguments run, then decodes it sequentially.
 
-For loops use a byte cursor and the checker's binding type. A plain source loop
-already binds an encoded reference for variable elements; a local value copy
-decodes it. After the body or continue, the cursor advances over the old element.
-When a reloadable source's base changes, the walker seeks the current ordinal
-in the new source after checking its current length. Existing fixedlen and
-SequenceValue rules preserve the difference between a live reference path and
-an explicitly pinned `&link`. Indexing/range slices and cross-element storage
-conversion remain frontend-invalid in the pinned language.
+Direct Wasm keeps a byte cursor in a top-level loop over an immutable incoming
+varint slice parameter when the preceding statements and the loop body only
+perform eligible arithmetic, tests and writes to private numeric locals. On
+entry to each subsequent iteration, the cursor skips the previous encoding.
+A break or an exhausted sequence can stop before decoding the final element.
+Other loops reload the view and seek the current ordinal from its beginning,
+which can take quadratic time. [Measurements and controls](../bench/results/2026-11-17/varint-foreach/README.md)
 
 Actual varint-element nonlocal targets require dedicated image staging. The
 refusal applies across optimized inline stacks as well as ordinary emitted

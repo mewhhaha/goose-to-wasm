@@ -1,0 +1,755 @@
+{
+  "source_revision": "9551a589be1f1e028e953080c9f2fed562859b70",
+  "baseline_build": {
+    "commands": [
+      {
+        "command": [
+          "/usr/bin/clang-23",
+          "-std=gnu11",
+          "-O2",
+          "-DG_UNITS=8",
+          "-DG_UNIT=0",
+          "-c",
+          "goose.c",
+          "-o",
+          "unit0.o"
+        ],
+        "seconds": 50.830737422998936
+      },
+      {
+        "command": [
+          "/usr/bin/clang-23",
+          "-std=gnu11",
+          "-O2",
+          "-DG_UNITS=8",
+          "-DG_UNIT=1",
+          "-c",
+          "goose.c",
+          "-o",
+          "unit1.o"
+        ],
+        "seconds": 56.403483068999776
+      },
+      {
+        "command": [
+          "/usr/bin/clang-23",
+          "-std=gnu11",
+          "-O2",
+          "-DG_UNITS=8",
+          "-DG_UNIT=2",
+          "-c",
+          "goose.c",
+          "-o",
+          "unit2.o"
+        ],
+        "seconds": 62.94102339499659
+      },
+      {
+        "command": [
+          "/usr/bin/clang-23",
+          "-std=gnu11",
+          "-O2",
+          "-DG_UNITS=8",
+          "-DG_UNIT=3",
+          "-c",
+          "goose.c",
+          "-o",
+          "unit3.o"
+        ],
+        "seconds": 68.3837204579977
+      },
+      {
+        "command": [
+          "/usr/bin/clang-23",
+          "-std=gnu11",
+          "-O2",
+          "-DG_UNITS=8",
+          "-DG_UNIT=4",
+          "-c",
+          "goose.c",
+          "-o",
+          "unit4.o"
+        ],
+        "seconds": 64.29725948299892
+      },
+      {
+        "command": [
+          "/usr/bin/clang-23",
+          "-std=gnu11",
+          "-O2",
+          "-DG_UNITS=8",
+          "-DG_UNIT=5",
+          "-c",
+          "goose.c",
+          "-o",
+          "unit5.o"
+        ],
+        "seconds": 62.241428815999825
+      },
+      {
+        "command": [
+          "/usr/bin/clang-23",
+          "-std=gnu11",
+          "-O2",
+          "-DG_UNITS=8",
+          "-DG_UNIT=6",
+          "-c",
+          "goose.c",
+          "-o",
+          "unit6.o"
+        ],
+        "seconds": 65.62395750999713
+      },
+      {
+        "command": [
+          "/usr/bin/clang-23",
+          "-std=gnu11",
+          "-O2",
+          "-DG_UNITS=8",
+          "-DG_UNIT=7",
+          "-c",
+          "goose.c",
+          "-o",
+          "unit7.o"
+        ],
+        "seconds": 60.436427710003045
+      },
+      {
+        "command": [
+          "/usr/bin/clang-23",
+          "-std=gnu11",
+          "-O2",
+          "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/local-reuse/candidate/runtime.o",
+          "unit0.o",
+          "unit1.o",
+          "unit2.o",
+          "unit3.o",
+          "unit4.o",
+          "unit5.o",
+          "unit6.o",
+          "unit7.o",
+          "-lm",
+          "-ldl",
+          "-pthread",
+          "-o",
+          "goose"
+        ],
+        "seconds": 0.0992200300024706
+      }
+    ],
+    "seconds": 128.92397427999822,
+    "cpus": [
+      5,
+      13
+    ],
+    "c_sha256": "7fd2e9aa5e28e3cfa9813cf109e7e556522decd3acc3871a8c7b38922b36b7d5",
+    "binary_sha256": "a3d2614c18bcbc231fc26bbee956da1522532b4f97dd46b0a489c6e5c98fa464"
+  },
+  "toolchain": "Linux 7.3.4-1-cachyos x86_64\nclang version 23.1.5\nTarget: x86_64-pc-linux-gnu\nThread model: posix\nInstalledDir: /usr/bin\nx86_64-pc-linux-gnu\nca0d2f7fbe94836762f36c7e73292289bc4d5e4b9b5defc320ef0856259a2855  /usr/bin/clang-23\nv24.22.1 / V8 13.6.233.17-node.58\nCPU(s):                                  16\nOn-line CPU(s) list:                     0-15\nModel name:                              AMD Ryzen 7 3800X 8-Core Processor\nThread(s) per core:                      2\nCPU(s) scaling MHz:                      71%\nNUMA node0 CPU(s):                       0-15\n",
+  "variants": {
+    "candidate": {
+      "patch": "candidate.patch",
+      "patch_sha256": "082e03579d4670cd9716a56cbec073e413e604bf2be01818fdad132c012095b5",
+      "build": {
+        "commands": [
+          {
+            "command": [
+              "/usr/bin/clang-23",
+              "-std=gnu11",
+              "-O2",
+              "-DG_RUNTIME_UNIT",
+              "-c",
+              "runtime.c",
+              "-o",
+              "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/local-reuse/candidate/runtime.o"
+            ],
+            "seconds": 2.713024160002533
+          },
+          {
+            "command": [
+              "/usr/bin/clang-23",
+              "-std=gnu11",
+              "-O2",
+              "-DG_UNITS=8",
+              "-DG_UNIT=0",
+              "-c",
+              "goose.c",
+              "-o",
+              "unit0.o"
+            ],
+            "seconds": 50.91029607599921
+          },
+          {
+            "command": [
+              "/usr/bin/clang-23",
+              "-std=gnu11",
+              "-O2",
+              "-DG_UNITS=8",
+              "-DG_UNIT=1",
+              "-c",
+              "goose.c",
+              "-o",
+              "unit1.o"
+            ],
+            "seconds": 56.40132981700299
+          },
+          {
+            "command": [
+              "/usr/bin/clang-23",
+              "-std=gnu11",
+              "-O2",
+              "-DG_UNITS=8",
+              "-DG_UNIT=2",
+              "-c",
+              "goose.c",
+              "-o",
+              "unit2.o"
+            ],
+            "seconds": 61.712834717996884
+          },
+          {
+            "command": [
+              "/usr/bin/clang-23",
+              "-std=gnu11",
+              "-O2",
+              "-DG_UNITS=8",
+              "-DG_UNIT=3",
+              "-c",
+              "goose.c",
+              "-o",
+              "unit3.o"
+            ],
+            "seconds": 63.69528506699862
+          },
+          {
+            "command": [
+              "/usr/bin/clang-23",
+              "-std=gnu11",
+              "-O2",
+              "-DG_UNITS=8",
+              "-DG_UNIT=4",
+              "-c",
+              "goose.c",
+              "-o",
+              "unit4.o"
+            ],
+            "seconds": 54.74675026699697
+          },
+          {
+            "command": [
+              "/usr/bin/clang-23",
+              "-std=gnu11",
+              "-O2",
+              "-DG_UNITS=8",
+              "-DG_UNIT=5",
+              "-c",
+              "goose.c",
+              "-o",
+              "unit5.o"
+            ],
+            "seconds": 51.553101659003005
+          },
+          {
+            "command": [
+              "/usr/bin/clang-23",
+              "-std=gnu11",
+              "-O2",
+              "-DG_UNITS=8",
+              "-DG_UNIT=6",
+              "-c",
+              "goose.c",
+              "-o",
+              "unit6.o"
+            ],
+            "seconds": 55.09880410199548
+          },
+          {
+            "command": [
+              "/usr/bin/clang-23",
+              "-std=gnu11",
+              "-O2",
+              "-DG_UNITS=8",
+              "-DG_UNIT=7",
+              "-c",
+              "goose.c",
+              "-o",
+              "unit7.o"
+            ],
+            "seconds": 50.49498913800198
+          },
+          {
+            "command": [
+              "/usr/bin/clang-23",
+              "-std=gnu11",
+              "-O2",
+              "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/local-reuse/candidate/runtime.o",
+              "unit0.o",
+              "unit1.o",
+              "unit2.o",
+              "unit3.o",
+              "unit4.o",
+              "unit5.o",
+              "unit6.o",
+              "unit7.o",
+              "-lm",
+              "-ldl",
+              "-pthread",
+              "-o",
+              "goose"
+            ],
+            "seconds": 0.09339194800122641
+          }
+        ],
+        "seconds": 116.99783811399539,
+        "cpus": [
+          4,
+          5,
+          12,
+          13
+        ],
+        "c_sha256": "dd43dba4915858a72f813b72ad6351c6a6f8eaee19e36db0165be5b8aba921b8",
+        "binary_sha256": "edfd92b9609818975bcf46421b426bf2d49939bbac35dd92ec604e4a06d822bb"
+      },
+      "fixture_count": 68,
+      "fixture_receipt": "fixtures.json",
+      "measurements": [
+        {
+          "receipt": "wasm-direct.json",
+          "equal_output": {
+            "equal": true,
+            "sha256": "e9ddb8bd72ff478f50bffe63c20634440aa5500ef61c4b9f1b37dc130428203b",
+            "bytes": 26623549
+          },
+          "metrics": {
+            "seconds": {
+              "seconds": [
+                [
+                  6.300507113999629,
+                  5.274140918998455
+                ],
+                [
+                  6.43070479099697,
+                  7.862123342005361
+                ],
+                [
+                  7.189201458000753,
+                  7.141870503000973
+                ],
+                [
+                  8.376669264995144,
+                  11.828294648999872
+                ],
+                [
+                  6.769108544001938,
+                  7.5773803499978385
+                ]
+              ],
+              "median_paired_percent": 11.940594551583983,
+              "median_paired_seconds": 0.8082718059959006
+            },
+            "user_seconds": {
+              "seconds": [
+                [
+                  5.778841999999999,
+                  5.059840000000001
+                ],
+                [
+                  5.960304000000001,
+                  6.726785
+                ],
+                [
+                  6.580779999999997,
+                  6.436697000000002
+                ],
+                [
+                  7.287688000000003,
+                  9.189707999999996
+                ],
+                [
+                  6.373356000000001,
+                  6.919399999999996
+                ]
+              ],
+              "median_paired_percent": 8.567605512699972,
+              "median_paired_seconds": 0.5460439999999949
+            },
+            "backend_ns": {
+              "seconds": [
+                [
+                  2.701075365,
+                  1.905705068
+                ],
+                [
+                  2.600332316,
+                  2.768789767
+                ],
+                [
+                  2.951327805,
+                  2.722686718
+                ],
+                [
+                  3.915623553,
+                  3.511999268
+                ],
+                [
+                  2.693751704,
+                  2.729725616
+                ]
+              ],
+              "median_paired_percent": -7.747058344811686,
+              "median_paired_seconds": -0.2286410870000002
+            }
+          }
+        },
+        {
+          "receipt": "native.json",
+          "equal_output": {
+            "equal": true,
+            "sha256": "7fd2e9aa5e28e3cfa9813cf109e7e556522decd3acc3871a8c7b38922b36b7d5",
+            "bytes": 46460560
+          },
+          "metrics": {
+            "seconds": {
+              "seconds": [
+                [
+                  5.28726010399987,
+                  6.1066944589983905
+                ],
+                [
+                  4.955712609000329,
+                  5.554865594000148
+                ]
+              ],
+              "median_paired_percent": 13.794213769347142,
+              "median_paired_seconds": 0.7092936699991697
+            },
+            "user_seconds": {
+              "seconds": [
+                [
+                  4.990287000000009,
+                  5.438509999999994
+                ],
+                [
+                  4.713999000000001,
+                  5.242602999999988
+                ]
+              ],
+              "median_paired_percent": 10.09770118025548,
+              "median_paired_seconds": 0.48841349999998585
+            },
+            "backend_ns": {
+              "seconds": [
+                [
+                  1.59694888,
+                  1.440197094
+                ],
+                [
+                  1.413162306,
+                  1.74874323
+                ]
+              ],
+              "median_paired_percent": 6.965551108852131,
+              "median_paired_seconds": 0.089414569
+            }
+          }
+        }
+      ]
+    },
+    "streaming": {
+      "patch": "streaming.patch",
+      "patch_sha256": "44ab4bf96eec96a1d9fbcc8015761d854d73c1c4fb41de9b5ee1db36d7d29a30",
+      "build": {
+        "commands": [
+          {
+            "command": [
+              "/usr/bin/clang-23",
+              "-std=gnu11",
+              "-O2",
+              "-DG_UNITS=8",
+              "-DG_UNIT=0",
+              "-c",
+              "goose.c",
+              "-o",
+              "unit0.o"
+            ],
+            "seconds": 44.60200032599823
+          },
+          {
+            "command": [
+              "/usr/bin/clang-23",
+              "-std=gnu11",
+              "-O2",
+              "-DG_UNITS=8",
+              "-DG_UNIT=1",
+              "-c",
+              "goose.c",
+              "-o",
+              "unit1.o"
+            ],
+            "seconds": 49.5952514199962
+          },
+          {
+            "command": [
+              "/usr/bin/clang-23",
+              "-std=gnu11",
+              "-O2",
+              "-DG_UNITS=8",
+              "-DG_UNIT=2",
+              "-c",
+              "goose.c",
+              "-o",
+              "unit2.o"
+            ],
+            "seconds": 54.803449377002835
+          },
+          {
+            "command": [
+              "/usr/bin/clang-23",
+              "-std=gnu11",
+              "-O2",
+              "-DG_UNITS=8",
+              "-DG_UNIT=3",
+              "-c",
+              "goose.c",
+              "-o",
+              "unit3.o"
+            ],
+            "seconds": 58.10775480599841
+          },
+          {
+            "command": [
+              "/usr/bin/clang-23",
+              "-std=gnu11",
+              "-O2",
+              "-DG_UNITS=8",
+              "-DG_UNIT=4",
+              "-c",
+              "goose.c",
+              "-o",
+              "unit4.o"
+            ],
+            "seconds": 54.05480392000027
+          },
+          {
+            "command": [
+              "/usr/bin/clang-23",
+              "-std=gnu11",
+              "-O2",
+              "-DG_UNITS=8",
+              "-DG_UNIT=5",
+              "-c",
+              "goose.c",
+              "-o",
+              "unit5.o"
+            ],
+            "seconds": 52.26842121899972
+          },
+          {
+            "command": [
+              "/usr/bin/clang-23",
+              "-std=gnu11",
+              "-O2",
+              "-DG_UNITS=8",
+              "-DG_UNIT=6",
+              "-c",
+              "goose.c",
+              "-o",
+              "unit6.o"
+            ],
+            "seconds": 54.21676451100211
+          },
+          {
+            "command": [
+              "/usr/bin/clang-23",
+              "-std=gnu11",
+              "-O2",
+              "-DG_UNITS=8",
+              "-DG_UNIT=7",
+              "-c",
+              "goose.c",
+              "-o",
+              "unit7.o"
+            ],
+            "seconds": 50.73864210500324
+          },
+          {
+            "command": [
+              "/usr/bin/clang-23",
+              "-std=gnu11",
+              "-O2",
+              "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/local-reuse/candidate/runtime.o",
+              "unit0.o",
+              "unit1.o",
+              "unit2.o",
+              "unit3.o",
+              "unit4.o",
+              "unit5.o",
+              "unit6.o",
+              "unit7.o",
+              "-lm",
+              "-ldl",
+              "-pthread",
+              "-o",
+              "goose"
+            ],
+            "seconds": 0.07275553900399245
+          }
+        ],
+        "seconds": 109.09442750599555,
+        "cpus": [
+          5,
+          13
+        ],
+        "c_sha256": "02a5034bc36ffb0fae9e68c596712cdc0153597a7a84a01b2ce487f8b748c369",
+        "binary_sha256": "2b9511566b0149730de1460c39da0daae9f7ce4346d808d638eb0b8714c9008b"
+      },
+      "fixture_count": 68,
+      "fixture_receipt": "streaming-fixtures.json",
+      "measurements": [
+        {
+          "receipt": "streaming-wasm-direct.json",
+          "equal_output": {
+            "equal": true,
+            "sha256": "e9ddb8bd72ff478f50bffe63c20634440aa5500ef61c4b9f1b37dc130428203b",
+            "bytes": 26623549
+          },
+          "metrics": {
+            "seconds": {
+              "seconds": [
+                [
+                  5.296893279002688,
+                  5.446850368003652
+                ],
+                [
+                  5.5834873910062015,
+                  5.43858481800271
+                ],
+                [
+                  15.269367833003344,
+                  8.010688132002542
+                ],
+                [
+                  22.28587434899964,
+                  22.659411263004586
+                ],
+                [
+                  9.501249930995982,
+                  9.678881127998466
+                ]
+              ],
+              "median_paired_percent": 1.6761151398204444,
+              "median_paired_seconds": 0.1499570890009636
+            },
+            "user_seconds": {
+              "seconds": [
+                [
+                  5.0705290000000005,
+                  5.190500999999999
+                ],
+                [
+                  5.312168,
+                  5.170393999999998
+                ],
+                [
+                  6.362558,
+                  5.600360000000002
+                ],
+                [
+                  8.559840999999999,
+                  10.279086
+                ],
+                [
+                  8.552755000000005,
+                  8.555977999999996
+                ]
+              ],
+              "median_paired_percent": 0.03768376388650907,
+              "median_paired_seconds": 0.003222999999991316
+            },
+            "backend_ns": {
+              "seconds": [
+                [
+                  2.02105678,
+                  1.870888428
+                ],
+                [
+                  2.124534275,
+                  1.996553673
+                ],
+                [
+                  6.754714036,
+                  4.277005184
+                ],
+                [
+                  9.477985089,
+                  6.74183556
+                ],
+                [
+                  2.828520968,
+                  3.325919473
+                ]
+              ],
+              "median_paired_percent": -7.430189665428399,
+              "median_paired_seconds": -0.1501683519999999
+            }
+          }
+        },
+        {
+          "receipt": "streaming-native.json",
+          "equal_output": {
+            "equal": true,
+            "sha256": "7fd2e9aa5e28e3cfa9813cf109e7e556522decd3acc3871a8c7b38922b36b7d5",
+            "bytes": 46460560
+          },
+          "metrics": {
+            "seconds": {
+              "seconds": [
+                [
+                  5.123003350003273,
+                  4.8954958870017435
+                ],
+                [
+                  5.437547855995945,
+                  5.038238718996581
+                ]
+              ],
+              "median_paired_percent": -5.892225911215837,
+              "median_paired_seconds": -0.3134083000004466
+            },
+            "user_seconds": {
+              "seconds": [
+                [
+                  4.811622,
+                  4.600194999999999
+                ],
+                [
+                  5.123598000000001,
+                  4.754314999999991
+                ]
+              ],
+              "median_paired_percent": -5.800791808261579,
+              "median_paired_seconds": -0.29035500000000525
+            },
+            "backend_ns": {
+              "seconds": [
+                [
+                  1.425246404,
+                  1.273412393
+                ],
+                [
+                  1.485041819,
+                  1.304858778
+                ]
+              ],
+              "median_paired_percent": -11.393186326558308,
+              "median_paired_seconds": -0.16600852599999993
+            }
+          }
+        }
+      ]
+    }
+  },
+  "direct_writer_output_sha256": "94b1db1d809b9c8f02822cc006417b6fc457a3354459f42a53b65a4dbc1ea0f2",
+  "shared_host": "Timing CPU4 shares a physical core and package with other active work. Keep all paired samples.",
+  "conclusion": "Preserved experiments. Streaming reduced measured backend time by 0.150 s in the median pair, with unchanged whole-compile user CPU and +0.150 s wall. Neither patch is applied."
+}

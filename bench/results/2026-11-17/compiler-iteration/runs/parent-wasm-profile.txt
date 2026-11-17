@@ -1,0 +1,79 @@
+samples 2387
+life_* 56.2%
+  8.34%      199 cg_prepare_function
+  7.62%      182 wb_reuse_locals
+  4.57%      109 life_eval_body
+  3.85%       92 life_construct_read
+  3.56%       85 life_effect
+  3.35%       80 life_replay
+  2.93%       70 life_effect_far
+  2.76%       66 cg_emit_prelude
+  2.68%       64 life_shrink
+  2.64%       63 life_function
+  2.18%       52 life_eval
+  2.01%       48 life_contains
+  2.01%       48 life_readback
+  2.01%       48 opt_function
+  1.93%       46 life_in_scope
+  1.59%       38 life_held_into
+  1.51%       36 life_call
+  1.42%       34 life_holder_scan
+  1.38%       33 life_list_set
+  1.30%       31 life_read_find
+  1.26%       30 life_cell
+  1.13%       27 wb_instruction
+  1.09%       26 life_next_live
+  0.96%       23 check_lookup_scope
+  0.92%       22 life_holds_walk
+--- self <- caller
+  8.34%      199 cg_prepare_function <- <outside>
+  7.62%      182 wb_reuse_locals <- <outside>
+  4.57%      109 life_eval_body <- <outside>
+  3.85%       92 life_construct_read <- <outside>
+  3.56%       85 life_effect <- <outside>
+  3.35%       80 life_replay <- <outside>
+  2.93%       70 life_effect_far <- <outside>
+  2.76%       66 cg_emit_prelude <- <outside>
+  2.68%       64 life_shrink <- <outside>
+  2.64%       63 life_function <- <outside>
+  2.18%       52 life_eval <- <outside>
+  2.01%       48 life_contains <- <outside>
+  2.01%       48 life_readback <- <outside>
+  2.01%       48 opt_function <- <outside>
+  1.93%       46 life_in_scope <- <outside>
+  1.59%       38 life_held_into <- <outside>
+  1.51%       36 life_call <- <outside>
+  1.42%       34 life_holder_scan <- <outside>
+  1.38%       33 life_list_set <- <outside>
+  1.30%       31 life_read_find <- <outside>
+  1.26%       30 life_cell <- <outside>
+  1.13%       27 wb_instruction <- <outside>
+  1.09%       26 life_next_live <- <outside>
+  0.96%       23 check_lookup_scope <- <outside>
+  0.92%       22 life_holds_walk <- <outside>
+--- self <- caller <- caller2
+  8.34%      199 cg_prepare_function <- <outside> <- <outside>
+  7.62%      182 wb_reuse_locals <- <outside> <- <outside>
+  4.57%      109 life_eval_body <- <outside> <- <outside>
+  3.85%       92 life_construct_read <- <outside> <- <outside>
+  3.56%       85 life_effect <- <outside> <- <outside>
+  3.35%       80 life_replay <- <outside> <- <outside>
+  2.93%       70 life_effect_far <- <outside> <- <outside>
+  2.76%       66 cg_emit_prelude <- <outside> <- <outside>
+  2.68%       64 life_shrink <- <outside> <- <outside>
+  2.64%       63 life_function <- <outside> <- <outside>
+  2.18%       52 life_eval <- <outside> <- <outside>
+  2.01%       48 life_contains <- <outside> <- <outside>
+  2.01%       48 life_readback <- <outside> <- <outside>
+  2.01%       48 opt_function <- <outside> <- <outside>
+  1.93%       46 life_in_scope <- <outside> <- <outside>
+  1.59%       38 life_held_into <- <outside> <- <outside>
+  1.51%       36 life_call <- <outside> <- <outside>
+  1.42%       34 life_holder_scan <- <outside> <- <outside>
+  1.38%       33 life_list_set <- <outside> <- <outside>
+  1.30%       31 life_read_find <- <outside> <- <outside>
+  1.26%       30 life_cell <- <outside> <- <outside>
+  1.13%       27 wb_instruction <- <outside> <- <outside>
+  1.09%       26 life_next_live <- <outside> <- <outside>
+  0.96%       23 check_lookup_scope <- <outside> <- <outside>
+  0.92%       22 life_holds_walk <- <outside> <- <outside>

@@ -1,0 +1,35 @@
+--- a/selfhost/wasm.goose
++++ b/selfhost/wasm.goose
+@@ -196,7 +196,12 @@
+ fn wb_reuse_locals(locals: i64[>..]&, code: u8[>..]&, params: i64) {
+     if locals.len < 2 { return; }
+     var instructions: WbInstruction[>..] = []; var at = 0;
+-    while at < code.len { let instruction = wb_instruction(code, at); instructions.push(instruction); }
++    while at < code.len {
++        let instruction = wb_instruction(code, at); let opcode = instruction.opcode;
++        // Keep the initial position for locals live on entry.
++        if instruction.start == 0 || opcode >= 0x02 && opcode <= 0x05 || opcode >= 0x0b && opcode <= 0x0e ||
++           opcode >= 0x20 && opcode <= 0x22 && instruction.index >= params { instructions.push(instruction); }
++    }
+     let total = params + locals.len;
+     var first: i64[>..] = []; var last: i64[>..] = []; var written: i64[>..] = []; var arm: i64[>..] = []; var stamp: i64[>..] = [];
+     first.resize(total, -1); last.resize(total, -1); written.resize(total, 0); arm.resize(total, -1); stamp.resize(total, -1);
+@@ -267,10 +272,14 @@
+     var kinds: i64[>..] = []; var index_of: i64[>..] = []; index_of.resize(slot_type.len, -1); var kept: i64[>..] = [];
+     for kind in slot_type { var known = false; for seen in kinds { if seen == kind { known = true; } } if !known { kinds.push(kind); } }
+     for kind in kinds { for candidate, slot in slot_type { if candidate == kind { index_of[slot] = params + kept.len; kept.push(kind); } } }
+-    var encoded: u8[>..] = [];
++    var encoded: u8[>..] = []; var copied = 0;
+     for instruction in instructions {
+-        if instruction.opcode >= 0x20 && instruction.opcode <= 0x22 && instruction.index >= params { wb_op(encoded, instruction.opcode, index_of[slot_of[instruction.index]]); }
+-        else { wb_raw(encoded, code[instruction.start..instruction.end]); }
+-    }
++        if instruction.opcode >= 0x20 && instruction.opcode <= 0x22 && instruction.index >= params {
++            wb_raw(encoded, code[copied..instruction.start]);
++            wb_op(encoded, instruction.opcode, index_of[slot_of[instruction.index]]);
++            copied = instruction.end;
++        }
++    }
++    wb_raw(encoded, code[copied..]);
+     locals.clear(); locals.append(kept); code.clear(); code.append(encoded);
+ }

@@ -1,0 +1,137 @@
+--- a/selfhost/wasm.goose
++++ b/selfhost/wasm.goose
+@@ -123,8 +123,8 @@
+ fn wb_skip_leb(bytes: u8[:], at: i64&) {
+     loop { let byte = bytes[at]; at++; if (byte & 128) == 0 { return; } }
+ }
+-fn wb_instruction(bytes: u8[:], at: i64&) -> WbInstruction {
+-    let start = at; let opcode = bytes[at] as i64; at++; var index = -1;
++inline fn wb_step(bytes: u8[:], at: i64&, index: i64&) -> i64 {
++    let opcode = bytes[at] as i64; at++;
+     if opcode == 0x02 || opcode == 0x03 || opcode == 0x04 { wb_skip_leb(bytes, at); }
+     else if opcode == 0x0c || opcode == 0x0d || opcode == 0x10 || opcode >= 0x20 && opcode <= 0x24 || opcode == 0x3f || opcode == 0x40 { index = wb_read_unsigned(bytes, at); }
+     else if opcode == 0x0e { let count = wb_read_unsigned(bytes, at); for i in 0..count + 1 { wb_read_unsigned(bytes, at); } }
+@@ -145,6 +145,10 @@
+         else if sub >= 0x15 && sub <= 0x22 { at += 1; }
+         else if sub >= 0x54 && sub <= 0x5b { wb_read_unsigned(bytes, at); wb_read_unsigned(bytes, at); at += 1; }
+     }
++    return opcode;
++}
++fn wb_instruction(bytes: u8[:], at: i64&) -> WbInstruction {
++    let start = at; var index = -1; let opcode = wb_step(bytes, at, index);
+     return WbInstruction { start: start, end: at, opcode: opcode, index: index };
+ }
+ fn wb_compact_body(out: u8[>..]&, locals: i64[:], code: u8[:], params: i64) {
+@@ -178,7 +182,7 @@
+ // A block, loop or if being read by wb_reuse_locals: where it began (a loop),
+ // where its definite assignments start on the undo stack, and whether a
+ // branch names it.
+-struct WbFrame { at: i64, looping: bool = false, conditional: bool = false, alternative: bool = false, branched: bool = false, undo: i64 = 0 }
++struct WbFrame { at: i64, looping: bool = false, conditional: bool = false, alternative: bool = false, branched: bool = false, undo: i64 = 0, covers: i64 = -1 }
+ // Gives locals whose values are never live at once the same index. The
+ // backend makes a local for every temporary (cg_save), thousands in a large
+ // function, and a baseline compiler gives each a stack slot.
+@@ -195,15 +199,17 @@
+ // it. Everything else is taken as not written, which only costs sharing.
+ fn wb_reuse_locals(locals: i64[>..]&, code: u8[>..]&, params: i64) {
+     if locals.len < 2 { return; }
+-    var instructions: WbInstruction[>..] = []; var at = 0;
+-    while at < code.len { let instruction = wb_instruction(code, at); instructions.push(instruction); }
++    var rewrites: WbInstruction[>..] = []; var at = 0; var position = -1;
+     let total = params + locals.len;
+     var first: i64[>..] = []; var last: i64[>..] = []; var written: i64[>..] = []; var arm: i64[>..] = []; var stamp: i64[>..] = [];
+     first.resize(total, -1); last.resize(total, -1); written.resize(total, 0); arm.resize(total, -1); stamp.resize(total, -1);
+-    var loop_end: i64[>..] = []; loop_end.resize(instructions.len + 1, -1);
+     var frames: WbFrame[>..] = []; var undo: i64[>..] = []; var covers: i64[>..] = []; var merged: i64[>..] = [];
+-    for instruction, position in instructions {
+-        let opcode = instruction.opcode;
++    while at < code.len {
++        let start = at; var index = -1; let opcode = wb_step(code, at, index);
++        let rewrite = opcode >= 0x20 && opcode <= 0x22 && index >= params;
++        // Keep the initial position for locals live on entry.
++        if start != 0 && !rewrite && !(opcode >= 0x02 && opcode <= 0x05 || opcode >= 0x0b && opcode <= 0x0e) { continue; }
++        position++;
+         if opcode == 0x02 || opcode == 0x03 || opcode == 0x04 {
+             frames.push(WbFrame { at: position, looping: opcode == 0x03, conditional: opcode == 0x04, undo: undo.len });
+         } else if opcode == 0x05 {
+@@ -220,45 +226,46 @@
+             }
+             undo.resize(frame.undo);
+             for local in merged { if written[local] == 0 { written[local] = frames.len + 1; undo.push(local); } }
+-            if frame.looping { loop_end[frame.at] = position; }
++            var cover = frame.covers;
++            while cover >= 0 { last[covers[cover]] = position; cover = covers[cover + 1]; }
+         } else if opcode == 0x0c || opcode == 0x0d {
+-            if instruction.index < frames.len { frames[frames.len - 1 - instruction.index].branched = true; }
++            if index < frames.len { frames[frames.len - 1 - index].branched = true; }
+         } else if opcode == 0x0e {
+-            var cursor = instruction.start + 1; let count = wb_read_unsigned(code, cursor);
++            var cursor = start + 1; let count = wb_read_unsigned(code, cursor);
+             for target in 0..count + 1 {
+                 let label = wb_read_unsigned(code, cursor);
+                 if label < frames.len { frames[frames.len - 1 - label].branched = true; }
+             }
+-        } else if opcode >= 0x20 && opcode <= 0x22 && instruction.index >= params {
+-            let local = instruction.index;
++        } else if rewrite {
++            let local = index;
++            rewrites.push(WbInstruction { start: start, end: at, opcode: opcode, index: local });
+             if first[local] < 0 { first[local] = position; } last[local] = position;
+             if opcode == 0x20 {
+                 // The outermost loop entered since the write, or of all.
+                 var depth = written[local] - 1; if depth < 0 { first[local] = 0; depth = 0; }
+                 while depth < frames.len && !frames[depth].looping { depth++; }
+                 if depth < frames.len && stamp[local] != frames[depth].at {
+-                    stamp[local] = frames[depth].at; covers.push(local); covers.push(frames[depth].at);
++                    let frame_at = frames[depth].at;
++                    if frame_at < first[local] { first[local] = frame_at; }
++                    stamp[local] = frame_at;
++                    let previous_cover = frames[depth].covers;
++                    frames[depth].covers = covers.len;
++                    covers.push(local); covers.push(previous_cover);
+                 }
+             } else if written[local] == 0 { written[local] = frames.len + 1; undo.push(local); }
+         }
+     }
+-    var pair = 0;
+-    while pair < covers.len {
+-        let local = covers[pair]; let start = covers[pair + 1]; pair += 2;
+-        if start < first[local] { first[local] = start; }
+-        if loop_end[start] > last[local] { last[local] = loop_end[start]; }
+-    }
+     // Take the locals in the order their spans start; give each the first
+     // index of its type that is free again.
+-    var head: i64[>..] = []; var next: i64[>..] = []; head.resize(instructions.len + 1, -1); next.resize(total, -1);
++    var head: i64[>..] = []; var next: i64[>..] = []; head.resize(position + 1, -1); next.resize(total, -1);
+     var local = total - 1;
+     while local >= params { if first[local] >= 0 { next[local] = head[first[local]]; head[first[local]] = local; } local--; }
+     var slot_type: i64[>..] = []; var slot_free: i64[>..] = []; var slot_of: i64[>..] = []; slot_of.resize(total, -1);
+-    for position in 0..instructions.len {
+-        var member = head[position];
++    for span_start in 0..position + 1 {
++        var member = head[span_start];
+         while member >= 0 {
+             let kind = locals[member - params]; var chosen = -1;
+-            for free, slot in slot_free { if free < position && slot_type[slot] == kind { chosen = slot; break; } }
++            for free, slot in slot_free { if free < span_start && slot_type[slot] == kind { chosen = slot; break; } }
+             if chosen < 0 { chosen = slot_type.len; slot_type.push(kind); slot_free.push(-1); }
+             slot_free[chosen] = last[member]; slot_of[member] = chosen; member = next[member];
+         }
+@@ -267,10 +274,12 @@
+     var kinds: i64[>..] = []; var index_of: i64[>..] = []; index_of.resize(slot_type.len, -1); var kept: i64[>..] = [];
+     for kind in slot_type { var known = false; for seen in kinds { if seen == kind { known = true; } } if !known { kinds.push(kind); } }
+     for kind in kinds { for candidate, slot in slot_type { if candidate == kind { index_of[slot] = params + kept.len; kept.push(kind); } } }
+-    var encoded: u8[>..] = [];
+-    for instruction in instructions {
+-        if instruction.opcode >= 0x20 && instruction.opcode <= 0x22 && instruction.index >= params { wb_op(encoded, instruction.opcode, index_of[slot_of[instruction.index]]); }
+-        else { wb_raw(encoded, code[instruction.start..instruction.end]); }
+-    }
++    var encoded: u8[>..] = []; var copied = 0;
++    for instruction in rewrites {
++        if copied < instruction.start { wb_raw(encoded, code[copied..instruction.start]); }
++        wb_op(encoded, instruction.opcode, index_of[slot_of[instruction.index]]);
++        copied = instruction.end;
++    }
++    if copied < code.len { wb_raw(encoded, code[copied..]); }
+     locals.clear(); locals.append(kept); code.clear(); code.append(encoded);
+ }

@@ -31,7 +31,8 @@ def sha(data):
 class BootstrapOptimizationTests(unittest.TestCase):
     def stage(self, seed_level, requested=None, verify=False, converge=False, seed_only=False,
               profile=None, version='clang version 21.1.0', fail_profile=False, changed=False, canonical_seed=False,
-              jobs=None, cache=None):
+              jobs=None, cache=None, dependencies=('sources/main.goose', 'stdlib/base.goose', 'native/runtime.h'),
+              library_asset=b''):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             source = root / 'selfhost'; source.mkdir()
@@ -40,6 +41,7 @@ class BootstrapOptimizationTests(unittest.TestCase):
             (native / 'runtime.h').write_text('// pinned runtime asset\n')
             stdlib = root / 'stdlib'; stdlib.mkdir()
             (stdlib / 'base.goose').write_text('// library\n')
+            (stdlib / 'asset.txt').write_bytes(library_asset)
             seed = root / 'seed'; seed.mkdir()
             c = b'/* seed */\n'
             if canonical_seed:
@@ -122,6 +124,10 @@ class BootstrapOptimizationTests(unittest.TestCase):
                         binary = b'profile:' + staged.read_bytes()
                     Path(argv[argv.index('-o') + 1]).write_bytes(binary)
                 else:
+                    if argv[1:] == ['--help']:
+                        if dependencies is None:
+                            return subprocess.CompletedProcess(argv, 0, b'Goose', b'')
+                        return subprocess.CompletedProcess(argv, 0, b'Goose --wasm-deps FILE', b'')
                     emissions.append(argv)
                     self.assertEqual(argv[1], 'sources/main.goose')
                     self.assertEqual(argv[argv.index('--stdlib') + 1], 'stdlib')
@@ -134,9 +140,20 @@ class BootstrapOptimizationTests(unittest.TestCase):
                     data = ('/* ' + argv[1] + ' ' + argv[argv.index('--stdlib') + 1] + ' */\n').encode()
                     if jobs:
                         data += b'#ifdef G_RUNTIME_UNIT\n#else /* program units */\n#if G_IN_UNIT(  0)\n#endif\n#endif\n'
-                    if converge and len(emissions) == 1:
+                    if converge and Path(argv[0]).name == 'seed':
                         data = b'/* first generation */\n'
                     Path(argv[argv.index('-o') + 1]).write_bytes(data)
+                    if '--wasm-deps' in argv:
+                        manifest = Path(argv[argv.index('--wasm-deps') + 1])
+                        rows = []
+                        for path in dependencies:
+                            dependency = output / path
+                            text = ''
+                            if dependency.is_relative_to(output) and dependency.is_file():
+                                text = dependency.read_text()
+                            rows.append({'path': path, 'text': text})
+                        rows.append({'kind': 'build', 'path': '', 'complete': False})
+                        manifest.write_text(json.dumps(rows))
                 return subprocess.CompletedProcess(argv, 0, b'', b'')
 
             args = ['bootstrap', '--source-dir', str(source), '--seed-dir', str(seed),
@@ -201,9 +218,9 @@ class BootstrapOptimizationTests(unittest.TestCase):
     def test_cache_dir_reuses_identical_builds(self):
         with tempfile.TemporaryDirectory() as directory:
             cache = Path(directory) / 'cache'
-            first, _ = self.stage(0, verify=True, converge=True, profile={}, cache=cache)
+            first, initial = self.stage(0, verify=True, converge=True, profile={}, cache=cache)
             compiled = [command for command in self.compiles if '-o' in command]
-            second, _ = self.stage(0, verify=True, converge=True, profile={}, cache=cache)
+            second, warmed = self.stage(0, verify=True, converge=True, profile={}, cache=cache)
             builds = ('build-seed', 'build-goose', 'build-next-generation')
             self.assertEqual([first['builds'][name]['cache']['hit'] for name in builds], [False] * 3)
             self.assertEqual([second['builds'][name]['cache']['hit'] for name in builds], [True] * 3)
@@ -212,6 +229,45 @@ class BootstrapOptimizationTests(unittest.TestCase):
             self.assertTrue(any(command[0].endswith('/cc') for command in compiled))
             self.assertFalse([command for command in self.compiles if command[0].endswith('/cc') and '-o' in command])
             self.assertEqual(first['executable_sha256'], second['executable_sha256'])
+            self.assertEqual(first['generated_c_sha256'], second['generated_c_sha256'])
+            self.assertEqual(len(initial), 3)
+            self.assertEqual([Path(command[0]).name for command in warmed], ['goose', 'next-generation'])
+            self.assertTrue(second['fixed_point'])
+            self.assertFalse(first['seed_emission_cache']['hit'])
+            self.assertTrue(second['seed_emission_cache']['hit'])
+            self.assertEqual(first['seed_emission_cache']['key'], second['seed_emission_cache']['key'])
+
+    def test_cache_dir_seed_emission_tracks_non_goose_inputs(self):
+        with tempfile.TemporaryDirectory() as directory:
+            cache = Path(directory) / 'cache'
+            deps = ('sources/main.goose', 'stdlib/asset.txt')
+            first, _ = self.stage(0, cache=cache, dependencies=deps)
+            second, _ = self.stage(0, cache=cache, dependencies=deps, library_asset=b'changed')
+            self.assertFalse(second['seed_emission_cache']['hit'])
+            self.assertNotEqual(first['seed_emission_cache']['key'], second['seed_emission_cache']['key'])
+
+    def test_cache_dir_seed_emission_keeps_untracked_inputs_live(self):
+        for deps in (('sources/main.goose', '/outside/asset'), None):
+            with self.subTest(deps=deps), tempfile.TemporaryDirectory() as directory:
+                cache = Path(directory) / 'cache'
+                first, _ = self.stage(0, cache=cache, dependencies=deps)
+                second, warmed = self.stage(0, cache=cache, dependencies=deps)
+                self.assertNotIn('seed_emission_cache', first)
+                self.assertNotIn('seed_emission_cache', second)
+                self.assertEqual([Path(command[0]).name for command in warmed], ['seed'])
+
+    def test_cache_dir_regenerates_corrupted_seed_emission(self):
+        with tempfile.TemporaryDirectory() as directory:
+            cache = Path(directory) / 'cache'
+            first, _ = self.stage(0, cache=cache)
+            key = first['seed_emission_cache']['key']
+            entry = cache / 'emissions' / (key + '.c.gz')
+            entry.write_bytes(entry.read_bytes()[:-1])
+            second, _ = self.stage(0, cache=cache)
+            self.assertFalse(second['seed_emission_cache']['hit'])
+            self.assertEqual(first['generated_c_sha256'], second['generated_c_sha256'])
+            third, _ = self.stage(0, cache=cache)
+            self.assertTrue(third['seed_emission_cache']['hit'])
 
     def test_matching_optimized_seed_reuses_c(self):
         report, commands = self.stage(2)

@@ -68,9 +68,6 @@ fn cc_self_run(p: Program&, id: i64) -> bool {
     if id < 0 || p.types[id].kind != TY_ARRAY || p.types[id].array_kind != A_GROW { return false; }
     return cc_self_relative_image(p, p.types[id].element);
 }
-fn cc_self_runs_used(p: Program&) -> bool {
-    for t, id in p.types { if cc_self_run(p, id) { return true; } } return false;
-}
 fn cc_run_reference(p: Program&, id: i64) -> bool {
     return id >= 0 && p.types[id].kind == TY_REF && p.types[id].length_storage < 0 && (p.types[id].flags & TF_OPTIONAL) == 0 && cc_self_run(p, p.types[id].element);
 }

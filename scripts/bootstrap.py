@@ -26,7 +26,7 @@ def main():
                         help='Goose optimization level for compiler emission (default: 2)')
     parser.add_argument('--verify', action='store_true', help='verify identical self-hosted C output')
     parser.add_argument('--cache-dir', type=Path,
-                        help='reuse executables built from identical C with the same C compiler and command')
+                        help='reuse native builds and closed seed emissions for identical inputs')
     parser.add_argument('--jobs', type=int, default=1,
                         help='development builds: compile C that marks its units as this many units in '
                              'parallel, without the profile (default: 1, the release build)')

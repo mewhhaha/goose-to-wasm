@@ -1,0 +1,46 @@
+{
+  "original_report": "0ab8313e2b8540f9eada1473ae8659daa84bb9e989842cf543a6cd12bea415ad",
+  "isolated_compiler": "9352c9c3a485431484e27d9c446473b47c29bca40b6019e28ac5d968e7ac0a55",
+  "matched": [
+    {
+      "source": "tests/fixtures/encoded_record_tail_aliases.goose",
+      "wasm_sha256": "329d65645b4b2bbad035fb9ff2cb78fdb2b6bf4e1b6d11e6f73856d86e1861a9"
+    },
+    {
+      "source": "tests/fixtures/encoded_record_tail_callbacks.goose",
+      "wasm_sha256": "ad0911b971663fec114a45adef03ecec8e4bcd1c3a4c7c28bb6fb37f5270a707"
+    },
+    {
+      "source": "tests/fixtures/encoded_record_tail_channels.goose",
+      "wasm_sha256": "2de163291edfc653f8ca6bd44d21549f8394a07853523d55ec25b825b75ab578"
+    },
+    {
+      "source": "tests/fixtures/encoded_record_tail_dispatch.goose",
+      "wasm_sha256": "03385ae2d25385f64f5d03abfcaf4b4b4aa20d443b9478bfb4147854299010e1"
+    },
+    {
+      "source": "tests/fixtures/encoded_record_tail_grow_tail.goose",
+      "wasm_sha256": "61b042b9f40b05c5a58085ee882d28fb0af937005995d5691edab35c3020b8be"
+    },
+    {
+      "source": "tests/fixtures/encoded_record_tail_nested.goose",
+      "wasm_sha256": "313278f936192532a7bdf3b1fde7c65485c7b42bbd64a5ae3be72c012dc43b5e"
+    },
+    {
+      "source": "tests/fixtures/encoded_record_tail_tuple.goose",
+      "wasm_sha256": "9b8e30e8d79c15174d1515e3ce2d9cf1a1e730cb0c289cf03a70217b5cae41ca"
+    },
+    {
+      "source": "tests/fixtures/encoded_record_tail_values.goose",
+      "wasm_sha256": "8bea65f53686835ec0c99e3ead34f3c69831014335700a3e1dc57d203eed5d68"
+    },
+    {
+      "source": "tests/fixtures/combined_varint_views.goose",
+      "wasm_sha256": "8a71bbe03154a5f6f233c9a4b6e4640bcc825d8ca3d30238fa4dda2f4f2c86af"
+    },
+    {
+      "source": "tests/fixtures/varint_array_views.goose",
+      "wasm_sha256": "96bcf2088c0cf422011272abac6be5338951d666236d1b6b101218b1f6830b43"
+    }
+  ]
+}

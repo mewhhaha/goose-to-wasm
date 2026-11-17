@@ -1,0 +1,73 @@
+--- a/selfhost/codegen.goose
++++ b/selfhost/codegen.goose
+@@ -2095,6 +2095,44 @@
+         cg_load(p, m, f, element, 0); cg_convert(p, m, f, element, n.type_id, item.node);
+     }
+ }
++// Only private numeric locals may be written between visits to the encoded
++// elements. Calls, indirect stores and rebindings need a fresh prefix walk.
++recursive fn cg_stable_varint_body(p: Program&, function: i64, node: i64) -> bool {
++    if node < 0 { return true; }
++    let n = p.nodes[node];
++    if n.kind == N_NAME || n.kind == N_INTEGER || n.kind == N_FLOAT || n.kind == N_BOOL { return true; }
++    if n.kind == N_ASSIGN || n.kind == N_VARIABLE {
++        var binding = node; if n.kind == N_ASSIGN { binding = n.left; if p.nodes[binding].kind != N_NAME { return false; } }
++        let symbol = p.nodes[binding].symbol;
++        if symbol < 0 || symbol >= p.symbols.len { return false; }
++        let stored = p.symbols[symbol];
++        if stored.owner != function || (stored.flags & (S_CAPTURE | S_GLOBAL)) != 0 || !cg_scalar_slot_type(p, stored.type_id) { return false; }
++        if n.first >= 0 { return false; }
++        return cg_stable_varint_body(p, function, n.right);
++    }
++    if n.kind == N_CAST { return cg_stable_varint_body(p, function, n.left); }
++    if n.kind != N_BLOCK && n.kind != N_BINARY && n.kind != N_UNARY && n.kind != N_IF &&
++       n.kind != N_BREAK && n.kind != N_CONTINUE && n.kind != N_EXPR_STMT { return false; }
++    if !cg_stable_varint_body(p, function, n.left) || !cg_stable_varint_body(p, function, n.right) || !cg_stable_varint_body(p, function, n.third) { return false; }
++    var child = n.first; while child >= 0 { if !cg_stable_varint_body(p, function, child) { return false; } child = p.nodes[child].next; }
++    return true;
++}
++fn cg_varint_cursor(p: Program&, function: i64, node: i64) -> bool {
++    let loop_node = p.nodes[node]; let iterable = p.nodes[loop_node.left];
++    if function < 0 || iterable.kind != N_NAME || iterable.symbol < 0 { return false; }
++    let source = p.symbols[iterable.symbol];
++    if source.owner != function || (source.flags & (S_PARAMETER | S_MUTABLE | S_CAPTURE)) != S_PARAMETER ||
++       cg_type_kind(p, source.type_id) != TY_SLICE { return false; }
++    // Incoming elements are outside this activation. An earlier call or
++    // reinterpretation could have rebound the slice to its own scalar slots.
++    let body = p.nodes[function].right; if body < 0 { return false; }
++    var statement = p.nodes[body].first;
++    while statement >= 0 && statement != node {
++        if !cg_stable_varint_body(p, function, statement) { return false; }
++        statement = p.nodes[statement].next;
++    }
++    return statement == node && cg_stable_varint_body(p, function, loop_node.right);
++}
+ recursive fn cg_for(p: Program&, m: CgModule&, f: CgBody&, node: i64) {
+     let n = p.nodes[node]; let iterable = p.nodes[n.left]; var type_id = iterable.type_id;
+     if iterable.kind == N_RANGE {
+@@ -2117,6 +2155,10 @@
+     else if iterable.kind == N_RANGE { cg_to(p, m, f, iterable.right, counter_type); }
+     else { cg_to(p, m, f, n.left, counter_type); }
+     let limit = cg_save(f, cg_wasm_type(p, counter_type)); wb_i64(f.code, 0); let ordinal = cg_save(f, 0x7e);
++    var cursor = -1;
++    if sequence && p.types[p.types[type_id].element].storage == 1 && cg_varint_cursor(p, f.function, node) {
++        cg_get(f, view); ws_ptr(f.code); cursor = cg_save(f, wa());
++    }
+     let done = cg_begin(f, 0x02, 0x40); let again = cg_begin(f, 0x03, 0x40);
+     if sequence && !(cg_type_kind(p, type_id) == TY_ARRAY && p.types[type_id].array_kind == A_FIXED) {
+         cg_emit_sequence(p, m, f, recipe); cg_pack_view(p, m, f, iterable.type_id, node); cg_set(f, view);
+@@ -2130,7 +2172,13 @@
+     if sequence {
+         let element = p.types[type_id].element;
+         cg_get(f, view); ws_ptr(f.code); let sequence_base = cg_save(f, wa());
+-        if p.types[element].storage == 1 { let cursor = cg_walk_elements(p, m, f, sequence_base, counter, node); cg_get(f, cursor); }
++        if cursor >= 0 {
++            // Seeking only when the next iteration begins preserves the
++            // original decode behavior at break, continue and exhaustion.
++            cg_get(f, counter); wb_i64(f.code, 0); wb_byte(f.code, 0x52); cg_begin(f, 0x04, 0x40);
++            let previous = cg_read_uleb(p, m, f, cursor, node); cg_get(f, previous.cursor); cg_set(f, cursor); cg_end(f);
++            cg_get(f, cursor);
++        } else if p.types[element].storage == 1 { let at = cg_walk_elements(p, m, f, sequence_base, counter, node); cg_get(f, at); }
+         else { cg_get(f, sequence_base); cg_get(f, counter); wa_wrap(f.code); wa_const(f.code, cg_size(p, element)); wa_op(f.code, 0x6c); wa_op(f.code, 0x6a); }
+         if cg_type_kind(p, binding_type) != TY_REF || cg_type_kind(p, element) == TY_REF { cg_load(p, m, f, element, 0); cg_convert(p, m, f, element, binding_type, node); }
+     } else { cg_get(f, counter); cg_convert(p, m, f, counter_type, binding_type, node); }

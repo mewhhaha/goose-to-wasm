@@ -14,8 +14,10 @@ import shutil
 import subprocess
 import sys
 import tarfile
+import tempfile
 import threading
 import time
+import zlib
 
 ROOT = Path(__file__).resolve().parents[1]
 SEED = ROOT / 'bootstrap'
@@ -32,6 +34,18 @@ def save(path, value):
     temporary.replace(path)
 
 
+def staged_dependencies(manifest, inputs):
+    try:
+        rows = json.loads(manifest.read_bytes())
+        # Explicit package roots outside the stage appear in loaded paths.
+        # Hash the whole stage so newly present files also invalidate probes.
+        loaded = {row['path']: hashlib.sha256(row['text'].encode()).hexdigest()
+                  for row in rows if row.get('kind') != 'build'}
+    except (FileNotFoundError, KeyError, TypeError, AttributeError, ValueError):
+        return False
+    return 'sources/main.goose' in loaded and loaded.items() <= inputs.items()
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--source-dir', type=Path, default=ROOT / 'selfhost')
@@ -46,7 +60,7 @@ def main():
     parser.add_argument('--seed-only', action='store_true', help='build the frozen seed, without compiling current sources')
     parser.add_argument('--timeout', type=float, default=900)
     parser.add_argument('--cache-dir', type=Path,
-                        help='reuse executables built from identical C with the same C compiler and command')
+                        help='reuse native builds and closed seed emissions for identical inputs')
     parser.add_argument('--jobs', type=int, default=1,
                         help='compile C that marks its units (native/units.h) as this many program units '
                              'in parallel, without a profile; development builds only (default: 1)')
@@ -128,6 +142,44 @@ def main():
                 profile = None
         report['builds'] = {}
         cache = args.cache_dir.resolve() if args.cache_dir else None
+
+        def emit_seed(executable, invocation, generated, inputs):
+            argv = [executable, *invocation, '-o', generated]
+            if cache is None:
+                command(argv, 'compile-goose')
+                return
+            material = {'schema': 'goose-seed-emission-v1', 'seed_sha256': digest(executable),
+                        'invocation': invocation, 'inputs': inputs}
+            key = hashlib.sha256(json.dumps(material, sort_keys=True).encode()).hexdigest()
+            entry = cache / 'emissions' / (key + '.c.gz')
+            try:
+                with gzip.open(entry, 'rb') as source, generated.open('wb') as output:
+                    shutil.copyfileobj(source, output)
+            except (FileNotFoundError, gzip.BadGzipFile, EOFError, zlib.error):
+                generated.unlink(missing_ok=True)
+            else:
+                report['seed_emission_cache'] = {'hit': True, 'key': key}
+                return
+            help_result = command([executable, '--help'], 'seed-help', allow_failure=True)
+            if help_result.returncode or b'--wasm-deps' not in help_result.stdout:
+                command(argv, 'compile-goose')
+                return
+            manifest = out / 'seed-dependencies.json'
+            result = command([*argv, '--wasm-deps', manifest], 'compile-goose')
+            if result.stdout or result.stderr or not staged_dependencies(manifest, inputs):
+                return
+            entry.parent.mkdir(parents=True, exist_ok=True)
+            descriptor, path = tempfile.mkstemp(dir=entry.parent)
+            pending = Path(path)
+            try:
+                with (os.fdopen(descriptor, 'wb') as temporary,
+                      gzip.GzipFile(fileobj=temporary, filename='', mode='wb', compresslevel=1, mtime=0) as output,
+                      generated.open('rb') as source):
+                    shutil.copyfileobj(source, output)
+                pending.replace(entry)
+            finally:
+                pending.unlink(missing_ok=True)
+            report['seed_emission_cache'] = {'hit': False, 'key': key}
 
         def reuse(recipe, c_hash, executable, row, produce):
             # An executable is a function of its C, the C compiler and the
@@ -234,6 +286,7 @@ def main():
             library = out / 'stdlib'
             shutil.copytree(args.stdlib.resolve(), library)
             source_hashes = {p.name: digest(p) for p in sources.glob('*.goose')}
+            library_hashes = {p.relative_to(library).as_posix(): digest(p) for p in library.rglob('*') if p.is_file()}
             assets = {}
             for source in sources.glob('*.goose'):
                 for match in re.finditer(r'\bembed_file\(\s*"\.\./native/([^"\n]+)"\s*\)', source.read_text()):
@@ -248,7 +301,7 @@ def main():
                     report['input_sha256'][str(original)] = digest(original)
             report.update(source_kind='current-goose-sources', source_sha256=source_hashes,
                           asset_sha256=assets,
-                          stdlib_sha256={str(p.relative_to(library)): digest(p) for p in library.rglob('*.goose')})
+                          stdlib_sha256={name: checksum for name, checksum in library_hashes.items() if name.endswith('.goose')})
             seed_library = pin.get('stdlib_sha256')
             if seed_library is None:
                 seed_library = {}
@@ -267,7 +320,9 @@ def main():
                 shutil.copyfile(seed_executable, executable)
                 executable.chmod(0o755)
             else:
-                command([seed_executable, *invocation, '-o', generated], 'compile-goose')
+                inputs = {**assets, **{'sources/' + name: checksum for name, checksum in source_hashes.items()},
+                          **{'stdlib/' + name: checksum for name, checksum in library_hashes.items()}}
+                emit_seed(seed_executable, invocation, generated, inputs)
                 actual_build = build(generated, executable, 'build-goose', args.optimization)
             report['generated_c_sha256'] = digest(generated)
             report['executable_c_sha256'] = digest(generated)

@@ -1,0 +1,79 @@
+samples 1364
+life_* 87.0%
+  8.87%      121 life_eval_body
+  5.35%       73 life_construct_read
+  4.47%       61 life_replay
+  4.25%       58 life_effect_far
+  4.25%       58 life_effect
+  3.81%       52 life_contains
+  3.67%       50 life_readback
+  3.52%       48 life_function
+  3.52%       48 life_eval
+  3.15%       43 life_shrink
+  3.08%       42 life_read_find
+  3.01%       41 life_in_scope
+  2.64%       36 life_list_set
+  2.13%       29 life_holder_scan
+  2.05%       28 life_call
+  1.91%       26 life_held_into
+  1.91%       26 life_next_live
+  1.47%       20 life_same
+  1.39%       19 life_cell
+  1.25%       17 life_body
+  1.10%       15 lex_tokens
+  1.10%       15 life_holds_walk
+  1.10%       15 life_leaf
+  1.03%       14 check_lookup_scope
+  1.03%       14 life_build_add_alt
+--- self <- caller
+  8.87%      121 life_eval_body <- <outside>
+  5.35%       73 life_construct_read <- <outside>
+  4.47%       61 life_replay <- <outside>
+  4.25%       58 life_effect_far <- <outside>
+  4.25%       58 life_effect <- <outside>
+  3.81%       52 life_contains <- <outside>
+  3.67%       50 life_readback <- <outside>
+  3.52%       48 life_function <- <outside>
+  3.52%       48 life_eval <- <outside>
+  3.15%       43 life_shrink <- <outside>
+  3.08%       42 life_read_find <- <outside>
+  3.01%       41 life_in_scope <- <outside>
+  2.64%       36 life_list_set <- <outside>
+  2.13%       29 life_holder_scan <- <outside>
+  2.05%       28 life_call <- <outside>
+  1.91%       26 life_held_into <- <outside>
+  1.91%       26 life_next_live <- <outside>
+  1.47%       20 life_same <- <outside>
+  1.39%       19 life_cell <- <outside>
+  1.25%       17 life_body <- <outside>
+  1.10%       15 lex_tokens <- <outside>
+  1.10%       15 life_holds_walk <- <outside>
+  1.10%       15 life_leaf <- <outside>
+  1.03%       14 check_lookup_scope <- <outside>
+  1.03%       14 life_build_add_alt <- <outside>
+--- self <- caller <- caller2
+  8.87%      121 life_eval_body <- <outside> <- <outside>
+  5.35%       73 life_construct_read <- <outside> <- <outside>
+  4.47%       61 life_replay <- <outside> <- <outside>
+  4.25%       58 life_effect_far <- <outside> <- <outside>
+  4.25%       58 life_effect <- <outside> <- <outside>
+  3.81%       52 life_contains <- <outside> <- <outside>
+  3.67%       50 life_readback <- <outside> <- <outside>
+  3.52%       48 life_function <- <outside> <- <outside>
+  3.52%       48 life_eval <- <outside> <- <outside>
+  3.15%       43 life_shrink <- <outside> <- <outside>
+  3.08%       42 life_read_find <- <outside> <- <outside>
+  3.01%       41 life_in_scope <- <outside> <- <outside>
+  2.64%       36 life_list_set <- <outside> <- <outside>
+  2.13%       29 life_holder_scan <- <outside> <- <outside>
+  2.05%       28 life_call <- <outside> <- <outside>
+  1.91%       26 life_held_into <- <outside> <- <outside>
+  1.91%       26 life_next_live <- <outside> <- <outside>
+  1.47%       20 life_same <- <outside> <- <outside>
+  1.39%       19 life_cell <- <outside> <- <outside>
+  1.25%       17 life_body <- <outside> <- <outside>
+  1.10%       15 lex_tokens <- <outside> <- <outside>
+  1.10%       15 life_holds_walk <- <outside> <- <outside>
+  1.10%       15 life_leaf <- <outside> <- <outside>
+  1.03%       14 check_lookup_scope <- <outside> <- <outside>
+  1.03%       14 life_build_add_alt <- <outside> <- <outside>
