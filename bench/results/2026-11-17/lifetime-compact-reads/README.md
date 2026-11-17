@@ -51,7 +51,12 @@ Medians of seven. The check ranged over 6.5 to 7.9 s, 5.8 to 6.4 s and 3.5 to 4.
 - The 32-bit module took 20.6 to 21.7 s and 34.8 to 36.3 s this morning. It still needs a profile.
 - A profile of a self-compile now has 103 regions and 466 MB of peaks, the largest 110 MB. Yesterday's had 664 MB, the largest 176 MB.
 
-**blot2** is not affected: BLOT2_TIME. Past 4,096 frames calls are keyed by classes, and the reads are ordinary entries again from there on.
+**blot2** does the same work, and the delivered compiler takes 3 to 6% longer over it. Past 4,096 frames calls are keyed by classes, and the reads are ordinary entries again from there on.
+
+- Two timed runs each ([blot2-time.txt](runs/blot2-time.txt), [tools/blot2time.py](tools/blot2time.py)): 302 and 304 s of CPU before, 320 and 313 s after, the same 38 diagnostic lines, peak RSS 7,383 and 7,393 MiB.
+- Same work: timestamps every 1,000 frames ([before](runs/blot2-progress-before.txt), [after](runs/blot2-progress-after.txt)) show the same number of effects at every step from frame 5,000 on. The difference in that pair of builds is 4% at every step, from the first thousand frames; it is not located in any phase.
+- A third pair of builds, for the sampler, went the other way: 79,112 samples before and 75,702 after ([profile](runs/blot2-profile-after.txt)).
+- Why the delivered pair differs is not established. What the profile does show: 58% of blot2's check is one function this change does not touch, `life_reads`, walking syntax trees to see whether a body reads a captured binding, and nearly all of its time is cache misses on the nodes. That function is the next thing to do for blot2.
 
 ## Where the time was
 
@@ -134,7 +139,7 @@ Steps 4 to 6 store entries differently, so that fingerprint cannot be equal. [to
 - **Starting class-keyed frames earlier.** Seen again while forcing the conversion: with class-keyed frames from frame 64 instead of 4,096 the fingerprinting build checks the compiler in 3.1 s where it takes 7.3 s, with no errors; from frame 1,000, 6.1 s. That is a change of the analysis, not of its speed, and `CONTINUE.md` has held it back since 2026-11-15 because the class path misses errors the concrete one reports. Today's count at 64, which only reaches the sources that make more than 64 frames: two of the 4,355 change verdict ([record](runs/threshold-64-verdicts.json)). `stdlib_regex`, a recorded gap, is accepted; `render_walks_around_overloads` is rejected with "whole assignment replaces a variable-size value while its parts are being rendered". It needs a decision on which analysis small programs get.
 - **The profile is flat now.** Its largest shares in a self-check: evaluating bodies 12%, replay 6%, scope lookups 5%, the reads' table 4%, the walk of an offer 4%, how far an offer goes 4%, growth offers 3%.
 - **Table slots.** A frame's table doubles and leaves the old one behind: 5.4 million slots for 988,405 entries, 21.6 MB where 8 would do.
-- **blot2** is untouched.
+- **blot2**: `life_reads` is 58% of its check (above). It answers each new question, whether the code below a node reads a captured binding, by walking every node the calls from there reach. The bodies' own lists (`life_body`) could answer it from body to body.
 - **No V8 run of the old sources** was made today; the "this morning" figures are the earlier page's.
 
 ## A correction to this morning's page
@@ -145,6 +150,6 @@ Steps 4 to 6 store entries differently, so that fingerprint cannot be equal. [to
 
 - `tools/valfast.py FILE` (steps 1 to 3; `FILE 1,2,3,9` adds the variant not kept) and `tools/compactreads.py FILE` (steps 4 to 6) make the delivered source from `9151d87`'s.
 - `tools/logicalfp.py`, `tools/fplogical.sh`, `tools/prove-final.sh`, `tools/fpblot2-logical.sh`, `tools/fpcompare.py`: the logical-state comparisons. `tools/fppair.sh`: the index-based one for steps 1 to 3. `tools/diagcompare.py`: verdicts of two compilers over the corpus.
-- `tools/native.py`, `tools/selfbench.py`, `tools/small.py`, `tools/hosted_pair.py`, `tools/v8.sh`, `tools/blot2time.py`: the timings.
+- `tools/native.py`, `tools/selfbench.py`, `tools/small.py`, `tools/hosted_pair.py`, `tools/v8.sh`, `tools/blot2time.py`: the timings. `tools/progress.py`, `tools/progblot2.sh`, `tools/profblot2.sh`: blot2 by the thousand frames and under the sampler.
 - `tools/timers.patch`, `tools/valcount.py`, `tools/shrinkcount.py`, `tools/disccount.py`, `tools/compactcount.py`: the timers and counts.
 - `tools/profile.sh`, `tools/hotlines.py`: the sampler run and the hottest instructions of a function.

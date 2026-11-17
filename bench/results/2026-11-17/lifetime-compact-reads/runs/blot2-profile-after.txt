@@ -1,0 +1,24 @@
+samples 75702
+life_* 93.3%
+ 57.61%    43609 life_reads
+ 12.72%     9630 life_effect
+  3.31%     2502 life_gs_contains_walk
+  3.29%     2492 life_contains
+  2.92%     2212 life_list_set
+  1.63%     1236 life_map_set
+  0.94%      713 life_eval_body
+  0.86%      649 life_leaf
+  0.73%      552 life_replay
+  0.64%      481 <outside>
+  0.56%      426 check_lookup_scope
+  0.53%      399 life_build_open
+  0.51%      384 life_body
+  0.48%      366 life_join
+samples of the profiled pair: before samples 79112, after samples 75702
+before, by generated function (g_fn132145 is life_reads):
+ 58.07%    45938 g_fn132145
+ 12.31%     9742 g_fn121641
+  3.36%     2656 g_fn122891
+  3.35%     2651 g_fn129432
+  2.89%     2285 g_fn125590
+  1.75%     1383 g_fn154983
