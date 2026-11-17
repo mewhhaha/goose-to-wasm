@@ -141,7 +141,7 @@ def main():
             if backend=='native':native[example['name']]=artifact
             else:artifacts[example['name'],backend]=artifact
     fingerprints={str(p.resolve()):common.digest(p)for p in set(paths)}
-    args.goose=Path(baseline['configuration']['goose']);args.node='node';args.cc='gcc';args.emcc='emcc'
+    args.goose=Path(baseline['configuration']['goose']);args.node='node';args.cc='gcc'
     report={'schema':'goose-wasmtime-host-benchmarks-v1','status':'running',
             'started_utc':datetime.now(timezone.utc).isoformat(),'configuration':vars(args),
             'environment':common.metadata(args),'host_build':host_metadata,

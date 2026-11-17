@@ -308,13 +308,9 @@ def execute(command, directory: Path, *, cwd: Path, stdin="", timeout=600) -> di
     return observation
 
 
-def build_command(args, source, artifact, stats, *, port=False, cache=False):
+def build_command(args, source, artifact, stats, *, port=False):
     command = [sys.executable, ROOT / "scripts" / "goose_wasm.py", "build", source, "-o", artifact,
-               "--backend", args.current_backend, "--goose", args.goose, "-O2", "--stats", stats]
-    if not cache:
-        command.append("--no-cache")
-    else:
-        command += ["--cache-dir", args.output_dir / "noop-cache"]
+               "--backend", args.current_backend, "--goose", args.goose, "-O2", "--stats", stats, "--no-cache"]
     if args.current_backend == "native":
         command += ["--cc", args.cc]
         if port:
@@ -394,8 +390,7 @@ def render_report(report) -> str:
              "Cold builds and marker-edit builds launch fresh driver/compiler processes with `--no-cache`. "
              "OS caches and installed compiler/system-library caches are retained. A port marker edit changes its "
              "exit status from 0 to 1 after its two output lines, and the edited executable must retain the official "
-             "checksum. Whole-suite edits change the actual marker file contents. Source bytes are restored in all cases. "
-             "Optional unchanged cache hits are a separate phase. Edited sources still rerun the complete frontend.", "",
+             "checksum. Whole-suite edits change the actual marker file contents. Source bytes are restored in all cases.", "",
              "The official whole-suite timer prints milliseconds; adapted ports print integer nanoseconds. "
              "Timed regions exclude process startup and preparation. Process wall time is retained separately. "
              "Sample counts below five are preliminary estimates; raw values and MAD are provided. These are local comparisons, "
@@ -487,7 +482,7 @@ def run_gauntlet(args, manifest):
         report["completed_observations"] = len(report["observations"])
         checkpoint(report, output)
 
-    def build(track, case, backend, sample, phase="cold", cache=False):
+    def build(track, case, backend, sample, phase="cold"):
         task = case["name"] if case else "all-50"
         key = task.replace("::", "_")
         directory = output / "logs" / "compile" / track / key / backend / phase / str(sample)
@@ -496,7 +491,7 @@ def run_gauntlet(args, manifest):
         source = source_whole if track == "whole" else source_ports / Path(case["port"]["file"]).name
         args.current_backend = backend
         stats = directory / "driver-stats.json"
-        command = build_command(args, source, artifact, stats, port=track == "adapted", cache=cache)
+        command = build_command(args, source, artifact, stats, port=track == "adapted")
         result = execute(command, directory, cwd=ROOT, timeout=args.compile_timeout)
         staged_files = sorted(source.parent.glob("*.goose"))
         row = {"kind": "build", "track": track, "task": task, "backend": backend, "phase": phase,
@@ -517,10 +512,7 @@ def run_gauntlet(args, manifest):
             return None
         row.update(status="passed", artifact=str(artifact), artifact_bytes=artifact.stat().st_size,
                    artifact_sha256=sha256(artifact), driver_stats=driver_stats)
-        if phase == "noop" and row["driver_stats"].get("cache") != "hit":
-            row.update(status="failed", error="unchanged direct build did not report a cache hit")
         record(row)
-        if row["status"] != "passed": return None
         return artifact
 
     def run_port(case, backend, artifact, engine, profile, sample, phase="normal", revision=0):
@@ -636,12 +628,6 @@ def run_gauntlet(args, manifest):
                     for engine in (["native"] if backend == "native" else args.engines):
                         run_port(case, backend, artifact, engine, "test", sample, "marker-edit", revision=1)
 
-    if args.noop and "direct" in args.backends:
-        for case in port_cases:
-            if ("adapted", case["name"], "direct") not in artifacts: continue
-            build("adapted", case, "direct", 0, "cache-prime", cache=True)
-            for sample in range(args.compile_samples): build("adapted", case, "direct", sample, "noop", cache=True)
-
     derive_coverage(report)
     report["source_hashes_still_match"] = all(sha256(ROOT / path) == expected for path, expected in report["environment"]["input_sha256"].items())
     report["compiler_hash_still_matches"] = sha256(args.goose) == report["environment"]["compiler_sha256"]
@@ -690,7 +676,6 @@ def main():
     parser.add_argument("--compile-timeout", type=float, default=600)
     parser.add_argument("--run-timeout", type=float, default=600)
     parser.add_argument("--skip-edits", action="store_true")
-    parser.add_argument("--noop", action="store_true", help="also report unchanged direct cache hits separately")
     parser.add_argument("--filter", default="")
     parser.add_argument("--seed", type=int, default=761204)
     args = parser.parse_args()

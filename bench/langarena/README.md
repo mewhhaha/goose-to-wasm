@@ -15,10 +15,8 @@ sources with each backend. A private source copy changes only the marker output
 path, from `/tmp/recompile_marker` to `recompile_marker` in that execution's
 isolated directory. The pinned checkout and any preexisting `/tmp` marker are
 never changed. The native executable must pass all 50 official small cases and
-all 50 production cases. Whole-suite Wasm compilation refusals remain visible.
-The current profiles refuse remaining dynamic destinations/references in the direct suite and reachable
-threads/queues in the C-Wasm suite. A refusal receives no successful compile-time
-score.
+all 50 production cases. Whole-suite Wasm compilation refusals remain visible
+and receive no successful compile-time score.
 
 An additional isolated Sieve profile copies the pinned `sieve.goose` byte for
 byte, retains its growable storage, and replaces the entrypoint plus the unused
@@ -31,8 +29,8 @@ the bounded adapted ports:
 python bench/qualify_sieve.py --profiles test run
 ```
 
-**Seven adapted entrypoints.** The same port source is compiled as native C,
-C-Wasm, and direct Wasm. Each Wasm binary runs unchanged on V8 and Wasmtime.
+**Seven adapted entrypoints.** The same port source is compiled as native C
+and direct Wasm. Each Wasm binary runs unchanged on V8 and Wasmtime.
 Fannkuch retains its original fixed-array kernel and changes the harness only;
 the other six ports replace growable storage with declared bounds. They are
 identified as adaptations throughout the report. They do not establish that
@@ -67,14 +65,14 @@ python3 bench/langarena.py catalog
 python3 tests/test_langarena.py
 
 # Official small inputs, all available backend/engine cells, and marker checks.
-python3 bench/langarena.py check --emcc /path/to/emcc
+python3 bench/langarena.py check
 
 # Also qualify the full production inputs once, without performance claims.
 python3 bench/langarena.py check --profiles test run --skip-edits \
-  --emcc /path/to/emcc --output-dir build/langarena-qualification
+  --output-dir build/langarena-qualification
 
 # Full measurement: 3 cold builds, 3 actual-marker rebuilds, 3 runtime samples.
-python3 bench/langarena.py measure --emcc /path/to/emcc \
+python3 bench/langarena.py measure \
   --machine-label "observed machine description"
 ```
 
@@ -82,18 +80,6 @@ An existing verified checkout can be supplied with `--upstream /path/to/LangAren
 `check` and `measure` do not fetch sources or bootstrap missing compilers.
 Use the Python environment containing the pinned Wasmtime bindings. Explicit
 `--goose`, `--cc`, and `--node` paths select the measured tools.
-
-The measured workspace uses the installed Node 24.22.1 executable for both the
-V8 host and Emscripten's helper processes. Its SDK-bundled Node crashed during
-setup; the override is recorded in every report:
-
-```sh
-mkdir -p build/em-cache build/tmp
-export EM_NODE_JS="$(command -v node)"
-export EM_CACHE="$PWD/build/em-cache"
-export TMPDIR="$PWD/build/tmp"
-export EMCC_CORES=2
-```
 
 `--filter` selects task names without changing the 50-task coverage denominator.
 `--tracks whole` or `--tracks adapted` focuses a track. `--backends` and
@@ -103,9 +89,7 @@ production runs: the corresponding small-case checksum must pass first.
 600 seconds. Failed checks, compiler errors, and timeouts remain in the report.
 
 Increase `--compile-samples` and `--runtime-samples` for stronger measurement
-estimates. The three-sample default is explicitly preliminary. `--noop` adds
-unchanged direct cache hits as a separate phase, including a separate cache
-priming build; it does not replace the actual source-edit measurements.
+estimates. The three-sample default is preliminary.
 
 ## Input, state, and checksum contract
 
@@ -149,9 +133,7 @@ checksum and duration, it exits with that revision. The harness requires exit
 1 only for that edited variant, verifies the official checksum, and verifies
 that the artifact bytes changed. Source bytes are restored even after failure.
 
-Edited programs still run the complete frontend and emitter. An optional
-unchanged disk-cache hit is labeled separately and must report a real cache hit.
-It is not LangArena's incremental marker-edit compilation measurement.
+Edited programs run the complete frontend and emitter.
 
 Runtime preparation and warmup are excluded from each in-program clock.
 Whole-suite runs start a separate process for every task, as upstream's global
@@ -185,6 +167,6 @@ of the stated experiment.
 Local timings are not published LangArena ranks. Its October 2026 leaderboard
 uses another machine, Goose revision, Clang/GCC versions, target configurations,
 and nine weighted ranking metrics. Its compile component uses an actual
-marker-edit rebuild. We report our whole builds, source edits, optional unchanged
-cache hits, and seven adapted kernels separately, with all unsupported tasks
+marker-edit rebuild. We report whole builds, source edits and seven adapted
+kernels separately, with all unsupported tasks
 visible. Passing the seven ports does not establish full-language compatibility.

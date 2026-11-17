@@ -21,6 +21,27 @@ Of the 76 pinned positive failures, 42 are [recorded gaps](../tests/conformance/
 
 Status key: **yes** = matches upstream on the tests named. **partial** = some forms or stages work. **refused** = parsed, then refused with a clear diagnostic at the named stage. **no** = not recognized. **wip** = a branch is in progress.
 
+## Blot2 compatibility
+
+The frozen Blot2 compiler at `6ad5fbb` stops after its first lifetime pass with 38 diagnostics. Resolve this before tuning its compile speed. Use unpatched upstream Goose `d92c4315` for reduced cases. The next trace starts at `importedBinding` in `check/check.goose:1643:520`. [Trace and reproducer pairs](../bench/results/2026-11-17/class-slice-slots/README.md)
+
+Build a [development compiler](../selfhost/README.md#development) and check a separate copy of the pinned source from the repository root.
+
+```sh
+repo=$PWD
+workload=$(mktemp -d "$repo/build/blot2-6ad5fbb.XXXXXX")
+git -C ../blot2 archive 6ad5fbb -- compiler-goose/src | tar -x -C "$workload"
+(
+  cd "$workload/compiler-goose/src"
+  "$repo/build/dev/bin/goose" main.goose --stdlib "$repo/stdlib" \
+    --reachable-program --expansion-node-limit 1000000 --check
+)
+```
+
+Compare default and forced-class checks against the same baseline. Keep the 4,096-frame threshold until the class path handles the remaining upstream disagreements. Upstream rejects 18 current forced-class accepts and accepts `stdlib_regex`. At frame 64, `render_walks_around_overloads` also starts rejecting. [Class comparisons](../bench/results/2026-11-17/class-slice-slots/runs/forced-class-comparison.json) · [Frame 64 experiment](../bench/results/2026-11-17/lifetime-compact-reads/runs/threshold-64-verdicts.json)
+
+After lifetime checking, exercise native emission and linking through the C host. Blot2's build needs `--emit-runtime`, `--header`, `goose_init` and the `blot_goose_main` export. The allocation observer is optional. Check reachability when emitting an export-only program because `--library` checks every function. [Tools and packages](#tools-and-packages)
+
 ## Language
 
 | Feature | Upstream | Status | Evidence and notes |
@@ -91,7 +112,7 @@ Status key: **yes** = matches upstream on the tests named. **partial** = some fo
 |---|---|---|---|
 | Native packages `gfx`, `audio`, `physics`, `ui` | pin | no | "blessed packages are not yet supported"; also `embed_shader` |
 | Package C sources (`.build` sidecars) | pin | partial | `pkg_own_c` passes when its C is linked by hand; no CLI flag |
-| `--shared`, `--header`, `goose_init` | `09198beb` | no | "unknown compiler option" |
+| `--shared`, `--emit-runtime`, `--header`, `goose_init` | `09198beb` | no | Upstream C host build interface |
 | `--stack-reserve size` | pin | yes | 64K to 256T with a K, M, G or T suffix, written into the generated C as `GS_STACK_RESERVE`, as upstream writes it; `tests/test_cli_outputs.py`. Native only: the direct Wasm backend sizes its memory with `--wasm-max-pages` |
 | `format`, `lsp`, `fetch`, `completion`, `--jit`, `--include` | various | no | Not part of this compiler's driver |
 

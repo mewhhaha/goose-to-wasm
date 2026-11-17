@@ -5,8 +5,9 @@
 The qualified engines are V8 13.6.233.17-node.58 through Node 24.22.1, and Wasmtime
 through Python package 50.0.1. The optional native C API host links the pinned
 full static SDK by default; an explicit Python-shared-library fallback is available.
-Both use Wasmtime 50.0.1 but the default libraries have different bytes. Both hosts
-implement the known direct and standalone C ABI.
+Both use Wasmtime 50.0.1 with different library builds. The C API host serves
+32-bit direct output. The Python, Rust and Node runners also support direct
+memory64 output.
 `scripts/check_engines.py` assembles and executes
 feature probes in both engines. It checks numeric operations, sign extension,
 multi-value, bulk memory, SIMD, tail calls, memory64, multi-memory, and standard
@@ -16,9 +17,8 @@ construct has a corresponding lowering in this backend.
 The direct emitter currently uses numeric wasm32, sign extension, multi-value,
 bulk-memory operations, and guarded standard SIMD128 integer lowerings. SIMD is
 internal; the public Goose ABI remains numeric and boolean, with no user-facing
-vector API implied. The C oracle's standalone profile uses memory64, and so does
-the direct emitter under `--wasm-memory64` ([64-bit memory](#64-bit-memory)).
-The compiler has no need to preserve compatibility with older browser engines.
+vector API implied. The direct emitter supports [64-bit memory](#64-bit-memory)
+with `--wasm-memory64`.
 
 ## Representations and host ABI
 
@@ -26,10 +26,8 @@ The direct target uses i32/i64/f32/f64 numeric values. References are i32 linear
 memory addresses; slices are an i64 containing a pointer in the low 32 bits and an
 element count in the high 32 bits. Fixed structs and variants place fields next
 to each other with alignment one; arrays use their element's allocation stride.
-Other representations remain target-specific. This is a semantic target, not binary-layout
-compatibility with Goose's packed 64-bit C ABI. Relative/pool
-references and binary serialization are refused until their target semantics
-are implemented and qualified.
+Other representations remain target-specific. The sections below describe
+qualified layout and reference behavior.
 
 Internal layout version 3 records packed fixed struct and variant fields,
 without implicit inter-field/trailing alignment. Layout 9 adds fixed alignment
@@ -42,8 +40,7 @@ linear memory. Each recursive call receives its own frame. Temporary storage
 and frames grow memory when necessary, within the module's declared maximum,
 and are restored when their scope/function exits. Initial memory defaults to
 16 pages (1 MiB), maximum memory to 256 pages (16 MiB). Driver options
-`--wasm-initial-pages` and `--wasm-max-pages` configure them; one page is 64 KiB. These
-limits are independent of the C oracle's 16 MiB per data stack profile.
+`--wasm-initial-pages` and `--wasm-max-pages` configure them. One page is 64 KiB.
 
 The backend keeps physical locations distinct from converted expression values.
 All ordinary aggregate copies require the checked fixed size class; a dynamic
@@ -325,6 +322,10 @@ integer, float and bool layouts are the same in both. A function value keeps
 its environment's address in 32 bits: environments live in activation frames,
 and the stack is at the bottom of memory.
 
+In [the emitter](../selfhost/codegen.goose), use `wa_*` for addresses, `wc_*`
+for control words, `ws_*` for slices, `ww` for word sizes and `wn_limit` for
+count limits. Check both memory widths when changing these operations.
+
 The host interface follows the address type. `goose.write` and `goose.abort`
 take the pointer as an i64 and the length (and line) as i32;
 `goose.format_f32`/`format_f64` take the buffer as an i64. An import takes a
@@ -363,15 +364,13 @@ host/rust/target/release/goose-wasmtime goose64.wasm --cache goose64.cwasm -- pr
 it came from and reuses it for the same bytes. The Rust host and the Python
 runner each need a cache file of their own.
 
-For V8, whose 64-bit memory ends at 16 GiB, the compiler needs its regions
-sized by a profile (see the regions above); the same profile lets the 32-bit
-module compile the compiler:
+The recorded 64-bit self-check under V8 fit in 16 GiB with equal regions. The
+32-bit module needed a region profile. [Measurements and profile](../bench/results/2026-11-17/lifetime-compact-reads/README.md)
 
 ```sh
-goose selfhost/main.goose --stdlib stdlib --target wasm-direct -O2 --wasm-memory64 --wasm-region-stats --wasm-max-pages 4194304 -o stats.wasm
-GOOSE_REGION_PROFILE=goose.profile host/rust/target/release/goose-wasmtime stats.wasm -- selfhost/main.goose --stdlib stdlib --check
-goose selfhost/main.goose --stdlib stdlib --target wasm-direct -O2 --wasm-memory64 --wasm-max-pages 262144 --wasm-region-profile goose.profile -o goose-v8.wasm
-node scripts/run_wasm.mjs goose-v8.wasm -- program.goose --stdlib stdlib -o program.wasm
+build/bin/goose selfhost/main.goose --stdlib stdlib --target wasm-direct -O2 \
+  --wasm-memory64 --wasm-max-pages 262144 -o build/goose-v8.wasm
+node scripts/run_wasm.mjs build/goose-v8.wasm -- selfhost/main.goose --stdlib stdlib --check
 ```
 
 ## Initial supported fragment
@@ -441,14 +440,9 @@ The generic frontend can understand more language features than this target can
 lower. A successful ordinary Goose type check alone is not proof that a program
 belongs to the direct target's supported fragment.
 
-## Reference target
+## Historical C-to-Wasm profiles
 
-The pinned C backend is retained with the checked stable-stack runtime patch.
-The `.mjs` profile uses Emscripten's JavaScript host and retains the earlier
-wasm32-compatibility/memory64 options. The standalone `.wasm` profile uses true
-memory64 and explicit LP64/WASI64 host adapters. Its supported host services are
-documented by the runners, and it is not a drop-in WASI32 executable.
-
-The direct and C targets have different internal layouts. Differential tests
-compare language-visible results, errors, and side effects on the common
-supported fragment. Binary C-ABI equivalence is not claimed.
+The earlier C++ compiler's Emscripten and standalone memory64 outputs appear
+in [dated measurements](../bench/wasmtime-host.md#historical-replay). The current
+compiler emits Wasm directly or produces native C. Frozen contracts check
+language-visible results and errors across targets.
