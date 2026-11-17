@@ -1,6 +1,20 @@
 # Continue here
 
-Where the work stands on 2026-11-15 and how to pick it up. The standing rules are in [AGENTS.md](AGENTS.md).
+Where the work stands on 2026-11-17 (main at `034348f` and after) and how to pick it up. The standing rules are in [AGENTS.md](AGENTS.md).
+
+## Latest (2026-11-17)
+
+- **Speed of the lifetime pass**, three deliveries, each qualified against the one before and with the analysis state compared:
+  - `9151d87` read memos: self-check 11.2 s to 6.6 s ([evidence](bench/results/2026-11-17/lifetime-read-memos/README.md)).
+  - `20fabe5` validation shortcuts and 32-byte construct reads: 6.95 s to 4.42 s, peak RSS 568 to 306 MiB ([evidence](bench/results/2026-11-17/lifetime-compact-reads/README.md)).
+  - `ff912cd` captured bindings looked up body by body: blot2's check 298–308 s to 122–124 s of CPU, same 38 errors ([evidence](bench/results/2026-11-17/blot2-captured-reads/README.md)).
+- **The compiler as a Wasm module** now checks itself in 13 s under Wasmtime and 15 s under V8, and the 64-bit module needs no region profile under V8.
+- **Latest qualified compiler** in a session that still has `build/`: `build/q-br/bootstrap/bin/goose` (executable `6fb88eeb7c50…`). Elsewhere, bootstrap it (Commands).
+- **Next for speed, by the profiles:**
+  1. blot2: `life_effect` called from construct reads is 24% of its check. Past 4,096 frames reads are ordinary entries again (`life_reads_materialize` at the first class-keyed frame); holding them by leaf there needs the class path's merge by kind (`site = -2`) and the island root's role taken into account. Then type containment (`life_contains`, `life_gs_contains_walk`, 15%) and set building and mapping (11%).
+  2. Self-check: the profile is flat (evaluating bodies 12%, replay 6%, nothing else above 5%). The one large lever left is starting class-keyed frames earlier (3.1 s against 7.3 s in a fingerprinting build at frame 64), which changes two conformance verdicts and so needs the owner's decision; see "The compiler checking itself" below.
+  3. Table slots of the 32-byte reads: a frame's table doubles and leaves the old one behind (5.4 M slots for 988 k entries).
+- **Proving a lifetime-pass speed change:** `bench/results/2026-11-17/lifetime-compact-reads/tools/` has `logicalfp.py` (fingerprint by content, independent of storage), `prove-final.sh BASE` (self-check, corpus, and both with class-keyed frames forced early), `fpblot2-logical.sh BASE DIR` (blot2 every 2,000 frames), `native.py`, `selfbench.py`, `small.py`, `blot2time.py`. They expect to be copied to `build/tools/` and the repository at `/home/user/goose-to-wasm`; adjust paths elsewhere.
 
 ## Rules in force
 
@@ -40,7 +54,7 @@ Parsing and type checking take about 12 s. The lifetime pass runs after that.
 **What changed.** Past 4,096 frames, a call of a top-level function is checked by the *classes* of its arguments, as upstream's specializations are: one frame per key, evaluated on its own (an "island"), its effects and result mapped onto each call's roots. Two evidence pages hold the design, the numbers and everything tried and dropped: [the path itself](bench/results/2026-11-15/class-keyed-frames/README.md) (2026-11-15) and [stores per pair of classes](bench/results/2026-11-16/class-stores-per-pair/README.md) (2026-11-16). The code is `selfhost/checker_lifetimes.goose` from "Class-keyed frames" on, with a comment at each piece.
 
 **Where it stands on blot2** (`6ad5fbb`, the bootstrapped compiler of `c72e198`, on a 4-core 16 GiB container):
-- Pass 1 ends after 52,877 frames in 256 s (about 120 s since `ff912cd`), with 49.3 M alternatives of the 79.5 M that fit and a peak RSS of 7.1 GiB.
+- Pass 1 ends after 52,877 frames: 256 s on that build, about 120 s since `ff912cd`, with 49.3 M alternatives of the 79.5 M that fit and a peak RSS of 7.1 GiB.
 - It ends with 38 errors (425 on the morning of 2026-11-16, 2,348 on 2026-11-15), from 237 calls that first make a wrong pair (4,237 that morning), so no second pass and no validation has run yet. All are "stored reference does not outlive the storage that receives it" at a call. blot2's patched upstream build accepted this program, so treat them as this analysis's imprecision until shown otherwise.
 - Plain upstream `d92c4315` on the same copy: stopped at 1,500 s, nothing printed.
 
