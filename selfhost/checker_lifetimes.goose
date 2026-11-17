@@ -3659,6 +3659,10 @@ fn life_own_store(p: Program&, l: Lifetimes&, root: i64, code: i64, ty: i64) {
     life_effect(l, LifeEffect { kind: 4, node: -1, value: LifeValue { type_id: ty, refs: places }, places: places, field: code });
     if !l.discovery { for kill, index in l.kills { if kill.root == root { l.kills[index].active = false; } } }
 }
+// A class summary must distinguish rebinding a slice variable from storing
+// a reference into storage that merely contains one.
+let LIFE_STORE_SLICE_SLOT: i64 = 0;
+
 // reached: the type the destination was reached as (the pointee of the
 // reference the place was named through), or -1. It stays with a store into
 // a storage class, which is every storage an argument's storage refers to:
@@ -3667,7 +3671,7 @@ fn life_own_store(p: Program&, l: Lifetimes&, root: i64, code: i64, ty: i64) {
 // to `module` into everything `self_` refers to at the calls above it.
 // exact: the store names the root's own storage (not storage only known to
 // outlive it).
-fn life_add_contents(l: Lifetimes&, root: i64, storing: i64, exact: bool = false, reached: i64 = -1) {
+fn life_add_contents(l: Lifetimes&, root: i64, storing: i64, exact: bool = false, reached: i64 = -1, slice_slot: bool = false) {
     // (The static root, of frame -1, takes what is stored through static data.)
     var sources = storing; var owned = 0;
     if exact && l.class_frames > 0 { owned = life_own_reads(l, root, storing, true); if owned != 0 { sources = life_own_reads(l, root, storing, false); } }
@@ -3680,7 +3684,11 @@ fn life_add_contents(l: Lifetimes&, root: i64, storing: i64, exact: bool = false
     if !life_equal(l, next, l.roots[root].contents) { life_set_contents(l, root, next); l.revision += 1; }
     var as_type: i64 = -1;
     if reached >= 0 && l.roots[root].class_frame >= 0 && l.roots[root].class_parent < 0 { as_type = reached; }
-    if sources != 0 { life_effect(l, LifeEffect { kind: 4, node: -1, value: LifeValue { type_id: as_type, contents: sources }, places: life_root_set(l, root) }); }
+    if sources != 0 {
+        var field: i64 = -1;
+        if slice_slot { field = LIFE_STORE_SLICE_SLOT; }
+        life_effect(l, LifeEffect { kind: 4, node: -1, value: LifeValue { type_id: as_type, contents: sources }, places: life_root_set(l, root), field: field });
+    }
     if owned != 0 { life_own_effects(l, root, owned); }
     if !l.discovery {
         l.roots[root].live_contents = life_join(l, l.roots[root].live_contents, kept);
@@ -3764,6 +3772,41 @@ inline fn life_dest_reached(l: Lifetimes&, place: i64) -> i64 {
     if place != 0 && place == l.dest_place { return l.dest_reached; }
     return -1;
 }
+fn life_bind(p: Program&, l: Lifetimes&, node: i64, cell: i64, value: LifeValue, sources: i64) {
+    // Revisited declarations start a fresh destination binding;
+    // the source's caller-storage constraint remains in sources.
+    if p.nodes[node].kind == N_VARIABLE || p.nodes[node].kind == N_BINDING {
+        l.cells[cell].committed = false; l.cells[cell].initial = 0;
+    }
+    var added = false; var at = l.sets[sources].first;
+    while at >= 0 {
+        let source = l.alts[at]; let previous = life_find(l, l.cells[cell].initial, source.root);
+        if previous < 0 || source.bound != l.alts[previous].bound { added = true; }
+        at = source.next;
+    }
+    if sources != 0 && added {
+        let growshrink = life_gs_value(p, l, value);
+        if l.cells[cell].committed && !l.cells[cell].growshrink && growshrink { life_error(p, l, node, "reference binding cannot start pointing into grow-shrink elements after its first binding"); }
+        if !l.cells[cell].committed { l.cells[cell].growshrink = growshrink; }
+        let depth = life_binding_depth(l, sources);
+        if l.cells[cell].committed && depth != l.cells[cell].depth {
+            life_scope_error(p, l, node, "reference or slice binding changes its committed root lifetime depth");
+        }
+        if !l.cells[cell].committed { l.cells[cell].committed = true; l.cells[cell].depth = depth; l.cells[cell].initial = sources; }
+    }
+    var kept = sources;
+    if l.class_frames > 0 && sources != 0 && l.cell_keys[cell].global {
+        kept = life_lasting(l, kept);
+        if life_has_class(l, kept) { if l.island > 0 { kept = life_keep_outside(l, kept); } else { kept = life_strip(l, kept); } }
+    }
+    let next = life_join(l, l.cells[cell].refs, kept);
+    if !life_equal(l, next, l.cells[cell].refs) { life_set_refs(l, cell, next); l.revision += 1; }
+    life_effect(l, LifeEffect { kind: 5, node: node, value: LifeValue { refs: sources }, places: life_root_set(l, l.cells[cell].root), cell: cell });
+    if !l.discovery {
+        l.cells[cell].live_refs = life_join(l, l.cells[cell].live_refs, kept);
+    }
+}
+
 // path: life_reached of the destination's expression, where there is one.
 fn life_store(p: Program&, l: Lifetimes&, node: i64, given: i64, value: LifeValue, binding: bool = false, through: bool = false, path: i64 = -1) {
     let places = life_place_candidates(l, given);
@@ -3813,42 +3856,13 @@ fn life_store(p: Program&, l: Lifetimes&, node: i64, given: i64, value: LifeValu
         if binding && owner.symbol >= 0 && life_is_ref(p, p.symbols[owner.symbol].type_id) {
             let cell = life_cell(p, l, owner.symbol);
             if cell >= 0 {
-                // Revisited declarations start a fresh destination binding;
-                // the source's caller-storage constraint remains in sources.
-                if p.nodes[node].kind == N_VARIABLE || p.nodes[node].kind == N_BINDING {
-                    l.cells[cell].committed = false; l.cells[cell].initial = 0;
-                }
-                var added = false; at = l.sets[sources].first;
-                while at >= 0 {
-                    let source = l.alts[at]; let previous = life_find(l, l.cells[cell].initial, source.root);
-                    if previous < 0 || source.bound != l.alts[previous].bound { added = true; }
-                    at = source.next;
-                }
-                if sources != 0 && added {
-                    let growshrink = life_gs_value(p, l, value);
-                    if l.cells[cell].committed && !l.cells[cell].growshrink && growshrink { life_error(p, l, node, "reference binding cannot start pointing into grow-shrink elements after its first binding"); }
-                    if !l.cells[cell].committed { l.cells[cell].growshrink = growshrink; }
-                    let depth = life_binding_depth(l, sources);
-                    if l.cells[cell].committed && depth != l.cells[cell].depth {
-                        life_scope_error(p, l, node, "reference or slice binding changes its committed root lifetime depth");
-                    }
-                    if !l.cells[cell].committed { l.cells[cell].committed = true; l.cells[cell].depth = depth; l.cells[cell].initial = sources; }
-                }
-                var kept = sources;
-                if l.class_frames > 0 && sources != 0 && l.cell_keys[cell].global {
-                    kept = life_lasting(l, kept);
-                    if life_has_class(l, kept) { if l.island > 0 { kept = life_keep_outside(l, kept); } else { kept = life_strip(l, kept); } }
-                }
-                let next = life_join(l, l.cells[cell].refs, kept);
-                if !life_equal(l, next, l.cells[cell].refs) { life_set_refs(l, cell, next); l.revision += 1; }
-                life_effect(l, LifeEffect { kind: 5, node: node, value: LifeValue { refs: sources }, places: life_root_set(l, l.cells[cell].root), cell: cell });
-                if !l.discovery {
-                    l.cells[cell].live_refs = life_join(l, l.cells[cell].live_refs, kept);
-                }
+                life_bind(p, l, node, cell, value, sources);
             }
         }
         var reached: i64 = -1; if !d.byteview { reached = d.target_type as i64; if reached < 0 { reached = path; } }
-        life_add_contents(l, d.root, life_stored_roots(p, l, value), d.exact, reached);
+        let slice_slot = through && binding && d.exact && d.component < 0 && owner.class_frame >= 0 &&
+            value.type_id >= 0 && p.types[value.type_id].kind == TY_SLICE;
+        life_add_contents(l, d.root, life_stored_roots(p, l, value), d.exact, reached, slice_slot);
         destination = d.next;
     }
 }
@@ -5681,7 +5695,7 @@ fn life_replay(p: Program&, l: Lifetimes&, frame: i64, summary: bool = false, m:
             leaf = l.summaries[at].leaf as i64; if leaf < 0 { leaf = life_leaf(l, effect.kind, effect.node, effect.value); l.summaries[at].leaf = leaf as i32; }
             if life_leaf_offered(l, leaf) { at = next; continue; }
         }
-        if m.count > 0 && effect.kind == 4 && effect.field > -2 {
+        if m.count > 0 && effect.kind == 4 && effect.field == -1 {
             // A store into a class root of what came out of the same
             // argument's storage moves references about within what that
             // argument reaches: a permutation, which stores nothing a call
@@ -5694,7 +5708,7 @@ fn life_replay(p: Program&, l: Lifetimes&, frame: i64, summary: bool = false, m:
         }
         if m.count > 0 {
             var stored = 0; if effect.kind == 4 { stored = 1; }
-            if effect.kind == 4 && effect.field == -1 && effect.value.type_id >= 0 { effect.places = life_reached_places(l, effect.places, effect.value.type_id); }
+            if effect.kind == 4 && effect.field >= -1 && effect.value.type_id >= 0 { effect.places = life_reached_places(l, effect.places, effect.value.type_id); }
             let places = life_map_set(p, l, effect.places, m, stored); var value = effect.value;
             // (A store of a storage's own has no set to map: life_own_store.)
             if effect.kind == 4 && effect.field <= -2 { value.refs = places; } else { value = life_map_value(p, l, effect.value, m); }
@@ -5746,7 +5760,19 @@ fn life_replay(p: Program&, l: Lifetimes&, frame: i64, summary: bool = false, m:
                 // A refused store is reported here, once: it does not land,
                 // and so is not judged again at every call above this one.
                 var reached: i64 = -1; if !alt.byteview { reached = alt.target_type as i64; }
-                if !refused { life_add_contents(l, alt.root, landing, false, reached); }
+                if !refused {
+                    let slice_slot = effect.field == LIFE_STORE_SLICE_SLOT && alt.exact && alt.component < 0;
+                    let owner: const LifeRoot& = l.roots[alt.root];
+                    if mapped && slice_slot && owner.symbol >= 0 && owner.type_id >= 0 && p.types[owner.type_id].kind == TY_SLICE {
+                        // Select the cell of this particular activation.
+                        var cell = l.symbol_cells[owner.symbol];
+                        while cell >= 0 && l.cells[cell].root != alt.root { cell = l.cells[cell].next_symbol; }
+                        if cell >= 0 {
+                            life_bind(p, l, call, cell, LifeValue { type_id: owner.type_id, refs: landing }, landing);
+                        }
+                    }
+                    life_add_contents(l, alt.root, landing, false, reached, slice_slot && owner.class_frame >= 0);
+                }
                 ai = alt.next;
             }
         } else if (effect.kind == 6 || effect.kind == 7) && mapped && (l.conditional != 0 || l.sets[effect.places].count != 1 || !l.alts[l.sets[effect.places].first].exact) {
