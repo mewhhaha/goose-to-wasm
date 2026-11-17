@@ -55,6 +55,9 @@ struct LifeValue { type_id: i64 = -1, place: i64 = 0, refs: i64 = 0, contents: i
 struct LifeItem { value: LifeValue, next: i64 = -1 }
 // live is set and cleared through life_set_live, which mirrors it in live_bits.
 struct LifeCell { symbol: i64, frame: i64, root: i64, parameter: bool = false, refs: i64 = 0, live_refs: i64 = 0, contents: i64 = 0, initial: i64 = 0, committed: bool = false, growshrink: bool = false, depth: i64 = 0, initialized: bool = false, live: bool = false, next_symbol: i64 = -1, next_frame: i64 = -1 }
+// first_other, last_other: the discovery summary's entries that are not
+// construct reads, in order (LifeSummary.other). reads_version: how many
+// times a construct read has been added to the summary or changed in it.
 // chain: how many frames the parent chain holds, set at each activation.
 // chain_recursive: the nearest recursive frame of that chain, from this
 // frame up, or 0, as of recursion epoch chain_epoch (life_nearest_recursive).
@@ -63,7 +66,7 @@ struct LifeCell { symbol: i64, frame: i64, root: i64, parameter: bool = false, r
 // next older frame in its input_heads and home_heads buckets.
 // function_active: on the newest frame of a function, how many of the
 // function's frames are active.
-struct LifeFrame { function_node: i64 = -1, parent: i64 = -1, lexical: i64 = 0, call: i64 = -1, inputs: i64 = -1, base: i64 = 0, active: bool = false, result: LifeValue = LifeValue {}, destination: i64 = 0, selected_result: i64 = -1, checked_revision: i64 = -1, next_function: i64 = -1, first_cell: i64 = -1, first_effect: i64 = -1, last_effect: i64 = -1, validated: bool = false, first_summary: i64 = -1, last_summary: i64 = -1, effect_epoch: i64 = 0, recursive_call: bool = false, home: i64 = -1, capture_inputs: i64 = -1, cycle: i64 = -1, activation: i64 = 0, chain: i64 = 0, chain_epoch: i64 = -1, chain_recursive: i64 = 0, inputs_hash: i64 = 0, inputs_kinds: i64 = 0, mixed_kinds: bool = false, next_inputs: i64 = -1, next_home: i64 = -1, function_active: i64 = 0,
+struct LifeFrame { function_node: i64 = -1, parent: i64 = -1, lexical: i64 = 0, call: i64 = -1, inputs: i64 = -1, base: i64 = 0, active: bool = false, result: LifeValue = LifeValue {}, destination: i64 = 0, selected_result: i64 = -1, checked_revision: i64 = -1, next_function: i64 = -1, first_cell: i64 = -1, first_effect: i64 = -1, last_effect: i64 = -1, validated: bool = false, first_summary: i64 = -1, last_summary: i64 = -1, effect_epoch: i64 = 0, recursive_call: bool = false, home: i64 = -1, capture_inputs: i64 = -1, cycle: i64 = -1, activation: i64 = 0, context: i64 = 0, first_other: i64 = -1, last_other: i64 = -1, reads_version: i64 = 0, chain: i64 = 0, chain_epoch: i64 = -1, chain_recursive: i64 = 0, inputs_hash: i64 = 0, inputs_kinds: i64 = 0, mixed_kinds: bool = false, next_inputs: i64 = -1, next_home: i64 = -1, function_active: i64 = 0,
     // island: the class-keyed frame this frame last ran under, itself for
     // such a frame, 0 for none. For a class-keyed frame: classes, class_count:
     // its class roots, class_base of them for the arguments (the last of
@@ -174,7 +177,19 @@ struct LifeSummary {
     key: i64 = -1, next: i64 = -1, owner: i64 = -1, kind: i64 = 0, node: i64 = -1, type_id: i64 = -1, cell: i64 = -1, field: i64 = -1,
     places: i64 = -1, refs: i64 = -1, contents: i64 = -1, place: i64 = -1, walked: i32 = -1,
     replayed: i32 = -1, replayed_epoch: i32 = -1,
+    // leaf: for a construct read (kind 3), what life_leaf names its node and
+    // value by, or -1 before its first replay and after its sets change.
+    // after: the effect's next in its frame's list (LifeEffect.next), so that
+    // a replay passes an entry it skips without reading the effect.
+    // other: the next entry of the frame's summary that is not a construct read.
+    leaf: i32 = -1, after: i64 = -1, other: i64 = -1,
 }
+// A construct read by what offering it depends on: its node and its value.
+// Summaries of different frames hold the same read under different entries;
+// they share a leaf.
+struct LifeLeaf { kind: i64, node: i64, value: LifeValue, next: i64 = -1 }
+// A chain of active frames: a frame, and the chain its caller was in.
+struct LifeContext { frame: i64, parent: i64, next: i64 = -1 }
 // A discovery effect offered up the frame chain, remembered by what the
 // offer depends on: its current frame's activation (which fixes the chain of
 // active frames above it), the recursion flags then, and every field a merge
@@ -191,6 +206,9 @@ struct Lifetimes {
     futures: LifeFuture[>..]&, holds: LifeHold[>..]&, temps: LifeTemp[>..]&, reads: LifeRead[>..]&,
     kills: LifeKill[>..]&,
     size_classes: i64[>..]&, types_frozen: bool = false,
+    // For a type, where its reference and slice types are in holder_refs
+    // and how many (life_holder_scan), or -1 before they are listed.
+    holder_starts: i64[>..]&, holder_counts: i64[>..]&, holder_refs: i64[>..]&,
     atoms: LifeAtom[>..]&,
     failures: LifeFailure[>..]&, effects: LifeEffect[>..]&,
     symbol_cells: i64[:], node_roots: i64[:], function_frames: i64[:], visited: i64[:], summary_heads: i64[:],
@@ -216,6 +234,19 @@ struct Lifetimes {
     // Per effect, kept apart from the effects themselves so a bucket walk
     // stays in dense memory.
     summaries: LifeSummary[>..]&,
+    // Construct reads offered (life_leaf): the leaves, their hash heads, and
+    // for each the activation it was last offered from with the recursion
+    // epoch then, as one number, and how far up the chain that offer went
+    // (life_leaf_offered).
+    leaves: LifeLeaf[>..]&, leaf_heads: i64[>..]&, leaf_stamps: i64[>..]&, leaf_floors: i32[>..]&,
+    // Chains of frames by number (life_context: a frame and its parent's
+    // chain), and the reads each chain has been offered (life_chain_offered),
+    // an open-addressed set of chain, leaf and recursion epoch in one word.
+    contexts: LifeContext[>..]&, context_heads: i64[>..]&, chain_offers: i64[>..]&, chain_offer_count: i64 = 0,
+    // For a chain of frames and a frame whose summary was replayed in it with
+    // every construct read offered (life_replay): the summary's reads_version
+    // then. Keys as in chain_offers, the frame in the read's place.
+    chain_replays: i64[>..]&, chain_versions: i64[>..]&, chain_replay_count: i64 = 0,
     // Open LifeBuild buffers and their root tables, as stacks; root indexes
     // of large sets (LifeSet.index).
     build_alts: LifeAlt[>..]&, build_slots: i64[>..]&, set_index: i32[>..]&,
@@ -397,6 +428,154 @@ fn life_summary_key(effect: const LifeEffect&, frame: i64, site: i64) -> i64 {
     for part in [frame, effect.kind, site, effect.value.type_id, effect.cell, effect.field] { h = (h ^ (part as! u64)) * 1099511628211; h ^= h >> 31; }
     return (h >> 1) as i64;
 }
+inline fn life_mix(a: i64, b: i64) -> i64 {
+    var h: u64 = 1469598103934665603;
+    for part in [a, b] { h = (h ^ (part as! u64)) * 1099511628211; h ^= h >> 29; }
+    return (h >> 1) as i64;
+}
+inline fn life_leaf_hash(kind: i64, node: i64, v: const LifeValue&) -> i64 {
+    var h: u64 = 1469598103934665603;
+    for part in [kind, node, v.type_id, v.place, v.refs, v.contents, v.self_pools, v.relative_roots, v.tuple, v.element_array, v.reached] { h = (h ^ (part as! u64)) * 1099511628211; h ^= h >> 29; }
+    return (h >> 1) as i64;
+}
+// The leaf of a check-only effect: equal kinds, nodes and values, set for set by ID.
+fn life_leaf(l: Lifetimes&, kind: i64, node: i64, v: const LifeValue&) -> i64 {
+    if 2 * l.leaves.len >= l.leaf_heads.len {
+        var size: i64 = 64; while size <= 2 * l.leaves.len { size <<= 1; }
+        l.leaf_heads.clear(); l.leaf_heads.resize(size, -1);
+        for index in 0..l.leaves.len {
+            let slot = life_leaf_hash(l.leaves[index].kind, l.leaves[index].node, l.leaves[index].value) & (size - 1);
+            l.leaves[index].next = l.leaf_heads[slot]; l.leaf_heads[slot] = index;
+        }
+    }
+    let slot = life_leaf_hash(kind, node, v) & (l.leaf_heads.len - 1); var at = l.leaf_heads[slot];
+    while at >= 0 {
+        let leaf: const LifeLeaf& = l.leaves[at];
+        if leaf.kind == kind && leaf.node == node && leaf.value.type_id == v.type_id && leaf.value.place == v.place && leaf.value.refs == v.refs && leaf.value.contents == v.contents &&
+           leaf.value.self_pools == v.self_pools && leaf.value.relative_roots == v.relative_roots && leaf.value.tuple == v.tuple &&
+           leaf.value.element_array == v.element_array && leaf.value.reached == v.reached { return at; }
+        at = leaf.next;
+    }
+    let index = l.leaves.len;
+    l.leaves.push(LifeLeaf { kind: kind, node: node, value: v, next: l.leaf_heads[slot] }); l.leaf_heads[slot] = index; l.leaf_stamps.push(-1); l.leaf_floors.push(0);
+    return index;
+}
+// Whether the current activation has been offered this construct read, at
+// this recursion epoch, with no place in a recursive frame of the chain.
+//
+// An offer of a construct read only adds it to the lists of the frames up
+// the chain. The same read offered from the same activation again finds each
+// as it left it (LifeSummary.replayed says so of an entry; this says it of
+// the read, which many entries of many summaries are). An offer from an
+// activation that began after the current one, while the current one was
+// running, came up the chain towards the current frame, and reached it if no
+// place of the read is in a frame between the two: frames take an offer up
+// to the outermost one that holds a place of it, and no further. The floor
+// kept with the stamp is the chain depth of the shallowest frame that took
+// it. Class-keyed frames break the chain at an island's root, which takes
+// its body's effects for every caller: with them only the same activation
+// counts.
+// The number of the chain of frames a frame is entered in: the same for the
+// same frames in the same order, in whichever pass.
+fn life_context(l: Lifetimes&, frame: i64, parent: i64) -> i64 {
+    if l.class_frames > 0 || parent < 0 { return -1; }
+    if 2 * l.contexts.len >= l.context_heads.len {
+        var size: i64 = 64; while size <= 2 * l.contexts.len { size <<= 1; }
+        l.context_heads.clear(); l.context_heads.resize(size, -1);
+        for index in 0..l.contexts.len {
+            let slot = life_mix(l.contexts[index].frame, l.contexts[index].parent) & (size - 1);
+            l.contexts[index].next = l.context_heads[slot]; l.context_heads[slot] = index;
+        }
+    }
+    let slot = life_mix(frame, parent) & (l.context_heads.len - 1);
+    var at = l.context_heads[slot];
+    while at >= 0 { if l.contexts[at].frame == frame && l.contexts[at].parent == parent { return at; } at = l.contexts[at].next; }
+    let index = l.contexts.len; l.contexts.push(LifeContext { frame: frame, parent: parent, next: l.context_heads[slot] }); l.context_heads[slot] = index;
+    return index;
+}
+// The chain of frames an offer is made in now, a number below 2^24 that
+// names a read or a frame, and a recursion epoch, as one word; -1 where
+// they do not fit or no chain is kept.
+inline fn life_chain_key(l: Lifetimes&, item: i64, epoch: i64) -> i64 {
+    let context = l.frames[l.frame].context;
+    if context < 0 || context >= 16777216 || item >= 16777216 || epoch >= 32768 || l.class_frames > 0 { return -1; }
+    return (context * 16777216 + item) * 32768 + epoch;
+}
+// Whether this chain of frames was offered the read before, with no place
+// in a recursive frame: in this pass or an earlier one. The offer went as
+// far up the same frames then as it would now, each took it into its
+// summary, and a summary keeps what it has taken. Frames have become
+// recursive since, perhaps, which matters to an offer only where one of its
+// places is in such a frame (life_effect_recursive): the caller asks that
+// of the offer as it is now.
+fn life_chain_offered(l: Lifetimes&, key: i64) -> bool {
+    if l.chain_offers.len == 0 { return false; }
+    var slot = life_mix(key, 0) & (l.chain_offers.len - 1);
+    loop {
+        let held = l.chain_offers[slot];
+        if held == key { return true; } if held < 0 { return false; }
+        slot = (slot + 1) & (l.chain_offers.len - 1);
+    }
+    return false;
+}
+// The reads_version a summary had when this chain of frames last replayed
+// all its construct reads, or -1.
+fn life_chain_replayed(l: Lifetimes&, key: i64) -> i64 {
+    if l.chain_replays.len == 0 { return -1; }
+    var slot = life_mix(key, 1) & (l.chain_replays.len - 1);
+    loop {
+        let held = l.chain_replays[slot];
+        if held == key { return l.chain_versions[slot]; } if held < 0 { return -1; }
+        slot = (slot + 1) & (l.chain_replays.len - 1);
+    }
+    return -1;
+}
+fn life_chain_replay(l: Lifetimes&, key: i64, version: i64) {
+    if 2 * (l.chain_replay_count + 1) > l.chain_replays.len {
+        var size: i64 = 256; while size < 4 * (l.chain_replay_count + 1) { size <<= 1; }
+        var keys: i64[>..] = []; keys.append(l.chain_replays); var versions: i64[>..] = []; versions.append(l.chain_versions);
+        l.chain_replays.clear(); l.chain_replays.resize(size, -1); l.chain_versions.clear(); l.chain_versions.resize(size, -1);
+        for held, index in keys {
+            if held < 0 { continue; }
+            var slot = life_mix(held, 1) & (size - 1);
+            while l.chain_replays[slot] >= 0 { slot = (slot + 1) & (size - 1); }
+            l.chain_replays[slot] = held; l.chain_versions[slot] = versions[index];
+        }
+    }
+    var slot = life_mix(key, 1) & (l.chain_replays.len - 1);
+    while l.chain_replays[slot] >= 0 && l.chain_replays[slot] != key { slot = (slot + 1) & (l.chain_replays.len - 1); }
+    if l.chain_replays[slot] < 0 { l.chain_replay_count += 1; }
+    l.chain_replays[slot] = key; l.chain_versions[slot] = version;
+}
+fn life_chain_record(l: Lifetimes&, key: i64) {
+    if 2 * (l.chain_offer_count + 1) > l.chain_offers.len {
+        var size: i64 = 256; while size < 4 * (l.chain_offer_count + 1) { size <<= 1; }
+        var old: i64[>..] = []; old.append(l.chain_offers);
+        l.chain_offers.clear(); l.chain_offers.resize(size, -1);
+        for held in old {
+            if held < 0 { continue; }
+            var slot = life_mix(held, 0) & (size - 1);
+            while l.chain_offers[slot] >= 0 { slot = (slot + 1) & (size - 1); }
+            l.chain_offers[slot] = held;
+        }
+    }
+    var slot = life_mix(key, 0) & (l.chain_offers.len - 1);
+    while l.chain_offers[slot] >= 0 { if l.chain_offers[slot] == key { return; } slot = (slot + 1) & (l.chain_offers.len - 1); }
+    l.chain_offers[slot] = key; l.chain_offer_count += 1;
+}
+inline fn life_leaf_offered(l: Lifetimes&, leaf: i64) -> bool {
+    let stamp = l.leaf_stamps[leaf]; let f: const LifeFrame& = l.frames[l.frame];
+    if (stamp & 4294967295) != l.recursion_epoch { return false; }
+    if (stamp >> 32) == f.activation { return true; }
+    return l.class_frames == 0 && (stamp >> 32) > f.activation && f.chain >= l.leaf_floors[leaf] as i64;
+}
+// The current activation has offered the read with these places.
+fn life_leaf_stamp(l: Lifetimes&, leaf: i64, offered: const LifeEffect&) {
+    let f: const LifeFrame& = l.frames[l.frame]; let reach = life_effect_far(l, offered);
+    var floor: i64 = 1; if reach.far != 9223372036854775807 { floor = f.chain - reach.far + 1; }
+    if floor > 2147483647 { return; }
+    l.leaf_stamps[leaf] = f.activation * 4294967296 + l.recursion_epoch; l.leaf_floors[leaf] = floor as i32;
+}
 fn life_summary_seen(l: Lifetimes&, index: i64, effect: const LifeEffect&) {
     l.summaries[index].places = effect.places; l.summaries[index].refs = effect.value.refs;
     l.summaries[index].contents = effect.value.contents; l.summaries[index].place = effect.value.place;
@@ -443,7 +622,8 @@ fn life_effect_merge(l: Lifetimes&, effect: const LifeEffect&, frame: i64, bucke
             if !life_equal(l, places, old_places) || !life_equal(l, refs, old_refs) || !life_equal(l, contents, old_contents) || !life_equal(l, value_places, old_place) { l.revision += 1; }
             l.effects[previous].places = places; l.effects[previous].value.refs = refs; l.effects[previous].value.contents = contents; l.effects[previous].value.place = value_places;
             life_summary_seen(l, previous, effect);
-            l.summaries[previous].walked = walked; l.summaries[previous].replayed = -1;
+            l.summaries[previous].walked = walked; l.summaries[previous].replayed = -1; l.summaries[previous].leaf = -1;
+            if effect.kind == 3 { l.frames[frame].reads_version += 1; }
             return 1;
         }
         previous = next;
@@ -620,10 +800,16 @@ fn life_effect(l: Lifetimes&, effect: LifeEffect) {
                     l.effect_heads[slot] = index; l.indexed_effects += 1;
                 }
                 l.effects.push(entry);
-                if last >= 0 { l.effects[last].next = index; }
+                if last >= 0 { l.effects[last].next = index; l.summaries[last].after = index; }
                 if l.discovery {
                     if last < 0 { l.frames[frame].first_summary = index; }
                     l.frames[frame].last_summary = index; l.revision += 1;
+                    if entry.kind == 3 { l.frames[frame].reads_version += 1; }
+                    else {
+                        let before = l.frames[frame].last_other;
+                        if before >= 0 { l.summaries[before].other = index; } else { l.frames[frame].first_other = index; }
+                        l.frames[frame].last_other = index;
+                    }
                 } else {
                     if last < 0 { l.frames[frame].first_effect = index; }
                     l.frames[frame].last_effect = index;
@@ -2593,54 +2779,80 @@ fn life_has_bytes(l: Lifetimes&, set: i64) -> bool {
     while at >= 0 { if l.alts[at].byteview { return true; } at = l.alts[at].next; }
     return false;
 }
+// The reference and slice types in a holder's own storage: its fields',
+// variants' and elements', not what a reference leads to. With root >= 0,
+// without the top-level fields that an active kill of that root names.
+fn life_holder_scan(p: Program&, l: Lifetimes&, holder: i64, root: i64, out: i64[>..]&) {
+    var types: i64[>..] = [holder]; var ti = 0;
+    while ti < types.len {
+        let ty = types[ti]; ti += 1; let t: const Type& = p.types[ty];
+        if t.kind == TY_REF || t.kind == TY_SLICE { out.push(ty); }
+        else if t.kind == TY_ARRAY && t.element >= 0 {
+            var seen = false; for old in types { if old == t.element { seen = true; } }
+            if !seen { types.push(t.element); }
+        } else if t.kind == TY_STRUCT || t.kind == TY_ENUM || t.kind == TY_TUPLE {
+            var field = t.first;
+            while field >= 0 {
+                let ft = p.nodes[field].type_id; var seen = ft < 0;
+                if ty == holder && root >= 0 {
+                    for kill in l.kills { if kill.active && kill.root == root && kill.field == field { seen = true; } }
+                }
+                for old in types { if old == ft { seen = true; } }
+                if !seen { types.push(ft); } field = p.nodes[field].next;
+            }
+        }
+    }
+}
+// Lists a type's reference and slice types in holder_refs, once.
+fn life_holder_list(p: Program&, l: Lifetimes&, holder: i64) {
+    if l.holder_starts[holder] >= 0 { return; }
+    var found: i64[>..] = []; life_holder_scan(p, l, holder, -1, found);
+    l.holder_starts[holder] = l.holder_refs.len; l.holder_counts[holder] = found.len; l.holder_refs.append(found);
+}
 fn life_held_into(p: Program&, l: Lifetimes&, owners: i64, holder_type: i64, target: i64, element: i64, slot_safe: bool) -> bool {
     var work: LifeWalk[>..] = []; var at = l.sets[owners].first;
     while at >= 0 { let alt = l.alts[at]; work.push(LifeWalk { root: alt.root, type_id: holder_type }); at = alt.next; }
-    var current = 0;
+    var current = 0; var scanned: i64[>..] = [];
     while current < work.len {
         let held = work[current]; current += 1; if held.type_id < 0 { continue; }
-        let root = l.roots[held.root]; var types: i64[>..] = [held.type_id]; var ti = 0;
+        let root = l.roots[held.root];
+        // The reference types the holder's type has in it are the same every
+        // time (holder_refs), unless a field of this root has been killed.
+        var killed = false;
+        if life_same(p, root.type_id, held.type_id) { for kill in l.kills { if kill.active && kill.root == held.root { killed = true; } } }
+        var first = 0; var count = 0; let listed = !killed && l.types_frozen && held.type_id < l.holder_starts.len;
+        if listed { life_holder_list(p, l, held.type_id); first = l.holder_starts[held.type_id]; count = l.holder_counts[held.type_id]; }
+        else {
+            scanned.clear(); var kill_root: i64 = -1; if killed { kill_root = held.root; }
+            life_holder_scan(p, l, held.type_id, kill_root, scanned); count = scanned.len;
+        }
         // Whether a held alternative is a byte view: 0 not looked yet, 1 none, 2 some.
         var bytes = 0;
-        while ti < types.len {
-            let ty = types[ti]; ti += 1; let t: const Type& = p.types[ty];
-            if t.kind == TY_REF || t.kind == TY_SLICE {
-                if t.kind == TY_REF && t.length_storage >= 0 { continue; }
-                // A reference that can neither point into the elements nor
-                // lead on to further holders finds its target only through
-                // a byte view.
-                let reaches = life_contains(p, l, element, t.element); let leads = life_holds(p, t.element);
-                if !reaches && !leads {
-                    if bytes == 0 { bytes = 1; if life_has_bytes(l, root.live_contents) { bytes = 2; } }
-                    if bytes == 1 { continue; }
-                }
-                var holding = root.live_contents;
-                if root.class_frame >= 0 && l.frames[root.class_frame].stored_first >= 0 { holding = life_join(l, holding, life_class_stores(l, held.root)); }
-                var ai = l.sets[holding].first;
-                while ai >= 0 {
-                    var alt = l.alts[ai]; ai = alt.next;
-                    if l.class_frames > 0 { alt = life_class_narrow(l, alt, held.root, t.element); }
-                    let storage = l.roots[alt.root];
-                    if !alt.byteview && (storage.class_frame < 0 && !life_contains(p, l, storage.type_id, t.element) || alt.target_type >= 0 && !life_same(p, alt.target_type, t.element)) { continue; }
-                    if (alt.byteview || reaches) &&
-                       life_alt_overlaps(l, alt, target, slot_safe) { return true; }
-                    if leads {
-                        var seen = false; for old in work { if old.root == alt.root && old.type_id == t.element { seen = true; } }
-                        if !seen { work.push(LifeWalk { root: alt.root, type_id: t.element }); }
-                    }
-                }
-            } else if t.kind == TY_ARRAY && t.element >= 0 {
-                var seen = false; for old in types { if old == t.element { seen = true; } }
-                if !seen { types.push(t.element); }
-            } else if t.kind == TY_STRUCT || t.kind == TY_ENUM || t.kind == TY_TUPLE {
-                var field = t.first;
-                while field >= 0 {
-                    let ft = p.nodes[field].type_id; var seen = ft < 0;
-                    if ty == held.type_id && life_same(p, root.type_id, held.type_id) {
-                        for kill in l.kills { if kill.active && kill.root == held.root && kill.field == field { seen = true; } }
-                    }
-                    for old in types { if old == ft { seen = true; } }
-                    if !seen { types.push(ft); } field = p.nodes[field].next;
+        for item in 0..count {
+            var ty = 0; if listed { ty = l.holder_refs[first + item]; } else { ty = scanned[item]; }
+            let t: const Type& = p.types[ty];
+            if t.kind == TY_REF && t.length_storage >= 0 { continue; }
+            // A reference that can neither point into the elements nor
+            // lead on to further holders finds its target only through
+            // a byte view.
+            let reaches = life_contains(p, l, element, t.element); let leads = life_holds(p, t.element);
+            if !reaches && !leads {
+                if bytes == 0 { bytes = 1; if life_has_bytes(l, root.live_contents) { bytes = 2; } }
+                if bytes == 1 { continue; }
+            }
+            var holding = root.live_contents;
+            if root.class_frame >= 0 && l.frames[root.class_frame].stored_first >= 0 { holding = life_join(l, holding, life_class_stores(l, held.root)); }
+            var ai = l.sets[holding].first;
+            while ai >= 0 {
+                var alt = l.alts[ai]; ai = alt.next;
+                if l.class_frames > 0 { alt = life_class_narrow(l, alt, held.root, t.element); }
+                let storage = l.roots[alt.root];
+                if !alt.byteview && (storage.class_frame < 0 && !life_contains(p, l, storage.type_id, t.element) || alt.target_type >= 0 && !life_same(p, alt.target_type, t.element)) { continue; }
+                if (alt.byteview || reaches) &&
+                   life_alt_overlaps(l, alt, target, slot_safe) { return true; }
+                if leads {
+                    var seen = false; for old in work { if old.root == alt.root && old.type_id == t.element { seen = true; } }
+                    if !seen { work.push(LifeWalk { root: alt.root, type_id: t.element }); }
                 }
             }
         }
@@ -2742,10 +2954,14 @@ fn life_shrink_array(p: Program&, l: Lifetimes&, node: i64, receiver: LifeValue,
     }
     var index = life_next_live(l, -1);
     while index >= 0 {
+        // A cell whose type neither is a reference nor holds one points into
+        // nothing (life_points_into): most live cells are numbers.
+        let cell_type = p.symbols[l.cells[index].symbol].type_id;
+        if !life_is_ref(p, cell_type) && !life_holds(p, cell_type) { index = life_next_live(l, index); continue; }
         let cell = l.cells[index]; let visible = life_visible(l, index); index = life_next_live(l, index);
         if !visible { continue; }
         if balanced && (cell.frame != l.frame || (p.symbols[cell.symbol].flags & S_PARAMETER) != 0) { continue; }
-        let value = LifeValue { type_id: p.symbols[cell.symbol].type_id, place: life_root_set(l, cell.root), refs: cell.live_refs, contents: l.roots[cell.root].live_contents };
+        let value = LifeValue { type_id: cell_type, place: life_root_set(l, cell.root), refs: cell.live_refs, contents: l.roots[cell.root].live_contents };
         if life_points_into(p, l, value, receiver.place, receiver.type_id) && life_used_after(p, l, cell) {
             life_error(p, l, node, "array shrink invalidates a reference or holder that is used afterward");
         }
@@ -2790,11 +3006,31 @@ fn life_grow(p: Program&, l: Lifetimes&, node: i64, receiver: LifeValue) {
         }
     }
 }
-fn life_construct_read(p: Program&, l: Lifetimes&, node: i64, value: LifeValue) {
+// Offers an effect that discovery only records (a construct read; with
+// LIFE_ONCE_ALL a growth or a replacement too), unless the current
+// activation has been offered it (life_leaf_offered). known: its leaf, where
+// the caller has looked it up and found it not offered (life_replay).
+fn life_offer_once(l: Lifetimes&, offer: LifeEffect, known: i64) {
+    // In validation this is the recording of the effect in the frames'
+    // effect lists, which have it from then on; what it is checked against
+    // is looked at every time, by the caller.
+    if !((l.discovery || l.class_frames == 0) && l.frame > 0 && l.activations < 1073741824) { life_effect(l, offer); return; }
+    var leaf = known; var offered = false;
+    if leaf < 0 { leaf = life_leaf(l, offer.kind, offer.node, offer.value); offered = life_leaf_offered(l, leaf); }
+    var chain: i64 = -1; if l.discovery { chain = life_chain_key(l, leaf, 0); }
+    if !offered && chain >= 0 && life_chain_offered(l, chain) && !life_effect_far(l, offer).cyclic { life_leaf_stamp(l, leaf, offer); offered = true; }
+    if !offered {
+        let offers = l.offer_count; let cyclic = l.offer_recursive; l.offer_recursive = false;
+        life_effect(l, offer);
+        if l.offer_count > offers && !l.offer_recursive { life_leaf_stamp(l, leaf, offer); if chain >= 0 { life_chain_record(l, chain); } }
+        if cyclic { l.offer_recursive = true; }
+    }
+}
+fn life_construct_read(p: Program&, l: Lifetimes&, node: i64, value: LifeValue, known: i64 = -1) {
     if l.reading_place > 0 { return; }
     var effect_places = value.place; if life_is_ref(p, value.type_id) { effect_places = value.refs; }
     var effect_type = value.type_id; if effect_type >= 0 && p.types[effect_type].kind == TY_REF { effect_type = p.types[effect_type].element; }
-    if value.element_array != -1 || life_cached_size_class(p, l, effect_type) == 2 { life_effect(l, LifeEffect { kind: 3, node: node, value: value, places: effect_places }); }
+    if value.element_array != -1 || life_cached_size_class(p, l, effect_type) == 2 { life_offer_once(l, LifeEffect { kind: 3, node: node, value: value, places: effect_places }, known); }
     if l.discovery { return; }
     var places = value.place;
     if value.type_id >= 0 && p.types[value.type_id].kind == TY_REF { places = value.refs; }
@@ -4276,7 +4512,7 @@ recursive fn life_class_eval(p: Program&, l: Lifetimes&, target: i64, sets: i64)
     let map_base = l.frames[target].map_base;
     l.frames[target].parent = previous_frame; l.frames[target].destination = l.frames[target].class_destination;
     l.frames[target].chain = l.frames[previous_frame].chain + 1; l.frames[target].chain_epoch = -1;
-    l.activations += 1; l.frames[target].activation = l.activations; l.frames[target].map_base = sets;
+    l.activations += 1; l.frames[target].activation = l.activations; l.frames[target].map_base = sets; l.frames[target].context = -1;
     l.classify_serial += 1; l.frames[target].map_serial = l.classify_serial;
     l.frame = target; l.scope = p.nodes[function_node].scope; l.island = target;
     l.hold_floor = l.hold_count; l.future_floor = l.future_count; l.conditional = 0; l.reading_place = 0; l.sequence_frame = -1;
@@ -4503,6 +4739,7 @@ recursive fn life_function(p: Program&, l: Lifetimes&, function_node: i64, call:
         l.frames[target].parent = previous_frame; l.frames[target].destination = destination;
         l.frames[target].chain = l.frames[previous_frame].chain + 1; l.frames[target].chain_epoch = -1;
         l.activations += 1; l.frames[target].activation = l.activations; l.frames[target].island = l.island;
+        l.frames[target].context = life_context(l, target, l.frames[previous_frame].context);
     }
     l.frame = target; l.scope = p.nodes[function_node].scope;
     var formal = p.nodes[function_node].first; var index = 0;
@@ -5179,8 +5416,27 @@ fn life_replay(p: Program&, l: Lifetimes&, frame: i64, summary: bool = false, m:
     // A mapped entry depends on its call as well, and is replayed each time.
     let memo = summary && l.discovery && l.frame > 0 && l.activations < 1073741824;
     let into = l.frames[l.frame].activation as i32; let epoch = l.recursion_epoch as i32;
+    let plain = memo && m.count == 0;
+    // Most of a summary is construct reads. A replay that found every one of
+    // them offered, or offered the rest, says so for its chain of frames
+    // (chain_replays). Until the summary gains or changes a read, a replay
+    // in that chain again has only the other entries to go through, in the
+    // same order: each frame of the chain took the reads then.
+    let version = l.frames[frame].reads_version; var chain: i64 = -1; if plain { chain = life_chain_key(l, frame, l.recursion_epoch); }
+    let others = chain >= 0 && life_chain_replayed(l, chain) == version;
+    if others { at = l.frames[frame].first_other; }
+    var complete = chain >= 0 && !others;
     while at >= 0 {
-        var effect = l.effects[at]; let next = effect.next; var mapped = false;
+        if plain {
+            let s: const LifeSummary& = l.summaries[at];
+            if s.replayed == into && s.replayed_epoch == epoch {
+                if complete && s.kind == 3 && (s.leaf < 0 || !life_leaf_offered(l, s.leaf as i64)) { complete = false; }
+                at = s.after; if others { at = s.other; }
+                continue;
+            }
+            if s.kind == 3 && s.leaf >= 0 && life_leaf_offered(l, s.leaf as i64) { at = s.after; continue; }
+        }
+        var effect = l.effects[at]; var next = effect.next; if others { next = l.summaries[at].other; } var mapped = false; var leaf = -1;
         if m.count > 0 && effect.kind == 4 && effect.field > -2 {
             // A store into a class root of what came out of the same
             // argument's storage moves references about within what that
@@ -5206,11 +5462,15 @@ fn life_replay(p: Program&, l: Lifetimes&, frame: i64, summary: bool = false, m:
         if remembered {
             let s: const LifeSummary& = l.summaries[at];
             if s.replayed == into && s.replayed_epoch == epoch { at = next; continue; }
+            if effect.kind == 3 {
+                leaf = s.leaf as i64; if leaf < 0 { leaf = life_leaf(l, effect.kind, effect.node, effect.value); l.summaries[at].leaf = leaf as i32; }
+                if life_leaf_offered(l, leaf) { at = next; continue; }
+            }
             l.offer_count = 0; l.offer_recursive = false;
         }
         if effect.kind == 1 { life_shrink(p, l, effect.node, effect.value); }
         else if effect.kind == 2 { life_grow(p, l, effect.node, effect.value); }
-        else if effect.kind == 3 { life_construct_read(p, l, effect.node, effect.value); }
+        else if effect.kind == 3 { life_construct_read(p, l, effect.node, effect.value, leaf); }
         else if effect.kind == 8 { life_replace(p, l, effect.node, effect.value); }
         else if effect.kind == 9 { life_relative_store(p, l, effect.node, effect.places, effect.value); life_effect(l, effect); }
         else if effect.kind == 4 && effect.field <= -2 {
@@ -5272,8 +5532,10 @@ fn life_replay(p: Program&, l: Lifetimes&, frame: i64, summary: bool = false, m:
             }
         }
         if remembered && l.offer_count > 0 && !l.offer_recursive { l.summaries[at].replayed = into; l.summaries[at].replayed_epoch = epoch; }
+        if complete && effect.kind == 3 && (leaf < 0 || !life_leaf_offered(l, leaf)) { complete = false; }
         at = next;
     }
+    if complete && l.frames[frame].reads_version == version { life_chain_replay(l, chain, version); }
 }
 
 // Persist the final root proof by Symbol ID so optimizer clones can carry it
@@ -5532,6 +5794,10 @@ fn check_lifetimes(p: Program&, scope_parent: const i64[:], scope_depth: const i
     visited.resize(p.nodes.len, 0);
     summary_heads.resize(2 * p.nodes.len + 1, -1);
     var summaries: LifeSummary[>..] = []; var capture_reads: i64[>..] = [];
+    var leaves: LifeLeaf[>..] = []; var leaf_heads: i64[>..] = []; var leaf_stamps: i64[>..] = []; var leaf_floors: i32[>..] = [];
+    // (Chain 0 is frame 0's, the globals'.)
+    var contexts: LifeContext[>..] = [LifeContext { frame: 0, parent: -1 }]; var context_heads: i64[>..] = []; var chain_offers: i64[>..] = [];
+    var chain_replays: i64[>..] = []; var chain_versions: i64[>..] = [];
     // A program of n nodes starts with about n / 8 offer slots (a power of
     // four from 256 to 65,536), so a large one never waits for the table to
     // grow; life_offer_repeated grows a small one as it records offers.
@@ -5540,6 +5806,7 @@ fn check_lifetimes(p: Program&, scope_parent: const i64[:], scope_depth: const i
     var global_read_spans: LifeSpan[>..] = []; var global_read_list: i64[>..] = [];
     var bodies: LifeBody[>..] = []; var body_slots: i64[>..] = []; var body_globals: i64[>..] = []; var body_calls: i64[>..] = [];
     var size_classes: i64[>..] = []; size_classes.resize(p.types.len, -1);
+    var holder_starts: i64[>..] = []; holder_starts.resize(p.types.len, -1); var holder_counts: i64[>..] = []; holder_counts.resize(p.types.len, 0); var holder_refs: i64[>..] = [];
     var build_alts: LifeAlt[>..] = []; var build_slots: i64[>..] = []; var set_index: i32[>..] = []; var scratch: LifeAlt[>..] = [];
     var list_slots: i64[>..] = []; var list_sets: i64[>..] = []; var list_keys: i64[>..] = []; var atom_slots: LifeAtomSlot[>..] = []; var cell_keys: LifeCellKey[>..] = [];
     var contains_pointee: i64[>..] = []; var contains_answer: bool[>..] = [];
@@ -5554,7 +5821,7 @@ fn check_lifetimes(p: Program&, scope_parent: const i64[:], scope_depth: const i
     var class_slots: i64[>..] = []; var joins: LifeJoin[>..] = []; var global_cells: i64[>..] = []; var global_candidates: LifeGlobalCandidates[>..] = []; var candidate_alts: LifeAlt[>..] = [];
     var l = Lifetimes { parents: scope_parent, depths: scope_depth, functions: scope_functions,
         roots: roots, sets: sets, alts: alts, cells: cells, frames: frames, items: items, pairs: pairs, pair_heads: pair_heads, exits: exits,
-        futures: futures, holds: holds, temps: temps, reads: reads, kills: kills, size_classes: size_classes, atoms: atoms, failures: failures, effects: effects, symbol_cells: symbol_cells, node_roots: node_roots, function_frames: function_frames, read_heads: read_heads, visited: visited, summary_heads: summary_heads, effect_heads: effect_heads, summaries: summaries, capture_reads: capture_reads, offers: offers, global_read_spans: global_read_spans, global_read_list: global_read_list,
+        futures: futures, holds: holds, temps: temps, reads: reads, kills: kills, size_classes: size_classes, holder_starts: holder_starts, holder_counts: holder_counts, holder_refs: holder_refs, atoms: atoms, failures: failures, effects: effects, symbol_cells: symbol_cells, node_roots: node_roots, function_frames: function_frames, read_heads: read_heads, visited: visited, summary_heads: summary_heads, effect_heads: effect_heads, summaries: summaries, leaves: leaves, leaf_heads: leaf_heads, leaf_stamps: leaf_stamps, leaf_floors: leaf_floors, contexts: contexts, context_heads: context_heads, chain_offers: chain_offers, chain_replays: chain_replays, chain_versions: chain_versions, capture_reads: capture_reads, offers: offers, global_read_spans: global_read_spans, global_read_list: global_read_list,
         bodies: bodies, body_slots: body_slots, body_globals: body_globals, body_calls: body_calls,
         build_alts: build_alts, build_slots: build_slots, set_index: set_index, scratch: scratch,
         list_slots: list_slots, list_sets: list_sets, list_keys: list_keys, atom_slots: atom_slots, cell_keys: cell_keys, contains_pointee: contains_pointee, contains_answer: contains_answer,
