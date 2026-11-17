@@ -1,30 +1,30 @@
 # Source and output contracts
 
+From the repository root, with a C compiler and Node installed:
+
 ```sh
-source build/performance-env.sh
-python scripts/bootstrap.py --verify
-python tests/conformance.py --compiler build/bin/goose \
-  --output-dir build/conformance --levels 0 2
+python3 -m venv .venv
+.venv/bin/python -m pip install -r requirements.txt
+.venv/bin/python scripts/bootstrap.py --verify
+.venv/bin/python tests/conformance.py --compiler build/bin/goose \
+  --output-dir build/conformance --known-gaps tests/conformance/known-gaps.json
 ```
 
-Use a fresh output directory. The suite contains 3,469 cases and 5,021 expanded checks: frozen source, input, expected output, exit status and failure phase. It never runs a reference compiler or regenerates expectations from the candidate.
+Use a new output directory. The [manifest](conformance/cases.json) freezes the sources, inputs, output, exit statuses and failure phases. `--known-gaps` requires the observed failures to match the recorded gaps for the selected rows. Type errors must parse successfully. The suite runs only the compiler under test.
 
-Parsing failures, typing failures and runtime failures are distinct contracts. Typing failures must parse successfully. External signatures can be checked without supplying an external implementation. Runtime checks compare output and exit status; a crash is not an expected language error.
+Use `--filter corpus/`, `--levels 0`, `--targets native`, `--engine v8` or `--frontend-only` for focused runs. `--jobs N` sets concurrency. Every case runs in a fresh process. Wasmtime is the default Wasm engine. With `--wasm-memory64 --targets wasm-direct`, use [the memory64 gaps](conformance/known-gaps-memory64.json). Memory64 defaults to the Python runner. `--host` selects a compatible Wasmtime host explicitly.
 
-Use `--filter corpus/`, `--levels 0`, `--engine v8` or `--frontend-only` for focused runs. Rows run concurrently on every CPU by default; `--jobs N` sets the count. Results keep manifest order, and each execution is still a fresh process. Most of the time goes to compiling native C, so expect close to linear scaling. `--known-gaps tests/conformance/known-gaps.json` exits 0 only when the failures are exactly the recorded open gaps. `--native-cache DIR` reuses successful native builds across runs. Entries are keyed by the C compiler's identity, its flags and the bytes of direct input files; a hit links the stored binary and replays the original compiler output, and the report marks it. Cases with `native_sources` always rebuild because their transitive headers are not tracked. `--prune-native-cache` drops entries the run did not use. CI keeps this directory between runs. The default Wasm engine is Wasmtime; native cases compile emitted C with GCC. `--cc` selects another C compiler. Every execution starts a fresh process.
-
-`--native-units N` builds native rows as N program units linked with the runtime unit's object (`native/units.h`), compiled once per runtime text, C compiler, flag and defines, and cached with the builds. `--targets native` selects rows by target. Upstream sources compile from one shared extraction under `build/conformance-upstream/`, keyed by the archive and standard library, so their emitted C, which names the source path at abort sites, is identical from run to run. Each program still runs in its own run's copy.
+`--native-cache DIR` reuses successful GCC builds keyed by tool, flags and direct inputs. Cases with `native_sources` rebuild because their transitive headers are untracked. `--native-units N` builds program units beside a reusable runtime unit. `--prune-native-cache` removes entries the run did not use.
 
 ## Qualifying a change
 
 ```sh
-python scripts/qualify.py --output-dir build/qualify-1 --baseline build/baselines/goose-PREVIOUS
+.venv/bin/python scripts/qualify.py --output-dir build/qualify-1 \
+  --baseline build/baselines/goose-previous
 ```
 
-This runs `bootstrap.py --verify`, then four stages at once: the suite with one translation unit per program; the native rows as three program units; `native/tests/check.py`; and output equivalence against the baseline compiler. It also runs the runner, bootstrap and backend unit tests, and the six optimizer statistics modules that finish in seconds. The split-unit pass runs only when native code generation, `native/` or the runner differ from `--since` (default `origin/main`); `--units-pass always` forces it. Native builds and bootstrap executables are cached by content under `build/qualify-cache`, so a rerun compiles only the C that changed. `summary.json` records each stage, the bootstrap hashes and cache use, and the exit status is nonzero if a stage fails. Equivalence differences are listed for review, not judged. On 2026-11-14 a cold run took 14.5 minutes and a warm one 3.2. [Measurements](../bench/results/2026-11-14/qualification-speed/README.md)
+This verifies bootstrap, runs the default and memory64 contracts, checks the native runtime and runs unit tests. The split native pass runs when native code generation, `native/` or the runner differ from `--since` (default `origin/main`). Use `--units-pass always` to force it. The bootstrap and native build caches live under `build/qualify-cache`.
 
-`report.json` records commands, observations, failures and input hashes. The upstream source archive includes its pinned revision and license; local fixtures and captured observations retain their provenance in `conformance/`.
+When supplied, `--baseline` compares output against an executable built from the previous sources. Require an empty `differing` array in `equivalence/report.json` for a performance change. The qualification exit status does not judge equivalence differences. For lifetime optimizations, compare analysis state too. Apply [the logical fingerprint helper](../bench/results/2026-11-17/lifetime-compact-reads/tools/logicalfp.py) to separate baseline and candidate source copies, then check the same inputs. Use `fingerprint` for pass boundaries and `fpframes` for samples every 2,000 frames. Set `LIFE_CONCRETE_FRAMES` in the copies to exercise early class behavior.
 
-## Unit tests
-
-`python -m unittest tests.test_<name>` runs one module; `GOOSE_COMPILER` names the compiler for those that read it. The modules written against the C++ compiler asserted its internals (`--offline`, `--wasm-stats` fields, `goose.regions` sections) and were removed on 2026-11-14. Nine came back without `--offline`, since the optimizer statistics they check hold for this compiler and no other check would notice a lost optimization: `test_aggregate_print`, `test_byte_scans`, `test_descending_while`, `test_dynamic_remainder`, `test_function_value_forwarding`, `test_loop_ordinals`, `test_merge_bounds`, `test_while_unroll` and `test_zero_stores`. They share `goose_stats.py`, which holds no tests. The programs the removed modules generated are now contracts compared with plain upstream, under `fixtures/contracts/upstream-differential/harvest/`; its `manifest.json` names each program's module and every exclusion. Incremental session compilation was a C++-compiler feature that the Goose compiler does not have, so its tests went with them.
+`summary.json` records stage results. Contract reports record exact commands, observations and input hashes. `GOOSE_COMPILER` selects the compiler for unit tests that launch it.

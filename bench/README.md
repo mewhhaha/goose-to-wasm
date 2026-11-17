@@ -66,7 +66,7 @@ python3 bench/benchmark.py --smoke --samples 2 --compile-samples 1 --warmups 1
 
 # Isolate a workload, or select explicit tool executables.
 python3 bench/benchmark.py --workloads integer_mod \
-  --goose build/bin/goose --emcc /path/to/emcc --cc gcc --node node
+  --goose build/bin/goose --cc gcc --node node
 ```
 
 `--kernel-warmups` controls the untimed executions inside each process;
@@ -93,9 +93,7 @@ Use `--compile-samples 0` to compare preserved artifacts when the original
 compiler executables are unavailable. See the
 [runtime work and reproduction commands](../docs/RUNTIME_PERFORMANCE.md).
 
-## Snapshot 57 results
-
-The [dated results](results/2026-11-08/scalar-wasm-locals/README.md) record exact compiler, source, workload and engine identities, raw measurements and limitations. Official Mandelbrot computation took 2.64 s in resident Wasmtime, 2.57 s in resident V8 and 2.45 s natively. The separate compiler execution comparison measures three compilers across eleven programs: Goose 57 took 3.00× the previous optimized C++ compiler’s time to emit Wasm and 2.21× to emit C (geometric means). These frontend timings exclude downstream C compilation, unlike the complete-build chart.
+## Compiler throughput
 
 `compare_compilers.py` now measures only two Goose compilers, a parent and a
 candidate; `compiler_comparison_charts.py` still renders the dated reports
@@ -105,10 +103,10 @@ that included the C++ compiler.
 python3 bench/compare_compilers.py \
   --parent /path/to/previous/goose --parent-source /path/to/previous/selfhost \
   --candidate build/bin/goose --candidate-source selfhost \
-  --output-dir build/compiler-comparison
+  --samples 31 --output-dir build/compiler-comparison
 ```
 
-The [Langbench guide](langbench/README.md) describes the resident runtime boundary. The [previous snapshot 56 results](results/2026-11-07/langbench-hot/README.md) were collected separately. A new alternating comparison on the smaller input confirmed 13.93× Wasmtime and 17.25× V8 runtime improvements. This is a scalar-module optimization; the ten full examples remain separate process benchmarks.
+Compare on the same CPU and run a null comparison using a compiler against its own copy. Measure small inputs after a large-program change to catch fixed costs. Record CPU time and peak RSS per process. [Snapshot 63 throughput](results/2026-11-14/compiler-throughput-63/README.md) · [Resident runtime boundary](langbench/README.md)
 
 ## Example programs
 
@@ -125,16 +123,12 @@ remains visible; every successful runtime must pass its official checksum.
 ```sh
 python3 bench/langarena.py fetch
 python3 tests/test_langarena.py
-python3 bench/langarena.py check --emcc /path/to/emcc
-python3 bench/langarena.py measure --emcc /path/to/emcc \
+python3 bench/langarena.py check
+python3 bench/langarena.py measure \
   --machine-label "observed machine description"
 ```
 
-This harness uses each upstream workload's own warmup and state rules. It does
-not apply the microbenchmark harness's fixed two-call warmup. Actual marker-edit
-rebuilds are required by default, while unchanged cache hits are an optional,
-separate phase. The initial three-sample measurement is preliminary and reports
-raw values and dispersion.
+This harness uses each upstream workload's own warmup and state rules. It measures actual marker-edit rebuilds by default. The three-sample default is preliminary and reports raw values and dispersion.
 
 ## Fibonacci optimization diagnostic
 

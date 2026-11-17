@@ -47,8 +47,12 @@ python bench/runtime_lifecycle_charts.py build/runtime-lifecycle/report.json --o
 
 Chart rendering requires Matplotlib. The lifecycle chart command requires a fresh output path and will not overwrite an existing file. The host benchmark's default output path can be changed with `--output-dir`; use its generated report path for chart rendering. See the [dated evidence](results/2026-11-04/direct-imports/README.md) for retained raw data and qualification.
 
-Check the current compiler and host against frozen source and output contracts:
+Check the current compiler and host using the [frozen contracts](../tests/README.md).
 
-```sh
-python tests/conformance.py --compiler build/bin/goose --output-dir build/conformance
-```
+## Historical replay
+
+The C-to-Wasm replays used the compiler and test harnesses at
+[`f552fe1`](https://github.com/mewhhaha/goose-to-wasm/tree/f552fe1c61d25c52113caf6483c04ffe1708f100)
+and [`c1b10b0`](https://github.com/mewhhaha/goose-to-wasm/tree/c1b10b0321f9862698d508db443d45f139dbdda4).
+Use those revisions with their [November 2 evidence](results/2026-11-02/wasmtime-host/README.md)
+and [November 4 evidence](results/2026-11-04/direct-imports/README.md).

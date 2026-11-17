@@ -35,9 +35,4 @@ The host builder uses the pinned Wasmtime SDK and a C++ compiler. See [host note
 
 ## Contracts and scope
 
-```sh
-python tests/conformance.py --compiler build/bin/goose \
-  --output-dir build/conformance --levels 0 2
-```
-
-The output directory must be new. Contracts specify source, expected output, exit status and failure phase independently of a reference compiler. Failures are reported in `report.json`; there is no expected-output update mode. The frozen contracts describe the tested scope. Frontend and runtime gaps remain; native packed images, threads, pools, packages, tooling, sessions and caches are still in progress. See the [compiler notes](../selfhost/README.md) for recent results.
+See [running the contracts](../tests/README.md) for the test commands and [upstream compatibility](FEATURES.md) for supported features and open gaps.
