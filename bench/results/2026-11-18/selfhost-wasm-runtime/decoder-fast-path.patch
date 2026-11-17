@@ -1,0 +1,18 @@
+--- a/selfhost/codegen.goose
++++ b/selfhost/codegen.goose
+@@ -4369,6 +4369,7 @@
+     cg_get(f, header); wc_load(f.code, 5); let mode = cg_save(f, wa());
+     cg_get(f, header); wc_load(f.code, 1); let result = cg_save(f, wa());
+     let done = cg_begin(f, 0x02, 0x40);
++    cg_get(f, mode); wa_op(f.code, 0x45); cg_branch(p, f, done, true);
+     for selected in 1..7 {
+         cg_get(f, mode); wa_const(f.code, selected); wa_op(f.code, 0x46); cg_begin(f, 0x04, 0x40);
+         cg_get(f, header); wc_load(f.code, 4); let image = cg_save(f, wa());
+@@ -4401,6 +4402,7 @@
+     cg_get(f, header); wc_load(f.code, 5); let mode = cg_save(f, wa());
+     cg_get(f, header); wc_load(f.code, 0); let result = cg_save(f, wa());
+     let done = cg_begin(f, 0x02, 0x40);
++    cg_get(f, mode); wa_op(f.code, 0x45); cg_branch(p, f, done, true);
+     for selected in 1..7 {
+         cg_get(f, mode); wa_const(f.code, selected); wa_op(f.code, 0x46); cg_begin(f, 0x04, 0x40);
+         cg_get(f, header); wc_load(f.code, 4); let image = cg_save(f, wa());
