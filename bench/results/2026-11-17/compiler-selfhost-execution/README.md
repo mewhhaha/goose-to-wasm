@@ -22,7 +22,7 @@ The three paths run the same compiler sources on CPU 6 of a shared Ryzen 7 3800X
 | Check project | 2.74 s | 13.09 s | 14.36 s |
 | Emit `compiler.wasm` | 4.01 s | 19.44 s | 20.51 s |
 
-These are medians of three wall times per cell. Wasmtime took about 4.8× the native time for both workloads. V8 took 5.1–5.2×. Every run succeeded with matching stdout and stderr. All nine self-compilations reproduced the 25,664,686-byte input module with SHA-256 `cee17ed5f2ada79ac52e7381d23456829281f27bf780601824cd3fb397c41e32`.
+These are medians of three wall times per cell. Wasmtime took about 4.8× the native time for both workloads. V8 took 5.1–5.2×. Every run succeeded with matching stdout and stderr. All nine self-compilations reproduced the 25,664,686-byte input module with SHA-256 `cee17ed5f2ada79ac52e7381d23456829281f27bf780601824cd3fb397c41e32`. [Runtime profiles and follow-up experiments](../../2026-11-18/selfhost-wasm-runtime/README.md)
 
 Wasmtime uses the hosted configuration with Cranelift speed optimization. V8 uses Node 24.22.1 with eager TurboFan compilation (`--no-liftoff --no-wasm-lazy-compilation`). One-time preparation took 41.89 s for Wasmtime on CPU 6 and 38.75 s for V8 on CPUs 1–5. The execution bars exclude preparation and instantiation. An initial one-CPU V8 preparation trial stopped after two minutes while it was still compiling. The execution samples come from the complete rerun after a tool session interrupted the first campaign.
 

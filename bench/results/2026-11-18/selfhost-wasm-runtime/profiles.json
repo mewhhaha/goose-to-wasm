@@ -1,0 +1,114 @@
+{
+  "native": {
+    "sha256": "522a4c88360cdabd4bb23f47fd9b0e781417d24da841db5cd2d0dbdcd0eada41",
+    "cpu": 0,
+    "sampler": "Linux SIGPROF, 2 ms",
+    "samples": 1023,
+    "life_percent": 85.1,
+    "top": [
+      "  6.55%       67 life_eval_body",
+      "  5.77%       59 life_replay",
+      "  4.99%       51 life_readback",
+      "  4.79%       49 life_effect",
+      "  4.40%       45 life_read_find",
+      "  4.30%       44 life_read_offer",
+      "  4.01%       41 life_eval",
+      "  3.81%       39 life_effect_far",
+      "  3.52%       36 life_function",
+      "  3.32%       34 life_in_scope",
+      "  3.13%       32 life_list_set",
+      "  2.44%       25 life_cell"
+    ],
+    "profile_sha256": "45b29242e1f1a45c79095433e774e3864c9ce7e6e7382775fbc4dd763edc5046"
+  },
+  "wasmtime": {
+    "life_samples": 5772,
+    "counts": {
+      "life_eval_body": 533,
+      "life_replay": 418,
+      "life_effect": 285,
+      "life_shrink_array": 271,
+      "life_function": 258,
+      "life_effect_far": 241,
+      "life_holder_scan": 219,
+      "[host]": 218,
+      "life_readback": 183,
+      "life_contains": 180,
+      "life_list_set": 164,
+      "life_eval": 153,
+      "life_held_into": 150,
+      "life_construct_read": 144,
+      "life_read_find": 122,
+      "life_next_live": 111
+    },
+    "samples": 6731,
+    "outside_mapped_functions": 218,
+    "mapping_wasm64_debug_copy_sha256": "2633e1a30ceb12bfa44352034522413e69dbb4fc1a87a0f219282cce15b1da80",
+    "top_8_address_map_samples": 2408,
+    "top_8_owner_mode_samples": 551,
+    "top_8_memory_copy_samples": 302
+  },
+  "v8": {
+    "sha256": "cee17ed5f2ada79ac52e7381d23456829281f27bf780601824cd3fb397c41e32",
+    "samples": 5043,
+    "stdout": "",
+    "stderr": "",
+    "exitCode": 0,
+    "timing": {
+      "engine": "V8",
+      "node": "v24.22.1",
+      "v8": "13.6.233.17-node.58",
+      "compile_instantiate_ns": 877227,
+      "start_function_ns": 12963488929,
+      "engine_total_ns": 12964366156
+    },
+    "cpu_affinity": [
+      0,
+      1,
+      2
+    ],
+    "sampling_interval_us": 2500,
+    "profile_sha256": "3e90d2b2a3d61df837692a34535fcb296eb7e9d2ce9169cfea9e18f89e07ec82",
+    "life_samples": 4448,
+    "counts": {
+      "life_eval_body": 693,
+      "life_held_into": 455,
+      "life_replay": 430,
+      "life_effect": 337,
+      "life_function": 205,
+      "life_shrink_array": 169,
+      "life_read_offer": 160,
+      "life_call": 149,
+      "life_read_merge": 142,
+      "life_build_add_alt": 137,
+      "life_eval": 126,
+      "life_readback": 106,
+      "(garbage collector)": 96,
+      "life_construct_read": 94,
+      "life_class_candidates": 80,
+      "life_next_live": 79
+    }
+  },
+  "rejected_equal32": {
+    "sha256": "55319937342b08e4ec219fdaaf060ceb6ecc66660b1360266f193daf1d206517",
+    "exit_code": 1,
+    "log": "equal32-check.log"
+  },
+  "decoder_experiment_emit": {
+    "module_sha256": "0317c9c2bcb540660da9de3f79541f51ec7a0660d2ab30cf61373755d6dcc50b",
+    "emitted_wasm_sha256": "cee17ed5f2ada79ac52e7381d23456829281f27bf780601824cd3fb397c41e32",
+    "timing": {
+      "engine": "Wasmtime",
+      "wasmtime": "50.0.1",
+      "optimization": "cranelift speed",
+      "compile_instantiate_ns": 20333206738,
+      "start_function_ns": 18450782331,
+      "engine_total_ns": 38783989069
+    }
+  },
+  "region_profile": {
+    "sha256": "e782932e5d0fa6c3cad205889a7781f2ca9a465c7cb1a829cb9f36e13f25ac83",
+    "instrumented_wasm_sha256": "980edf658a14512d2424e91cb3f8d3084a658855f185ebdf0dff222fc14b1793",
+    "emitted_wasm_sha256": "cee17ed5f2ada79ac52e7381d23456829281f27bf780601824cd3fb397c41e32"
+  }
+}
