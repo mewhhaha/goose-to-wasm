@@ -30,6 +30,7 @@ struct CgModule {
     functions: CgFunction[>..]&, captures: CgCapture[>..]&, imports: CgImport[>..]&,
     signatures: CgSignature[>..]&, signature_bytes: u8[>..]&,
     segments: CgSegment[>..]&, data: u8[>..]&, globals: i64[>..]&,
+    symbol_owners: SymbolOwners,
     global_regions: i64[>..]&, region_functions: RegionFunction[>..]&, region_calls: RegionCall[>..]&,
     region_memo: i64[>..]&,
     next_data: i64 = 1024, stack_limit: i64 = 0,
@@ -57,8 +58,9 @@ struct CgSequence {
     kind: i64, node: i64, parent: i64 = -1, saved: i64 = -1, index: i64 = -1, pointer: i64 = -1, address: bool = false,
 }
 struct CgSlot { local: i64 = -1, value: bool = false }
+struct CgFrameAddress { local: i64, offset: i64 }
 struct CgBody {
-    code: u8[>..]&, locals: i64[>..]&, slots: CgSlot[>..]&, offsets: i64[>..]&,
+    code: u8[>..]&, locals: i64[>..]&, slots: CgSlot[>..]&, addresses: CgFrameAddress[>..]&,
     labels: i64[>..]&, exits: CgExit[>..]&, results: i64[>..]&, destinations: i64[>..]&, work: i64[>..]&, raw_slots: i64[>..]&, sequences: CgSequence[>..]&,
     constructions: CgConstruction[>..]&, construction_destinations: CgDestination[>..]&, receiving: CgReceiving[>..]&,
     function: i64 = -1, function_index: i64 = -1, params: i64 = 0, serial: i64 = 0,
@@ -2095,6 +2097,44 @@ recursive fn cg_emit_sequence(p: Program&, m: CgModule&, f: CgBody&, recipe: i64
         cg_load(p, m, f, element, 0); cg_convert(p, m, f, element, n.type_id, item.node);
     }
 }
+// Only private numeric locals may be written between visits to the encoded
+// elements. Calls, indirect stores and rebindings need a fresh prefix walk.
+recursive fn cg_stable_varint_body(p: Program&, function: i64, node: i64) -> bool {
+    if node < 0 { return true; }
+    let n = p.nodes[node];
+    if n.kind == N_NAME || n.kind == N_INTEGER || n.kind == N_FLOAT || n.kind == N_BOOL { return true; }
+    if n.kind == N_ASSIGN || n.kind == N_VARIABLE {
+        var binding = node; if n.kind == N_ASSIGN { binding = n.left; if p.nodes[binding].kind != N_NAME { return false; } }
+        let symbol = p.nodes[binding].symbol;
+        if symbol < 0 || symbol >= p.symbols.len { return false; }
+        let stored = p.symbols[symbol];
+        if stored.owner != function || (stored.flags & (S_CAPTURE | S_GLOBAL)) != 0 || !cg_scalar_slot_type(p, stored.type_id) { return false; }
+        if n.first >= 0 { return false; }
+        return cg_stable_varint_body(p, function, n.right);
+    }
+    if n.kind == N_CAST { return cg_stable_varint_body(p, function, n.left); }
+    if n.kind != N_BLOCK && n.kind != N_BINARY && n.kind != N_UNARY && n.kind != N_IF &&
+       n.kind != N_BREAK && n.kind != N_CONTINUE && n.kind != N_EXPR_STMT { return false; }
+    if !cg_stable_varint_body(p, function, n.left) || !cg_stable_varint_body(p, function, n.right) || !cg_stable_varint_body(p, function, n.third) { return false; }
+    var child = n.first; while child >= 0 { if !cg_stable_varint_body(p, function, child) { return false; } child = p.nodes[child].next; }
+    return true;
+}
+fn cg_varint_cursor(p: Program&, function: i64, node: i64) -> bool {
+    let loop_node = p.nodes[node]; let iterable = p.nodes[loop_node.left];
+    if function < 0 || iterable.kind != N_NAME || iterable.symbol < 0 { return false; }
+    let source = p.symbols[iterable.symbol];
+    if source.owner != function || (source.flags & (S_PARAMETER | S_MUTABLE | S_CAPTURE)) != S_PARAMETER ||
+       cg_type_kind(p, source.type_id) != TY_SLICE { return false; }
+    // Incoming elements are outside this activation. An earlier call or
+    // reinterpretation could have rebound the slice to its own scalar slots.
+    let body = p.nodes[function].right; if body < 0 { return false; }
+    var statement = p.nodes[body].first;
+    while statement >= 0 && statement != node {
+        if !cg_stable_varint_body(p, function, statement) { return false; }
+        statement = p.nodes[statement].next;
+    }
+    return statement == node && cg_stable_varint_body(p, function, loop_node.right);
+}
 recursive fn cg_for(p: Program&, m: CgModule&, f: CgBody&, node: i64) {
     let n = p.nodes[node]; let iterable = p.nodes[n.left]; var type_id = iterable.type_id;
     if iterable.kind == N_RANGE {
@@ -2117,6 +2157,10 @@ recursive fn cg_for(p: Program&, m: CgModule&, f: CgBody&, node: i64) {
     else if iterable.kind == N_RANGE { cg_to(p, m, f, iterable.right, counter_type); }
     else { cg_to(p, m, f, n.left, counter_type); }
     let limit = cg_save(f, cg_wasm_type(p, counter_type)); wb_i64(f.code, 0); let ordinal = cg_save(f, 0x7e);
+    var cursor = -1;
+    if sequence && p.types[p.types[type_id].element].storage == 1 && cg_varint_cursor(p, f.function, node) {
+        cg_get(f, view); ws_ptr(f.code); cursor = cg_save(f, wa());
+    }
     let done = cg_begin(f, 0x02, 0x40); let again = cg_begin(f, 0x03, 0x40);
     if sequence && !(cg_type_kind(p, type_id) == TY_ARRAY && p.types[type_id].array_kind == A_FIXED) {
         cg_emit_sequence(p, m, f, recipe); cg_pack_view(p, m, f, iterable.type_id, node); cg_set(f, view);
@@ -2130,7 +2174,13 @@ recursive fn cg_for(p: Program&, m: CgModule&, f: CgBody&, node: i64) {
     if sequence {
         let element = p.types[type_id].element;
         cg_get(f, view); ws_ptr(f.code); let sequence_base = cg_save(f, wa());
-        if p.types[element].storage == 1 { let cursor = cg_walk_elements(p, m, f, sequence_base, counter, node); cg_get(f, cursor); }
+        if cursor >= 0 {
+            // Seeking only when the next iteration begins preserves the
+            // original decode behavior at break, continue and exhaustion.
+            cg_get(f, counter); wb_i64(f.code, 0); wb_byte(f.code, 0x52); cg_begin(f, 0x04, 0x40);
+            let previous = cg_read_uleb(p, m, f, cursor, node); cg_get(f, previous.cursor); cg_set(f, cursor); cg_end(f);
+            cg_get(f, cursor);
+        } else if p.types[element].storage == 1 { let at = cg_walk_elements(p, m, f, sequence_base, counter, node); cg_get(f, at); }
         else { cg_get(f, sequence_base); cg_get(f, counter); wa_wrap(f.code); wa_const(f.code, cg_size(p, element)); wa_op(f.code, 0x6c); wa_op(f.code, 0x6a); }
         if cg_type_kind(p, binding_type) != TY_REF || cg_type_kind(p, element) == TY_REF { cg_load(p, m, f, element, 0); cg_convert(p, m, f, element, binding_type, node); }
     } else { cg_get(f, counter); cg_convert(p, m, f, counter_type, binding_type, node); }
@@ -3219,10 +3269,6 @@ fn cg_scalar_slot_store(p: Program&, f: CgBody&, symbol: i64) {
     if cg_type_kind(p, p.symbols[symbol].type_id) == TY_BOOL { wb_i32(f.code, 255); wb_byte(f.code, 0x71); }
     cg_set(f, f.slots[symbol].local);
 }
-fn cg_body_tables(p: Program&, f: CgBody&) {
-    f.slots.resize(p.symbols.len, CgSlot {});
-    f.offsets.resize(p.symbols.len, -1);
-}
 fn cg_prepare_function(p: Program&, m: CgModule&, f: CgBody&, function: i64) {
     var param = -1; if function >= 0 { param = p.nodes[function].first; }
     while param >= 0 { f.params++; param = p.nodes[param].next; }
@@ -3231,7 +3277,7 @@ fn cg_prepare_function(p: Program&, m: CgModule&, f: CgBody&, function: i64) {
     let destination_start = f.params;
     for id in results { if cg_aggregate(p, id) { f.params++; } }
     if function >= 0 && (p.nodes[function].flags & F_LOCATED) != 0 { f.at = f.params; f.params++; }
-    f.frame = cg_local(f, wa()); cg_body_tables(p, f);
+    f.frame = cg_local(f, wa());
     if m.regions_enabled { f.region_mark = cg_local(f, 0x7f); f.publication_mark = cg_local(f, wa()); }
     if !m.scalar && function >= 0 {
         let index = cg_function(m, p.nodes[function].symbol);
@@ -3245,22 +3291,28 @@ fn cg_prepare_function(p: Program&, m: CgModule&, f: CgBody&, function: i64) {
     for capture in m.captures {
         if capture.function == function { f.slots[capture.symbol].local = capture_param; capture_param++; }
     }
-    for symbol, i in p.symbols {
-        if symbol.owner == function && (function >= 0 || cg_storage_binding(p, i)) && (symbol.flags & (S_FUNCTION | S_TYPE | S_GLOBAL | S_BUILTIN)) == 0 {
-            let size = cg_slot_size(p, symbol.type_id);
-            if size <= 0 {
-                if cg_dead_binding(p, symbol.node) { continue; }
-                cg_fail(p, symbol.node, "wasm: variable has no physical layout"); continue;
-            }
-            var value = false;
-            if m.scalar_slots && function >= 0 && symbol.node >= 0 && cg_scalar_slot_type(p, symbol.type_id) {
-                let binding = p.nodes[symbol.node];
-                value = binding.kind == N_PARAM || binding.kind == N_VARIABLE && binding.first < 0 && !cg_decl_diverges(p, symbol.node);
-                for capture in m.captures { if capture.symbol == i { value = false; } }
-            }
-            var wasm_type = wa(); if value { wasm_type = cg_wasm_type(p, symbol.type_id); }
-            f.slots[i] = CgSlot { local: cg_local(f, wasm_type), value: value }; f.offsets[i] = cg_frame(f, size, p.types[symbol.type_id].align);
+    var next = m.symbol_owners.heads[function + 1];
+    while next >= 0 {
+        let index = next; next = m.symbol_owners.next[index];
+        let symbol: const Symbol& = p.symbols[index];
+        if (symbol.flags & (S_FUNCTION | S_TYPE | S_GLOBAL | S_BUILTIN)) != 0 { continue; }
+        if function < 0 && !cg_storage_binding(p, index) { continue; }
+        let size = cg_slot_size(p, symbol.type_id);
+        if size <= 0 {
+            if cg_dead_binding(p, symbol.node) { continue; }
+            cg_fail(p, symbol.node, "wasm: variable has no physical layout"); continue;
         }
+        var value = false;
+        if m.scalar_slots && function >= 0 && symbol.node >= 0 && cg_scalar_slot_type(p, symbol.type_id) {
+            let binding = p.nodes[symbol.node];
+            value = binding.kind == N_PARAM || binding.kind == N_VARIABLE && binding.first < 0 && !cg_decl_diverges(p, symbol.node);
+            for capture in m.captures { if capture.symbol == index { value = false; } }
+        }
+        var wasm_type = wa(); if value { wasm_type = cg_wasm_type(p, symbol.type_id); }
+        let local = cg_local(f, wasm_type);
+        let offset = cg_frame(f, size, p.types[symbol.type_id].align);
+        f.slots[index] = CgSlot { local: local, value: value };
+        if !value { f.addresses.push(CgFrameAddress { local: local, offset: offset }); }
     }
     for id in results { f.results.push(cg_local(f, cg_wasm_type(p, id))); }
     var destination = destination_start;
@@ -3298,9 +3350,7 @@ fn cg_emit_prelude(p: Program&, m: CgModule&, f: CgBody&) {
     if f.publication_mark >= 0 { wb_op(f.code, 0x23, 11); cg_set(f, f.publication_mark); }
     if f.heap_mark >= 0 { wb_op(f.code, 0x23, 1); cg_set(f, f.heap_mark); }
     if f.forward_mark >= 0 { wb_op(f.code, 0x23, 5); cg_set(f, f.forward_mark); }
-    for offset, symbol in f.offsets {
-        if offset >= 0 && !f.slots[symbol].value { cg_frame_address(f, offset); cg_set(f, f.slots[symbol].local); }
-    }
+    for address in f.addresses { cg_frame_address(f, address.offset); cg_set(f, address.local); }
     // The effect record: word 0 the previous chain, word 1 the function
     // number, both address-sized; the result mailbox from byte 16 on.
     cg_frame_address(f, f.effect); wb_op(f.code, 0x23, 4); wa_store(f.code, 0);
@@ -3385,10 +3435,10 @@ fn cg_emit_epilogue(p: Program&, m: CgModule&, f: CgBody&) {
     cg_get(f, f.frame); wb_op(f.code, 0x24, 0);
     for result in f.results { cg_get(f, result); } wb_byte(f.code, 0x0b);
 }
-fn cg_emit_function(p: Program&, m: CgModule&, function: i64, function_index: i64, elements: bool, out: u8[>..]&) {
-    var code: u8[>..] = []; var locals: i64[>..] = []; var slots: CgSlot[>..] = []; var offsets: i64[>..] = [];
+fn cg_emit_function(p: Program&, m: CgModule&, function: i64, function_index: i64, elements: bool, out: u8[>..]&, slots: CgSlot[>..]&) {
+    var code: u8[>..] = []; var locals: i64[>..] = []; var addresses: CgFrameAddress[>..] = [];
     var labels: i64[>..] = []; var exits: CgExit[>..] = []; var results: i64[>..] = []; var destinations: i64[>..] = []; var work: i64[>..] = []; var raw_slots: i64[>..] = []; var sequences: CgSequence[>..] = []; var constructions: CgConstruction[>..] = []; var construction_destinations: CgDestination[>..] = []; var receiving: CgReceiving[>..] = []; var defers: i64[>..] = [];
-    var f = CgBody { code: code, locals: locals, slots: slots, offsets: offsets, labels: labels, exits: exits, results: results, destinations: destinations, work: work, raw_slots: raw_slots, sequences: sequences, constructions: constructions, construction_destinations: construction_destinations, receiving: receiving, function: function, function_index: function_index, elements: elements, defers: defers };
+    var f = CgBody { code: code, locals: locals, slots: slots, addresses: addresses, labels: labels, exits: exits, results: results, destinations: destinations, work: work, raw_slots: raw_slots, sequences: sequences, constructions: constructions, construction_destinations: construction_destinations, receiving: receiving, function: function, function_index: function_index, elements: elements, defers: defers };
     cg_prepare_function(p, m, f, function);
     if m.scalar && function >= 0 { f.frame_free = !cg_scalar_prints(p, p.nodes[function].right); }
     f.done = cg_begin(f, 0x02, 0x40);
@@ -3418,11 +3468,16 @@ fn cg_emit_function(p: Program&, m: CgModule&, function: i64, function_index: i6
     if m.scalar { wb_compact_body(out, locals, code, f.params); }
     else { wb_reuse_locals(locals, code, f.params); wb_body(out, locals, code); }
     m.region_functions[function_index].own = f.region_peak;
+    // The next body reuses the table. Only this body's bindings and
+    // captures acquired slots.
+    var binding = m.symbol_owners.heads[function + 1];
+    while binding >= 0 { slots[binding] = CgSlot {}; binding = m.symbol_owners.next[binding]; }
+    for capture in m.captures { if capture.function == function { slots[capture.symbol] = CgSlot {}; } }
 }
 fn cg_emit_raw_append(p: Program&, m: CgModule&, out: u8[>..]&) {
-    var code: u8[>..] = []; var locals: i64[>..] = []; var slots: CgSlot[>..] = []; var offsets: i64[>..] = [];
+    var code: u8[>..] = []; var locals: i64[>..] = []; var slots: CgSlot[>..] = []; var addresses: CgFrameAddress[>..] = [];
     var labels: i64[>..] = []; var exits: CgExit[>..] = []; var results: i64[>..] = []; var destinations: i64[>..] = []; var work: i64[>..] = []; var raw_slots: i64[>..] = []; var sequences: CgSequence[>..] = []; var constructions: CgConstruction[>..] = []; var construction_destinations: CgDestination[>..] = []; var receiving: CgReceiving[>..] = []; var defers: i64[>..] = [];
-    var f = CgBody { code: code, locals: locals, slots: slots, offsets: offsets, labels: labels, exits: exits, results: results, destinations: destinations, work: work, raw_slots: raw_slots, sequences: sequences, constructions: constructions, construction_destinations: construction_destinations, receiving: receiving, params: 4, diagnostic_line: 3, defers: defers };
+    var f = CgBody { code: code, locals: locals, slots: slots, addresses: addresses, labels: labels, exits: exits, results: results, destinations: destinations, work: work, raw_slots: raw_slots, sequences: sequences, constructions: constructions, construction_destinations: construction_destinations, receiving: receiving, params: 4, diagnostic_line: 3, defers: defers };
     cg_format_bytes_inline(p, m, f, m.raw_append_type, 0, 1, 2, -1); wb_byte(code, 0x0b); wb_body(out, locals, code);
 }
 // goose.reserve(control, count) -> address, exported for a host: makes room
@@ -3430,9 +3485,9 @@ fn cg_emit_raw_append(p: Program&, m: CgModule&, out: u8[>..]&) {
 // given, as a push would (length, region cursor, memory), and returns where
 // they go. The host copies them in. It needs to know nothing of regions.
 fn cg_emit_host_reserve(p: Program&, m: CgModule&, out: u8[>..]&) {
-    var code: u8[>..] = []; var locals: i64[>..] = []; var slots: CgSlot[>..] = []; var offsets: i64[>..] = [];
+    var code: u8[>..] = []; var locals: i64[>..] = []; var slots: CgSlot[>..] = []; var addresses: CgFrameAddress[>..] = [];
     var labels: i64[>..] = []; var exits: CgExit[>..] = []; var results: i64[>..] = []; var destinations: i64[>..] = []; var work: i64[>..] = []; var raw_slots: i64[>..] = []; var sequences: CgSequence[>..] = []; var constructions: CgConstruction[>..] = []; var construction_destinations: CgDestination[>..] = []; var receiving: CgReceiving[>..] = []; var defers: i64[>..] = [];
-    var f = CgBody { code: code, locals: locals, slots: slots, offsets: offsets, labels: labels, exits: exits, results: results, destinations: destinations, work: work, raw_slots: raw_slots, sequences: sequences, constructions: constructions, construction_destinations: construction_destinations, receiving: receiving, params: 2, defers: defers };
+    var f = CgBody { code: code, locals: locals, slots: slots, addresses: addresses, labels: labels, exits: exits, results: results, destinations: destinations, work: work, raw_slots: raw_slots, sequences: sequences, constructions: constructions, construction_destinations: construction_destinations, receiving: receiving, params: 2, defers: defers };
     let id = m.host_reserve_type;
     cg_array_length(p, m, f, id, 0); let old = cg_save(f, wa());
     cg_get(f, old); wa_extend(f.code); cg_get(f, 1); wa_extend(f.code); wb_byte(f.code, 0x7c); let wide = cg_save(f, 0x7e);
@@ -4031,15 +4086,19 @@ fn generate_wasm(p: Program&, out: u8[>..]&) {
     var functions: CgFunction[>..] = []; var captures: CgCapture[>..] = []; var imports: CgImport[>..] = [];
     var signatures: CgSignature[>..] = []; var signature_bytes: u8[>..] = []; var segments: CgSegment[>..] = []; var data: u8[>..] = []; var globals: i64[>..] = []; var global_regions: i64[>..] = []; var region_functions: RegionFunction[>..] = []; var region_calls: RegionCall[>..] = [];
     var region_memo: i64[>..] = [];
-    var m = CgModule { functions: functions, captures: captures, imports: imports, signatures: signatures, signature_bytes: signature_bytes, segments: segments, data: data, globals: globals, global_regions: global_regions, region_functions: region_functions, region_calls: region_calls, region_memo: region_memo,
+    var binding_heads: i64[>..] = []; var binding_next: i64[>..] = [];
+    var owners = SymbolOwners { heads: binding_heads, next: binding_next };
+    index_symbol_owners(p, owners);
+    var m = CgModule { functions: functions, captures: captures, imports: imports, signatures: signatures, signature_bytes: signature_bytes, segments: segments, data: data, globals: globals, global_regions: global_regions, symbol_owners: owners, region_functions: region_functions, region_calls: region_calls, region_memo: region_memo,
         stack_limit: (p.maximum_pages * 65536 / 2) & -8 };
     cg_collect(p, m); if p.diagnostics.len > 0 { return; }
     if m.scalar { m.resolver = -1; m.host_reserve = -1; }
+    var slots: CgSlot[>..] = []; slots.resize(p.symbols.len, CgSlot {});
     var body_count = m.functions.len * 2 + 3; if m.resolver >= 0 { body_count++; } if m.header_helper >= 0 { body_count++; } if m.prefix_helper >= 0 { body_count++; } if m.raw_append >= 0 { body_count++; } if m.host_reserve >= 0 { body_count++; } if m.scalar { body_count = m.functions.len + 1; }
     var code: u8[>..] = []; wb_u(code, body_count);
     var body: u8[>..] = [];
-    for item, index in m.functions { body.clear(); cg_emit_function(p, m, item.node, index, item.elements, body); wb_u(code, body.len); wb_raw(code, body); }
-    body.clear(); cg_emit_function(p, m, -1, m.functions.len, false, body); wb_u(code, body.len); wb_raw(code, body);
+    for item, index in m.functions { body.clear(); cg_emit_function(p, m, item.node, index, item.elements, body, slots); wb_u(code, body.len); wb_raw(code, body); }
+    body.clear(); cg_emit_function(p, m, -1, m.functions.len, false, body, slots); wb_u(code, body.len); wb_raw(code, body);
     if !m.scalar {
         body.clear(); cg_allocator_body(body); wb_u(code, body.len); wb_raw(code, body);
         body.clear(); cg_float_wrap_body(body); wb_u(code, body.len); wb_raw(code, body);

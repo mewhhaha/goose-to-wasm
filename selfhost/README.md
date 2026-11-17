@@ -23,7 +23,7 @@ python3 scripts/bootstrap.py --build-dir build/dev --jobs 8 \
   --cache-dir build/qualify-cache/bootstrap
 ```
 
-The development build compiles eight program units beside one runtime unit without the profile. The one unit default is the release build. Use `--source-dir` to build a separate copy of the compiler sources. Use the [snapshot 63 protocol](results/2026-11-14/snapshot-63/README.md) to freeze a seed and profile.
+The development build compiles eight program units beside one runtime unit without the profile. The one unit default is the release build. The cache reuses seed C when the seed, options and staged input bytes match. With `--verify`, the resulting compiler generates fresh C for the fixed-point check on every run. Use `--source-dir` to build a separate copy of the compiler sources. Use the [snapshot 63 protocol](results/2026-11-14/snapshot-63/README.md) to freeze a seed and profile.
 
 Modules found through `--stdlib` are libraries: their function bodies are lexed, parsed and checked only when the program reaches them. Unused functions in user sources are still checked.
 

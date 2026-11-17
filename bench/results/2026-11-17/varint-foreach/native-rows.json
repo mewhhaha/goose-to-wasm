@@ -1,0 +1,71 @@
+{
+  "samples_per_size": 1,
+  "cpu": 6,
+  "workload": "native_rows.goose",
+  "source_sha256": "480b179837e5ef90357af0c4423520925b8448b0141ef874242fa7fa9e3fd9ed",
+  "compiler_sha256": "e5cf838d7572985a3e1066cbf9c17b6fcd24d8b4e10d8e488a6ac5469de98b01",
+  "gcc": "gcc (GCC) 16.2.1 20260810",
+  "gcc_sha256": "b0b49531b313e70aee0254fb5e69b050a781506184e16ebee6ebe68eee94a145",
+  "target": "x86_64-pc-linux-gnu",
+  "host_input_sha256": "26f658dadb1c458334199ee1051a675417ec63d842c6b54fa84f7db250feb60d",
+  "generated_c_sha256": "9a13329a831cf78067c9400064fa722f19d6b45f5d7232b8beb219917156b392",
+  "executable_sha256": "69eebc91236a34a0d0d60845545a90bb1ff46b58a2cbf98b25c66946a53e05c2",
+  "commands": [
+    [
+      "build/bin/goose",
+      "build/runtime-scaling-1117/rows.goose",
+      "--stdlib",
+      "stdlib",
+      "--target",
+      "native",
+      "-O2",
+      "-o",
+      "build/runtime-scaling-1117/rows.c"
+    ],
+    [
+      "gcc",
+      "-O2",
+      "-rdynamic",
+      "-fno-strict-aliasing",
+      "build/runtime-scaling-1117/rows.c",
+      "bench/host_input.c",
+      "-o",
+      "build/runtime-scaling-1117/rows",
+      "-lm",
+      "-ldl",
+      "-pthread"
+    ],
+    [
+      "taskset",
+      "-c",
+      "6",
+      "build/runtime-scaling-1117/rows"
+    ]
+  ],
+  "timings": [
+    {
+      "stdin": "1001\n",
+      "checksum": 500500,
+      "construct_ns": 4286485,
+      "foreach_ns": 10830180
+    },
+    {
+      "stdin": "2002\n",
+      "checksum": 2003001,
+      "construct_ns": 17709613,
+      "foreach_ns": 44745870
+    },
+    {
+      "stdin": "4004\n",
+      "checksum": 8014006,
+      "construct_ns": 72588218,
+      "foreach_ns": 180329397
+    },
+    {
+      "stdin": "8008\n",
+      "checksum": 32060028,
+      "construct_ns": 302435482,
+      "foreach_ns": 706193698
+    }
+  ]
+}

@@ -1,0 +1,373 @@
+{
+  "schema": "goose-bootstrap-construction-v1",
+  "source_commit": "9551a589be1f1e028e953080c9f2fed562859b70",
+  "cc": {
+    "cc": "/usr/bin/clang-23",
+    "cc_sha256": "ca0d2f7fbe94836762f36c7e73292289bc4d5e4b9b5defc320ef0856259a2855",
+    "cc_version": "clang version 23.1.5\nTarget: x86_64-pc-linux-gnu\nThread model: posix\nInstalledDir: /usr/bin\n",
+    "cc_target": "x86_64-pc-linux-gnu"
+  },
+  "machine": {
+    "cpu": "AMD Ryzen 7 3800X, 8 cores / 16 threads",
+    "kernel": "7.3.4-1-cachyos",
+    "shared_host": "Interactive desktop; unrelated blotc, rustc, browser and Goose benchmarking overlapped."
+  },
+  "scripts_sha256": {
+    "bootstrap-before.py": "8933cce911e1735c1213b36c9d927222c920f13720aeb51e172c9c3cb20449ce",
+    "bootstrap-after.py": "8c24adc232f6eef3298fadd2d2a4a0b8fcfa6d4a4f457b3a908bb44effdaf039",
+    "bootstrap-final.py": "ee08f4d77500724672dd40ca4043519891942b1cadf4ea48e409c81ff156d659",
+    "bootstrap-cold-split.py": "ea4d42676349fdefdafd2ad7162f76b3d9501f57edf6183433b45aaf896be4f4"
+  },
+  "cold_seed_control_probe": {
+    "runs": [
+      {
+        "name": "cold-base-probe",
+        "timing": {
+          "argv": [
+            "taskset",
+            "-c",
+            "0,1,3",
+            "/usr/bin/python3.14",
+            "/home/jacobt/src/goose-to-wasm/build/construction-speed/bootstrap-before.py",
+            "--source-dir",
+            "/home/jacobt/src/goose-to-wasm/build/construction-speed/frozen/selfhost",
+            "--stdlib",
+            "/home/jacobt/src/goose-to-wasm/build/construction-speed/frozen/stdlib",
+            "--native-dir",
+            "/home/jacobt/src/goose-to-wasm/build/construction-speed/frozen/native",
+            "--seed-dir",
+            "/home/jacobt/src/goose-to-wasm/build/construction-speed/frozen/bootstrap",
+            "--verify",
+            "--cc",
+            "clang",
+            "--cache-dir",
+            "/home/jacobt/src/goose-to-wasm/build/construction-speed/cold-base-cache",
+            "--output-dir",
+            "/home/jacobt/src/goose-to-wasm/build/construction-speed/cold-base-probe"
+          ],
+          "seconds": 188.54000461799296,
+          "user_seconds": 175.080985,
+          "system_seconds": 2.215609,
+          "max_rss_kib": 1626492,
+          "start_load": [
+            20.96875,
+            17.7939453125,
+            12.11474609375
+          ],
+          "before_cgroup": "0::/user.slice/user-1000.slice/user@1000.service/app.slice/jactor-remote.service/bridge\n",
+          "status": 0
+        },
+        "status": "passed",
+        "fixed_point": true,
+        "generated_c_sha256": "3cb9f4fe3991865101d4d6ba48f7cee4092086250b5a39a505caacadbb30b8f0",
+        "next_generation_c_sha256": "3cb9f4fe3991865101d4d6ba48f7cee4092086250b5a39a505caacadbb30b8f0",
+        "executable_sha256": "e5cf838d7572985a3e1066cbf9c17b6fcd24d8b4e10d8e488a6ac5469de98b01",
+        "seed_emission_cache": null,
+        "builds": {
+          "build-seed": {
+            "c_sha256": "28f1af08daba0f4de86b6f5e2c5ef1adfd25f5ce2921162ea67fa5df78998970",
+            "goose_optimization": 2,
+            "profile_used": true,
+            "profile_reason": "exact profile identity matched",
+            "cache": {
+              "hit": false,
+              "key": "068b9fee3dc468beee7ebe14a866106d9c0a2b795bf7a218fd8724a8592990d5"
+            },
+            "profile_sha256": "1ca21eb5334b98b50987b031fed5acf114a2ad69b999d811c93619e09f7017c3"
+          },
+          "build-goose": {
+            "c_sha256": "3cb9f4fe3991865101d4d6ba48f7cee4092086250b5a39a505caacadbb30b8f0",
+            "goose_optimization": 2,
+            "profile_used": false,
+            "profile_reason": "profile identity differs: c_sha256",
+            "cache": {
+              "hit": true,
+              "key": "e11c391320b4f9c0921ad9b54ac48308ef51c559fd7e250761268869bcb3af3c"
+            }
+          }
+        },
+        "commands": [
+          {
+            "name": "cc-version",
+            "seconds": 0.0228001170034986,
+            "command": [
+              "/usr/bin/clang-23",
+              "--version"
+            ],
+            "exit_code": 0
+          },
+          {
+            "name": "cc-target",
+            "seconds": 0.015865067995036952,
+            "command": [
+              "/usr/bin/clang-23",
+              "-dumpmachine"
+            ],
+            "exit_code": 0
+          },
+          {
+            "name": "build-seed-profile",
+            "seconds": 114.73794097700011,
+            "command": [
+              "/usr/bin/clang-23",
+              "-std=gnu11",
+              "-O2",
+              "seed.c",
+              "-lm",
+              "-ldl",
+              "-pthread",
+              "-o",
+              "/home/jacobt/src/goose-to-wasm/build/construction-speed/cold-base-probe/seed",
+              "-fprofile-instr-use=/home/jacobt/src/goose-to-wasm/build/construction-speed/frozen/bootstrap/profile.profdata",
+              "-Werror=profile-instr-out-of-date",
+              "-Werror=profile-instr-missing",
+              "-Werror=profile-instr-unprofiled"
+            ],
+            "exit_code": 0
+          },
+          {
+            "name": "compile-goose",
+            "seconds": 66.78951981599675,
+            "command": [
+              "/home/jacobt/src/goose-to-wasm/build/construction-speed/cold-base-probe/seed",
+              "sources/main.goose",
+              "--stdlib",
+              "stdlib",
+              "--target",
+              "native",
+              "-O2",
+              "-o",
+              "/home/jacobt/src/goose-to-wasm/build/construction-speed/cold-base-probe/compiler.c"
+            ],
+            "exit_code": 0
+          },
+          {
+            "name": "verify-selfhost",
+            "seconds": 6.300957858002221,
+            "command": [
+              "/home/jacobt/src/goose-to-wasm/build/construction-speed/cold-base-probe/goose",
+              "sources/main.goose",
+              "--stdlib",
+              "stdlib",
+              "--target",
+              "native",
+              "-O2",
+              "-o",
+              "/home/jacobt/src/goose-to-wasm/build/construction-speed/cold-base-probe/next-generation.c"
+            ],
+            "exit_code": 0
+          }
+        ]
+      }
+    ],
+    "median_seconds": 188.54000461799296,
+    "median_child_cpu_seconds": 177.296594
+  },
+  "cold_seed_split_probe": {
+    "runs": [
+      {
+        "name": "cold-split-probe",
+        "timing": {
+          "argv": [
+            "taskset",
+            "-c",
+            "0,1,3",
+            "/usr/bin/python3.14",
+            "/home/jacobt/src/goose-to-wasm/build/construction-speed/bootstrap-cold-split.py",
+            "--source-dir",
+            "/home/jacobt/src/goose-to-wasm/build/construction-speed/frozen/selfhost",
+            "--stdlib",
+            "/home/jacobt/src/goose-to-wasm/build/construction-speed/frozen/stdlib",
+            "--native-dir",
+            "/home/jacobt/src/goose-to-wasm/build/construction-speed/frozen/native",
+            "--seed-dir",
+            "/home/jacobt/src/goose-to-wasm/build/construction-speed/frozen/bootstrap",
+            "--verify",
+            "--cc",
+            "clang",
+            "--cache-dir",
+            "/home/jacobt/src/goose-to-wasm/build/construction-speed/cold-split-cache",
+            "--output-dir",
+            "/home/jacobt/src/goose-to-wasm/build/construction-speed/cold-split-probe"
+          ],
+          "seconds": 120.88177437400009,
+          "user_seconds": 203.417949,
+          "system_seconds": 2.116481,
+          "max_rss_kib": 673368,
+          "start_load": [
+            13.421875,
+            16.2578125,
+            10.89990234375
+          ],
+          "before_cgroup": "0::/user.slice/user-1000.slice/user@1000.service/app.slice/jactor-remote.service/bridge\n",
+          "status": 0
+        },
+        "status": "passed",
+        "fixed_point": true,
+        "generated_c_sha256": "3cb9f4fe3991865101d4d6ba48f7cee4092086250b5a39a505caacadbb30b8f0",
+        "next_generation_c_sha256": "3cb9f4fe3991865101d4d6ba48f7cee4092086250b5a39a505caacadbb30b8f0",
+        "executable_sha256": "e5cf838d7572985a3e1066cbf9c17b6fcd24d8b4e10d8e488a6ac5469de98b01",
+        "seed_emission_cache": null,
+        "builds": {
+          "build-seed": {
+            "c_sha256": "28f1af08daba0f4de86b6f5e2c5ef1adfd25f5ce2921162ea67fa5df78998970",
+            "goose_optimization": 2,
+            "profile_used": false,
+            "profile_reason": "compiled as 3 units without profile",
+            "units": 3,
+            "cache": {
+              "hit": false,
+              "key": "da13b24d77a6e1aa5f0ee19bc2b2d184c89244144e5d60d4187fb51efeb80262"
+            }
+          },
+          "build-goose": {
+            "c_sha256": "3cb9f4fe3991865101d4d6ba48f7cee4092086250b5a39a505caacadbb30b8f0",
+            "goose_optimization": 2,
+            "profile_used": false,
+            "profile_reason": "profile identity differs: c_sha256",
+            "cache": {
+              "hit": true,
+              "key": "e11c391320b4f9c0921ad9b54ac48308ef51c559fd7e250761268869bcb3af3c"
+            }
+          }
+        },
+        "commands": [
+          {
+            "name": "cc-version",
+            "seconds": 0.015941873003612272,
+            "command": [
+              "/usr/bin/clang-23",
+              "--version"
+            ],
+            "exit_code": 0
+          },
+          {
+            "name": "cc-target",
+            "seconds": 0.01574498000263702,
+            "command": [
+              "/usr/bin/clang-23",
+              "-dumpmachine"
+            ],
+            "exit_code": 0
+          },
+          {
+            "name": "build-seed-runtime",
+            "seconds": 0.6698190110037103,
+            "command": [
+              "/usr/bin/clang-23",
+              "-std=gnu11",
+              "-O2",
+              "-DG_RUNTIME_UNIT",
+              "-c",
+              "runtime.c",
+              "-o",
+              "runtime.o"
+            ],
+            "exit_code": 0
+          },
+          {
+            "name": "build-seed-unit0",
+            "seconds": 42.10929458800092,
+            "command": [
+              "/usr/bin/clang-23",
+              "-std=gnu11",
+              "-O2",
+              "-DG_UNITS=3",
+              "-DG_UNIT=0",
+              "-c",
+              "seed.c",
+              "-o",
+              "unit0.o"
+            ],
+            "exit_code": 0
+          },
+          {
+            "name": "build-seed-unit1",
+            "seconds": 58.02331964100449,
+            "command": [
+              "/usr/bin/clang-23",
+              "-std=gnu11",
+              "-O2",
+              "-DG_UNITS=3",
+              "-DG_UNIT=1",
+              "-c",
+              "seed.c",
+              "-o",
+              "unit1.o"
+            ],
+            "exit_code": 0
+          },
+          {
+            "name": "build-seed-unit2",
+            "seconds": 63.95382659899769,
+            "command": [
+              "/usr/bin/clang-23",
+              "-std=gnu11",
+              "-O2",
+              "-DG_UNITS=3",
+              "-DG_UNIT=2",
+              "-c",
+              "seed.c",
+              "-o",
+              "unit2.o"
+            ],
+            "exit_code": 0
+          },
+          {
+            "name": "build-seed",
+            "seconds": 0.07782258399674902,
+            "command": [
+              "/usr/bin/clang-23",
+              "-std=gnu11",
+              "-O2",
+              "runtime.o",
+              "unit0.o",
+              "unit1.o",
+              "unit2.o",
+              "-lm",
+              "-ldl",
+              "-pthread",
+              "-o",
+              "/home/jacobt/src/goose-to-wasm/build/construction-speed/cold-split-probe/seed"
+            ],
+            "exit_code": 0
+          },
+          {
+            "name": "compile-goose",
+            "seconds": 49.01448963700386,
+            "command": [
+              "/home/jacobt/src/goose-to-wasm/build/construction-speed/cold-split-probe/seed",
+              "sources/main.goose",
+              "--stdlib",
+              "stdlib",
+              "--target",
+              "native",
+              "-O2",
+              "-o",
+              "/home/jacobt/src/goose-to-wasm/build/construction-speed/cold-split-probe/compiler.c"
+            ],
+            "exit_code": 0
+          },
+          {
+            "name": "verify-selfhost",
+            "seconds": 7.12440469199646,
+            "command": [
+              "/home/jacobt/src/goose-to-wasm/build/construction-speed/cold-split-probe/goose",
+              "sources/main.goose",
+              "--stdlib",
+              "stdlib",
+              "--target",
+              "native",
+              "-O2",
+              "-o",
+              "/home/jacobt/src/goose-to-wasm/build/construction-speed/cold-split-probe/next-generation.c"
+            ],
+            "exit_code": 0
+          }
+        ]
+      }
+    ],
+    "median_seconds": 120.88177437400009,
+    "median_child_cpu_seconds": 205.53443
+  }
+}

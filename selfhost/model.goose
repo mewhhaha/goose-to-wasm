@@ -319,6 +319,7 @@ struct Symbol {
     // node (upstream NamedArrayComponent).
     component_owner: i64 = -1, component: i64 = -1,
 }
+struct SymbolOwners { heads: i64[>..]&, next: i64[>..]& }
 struct Diagnostic {
     source: i64 = 0, start: i64 = 0, end: i64 = 0,
     line: i64 = 1, column: i64 = 1,
@@ -382,6 +383,19 @@ struct Program {
     // seen to need (--wasm-region-profile), the weight of its share of memory;
     // region_stats makes the module keep each region's high-water mark.
     region_profile: i64[>..]&, region_stats: bool = false,
+}
+fn index_symbol_owners(p: Program&, owners: SymbolOwners&) {
+    // Owner -1 names the initializer. Keep every list in symbol order
+    // for stable frame layout and emission.
+    owners.heads.resize(p.nodes.len + 1, -1);
+    owners.next.resize(p.symbols.len, -1);
+    var index = p.symbols.len;
+    while index > 0 {
+        index--;
+        let owner = p.symbols[index].owner + 1;
+        owners.next[index] = owners.heads[owner];
+        owners.heads[owner] = index;
+    }
 }
 inline fn same_bytes(a: u8[:], b: u8[:]) -> bool {
     if a.len != b.len { return false; }

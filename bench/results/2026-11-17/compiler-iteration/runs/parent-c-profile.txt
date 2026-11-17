@@ -1,0 +1,79 @@
+samples 2046
+life_* 64.7%
+  7.18%      147 cc_emit_function
+  5.38%      110 life_eval_body
+  4.50%       92 life_replay
+  3.71%       76 life_effect
+  3.42%       70 life_effect_far
+  3.27%       67 life_function
+  3.23%       66 life_construct_read
+  3.03%       62 life_contains
+  2.79%       57 cc_size_class
+  2.59%       53 life_shrink
+  2.44%       50 life_readback
+  2.35%       48 life_eval
+  2.30%       47 life_holder_scan
+  2.00%       41 life_read_find
+  1.96%       40 life_in_scope
+  1.86%       38 opt_function
+  1.76%       36 life_held_into
+  1.71%       35 life_call
+  1.56%       32 life_list_set
+  1.47%       30 life_cell
+  1.32%       27 life_next_live
+  1.22%       25 cc_emit_extern
+  1.12%       23 check_expression
+  0.98%       20 <outside>
+  0.98%       20 mark_located_functions
+--- self <- caller
+  7.18%      147 cc_emit_function <- <outside>
+  5.38%      110 life_eval_body <- <outside>
+  4.50%       92 life_replay <- <outside>
+  3.71%       76 life_effect <- <outside>
+  3.42%       70 life_effect_far <- <outside>
+  3.27%       67 life_function <- <outside>
+  3.23%       66 life_construct_read <- <outside>
+  3.03%       62 life_contains <- <outside>
+  2.79%       57 cc_size_class <- <outside>
+  2.59%       53 life_shrink <- <outside>
+  2.44%       50 life_readback <- <outside>
+  2.35%       48 life_eval <- <outside>
+  2.30%       47 life_holder_scan <- <outside>
+  2.00%       41 life_read_find <- <outside>
+  1.96%       40 life_in_scope <- <outside>
+  1.86%       38 opt_function <- <outside>
+  1.76%       36 life_held_into <- <outside>
+  1.71%       35 life_call <- <outside>
+  1.56%       32 life_list_set <- <outside>
+  1.47%       30 life_cell <- <outside>
+  1.32%       27 life_next_live <- <outside>
+  1.22%       25 cc_emit_extern <- <outside>
+  1.12%       23 check_expression <- <outside>
+  0.98%       20 <outside> <- <outside>
+  0.98%       20 mark_located_functions <- <outside>
+--- self <- caller <- caller2
+  7.18%      147 cc_emit_function <- <outside> <- <outside>
+  5.38%      110 life_eval_body <- <outside> <- <outside>
+  4.50%       92 life_replay <- <outside> <- <outside>
+  3.71%       76 life_effect <- <outside> <- <outside>
+  3.42%       70 life_effect_far <- <outside> <- <outside>
+  3.27%       67 life_function <- <outside> <- <outside>
+  3.23%       66 life_construct_read <- <outside> <- <outside>
+  3.03%       62 life_contains <- <outside> <- <outside>
+  2.79%       57 cc_size_class <- <outside> <- <outside>
+  2.59%       53 life_shrink <- <outside> <- <outside>
+  2.44%       50 life_readback <- <outside> <- <outside>
+  2.35%       48 life_eval <- <outside> <- <outside>
+  2.30%       47 life_holder_scan <- <outside> <- <outside>
+  2.00%       41 life_read_find <- <outside> <- <outside>
+  1.96%       40 life_in_scope <- <outside> <- <outside>
+  1.86%       38 opt_function <- <outside> <- <outside>
+  1.76%       36 life_held_into <- <outside> <- <outside>
+  1.71%       35 life_call <- <outside> <- <outside>
+  1.56%       32 life_list_set <- <outside> <- <outside>
+  1.47%       30 life_cell <- <outside> <- <outside>
+  1.32%       27 life_next_live <- <outside> <- <outside>
+  1.22%       25 cc_emit_extern <- <outside> <- <outside>
+  1.12%       23 check_expression <- <outside> <- <outside>
+  0.98%       20 <outside> <- <outside> <- <outside>
+  0.98%       20 mark_located_functions <- <outside> <- <outside>

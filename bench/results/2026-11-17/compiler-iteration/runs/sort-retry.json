@@ -1,0 +1,51 @@
+{
+  "configuration": {
+    "compiler": "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/final-qualification/bootstrap/bin/goose",
+    "timeout": 15.0,
+    "native_units": 3,
+    "filter": "upstream/stdlib/stdlib_sort"
+  },
+  "summary": {
+    "selected": 2,
+    "passed": 2,
+    "failed": 0
+  },
+  "results": [
+    {
+      "case": "upstream/stdlib/stdlib_sort",
+      "level": 0,
+      "status": "pass",
+      "phase": "run",
+      "compile_command": 0,
+      "native_command": 2,
+      "run_command": 3,
+      "stdout_equal": true,
+      "exit_equal": true,
+      "diagnostic_equal": true
+    },
+    {
+      "case": "upstream/stdlib/stdlib_sort",
+      "level": 2,
+      "status": "pass",
+      "phase": "run",
+      "compile_command": 4,
+      "native_command": 6,
+      "run_command": 7,
+      "stdout_equal": true,
+      "exit_equal": true,
+      "diagnostic_equal": true
+    }
+  ],
+  "runtime_seconds": [
+    {
+      "seconds": 9.49530204799521,
+      "exit_code": 0,
+      "error": ""
+    },
+    {
+      "seconds": 0.38273654299700866,
+      "exit_code": 0,
+      "error": ""
+    }
+  ]
+}

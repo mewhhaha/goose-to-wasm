@@ -3533,7 +3533,7 @@ fn cc_local_initialized(p: Program&, f: CcBody&, id: i64) -> bool {
     if symbol.scope >= 0 { return true; }
     return !life_may_reach_local(p, declaration.right, id);
 }
-fn cc_emit_function(p: Program&, out: u8[>..]&, function: i64, plans: RegionFunction[>..]&, calls: RegionCall[>..]&, indices: i64[>..]&, self_images: bool&, natural_members: bool) {
+fn cc_emit_function(p: Program&, out: u8[>..]&, function: i64, plans: RegionFunction[>..]&, calls: RegionCall[>..]&, indices: i64[>..]&, self_images: bool&, natural_members: bool, has_self_runs: bool, owners: const SymbolOwners&) {
     let n = p.nodes[function]; var checked = n.first; var signature_activation = false;
     while checked >= 0 {
         let type_id = p.nodes[checked].type_id;
@@ -3569,7 +3569,7 @@ fn cc_emit_function(p: Program&, out: u8[>..]&, function: i64, plans: RegionFunc
         cc_text(out, "}\n"); cc_parameter_aliases(p, out, function, true); return; }
     var body: u8[>..] = []; var exits: CcExit[>..] = []; var work: i64[>..] = []; var temp_regions: i64[>..] = []; var destinations: CcDestination[>..] = []; var receiving: CcReceiving[>..] = []; var indirect: i64[>..] = []; var fills: CcFill[>..] = []; var channels: CcChannels[>..] = []; var cursors: CcCursor[>..] = []; var defers: i64[>..] = []; var sites: i64[>..] = []; var stages: i64[>..] = [];
     let result_type = cc_function_result(p, function);
-    var f = CcBody { out: body, exits: exits, work: work, function: function, natural_members: natural_members, result_type: result_type, has_self_runs: cc_self_runs_used(p),
+    var f = CcBody { out: body, exits: exits, work: work, function: function, natural_members: natural_members, result_type: result_type, has_self_runs: has_self_runs,
         function_index: indices[function], calls: calls, indices: indices, temp_regions: temp_regions, destinations: destinations, receiving: receiving, fills: fills, indirect: indirect, channels: channels, cursors: cursors, self_images: self_images, defers: defers, sites: sites, stages: stages };
     let returns = cc_kind(p, result_type) != TY_VOID;
     let nonlocal = (n.flags & F_NONLOCAL) != 0; f.catches = nonlocal; var caught = -1;
@@ -3615,8 +3615,10 @@ fn cc_emit_function(p: Program&, out: u8[>..]&, function: i64, plans: RegionFunc
         cc_text(body, "g_return_top=&g_frame;if(setjmp(g_frame.jump))goto "); caught = body.len; cc_text(body, "g_return;\n");
     }
     cc_text(body, "{\n");
-    for symbol, id in p.symbols {
-        if symbol.owner != function || (symbol.flags & (S_PARAMETER | S_FUNCTION | S_TYPE)) != 0 { continue; }
+    var next = owners.heads[function + 1];
+    while next >= 0 {
+        let id = next; next = owners.next[id]; let symbol: const Symbol& = p.symbols[id];
+        if (symbol.flags & (S_PARAMETER | S_FUNCTION | S_TYPE)) != 0 { continue; }
         if symbol.type_id < 0 || !cc_concrete(p, symbol.type_id) { cc_fail(p, symbol.node, "c: local variable lacks a concrete type"); continue; }
         var named = -1;
         if cc_result_location(p, symbol.type_id) { for receiving in f.receiving { if receiving.symbol == id { named = f.destinations[receiving.destination].header; } } }
@@ -3665,8 +3667,10 @@ fn cc_emit_function(p: Program&, out: u8[>..]&, function: i64, plans: RegionFunc
     cc_text(out, body); cc_text(out, "}\n");
     if !cc_tuple_channels(p, result_type) && cc_result_indirect(p, result_type) { cc_text(out, "#undef g_result\n"); }
     for id in indirect { cc_undef(out, "g_v", id); }
-    for symbol, id in p.symbols {
-        if symbol.owner == function && (symbol.flags & (S_PARAMETER | S_FUNCTION | S_TYPE)) == 0 && (cc_indirect(p, symbol.type_id) || cc_result_location(p, symbol.type_id)) { cc_undef(out, "g_s", id); }
+    next = owners.heads[function + 1];
+    while next >= 0 {
+        let id = next; next = owners.next[id]; let symbol: const Symbol& = p.symbols[id];
+        if (symbol.flags & (S_PARAMETER | S_FUNCTION | S_TYPE)) == 0 && (cc_indirect(p, symbol.type_id) || cc_result_location(p, symbol.type_id)) { cc_undef(out, "g_s", id); }
     }
     cc_parameter_aliases(p, out, function, true);
 }
@@ -3810,8 +3814,12 @@ fn generate_c(p: Program&, out: u8[>..]&) {
     }
     if images { cc_text(out, cc_runtime_images); }
     if p.unwinding { cc_text(out, cc_runtime_unwinding); }
-    var runs = false; for t, id in p.types { if used[id] && cc_self_run(p, id) { runs = true; break; } }
-    if runs { cc_text(out, cc_runtime_runs); }
+    var has_self_runs = false;
+    for id in 0..p.types.len {
+        if !cc_self_run(p, id) { continue; }
+        has_self_runs = true;
+        if used[id] { cc_text(out, cc_runtime_runs); break; }
+    }
     if threads { cc_text(out, cc_runtime_workers); }
     cc_text(out, "G_FN void g_initialize(void);G_SHARED int g_initialized;G_SHARED int64_t g_global_regions;\n"); cc_pool_origins(p, out); cc_emit_types(p, out, used);
     for t, id in p.types {
@@ -3853,14 +3861,17 @@ fn generate_c(p: Program&, out: u8[>..]&) {
     cc_component_aliases(p, out);
     cc_pool_origins(p, out, true);
     if images { cc_index_lengths(p, out, true); }
+    var binding_heads: i64[>..] = []; var binding_next: i64[>..] = [];
+    var bindings = SymbolOwners { heads: binding_heads, next: binding_next };
+    index_symbol_owners(p, bindings);
     let functions = out.len; var guards: i64[>..] = []; var owners: i64[>..] = [];
     for n, node in p.nodes {
         if !cc_emittable(p, node) { continue; }
         guards.push(out.len); owners.push(node); cc_text(out, "#if G_IN_UNIT(   )\n");
-        cc_emit_function(p, out, node, plans, calls, indices, self_images, natural_members); cc_emit_export(p, out, node); cc_text(out, "#endif\n");
+        cc_emit_function(p, out, node, plans, calls, indices, self_images, natural_members, has_self_runs, bindings); cc_emit_export(p, out, node); cc_text(out, "#endif\n");
     }
     var initialization: u8[>..] = []; var exits: CcExit[>..] = []; var work: i64[>..] = []; var temp_regions: i64[>..] = []; var destinations: CcDestination[>..] = []; var receiving: CcReceiving[>..] = []; var indirect: i64[>..] = []; var fills: CcFill[>..] = []; var channels: CcChannels[>..] = []; var cursors: CcCursor[>..] = []; var defers: i64[>..] = []; var sites: i64[>..] = []; var stages: i64[>..] = [];
-    var f = CcBody { out: initialization, exits: exits, work: work, natural_members: natural_members, has_self_runs: cc_self_runs_used(p), function_index: initializer, calls: calls, indices: indices,
+    var f = CcBody { out: initialization, exits: exits, work: work, natural_members: natural_members, has_self_runs: has_self_runs, function_index: initializer, calls: calls, indices: indices,
         temp_regions: temp_regions, destinations: destinations, receiving: receiving, fills: fills, indirect: indirect, channels: channels, cursors: cursors, self_images: self_images, defers: defers, sites: sites, stages: stages };
     for s, symbol in p.symbols {
         if s.owner >= 0 || (s.flags & (S_GLOBAL | S_PARAMETER | S_FUNCTION | S_TYPE | S_BUILTIN)) != 0 ||

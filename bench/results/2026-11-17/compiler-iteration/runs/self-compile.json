@@ -1,0 +1,2736 @@
+{
+  "source": "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source",
+  "fingerprints": {
+    "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/goose-parent": {
+      "sha256": "e5cf838d7572985a3e1066cbf9c17b6fcd24d8b4e10d8e488a6ac5469de98b01",
+      "bytes": 6890256
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/final-qualification/bootstrap/bin/goose": {
+      "sha256": "94c6428f4d203a2c2db83a6e89b37160407ca3d01abee466b265ba852b45e952",
+      "bytes": 6902680
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/selfhost/checker.goose": {
+      "sha256": "ad0d41166fab91eedf7890f551a30b79be2c8e10b2729782133cae2a5f3a5fbb",
+      "bytes": 496429
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/selfhost/checker_lifetimes.goose": {
+      "sha256": "fd68474c7cfd70e0ed2d8aebe16c8ce0bd4fdc328ece88cfccd82e6e9615117f",
+      "bytes": 382252
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/selfhost/checker_operations.goose": {
+      "sha256": "30c41cdc001f0512d2c5d3017368a80dbfc824dfd1f11e1c53a5213f5114927f",
+      "bytes": 12303
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/selfhost/checker_rendering.goose": {
+      "sha256": "cd8b3602c9117914a8c35da201321183ae43c3a407642d7526379b3fe69bbe97",
+      "bytes": 17408
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/selfhost/checker_validation.goose": {
+      "sha256": "1d0a53fcf7f8607d4c4dbfaa210799f17859b683226a4310e9215d87ca298561",
+      "bytes": 40013
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/selfhost/codegen.goose": {
+      "sha256": "5b10510d12e1909a47ea963833dd3406e4aebee9c68ed8be868c6c6fe7a4a9e8",
+      "bytes": 438099
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/selfhost/codegen_c.goose": {
+      "sha256": "f44fa18ee870937ccdc2d60236b24af50f5a794029524d70675805d5b98af339",
+      "bytes": 334675
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/selfhost/codegen_c_images.goose": {
+      "sha256": "4addca16891b21ad19db5e04576ab530a339eb5dacc925e87d4b090f3cbefd14",
+      "bytes": 28363
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/selfhost/codegen_c_storage.goose": {
+      "sha256": "bc48de17a5e9e3cc880a71e7739489bc8a6a6a89b80fd4a56ee4148582f09dc6",
+      "bytes": 23234
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/selfhost/codegen_c_threads.goose": {
+      "sha256": "f52675b945cf777a89231d6befc1c195e96f802d3bf6497e817e32d33cff66e5",
+      "bytes": 11434
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/selfhost/driver.goose": {
+      "sha256": "1cd6ff4b9237e5ad2c60a430e8654fe3e86ed810c85010ca8231dd0bed83cf4a",
+      "bytes": 27450
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/selfhost/expansion_bind.goose": {
+      "sha256": "42951b1303d7dca17558283dd7250b5d86b7eb1d35699ece0d6933166aa15641",
+      "bytes": 6887
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/selfhost/lexer.goose": {
+      "sha256": "70744dd80512f8f1e6ed36520bf62d9b22d942a06041028fe88e594365e2a5f2",
+      "bytes": 27712
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/selfhost/main.goose": {
+      "sha256": "aedbadf2bb4536fc059812d4eeec6151d57de2bf25c1005fa6f5d4470aa45d1e",
+      "bytes": 51
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/selfhost/model.goose": {
+      "sha256": "4cf7a26ee851c35bbe3ef53a4377613642a348a692201abcafac398879c41f5f",
+      "bytes": 27743
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/selfhost/optimizer.goose": {
+      "sha256": "5db9272660c8772d3ee80933564638f22a4e92c68f4112f84396ab52971f3a56",
+      "bytes": 41368
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/selfhost/parser.goose": {
+      "sha256": "2707f6d42796cff5712e3225e0648fa3a78c21c24678f1682a611d9d2937cc18",
+      "bytes": 64355
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/selfhost/region_plan.goose": {
+      "sha256": "ea7804e188178980bd4f89ebdc8e230092cac5db55890ccb0bedbf89b46a77fb",
+      "bytes": 3970
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/selfhost/sources.goose": {
+      "sha256": "34c593056216efd45f091dba7e7bbaa40ebeb1058dba1412ffb30872965042c0",
+      "bytes": 15214
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/selfhost/thread_plan.goose": {
+      "sha256": "73e2ed70ce4c83ae7469b0e818c7b7d2df51035286537f84959cd3272dfbe594",
+      "bytes": 3679
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/selfhost/wasm.goose": {
+      "sha256": "2a58b1f04ca35a07280bc0e94fcdeb1bd3ee40985ab33bce9160124ca6517808",
+      "bytes": 13668
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/stdlib/base64.goose": {
+      "sha256": "fa1111ce46e9534311f825880dbd2988953430aeb3f1f52d8f0eaecbbc298a61",
+      "bytes": 4031
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/stdlib/binary.goose": {
+      "sha256": "6973e209428668c2db856eaa941de5d93938cfb1749ed07cac534bf9fe4cb031",
+      "bytes": 3100
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/stdlib/csv.goose": {
+      "sha256": "a49b0647f4a2f8ca36170e5a184ab6c6e505492434d0a10a5e05127e96da61ba",
+      "bytes": 2833
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/stdlib/dictionary.goose": {
+      "sha256": "fb39f896731faf3799e81727f7261849a62bdfbdc92d5fdbc36405a85830f322",
+      "bytes": 6948
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/stdlib/exception.goose": {
+      "sha256": "093863eda5433176750182b597aa6760a93808d86b0c9b713681443d2fb29160",
+      "bytes": 1301
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/stdlib/ffi.goose": {
+      "sha256": "e092b245fbe13ee2fdc71599b7b8eb44198e5261cad9600b7681e13ad75a6c2e",
+      "bytes": 1026
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/stdlib/json.goose": {
+      "sha256": "0e58291ed9051e4ecb8da1ad420290549d723336516507aed33cf7ced89dc29b",
+      "bytes": 84960
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/stdlib/math.goose": {
+      "sha256": "b4c1aee33b5b7033d36a4ddc5c6522c73b21cafe204dc20e8860cdeba22467da",
+      "bytes": 2873
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/stdlib/os.goose": {
+      "sha256": "2193f394d44469daffd993ed204a91b068084fd8db13e261e11156b40c66e934",
+      "bytes": 4107
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/stdlib/regex.goose": {
+      "sha256": "be0e50bab2a1db9f85e856250bcc592dfe25aca73c2ed900410047fbefb4b035",
+      "bytes": 45694
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/stdlib/slice_pool.goose": {
+      "sha256": "74ffe0d7b153a8728ced2974d493743576ed264c8b463f8bd5fe0bfade3a4424",
+      "bytes": 5525
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/stdlib/slice_pool_internal.goose": {
+      "sha256": "34a7eae1269a87c59487e3c15ea13b3332d14d9cd4bee8306bb520fd828eb121",
+      "bytes": 1149
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/stdlib/slot_pool.goose": {
+      "sha256": "e83b975bfff2806df0401afc3e37e147618c5673a9c98690007e6beb3bd51745",
+      "bytes": 2161
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/stdlib/std.goose": {
+      "sha256": "2243c2ef52ba5045b275eea35252d09f36544987c6884f4a8d35579fa6f781ff",
+      "bytes": 44251
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/stdlib/upstream.json": {
+      "sha256": "3c8aa9fb4cce92ca136ac4580e1fd2f9baf76d85c9236b865f473b6de6d4d2e9",
+      "bytes": 1508
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/stdlib/vec.goose": {
+      "sha256": "2cac168c72047834433bfb419734c38455c9429ea045b1273898031c53faa82e",
+      "bytes": 3062
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/native/README.md": {
+      "sha256": "01a9ebf6c9ae6d3ac8ecb7ba5fb64084d7146cfda575d8853981eb4cc3cb1bf5",
+      "bytes": 5806
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/native/images.h": {
+      "sha256": "6107261de647a67474c407c7da739aab8fbd2600e04f29a6e3bffccd43b15290",
+      "bytes": 7401
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/native/pack.py": {
+      "sha256": "2e2acae72b9ec2db4f19ce58d5c54472f01a4e083886a678c2f3496fa96e6f80",
+      "bytes": 3339
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/native/pools.h": {
+      "sha256": "052962725edfd70e0edacc6b372de04e93a941c4cbcc92cd750a056dc052c6cc",
+      "bytes": 5512
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/native/relative.h": {
+      "sha256": "4b3c41b7b929e3706412aaebb62b84640578f8963e473312fe66f0c597c296ba",
+      "bytes": 5297
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/native/runs.h": {
+      "sha256": "1458624355d3ea8e0da05523e5f0b5328b21d827381cd609f0541ec92b897f3c",
+      "bytes": 3137
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/native/runtime/LICENSE": {
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "bytes": 11358
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/native/runtime/NOTICE": {
+      "sha256": "803282561ca75117bd789df6d7d47af30ee958cf0a7c5cdd603e68b8fa374003",
+      "bytes": 288
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/native/runtime/goose.h": {
+      "sha256": "16e4d67ae7013050fa14a84162fe57f77ae8f0a7cd7c285d94cdfefc99a87de4",
+      "bytes": 1411
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/native/runtime/manifest.json": {
+      "sha256": "4381fbca7f703469cf6bd7e76ef4bc81a110640e5a877f36d60786ee3cda440e",
+      "bytes": 1390
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/native/runtime/runtime.h": {
+      "sha256": "5ac9487568c78c7cdf6e141d90d644da50436b1b7188047e6bfca09c7b801132",
+      "bytes": 51965
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/native/runtime/runtime_ext.h": {
+      "sha256": "bfce3ceee2d6d922d2ad2cdb527a293cde691c261aa4ecf9fe6e35e02637ddf3",
+      "bytes": 10014
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/native/runtime/runtime_impl.h": {
+      "sha256": "717f6d243575fa7e5de8229799cf86c22934dc202a4e6880c699db339b596bf1",
+      "bytes": 71690
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/native/runtime/runtime_os.h": {
+      "sha256": "27c4a80301075151434e8040222f72e0ed672ed0d4eb71857dd6028e978b4087",
+      "bytes": 25821
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/native/runtime/runtime_threads.h": {
+      "sha256": "b6a2a8f5ecde191093af1c6bde1939d172ef275156bd60e2e9e725d67f0a4285",
+      "bytes": 15528
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/native/runtime_unit.h": {
+      "sha256": "e11a0d180a048b95a8dd827d7e2664526a3ad3e368dc602a78d363f34bc13a58",
+      "bytes": 588
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/native/slice_pool.h": {
+      "sha256": "576d87376a557c4febb9ae9338add4d8a8059d75fee581b82cc2c1ef57bf2a1a",
+      "bytes": 20332
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/native/storage.h": {
+      "sha256": "52e3954130687897538ed20b6fb3f7208f915aff9c7f1817de6b5d2d1c45943c",
+      "bytes": 27063
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/native/tests/bounded_cells.c": {
+      "sha256": "4347362e07179ad9494ba1bed809348ceedd6ff20c095b52bb6637a1b3a18261",
+      "bytes": 3249
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/native/tests/check.py": {
+      "sha256": "608443c86874e1f9df45cd5c01c850744e58f260f23902f7e32cb9da0c2f70f5",
+      "bytes": 8867
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/native/tests/fixed_values.c": {
+      "sha256": "fd7bafbd0d44e113c2a9cf0678ce28ed0993a1e27231057e6191f997960d3b19",
+      "bytes": 1926
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/native/tests/image_storage.c": {
+      "sha256": "9eb14d0887f49e37e21854be95e976bbac15dcc5fd36b457d00e881b1bb9e304",
+      "bytes": 4893
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/native/tests/images.goose": {
+      "sha256": "946dbef9e148e50f67533c72d7806a76e88d3c2fe0d6fc3b469f3f36d19a7051",
+      "bytes": 2290
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/native/tests/large_values.goose": {
+      "sha256": "78501c63e2fb92257e92415d36808e080196171d824e7982b1b2b3fd79e27da8",
+      "bytes": 744
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/native/tests/lazy_regions.c": {
+      "sha256": "ef9cd60374728b852bec5ce6e8c5337eb91ec3aced5744eeda2624ff6a57d2c5",
+      "bytes": 3618
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/native/tests/ordinary_regions.goose": {
+      "sha256": "2ffa3461685b4822d3e440c0fbe90ae30c55f80f8f18327e7d0aa788a7415e24",
+      "bytes": 1333
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/native/tests/pools.c": {
+      "sha256": "1e1d20e1d105b7837f2231b7339ca8cd5694fb69a1b204df5efd5e93e18e5559",
+      "bytes": 2815
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/native/tests/receiving_views.goose": {
+      "sha256": "97316e9d22b2c1e24934f7830a786e1239504182e37e7c8149e03ad22a8bf0c2",
+      "bytes": 699
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/native/tests/relative.c": {
+      "sha256": "df2915990cdb28ccff508c4285aeb7f0b247b1bf4bda81239ca5ca578e0b5214",
+      "bytes": 2602
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/native/tests/relative.goose": {
+      "sha256": "de3659f3e7cb74e294ddbcb05777b3f6e9f13a0ab09566ddadff396a853a401d",
+      "bytes": 2007
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/native/tests/relative_overflow.goose": {
+      "sha256": "b6f04ea9ecee8cef4c92b2f51cfce70000b73c659ee54da8b5aa2a3027050a23",
+      "bytes": 278
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/native/tests/results.goose": {
+      "sha256": "32c6cd8288c73c17d84d72260643b04b5f4f39fc3931278ffb2c815073c8aa82",
+      "bytes": 2149
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/native/tests/runs.c": {
+      "sha256": "bca8968e299308eca4ddf63a03002b0c0fe291470a0bd3670d1a432edfcf82bd",
+      "bytes": 4259
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/native/tests/runtime_threads_lifecycle.c": {
+      "sha256": "2d4d9d70637bd73570ca511c7cbb95be96b19d6e73a7c38020e47a87a31cb386",
+      "bytes": 10346
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/native/tests/runtime_trim_memory.c": {
+      "sha256": "ec39bbb051fb0d138a0f16504455349a210550dec69321c497bae6fc514e9d1f",
+      "bytes": 5272
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/native/tests/slice_pool.c": {
+      "sha256": "5c3bfef7e1194a6f3d54ee0739337b4395d73815fb91af1477abab1cf4d1ee0e",
+      "bytes": 5745
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/native/tests/source-manifest.json": {
+      "sha256": "ed037a52a76daf8c2fdf0da268653dc4ea396ebf1e79bc4337e79801423f82c9",
+      "bytes": 698
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/native/tests/threads_adapter.c": {
+      "sha256": "c18cfcc1bcea1f02255ea3cace712203c20160c2025c78fb391f666e6eb578f9",
+      "bytes": 3817
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/native/tests/var_relative.c": {
+      "sha256": "ed3dfd054dadd5836f2c90cc473eb21ae99f38034724327e25a132efeed2f054",
+      "bytes": 4348
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/native/tests/variable_images.goose": {
+      "sha256": "fdebe9e12ea5a5d0657867fb5cfa44d4c614d3dc2ac77ce79ba476c4bf922bed",
+      "bytes": 2014
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/native/threads.h": {
+      "sha256": "bd9b605086d3475d86d76bb630f9d408ca987efe359f824a36b06d76e49c6cb4",
+      "bytes": 2045
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/native/units.h": {
+      "sha256": "23b0395c15dc4ea9a7fc3545560a49427007d1d1f0019a9a46a920b3de5d5560",
+      "bytes": 2261
+    }
+  },
+  "cpu": 7,
+  "samples": 5,
+  "order_seed": 111755,
+  "machine_before": {
+    "utc": "2026-11-17T21:34:03.277511+00:00",
+    "uname": {
+      "system": "Linux",
+      "node": "cachyos-x8664",
+      "release": "7.3.4-1-cachyos",
+      "version": "#1 SMP PREEMPT_DYNAMIC Fri, 13 Nov 2026 19:45:18 +0000",
+      "machine": "x86_64",
+      "processor": ""
+    },
+    "parent_pid": 949540,
+    "parent_affinity": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15
+    ],
+    "load_average": [
+      48.61669921875,
+      28.52294921875,
+      20.39013671875
+    ],
+    "cpu_count": 16,
+    "cpu_ticks": {
+      "cpu0": [
+        165661,
+        222339,
+        40350,
+        4641847,
+        8411,
+        8118,
+        11368,
+        0,
+        0,
+        0
+      ],
+      "cpu1": [
+        167896,
+        231693,
+        41529,
+        4628588,
+        10605,
+        8567,
+        5576,
+        0,
+        0,
+        0
+      ],
+      "cpu2": [
+        178102,
+        228354,
+        40902,
+        4622430,
+        11052,
+        8573,
+        5929,
+        0,
+        0,
+        0
+      ],
+      "cpu3": [
+        171662,
+        230886,
+        42236,
+        4624921,
+        11170,
+        8618,
+        5157,
+        0,
+        0,
+        0
+      ],
+      "cpu4": [
+        184160,
+        190834,
+        49137,
+        4643140,
+        9436,
+        8554,
+        4140,
+        0,
+        0,
+        0
+      ],
+      "cpu5": [
+        192657,
+        175977,
+        53003,
+        4646337,
+        9809,
+        8698,
+        4018,
+        0,
+        0,
+        0
+      ],
+      "cpu6": [
+        190342,
+        168082,
+        55442,
+        4651783,
+        9148,
+        7781,
+        2681,
+        0,
+        0,
+        0
+      ],
+      "cpu7": [
+        192285,
+        178839,
+        50462,
+        4645017,
+        10314,
+        9415,
+        4720,
+        0,
+        0,
+        0
+      ],
+      "cpu8": [
+        154665,
+        226831,
+        40708,
+        4653250,
+        8037,
+        8081,
+        2221,
+        0,
+        0,
+        0
+      ],
+      "cpu9": [
+        155393,
+        230913,
+        41410,
+        4643145,
+        12795,
+        8309,
+        2162,
+        0,
+        0,
+        0
+      ],
+      "cpu10": [
+        148091,
+        235608,
+        41151,
+        4647626,
+        12371,
+        8254,
+        2133,
+        0,
+        0,
+        0
+      ],
+      "cpu11": [
+        149538,
+        236857,
+        40887,
+        4644959,
+        12710,
+        8207,
+        2101,
+        0,
+        0,
+        0
+      ],
+      "cpu12": [
+        166323,
+        169606,
+        47167,
+        4685152,
+        9503,
+        8180,
+        2435,
+        0,
+        0,
+        0
+      ],
+      "cpu13": [
+        168938,
+        172695,
+        52936,
+        4655087,
+        9487,
+        34218,
+        2568,
+        0,
+        0,
+        0
+      ],
+      "cpu14": [
+        161772,
+        173881,
+        48087,
+        4686518,
+        8567,
+        7784,
+        2341,
+        0,
+        0,
+        0
+      ],
+      "cpu15": [
+        169718,
+        164953,
+        52022,
+        4681663,
+        9439,
+        7837,
+        2280,
+        0,
+        0,
+        0
+      ]
+    },
+    "smt_siblings": {
+      "/sys/devices/system/cpu/cpu0/topology/thread_siblings_list": "0,8",
+      "/sys/devices/system/cpu/cpu1/topology/thread_siblings_list": "1,9",
+      "/sys/devices/system/cpu/cpu10/topology/thread_siblings_list": "2,10",
+      "/sys/devices/system/cpu/cpu11/topology/thread_siblings_list": "3,11",
+      "/sys/devices/system/cpu/cpu12/topology/thread_siblings_list": "4,12",
+      "/sys/devices/system/cpu/cpu13/topology/thread_siblings_list": "5,13",
+      "/sys/devices/system/cpu/cpu14/topology/thread_siblings_list": "6,14",
+      "/sys/devices/system/cpu/cpu15/topology/thread_siblings_list": "7,15",
+      "/sys/devices/system/cpu/cpu2/topology/thread_siblings_list": "2,10",
+      "/sys/devices/system/cpu/cpu3/topology/thread_siblings_list": "3,11",
+      "/sys/devices/system/cpu/cpu4/topology/thread_siblings_list": "4,12",
+      "/sys/devices/system/cpu/cpu5/topology/thread_siblings_list": "5,13",
+      "/sys/devices/system/cpu/cpu6/topology/thread_siblings_list": "6,14",
+      "/sys/devices/system/cpu/cpu7/topology/thread_siblings_list": "7,15",
+      "/sys/devices/system/cpu/cpu8/topology/thread_siblings_list": "0,8",
+      "/sys/devices/system/cpu/cpu9/topology/thread_siblings_list": "1,9"
+    },
+    "commands": [
+      {
+        "command": [
+          "lscpu"
+        ],
+        "stdin": null,
+        "started_utc": "2026-11-17T21:34:03.287197+00:00",
+        "status": "passed",
+        "pid": 1048239,
+        "stdout": "Architecture:                            x86_64\nCPU op-mode(s):                          32-bit, 64-bit\nAddress sizes:                           43 bits physical, 48 bits virtual\nByte Order:                              Little Endian\nCPU(s):                                  16\nOn-line CPU(s) list:                     0-15\nVendor ID:                               AuthenticAMD\nModel name:                              AMD Ryzen 7 3800X 8-Core Processor\nCPU family:                              23\nModel:                                   113\nThread(s) per core:                      2\nCore(s) per socket:                      8\nSocket(s):                               1\nStepping:                                0\nMicrocode version:                       0x8701034\nFrequency boost:                         enabled\nCPU(s) scaling MHz:                      63%\nCPU max MHz:                             4558.8862\nCPU min MHz:                             2200.0000\nBogoMIPS:                                7785.31\nFlags:                                   fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm constant_tsc rep_good nopl xtopology nonstop_tsc cpuid extd_apicid aperfmperf rapl pni pclmulqdq monitor ssse3 fma cx16 sse4_1 sse4_2 movbe popcnt aes xsave avx f16c rdrand lahf_lm cmp_legacy svm extapic cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw ibs skinit wdt tce topoext perfctr_core perfctr_nb bpext perfctr_llc mwaitx cpb cat_l3 cdp_l3 hw_pstate ssbd mba ibpb stibp vmmcall fsgsbase bmi1 avx2 smep bmi2 cqm rdt_a rdseed adx smap clflushopt clwb sha_ni xsaveopt xsavec xgetbv1 cqm_llc cqm_occup_llc cqm_mbm_total cqm_mbm_local clzero irperf xsaveerptr rdpru wbnoinvd arat npt lbrv svm_lock nrip_save tsc_scale vmcb_clean flushbyasid decodeassists pausefilter pfthreshold avic v_vmsave_vmload vgif v_spec_ctrl umip rdpid overflow_recov succor smca sev sev_es\nVirtualization:                          AMD-V\nL1d cache:                               256 KiB (8 instances)\nL1i cache:                               256 KiB (8 instances)\nL2 cache:                                4 MiB (8 instances)\nL3 cache:                                32 MiB (2 instances)\nNUMA node(s):                            1\nNUMA node0 CPU(s):                       0-15\nVulnerability Gather data sampling:      Not affected\nVulnerability Ghostwrite:                Not affected\nVulnerability Indirect target selection: Not affected\nVulnerability Itlb multihit:             Not affected\nVulnerability L1tf:                      Not affected\nVulnerability Mds:                       Not affected\nVulnerability Meltdown:                  Not affected\nVulnerability Mmio stale data:           Not affected\nVulnerability Old microcode:             Not affected\nVulnerability Reg file data sampling:    Not affected\nVulnerability Retbleed:                  Mitigation; untrained return thunk; SMT enabled with STIBP protection\nVulnerability Spec rstack overflow:      Mitigation; Safe RET\nVulnerability Spec store bypass:         Mitigation; Speculative Store Bypass disabled via prctl\nVulnerability Spectre v1:                Mitigation; usercopy/swapgs barriers and __user pointer sanitization\nVulnerability Spectre v2:                Mitigation; Retpolines; IBPB conditional; STIBP always-on; RSB filling; PBRSB-eIBRS Not affected; BHI Not affected\nVulnerability Srbds:                     Not affected\nVulnerability Tsa:                       Not affected\nVulnerability Tsx async abort:           Not affected\nVulnerability Vmscape:                   Mitigation; IBPB before exit to userspace\n",
+        "stderr": "",
+        "exit_code": 0,
+        "wall_seconds": 0.020718970998132136
+      },
+      {
+        "command": [
+          "ps",
+          "-eo",
+          "pid,ppid,psr,pcpu,pmem,etimes,comm",
+          "--sort=-pcpu"
+        ],
+        "stdin": null,
+        "started_utc": "2026-11-17T21:34:03.307968+00:00",
+        "status": "passed",
+        "pid": 1048242,
+        "stdout": "    PID    PPID PSR %CPU %MEM ELAPSED COMMAND\n1046872  952975   4  440  2.0       4 python\n1048242  949540  14  200  0.0       0 ps\n 187559  187558   9 99.4  3.1   10933 VampireSurvivor\n 939871  939870   7 76.3  6.0     294 clang-23\n1047884 1047882   6 67.7  0.2       1 cc1\n1048222  952972   4 50.0  0.0       0 python\n1048234  952972  13 50.0  0.0       0 python\n1047427 1047424   3 45.5  0.3       2 cc1\n1048036 1048033   0 38.5  0.1       0 cc1\n1048120  952972  11 37.1  0.0       0 python\n1047567 1047565  11 36.9  0.3       2 cc1\n1047854 1047852   8 33.5  0.2       1 cc1\n1047591 1047588   2 31.7  0.2       2 cc1\n1047554 1047550   8 31.7  0.2       2 cc1\n1012099 1011904  15 26.6  1.0      46 chrome-headless\n1048225 1048224   5 25.0  0.0       0 ld\n1009609 1009603  15 23.7  3.5      48 node-MainThread\n1026495  971633   4 21.6  0.7      27 chrome-headless\n 952968  938559  11 17.4  0.3      93 python\n 971677  971629   5 15.9  0.2      80 chrome-headless\n 952973  938559   5 15.6  0.3      93 python\n 952988  938559  13 15.1  0.2      93 python\n1011958 1011903  15 11.9  0.2      46 chrome-headless\n 968212  952075  15 10.7  0.6      83 node-MainThread\n 191505  191492   8  8.4  1.2   10652 codex\n1047790  956200   6  7.4  0.0       1 python\n 971582  968212   7  6.8  0.3      80 chrome-headless\n1011877 1009609  15  4.3  0.3      46 chrome-headless\n 191492     782   3  4.2  2.5   10653 node-MainThread\n   1629    1624  15  2.4  0.8   51423 kwin_wayland\n 186941    2217   5  2.3  0.2   11139 Isolated Web Co\n 952972  938559  13  2.0  0.1      93 python\n 971697  971582   8  1.6  0.2      80 chrome-headless\n 952975  938559   0  1.6  0.1      93 python\n   3277    3079  14  1.3  1.4   51415 steamwebhelper\n 181718  181531   8  1.3  0.9   11274 Discord\n1011960 1011877   7  1.1  0.2      46 chrome-headless\n 187758    2916   0  1.0  0.0   10929 gameoverlayui\n   2916    2883   3  0.9  0.5   51417 steam\n   1985     782   7  0.8  1.2   51419 zen\n 937493       2   2  0.7  0.0     367 kworker/u65:0-btrfs-endio-meta\n 938642       2   3  0.7  0.0     329 kworker/u65:22-btrfs-endio-meta\n 936928       2  13  0.6  0.0     393 kworker/u66:0+btrfs-delalloc\n   3097    3075   0  0.5  0.3   51416 steamwebhelper\n   3068    2916   2  0.5  0.4   51416 steamwebhelper\n 808563       2   7  0.5  0.0     809 kworker/u66:21-btrfs-endio-write\n 840319       2  11  0.5  0.0     765 kworker/u65:7-btrfs-endio-meta\n 956200  949541   6  0.5  0.1      90 python\n 692987       2   1  0.5  0.0    1890 kworker/u65:5-btrfs-endio-meta\n 692989       2  10  0.4  0.0    1890 kworker/u65:12-btrfs-endio\n 692988       2   2  0.4  0.0    1890 kworker/u65:9-btrfs-endio-meta\n 741903       2  11  0.4  0.0    1085 kworker/u65:3-btrfs-endio\n 164599    2217   2  0.4  0.6   12265 Isolated Web Co\n 692990       2   3  0.3  0.0    1890 kworker/u65:14-btrfs-endio-meta\n 181531     782  10  0.3  0.2   11275 Discord\n 692992       2  11  0.3  0.0    1890 kworker/u65:19-btrfs-endio\n 696448       2  14  0.3  0.0    1818 kworker/u66:15-btrfs-endio\n 671841       2   2  0.3  0.0    2705 kworker/u65:15-btrfs-endio-meta\n 725399       2   6  0.3  0.0    1340 kworker/u66:4-btrfs-endio\n 692206       2  15  0.3  0.0    1962 kworker/u66:3-btrfs-endio\n    147       2   0  0.3  0.0   51441 kswapd0\n 692986       2   7  0.3  0.0    1890 kworker/u65:2-btrfs-endio\n 671839       2  11  0.3  0.0    2705 kworker/u65:11-btrfs-endio\n 696435       2   5  0.3  0.0    1818 kworker/u66:10-blkcg_punt_bio\n 692667       2  13  0.2  0.0    1916 kworker/u66:5-btrfs-endio-write\n   1869     782  15  0.2  0.0   51421 pipewire-pulse\n 696433       2  15  0.2  0.0    1818 kworker/u66:7-btrfs-endio-write\n 741904       2  11  0.2  0.0    1085 kworker/u65:10-btrfs-endio\n   1750    1629  11  0.2  0.2   51421 Xwayland\n 671838       2  11  0.2  0.0    2705 kworker/u65:8-btrfs-endio\n 667203       2   0  0.2  0.0    3136 kworker/u65:17-btrfs-endio\n 192058  191505   3  0.2  0.0   10536 codex-code-mode\n 668191       2  13  0.2  0.0    2905 kworker/u66:11-btrfs-endio\n 878110       2  10  0.2  0.0     696 kworker/u65:20-btrfs-endio-meta\n 181601  181534   6  0.2  0.3   11275 Discord\n 696422       2   0  0.2  0.0    1818 kworker/u65:21-btrfs-endio\n 662560       2   5  0.2  0.0    3461 kworker/u66:19-btrfs-endio\n 671836       2  11  0.2  0.0    2705 kworker/u65:4-btrfs-endio\n   2417    2217   6  0.2  0.0   51419 RDD Process\n 667275       2  15  0.2  0.0    3090 kworker/u66:1-btrfs-endio\n 696447       2   0  0.2  0.0    1818 kworker/u66:14-btrfs-endio-write\n 668192       2  14  0.1  0.0    2905 kworker/u66:13-btrfs-endio\n 668712       2   4  0.1  0.0    2807 kworker/u66:17+events_unbound\n 667201       2   1  0.1  0.0    3136 kworker/u65:13-btrfs-endio-meta\n 667924       2   7  0.1  0.0    2956 kworker/u66:8-btrfs-endio-write\n 667925       2   6  0.1  0.0    2956 kworker/u66:9-btrfs-endio-write\n 660111       2   6  0.1  0.0    3709 kworker/u66:12-btrfs-endio\n    716       1   9  0.1  0.0   51435 ananicy-cpp\n 649182       2  14  0.1  0.0    4654 kworker/u66:6-btrfs-endio\n 629180       2  15  0.1  0.0    6100 kworker/u66:18-btrfs-endio\n 194191       2  13  0.1  0.0   10005 kworker/u65:1-blkcg_punt_bio\n   1551     815  15  0.1  0.0   51427 cloudflared\n1012414  971582  15  0.1  0.2      45 chrome-headless\n 949540  191505  14  0.1  0.0     177 python\n 603224       2   6  0.1  0.0    7921 kworker/u66:2-btrfs-endio\n 407295       2   0  0.1  0.0    8498 kworker/u65:16-btrfs-endio\n 660113       2  15  0.1  0.0    3709 kworker/u66:16-blkcg_punt_bio\n 957897       2   5  0.0  0.0      89 kworker/5:0-events\n 938448  938188  15  0.0  0.0     357 python3\n    325       2   0  0.0  0.0   51437 btrfs-transaction\n    305       2  13  0.0  0.0   51437 nvidia-modeset/kthread_q\n 971633  971582  14  0.0  0.1      80 chrome-headless\n   1640     782   0  0.0  0.8   51423 plasmashell\n 952016  952014   9  0.0  0.2      96 pnpm\n   2796    2217   9  0.0  0.2   51418 WebExtensions\n 181604  181531   3  0.0  0.1   11275 Discord\n    815     793   2  0.0  0.1   51435 MainThread\n 961347       2  12  0.0  0.0      88 kworker/12:1-events\n 989850  191505   9  0.0  0.0      67 zsh\n   1711     782   6  0.0  0.0   51422 pipewire\n1009522  944367  15  0.0  0.1      48 pnpm\n 340095       2   1  0.0  0.0    8539 kworker/u64:2-ipv6_addrconf\n 951192    2217  11  0.0  0.2     115 Web Content\n 187617       2   5  0.0  0.0   10932 nvidia-drm/timeline-3a4\n 942288  940526   1  0.0  0.2     245 pnpm\n 938188  938155   3  0.0  0.2     361 deno\n 938559  191505   0  0.0  0.0     335 python\n 733134       2   5  0.0  0.0    1238 kworker/5:2-events\n     16       2  13  0.0  0.0   51442 rcu_preempt\n1011903 1011877  14  0.0  0.1      46 chrome-headless\n1011904 1011877   6  0.0  0.1      46 chrome-headless\n    128       2   7  0.0  0.0   51442 khugepaged\n   1501       1   2  0.0  0.0   51428 upowerd\n 949541  191505   1  0.0  0.0     177 zsh\n   1744     782   2  0.0  0.0   51421 org_kde_powerde\n    510       1  11  0.0  0.0   51436 systemd-resolve\n 971629  971582   9  0.0  0.1      80 chrome-headless\n   3198    3068  12  0.0  0.0   51415 steamwebhelper\n 187805       2   3  0.0  0.0   10902 kworker/3:1-events\n 938155  191505  14  0.0  0.0     361 deno\n 187806       2   8  0.0  0.0   10902 kworker/8:1-events\n 951933  951850   7  0.0  0.1      96 pnpm\n 951849  191505  15  0.0  0.0      96 zsh\n 181337     782  14  0.0  0.2   11277 krunner\n 169227    3068  10  0.0  0.0   12152 steamwebhelper\n 406920       2  13  0.0  0.0    8498 kworker/13:2-events\n 579030       2  10  0.0  0.0    8304 kworker/10:0-events\n    126       2   3  0.0  0.0   51442 kcompactd0\n    715     714   2  0.0  0.0   51435 dbus-broker\n 911411  191505   9  0.0  0.0     541 node_repl\n   2855    2217  14  0.0  0.0   51418 Utility Process\n 935393    2217  14  0.0  0.1     423 Web Content\n 939033  938992   7  0.0  0.1     304 pnpm\n 938889  191505   7  0.0  0.0     305 zsh\n    782       1  14  0.0  0.0   51435 systemd\n 933025    2217   2  0.0  0.2     468 Web Content\n   1578       1   4  0.0  0.0   51423 ksecretd\n   1708       2  13  0.0  0.0   51422 nvidia-drm/timeline-21\n 567891       2  14  0.0  0.0    8314 kworker/14:0-mm_percpu_wq\n 911424  191505   6  0.0  0.0     541 wayland-compute\n 632707       2   4  0.0  0.0    5843 kworker/4:0-events\n   2012     782   9  0.0  0.3   51419 systemsettings\n   1712     782  15  0.0  0.0   51422 wireplumber\n    293       2   0  0.0  0.0   51439 kworker/0:2-events\n 742824  191505   0  0.0  0.0    1067 node_repl\n    378       2   9  0.0  0.0   51437 kworker/9:1H-kblockd\n    390       2  10  0.0  0.0   51437 kworker/10:1H-kblockd\n    301       2  11  0.0  0.0   51438 kworker/11:1H-kblockd\n      1       0   1  0.0  0.0   51442 systemd\n    392       2   3  0.0  0.0   51437 kworker/3:1H-kblockd\n    345       2   2  0.0  0.0   51437 kworker/2:1H-kblockd\n    486       2   2  0.0  0.0   51437 kworker/2:2-events\n    136       2   9  0.0  0.0   51441 kworker/9:1-mm_percpu_wq\n    304       2   1  0.0  0.0   51438 kworker/1:1H-kblockd\n    134       2   1  0.0  0.0   51441 kworker/1:1-mm_percpu_wq\n 742832  191505   4  0.0  0.0    1067 wayland-compute\n    156       2  11  0.0  0.0   51440 kworker/11:1-events\n   1116    1103   6  0.0  0.0   51432 dbus-broker\n 182161  181531  12  0.0  0.0   11272 Discord\n 940486  939073  15  0.0  0.1     281 pnpm\n   1964     782  14  0.0  0.0   51419 xdg-desktop-por\n 939870  938448   8  0.0  0.1     294 clang-23\n    379       2   8  0.0  0.0   51437 kworker/8:1H-kblockd\n     94       2  12  0.0  0.0   51442 kworker/12:0-events\n   3379    3079   2  0.0  0.0   51412 steamwebhelper\n    393       2  12  0.0  0.0   51437 kworker/12:1H-kblockd\n    359       2   7  0.0  0.0   51437 kworker/7:1H-kblockd\n    356       2   0  0.0  0.0   51437 kworker/0:1H-kblockd\n    291       2   5  0.0  0.0   51439 kworker/5:1H-kblockd\n 938992  938889   1  0.0  0.0     304 pnpm\n    292       2  13  0.0  0.0   51439 kworker/13:1H-kblockd\n    372       2  15  0.0  0.0   51437 kworker/15:1H-kblockd\n    320       2   4  0.0  0.0   51437 kworker/4:1H-kblockd\n    302       2  14  0.0  0.0   51438 kworker/14:1H-kblockd\n    296       2   6  0.0  0.0   51439 kworker/6:1H-kblockd\n    161       2   4  0.0  0.0   51440 kworker/4:1-events\n   1634     782   7  0.0  0.0   51423 kded6\n    645       2   6  0.0  0.0   51436 kworker/6:3-events\n    406       1   1  0.0  0.0   51437 systemd-journal\n    162       2  15  0.0  0.0   51440 kworker/15:1-events\n     64       2   7  0.0  0.0   51442 kworker/7:0-events\n   1438       1  14  0.0  0.0   51429 polkitd\n   2344    2332  15  0.0  0.0   51419 x86_64-linux-gn\n 187554    2916   6  0.0  0.0   10933 steam-runtime-l\n    717       1   3  0.0  0.0   51435 NetworkManager\n   1996     782  14  0.0  0.0   51419 xdg-document-po\n     15       2   0  0.0  0.0   51442 ksoftirqd/0\n 679901  191505   4  0.0  0.0    2412 node_repl\n    719       1   4  0.0  0.0   51435 avahi-daemon\n   2066     782   6  0.0  0.0   51419 xdg-desktop-por\n     51       2   5  0.0  0.0   51442 ksoftirqd/5\n   2354    2332   5  0.0  0.0   51419 srt-bwrap\n 668278  191505  13  0.0  0.0    2869 node_repl\n   2401    2217   7  0.0  0.0   51419 Privileged Cont\n     99       2  13  0.0  0.0   51442 ksoftirqd/13\n     45       2   4  0.0  0.0   51442 ksoftirqd/4\n   1747       1   4  0.0  0.0   51421 udisksd\n     27       2   1  0.0  0.0   51442 ksoftirqd/1\n   2010     782  10  0.0  0.0   51419 dolphin\n     93       2  12  0.0  0.0   51442 ksoftirqd/12\n    793     782  15  0.0  0.0   51435 MainThread\n     33       2   2  0.0  0.0   51442 ksoftirqd/2\n     56       2   6  0.0  0.0   51442 migration/6\n 668279  191505  13  0.0  0.0    2869 wayland-compute\n     39       2   3  0.0  0.0   51442 ksoftirqd/3\n     63       2   7  0.0  0.0   51442 ksoftirqd/7\n   1781       2  13  0.0  0.0   51421 nvidia-drm/timeline-23\n    105       2  14  0.0  0.0   51442 ksoftirqd/14\n     87       2  11  0.0  0.0   51442 ksoftirqd/11\n    111       2  15  0.0  0.0   51442 ksoftirqd/15\n     75       2   9  0.0  0.0   51442 ksoftirqd/9\n    110       2  15  0.0  0.0   51442 migration/15\n     57       2   6  0.0  0.0   51442 ksoftirqd/6\n   1836     782  11  0.0  0.0   51421 at-spi2-registr\n     81       2  10  0.0  0.0   51442 ksoftirqd/10\n     62       2   7  0.0  0.0   51442 migration/7\n     69       2   8  0.0  0.0   51442 ksoftirqd/8\n    720       1   8  0.0  0.0   51435 systemd-logind\n     98       2  13  0.0  0.0   51442 migration/13\n     50       2   5  0.0  0.0   51442 migration/5\n    771       2  13  0.0  0.0   51435 psimon\n    104       2  14  0.0  0.0   51442 migration/14\n     44       2   4  0.0  0.0   51442 migration/4\n 170598    3079   1  0.0  0.0   12068 steamwebhelper\n   1742     782   7  0.0  0.0   51421 kaccess\n 626001  191505   8  0.0  0.0    6479 node_repl\n 250000  191505   9  0.0  0.0    8895 node_repl\n   3199    3079  10  0.0  0.0   51415 steamwebhelper\n   1826    1825   3  0.0  0.0   51421 dbus-broker\n    528       1   9  0.0  0.0   51436 systemd-udevd\n 624090  191505   7  0.0  0.0    7092 node_repl\n 679883  191505   0  0.0  0.0    2412 wayland-compute\n   1745     782   2  0.0  0.0   51421 xembedsniproxy\n     92       2  12  0.0  0.0   51442 migration/12\n     20       2   0  0.0  0.0   51442 migration/0\n 611015  191505   2  0.0  0.0    7638 node_repl\n   2013     782   8  0.0  0.0   51419 xdg-desktop-por\n   1741     782  11  0.0  0.0   51421 gmenudbusmenupr\n   1462       1   9  0.0  0.0   51428 rtkit-daemon\n     26       2   1  0.0  0.0   51442 migration/1\n     32       2   2  0.0  0.0   51442 migration/2\n     38       2   3  0.0  0.0   51442 migration/3\n 181429     782   4  0.0  0.0   11276 baloorunner\n   2058    2011   8  0.0  0.0   51419 steam\n     68       2   8  0.0  0.0   51442 migration/8\n 249999  191505   7  0.0  0.0    8895 wayland-compute\n    451       1  10  0.0  0.0   51437 systemd-userdbd\n     74       2   9  0.0  0.0   51442 migration/9\n     80       2  10  0.0  0.0   51442 migration/10\n     86       2  11  0.0  0.0   51442 migration/11\n   2217    1985  11  0.0  0.0   51419 forkserver\n 187558  187557  15  0.0  0.0   10933 reaper\n   1728     782   8  0.0  0.0   51421 kactivitymanage\n 181693       2   9  0.0  0.0   11274 nvidia-drm/timeline-35d\n   1893     782   5  0.0  0.0   51420 kdeconnectd\n   2215       2  14  0.0  0.0   51419 nvidia-drm/timeline-38\n    540       1   3  0.0  0.0   51436 systemd-timesyn\n 192193  191505   8  0.0  0.0   10521 node_repl\n 191924  191505   6  0.0  0.0   10543 node_repl\n 191766  191505  12  0.0  0.0   10558 node_repl\n 181534  181531   2  0.0  0.0   11275 Discord\n 181535  181531  10  0.0  0.0   11275 Discord\n   2718    2217  12  0.0  0.0   51418 Web Content\n    121       2   9  0.0  0.0   51442 khungtaskd\n 626000  191505   5  0.0  0.0    6479 wayland-compute\n 624089  191505  15  0.0  0.0    7092 wayland-compute\n   3100       2   7  0.0  0.0   51416 nvidia-drm/timeline-54\n 611013  191505   9  0.0  0.0    7638 wayland-compute\n   2871     782   1  0.0  0.0   51418 kwalletd6\n   1631     782   4  0.0  0.0   51423 ksmserver\n    714       1   1  0.0  0.0   51435 dbus-broker-lau\n   1743     782  12  0.0  0.0   51421 polkit-kde-auth\n 192192  191505  10  0.0  0.0   10521 wayland-compute\n      2       0  10  0.0  0.0   51442 kthreadd\n   1952       1  14  0.0  0.0   51419 power-profiles-\n   1571    1282  11  0.0  0.0   51423 sddm-helper\n   3079    3076  12  0.0  0.0   51416 steamwebhelper\n   1983     782  13  0.0  0.0   51419 xdg-permission-\n   3075    3068  11  0.0  0.0   51416 steamwebhelper\n   3076    3068   1  0.0  0.0   51416 steamwebhelper\n   2287    2217   3  0.0  0.0   51419 Socket Process\n   2011     782   6  0.0  0.0   51419 bash\n   1579    1571  13  0.0  0.0   51423 startplasma-way\n   1282       1  10  0.0  0.0   51430 sddm\n   1103     782   4  0.0  0.0   51432 dbus-broker-lau\n      3       2   0  0.0  0.0   51442 pool_workqueue_release\n      4       2   0  0.0  0.0   51442 kworker/R-rcu_gp\n      5       2   0  0.0  0.0   51442 kworker/R-sync_wq\n      6       2   0  0.0  0.0   51442 kworker/R-kvfree_rcu_reclaim\n      7       2   0  0.0  0.0   51442 kworker/R-slub_flushwq\n      8       2   0  0.0  0.0   51442 kworker/R-netns\n     11       2   0  0.0  0.0   51442 kworker/0:0H-kblockd\n     14       2   0  0.0  0.0   51442 kworker/R-mm_percpu_wq\n     17       2   0  0.0  0.0   51442 rcub/0\n     18       2   0  0.0  0.0   51442 rcu_exp_par_gp_kthread_worker/0\n     19       2   0  0.0  0.0   51442 rcu_exp_gp_kthread_worker\n     21       2   0  0.0  0.0   51442 kprobe-optimizer\n     22       2   0  0.0  0.0   51442 idle_inject/0\n     23       2   0  0.0  0.0   51442 cpuhp/0\n     24       2   1  0.0  0.0   51442 cpuhp/1\n     25       2   1  0.0  0.0   51442 idle_inject/1\n     29       2   1  0.0  0.0   51442 kworker/1:0H-kblockd\n     30       2   2  0.0  0.0   51442 cpuhp/2\n     31       2   2  0.0  0.0   51442 idle_inject/2\n     35       2   2  0.0  0.0   51442 kworker/2:0H-kblockd\n     36       2   3  0.0  0.0   51442 cpuhp/3\n     37       2   3  0.0  0.0   51442 idle_inject/3\n     41       2   3  0.0  0.0   51442 kworker/3:0H-kblockd\n     42       2   4  0.0  0.0   51442 cpuhp/4\n     43       2   4  0.0  0.0   51442 idle_inject/4\n     47       2   4  0.0  0.0   51442 kworker/4:0H-kblockd\n     48       2   5  0.0  0.0   51442 cpuhp/5\n     49       2   5  0.0  0.0   51442 idle_inject/5\n     53       2   5  0.0  0.0   51442 kworker/5:0H-kblockd\n     54       2   6  0.0  0.0   51442 cpuhp/6\n     55       2   6  0.0  0.0   51442 idle_inject/6\n     59       2   6  0.0  0.0   51442 kworker/6:0H-kblockd\n     60       2   7  0.0  0.0   51442 cpuhp/7\n     61       2   7  0.0  0.0   51442 idle_inject/7\n     65       2   7  0.0  0.0   51442 kworker/7:0H-kblockd\n     66       2   8  0.0  0.0   51442 cpuhp/8\n     67       2   8  0.0  0.0   51442 idle_inject/8\n     71       2   8  0.0  0.0   51442 kworker/8:0H-kblockd\n     72       2   9  0.0  0.0   51442 cpuhp/9\n     73       2   9  0.0  0.0   51442 idle_inject/9\n     77       2   9  0.0  0.0   51442 kworker/9:0H-kblockd\n     78       2  10  0.0  0.0   51442 cpuhp/10\n     79       2  10  0.0  0.0   51442 idle_inject/10\n     83       2  10  0.0  0.0   51442 kworker/10:0H-kblockd\n     84       2  11  0.0  0.0   51442 cpuhp/11\n     85       2  11  0.0  0.0   51442 idle_inject/11\n     89       2  11  0.0  0.0   51442 kworker/11:0H-kblockd\n     90       2  12  0.0  0.0   51442 cpuhp/12\n     91       2  12  0.0  0.0   51442 idle_inject/12\n     95       2  12  0.0  0.0   51442 kworker/12:0H-kblockd\n     96       2  13  0.0  0.0   51442 cpuhp/13\n     97       2  13  0.0  0.0   51442 idle_inject/13\n    101       2  13  0.0  0.0   51442 kworker/13:0H-kblockd\n    102       2  14  0.0  0.0   51442 cpuhp/14\n    103       2  14  0.0  0.0   51442 idle_inject/14\n    107       2  14  0.0  0.0   51442 kworker/14:0H-kblockd\n    108       2  15  0.0  0.0   51442 cpuhp/15\n    109       2  15  0.0  0.0   51442 idle_inject/15\n    113       2  15  0.0  0.0   51442 kworker/15:0H-kblockd\n    116       2   2  0.0  0.0   51442 kdevtmpfs\n    117       2   6  0.0  0.0   51442 kworker/R-inet_frag_wq\n    118       2   6  0.0  0.0   51442 rcu_tasks_kthread\n    119       2   6  0.0  0.0   51442 rcu_tasks_rude_kthread\n    120       2   6  0.0  0.0   51442 kauditd\n    123       2   5  0.0  0.0   51442 oom_reaper\n    125       2   4  0.0  0.0   51442 kworker/R-writeback\n    127       2   4  0.0  0.0   51442 ksmd\n    129       2   4  0.0  0.0   51442 kworker/R-bio_complete\n    130       2   4  0.0  0.0   51442 kworker/R-kblockd\n    131       2   4  0.0  0.0   51442 kworker/R-blkcg_punt_bio\n    132       2   4  0.0  0.0   51442 kworker/R-kintegrityd\n    133       2   1  0.0  0.0   51442 irq/9-acpi\n    137       2   4  0.0  0.0   51441 kworker/R-tpm_dev_wq\n    138       2   4  0.0  0.0   51441 kworker/R-ata_sff\n    139       2   4  0.0  0.0   51441 kworker/R-edac-poller\n    140       2   4  0.0  0.0   51441 kworker/R-devfreq_wq\n    141       2   6  0.0  0.0   51441 watchdogd\n    142       2  15  0.0  0.0   51441 kworker/R-quota_events_unbound\n    144       2   2  0.0  0.0   51441 irq/26-AMD-Vi0-Evt\n    145       2   3  0.0  0.0   51441 irq/27-AMD-Vi0-PPR\n    146       2   4  0.0  0.0   51441 irq/28-AMD-Vi0-GA\n    148       2   6  0.0  0.0   51441 kworker/R-kthrotld\n    149       2  15  0.0  0.0   51441 kworker/u67:0\n    150       2  15  0.0  0.0   51441 kworker/R-acpi_thermal_pm\n    163       2  10  0.0  0.0   51439 scsi_eh_0\n    164       2   6  0.0  0.0   51439 kworker/R-scsi_tmf_0\n    165       2   6  0.0  0.0   51439 scsi_eh_1\n    166       2   6  0.0  0.0   51439 kworker/R-scsi_tmf_1\n    167       2   7  0.0  0.0   51439 scsi_eh_2\n    168       2   6  0.0  0.0   51439 kworker/R-scsi_tmf_2\n    169       2  11  0.0  0.0   51439 scsi_eh_3\n    170       2   6  0.0  0.0   51439 kworker/R-scsi_tmf_3\n    176       2   2  0.0  0.0   51439 scsi_eh_4\n    177       2   6  0.0  0.0   51439 kworker/R-scsi_tmf_4\n    178       2   9  0.0  0.0   51439 scsi_eh_5\n    179       2   6  0.0  0.0   51439 kworker/R-scsi_tmf_5\n    180       2   8  0.0  0.0   51439 scsi_eh_6\n    181       2   6  0.0  0.0   51439 kworker/R-scsi_tmf_6\n    182       2   6  0.0  0.0   51439 scsi_eh_7\n    183       2   6  0.0  0.0   51439 kworker/R-scsi_tmf_7\n    184       2   8  0.0  0.0   51439 scsi_eh_8\n    185       2   6  0.0  0.0   51439 kworker/R-scsi_tmf_8\n    186       2  10  0.0  0.0   51439 scsi_eh_9\n    187       2   6  0.0  0.0   51439 kworker/R-scsi_tmf_9\n    192       2  12  0.0  0.0   51439 scsi_eh_10\n    193       2   6  0.0  0.0   51439 kworker/R-scsi_tmf_10\n    194       2  12  0.0  0.0   51439 scsi_eh_11\n    195       2   6  0.0  0.0   51439 kworker/R-scsi_tmf_11\n    197       2   6  0.0  0.0   51439 kworker/R-mld\n    198       2   6  0.0  0.0   51439 kworker/R-ipv6_addrconf\n    199       2   6  0.0  0.0   51439 kworker/R-kstrp\n    203       2   6  0.0  0.0   51439 kworker/R-zswap-shrink\n    204       2   6  0.0  0.0   51439 kworker/u68:0\n    205       2   6  0.0  0.0   51439 kworker/u69:0\n    273       2  13  0.0  0.0   51439 kworker/R-nvme-wq\n    274       2   3  0.0  0.0   51439 kworker/R-nvme-reset-wq\n    275       2   7  0.0  0.0   51439 kworker/R-nvme-delete-wq\n    276       2   0  0.0  0.0   51439 kworker/R-nvme-auth-wq\n    277       2   3  0.0  0.0   51439 nv_queue\n    278       2   3  0.0  0.0   51439 nv_mem_pool_scrubber_queue\n    279       2   3  0.0  0.0   51439 nv_mem_pool_scrubber_queue\n    280       2   3  0.0  0.0   51439 nv_mem_pool_scrubber_queue\n    281       2   3  0.0  0.0   51439 nv_queue\n    283       2   0  0.0  0.0   51439 nv_open_q\n    297       2  13  0.0  0.0   51439 irq/128-nvidia\n    298       2  12  0.0  0.0   51439 nvidia\n    299       2  12  0.0  0.0   51439 nv_queue\n    306       2  13  0.0  0.0   51437 nvidia-modeset/deferred_close_kthread_q\n    308       2  13  0.0  0.0   51437 kworker/R-btrfs-worker\n    309       2  14  0.0  0.0   51437 kworker/R-btrfs-delalloc\n    310       2  14  0.0  0.0   51437 kworker/R-btrfs-flush_delalloc\n    311       2  14  0.0  0.0   51437 kworker/R-btrfs-cache\n    312       2  14  0.0  0.0   51437 kworker/R-btrfs-fixup\n    313       2  14  0.0  0.0   51437 kworker/R-btrfs-endio\n    314       2  14  0.0  0.0   51437 kworker/R-btrfs-endio-meta\n    315       2  14  0.0  0.0   51437 kworker/R-btrfs-rmw\n    316       2  14  0.0  0.0   51437 kworker/R-btrfs-endio-write\n    317       2  14  0.0  0.0   51437 kworker/R-btrfs-freespace-write\n    318       2  14  0.0  0.0   51437 kworker/R-btrfs-delayed-meta\n    319       2  14  0.0  0.0   51437 kworker/R-btrfs-qgroup-rescan\n    321       2  11  0.0  0.0   51437 UVM global queue\n    322       2   3  0.0  0.0   51437 UVM deferred release queue\n    323       2   8  0.0  0.0   51437 UVM Tools Event Queue\n    324       2   3  0.0  0.0   51437 btrfs-cleaner\n    491       2  15  0.0  0.0   51437 psimon\n    545       2   4  0.0  0.0   51436 psimon\n    753     719   3  0.0  0.0   51435 avahi-daemon\n    785     782   2  0.0  0.0   51435 (sd-pam)\n   1624     782  14  0.0  0.0   51423 kwin_wayland_wr\n   1645       2   4  0.0  0.0   51422 nvidia-drm/timeline-18\n   1679       2   4  0.0  0.0   51422 nvidia-drm/timeline-19\n   1682       2   4  0.0  0.0   51422 nvidia-drm/timeline-1a\n   1685       2   4  0.0  0.0   51422 nvidia-drm/timeline-1b\n   1686       2   4  0.0  0.0   51422 nvidia-drm/timeline-1c\n   1687       2   4  0.0  0.0   51422 nvidia-drm/timeline-1d\n   1688       2   4  0.0  0.0   51422 nvidia-drm/timeline-1e\n   1690       2   4  0.0  0.0   51422 nvidia-drm/timeline-1f\n   1707       2   8  0.0  0.0   51422 nvidia-drm/timeline-20\n   1714       2  13  0.0  0.0   51422 nvidia-drm/timeline-22\n   1791     782  12  0.0  0.0   51421 dconf-service\n   1815     782  10  0.0  0.0   51421 at-spi-bus-laun\n   1825    1815  13  0.0  0.0   51421 dbus-broker-lau\n   1847       2   4  0.0  0.0   51421 nvidia-drm/timeline-2a\n   1874       2  14  0.0  0.0   51421 nvidia-drm/timeline-2b\n   1877       2   1  0.0  0.0   51421 nvidia-drm/timeline-2d\n   1887     782  13  0.0  0.0   51421 xsettingsd\n   1923       2  13  0.0  0.0   51420 nvidia-drm/timeline-30\n   2005    1996  13  0.0  0.0   51419 fusermount3\n   2036     782   2  0.0  0.0   51419 srt-logger\n   2332    2058   2  0.0  0.0   51419 srt-client-cont\n   2338       2  13  0.0  0.0   51419 nvidia-drm/timeline-39\n   2883    2354   3  0.0  0.0   51417 pv-adverb\n   2998       2  13  0.0  0.0   51417 nvidia-drm/timeline-52\n   3101    3097   8  0.0  0.0   51416 steamwebhelper\n   3341       2  13  0.0  0.0   51414 nvidia-drm/timeline-61\n   3366       2  13  0.0  0.0   51413 nvidia-drm/timeline-6c\n 164632       2   8  0.0  0.0   12264 nvidia-drm/timeline-234\n 164639       2   8  0.0  0.0   12264 nvidia-drm/timeline-235\n 181379       2   1  0.0  0.0   11277 nvidia-drm/timeline-350\n 181381       2  15  0.0  0.0   11277 nvidia-drm/timeline-351\n 181383       2  10  0.0  0.0   11277 nvidia-drm/timeline-354\n 181537  181535  14  0.0  0.0   11275 Discord\n 181571     782  15  0.0  0.0   11275 chrome_crashpad\n 181695  181601  13  0.0  0.0   11274 Discord\n 181703       2  11  0.0  0.0   11274 nvidia-drm/timeline-35e\n 181707       2  13  0.0  0.0   11274 nvidia-drm/timeline-35f\n 181710       2   9  0.0  0.0   11274 nvidia-drm/timeline-360\n 187557    2344   5  0.0  0.0   10933 steam-runtime-s\n 187610       2  13  0.0  0.0   10932 nvidia-drm/timeline-3a2\n 187757       2   5  0.0  0.0   10929 nvidia-drm/timeline-3a6\n 191764  191505   1  0.0  0.0   10558 wayland-compute\n 191923  191505   8  0.0  0.0   10543 wayland-compute\n 194412  191492  12  0.0  0.0    9831 systemd-inhibit\n 194414  194412   5  0.0  0.0    9831 sleep\n 437760       2   0  0.0  0.0    8468 kworker/0:0-events\n 602021       2  13  0.0  0.0    8162 kworker/13:0-events\n 621674       2   8  0.0  0.0    7292 kworker/8:2-events\n 653663       2   6  0.0  0.0    4451 kworker/6:1-events\n 662097       2   1  0.0  0.0    3520 kworker/1:2-events\n 676479       2  14  0.0  0.0    2586 kworker/14:1-events\n 685706       2  11  0.0  0.0    2239 kworker/11:0-events\n 706762       2  15  0.0  0.0    1659 kworker/15:0\n 715233       2   9  0.0  0.0    1535 kworker/u64:1-ipv6_addrconf\n 748554       2  10  0.0  0.0     922 kworker/10:2\n 763991       2   5  0.0  0.0     861 kworker/5:1-events\n 785125       2   7  0.0  0.0     841 kworker/7:2\n 799357       2   3  0.0  0.0     827 kworker/3:0-events\n 837162       2   9  0.0  0.0     773 kworker/9:2-events\n 876590       2   2  0.0  0.0     702 kworker/2:1-events\n 936765       2  12  0.0  0.0     394 kworker/12:2-events\n 939073  939033   5  0.0  0.0     304 sh\n 939074  939033   8  0.0  0.0     304 sh\n 940526  940486   5  0.0  0.0     281 sh\n 940527  940486  15  0.0  0.0     281 sh\n 941834     451   1  0.0  0.0     259 systemd-userwor\n 942334  942288   4  0.0  0.0     245 sh\n 944367  942288  14  0.0  0.0     207 sh\n 946385       2  10  0.0  0.0     200 kworker/10:1-events\n 946430       2   1  0.0  0.0     200 kworker/1:0-mm_percpu_wq\n 949984     451   2  0.0  0.0     160 systemd-userwor\n 951850  951849   1  0.0  0.0      96 pnpm\n 952014  951933   4  0.0  0.0      96 sh\n 952015  951933  14  0.0  0.0      96 sh\n 952075  952016   9  0.0  0.0      96 sh\n 952080  952016   7  0.0  0.0      96 sh\n 960424       2   9  0.0  0.0      88 kworker/9:0-events\n 960438       2   4  0.0  0.0      88 kworker/4:2-events\n 962136       2  11  0.0  0.0      88 kworker/11:2\n 965901       2   2  0.0  0.0      85 kworker/2:0\n 996969     451   3  0.0  0.0      59 systemd-userwor\n1009603 1009522   4  0.0  0.0      48 sh\n1009608 1009522   7  0.0  0.0      48 sh\n1030178       2  13  0.0  0.0      25 kworker/13:1\n1047107  952968  12  0.0  0.0       3 gcc\n1047424  952968   5  0.0  0.0       2 gcc\n1047550  952968   4  0.0  0.0       2 gcc\n1047565  952973   5  0.0  0.0       2 gcc\n1047588  952973   4  0.0  0.0       2 gcc\n1047852  952968  13  0.0  0.0       1 gcc\n1047882 1047790   6  0.0  0.0       1 gcc\n1047980  989850   9  0.0  0.0       0 sleep\n1048033  952968   5  0.0  0.0       0 gcc\n1048224 1047107  12  0.0  0.0       0 collect2\n",
+        "stderr": "",
+        "exit_code": 0,
+        "wall_seconds": 0.04961802400066517
+      },
+      {
+        "command": [
+          "git",
+          "status",
+          "--short"
+        ],
+        "stdin": null,
+        "started_utc": "2026-11-17T21:34:03.357632+00:00",
+        "status": "passed",
+        "pid": 1048258,
+        "stdout": " M README.md\n M docs/VARINT_ARRAYS.md\n M scripts/bootstrap.py\n M selfhost/README.md\n M selfhost/bootstrap.py\n M selfhost/codegen.goose\n M selfhost/codegen_c.goose\n M selfhost/codegen_c_storage.goose\n M selfhost/model.goose\n M tests/test_bootstrap_optimization.py\n M tests/test_loop_ordinals.py\n?? .claude/\n?? bench/results/2026-11-17/compiler-iteration/\n?? bench/results/2026-11-17/varint-foreach/\n",
+        "stderr": "",
+        "exit_code": 0,
+        "wall_seconds": 0.043177968997042626
+      },
+      {
+        "command": [
+          "git",
+          "rev-parse",
+          "HEAD"
+        ],
+        "stdin": null,
+        "started_utc": "2026-11-17T21:34:03.400844+00:00",
+        "status": "passed",
+        "pid": 1048274,
+        "stdout": "9551a589be1f1e028e953080c9f2fed562859b70\n",
+        "stderr": "",
+        "exit_code": 0,
+        "wall_seconds": 0.0033397039951523766
+      },
+      {
+        "command": [
+          "git",
+          "diff",
+          "--stat"
+        ],
+        "stdin": null,
+        "started_utc": "2026-11-17T21:34:03.404223+00:00",
+        "status": "passed",
+        "pid": 1048277,
+        "stdout": " README.md                            |  10 ++-\n docs/VARINT_ARRAYS.md                |  15 ++--\n scripts/bootstrap.py                 |   2 +-\n selfhost/README.md                   |   2 +-\n selfhost/bootstrap.py                |  61 +++++++++++++++-\n selfhost/codegen.goose               | 131 +++++++++++++++++++++++++----------\n selfhost/codegen_c.goose             |  31 ++++++---\n selfhost/codegen_c_storage.goose     |   3 -\n selfhost/model.goose                 |  14 ++++\n tests/test_bootstrap_optimization.py |  64 +++++++++++++++--\n tests/test_loop_ordinals.py          |  62 +++++++++++++++++\n 11 files changed, 326 insertions(+), 69 deletions(-)\n",
+        "stderr": "",
+        "exit_code": 0,
+        "wall_seconds": 0.046178208001947496
+      }
+    ],
+    "cpu_policy": {
+      "/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor": "schedutil",
+      "/sys/devices/system/cpu/cpu1/cpufreq/scaling_governor": "schedutil",
+      "/sys/devices/system/cpu/cpu10/cpufreq/scaling_governor": "schedutil",
+      "/sys/devices/system/cpu/cpu11/cpufreq/scaling_governor": "schedutil",
+      "/sys/devices/system/cpu/cpu12/cpufreq/scaling_governor": "schedutil",
+      "/sys/devices/system/cpu/cpu13/cpufreq/scaling_governor": "schedutil",
+      "/sys/devices/system/cpu/cpu14/cpufreq/scaling_governor": "schedutil",
+      "/sys/devices/system/cpu/cpu15/cpufreq/scaling_governor": "schedutil",
+      "/sys/devices/system/cpu/cpu2/cpufreq/scaling_governor": "schedutil",
+      "/sys/devices/system/cpu/cpu3/cpufreq/scaling_governor": "schedutil",
+      "/sys/devices/system/cpu/cpu4/cpufreq/scaling_governor": "schedutil",
+      "/sys/devices/system/cpu/cpu5/cpufreq/scaling_governor": "schedutil",
+      "/sys/devices/system/cpu/cpu6/cpufreq/scaling_governor": "schedutil",
+      "/sys/devices/system/cpu/cpu7/cpufreq/scaling_governor": "schedutil",
+      "/sys/devices/system/cpu/cpu8/cpufreq/scaling_governor": "schedutil",
+      "/sys/devices/system/cpu/cpu9/cpufreq/scaling_governor": "schedutil"
+    }
+  },
+  "rows": [
+    {
+      "command": [
+        "taskset",
+        "-c",
+        "7",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/final-qualification/bootstrap/bin/goose",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/selfhost/main.goose",
+        "--stdlib",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/stdlib",
+        "--check",
+        "--wasm-stats",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/final-self/candidate.check.stats.json"
+      ],
+      "stdin": null,
+      "started_utc": "2026-11-17T21:34:03.458063+00:00",
+      "status": "passed",
+      "pid": 1048305,
+      "stdout": "",
+      "stderr": "",
+      "exit_code": 0,
+      "wall_seconds": 10.158940398003324,
+      "mode": "check",
+      "name": "candidate",
+      "sample": -1,
+      "cpu_seconds": 5.7230499999999935,
+      "phases": {
+        "implementation": "goose",
+        "backend": "direct",
+        "functions": 1552,
+        "module_bytes": 0,
+        "source_files": 35,
+        "nodes": 370866,
+        "types": 2207,
+        "parse_ns": 175321152,
+        "typecheck_ns": 9947831798,
+        "lifetime_ns": 9150426271,
+        "optimize_ns": 0,
+        "backend_ns": 0,
+        "cache_complete": false
+      },
+      "artifact_sha256": null
+    },
+    {
+      "command": [
+        "taskset",
+        "-c",
+        "7",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/goose-parent",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/selfhost/main.goose",
+        "--stdlib",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/stdlib",
+        "--check",
+        "--wasm-stats",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/final-self/parent.check.stats.json"
+      ],
+      "stdin": null,
+      "started_utc": "2026-11-17T21:34:13.622578+00:00",
+      "status": "passed",
+      "pid": 1053570,
+      "stdout": "",
+      "stderr": "",
+      "exit_code": 0,
+      "wall_seconds": 8.4241671100026,
+      "mode": "check",
+      "name": "parent",
+      "sample": -1,
+      "cpu_seconds": 5.557128000000013,
+      "phases": {
+        "implementation": "goose",
+        "backend": "direct",
+        "functions": 1552,
+        "module_bytes": 0,
+        "source_files": 35,
+        "nodes": 370866,
+        "types": 2207,
+        "parse_ns": 145381675,
+        "typecheck_ns": 8237454465,
+        "lifetime_ns": 7435736207,
+        "optimize_ns": 0,
+        "backend_ns": 0,
+        "cache_complete": false
+      },
+      "artifact_sha256": null
+    },
+    {
+      "command": [
+        "taskset",
+        "-c",
+        "7",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/goose-parent",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/selfhost/main.goose",
+        "--stdlib",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/stdlib",
+        "--check",
+        "--wasm-stats",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/final-self/parent.check.stats.json"
+      ],
+      "stdin": null,
+      "started_utc": "2026-11-17T21:34:22.054192+00:00",
+      "status": "passed",
+      "pid": 1065928,
+      "stdout": "",
+      "stderr": "",
+      "exit_code": 0,
+      "wall_seconds": 7.997972033997939,
+      "mode": "check",
+      "name": "parent",
+      "sample": 0,
+      "cpu_seconds": 5.590303999999989,
+      "phases": {
+        "implementation": "goose",
+        "backend": "direct",
+        "functions": 1552,
+        "module_bytes": 0,
+        "source_files": 35,
+        "nodes": 370866,
+        "types": 2207,
+        "parse_ns": 141694470,
+        "typecheck_ns": 7838083929,
+        "lifetime_ns": 7116665156,
+        "optimize_ns": 0,
+        "backend_ns": 0,
+        "cache_complete": false
+      },
+      "artifact_sha256": null
+    },
+    {
+      "command": [
+        "taskset",
+        "-c",
+        "7",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/final-qualification/bootstrap/bin/goose",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/selfhost/main.goose",
+        "--stdlib",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/stdlib",
+        "--check",
+        "--wasm-stats",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/final-self/candidate.check.stats.json"
+      ],
+      "stdin": null,
+      "started_utc": "2026-11-17T21:34:30.055281+00:00",
+      "status": "passed",
+      "pid": 1076127,
+      "stdout": "",
+      "stderr": "",
+      "exit_code": 0,
+      "wall_seconds": 5.585144891992968,
+      "mode": "check",
+      "name": "candidate",
+      "sample": 0,
+      "cpu_seconds": 4.90306600000001,
+      "phases": {
+        "implementation": "goose",
+        "backend": "direct",
+        "functions": 1552,
+        "module_bytes": 0,
+        "source_files": 35,
+        "nodes": 370866,
+        "types": 2207,
+        "parse_ns": 90916815,
+        "typecheck_ns": 5477189798,
+        "lifetime_ns": 5041066857,
+        "optimize_ns": 0,
+        "backend_ns": 0,
+        "cache_complete": false
+      },
+      "artifact_sha256": null
+    },
+    {
+      "command": [
+        "taskset",
+        "-c",
+        "7",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/final-qualification/bootstrap/bin/goose",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/selfhost/main.goose",
+        "--stdlib",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/stdlib",
+        "--check",
+        "--wasm-stats",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/final-self/candidate.check.stats.json"
+      ],
+      "stdin": null,
+      "started_utc": "2026-11-17T21:34:35.643003+00:00",
+      "status": "passed",
+      "pid": 1077873,
+      "stdout": "",
+      "stderr": "",
+      "exit_code": 0,
+      "wall_seconds": 5.338785785999789,
+      "mode": "check",
+      "name": "candidate",
+      "sample": 1,
+      "cpu_seconds": 4.68603499999999,
+      "phases": {
+        "implementation": "goose",
+        "backend": "direct",
+        "functions": 1552,
+        "module_bytes": 0,
+        "source_files": 35,
+        "nodes": 370866,
+        "types": 2207,
+        "parse_ns": 91706204,
+        "typecheck_ns": 5226208990,
+        "lifetime_ns": 4790616124,
+        "optimize_ns": 0,
+        "backend_ns": 0,
+        "cache_complete": false
+      },
+      "artifact_sha256": null
+    },
+    {
+      "command": [
+        "taskset",
+        "-c",
+        "7",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/goose-parent",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/selfhost/main.goose",
+        "--stdlib",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/stdlib",
+        "--check",
+        "--wasm-stats",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/final-self/parent.check.stats.json"
+      ],
+      "stdin": null,
+      "started_utc": "2026-11-17T21:34:40.985606+00:00",
+      "status": "passed",
+      "pid": 1079520,
+      "stdout": "",
+      "stderr": "",
+      "exit_code": 0,
+      "wall_seconds": 5.23127529300109,
+      "mode": "check",
+      "name": "parent",
+      "sample": 1,
+      "cpu_seconds": 4.619980999999996,
+      "phases": {
+        "implementation": "goose",
+        "backend": "direct",
+        "functions": 1552,
+        "module_bytes": 0,
+        "source_files": 35,
+        "nodes": 370866,
+        "types": 2207,
+        "parse_ns": 101804931,
+        "typecheck_ns": 5107625791,
+        "lifetime_ns": 4588857554,
+        "optimize_ns": 0,
+        "backend_ns": 0,
+        "cache_complete": false
+      },
+      "artifact_sha256": null
+    },
+    {
+      "command": [
+        "taskset",
+        "-c",
+        "7",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/goose-parent",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/selfhost/main.goose",
+        "--stdlib",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/stdlib",
+        "--check",
+        "--wasm-stats",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/final-self/parent.check.stats.json"
+      ],
+      "stdin": null,
+      "started_utc": "2026-11-17T21:34:46.220785+00:00",
+      "status": "passed",
+      "pid": 1081412,
+      "stdout": "",
+      "stderr": "",
+      "exit_code": 0,
+      "wall_seconds": 5.177248807005526,
+      "mode": "check",
+      "name": "parent",
+      "sample": 2,
+      "cpu_seconds": 4.506641999999999,
+      "phases": {
+        "implementation": "goose",
+        "backend": "direct",
+        "functions": 1552,
+        "module_bytes": 0,
+        "source_files": 35,
+        "nodes": 370866,
+        "types": 2207,
+        "parse_ns": 116824155,
+        "typecheck_ns": 5041621470,
+        "lifetime_ns": 4595943359,
+        "optimize_ns": 0,
+        "backend_ns": 0,
+        "cache_complete": false
+      },
+      "artifact_sha256": null
+    },
+    {
+      "command": [
+        "taskset",
+        "-c",
+        "7",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/final-qualification/bootstrap/bin/goose",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/selfhost/main.goose",
+        "--stdlib",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/stdlib",
+        "--check",
+        "--wasm-stats",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/final-self/candidate.check.stats.json"
+      ],
+      "stdin": null,
+      "started_utc": "2026-11-17T21:34:51.400858+00:00",
+      "status": "passed",
+      "pid": 1082611,
+      "stdout": "",
+      "stderr": "",
+      "exit_code": 0,
+      "wall_seconds": 5.79835955100134,
+      "mode": "check",
+      "name": "candidate",
+      "sample": 2,
+      "cpu_seconds": 4.8617320000000035,
+      "phases": {
+        "implementation": "goose",
+        "backend": "direct",
+        "functions": 1552,
+        "module_bytes": 0,
+        "source_files": 35,
+        "nodes": 370866,
+        "types": 2207,
+        "parse_ns": 81935293,
+        "typecheck_ns": 5698921866,
+        "lifetime_ns": 5306710462,
+        "optimize_ns": 0,
+        "backend_ns": 0,
+        "cache_complete": false
+      },
+      "artifact_sha256": null
+    },
+    {
+      "command": [
+        "taskset",
+        "-c",
+        "7",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/final-qualification/bootstrap/bin/goose",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/selfhost/main.goose",
+        "--stdlib",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/stdlib",
+        "--check",
+        "--wasm-stats",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/final-self/candidate.check.stats.json"
+      ],
+      "stdin": null,
+      "started_utc": "2026-11-17T21:34:57.202232+00:00",
+      "status": "passed",
+      "pid": 1083552,
+      "stdout": "",
+      "stderr": "",
+      "exit_code": 0,
+      "wall_seconds": 5.497495390001859,
+      "mode": "check",
+      "name": "candidate",
+      "sample": 3,
+      "cpu_seconds": 4.781504000000012,
+      "phases": {
+        "implementation": "goose",
+        "backend": "direct",
+        "functions": 1552,
+        "module_bytes": 0,
+        "source_files": 35,
+        "nodes": 370866,
+        "types": 2207,
+        "parse_ns": 97615173,
+        "typecheck_ns": 5379898113,
+        "lifetime_ns": 4925905743,
+        "optimize_ns": 0,
+        "backend_ns": 0,
+        "cache_complete": false
+      },
+      "artifact_sha256": null
+    },
+    {
+      "command": [
+        "taskset",
+        "-c",
+        "7",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/goose-parent",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/selfhost/main.goose",
+        "--stdlib",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/stdlib",
+        "--check",
+        "--wasm-stats",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/final-self/parent.check.stats.json"
+      ],
+      "stdin": null,
+      "started_utc": "2026-11-17T21:35:02.707910+00:00",
+      "status": "passed",
+      "pid": 1084555,
+      "stdout": "",
+      "stderr": "",
+      "exit_code": 0,
+      "wall_seconds": 5.1240337880008155,
+      "mode": "check",
+      "name": "parent",
+      "sample": 3,
+      "cpu_seconds": 4.598286999999985,
+      "phases": {
+        "implementation": "goose",
+        "backend": "direct",
+        "functions": 1552,
+        "module_bytes": 0,
+        "source_files": 35,
+        "nodes": 370866,
+        "types": 2207,
+        "parse_ns": 101429740,
+        "typecheck_ns": 5003013641,
+        "lifetime_ns": 4582131200,
+        "optimize_ns": 0,
+        "backend_ns": 0,
+        "cache_complete": false
+      },
+      "artifact_sha256": null
+    },
+    {
+      "command": [
+        "taskset",
+        "-c",
+        "7",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/final-qualification/bootstrap/bin/goose",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/selfhost/main.goose",
+        "--stdlib",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/stdlib",
+        "--check",
+        "--wasm-stats",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/final-self/candidate.check.stats.json"
+      ],
+      "stdin": null,
+      "started_utc": "2026-11-17T21:35:07.834581+00:00",
+      "status": "passed",
+      "pid": 1085696,
+      "stdout": "",
+      "stderr": "",
+      "exit_code": 0,
+      "wall_seconds": 4.65257621499768,
+      "mode": "check",
+      "name": "candidate",
+      "sample": 4,
+      "cpu_seconds": 4.254318000000012,
+      "phases": {
+        "implementation": "goose",
+        "backend": "direct",
+        "functions": 1552,
+        "module_bytes": 0,
+        "source_files": 35,
+        "nodes": 370866,
+        "types": 2207,
+        "parse_ns": 94534591,
+        "typecheck_ns": 4541453950,
+        "lifetime_ns": 4167979346,
+        "optimize_ns": 0,
+        "backend_ns": 0,
+        "cache_complete": false
+      },
+      "artifact_sha256": null
+    },
+    {
+      "command": [
+        "taskset",
+        "-c",
+        "7",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/goose-parent",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/selfhost/main.goose",
+        "--stdlib",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/stdlib",
+        "--check",
+        "--wasm-stats",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/final-self/parent.check.stats.json"
+      ],
+      "stdin": null,
+      "started_utc": "2026-11-17T21:35:12.489996+00:00",
+      "status": "passed",
+      "pid": 1087047,
+      "stdout": "",
+      "stderr": "",
+      "exit_code": 0,
+      "wall_seconds": 4.670758248001221,
+      "mode": "check",
+      "name": "parent",
+      "sample": 4,
+      "cpu_seconds": 4.289108999999996,
+      "phases": {
+        "implementation": "goose",
+        "backend": "direct",
+        "functions": 1552,
+        "module_bytes": 0,
+        "source_files": 35,
+        "nodes": 370866,
+        "types": 2207,
+        "parse_ns": 83785680,
+        "typecheck_ns": 4568141612,
+        "lifetime_ns": 4180855316,
+        "optimize_ns": 0,
+        "backend_ns": 0,
+        "cache_complete": false
+      },
+      "artifact_sha256": null
+    },
+    {
+      "command": [
+        "taskset",
+        "-c",
+        "7",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/goose-parent",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/selfhost/main.goose",
+        "--stdlib",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/stdlib",
+        "--target",
+        "wasm-direct",
+        "-O2",
+        "--wasm-max-pages",
+        "65535",
+        "--wasm-stats",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/final-self/parent.wasm.stats.json",
+        "-o",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/final-self/parent.wasm"
+      ],
+      "stdin": null,
+      "started_utc": "2026-11-17T21:35:17.164317+00:00",
+      "status": "passed",
+      "pid": 1088303,
+      "stdout": "",
+      "stderr": "",
+      "exit_code": 0,
+      "wall_seconds": 7.6515072120018885,
+      "mode": "wasm",
+      "name": "parent",
+      "sample": -1,
+      "cpu_seconds": 7.153109000000001,
+      "phases": {
+        "implementation": "goose",
+        "backend": "direct",
+        "functions": 1552,
+        "module_bytes": 26623553,
+        "source_files": 35,
+        "nodes": 690037,
+        "types": 2212,
+        "parse_ns": 77145896,
+        "typecheck_ns": 4142022226,
+        "lifetime_ns": 3783698602,
+        "optimize_ns": 345949184,
+        "backend_ns": 3058884761,
+        "cache_complete": false
+      },
+      "artifact_sha256": "aef4aac24020aedeb65792b34f9601e06503a52b1124cc782ebfd369eddfef32"
+    },
+    {
+      "command": [
+        "taskset",
+        "-c",
+        "7",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/final-qualification/bootstrap/bin/goose",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/selfhost/main.goose",
+        "--stdlib",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/stdlib",
+        "--target",
+        "wasm-direct",
+        "-O2",
+        "--wasm-max-pages",
+        "65535",
+        "--wasm-stats",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/final-self/candidate.wasm.stats.json",
+        "-o",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/final-self/candidate.wasm"
+      ],
+      "stdin": null,
+      "started_utc": "2026-11-17T21:35:24.857359+00:00",
+      "status": "passed",
+      "pid": 1090799,
+      "stdout": "",
+      "stderr": "",
+      "exit_code": 0,
+      "wall_seconds": 6.532719686998462,
+      "mode": "wasm",
+      "name": "candidate",
+      "sample": -1,
+      "cpu_seconds": 6.150354000000007,
+      "phases": {
+        "implementation": "goose",
+        "backend": "direct",
+        "functions": 1552,
+        "module_bytes": 26623553,
+        "source_files": 35,
+        "nodes": 690037,
+        "types": 2212,
+        "parse_ns": 106842466,
+        "typecheck_ns": 4250731968,
+        "lifetime_ns": 3885256175,
+        "optimize_ns": 322155442,
+        "backend_ns": 1820481000,
+        "cache_complete": false
+      },
+      "artifact_sha256": "aef4aac24020aedeb65792b34f9601e06503a52b1124cc782ebfd369eddfef32"
+    },
+    {
+      "command": [
+        "taskset",
+        "-c",
+        "7",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/goose-parent",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/selfhost/main.goose",
+        "--stdlib",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/stdlib",
+        "--target",
+        "wasm-direct",
+        "-O2",
+        "--wasm-max-pages",
+        "65535",
+        "--wasm-stats",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/final-self/parent.wasm.stats.json",
+        "-o",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/final-self/parent.wasm"
+      ],
+      "stdin": null,
+      "started_utc": "2026-11-17T21:35:31.418674+00:00",
+      "status": "passed",
+      "pid": 1093216,
+      "stdout": "",
+      "stderr": "",
+      "exit_code": 0,
+      "wall_seconds": 7.67181651500141,
+      "mode": "wasm",
+      "name": "parent",
+      "sample": 0,
+      "cpu_seconds": 7.205992999999978,
+      "phases": {
+        "implementation": "goose",
+        "backend": "direct",
+        "functions": 1552,
+        "module_bytes": 26623553,
+        "source_files": 35,
+        "nodes": 690037,
+        "types": 2212,
+        "parse_ns": 75405571,
+        "typecheck_ns": 4225272172,
+        "lifetime_ns": 3865822045,
+        "optimize_ns": 348649890,
+        "backend_ns": 2987176984,
+        "cache_complete": false
+      },
+      "artifact_sha256": "aef4aac24020aedeb65792b34f9601e06503a52b1124cc782ebfd369eddfef32"
+    },
+    {
+      "command": [
+        "taskset",
+        "-c",
+        "7",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/final-qualification/bootstrap/bin/goose",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/selfhost/main.goose",
+        "--stdlib",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/stdlib",
+        "--target",
+        "wasm-direct",
+        "-O2",
+        "--wasm-max-pages",
+        "65535",
+        "--wasm-stats",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/final-self/candidate.wasm.stats.json",
+        "-o",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/final-self/candidate.wasm"
+      ],
+      "stdin": null,
+      "started_utc": "2026-11-17T21:35:39.121588+00:00",
+      "status": "passed",
+      "pid": 1096584,
+      "stdout": "",
+      "stderr": "",
+      "exit_code": 0,
+      "wall_seconds": 7.066322872000455,
+      "mode": "wasm",
+      "name": "candidate",
+      "sample": 0,
+      "cpu_seconds": 6.501574000000005,
+      "phases": {
+        "implementation": "goose",
+        "backend": "direct",
+        "functions": 1552,
+        "module_bytes": 26623553,
+        "source_files": 35,
+        "nodes": 690037,
+        "types": 2212,
+        "parse_ns": 92310127,
+        "typecheck_ns": 4474150911,
+        "lifetime_ns": 4114581544,
+        "optimize_ns": 463918408,
+        "backend_ns": 2003075841,
+        "cache_complete": false
+      },
+      "artifact_sha256": "aef4aac24020aedeb65792b34f9601e06503a52b1124cc782ebfd369eddfef32"
+    },
+    {
+      "command": [
+        "taskset",
+        "-c",
+        "7",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/final-qualification/bootstrap/bin/goose",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/selfhost/main.goose",
+        "--stdlib",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/stdlib",
+        "--target",
+        "wasm-direct",
+        "-O2",
+        "--wasm-max-pages",
+        "65535",
+        "--wasm-stats",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/final-self/candidate.wasm.stats.json",
+        "-o",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/final-self/candidate.wasm"
+      ],
+      "stdin": null,
+      "started_utc": "2026-11-17T21:35:46.214207+00:00",
+      "status": "passed",
+      "pid": 1099481,
+      "stdout": "",
+      "stderr": "",
+      "exit_code": 0,
+      "wall_seconds": 7.120668296003714,
+      "mode": "wasm",
+      "name": "candidate",
+      "sample": 1,
+      "cpu_seconds": 6.526990000000012,
+      "phases": {
+        "implementation": "goose",
+        "backend": "direct",
+        "functions": 1552,
+        "module_bytes": 26623553,
+        "source_files": 35,
+        "nodes": 690037,
+        "types": 2212,
+        "parse_ns": 104197943,
+        "typecheck_ns": 4483623765,
+        "lifetime_ns": 4061711752,
+        "optimize_ns": 413984232,
+        "backend_ns": 2090137431,
+        "cache_complete": false
+      },
+      "artifact_sha256": "aef4aac24020aedeb65792b34f9601e06503a52b1124cc782ebfd369eddfef32"
+    },
+    {
+      "command": [
+        "taskset",
+        "-c",
+        "7",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/goose-parent",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/selfhost/main.goose",
+        "--stdlib",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/stdlib",
+        "--target",
+        "wasm-direct",
+        "-O2",
+        "--wasm-max-pages",
+        "65535",
+        "--wasm-stats",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/final-self/parent.wasm.stats.json",
+        "-o",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/final-self/parent.wasm"
+      ],
+      "stdin": null,
+      "started_utc": "2026-11-17T21:35:53.363040+00:00",
+      "status": "passed",
+      "pid": 1102316,
+      "stdout": "",
+      "stderr": "",
+      "exit_code": 0,
+      "wall_seconds": 7.775186311999278,
+      "mode": "wasm",
+      "name": "parent",
+      "sample": 1,
+      "cpu_seconds": 7.264122999999984,
+      "phases": {
+        "implementation": "goose",
+        "backend": "direct",
+        "functions": 1552,
+        "module_bytes": 26623553,
+        "source_files": 35,
+        "nodes": 690037,
+        "types": 2212,
+        "parse_ns": 95695039,
+        "typecheck_ns": 4198377226,
+        "lifetime_ns": 3797246864,
+        "optimize_ns": 327076910,
+        "backend_ns": 3124963891,
+        "cache_complete": false
+      },
+      "artifact_sha256": "aef4aac24020aedeb65792b34f9601e06503a52b1124cc782ebfd369eddfef32"
+    },
+    {
+      "command": [
+        "taskset",
+        "-c",
+        "7",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/final-qualification/bootstrap/bin/goose",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/selfhost/main.goose",
+        "--stdlib",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/stdlib",
+        "--target",
+        "wasm-direct",
+        "-O2",
+        "--wasm-max-pages",
+        "65535",
+        "--wasm-stats",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/final-self/candidate.wasm.stats.json",
+        "-o",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/final-self/candidate.wasm"
+      ],
+      "stdin": null,
+      "started_utc": "2026-11-17T21:36:01.165408+00:00",
+      "status": "passed",
+      "pid": 1105425,
+      "stdout": "",
+      "stderr": "",
+      "exit_code": 0,
+      "wall_seconds": 10.82746763400064,
+      "mode": "wasm",
+      "name": "candidate",
+      "sample": 2,
+      "cpu_seconds": 8.64367900000002,
+      "phases": {
+        "implementation": "goose",
+        "backend": "direct",
+        "functions": 1552,
+        "module_bytes": 26623553,
+        "source_files": 35,
+        "nodes": 690037,
+        "types": 2212,
+        "parse_ns": 79926522,
+        "typecheck_ns": 6092966578,
+        "lifetime_ns": 5722956057,
+        "optimize_ns": 569322494,
+        "backend_ns": 4047318941,
+        "cache_complete": false
+      },
+      "artifact_sha256": "aef4aac24020aedeb65792b34f9601e06503a52b1124cc782ebfd369eddfef32"
+    },
+    {
+      "command": [
+        "taskset",
+        "-c",
+        "7",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/goose-parent",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/selfhost/main.goose",
+        "--stdlib",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/stdlib",
+        "--target",
+        "wasm-direct",
+        "-O2",
+        "--wasm-max-pages",
+        "65535",
+        "--wasm-stats",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/final-self/parent.wasm.stats.json",
+        "-o",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/final-self/parent.wasm"
+      ],
+      "stdin": null,
+      "started_utc": "2026-11-17T21:36:12.052806+00:00",
+      "status": "passed",
+      "pid": 1108246,
+      "stdout": "",
+      "stderr": "",
+      "exit_code": 0,
+      "wall_seconds": 15.964242153000669,
+      "mode": "wasm",
+      "name": "parent",
+      "sample": 2,
+      "cpu_seconds": 11.549643000000003,
+      "phases": {
+        "implementation": "goose",
+        "backend": "direct",
+        "functions": 1552,
+        "module_bytes": 26623553,
+        "source_files": 35,
+        "nodes": 690037,
+        "types": 2212,
+        "parse_ns": 135681672,
+        "typecheck_ns": 8587914543,
+        "lifetime_ns": 7984535182,
+        "optimize_ns": 685713674,
+        "backend_ns": 6443187197,
+        "cache_complete": false
+      },
+      "artifact_sha256": "aef4aac24020aedeb65792b34f9601e06503a52b1124cc782ebfd369eddfef32"
+    },
+    {
+      "command": [
+        "taskset",
+        "-c",
+        "7",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/final-qualification/bootstrap/bin/goose",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/selfhost/main.goose",
+        "--stdlib",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/stdlib",
+        "--target",
+        "wasm-direct",
+        "-O2",
+        "--wasm-max-pages",
+        "65535",
+        "--wasm-stats",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/final-self/candidate.wasm.stats.json",
+        "-o",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/final-self/candidate.wasm"
+      ],
+      "stdin": null,
+      "started_utc": "2026-11-17T21:36:28.056109+00:00",
+      "status": "passed",
+      "pid": 1111676,
+      "stdout": "",
+      "stderr": "",
+      "exit_code": 0,
+      "wall_seconds": 15.289209263006342,
+      "mode": "wasm",
+      "name": "candidate",
+      "sample": 3,
+      "cpu_seconds": 9.815042999999974,
+      "phases": {
+        "implementation": "goose",
+        "backend": "direct",
+        "functions": 1552,
+        "module_bytes": 26623553,
+        "source_files": 35,
+        "nodes": 690037,
+        "types": 2212,
+        "parse_ns": 192815262,
+        "typecheck_ns": 9129925683,
+        "lifetime_ns": 8432284564,
+        "optimize_ns": 1518571338,
+        "backend_ns": 4377787327,
+        "cache_complete": false
+      },
+      "artifact_sha256": "aef4aac24020aedeb65792b34f9601e06503a52b1124cc782ebfd369eddfef32"
+    },
+    {
+      "command": [
+        "taskset",
+        "-c",
+        "7",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/goose-parent",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/selfhost/main.goose",
+        "--stdlib",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/stdlib",
+        "--target",
+        "wasm-direct",
+        "-O2",
+        "--wasm-max-pages",
+        "65535",
+        "--wasm-stats",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/final-self/parent.wasm.stats.json",
+        "-o",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/final-self/parent.wasm"
+      ],
+      "stdin": null,
+      "started_utc": "2026-11-17T21:36:43.420143+00:00",
+      "status": "passed",
+      "pid": 1115290,
+      "stdout": "",
+      "stderr": "",
+      "exit_code": 0,
+      "wall_seconds": 21.145719636995636,
+      "mode": "wasm",
+      "name": "parent",
+      "sample": 3,
+      "cpu_seconds": 11.755751000000004,
+      "phases": {
+        "implementation": "goose",
+        "backend": "direct",
+        "functions": 1552,
+        "module_bytes": 26623553,
+        "source_files": 35,
+        "nodes": 690037,
+        "types": 2212,
+        "parse_ns": 282632912,
+        "typecheck_ns": 12241318046,
+        "lifetime_ns": 11252596447,
+        "optimize_ns": 703366432,
+        "backend_ns": 7831186101,
+        "cache_complete": false
+      },
+      "artifact_sha256": "aef4aac24020aedeb65792b34f9601e06503a52b1124cc782ebfd369eddfef32"
+    },
+    {
+      "command": [
+        "taskset",
+        "-c",
+        "7",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/goose-parent",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/selfhost/main.goose",
+        "--stdlib",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/stdlib",
+        "--target",
+        "wasm-direct",
+        "-O2",
+        "--wasm-max-pages",
+        "65535",
+        "--wasm-stats",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/final-self/parent.wasm.stats.json",
+        "-o",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/final-self/parent.wasm"
+      ],
+      "stdin": null,
+      "started_utc": "2026-11-17T21:37:04.657319+00:00",
+      "status": "passed",
+      "pid": 1119728,
+      "stdout": "",
+      "stderr": "",
+      "exit_code": 0,
+      "wall_seconds": 17.501241098994797,
+      "mode": "wasm",
+      "name": "parent",
+      "sample": 4,
+      "cpu_seconds": 11.686538000000013,
+      "phases": {
+        "implementation": "goose",
+        "backend": "direct",
+        "functions": 1552,
+        "module_bytes": 26623553,
+        "source_files": 35,
+        "nodes": 690037,
+        "types": 2212,
+        "parse_ns": 153349404,
+        "typecheck_ns": 10121888258,
+        "lifetime_ns": 9317766832,
+        "optimize_ns": 871063748,
+        "backend_ns": 6304283493,
+        "cache_complete": false
+      },
+      "artifact_sha256": "aef4aac24020aedeb65792b34f9601e06503a52b1124cc782ebfd369eddfef32"
+    },
+    {
+      "command": [
+        "taskset",
+        "-c",
+        "7",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/final-qualification/bootstrap/bin/goose",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/selfhost/main.goose",
+        "--stdlib",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/stdlib",
+        "--target",
+        "wasm-direct",
+        "-O2",
+        "--wasm-max-pages",
+        "65535",
+        "--wasm-stats",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/final-self/candidate.wasm.stats.json",
+        "-o",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/final-self/candidate.wasm"
+      ],
+      "stdin": null,
+      "started_utc": "2026-11-17T21:37:22.218525+00:00",
+      "status": "passed",
+      "pid": 1124197,
+      "stdout": "",
+      "stderr": "",
+      "exit_code": 0,
+      "wall_seconds": 13.44933281900012,
+      "mode": "wasm",
+      "name": "candidate",
+      "sample": 4,
+      "cpu_seconds": 10.02950100000001,
+      "phases": {
+        "implementation": "goose",
+        "backend": "direct",
+        "functions": 1552,
+        "module_bytes": 26623553,
+        "source_files": 35,
+        "nodes": 690037,
+        "types": 2212,
+        "parse_ns": 181664114,
+        "typecheck_ns": 8733554283,
+        "lifetime_ns": 8069387165,
+        "optimize_ns": 647796700,
+        "backend_ns": 3842952600,
+        "cache_complete": false
+      },
+      "artifact_sha256": "aef4aac24020aedeb65792b34f9601e06503a52b1124cc782ebfd369eddfef32"
+    },
+    {
+      "command": [
+        "taskset",
+        "-c",
+        "7",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/final-qualification/bootstrap/bin/goose",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/selfhost/main.goose",
+        "--stdlib",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/stdlib",
+        "--target",
+        "native",
+        "-O2",
+        "--wasm-stats",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/final-self/candidate.c.stats.json",
+        "-o",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/final-self/candidate.c"
+      ],
+      "stdin": null,
+      "started_utc": "2026-11-17T21:37:35.729452+00:00",
+      "status": "passed",
+      "pid": 1127572,
+      "stdout": "",
+      "stderr": "",
+      "exit_code": 0,
+      "wall_seconds": 12.049307564993796,
+      "mode": "c",
+      "name": "candidate",
+      "sample": -1,
+      "cpu_seconds": 8.902343000000002,
+      "phases": {
+        "implementation": "goose",
+        "backend": "native",
+        "functions": 1552,
+        "module_bytes": 49512292,
+        "source_files": 35,
+        "nodes": 690027,
+        "types": 2207,
+        "parse_ns": 148296628,
+        "typecheck_ns": 9310203113,
+        "lifetime_ns": 8548692308,
+        "optimize_ns": 622920702,
+        "backend_ns": 1914405728,
+        "cache_complete": false
+      },
+      "artifact_sha256": "10c5ff168232230d0921c1970a855bd9c68c8f0cb227f645ee16451ddd9b7e3c"
+    },
+    {
+      "command": [
+        "taskset",
+        "-c",
+        "7",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/goose-parent",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/selfhost/main.goose",
+        "--stdlib",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/stdlib",
+        "--target",
+        "native",
+        "-O2",
+        "--wasm-stats",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/final-self/parent.c.stats.json",
+        "-o",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/final-self/parent.c"
+      ],
+      "stdin": null,
+      "started_utc": "2026-11-17T21:37:47.871057+00:00",
+      "status": "passed",
+      "pid": 1130410,
+      "stdout": "",
+      "stderr": "",
+      "exit_code": 0,
+      "wall_seconds": 13.789049232997058,
+      "mode": "c",
+      "name": "parent",
+      "sample": -1,
+      "cpu_seconds": 10.164369999999991,
+      "phases": {
+        "implementation": "goose",
+        "backend": "native",
+        "functions": 1552,
+        "module_bytes": 49512292,
+        "source_files": 35,
+        "nodes": 690027,
+        "types": 2207,
+        "parse_ns": 180650180,
+        "typecheck_ns": 8903523577,
+        "lifetime_ns": 8222603758,
+        "optimize_ns": 670280800,
+        "backend_ns": 3976811008,
+        "cache_complete": false
+      },
+      "artifact_sha256": "10c5ff168232230d0921c1970a855bd9c68c8f0cb227f645ee16451ddd9b7e3c"
+    },
+    {
+      "command": [
+        "taskset",
+        "-c",
+        "7",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/final-qualification/bootstrap/bin/goose",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/selfhost/main.goose",
+        "--stdlib",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/stdlib",
+        "--target",
+        "native",
+        "-O2",
+        "--wasm-stats",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/final-self/candidate.c.stats.json",
+        "-o",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/final-self/candidate.c"
+      ],
+      "stdin": null,
+      "started_utc": "2026-11-17T21:38:01.728781+00:00",
+      "status": "passed",
+      "pid": 1132869,
+      "stdout": "",
+      "stderr": "",
+      "exit_code": 0,
+      "wall_seconds": 9.742204292000679,
+      "mode": "c",
+      "name": "candidate",
+      "sample": 0,
+      "cpu_seconds": 7.624293999999992,
+      "phases": {
+        "implementation": "goose",
+        "backend": "native",
+        "functions": 1552,
+        "module_bytes": 49512292,
+        "source_files": 35,
+        "nodes": 690027,
+        "types": 2207,
+        "parse_ns": 161572084,
+        "typecheck_ns": 7600596103,
+        "lifetime_ns": 6850898710,
+        "optimize_ns": 527402818,
+        "backend_ns": 1419201668,
+        "cache_complete": false
+      },
+      "artifact_sha256": "10c5ff168232230d0921c1970a855bd9c68c8f0cb227f645ee16451ddd9b7e3c"
+    },
+    {
+      "command": [
+        "taskset",
+        "-c",
+        "7",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/goose-parent",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/selfhost/main.goose",
+        "--stdlib",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/stdlib",
+        "--target",
+        "native",
+        "-O2",
+        "--wasm-stats",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/final-self/parent.c.stats.json",
+        "-o",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/final-self/parent.c"
+      ],
+      "stdin": null,
+      "started_utc": "2026-11-17T21:38:11.527281+00:00",
+      "status": "passed",
+      "pid": 1133501,
+      "stdout": "",
+      "stderr": "",
+      "exit_code": 0,
+      "wall_seconds": 9.750111688998004,
+      "mode": "c",
+      "name": "parent",
+      "sample": 0,
+      "cpu_seconds": 7.750827000000015,
+      "phases": {
+        "implementation": "goose",
+        "backend": "native",
+        "functions": 1552,
+        "module_bytes": 49512292,
+        "source_files": 35,
+        "nodes": 690027,
+        "types": 2207,
+        "parse_ns": 113788547,
+        "typecheck_ns": 6412656172,
+        "lifetime_ns": 5972639215,
+        "optimize_ns": 693969758,
+        "backend_ns": 2475548619,
+        "cache_complete": false
+      },
+      "artifact_sha256": "10c5ff168232230d0921c1970a855bd9c68c8f0cb227f645ee16451ddd9b7e3c"
+    },
+    {
+      "command": [
+        "taskset",
+        "-c",
+        "7",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/final-qualification/bootstrap/bin/goose",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/selfhost/main.goose",
+        "--stdlib",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/stdlib",
+        "--target",
+        "native",
+        "-O2",
+        "--wasm-stats",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/final-self/candidate.c.stats.json",
+        "-o",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/final-self/candidate.c"
+      ],
+      "stdin": null,
+      "started_utc": "2026-11-17T21:38:21.399338+00:00",
+      "status": "passed",
+      "pid": 1133991,
+      "stdout": "",
+      "stderr": "",
+      "exit_code": 0,
+      "wall_seconds": 8.310649368999293,
+      "mode": "c",
+      "name": "candidate",
+      "sample": 1,
+      "cpu_seconds": 6.723290999999989,
+      "phases": {
+        "implementation": "goose",
+        "backend": "native",
+        "functions": 1552,
+        "module_bytes": 49512292,
+        "source_files": 35,
+        "nodes": 690027,
+        "types": 2207,
+        "parse_ns": 179422823,
+        "typecheck_ns": 6184761914,
+        "lifetime_ns": 5683515017,
+        "optimize_ns": 358204829,
+        "backend_ns": 1537277037,
+        "cache_complete": false
+      },
+      "artifact_sha256": "10c5ff168232230d0921c1970a855bd9c68c8f0cb227f645ee16451ddd9b7e3c"
+    },
+    {
+      "command": [
+        "taskset",
+        "-c",
+        "7",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/goose-parent",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/selfhost/main.goose",
+        "--stdlib",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/stdlib",
+        "--target",
+        "native",
+        "-O2",
+        "--wasm-stats",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/final-self/parent.c.stats.json",
+        "-o",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/final-self/parent.c"
+      ],
+      "stdin": null,
+      "started_utc": "2026-11-17T21:38:29.802241+00:00",
+      "status": "passed",
+      "pid": 1134148,
+      "stdout": "",
+      "stderr": "",
+      "exit_code": 0,
+      "wall_seconds": 9.435838630000944,
+      "mode": "c",
+      "name": "parent",
+      "sample": 1,
+      "cpu_seconds": 7.644137000000001,
+      "phases": {
+        "implementation": "goose",
+        "backend": "native",
+        "functions": 1552,
+        "module_bytes": 49512292,
+        "source_files": 35,
+        "nodes": 690027,
+        "types": 2207,
+        "parse_ns": 121836299,
+        "typecheck_ns": 6327299208,
+        "lifetime_ns": 5895578558,
+        "optimize_ns": 549933326,
+        "backend_ns": 2402561842,
+        "cache_complete": false
+      },
+      "artifact_sha256": "10c5ff168232230d0921c1970a855bd9c68c8f0cb227f645ee16451ddd9b7e3c"
+    },
+    {
+      "command": [
+        "taskset",
+        "-c",
+        "7",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/final-qualification/bootstrap/bin/goose",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/selfhost/main.goose",
+        "--stdlib",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/stdlib",
+        "--target",
+        "native",
+        "-O2",
+        "--wasm-stats",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/final-self/candidate.c.stats.json",
+        "-o",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/final-self/candidate.c"
+      ],
+      "stdin": null,
+      "started_utc": "2026-11-17T21:38:39.296336+00:00",
+      "status": "passed",
+      "pid": 1134321,
+      "stdout": "",
+      "stderr": "",
+      "exit_code": 0,
+      "wall_seconds": 8.080674217002525,
+      "mode": "c",
+      "name": "candidate",
+      "sample": 2,
+      "cpu_seconds": 6.650968999999975,
+      "phases": {
+        "implementation": "goose",
+        "backend": "native",
+        "functions": 1552,
+        "module_bytes": 49512292,
+        "source_files": 35,
+        "nodes": 690027,
+        "types": 2207,
+        "parse_ns": 113730018,
+        "typecheck_ns": 6098103631,
+        "lifetime_ns": 5634480173,
+        "optimize_ns": 438681379,
+        "backend_ns": 1394839000,
+        "cache_complete": false
+      },
+      "artifact_sha256": "10c5ff168232230d0921c1970a855bd9c68c8f0cb227f645ee16451ddd9b7e3c"
+    },
+    {
+      "command": [
+        "taskset",
+        "-c",
+        "7",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/goose-parent",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/selfhost/main.goose",
+        "--stdlib",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/stdlib",
+        "--target",
+        "native",
+        "-O2",
+        "--wasm-stats",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/final-self/parent.c.stats.json",
+        "-o",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/final-self/parent.c"
+      ],
+      "stdin": null,
+      "started_utc": "2026-11-17T21:38:47.431509+00:00",
+      "status": "passed",
+      "pid": 1134466,
+      "stdout": "",
+      "stderr": "",
+      "exit_code": 0,
+      "wall_seconds": 8.663972633999947,
+      "mode": "c",
+      "name": "parent",
+      "sample": 2,
+      "cpu_seconds": 7.107079000000056,
+      "phases": {
+        "implementation": "goose",
+        "backend": "native",
+        "functions": 1552,
+        "module_bytes": 49512292,
+        "source_files": 35,
+        "nodes": 690027,
+        "types": 2207,
+        "parse_ns": 116362280,
+        "typecheck_ns": 5416793010,
+        "lifetime_ns": 4990602142,
+        "optimize_ns": 445324865,
+        "backend_ns": 2630967962,
+        "cache_complete": false
+      },
+      "artifact_sha256": "10c5ff168232230d0921c1970a855bd9c68c8f0cb227f645ee16451ddd9b7e3c"
+    },
+    {
+      "command": [
+        "taskset",
+        "-c",
+        "7",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/goose-parent",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/selfhost/main.goose",
+        "--stdlib",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/stdlib",
+        "--target",
+        "native",
+        "-O2",
+        "--wasm-stats",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/final-self/parent.c.stats.json",
+        "-o",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/final-self/parent.c"
+      ],
+      "stdin": null,
+      "started_utc": "2026-11-17T21:38:56.193608+00:00",
+      "status": "passed",
+      "pid": 1134930,
+      "stdout": "",
+      "stderr": "",
+      "exit_code": 0,
+      "wall_seconds": 12.586204731996986,
+      "mode": "c",
+      "name": "parent",
+      "sample": 3,
+      "cpu_seconds": 9.373141999999973,
+      "phases": {
+        "implementation": "goose",
+        "backend": "native",
+        "functions": 1552,
+        "module_bytes": 49512292,
+        "source_files": 35,
+        "nodes": 690027,
+        "types": 2207,
+        "parse_ns": 127186898,
+        "typecheck_ns": 8270964686,
+        "lifetime_ns": 7669221563,
+        "optimize_ns": 646026495,
+        "backend_ns": 3503248334,
+        "cache_complete": false
+      },
+      "artifact_sha256": "10c5ff168232230d0921c1970a855bd9c68c8f0cb227f645ee16451ddd9b7e3c"
+    },
+    {
+      "command": [
+        "taskset",
+        "-c",
+        "7",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/final-qualification/bootstrap/bin/goose",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/selfhost/main.goose",
+        "--stdlib",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/stdlib",
+        "--target",
+        "native",
+        "-O2",
+        "--wasm-stats",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/final-self/candidate.c.stats.json",
+        "-o",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/final-self/candidate.c"
+      ],
+      "stdin": null,
+      "started_utc": "2026-11-17T21:39:08.837490+00:00",
+      "status": "passed",
+      "pid": 1140155,
+      "stdout": "",
+      "stderr": "",
+      "exit_code": 0,
+      "wall_seconds": 8.329021285004274,
+      "mode": "c",
+      "name": "candidate",
+      "sample": 3,
+      "cpu_seconds": 6.685328999999967,
+      "phases": {
+        "implementation": "goose",
+        "backend": "native",
+        "functions": 1552,
+        "module_bytes": 49512292,
+        "source_files": 35,
+        "nodes": 690027,
+        "types": 2207,
+        "parse_ns": 108869105,
+        "typecheck_ns": 6037644805,
+        "lifetime_ns": 5582526069,
+        "optimize_ns": 456302227,
+        "backend_ns": 1695664782,
+        "cache_complete": false
+      },
+      "artifact_sha256": "10c5ff168232230d0921c1970a855bd9c68c8f0cb227f645ee16451ddd9b7e3c"
+    },
+    {
+      "command": [
+        "taskset",
+        "-c",
+        "7",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/goose-parent",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/selfhost/main.goose",
+        "--stdlib",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/stdlib",
+        "--target",
+        "native",
+        "-O2",
+        "--wasm-stats",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/final-self/parent.c.stats.json",
+        "-o",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/final-self/parent.c"
+      ],
+      "stdin": null,
+      "started_utc": "2026-11-17T21:39:17.227070+00:00",
+      "status": "passed",
+      "pid": 1141614,
+      "stdout": "",
+      "stderr": "",
+      "exit_code": 0,
+      "wall_seconds": 8.714135567002813,
+      "mode": "c",
+      "name": "parent",
+      "sample": 4,
+      "cpu_seconds": 7.142417000000023,
+      "phases": {
+        "implementation": "goose",
+        "backend": "native",
+        "functions": 1552,
+        "module_bytes": 49512292,
+        "source_files": 35,
+        "nodes": 690027,
+        "types": 2207,
+        "parse_ns": 102464796,
+        "typecheck_ns": 5676222079,
+        "lifetime_ns": 5240827066,
+        "optimize_ns": 376346881,
+        "backend_ns": 2526848618,
+        "cache_complete": false
+      },
+      "artifact_sha256": "10c5ff168232230d0921c1970a855bd9c68c8f0cb227f645ee16451ddd9b7e3c"
+    },
+    {
+      "command": [
+        "taskset",
+        "-c",
+        "7",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/final-qualification/bootstrap/bin/goose",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/selfhost/main.goose",
+        "--stdlib",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/source/stdlib",
+        "--target",
+        "native",
+        "-O2",
+        "--wasm-stats",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/final-self/candidate.c.stats.json",
+        "-o",
+        "/home/jacobt/src/goose-to-wasm/build/perf-2026-11-17-followup/final-self/candidate.c"
+      ],
+      "stdin": null,
+      "started_utc": "2026-11-17T21:39:25.990819+00:00",
+      "status": "passed",
+      "pid": 1142898,
+      "stdout": "",
+      "stderr": "",
+      "exit_code": 0,
+      "wall_seconds": 7.2043427339958725,
+      "mode": "c",
+      "name": "candidate",
+      "sample": 4,
+      "cpu_seconds": 5.926729000000023,
+      "phases": {
+        "implementation": "goose",
+        "backend": "native",
+        "functions": 1552,
+        "module_bytes": 49512292,
+        "source_files": 35,
+        "nodes": 690027,
+        "types": 2207,
+        "parse_ns": 83389293,
+        "typecheck_ns": 5118686648,
+        "lifetime_ns": 4772741791,
+        "optimize_ns": 389998903,
+        "backend_ns": 1576880593,
+        "cache_complete": false
+      },
+      "artifact_sha256": "10c5ff168232230d0921c1970a855bd9c68c8f0cb227f645ee16451ddd9b7e3c"
+    }
+  ],
+  "summary": {
+    "check": {
+      "parent": {
+        "wall_seconds": 5.177248807005526,
+        "cpu_seconds": 4.598286999999985,
+        "parse_ns": 101804931,
+        "typecheck_ns": 5041621470,
+        "lifetime_ns": 4588857554,
+        "optimize_ns": 0,
+        "backend_ns": 0
+      },
+      "candidate": {
+        "wall_seconds": 5.497495390001859,
+        "cpu_seconds": 4.781504000000012,
+        "parse_ns": 91706204,
+        "typecheck_ns": 5379898113,
+        "lifetime_ns": 4925905743,
+        "optimize_ns": 0,
+        "backend_ns": 0
+      },
+      "same_artifact": true,
+      "paired_cpu_ratios": [
+        0.8770660772652112,
+        1.014297461396485,
+        1.0787925910245375,
+        1.0398446203988634,
+        0.9918885250992725
+      ]
+    },
+    "wasm": {
+      "parent": {
+        "wall_seconds": 15.964242153000669,
+        "cpu_seconds": 11.549643000000003,
+        "parse_ns": 135681672,
+        "typecheck_ns": 8587914543,
+        "lifetime_ns": 7984535182,
+        "optimize_ns": 685713674,
+        "backend_ns": 6304283493
+      },
+      "candidate": {
+        "wall_seconds": 10.82746763400064,
+        "cpu_seconds": 8.64367900000002,
+        "parse_ns": 104197943,
+        "typecheck_ns": 6092966578,
+        "lifetime_ns": 5722956057,
+        "optimize_ns": 569322494,
+        "backend_ns": 3842952600
+      },
+      "same_artifact": true,
+      "paired_cpu_ratios": [
+        0.9022453949094906,
+        0.8985241576994258,
+        0.7483936083565542,
+        0.8349141624384501,
+        0.8582097623778744
+      ]
+    },
+    "c": {
+      "parent": {
+        "wall_seconds": 9.435838630000944,
+        "cpu_seconds": 7.644137000000001,
+        "parse_ns": 116362280,
+        "typecheck_ns": 6327299208,
+        "lifetime_ns": 5895578558,
+        "optimize_ns": 549933326,
+        "backend_ns": 2526848618
+      },
+      "candidate": {
+        "wall_seconds": 8.310649368999293,
+        "cpu_seconds": 6.685328999999967,
+        "parse_ns": 113730018,
+        "typecheck_ns": 6098103631,
+        "lifetime_ns": 5634480173,
+        "optimize_ns": 438681379,
+        "backend_ns": 1537277037
+      },
+      "same_artifact": true,
+      "paired_cpu_ratios": [
+        0.9836749033361184,
+        0.879535649347989,
+        0.9358231419687221,
+        0.713243115275538,
+        0.8297931918564827
+      ]
+    }
+  },
+  "machine_after": {
+    "utc": "2026-11-17T21:39:33.248989+00:00",
+    "uname": {
+      "system": "Linux",
+      "node": "cachyos-x8664",
+      "release": "7.3.4-1-cachyos",
+      "version": "#1 SMP PREEMPT_DYNAMIC Fri, 13 Nov 2026 19:45:18 +0000",
+      "machine": "x86_64",
+      "processor": ""
+    },
+    "parent_pid": 949540,
+    "parent_affinity": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15
+    ],
+    "load_average": [
+      27.28857421875,
+      30.0859375,
+      23.6455078125
+    ],
+    "cpu_count": 16,
+    "cpu_ticks": {
+      "cpu0": [
+        186779,
+        226661,
+        44120,
+        4644989,
+        8452,
+        8422,
+        11530,
+        0,
+        0,
+        0
+      ],
+      "cpu1": [
+        188982,
+        236378,
+        45096,
+        4631626,
+        10644,
+        8868,
+        5730,
+        0,
+        0,
+        0
+      ],
+      "cpu2": [
+        199399,
+        232693,
+        44570,
+        4625481,
+        11080,
+        8886,
+        6095,
+        0,
+        0,
+        0
+      ],
+      "cpu3": [
+        192315,
+        235443,
+        46018,
+        4628251,
+        11206,
+        8928,
+        5334,
+        0,
+        0,
+        0
+      ],
+      "cpu4": [
+        202946,
+        193791,
+        53497,
+        4649230,
+        9492,
+        8852,
+        4326,
+        0,
+        0,
+        0
+      ],
+      "cpu5": [
+        210698,
+        179713,
+        57660,
+        4652193,
+        9865,
+        9002,
+        4210,
+        0,
+        0,
+        0
+      ],
+      "cpu6": [
+        216577,
+        171189,
+        58489,
+        4651934,
+        9161,
+        8094,
+        2805,
+        0,
+        0,
+        0
+      ],
+      "cpu7": [
+        222105,
+        179341,
+        52554,
+        4645037,
+        10314,
+        9774,
+        4923,
+        0,
+        0,
+        0
+      ],
+      "cpu8": [
+        175963,
+        231453,
+        44253,
+        4656170,
+        8069,
+        8384,
+        2361,
+        0,
+        0,
+        0
+      ],
+      "cpu9": [
+        176763,
+        235803,
+        44889,
+        4645804,
+        12825,
+        8608,
+        2300,
+        0,
+        0,
+        0
+      ],
+      "cpu10": [
+        169674,
+        240114,
+        44667,
+        4650412,
+        12404,
+        8558,
+        2270,
+        0,
+        0,
+        0
+      ],
+      "cpu11": [
+        171520,
+        241063,
+        44559,
+        4647505,
+        12736,
+        8510,
+        2236,
+        0,
+        0,
+        0
+      ],
+      "cpu12": [
+        184716,
+        174015,
+        51617,
+        4690137,
+        9557,
+        8481,
+        2595,
+        0,
+        0,
+        0
+      ],
+      "cpu13": [
+        186711,
+        175258,
+        57674,
+        4661253,
+        9545,
+        35500,
+        2732,
+        0,
+        0,
+        0
+      ],
+      "cpu14": [
+        177782,
+        178063,
+        51615,
+        4694931,
+        8637,
+        8075,
+        2468,
+        0,
+        0,
+        0
+      ],
+      "cpu15": [
+        187069,
+        168254,
+        55739,
+        4689590,
+        9499,
+        8118,
+        2397,
+        0,
+        0,
+        0
+      ]
+    },
+    "smt_siblings": {
+      "/sys/devices/system/cpu/cpu0/topology/thread_siblings_list": "0,8",
+      "/sys/devices/system/cpu/cpu1/topology/thread_siblings_list": "1,9",
+      "/sys/devices/system/cpu/cpu10/topology/thread_siblings_list": "2,10",
+      "/sys/devices/system/cpu/cpu11/topology/thread_siblings_list": "3,11",
+      "/sys/devices/system/cpu/cpu12/topology/thread_siblings_list": "4,12",
+      "/sys/devices/system/cpu/cpu13/topology/thread_siblings_list": "5,13",
+      "/sys/devices/system/cpu/cpu14/topology/thread_siblings_list": "6,14",
+      "/sys/devices/system/cpu/cpu15/topology/thread_siblings_list": "7,15",
+      "/sys/devices/system/cpu/cpu2/topology/thread_siblings_list": "2,10",
+      "/sys/devices/system/cpu/cpu3/topology/thread_siblings_list": "3,11",
+      "/sys/devices/system/cpu/cpu4/topology/thread_siblings_list": "4,12",
+      "/sys/devices/system/cpu/cpu5/topology/thread_siblings_list": "5,13",
+      "/sys/devices/system/cpu/cpu6/topology/thread_siblings_list": "6,14",
+      "/sys/devices/system/cpu/cpu7/topology/thread_siblings_list": "7,15",
+      "/sys/devices/system/cpu/cpu8/topology/thread_siblings_list": "0,8",
+      "/sys/devices/system/cpu/cpu9/topology/thread_siblings_list": "1,9"
+    },
+    "commands": [
+      {
+        "command": [
+          "lscpu"
+        ],
+        "stdin": null,
+        "started_utc": "2026-11-17T21:39:33.250653+00:00",
+        "status": "passed",
+        "pid": 1145693,
+        "stdout": "Architecture:                            x86_64\nCPU op-mode(s):                          32-bit, 64-bit\nAddress sizes:                           43 bits physical, 48 bits virtual\nByte Order:                              Little Endian\nCPU(s):                                  16\nOn-line CPU(s) list:                     0-15\nVendor ID:                               AuthenticAMD\nModel name:                              AMD Ryzen 7 3800X 8-Core Processor\nCPU family:                              23\nModel:                                   113\nThread(s) per core:                      2\nCore(s) per socket:                      8\nSocket(s):                               1\nStepping:                                0\nMicrocode version:                       0x8701034\nFrequency boost:                         enabled\nCPU(s) scaling MHz:                      63%\nCPU max MHz:                             4558.8862\nCPU min MHz:                             2200.0000\nBogoMIPS:                                7785.31\nFlags:                                   fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm constant_tsc rep_good nopl xtopology nonstop_tsc cpuid extd_apicid aperfmperf rapl pni pclmulqdq monitor ssse3 fma cx16 sse4_1 sse4_2 movbe popcnt aes xsave avx f16c rdrand lahf_lm cmp_legacy svm extapic cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw ibs skinit wdt tce topoext perfctr_core perfctr_nb bpext perfctr_llc mwaitx cpb cat_l3 cdp_l3 hw_pstate ssbd mba ibpb stibp vmmcall fsgsbase bmi1 avx2 smep bmi2 cqm rdt_a rdseed adx smap clflushopt clwb sha_ni xsaveopt xsavec xgetbv1 cqm_llc cqm_occup_llc cqm_mbm_total cqm_mbm_local clzero irperf xsaveerptr rdpru wbnoinvd arat npt lbrv svm_lock nrip_save tsc_scale vmcb_clean flushbyasid decodeassists pausefilter pfthreshold avic v_vmsave_vmload vgif v_spec_ctrl umip rdpid overflow_recov succor smca sev sev_es\nVirtualization:                          AMD-V\nL1d cache:                               256 KiB (8 instances)\nL1i cache:                               256 KiB (8 instances)\nL2 cache:                                4 MiB (8 instances)\nL3 cache:                                32 MiB (2 instances)\nNUMA node(s):                            1\nNUMA node0 CPU(s):                       0-15\nVulnerability Gather data sampling:      Not affected\nVulnerability Ghostwrite:                Not affected\nVulnerability Indirect target selection: Not affected\nVulnerability Itlb multihit:             Not affected\nVulnerability L1tf:                      Not affected\nVulnerability Mds:                       Not affected\nVulnerability Meltdown:                  Not affected\nVulnerability Mmio stale data:           Not affected\nVulnerability Old microcode:             Not affected\nVulnerability Reg file data sampling:    Not affected\nVulnerability Retbleed:                  Mitigation; untrained return thunk; SMT enabled with STIBP protection\nVulnerability Spec rstack overflow:      Mitigation; Safe RET\nVulnerability Spec store bypass:         Mitigation; Speculative Store Bypass disabled via prctl\nVulnerability Spectre v1:                Mitigation; usercopy/swapgs barriers and __user pointer sanitization\nVulnerability Spectre v2:                Mitigation; Retpolines; IBPB conditional; STIBP always-on; RSB filling; PBRSB-eIBRS Not affected; BHI Not affected\nVulnerability Srbds:                     Not affected\nVulnerability Tsa:                       Not affected\nVulnerability Tsx async abort:           Not affected\nVulnerability Vmscape:                   Mitigation; IBPB before exit to userspace\n",
+        "stderr": "",
+        "exit_code": 0,
+        "wall_seconds": 0.011111953004729003
+      },
+      {
+        "command": [
+          "ps",
+          "-eo",
+          "pid,ppid,psr,pcpu,pmem,etimes,comm",
+          "--sort=-pcpu"
+        ],
+        "stdin": null,
+        "started_utc": "2026-11-17T21:39:33.261806+00:00",
+        "status": "passed",
+        "pid": 1145696,
+        "stdout": "    PID    PPID PSR %CPU %MEM ELAPSED COMMAND\n1106223     782  11  239  1.7     209 pen\n 187559  187558  15  100  3.0   11263 VampireSurvivor\n1145676 1145673  11 96.4  0.2       0 cc1\n1145658 1145657   9 95.8  0.3       0 cc1\n1145677 1140838  13 92.3  0.0       0 chrome-headless <defunct>\n1106311 1106223   8 66.6  1.6     209 blotc\n1106318 1106223  12 65.6  1.5     209 blotc\n1106315 1106223   9 47.0  1.5     209 blotc\n1135092 1135091   4 42.4  0.3      35 python\n1106317 1106223   2 27.9  1.1     209 blotc\n1140372 1134727   1 20.0  0.7      23 node-MainThread\n1140864 1140837   5 12.1  0.2      22 chrome-headless\n1140833 1140372   3 11.2  0.3      22 chrome-headless\n 191505  191492  13  8.4  1.3   10982 codex\n 191492     782  12  4.2  2.2   10982 node-MainThread\n1140866 1140833   3  3.0  0.2      22 chrome-headless\n   1629    1624   7  2.5  0.7   51752 kwin_wayland\n 186941    2217   5  2.3  0.2   11469 Isolated Web Co\n   3277    3079  13  1.3  1.4   51745 steamwebhelper\n 181718  181531  12  1.3  0.9   11604 Discord\n 187758    2916  11  1.0  0.0   11259 gameoverlayui\n   2916    2883  12  0.9  0.6   51747 steam\n   1985     782   6  0.8  1.1   51749 zen\n 937493       2  11  0.7  0.0     697 kworker/u65:0-btrfs-endio-write\n 938642       2  11  0.6  0.0     659 kworker/u65:22-btrfs-endio\n   3097    3075  12  0.6  0.4   51746 steamwebhelper\n   3068    2916   5  0.5  0.5   51746 steamwebhelper\n 741903       2   8  0.5  0.0    1414 kworker/u65:3+btrfs-delalloc\n 840319       2   2  0.5  0.0    1095 kworker/u65:7-btrfs-endio\n 808563       2   4  0.4  0.0    1139 kworker/u66:21-btrfs-endio\n 692987       2  11  0.4  0.0    2220 kworker/u65:5-blkcg_punt_bio\n 936928       2   5  0.4  0.0     723 kworker/u66:0-btrfs-endio-write\n 692988       2  11  0.4  0.0    2220 kworker/u65:9-btrfs-endio-write\n 692989       2  10  0.4  0.0    2220 kworker/u65:12-btrfs-delalloc\n 164599    2217  15  0.4  0.5   12595 Isolated Web Co\n 692992       2   2  0.4  0.0    2220 kworker/u65:19-btrfs-endio-write\n 725399       2   5  0.3  0.0    1670 kworker/u66:4-btrfs-endio\n 181531     782   5  0.3  0.2   11605 Discord\n 696448       2  14  0.3  0.0    2148 kworker/u66:15-btrfs-endio\n 692990       2   2  0.3  0.0    2220 kworker/u65:14-btrfs-endio-write\n 878110       2   0  0.3  0.0    1026 kworker/u65:20-blkcg_punt_bio\n    147       2   1  0.3  0.0   51771 kswapd0\n 671841       2   1  0.3  0.0    3035 kworker/u65:15-btrfs-endio-write\n 671839       2   0  0.3  0.0    3035 kworker/u65:11-btrfs-endio-write\n 692206       2   5  0.3  0.0    2292 kworker/u66:3-btrfs-endio-write\n 671838       2   2  0.3  0.0    3035 kworker/u65:8-btrfs-endio\n 696435       2  15  0.3  0.0    2148 kworker/u66:10-btrfs-endio\n 692667       2   6  0.3  0.0    2246 kworker/u66:5-events_unbound\n   1750    1629  12  0.3  0.2   51751 Xwayland\n   1869     782  13  0.2  0.0   51751 pipewire-pulse\n 667203       2   9  0.2  0.0    3466 kworker/u65:17-btrfs-endio-write\n 692986       2   1  0.2  0.0    2220 kworker/u65:2-btrfs-endio\n 192058  191505  15  0.2  0.0   10866 codex-code-mode\n 668191       2   4  0.2  0.0    3235 kworker/u66:11-btrfs-endio-write\n 696433       2   6  0.2  0.0    2148 kworker/u66:7-btrfs-endio\n 949540  191505  11  0.2  0.1     507 python\n 671836       2   3  0.2  0.0    3035 kworker/u65:4-btrfs-endio-write\n 181601  181534   4  0.2  0.3   11604 Discord\n 662560       2  14  0.2  0.0    3791 kworker/u66:19-btrfs-endio-write\n 667925       2   6  0.2  0.0    3286 kworker/u66:9-btrfs-endio\n 741904       2  10  0.2  0.0    1414 kworker/u65:10-btrfs-endio\n 667275       2  14  0.2  0.0    3419 kworker/u66:1-btrfs-endio-write\n 696422       2   9  0.2  0.0    2148 kworker/u65:21-btrfs-endio-meta\n 668712       2  14  0.2  0.0    3137 kworker/u66:17-btrfs-endio-write\n   2417    2217   6  0.2  0.0   51749 RDD Process\n 696447       2   4  0.1  0.0    2148 kworker/u66:14-btrfs-endio\n 668192       2   7  0.1  0.0    3235 kworker/u66:13-btrfs-endio-write\n 989850  191505  12  0.1  0.1     397 python\n 667201       2  10  0.1  0.0    3466 kworker/u65:13-btrfs-endio-write\n 667924       2  15  0.1  0.0    3286 kworker/u66:8-btrfs-endio-write\n1140838 1140833  14  0.1  0.1      22 chrome-headless\n    716       1   9  0.1  0.0   51765 ananicy-cpp\n1134682 1134680  12  0.1  0.2      38 pnpm\n 660111       2  13  0.1  0.0    4039 kworker/u66:12-btrfs-endio\n 629180       2   7  0.1  0.0    6429 kworker/u66:18-btrfs-endio\n 649182       2  14  0.1  0.0    4984 kworker/u66:6-btrfs-endio-write\n 194191       2   0  0.1  0.0   10335 kworker/u65:1+flush-btrfs-1\n 660113       2   4  0.1  0.0    4039 kworker/u66:16-btrfs-endio-write\n 407295       2   1  0.1  0.0    8828 kworker/u65:16-btrfs-endio-write\n 603224       2   6  0.1  0.0    8251 kworker/u66:2-btrfs-endio\n   1551     815  11  0.1  0.0   51757 cloudflared\n1135091  191505   5  0.0  0.0      35 zsh\n    305       2   5  0.0  0.0   51767 nvidia-modeset/kthread_q\n    325       2  13  0.0  0.0   51767 btrfs-transaction\n   1640     782   3  0.0  0.8   51752 plasmashell\n1134640  939073   0  0.0  0.1      38 pnpm\n1122032    2217  12  0.0  0.2     137 Web Content\n   2796    2217  13  0.0  0.1   51748 WebExtensions\n 957897       2   5  0.0  0.0     419 kworker/5:0-events\n    815     793   4  0.0  0.1   51765 MainThread\n 181604  181531   9  0.0  0.1   11604 Discord\n1140837 1140833   9  0.0  0.1      22 chrome-headless\n   1711     782   7  0.0  0.0   51752 pipewire\n 340095       2   9  0.0  0.0    8869 kworker/u64:2-btrfs-discard\n 961347       2  12  0.0  0.0     418 kworker/12:1-events\n 187617       2   5  0.0  0.0   11262 nvidia-drm/timeline-3a4\n 960438       2   4  0.0  0.0     418 kworker/4:2-events\n     16       2  15  0.0  0.0   51772 rcu_preempt\n1077330  191505   0  0.0  0.0     299 node_repl\n 733134       2   5  0.0  0.0    1568 kworker/5:2-events\n    128       2   2  0.0  0.0   51771 khugepaged\n   1501       1  12  0.0  0.0   51758 upowerd\n 715233       2   8  0.0  0.0    1865 kworker/u64:1-ipv6_addrconf\n   1744     782   4  0.0  0.0   51751 org_kde_powerde\n    510       1   4  0.0  0.0   51766 systemd-resolve\n   3198    3068  15  0.0  0.1   51745 steamwebhelper\n 187806       2   8  0.0  0.0   11232 kworker/8:1-events\n 187805       2   3  0.0  0.0   11232 kworker/3:1-mm_percpu_wq\n 406920       2  13  0.0  0.0    8828 kworker/13:2-mm_percpu_wq\n 169227    3068  14  0.0  0.0   12482 steamwebhelper\n 579030       2  10  0.0  0.0    8634 kworker/10:0-mm_percpu_wq\n 181337     782  15  0.0  0.2   11607 krunner\n1077325  191505   9  0.0  0.0     299 wayland-compute\n    126       2   1  0.0  0.0   51771 kcompactd0\n1106024       2   4  0.0  0.0     210 kworker/u66:20-blkcg_punt_bio\n 951192    2217  15  0.0  0.2     444 Web Content\n    715     714  15  0.0  0.0   51765 dbus-broker\n   2855    2217  14  0.0  0.0   51748 Utility Process\n    782       1  13  0.0  0.0   51765 systemd\n   1578       1   9  0.0  0.0   51753 ksecretd\n   1708       2   5  0.0  0.0   51752 nvidia-drm/timeline-21\n 567891       2  14  0.0  0.0    8644 kworker/14:0-events\n 632707       2   4  0.0  0.0    6173 kworker/4:0-events\n   2012     782  12  0.0  0.3   51749 systemsettings\n   1712     782  15  0.0  0.0   51752 wireplumber\n    293       2   0  0.0  0.0   51769 kworker/0:2-events\n 911411  191505   9  0.0  0.0     871 node_repl\n    378       2   9  0.0  0.0   51767 kworker/9:1H-kblockd\n    390       2  10  0.0  0.0   51767 kworker/10:1H-kblockd\n    301       2  11  0.0  0.0   51767 kworker/11:1H-kblockd\n      1       0   3  0.0  0.0   51772 systemd\n    392       2   3  0.0  0.0   51767 kworker/3:1H-kblockd\n    345       2   2  0.0  0.0   51767 kworker/2:1H-kblockd\n    486       2   2  0.0  0.0   51766 kworker/2:2-events\n    136       2   9  0.0  0.0   51771 kworker/9:1-mm_percpu_wq\n 935393    2217  14  0.0  0.1     753 Web Content\n    304       2   1  0.0  0.0   51767 kworker/1:1H-kblockd\n    134       2   1  0.0  0.0   51771 kworker/1:1-events\n    156       2  11  0.0  0.0   51770 kworker/11:1-events\n   1116    1103   0  0.0  0.0   51762 dbus-broker\n 182161  181531   0  0.0  0.0   11602 Discord\n 742824  191505   0  0.0  0.0    1397 node_repl\n   1964     782  11  0.0  0.0   51749 xdg-desktop-por\n    379       2   8  0.0  0.0   51767 kworker/8:1H-kblockd\n 911424  191505   6  0.0  0.0     871 wayland-compute\n    393       2  12  0.0  0.0   51767 kworker/12:1H-kblockd\n    356       2   0  0.0  0.0   51767 kworker/0:1H-kblockd\n    359       2   7  0.0  0.0   51767 kworker/7:1H-kblockd\n    291       2   5  0.0  0.0   51769 kworker/5:1H-kblockd\n    292       2  13  0.0  0.0   51769 kworker/13:1H-kblockd\n    372       2  15  0.0  0.0   51767 kworker/15:1H-kblockd\n   3379    3079   2  0.0  0.1   51742 steamwebhelper\n     94       2  12  0.0  0.0   51772 kworker/12:0-events\n    320       2   4  0.0  0.0   51767 kworker/4:1H-kblockd\n    302       2  14  0.0  0.0   51767 kworker/14:1H-kblockd\n    296       2   6  0.0  0.0   51769 kworker/6:1H-kblockd\n 939033  938992   7  0.0  0.0     634 pnpm\n 938889  191505   7  0.0  0.0     635 zsh\n   1634     782   5  0.0  0.0   51752 kded6\n    645       2   6  0.0  0.0   51766 kworker/6:3-mm_percpu_wq\n 742832  191505   4  0.0  0.0    1397 wayland-compute\n    406       1   7  0.0  0.0   51767 systemd-journal\n    162       2  15  0.0  0.0   51770 kworker/15:1-events\n     64       2   7  0.0  0.0   51772 kworker/7:0-events\n   2344    2332  14  0.0  0.0   51749 x86_64-linux-gn\n   1438       1   0  0.0  0.0   51759 polkitd\n 187554    2916  13  0.0  0.0   11263 steam-runtime-l\n    717       1   2  0.0  0.0   51765 NetworkManager\n     15       2   0  0.0  0.0   51772 ksoftirqd/0\n   1996     782   8  0.0  0.0   51749 xdg-document-po\n 938992  938889   1  0.0  0.0     634 pnpm\n    719       1  14  0.0  0.0   51765 avahi-daemon\n 679901  191505   4  0.0  0.0    2742 node_repl\n     51       2   5  0.0  0.0   51772 ksoftirqd/5\n   2066     782   4  0.0  0.0   51749 xdg-desktop-por\n   2354    2332   5  0.0  0.0   51749 srt-bwrap\n     45       2   4  0.0  0.0   51772 ksoftirqd/4\n     99       2  13  0.0  0.0   51772 ksoftirqd/13\n   2401    2217   7  0.0  0.0   51749 Privileged Cont\n 668278  191505  13  0.0  0.0    3199 node_repl\n     27       2   1  0.0  0.0   51772 ksoftirqd/1\n     93       2  12  0.0  0.0   51772 ksoftirqd/12\n   1747       1  11  0.0  0.0   51751 udisksd\n     33       2   2  0.0  0.0   51772 ksoftirqd/2\n   2010     782   1  0.0  0.0   51749 dolphin\n    793     782   1  0.0  0.0   51765 MainThread\n     39       2   3  0.0  0.0   51772 ksoftirqd/3\n     56       2   6  0.0  0.0   51772 migration/6\n     75       2   9  0.0  0.0   51772 ksoftirqd/9\n     63       2   7  0.0  0.0   51772 ksoftirqd/7\n   1781       2  13  0.0  0.0   51751 nvidia-drm/timeline-23\n     87       2  11  0.0  0.0   51772 ksoftirqd/11\n    105       2  14  0.0  0.0   51772 ksoftirqd/14\n     81       2  10  0.0  0.0   51772 ksoftirqd/10\n    111       2  15  0.0  0.0   51772 ksoftirqd/15\n 668279  191505  13  0.0  0.0    3199 wayland-compute\n     57       2   6  0.0  0.0   51772 ksoftirqd/6\n   1836     782  11  0.0  0.0   51751 at-spi2-registr\n     69       2   8  0.0  0.0   51772 ksoftirqd/8\n    110       2  15  0.0  0.0   51772 migration/15\n 170598    3079  14  0.0  0.0   12398 steamwebhelper\n     62       2   7  0.0  0.0   51772 migration/7\n     98       2  13  0.0  0.0   51772 migration/13\n     44       2   4  0.0  0.0   51772 migration/4\n     50       2   5  0.0  0.0   51772 migration/5\n    720       1  14  0.0  0.0   51765 systemd-logind\n    104       2  14  0.0  0.0   51772 migration/14\n    771       2   5  0.0  0.0   51765 psimon\n   1742     782   7  0.0  0.0   51751 kaccess\n     92       2  12  0.0  0.0   51772 migration/12\n 626001  191505   8  0.0  0.0    6809 node_repl\n 250000  191505   9  0.0  0.0    9225 node_repl\n   3199    3079  14  0.0  0.0   51745 steamwebhelper\n   1826    1825   8  0.0  0.0   51751 dbus-broker\n    528       1   3  0.0  0.0   51766 systemd-udevd\n     20       2   0  0.0  0.0   51772 migration/0\n   1745     782   2  0.0  0.0   51751 xembedsniproxy\n   1462       1   8  0.0  0.0   51758 rtkit-daemon\n     26       2   1  0.0  0.0   51772 migration/1\n 624090  191505   7  0.0  0.0    7422 node_repl\n   2013     782   1  0.0  0.0   51749 xdg-desktop-por\n   1741     782  11  0.0  0.0   51751 gmenudbusmenupr\n     32       2   2  0.0  0.0   51772 migration/2\n     38       2   3  0.0  0.0   51772 migration/3\n 611015  191505   2  0.0  0.0    7968 node_repl\n     68       2   8  0.0  0.0   51772 migration/8\n 679883  191505   0  0.0  0.0    2742 wayland-compute\n   2058    2011   8  0.0  0.0   51749 steam\n    451       1   2  0.0  0.0   51767 systemd-userdbd\n     74       2   9  0.0  0.0   51772 migration/9\n 181429     782   4  0.0  0.0   11606 baloorunner\n     80       2  10  0.0  0.0   51772 migration/10\n     86       2  11  0.0  0.0   51772 migration/11\n 249999  191505   7  0.0  0.0    9225 wayland-compute\n   2217    1985   1  0.0  0.0   51749 forkserver\n   1728     782   8  0.0  0.0   51751 kactivitymanage\n 187558  187557  15  0.0  0.0   11263 reaper\n 181693       2   5  0.0  0.0   11604 nvidia-drm/timeline-35d\n   1893     782   5  0.0  0.0   51750 kdeconnectd\n   2215       2  14  0.0  0.0   51749 nvidia-drm/timeline-38\n    540       1   3  0.0  0.0   51766 systemd-timesyn\n 192193  191505   8  0.0  0.0   10850 node_repl\n 191924  191505   6  0.0  0.0   10873 node_repl\n 191766  191505  12  0.0  0.0   10888 node_repl\n   2718    2217  12  0.0  0.0   51748 Web Content\n 181534  181531   2  0.0  0.0   11605 Discord\n 181535  181531  10  0.0  0.0   11605 Discord\n    121       2   9  0.0  0.0   51771 khungtaskd\n 626000  191505   5  0.0  0.0    6809 wayland-compute\n   3100       2  13  0.0  0.0   51746 nvidia-drm/timeline-54\n 624089  191505  15  0.0  0.0    7422 wayland-compute\n 611013  191505   9  0.0  0.0    7968 wayland-compute\n   2871     782   1  0.0  0.0   51748 kwalletd6\n   1631     782  11  0.0  0.0   51752 ksmserver\n    714       1  14  0.0  0.0   51765 dbus-broker-lau\n   1743     782  12  0.0  0.0   51751 polkit-kde-auth\n 192192  191505  10  0.0  0.0   10850 wayland-compute\n      2       0  11  0.0  0.0   51772 kthreadd\n   1952       1  14  0.0  0.0   51749 power-profiles-\n   1571    1282  11  0.0  0.0   51753 sddm-helper\n   3079    3076  12  0.0  0.0   51746 steamwebhelper\n   1983     782  13  0.0  0.0   51749 xdg-permission-\n   3075    3068  11  0.0  0.0   51746 steamwebhelper\n   3076    3068   1  0.0  0.0   51746 steamwebhelper\n   2287    2217   3  0.0  0.0   51749 Socket Process\n   2011     782   6  0.0  0.0   51749 bash\n   1579    1571  13  0.0  0.0   51753 startplasma-way\n   1282       1  10  0.0  0.0   51760 sddm\n   1103     782   4  0.0  0.0   51762 dbus-broker-lau\n      3       2   0  0.0  0.0   51772 pool_workqueue_release\n      4       2   0  0.0  0.0   51772 kworker/R-rcu_gp\n      5       2   0  0.0  0.0   51772 kworker/R-sync_wq\n      6       2   0  0.0  0.0   51772 kworker/R-kvfree_rcu_reclaim\n      7       2   0  0.0  0.0   51772 kworker/R-slub_flushwq\n      8       2   0  0.0  0.0   51772 kworker/R-netns\n     11       2   0  0.0  0.0   51772 kworker/0:0H-kblockd\n     14       2   0  0.0  0.0   51772 kworker/R-mm_percpu_wq\n     17       2   0  0.0  0.0   51772 rcub/0\n     18       2   0  0.0  0.0   51772 rcu_exp_par_gp_kthread_worker/0\n     19       2   0  0.0  0.0   51772 rcu_exp_gp_kthread_worker\n     21       2   0  0.0  0.0   51772 kprobe-optimizer\n     22       2   0  0.0  0.0   51772 idle_inject/0\n     23       2   0  0.0  0.0   51772 cpuhp/0\n     24       2   1  0.0  0.0   51772 cpuhp/1\n     25       2   1  0.0  0.0   51772 idle_inject/1\n     29       2   1  0.0  0.0   51772 kworker/1:0H-kblockd\n     30       2   2  0.0  0.0   51772 cpuhp/2\n     31       2   2  0.0  0.0   51772 idle_inject/2\n     35       2   2  0.0  0.0   51772 kworker/2:0H-kblockd\n     36       2   3  0.0  0.0   51772 cpuhp/3\n     37       2   3  0.0  0.0   51772 idle_inject/3\n     41       2   3  0.0  0.0   51772 kworker/3:0H-kblockd\n     42       2   4  0.0  0.0   51772 cpuhp/4\n     43       2   4  0.0  0.0   51772 idle_inject/4\n     47       2   4  0.0  0.0   51772 kworker/4:0H-kblockd\n     48       2   5  0.0  0.0   51772 cpuhp/5\n     49       2   5  0.0  0.0   51772 idle_inject/5\n     53       2   5  0.0  0.0   51772 kworker/5:0H-kblockd\n     54       2   6  0.0  0.0   51772 cpuhp/6\n     55       2   6  0.0  0.0   51772 idle_inject/6\n     59       2   6  0.0  0.0   51772 kworker/6:0H-kblockd\n     60       2   7  0.0  0.0   51772 cpuhp/7\n     61       2   7  0.0  0.0   51772 idle_inject/7\n     65       2   7  0.0  0.0   51772 kworker/7:0H-kblockd\n     66       2   8  0.0  0.0   51772 cpuhp/8\n     67       2   8  0.0  0.0   51772 idle_inject/8\n     71       2   8  0.0  0.0   51772 kworker/8:0H-kblockd\n     72       2   9  0.0  0.0   51772 cpuhp/9\n     73       2   9  0.0  0.0   51772 idle_inject/9\n     77       2   9  0.0  0.0   51772 kworker/9:0H-kblockd\n     78       2  10  0.0  0.0   51772 cpuhp/10\n     79       2  10  0.0  0.0   51772 idle_inject/10\n     83       2  10  0.0  0.0   51772 kworker/10:0H-kblockd\n     84       2  11  0.0  0.0   51772 cpuhp/11\n     85       2  11  0.0  0.0   51772 idle_inject/11\n     89       2  11  0.0  0.0   51772 kworker/11:0H-kblockd\n     90       2  12  0.0  0.0   51772 cpuhp/12\n     91       2  12  0.0  0.0   51772 idle_inject/12\n     95       2  12  0.0  0.0   51772 kworker/12:0H-kblockd\n     96       2  13  0.0  0.0   51772 cpuhp/13\n     97       2  13  0.0  0.0   51772 idle_inject/13\n    101       2  13  0.0  0.0   51772 kworker/13:0H-kblockd\n    102       2  14  0.0  0.0   51772 cpuhp/14\n    103       2  14  0.0  0.0   51772 idle_inject/14\n    107       2  14  0.0  0.0   51772 kworker/14:0H-kblockd\n    108       2  15  0.0  0.0   51772 cpuhp/15\n    109       2  15  0.0  0.0   51772 idle_inject/15\n    113       2  15  0.0  0.0   51772 kworker/15:0H-kblockd\n    116       2   2  0.0  0.0   51772 kdevtmpfs\n    117       2   6  0.0  0.0   51772 kworker/R-inet_frag_wq\n    118       2   6  0.0  0.0   51772 rcu_tasks_kthread\n    119       2   6  0.0  0.0   51772 rcu_tasks_rude_kthread\n    120       2   6  0.0  0.0   51772 kauditd\n    123       2   5  0.0  0.0   51771 oom_reaper\n    125       2   4  0.0  0.0   51771 kworker/R-writeback\n    127       2   4  0.0  0.0   51771 ksmd\n    129       2   4  0.0  0.0   51771 kworker/R-bio_complete\n    130       2   4  0.0  0.0   51771 kworker/R-kblockd\n    131       2   4  0.0  0.0   51771 kworker/R-blkcg_punt_bio\n    132       2   4  0.0  0.0   51771 kworker/R-kintegrityd\n    133       2   1  0.0  0.0   51771 irq/9-acpi\n    137       2   4  0.0  0.0   51771 kworker/R-tpm_dev_wq\n    138       2   4  0.0  0.0   51771 kworker/R-ata_sff\n    139       2   4  0.0  0.0   51771 kworker/R-edac-poller\n    140       2   4  0.0  0.0   51771 kworker/R-devfreq_wq\n    141       2   6  0.0  0.0   51771 watchdogd\n    142       2  15  0.0  0.0   51771 kworker/R-quota_events_unbound\n    144       2   2  0.0  0.0   51771 irq/26-AMD-Vi0-Evt\n    145       2   3  0.0  0.0   51771 irq/27-AMD-Vi0-PPR\n    146       2   4  0.0  0.0   51771 irq/28-AMD-Vi0-GA\n    148       2   6  0.0  0.0   51771 kworker/R-kthrotld\n    149       2  15  0.0  0.0   51771 kworker/u67:0\n    150       2  15  0.0  0.0   51771 kworker/R-acpi_thermal_pm\n    163       2  10  0.0  0.0   51769 scsi_eh_0\n    164       2   6  0.0  0.0   51769 kworker/R-scsi_tmf_0\n    165       2   6  0.0  0.0   51769 scsi_eh_1\n    166       2   6  0.0  0.0   51769 kworker/R-scsi_tmf_1\n    167       2   7  0.0  0.0   51769 scsi_eh_2\n    168       2   6  0.0  0.0   51769 kworker/R-scsi_tmf_2\n    169       2  11  0.0  0.0   51769 scsi_eh_3\n    170       2   6  0.0  0.0   51769 kworker/R-scsi_tmf_3\n    176       2   2  0.0  0.0   51769 scsi_eh_4\n    177       2   6  0.0  0.0   51769 kworker/R-scsi_tmf_4\n    178       2   9  0.0  0.0   51769 scsi_eh_5\n    179       2   6  0.0  0.0   51769 kworker/R-scsi_tmf_5\n    180       2   8  0.0  0.0   51769 scsi_eh_6\n    181       2   6  0.0  0.0   51769 kworker/R-scsi_tmf_6\n    182       2   6  0.0  0.0   51769 scsi_eh_7\n    183       2   6  0.0  0.0   51769 kworker/R-scsi_tmf_7\n    184       2   8  0.0  0.0   51769 scsi_eh_8\n    185       2   6  0.0  0.0   51769 kworker/R-scsi_tmf_8\n    186       2  10  0.0  0.0   51769 scsi_eh_9\n    187       2   6  0.0  0.0   51769 kworker/R-scsi_tmf_9\n    192       2  12  0.0  0.0   51769 scsi_eh_10\n    193       2   6  0.0  0.0   51769 kworker/R-scsi_tmf_10\n    194       2  12  0.0  0.0   51769 scsi_eh_11\n    195       2   6  0.0  0.0   51769 kworker/R-scsi_tmf_11\n    197       2   6  0.0  0.0   51769 kworker/R-mld\n    198       2   6  0.0  0.0   51769 kworker/R-ipv6_addrconf\n    199       2   6  0.0  0.0   51769 kworker/R-kstrp\n    203       2   6  0.0  0.0   51769 kworker/R-zswap-shrink\n    204       2   6  0.0  0.0   51769 kworker/u68:0\n    205       2   6  0.0  0.0   51769 kworker/u69:0\n    273       2  13  0.0  0.0   51769 kworker/R-nvme-wq\n    274       2   3  0.0  0.0   51769 kworker/R-nvme-reset-wq\n    275       2   7  0.0  0.0   51769 kworker/R-nvme-delete-wq\n    276       2   0  0.0  0.0   51769 kworker/R-nvme-auth-wq\n    277       2   3  0.0  0.0   51769 nv_queue\n    278       2   3  0.0  0.0   51769 nv_mem_pool_scrubber_queue\n    279       2   3  0.0  0.0   51769 nv_mem_pool_scrubber_queue\n    280       2   3  0.0  0.0   51769 nv_mem_pool_scrubber_queue\n    281       2   3  0.0  0.0   51769 nv_queue\n    283       2   0  0.0  0.0   51769 nv_open_q\n    297       2  13  0.0  0.0   51769 irq/128-nvidia\n    298       2  12  0.0  0.0   51769 nvidia\n    299       2  12  0.0  0.0   51769 nv_queue\n    306       2  13  0.0  0.0   51767 nvidia-modeset/deferred_close_kthread_q\n    308       2  13  0.0  0.0   51767 kworker/R-btrfs-worker\n    309       2  14  0.0  0.0   51767 kworker/R-btrfs-delalloc\n    310       2  14  0.0  0.0   51767 kworker/R-btrfs-flush_delalloc\n    311       2  14  0.0  0.0   51767 kworker/R-btrfs-cache\n    312       2  14  0.0  0.0   51767 kworker/R-btrfs-fixup\n    313       2  14  0.0  0.0   51767 kworker/R-btrfs-endio\n    314       2  14  0.0  0.0   51767 kworker/R-btrfs-endio-meta\n    315       2  14  0.0  0.0   51767 kworker/R-btrfs-rmw\n    316       2  14  0.0  0.0   51767 kworker/R-btrfs-endio-write\n    317       2  14  0.0  0.0   51767 kworker/R-btrfs-freespace-write\n    318       2  14  0.0  0.0   51767 kworker/R-btrfs-delayed-meta\n    319       2  14  0.0  0.0   51767 kworker/R-btrfs-qgroup-rescan\n    321       2  11  0.0  0.0   51767 UVM global queue\n    322       2   3  0.0  0.0   51767 UVM deferred release queue\n    323       2   8  0.0  0.0   51767 UVM Tools Event Queue\n    324       2  14  0.0  0.0   51767 btrfs-cleaner\n    491       2  15  0.0  0.0   51766 psimon\n    545       2   4  0.0  0.0   51766 psimon\n    753     719   3  0.0  0.0   51765 avahi-daemon\n    785     782   2  0.0  0.0   51765 (sd-pam)\n   1624     782  14  0.0  0.0   51752 kwin_wayland_wr\n   1645       2   4  0.0  0.0   51752 nvidia-drm/timeline-18\n   1679       2   4  0.0  0.0   51752 nvidia-drm/timeline-19\n   1682       2   4  0.0  0.0   51752 nvidia-drm/timeline-1a\n   1685       2   4  0.0  0.0   51752 nvidia-drm/timeline-1b\n   1686       2   4  0.0  0.0   51752 nvidia-drm/timeline-1c\n   1687       2   4  0.0  0.0   51752 nvidia-drm/timeline-1d\n   1688       2   4  0.0  0.0   51752 nvidia-drm/timeline-1e\n   1690       2   4  0.0  0.0   51752 nvidia-drm/timeline-1f\n   1707       2   8  0.0  0.0   51752 nvidia-drm/timeline-20\n   1714       2  13  0.0  0.0   51752 nvidia-drm/timeline-22\n   1791     782  12  0.0  0.0   51751 dconf-service\n   1815     782  10  0.0  0.0   51751 at-spi-bus-laun\n   1825    1815  13  0.0  0.0   51751 dbus-broker-lau\n   1847       2   4  0.0  0.0   51751 nvidia-drm/timeline-2a\n   1874       2  15  0.0  0.0   51751 nvidia-drm/timeline-2b\n   1877       2   1  0.0  0.0   51751 nvidia-drm/timeline-2d\n   1887     782  13  0.0  0.0   51751 xsettingsd\n   1923       2   4  0.0  0.0   51750 nvidia-drm/timeline-30\n   2005    1996  13  0.0  0.0   51749 fusermount3\n   2036     782   2  0.0  0.0   51749 srt-logger\n   2332    2058   2  0.0  0.0   51749 srt-client-cont\n   2338       2  13  0.0  0.0   51749 nvidia-drm/timeline-39\n   2883    2354   3  0.0  0.0   51747 pv-adverb\n   2998       2  13  0.0  0.0   51746 nvidia-drm/timeline-52\n   3101    3097   8  0.0  0.0   51746 steamwebhelper\n   3341       2  13  0.0  0.0   51744 nvidia-drm/timeline-61\n   3366       2  13  0.0  0.0   51743 nvidia-drm/timeline-6c\n 164632       2   8  0.0  0.0   12594 nvidia-drm/timeline-234\n 164639       2   8  0.0  0.0   12594 nvidia-drm/timeline-235\n 181379       2   1  0.0  0.0   11607 nvidia-drm/timeline-350\n 181381       2  15  0.0  0.0   11607 nvidia-drm/timeline-351\n 181383       2  10  0.0  0.0   11607 nvidia-drm/timeline-354\n 181537  181535  14  0.0  0.0   11605 Discord\n 181571     782  15  0.0  0.0   11605 chrome_crashpad\n 181695  181601  13  0.0  0.0   11604 Discord\n 181703       2  11  0.0  0.0   11604 nvidia-drm/timeline-35e\n 181707       2  13  0.0  0.0   11604 nvidia-drm/timeline-35f\n 181710       2   9  0.0  0.0   11604 nvidia-drm/timeline-360\n 187557    2344   5  0.0  0.0   11263 steam-runtime-s\n 187610       2  13  0.0  0.0   11262 nvidia-drm/timeline-3a2\n 187757       2   5  0.0  0.0   11259 nvidia-drm/timeline-3a6\n 191764  191505   1  0.0  0.0   10888 wayland-compute\n 191923  191505   8  0.0  0.0   10873 wayland-compute\n 194412  191492  12  0.0  0.0   10161 systemd-inhibit\n 194414  194412   5  0.0  0.0   10161 sleep\n 437760       2   0  0.0  0.0    8798 kworker/0:0-events\n 621674       2   8  0.0  0.0    7622 kworker/8:2-mm_percpu_wq\n 653663       2   6  0.0  0.0    4781 kworker/6:1-events\n 676479       2  14  0.0  0.0    2916 kworker/14:1-events\n 706762       2  15  0.0  0.0    1989 kworker/15:0\n 748554       2  10  0.0  0.0    1252 kworker/10:2\n 785125       2   7  0.0  0.0    1171 kworker/7:2\n 799357       2   3  0.0  0.0    1157 kworker/3:0-events\n 939073  939033   8  0.0  0.0     634 sh\n 939074  939033   8  0.0  0.0     634 sh\n 946430       2   1  0.0  0.0     530 kworker/1:0-events\n 960424       2   9  0.0  0.0     418 kworker/9:0-events\n 962136       2  11  0.0  0.0     418 kworker/11:2-events\n 965901       2   2  0.0  0.0     415 kworker/2:0\n1030178       2  13  0.0  0.0     355 kworker/13:1\n1077495       2   1  0.0  0.0     299 kworker/u64:0\n1083897     451   3  0.0  0.0     274 systemd-userwor\n1111820     451  10  0.0  0.0     184 systemd-userwor\n1129706       2   1  0.0  0.0     108 kworker/1:2\n1129916       2   8  0.0  0.0     107 kworker/8:0\n1133586     451  10  0.0  0.0      79 systemd-userwor\n1134680 1134640   0  0.0  0.0      38 sh\n1134681 1134640  11  0.0  0.0      38 sh\n1134727 1134682   5  0.0  0.0      38 sh\n1134730 1134682   8  0.0  0.0      38 sh\n1145657 1135092   3  0.0  0.0       0 gcc\n1145669 1135092  11  0.0  0.0       0 gcc\n1145673 1135092  11  0.0  0.0       0 gcc\n1145674 1135092   1  0.0  0.0       0 gcc\n1145695 1145669  12  0.0  0.0       0 collect2\n1145696  949540  10  0.0  0.0       0 ps\n1145697 1145695   4  0.0  0.0       0 ld\n",
+        "stderr": "",
+        "exit_code": 0,
+        "wall_seconds": 0.02884777200233657
+      },
+      {
+        "command": [
+          "git",
+          "status",
+          "--short"
+        ],
+        "stdin": null,
+        "started_utc": "2026-11-17T21:39:33.290693+00:00",
+        "status": "passed",
+        "pid": 1145702,
+        "stdout": " M README.md\n M docs/VARINT_ARRAYS.md\n M scripts/bootstrap.py\n M selfhost/README.md\n M selfhost/bootstrap.py\n M selfhost/codegen.goose\n M selfhost/codegen_c.goose\n M selfhost/codegen_c_storage.goose\n M selfhost/model.goose\n M tests/test_bootstrap_optimization.py\n M tests/test_loop_ordinals.py\n?? .claude/\n?? bench/results/2026-11-17/compiler-iteration/\n?? bench/results/2026-11-17/varint-foreach/\n?? tests/fixtures/varint_cursor_alias.goose\n",
+        "stderr": "",
+        "exit_code": 0,
+        "wall_seconds": 0.01797156700195046
+      },
+      {
+        "command": [
+          "git",
+          "rev-parse",
+          "HEAD"
+        ],
+        "stdin": null,
+        "started_utc": "2026-11-17T21:39:33.308703+00:00",
+        "status": "passed",
+        "pid": 1145722,
+        "stdout": "9551a589be1f1e028e953080c9f2fed562859b70\n",
+        "stderr": "",
+        "exit_code": 0,
+        "wall_seconds": 0.002317644000868313
+      },
+      {
+        "command": [
+          "git",
+          "diff",
+          "--stat"
+        ],
+        "stdin": null,
+        "started_utc": "2026-11-17T21:39:33.311058+00:00",
+        "status": "passed",
+        "pid": 1145725,
+        "stdout": " README.md                            |  10 ++-\n docs/VARINT_ARRAYS.md                |  15 ++--\n scripts/bootstrap.py                 |   2 +-\n selfhost/README.md                   |   2 +-\n selfhost/bootstrap.py                |  61 +++++++++++++++-\n selfhost/codegen.goose               | 131 +++++++++++++++++++++++++----------\n selfhost/codegen_c.goose             |  31 ++++++---\n selfhost/codegen_c_storage.goose     |   3 -\n selfhost/model.goose                 |  14 ++++\n tests/test_bootstrap_optimization.py |  64 +++++++++++++++--\n tests/test_loop_ordinals.py          |  76 ++++++++++++++++++++\n 11 files changed, 340 insertions(+), 69 deletions(-)\n",
+        "stderr": "",
+        "exit_code": 0,
+        "wall_seconds": 0.022937281006306875
+      }
+    ],
+    "cpu_policy": {
+      "/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor": "schedutil",
+      "/sys/devices/system/cpu/cpu1/cpufreq/scaling_governor": "schedutil",
+      "/sys/devices/system/cpu/cpu10/cpufreq/scaling_governor": "schedutil",
+      "/sys/devices/system/cpu/cpu11/cpufreq/scaling_governor": "schedutil",
+      "/sys/devices/system/cpu/cpu12/cpufreq/scaling_governor": "schedutil",
+      "/sys/devices/system/cpu/cpu13/cpufreq/scaling_governor": "schedutil",
+      "/sys/devices/system/cpu/cpu14/cpufreq/scaling_governor": "schedutil",
+      "/sys/devices/system/cpu/cpu15/cpufreq/scaling_governor": "schedutil",
+      "/sys/devices/system/cpu/cpu2/cpufreq/scaling_governor": "schedutil",
+      "/sys/devices/system/cpu/cpu3/cpufreq/scaling_governor": "schedutil",
+      "/sys/devices/system/cpu/cpu4/cpufreq/scaling_governor": "schedutil",
+      "/sys/devices/system/cpu/cpu5/cpufreq/scaling_governor": "schedutil",
+      "/sys/devices/system/cpu/cpu6/cpufreq/scaling_governor": "schedutil",
+      "/sys/devices/system/cpu/cpu7/cpufreq/scaling_governor": "schedutil",
+      "/sys/devices/system/cpu/cpu8/cpufreq/scaling_governor": "schedutil",
+      "/sys/devices/system/cpu/cpu9/cpufreq/scaling_governor": "schedutil"
+    }
+  }
+}
