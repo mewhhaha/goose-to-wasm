@@ -161,8 +161,11 @@ def main():
                 if not (shared / '.complete').is_file():
                     raise
     host = args.host
-    if host is None and (ROOT / 'build/bin/goose-wasmtime').exists():
-        host = ROOT / 'build/bin/goose-wasmtime'
+    legacy_host = ROOT / 'build/bin/goose-wasmtime'
+    # The legacy host's imports use 32-bit pointers. Memory64 uses the
+    # Python runner unless the caller supplies a compatible host explicitly.
+    if host is None and args.engine == 'wasmtime' and not args.wasm_memory64 and legacy_host.is_file():
+        host = legacy_host
     cc = shutil.which(args.cc)
     if not cc:
         parser.error('C compiler unavailable: ' + args.cc)

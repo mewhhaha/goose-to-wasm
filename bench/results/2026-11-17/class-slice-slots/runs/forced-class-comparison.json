@@ -1,0 +1,740 @@
+{
+  "base_commit": "b629e346ab0a7b5099a7ebc03fcf4eb81ed9b3bc",
+  "candidate_lifetime_source_sha256": "fd68474c7cfd70e0ed2d8aebe16c8ce0bd4fdc328ece88cfccd82e6e9615117f",
+  "upstream_commit": "d92c4315eb6be2ba12fc8052ed5a44cc0cf27826",
+  "toolchains": {
+    "system": "Linux-7.3.4-1-cachyos-x86_64-with-glibc2.44",
+    "clang": "clang version 23.1.5",
+    "clangxx": "clang version 23.1.5",
+    "python": "3.14.10",
+    "node": "v24.22.1"
+  },
+  "compilers": {
+    "upstream": "fe5031bfd91f65174195321280ab2e15b3de1ed708ef89c886d01db483a79c78",
+    "baseline": "f18294f28f303932cf2dca21999e137c007ab22766c3d574aa9fae7960c86b77",
+    "baseline_forced": "17511c9c26c1168d73d84cb31f41f479a804354cf3329087950b81054675fab3",
+    "candidate": "766c103eebdd4db03246c1181b82ab9080371105072fe5272033421ef4c0fa90",
+    "candidate_forced": "8ca2d3dc2ac701614cd9f38d2e917bad784df5fa1c0c38f135fc2b0e1b62eeeb"
+  },
+  "manifest_sha256": "e537a64a7c37d6ed6753d87980e40708ae81388475aa67cdaed5a6a9ffeb5f1c",
+  "pinned_corpus_sha256": "8b4d0f59a808aea60a7a40416c391795a4bdb05bc9de7d074eb7d4f858db7353",
+  "forced_threshold": 0,
+  "sources_compared": 4355,
+  "baseline_classes_vs_default": {
+    "default_accept_forced_reject": 14,
+    "default_reject_forced_accept": 33,
+    "both_reject": 93
+  },
+  "candidate_classes_vs_baseline_classes": {
+    "compared": 4355,
+    "differing": 14,
+    "with_lifetime_fingerprints": 0,
+    "fingerprint_lines": 0
+  },
+  "changed_verdicts_checked_with_upstream": [
+    {
+      "source": "upstream:test/errors_tc/format_slice_ref_call_store.goose",
+      "sha256_at_upstream_pin": "890abd3c0e2a5aa3472bbfd5c54686a81b04146e3527bec0576d3683dddf1d7b",
+      "before": 0,
+      "after": 1,
+      "upstream": {
+        "exit": 1,
+        "diagnostic": [
+          "test/errors_tc/format_slice_ref_call_store.goose:14: error: storing a slice rooted at g into s through format's parameter p: s is bound to one rooted at local, at a different scope depth (\u00a79.2)"
+        ]
+      },
+      "candidate": {
+        "exit": 1,
+        "diagnostic": [
+          "test/errors_tc/format_slice_ref_call_store.goose:18:32: error: reference or slice binding changes its committed root lifetime depth"
+        ]
+      }
+    },
+    {
+      "source": "upstream:test/errors_tc/format_slice_ref_ref_store.goose",
+      "sha256_at_upstream_pin": "59403700443174845714e59072aba7c0994d833d4398ebcd8f25420acd7d67b6",
+      "before": 0,
+      "after": 1,
+      "upstream": {
+        "exit": 1,
+        "diagnostic": [
+          "test/errors_tc/format_slice_ref_ref_store.goose:13: error: storing a slice rooted at g into s through show's parameter r: s is bound to one rooted at local, at a different scope depth (\u00a79.2)"
+        ]
+      },
+      "candidate": {
+        "exit": 1,
+        "diagnostic": [
+          "test/errors_tc/format_slice_ref_ref_store.goose:13:5: error: reference or slice binding changes its committed root lifetime depth"
+        ]
+      }
+    },
+    {
+      "source": "upstream:test/errors_tc/format_slice_ref_var_store.goose",
+      "sha256_at_upstream_pin": "f37891df54eca4c62aa8bcba7fba63644bf09ad8922b0cac0bcbd1820c003d5c",
+      "before": 0,
+      "after": 1,
+      "upstream": {
+        "exit": 1,
+        "diagnostic": [
+          "test/errors_tc/format_slice_ref_var_store.goose:12: error: storing a slice rooted at g into s through format's parameter p: s is bound to one rooted at local, at a different scope depth (\u00a79.2)"
+        ]
+      },
+      "candidate": {
+        "exit": 1,
+        "diagnostic": [
+          "test/errors_tc/format_slice_ref_var_store.goose:16:32: error: reference or slice binding changes its committed root lifetime depth"
+        ]
+      }
+    },
+    {
+      "source": "upstream:test/errors_tc/shrink_global_let_slot.goose",
+      "sha256_at_upstream_pin": "45283739e67d20f2b4476e1e6791a03da44e56d16c4e152912d7d87446bc07cf",
+      "before": 0,
+      "after": 1,
+      "upstream": {
+        "exit": 1,
+        "diagnostic": [
+          "test/errors_tc/shrink_global_let_slot.goose:9: error: cannot clear bs: global P may hold a reference into it, stored at test/errors_tc/shrink_global_let_slot.goose:14 (\u00a75.1)"
+        ]
+      },
+      "candidate": {
+        "exit": 1,
+        "diagnostic": [
+          "test/errors_tc/shrink_global_let_slot.goose:9:18: error: array shrink invalidates a reference or holder that is used afterward"
+        ]
+      }
+    },
+    {
+      "source": "upstream:test/errors_tc/shrink_global_let_stale_slot.goose",
+      "sha256_at_upstream_pin": "93fdc1a4885485aa826255aa988dd4b0a7d632de43eee3ba85aa5aa8d47fb012",
+      "before": 0,
+      "after": 1,
+      "upstream": {
+        "exit": 1,
+        "diagnostic": [
+          "test/errors_tc/shrink_global_let_stale_slot.goose:16: error: cannot clear bs: global P may hold a reference into it, stored at test/errors_tc/shrink_global_let_stale_slot.goose:14 (\u00a75.1)"
+        ]
+      },
+      "candidate": {
+        "exit": 1,
+        "diagnostic": [
+          "test/errors_tc/shrink_global_let_stale_slot.goose:16:8: error: array shrink invalidates a reference or holder that is used afterward"
+        ]
+      }
+    },
+    {
+      "source": "upstream:test/errors_tc/slice_ref_store_callee.goose",
+      "sha256_at_upstream_pin": "742759b3d6e4611f28d35b8ec5ca06d14b6caf754a11dc6749fefbdbbc216b9a",
+      "before": 0,
+      "after": 1,
+      "upstream": {
+        "exit": 1,
+        "diagnostic": [
+          "test/errors_tc/slice_ref_store_callee.goose:12: error: storing a slice rooted at b into s through put's parameter p: s is bound to one rooted at a, at a different scope depth (\u00a79.2)"
+        ]
+      },
+      "candidate": {
+        "exit": 1,
+        "diagnostic": [
+          "test/errors_tc/slice_ref_store_callee.goose:12:5: error: reference or slice binding changes its committed root lifetime depth"
+        ]
+      }
+    },
+    {
+      "source": "upstream:test/errors_tc/slice_ref_store_callee_merged.goose",
+      "sha256_at_upstream_pin": "d2b226da22b4bd63292693d1a8c30dd34237acefc8ce322ed89e2e7c97735bcd",
+      "before": 0,
+      "after": 1,
+      "upstream": {
+        "exit": 1,
+        "diagnostic": [
+          "test/errors_tc/slice_ref_store_callee_merged.goose:15: error: cannot clear b while s1 is still used: it may hold a reference or slice into it (\u00a75.1)"
+        ]
+      },
+      "candidate": {
+        "exit": 1,
+        "diagnostic": [
+          "test/errors_tc/slice_ref_store_callee_merged.goose:15:7: error: array shrink invalidates a reference or holder that is used afterward"
+        ]
+      }
+    },
+    {
+      "source": "upstream:test/errors_tc/slice_ref_store_callee_read_back.goose",
+      "sha256_at_upstream_pin": "3686a473619829bf4d61267967a71e3a06fc0c8dc8593c2b16d9965b8deb367f",
+      "before": 0,
+      "after": 1,
+      "upstream": {
+        "exit": 1,
+        "diagnostic": [
+          "test/errors_tc/slice_ref_store_callee_read_back.goose:17: error: cannot clear b while s is still used: it may hold a reference or slice into it (\u00a75.1)"
+        ]
+      },
+      "candidate": {
+        "exit": 1,
+        "diagnostic": [
+          "test/errors_tc/slice_ref_store_callee_read_back.goose:17:7: error: array shrink invalidates a reference or holder that is used afterward"
+        ]
+      }
+    },
+    {
+      "source": "upstream:test/errors_tc/slice_ref_store_chain.goose",
+      "sha256_at_upstream_pin": "73e6a526736656aa16767c80e0311d2c845f552d200f719a58bed8bb8f4d2bae",
+      "before": 0,
+      "after": 1,
+      "upstream": {
+        "exit": 1,
+        "diagnostic": [
+          "test/errors_tc/slice_ref_store_chain.goose:13: error: cannot clear b while s is still used: it may hold a reference or slice into it (\u00a75.1)"
+        ]
+      },
+      "candidate": {
+        "exit": 1,
+        "diagnostic": [
+          "test/errors_tc/slice_ref_store_chain.goose:13:7: error: array shrink invalidates a reference or holder that is used afterward"
+        ]
+      }
+    },
+    {
+      "source": "upstream:test/errors_tc/slice_ref_store_cycle.goose",
+      "sha256_at_upstream_pin": "44a8a1b0d4fbdc0ff6ceaf016a90c38ca24821b48e2a077c8e5e8d94c8cf2140",
+      "before": 0,
+      "after": 1,
+      "upstream": {
+        "exit": 1,
+        "diagnostic": [
+          "test/errors_tc/slice_ref_store_cycle.goose:12: error: cannot call f, which shrinks c while t is still used: it may hold a reference or slice into it (\u00a75.1)"
+        ]
+      },
+      "candidate": {
+        "exit": 1,
+        "diagnostic": [
+          "test/errors_tc/slice_ref_store_cycle.goose:13:7: error: array shrink invalidates a reference or holder that is used afterward"
+        ]
+      }
+    },
+    {
+      "source": "upstream:test/errors_tc/slice_ref_store_elem_view.goose",
+      "sha256_at_upstream_pin": "f174389e2c94157001263a523d0ae85eb41fef3f3f5e0c384a06d772c5b5138b",
+      "before": 0,
+      "after": 1,
+      "upstream": {
+        "exit": 1,
+        "diagnostic": [
+          "test/errors_tc/slice_ref_store_elem_view.goose:16: error: cannot clear text while qs is still used: it may hold a reference or slice into it (\u00a75.1)"
+        ]
+      },
+      "candidate": {
+        "exit": 1,
+        "diagnostic": [
+          "test/errors_tc/slice_ref_store_elem_view.goose:16:10: error: array shrink invalidates a reference or holder that is used afterward"
+        ]
+      }
+    },
+    {
+      "source": "upstream:test/errors_tc/slice_ref_store_holder_param.goose",
+      "sha256_at_upstream_pin": "734169b3df51d4e175a9fdc1d4dc2bf7a1048a2850841b3b7bfff2bc8ec70a18",
+      "before": 0,
+      "after": 1,
+      "upstream": {
+        "exit": 1,
+        "diagnostic": [
+          "test/errors_tc/slice_ref_store_holder_param.goose:13: error: cannot clear b while s is still used: it may hold a reference or slice into it (\u00a75.1)"
+        ]
+      },
+      "candidate": {
+        "exit": 1,
+        "diagnostic": [
+          "test/errors_tc/slice_ref_store_holder_param.goose:13:7: error: array shrink invalidates a reference or holder that is used afterward"
+        ]
+      }
+    },
+    {
+      "source": "upstream:test/errors_tc/slice_ref_store_order.goose",
+      "sha256_at_upstream_pin": "1f2039c1fc16be7eafc3b28f76d63699536ce1fd4e7933a8a1f756fc06b9ce74",
+      "before": 0,
+      "after": 1,
+      "upstream": {
+        "exit": 1,
+        "diagnostic": [
+          "test/errors_tc/slice_ref_store_order.goose:23: error: cannot call clear_g, which shrinks g while y is still used: it may hold a reference or slice into it (\u00a75.1)"
+        ]
+      },
+      "candidate": {
+        "exit": 1,
+        "diagnostic": [
+          "test/errors_tc/slice_ref_store_order.goose:14:7: error: array shrink invalidates a reference or holder that is used afterward"
+        ]
+      }
+    },
+    {
+      "source": "upstream:test/errors_tc/slice_ref_store_parent_param.goose",
+      "sha256_at_upstream_pin": "fcd32d15462c5bd59266cb599d1dbc842b0196d671d012a362cbd1f9e40bc6d9",
+      "before": 0,
+      "after": 1,
+      "upstream": {
+        "exit": 1,
+        "diagnostic": [
+          "test/errors_tc/slice_ref_store_parent_param.goose:15: error: cannot clear b while s is still used: it may hold a reference or slice into it (\u00a75.1)"
+        ]
+      },
+      "candidate": {
+        "exit": 1,
+        "diagnostic": [
+          "test/errors_tc/slice_ref_store_parent_param.goose:15:7: error: array shrink invalidates a reference or holder that is used afterward"
+        ]
+      }
+    }
+  ],
+  "focused_controls": [
+    {
+      "case": "different-depth.goose",
+      "group": "slice-slot-case.zF0y86",
+      "sha256": "df0cf00ea0c7420d7923419e0c5ae87e165f8f85f406bf423de4ed873c52c31f",
+      "verdicts": {
+        "upstream": {
+          "exit": 1,
+          "diagnostic": [
+            "different-depth.goose:6: error: storing a slice rooted at b into s through put's parameter p: s is bound to one rooted at a, at a different scope depth (\u00a79.2)"
+          ]
+        },
+        "baseline": {
+          "exit": 1,
+          "diagnostic": [
+            "different-depth.goose:2:33: error: reference or slice binding changes its committed root lifetime depth"
+          ]
+        },
+        "baseline_forced": {
+          "exit": 0,
+          "diagnostic": []
+        },
+        "candidate": {
+          "exit": 1,
+          "diagnostic": [
+            "different-depth.goose:2:33: error: reference or slice binding changes its committed root lifetime depth"
+          ]
+        },
+        "candidate_forced": {
+          "exit": 1,
+          "diagnostic": [
+            "different-depth.goose:6:5: error: reference or slice binding changes its committed root lifetime depth"
+          ]
+        }
+      }
+    },
+    {
+      "case": "same-depth-shrink.goose",
+      "group": "slice-slot-case.zF0y86",
+      "sha256": "585339c0ef8947e1bb726b01f6b3a5ea5a4348b1837e5c1d0daa796de2c67b9d",
+      "verdicts": {
+        "upstream": {
+          "exit": 1,
+          "diagnostic": [
+            "same-depth-shrink.goose:7: error: cannot clear b while s is still used: it may hold a reference or slice into it (\u00a75.1)"
+          ]
+        },
+        "baseline": {
+          "exit": 1,
+          "diagnostic": [
+            "same-depth-shrink.goose:7:7: error: array shrink invalidates a reference or holder that is used afterward"
+          ]
+        },
+        "baseline_forced": {
+          "exit": 0,
+          "diagnostic": []
+        },
+        "candidate": {
+          "exit": 1,
+          "diagnostic": [
+            "same-depth-shrink.goose:7:7: error: array shrink invalidates a reference or holder that is used afterward"
+          ]
+        },
+        "candidate_forced": {
+          "exit": 1,
+          "diagnostic": [
+            "same-depth-shrink.goose:7:7: error: array shrink invalidates a reference or holder that is used afterward"
+          ]
+        }
+      }
+    },
+    {
+      "case": "same-depth.goose",
+      "group": "slice-slot-case.zF0y86",
+      "sha256": "55768f7bb61ad12f2a8aa076aa0feb025cac22bee0f4d656830a7674405bbcbf",
+      "verdicts": {
+        "upstream": {
+          "exit": 0,
+          "diagnostic": []
+        },
+        "baseline": {
+          "exit": 0,
+          "diagnostic": []
+        },
+        "baseline_forced": {
+          "exit": 0,
+          "diagnostic": []
+        },
+        "candidate": {
+          "exit": 0,
+          "diagnostic": []
+        },
+        "candidate_forced": {
+          "exit": 0,
+          "diagnostic": []
+        }
+      }
+    },
+    {
+      "case": "different-depth.goose",
+      "group": "relay-slot",
+      "sha256": "4cd22c00cf6388eff9643d8e362b932d9e50743dad9eb33f50fbc2e2d0549cda",
+      "verdicts": {
+        "upstream": {
+          "exit": 1,
+          "diagnostic": [
+            "different-depth.goose:7: error: storing a slice rooted at b into s through relay's parameter p: s is bound to one rooted at a, at a different scope depth (\u00a79.2)"
+          ]
+        },
+        "baseline": {
+          "exit": 1,
+          "diagnostic": [
+            "different-depth.goose:2:33: error: reference or slice binding changes its committed root lifetime depth"
+          ]
+        },
+        "baseline_forced": {
+          "exit": 0,
+          "diagnostic": []
+        },
+        "candidate": {
+          "exit": 1,
+          "diagnostic": [
+            "different-depth.goose:2:33: error: reference or slice binding changes its committed root lifetime depth"
+          ]
+        },
+        "candidate_forced": {
+          "exit": 1,
+          "diagnostic": [
+            "different-depth.goose:7:5: error: reference or slice binding changes its committed root lifetime depth"
+          ]
+        }
+      }
+    },
+    {
+      "case": "same-depth-shrink.goose",
+      "group": "relay-slot",
+      "sha256": "51ff2a68db5ec90e40ebde88c58b1903d77718faaddf8854ac74188c2a3addbd",
+      "verdicts": {
+        "upstream": {
+          "exit": 1,
+          "diagnostic": [
+            "same-depth-shrink.goose:8: error: cannot clear b while s is still used: it may hold a reference or slice into it (\u00a75.1)"
+          ]
+        },
+        "baseline": {
+          "exit": 1,
+          "diagnostic": [
+            "same-depth-shrink.goose:8:7: error: array shrink invalidates a reference or holder that is used afterward"
+          ]
+        },
+        "baseline_forced": {
+          "exit": 0,
+          "diagnostic": []
+        },
+        "candidate": {
+          "exit": 1,
+          "diagnostic": [
+            "same-depth-shrink.goose:8:7: error: array shrink invalidates a reference or holder that is used afterward"
+          ]
+        },
+        "candidate_forced": {
+          "exit": 1,
+          "diagnostic": [
+            "same-depth-shrink.goose:8:7: error: array shrink invalidates a reference or holder that is used afterward"
+          ]
+        }
+      }
+    },
+    {
+      "case": "same-depth.goose",
+      "group": "relay-slot",
+      "sha256": "f94ccd39037eccb647ef04b973109f365927b8d344581f2bdd000fbdf9481c88",
+      "verdicts": {
+        "upstream": {
+          "exit": 0,
+          "diagnostic": []
+        },
+        "baseline": {
+          "exit": 0,
+          "diagnostic": []
+        },
+        "baseline_forced": {
+          "exit": 0,
+          "diagnostic": []
+        },
+        "candidate": {
+          "exit": 0,
+          "diagnostic": []
+        },
+        "candidate_forced": {
+          "exit": 0,
+          "diagnostic": []
+        }
+      }
+    },
+    {
+      "case": "callee-merge.goose",
+      "group": "controls",
+      "sha256": "ee16667bb41f865e55163998ba384c978e0569e494d96e2360f63eff129bc3aa",
+      "verdicts": {
+        "upstream": {
+          "exit": 1,
+          "diagnostic": [
+            "callee-merge.goose:11: error: storing a slice rooted at g into s through put's parameter p: s is bound to one rooted at a, at a different scope depth (\u00a79.2)"
+          ]
+        },
+        "baseline": {
+          "exit": 0,
+          "diagnostic": []
+        },
+        "baseline_forced": {
+          "exit": 0,
+          "diagnostic": []
+        },
+        "candidate": {
+          "exit": 0,
+          "diagnostic": []
+        },
+        "candidate_forced": {
+          "exit": 0,
+          "diagnostic": []
+        }
+      }
+    },
+    {
+      "case": "caller-merge.goose",
+      "group": "controls",
+      "sha256": "253aaac9ed21386883ee7e0c029b8ab531ff25e061943e18324b423caa5d2905",
+      "verdicts": {
+        "upstream": {
+          "exit": 0,
+          "diagnostic": []
+        },
+        "baseline": {
+          "exit": 0,
+          "diagnostic": []
+        },
+        "baseline_forced": {
+          "exit": 0,
+          "diagnostic": []
+        },
+        "candidate": {
+          "exit": 0,
+          "diagnostic": []
+        },
+        "candidate_forced": {
+          "exit": 0,
+          "diagnostic": []
+        }
+      }
+    }
+  ],
+  "remaining_forced_accepts": [
+    {
+      "source": "upstream:test/errors_tc/cycle_threaded_outside.goose",
+      "sha256_at_upstream_pin": "0af27418e46172d2d3de063fce922576edc307ed7cdefc3ced02a906ad144c50",
+      "upstream": {
+        "exit": 1,
+        "diagnostic": [
+          "test/errors_tc/cycle_threaded_outside.goose:10: error: references may only be passed down, not stored, inside a recursive cycle (\u00a77.8)"
+        ]
+      }
+    },
+    {
+      "source": "upstream:test/errors_tc/exception_borrow_escape.goose",
+      "sha256_at_upstream_pin": "e4f7e78e4a9f6a2c516571dbe16003f0e6d6a598fd6d0e4bdb1e285291c4f35c",
+      "upstream": {
+        "exit": 1,
+        "diagnostic": [
+          "test/errors_tc/exception_borrow_escape.goose:6: error: a long-distance return may only carry references to globals or static data"
+        ]
+      }
+    },
+    {
+      "source": "upstream:test/errors_tc/funval_return_callee_param.goose",
+      "sha256_at_upstream_pin": "76f3000a19f062ca1fafe866e749c860173741d7d550a1a85baefccfa1a9f359",
+      "upstream": {
+        "exit": 1,
+        "diagnostic": [
+          "test/errors_tc/funval_return_callee_param.goose:14: error: cannot clear a while r is still used: it may hold a reference or slice into it (\u00a75.1)"
+        ]
+      }
+    },
+    {
+      "source": "upstream:test/errors_tc/funval_return_loop_pass.goose",
+      "sha256_at_upstream_pin": "aedd66b8770f2132df0b450f9c5cb9c828abe496c1757bc49fac778278288070",
+      "upstream": {
+        "exit": 1,
+        "diagnostic": [
+          "test/errors_tc/funval_return_loop_pass.goose:19: error: cannot clear y while r is still used: it may hold a reference or slice into it (\u00a75.1)"
+        ]
+      }
+    },
+    {
+      "source": "upstream:test/errors_tc/funval_return_target_local.goose",
+      "sha256_at_upstream_pin": "79079afa040f701e8a68fe5d8fd66eeec601c498f0e58f265968a57b27dbbd98",
+      "upstream": {
+        "exit": 1,
+        "diagnostic": [
+          "test/errors_tc/funval_return_target_local.goose:8: error: returning a reference rooted in loc, which dies with this function (\u00a79.2)"
+        ]
+      }
+    },
+    {
+      "source": "upstream:test/errors_tc/holder_param_recursive_shrink.goose",
+      "sha256_at_upstream_pin": "f16ce864fc7d67fd991e32e442248be00ec6b32e75519686d0b1928795999547",
+      "upstream": {
+        "exit": 1,
+        "diagnostic": [
+          "test/errors_tc/holder_param_recursive_shrink.goose:9: error: cannot pop xs while w is still used: w's views are not of one array exactly, so they may point into it (\u00a75.1)"
+        ]
+      }
+    },
+    {
+      "source": "upstream:test/errors_tc/index_of_back_edge_regrouped.goose",
+      "sha256_at_upstream_pin": "335d7ab63f4e68c1bf074c6fbdbee63c82aba0fe5af703a62c5ee4a1743b6e3a",
+      "upstream": {
+        "exit": 1,
+        "diagnostic": [
+          "test/errors_tc/index_of_back_edge_regrouped.goose:10: error: .index_of needs a reference rooted at the array itself (\u00a73.3); this one is rooted at r"
+        ]
+      }
+    },
+    {
+      "source": "upstream:test/errors_tc/rebind_callee_read_depth.goose",
+      "sha256_at_upstream_pin": "7978d01407ca9a3f15bed58b5f4313a22b022b6668d54008633efd82583a375e",
+      "upstream": {
+        "exit": 1,
+        "diagnostic": [
+          "test/errors_tc/rebind_callee_read_depth.goose:19: error: re-binding best with a reference rooted at a different scope depth is not supported; declare a new variable (\u00a79.2): best is bound to one rooted at text, and this one is rooted at the caller's storage behind d (freq)"
+        ]
+      }
+    },
+    {
+      "source": "upstream:test/errors_tc/shrink_class_copy_byteview.goose",
+      "sha256_at_upstream_pin": "38db5817f6624553fe8e39ba3b8941da724f2774d3fb7181dd38c5b774a54179",
+      "upstream": {
+        "exit": 1,
+        "diagnostic": [
+          "test/errors_tc/shrink_class_copy_byteview.goose:16: error: cannot call f: it shrinks arr while h is still used, and h may refer into arr (\u00a75.1)"
+        ]
+      }
+    },
+    {
+      "source": "upstream:test/errors_tc/shrink_class_pair_back_edge.goose",
+      "sha256_at_upstream_pin": "759b9c19a729bb43d5a39e1fd8afed37e5cf4a37004eac8ab01166e8c647fe56",
+      "upstream": {
+        "exit": 1,
+        "diagnostic": [
+          "test/errors_tc/shrink_class_pair_back_edge.goose:8: error: cannot call walk: it shrinks xs while s is still used, and s may refer into xs (\u00a75.1)"
+        ]
+      }
+    },
+    {
+      "source": "upstream:test/errors_tc/shrink_class_pair_global.goose",
+      "sha256_at_upstream_pin": "7d7554cd7820b38a9e4143a9e89b055fdec4eb1fddbe8bba4fb485b80d36ed27",
+      "upstream": {
+        "exit": 1,
+        "diagnostic": [
+          "test/errors_tc/shrink_class_pair_global.goose:7: error: cannot call f: it shrinks gs while s is still used, and s may refer into gs (\u00a75.1)"
+        ]
+      }
+    },
+    {
+      "source": "upstream:test/errors_tc/shrink_class_read_byteview.goose",
+      "sha256_at_upstream_pin": "ee40797bb509bc3d74a8f4d1ce9f08e87bf496775badc48eb6b042826c0b3bd9",
+      "upstream": {
+        "exit": 1,
+        "diagnostic": [
+          "test/errors_tc/shrink_class_read_byteview.goose:15: error: cannot call f: it shrinks arr while w is still used, and w may refer into arr (\u00a75.1)"
+        ]
+      }
+    },
+    {
+      "source": "upstream:test/errors_tc/shrink_passed_recursive.goose",
+      "sha256_at_upstream_pin": "ea7460146be51a82e369aec0c7b3a0f0799bb6568af5a3c9678fbdffb57f811b",
+      "upstream": {
+        "exit": 1,
+        "diagnostic": [
+          "test/errors_tc/shrink_passed_recursive.goose:6: error: cannot call b: it shrinks G while t is still used, and t may refer into G (\u00a75.1)"
+        ]
+      }
+    },
+    {
+      "source": "upstream:test/errors_tc/shrink_slice_ref_byteview_param.goose",
+      "sha256_at_upstream_pin": "1e72bb83d52177dc74d1371f819614f6bd55bc7d0ce514326155d8a235f40830",
+      "upstream": {
+        "exit": 1,
+        "diagnostic": [
+          "test/errors_tc/shrink_slice_ref_byteview_param.goose:6: error: cannot clear xs while p (bound at test/errors_tc/shrink_slice_ref_byteview_param.goose:5) is still used: the slice it refers to may point into xs (\u00a75.2)"
+        ]
+      }
+    },
+    {
+      "source": "upstream:test/errors_tc/shrink_slice_ref_explicit_callee.goose",
+      "sha256_at_upstream_pin": "de76055aac50f8f9158c122efa16ff37f8b6d76d3863bb7d628612034c82031c",
+      "upstream": {
+        "exit": 1,
+        "diagnostic": [
+          "test/errors_tc/shrink_slice_ref_explicit_callee.goose:8: error: cannot clear gs while v (bound at test/errors_tc/shrink_slice_ref_explicit_callee.goose:7) is still used: it may refer into gs (\u00a75.2)"
+        ]
+      }
+    },
+    {
+      "source": "upstream:test/errors_tc/shrink_slice_ref_loaded.goose",
+      "sha256_at_upstream_pin": "cf620322c8a6c7b01fbdc7eb0bc1b47c9330f5f213ce6fb2a8aa776b35fe533a",
+      "upstream": {
+        "exit": 1,
+        "diagnostic": [
+          "test/errors_tc/shrink_slice_ref_loaded.goose:7: error: cannot clear gs while v (bound at test/errors_tc/shrink_slice_ref_loaded.goose:6) is still used: it may refer into gs (\u00a75.2)"
+        ]
+      }
+    },
+    {
+      "source": "upstream:test/errors_tc/shrink_static_result_backedge.goose",
+      "sha256_at_upstream_pin": "28d88828b4355fd2e1654c300047dade1ff253f0a51d2b338da67ce6b351a383",
+      "upstream": {
+        "exit": 1,
+        "diagnostic": [
+          "test/errors_tc/shrink_static_result_backedge.goose:9: error: cannot clear items while r is still used: it may hold a reference or slice into it (\u00a75.1)"
+        ]
+      }
+    },
+    {
+      "source": "upstream:test/errors_tc/slice_view_recursive.goose",
+      "sha256_at_upstream_pin": "17d5aa36dcbe9cb116a6c781ba6a799351a89e1324c85b1de602f1c4006e0927",
+      "upstream": {
+        "exit": 1,
+        "diagnostic": [
+          "test/errors_tc/slice_view_recursive.goose:9: error: returning a reference rooted in t, which dies with this function (\u00a79.2)"
+        ]
+      }
+    },
+    {
+      "source": "upstream:test/stdlib/stdlib_regex.goose",
+      "sha256_at_upstream_pin": "a405d6d2d9aa1bc7cdfc28ff6b6d221c410402d644b28c792f5f7a2fd95d2984",
+      "upstream": {
+        "exit": 0,
+        "diagnostic": []
+      }
+    }
+  ],
+  "remaining_forced_accepts_upstream_counts": {
+    "exit 1": 18,
+    "exit 0": 1
+  },
+  "default_before_after": {
+    "compared": 4355,
+    "differing": 0,
+    "with_lifetime_fingerprints": 0,
+    "fingerprint_lines": 0
+  }
+}

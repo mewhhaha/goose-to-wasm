@@ -1,0 +1,20 @@
+{
+  "command": [
+    "/home/jacobt/src/goose-to-wasm/build/continue-2026-11-17/baseline/bin/goose",
+    "main.goose",
+    "--stdlib",
+    "/home/jacobt/src/goose-to-wasm/stdlib",
+    "--reachable-program",
+    "--expansion-node-limit",
+    "1000000",
+    "--check"
+  ],
+  "cwd": "/home/jacobt/src/goose-to-wasm/build/continue-2026-11-17/blot2/compiler-goose/src",
+  "compiler_sha256": "f18294f28f303932cf2dca21999e137c007ab22766c3d574aa9fae7960c86b77",
+  "elapsed_seconds": 97.906,
+  "cpu_seconds": 91.935,
+  "peak_rss_kib": 7577028,
+  "exit_code": 1,
+  "error_lines": 38,
+  "stderr_sha256": "ccf9586a69c8cf1d70133cffb300c6253121a6b103d6b3146689c35e159af3f3"
+}

@@ -97,6 +97,46 @@ class OutputCollisions(unittest.TestCase):
 
 
 @unittest.skipUnless(COMPILER.is_file(), "bootstrap the compiler first")
+class ClassLifetimeChecks(unittest.TestCase):
+    def test_replayed_slice_slot_store(self):
+        # Distinct roots make the checker reach its 4,096-frame threshold
+        # before analyzing the slice store, without changing compiler options.
+        roots = "\n".join(f"    var root_{i}: i64 = 0; occupy(root_{i});" for i in range(4200))
+        program = """\
+fn occupy(slot: i64&) { slot += 1; }
+fn put(slot: u8[:]&, value: u8[:]) { slot = value; }
+fn relay(slot: u8[:]&, value: u8[:]) { put(slot, value); }
+fn main() {
+""" + roots + """
+    var a: u8[>..] = [65];
+    var s = a[..];
+    relay(s, b[..]);
+    print(s);
+}
+"""
+        storage = "var b: u8[>..] = [66];\n"
+        local = program.replace("    var a:", "    " + storage + "    var a:")
+        cases = [
+            ("different depth", storage + program, "binding changes its committed root lifetime depth"),
+            ("same depth", local, ""),
+            ("shrink after rebinding", local.replace("    print(s);", "    b.clear();\n    print(s);"),
+             "array shrink invalidates a reference or holder"),
+        ]
+        with tempfile.TemporaryDirectory() as directory:
+            source = Path(directory) / "main.goose"
+            for name, text, error in cases:
+                with self.subTest(name=name):
+                    source.write_text(text)
+                    result = subprocess.run([COMPILER, source, "--target", "native", "--check", "--stdlib", SOURCE_STDLIB],
+                                            stdin=subprocess.DEVNULL, capture_output=True, text=True, timeout=30)
+                    if error:
+                        self.assertEqual(result.returncode, 1, result.stderr)
+                        self.assertIn(error, result.stderr)
+                    else:
+                        self.assertEqual(result.returncode, 0, result.stderr)
+
+
+@unittest.skipUnless(COMPILER.is_file(), "bootstrap the compiler first")
 class StackReserve(unittest.TestCase):
     """--stack-reserve writes GS_STACK_RESERVE into the generated C, as upstream's does."""
     REFUSAL = "--stack-reserve takes a size from 64 KB to 256 TB"
