@@ -18,7 +18,9 @@ The time went where the [profile](#where-the-time-was) said it was: nine tenths 
 | to 32-bit Wasm | 14.83 s | 10.06 s | 0.68 | yes |
 | to C | 14.24 s | 9.27 s | 0.65 | yes |
 
-Medians of seven; the ranges are 10.7 to 13.1 s and 6.0 to 7.1 s for the check. Peak RSS is unchanged (567 MiB checking, 713 MiB compiling).
+Medians of seven; the ranges are 10.7 to 13.1 s and 6.0 to 7.1 s for the check.
+
+Peak RSS rose: 503 to 568 MiB checking and 643 to 714 MiB compiling to Wasm, the new tables. *Corrected later the same day.* This page first said "unchanged (567 MiB checking, 713 MiB compiling)": `tools/native.py` and `tools/selfbench.py` read `getrusage(RUSAGE_CHILDREN)`, whose peak is the largest of every child so far, so the second compiler never showed less than the first. The `rss_kib` values in [native.json](runs/native.json) are that running maximum. [The next page](../lifetime-compact-reads/README.md) measures each run's own peak and brings it to 306 MiB.
 
 Small programs, as `--check`, minimum CPU time of 60 runs and page faults ([small-programs.txt](runs/small-programs.txt)):
 
@@ -111,8 +113,8 @@ The state fingerprint is the one of `bench/results/2026-11-14/blot2-lifetimes/to
 
 After these the lifetime pass is still most of a self-check. Where its time is now, from the pass timers of a development build: about 1.1 s and 1.8 s in discovery passes 1 and 2, 0.4 to 0.7 s in each of passes 3 to 5, 2.7 to 3.0 s in validation.
 
-- **Passes 1 and 2 are real work**: 981,437 construct-read entries made, each a hash insert. The entries are 94% construct reads of 23,610 distinct reads. Holding a frame's reads as a set of leaves instead of an entry each would remove most of it, and would change the state the fingerprint compares, so it needs another proof.
-- **Validation**: 2.4 million construct reads are recorded there and checked against the holds in force; the shrink checks still make 389,733 holder walks over 6.8 million alternatives.
+- **Passes 1 and 2 are real work**: 981,437 construct-read entries made, each a hash insert. The entries are 94% construct reads of 23,610 distinct reads. Holding a frame's reads as a set of leaves instead of an entry each would remove most of it, and would change the state the fingerprint compares, so it needs another proof. Done the same day: [32-byte entries](../lifetime-compact-reads/README.md).
+- **Validation**: 2.4 million construct reads are recorded there and checked against the holds in force; the shrink checks still make 389,733 holder walks over 6.8 million alternatives. Done on the same page.
 - **blot2** is untouched, and is where the larger times are.
 - **The module's profile under V8 names `life_holder_scan`** for 11% of a self-check (the walk step 6 left for roots with a killed field; 4% natively). Removing that walk changed nothing measurable under Wasmtime (Not kept), so the V8 figure was not followed further.
 

@@ -1,0 +1,4 @@
+COUNT after discovery: entries of other kinds 53580, construct reads 988405, table slots 5407296, leaves 23921, frames 2824
+COUNT construct reads offered to the summaries 2056354, of them known to the chain from the offering frame's entry 1300656
+COUNT merges: new 988405, there and sent on in this activation 664193, there 240874, joined and grew 5954, joined the same 10001
+COUNT at the end: effect entries 107847 (170 bytes and a 128-byte summary record each), construct reads 988405 (32 bytes each), table slots 5407296 (4 bytes each)

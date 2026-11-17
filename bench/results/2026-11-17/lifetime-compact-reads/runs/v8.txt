@@ -1,0 +1,17 @@
+v22.23.4
+12.4.254.21-node.57
+64-bit module, equal regions: 25592219 bytes
+  check: 15.375 s, exit 0
+  check: 15.396 s, exit 0
+  check: 15.427 s, exit 0
+  compile itself: 28.459 s, exit 0
+  writes its own bytes
+32-bit module, equal regions: 26587882 bytes
+  check: .50939 s, exit 1: goose runtime error: data region exhausted (line 277)
+profile: 103 regions, 466 MB of peaks, largest 110.3 44.2 43.5 MB
+32-bit module, regions by that profile: 26587882 bytes
+  check: 14.030 s, exit 0
+  check: 13.174 s, exit 0
+  check: 13.559 s, exit 0
+  compile itself: 25.114 s, exit 0
+  writes its own bytes

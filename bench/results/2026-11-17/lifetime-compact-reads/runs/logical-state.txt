@@ -1,0 +1,16 @@
+built /home/user/goose-to-wasm/build/exp/lfp-final.exe
+final rc=0 7 lines
+LOGICAL-STATE-SAME
+{"compared": 4355, "differing": 0, "with_lifetime_fingerprints": 3128, "fingerprint_lines": 11589}
+logical fingerprint, reads held apart
+built /home/user/goose-to-wasm/build/exp/lfp64-final.exe
+threshold 64 base rc=0 7 lines
+threshold 64 final rc=0 7 lines
+THRESHOLD-64-SELFCHECK-SAME
+logical fingerprint, reads held apart
+built /home/user/goose-to-wasm/build/exp/lfp1000-final.exe
+threshold 1000 base rc=0 7 lines
+threshold 1000 final rc=0 7 lines
+THRESHOLD-1000-SELFCHECK-SAME
+{"compared": 4355, "differing": 0, "with_lifetime_fingerprints": 3128, "fingerprint_lines": 11590}
+proved

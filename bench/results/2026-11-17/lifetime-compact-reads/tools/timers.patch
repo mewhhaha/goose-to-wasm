@@ -1,0 +1,61 @@
+--- selfhost/checker_lifetimes.goose	2026-11-17 10:37:46.786761619 +0000
++++ build/sp-work3/selfhost/checker_lifetimes.goose	2026-11-17 12:21:12.205258398 +0000
+@@ -1,4 +1,5 @@
+ import model;
++import os;
+ 
+ // Provenance is a property of an evaluated value, not of its syntax. All
+ // links are stable arena IDs; recursive visits borrow the arenas below.
+@@ -2967,7 +2968,12 @@
+         }
+     }
+ }
++var dbg_shrink_ns: i64 = 0; var dbg_replay_ns: i64 = 0; var dbg_replays: i64 = 0; var dbg_entries: i64 = 0; var dbg_evals: i64 = 0; var dbg_hold2: i64 = 0;
+ fn life_shrink(p: Program&, l: Lifetimes&, node: i64, given: LifeValue, balanced: bool = false) {
++    if !l.discovery { let t0 = clock_ns(); life_shrink_inner(p, l, node, given, balanced); dbg_shrink_ns += clock_ns() - t0; return; }
++    life_shrink_inner(p, l, node, given, balanced);
++}
++fn life_shrink_inner(p: Program&, l: Lifetimes&, node: i64, given: LifeValue, balanced: bool = false) {
+     var receiver = given; receiver.place = life_place_candidates(l, given.place);
+     if receiver.type_id < 0 { return; }
+     var work: i64[>..] = [receiver.type_id]; var at = 0;
+@@ -3032,7 +3038,7 @@
+     var places = value.place;
+     if value.type_id >= 0 && p.types[value.type_id].kind == TY_REF { places = value.refs; }
+     for index in l.hold_floor..l.hold_count {
+-        let hold = l.holds[index];
++        let hold = l.holds[index]; if hold.kind == 2 { dbg_hold2 += 1; }
+         var type_id = value.type_id;
+         if type_id >= 0 && p.types[type_id].kind == TY_REF { type_id = p.types[type_id].element; }
+         var element_read = value.element_array != -1;
+@@ -5434,6 +5440,7 @@
+             if s.kind == 3 && s.leaf >= 0 && life_leaf_offered(l, s.leaf as i64) { at = s.after; continue; }
+         }
+         var effect = l.effects[at]; var next = effect.next; if others { next = l.summaries[at].other; } var mapped = false; var leaf = -1;
++        if !l.discovery { dbg_entries += 1; }
+         if m.count > 0 && effect.kind == 4 && effect.field > -2 {
+             // A store into a class root of what came out of the same
+             // argument's storage moves references about within what that
+@@ -5848,6 +5855,7 @@
+     l.types_frozen = true;
+     // All equations only add alternatives or weaken exactness. A changed
+     // invocation feeds its caller and loops on the following discovery pass.
++    var dbg_t = clock_ns();
+     loop {
+         l.pass += 1;
+         let before = l.revision;
+@@ -5864,6 +5872,7 @@
+             l.types_frozen = false;
+             return;
+         }
++        print("DBG pass", l.pass, "ms", (clock_ns() - dbg_t) / 1000000, "effects", l.effects.len); dbg_t = clock_ns();
+         if l.revision == before { break; }
+     }
+     l.discovery = false;
+@@ -5875,5 +5884,6 @@
+     if p.entry >= 0 { life_function(p, l, p.entry, -1, -1, 0); }
+     for root in standalone { life_function(p, l, root.function_node, -1, root.arguments, 0); }
+     l.types_frozen = false;
++    print("DBG validation ms", (clock_ns() - dbg_t) / 1000000, " shrink ms", dbg_shrink_ns / 1000000, " replay-self ms", dbg_replay_ns / 1000000, " validation effects", l.effects.len, " replays", dbg_replays, " entries", dbg_entries, " body evals", dbg_evals, "holds2", dbg_hold2);
+     if p.diagnostics.len == 0 { life_export_provenance(p, l); life_refresh_named_results(p); }
+ }

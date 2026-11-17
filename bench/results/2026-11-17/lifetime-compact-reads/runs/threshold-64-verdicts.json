@@ -1,0 +1,28 @@
+[
+ {
+  "source": "upstream:test/codegen/render_walks_around_overloads.goose",
+  "a": [
+   0,
+   "",
+   ""
+  ],
+  "b": [
+   1,
+   "",
+   "/home/user/goose-to-wasm/build/tmp/fpc-64/upstream/test/codegen/render_walks_around_overloads.goose:28:11: error: whole assignment replaces a variable-size value while its parts are being rendered"
+  ]
+ },
+ {
+  "source": "upstream:test/stdlib/stdlib_regex.goose",
+  "a": [
+   1,
+   "",
+   "/home/user/goose-to-wasm/build/tmp/fpc-64/upstream/stdlib/std.goose:111:9: error: stored reference does not outlive the storage that receives it\n/home/user/goose-to-wasm/build/tmp/fpc-64/upstream/stdlib/std.goose:116:9: error: stored reference does not outlive the storage that receives it"
+  ],
+  "b": [
+   0,
+   "",
+   ""
+  ]
+ }
+]
