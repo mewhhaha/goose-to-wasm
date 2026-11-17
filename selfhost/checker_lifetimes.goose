@@ -3011,10 +3011,7 @@ fn life_grow(p: Program&, l: Lifetimes&, node: i64, receiver: LifeValue) {
 // activation has been offered it (life_leaf_offered). known: its leaf, where
 // the caller has looked it up and found it not offered (life_replay).
 fn life_offer_once(l: Lifetimes&, offer: LifeEffect, known: i64) {
-    // In validation this is the recording of the effect in the frames'
-    // effect lists, which have it from then on; what it is checked against
-    // is looked at every time, by the caller.
-    if !((l.discovery || l.class_frames == 0) && l.frame > 0 && l.activations < 1073741824) { life_effect(l, offer); return; }
+    if !(l.discovery && l.frame > 0 && l.activations < 1073741824) { life_effect(l, offer); return; }
     var leaf = known; var offered = false;
     if leaf < 0 { leaf = life_leaf(l, offer.kind, offer.node, offer.value); offered = life_leaf_offered(l, leaf); }
     var chain: i64 = -1; if l.discovery { chain = life_chain_key(l, leaf, 0); }
