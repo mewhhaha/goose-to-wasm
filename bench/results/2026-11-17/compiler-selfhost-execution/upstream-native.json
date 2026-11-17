@@ -1,0 +1,112 @@
+{
+  "date": "2026-11-17",
+  "project_commit": "38826b425b68eebb6593ec9ff366a0de08723bf2",
+  "upstream_repository": "https://github.com/aardappel/goose",
+  "workload": {
+    "entry": "selfhost/main.goose",
+    "archive_command": [
+      "git",
+      "archive",
+      "38826b425b68eebb6593ec9ff366a0de08723bf2",
+      "native",
+      "stdlib",
+      "selfhost/*.goose"
+    ],
+    "archive_sha256": "cdede693f8112064841aa52a5c8c7a8749564c1a2f14b2a782adf353f0c14501",
+    "archive_bytes": 2652160,
+    "regular_files_by_directory": {
+      "native": 42,
+      "selfhost": 21,
+      "stdlib": 16
+    },
+    "verification": "Compared every regular archive member byte for byte with the input used in both upstream builds. Compared the complete top-level selfhost/*.goose filename set. The upstream input directory also contains tracked selfhost documentation, bootstrap tooling and historical results from the same project commit."
+  },
+  "invocation": {
+    "cwd": "build/native-selfhost-chart-upstream",
+    "paths": "Compiler paths and cwd are checkout-relative. Each argv is relative to cwd.",
+    "setup": [
+      "source build/performance-env.sh",
+      "mkdir -p build/native-selfhost-chart-upstream/frozen",
+      "git archive 38826b425b68eebb6593ec9ff366a0de08723bf2 selfhost stdlib native | tar -x -C build/native-selfhost-chart-upstream/frozen"
+    ],
+    "environment": {
+      "GOOSE_HOME": "$PWD/cache (PWD is cwd)",
+      "NO_COLOR": "1"
+    },
+    "build_flags": "Both upstream compilers were built with CMake Release, Clang and clang++. The latest tree was cloned from the upstream repository at the recorded commit.",
+    "clang": "clang version 23.1.5",
+    "measurement": "One fresh subprocess per recorded invocation. Python time.perf_counter around subprocess.run and resource.getrusage(RUSAGE_CHILDREN).ru_maxrss. Times measure the rejected build under host load."
+  },
+  "runs": [
+    {
+      "upstream_commit": "d92c4315eb6be2ba12fc8052ed5a44cc0cf27826",
+      "upstream_version": "goose d92c4315 (runtime d521138194f1)",
+      "compiler_path": "build/continue-2026-11-17/upstream-build/goose",
+      "compiler_sha256": "fe5031bfd91f65174195321280ab2e15b3de1ed708ef89c886d01db483a79c78",
+      "cpu_affinity": [
+        0
+      ],
+      "argv": [
+        "../continue-2026-11-17/upstream-build/goose",
+        "build",
+        "frozen/selfhost/main.goose",
+        "--stdlib",
+        "frozen/stdlib",
+        "-O2",
+        "-o",
+        "pinned.compiler",
+        "--cc",
+        "clang",
+        "--offline",
+        "--color",
+        "never"
+      ],
+      "exit_code": 1,
+      "executable_produced": false,
+      "rejection_wall_seconds": 2.1895524829960777,
+      "peak_child_rss_kib": 346436,
+      "merged_output_sha256": "bbdd1cd92334a07a0ea529654d7e1486ad3cd5ecae78389cdcf12837df216319"
+    },
+    {
+      "upstream_commit": "ee261a4c7baf025dcb254d24103b48a6b15279e9",
+      "upstream_version": "goose ee261a4 (runtime f6587ff7f52c)",
+      "compiler_path": "build/native-selfhost-chart-upstream/latest-build/goose",
+      "compiler_sha256": "90704b06e25b03093cd1f9c29f1a6bf47540ba330df1cf0fd63c3dc37593f1e2",
+      "cpu_affinity": [
+        1
+      ],
+      "argv": [
+        "latest-build/goose",
+        "build",
+        "frozen/selfhost/main.goose",
+        "--stdlib",
+        "frozen/stdlib",
+        "-O2",
+        "-o",
+        "latest.compiler",
+        "--cc",
+        "clang",
+        "--offline"
+      ],
+      "exit_code": 1,
+      "executable_produced": false,
+      "rejection_wall_seconds": 2.0399344589968678,
+      "peak_child_rss_kib": 346668,
+      "merged_output_sha256": "bbdd1cd92334a07a0ea529654d7e1486ad3cd5ecae78389cdcf12837df216319"
+    }
+  ],
+  "diagnostics": {
+    "combined_log": "upstream-native.log",
+    "equivalent": "The full merged stdout and stderr were byte-identical for both runs.",
+    "errors": 31,
+    "distinct_file_line_locations": 27,
+    "warnings": 29,
+    "errors_by_project_file": {
+      "selfhost/checker.goose": 2,
+      "selfhost/checker_lifetimes.goose": 28,
+      "selfhost/codegen_c.goose": 1
+    },
+    "first_error": "selfhost/checker.goose:1195: error: cannot call check_type, which may shrink p: p.nodes[param].type_id, which the assignment writes after it, may be in p (§5.1)",
+    "phase": "Both builds reached semantic checking. All 31 errors cite the upstream lifetime rule in section 5.1. Neither build produced a compiler to run."
+  }
+}
