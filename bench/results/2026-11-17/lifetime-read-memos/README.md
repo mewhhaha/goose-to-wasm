@@ -105,7 +105,7 @@ The state fingerprint is the one of `bench/results/2026-11-14/blot2-lifetimes/to
 | the same memo for growths and replacements, which discovery also only records | 0.687 against 0.691: nothing |
 | within one shrink check, cells with equal type, place, references and contents asked once | 7.38 s against 7.40 s: nothing |
 | a summary-level memo by nested activation, beside the one by chain | nothing |
-| per-field lists of reference types for a root with killed fields | 0.605 against 0.605: nothing |
+| per-field lists of reference types for a root with killed fields (`tools/holderfields.py`) | natively 0.605 against 0.605; as a module under Wasmtime the check took 19.4 to 20.3 s against 19.9 to 20.6 s ([runs](runs/hosted-holder-fields.json)): nothing |
 
 ## Not done
 
@@ -114,7 +114,7 @@ After these the lifetime pass is still most of a self-check. Where its time is n
 - **Passes 1 and 2 are real work**: 981,437 construct-read entries made, each a hash insert. The entries are 94% construct reads of 23,610 distinct reads. Holding a frame's reads as a set of leaves instead of an entry each would remove most of it, and would change the state the fingerprint compares, so it needs another proof.
 - **Validation**: 2.4 million construct reads are recorded there and checked against the holds in force; the shrink checks still make 389,733 holder walks over 6.8 million alternatives.
 - **blot2** is untouched, and is where the larger times are.
-- **The module's own profile is different.** Under V8 the new module spends 11% of a self-check in `life_holder_scan`, the walk step 6 left for roots with a killed field, where the native compiler spends 4%. Listing reference types per field for those roots measured nothing natively (Not kept) and was not measured as a module.
+- **The module's profile under V8 names `life_holder_scan`** for 11% of a self-check (the walk step 6 left for roots with a killed field; 4% natively). Removing that walk changed nothing measurable under Wasmtime (Not kept), so the V8 figure was not followed further.
 
 ## Tools
 
