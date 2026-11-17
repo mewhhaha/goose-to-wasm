@@ -1,0 +1,22 @@
+samples 31372
+life_* 85.0%
+ 29.74%     9330 life_effect
+  7.71%     2419 life_contains
+  7.70%     2416 life_gs_contains_walk
+  6.87%     2156 life_list_set
+  4.01%     1257 life_map_set
+  2.21%      694 life_eval_body
+  2.13%      667 life_body
+  2.07%      650 life_leaf
+  1.75%      550 life_replay
+  1.42%      446 check_lookup_scope
+  1.28%      401 life_build_open
+  1.24%      390 <outside>
+  1.15%      361 life_join
+  1.15%      360 g_moving
+  0.96%      300 life_build_order
+  0.95%      299 life_single
+  0.86%      269 check_type_property
+  0.82%      258 check_choose_call
+  0.81%      253 life_build_push
+  0.78%      245 life_build_slot

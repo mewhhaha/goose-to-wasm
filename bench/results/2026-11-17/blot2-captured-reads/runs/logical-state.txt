@@ -1,0 +1,21 @@
+logical fingerprint, reads held apart
+built /home/user/goose-to-wasm/build/exp/lfp-base.exe
+base rc=0 7 lines
+logical fingerprint, reads held apart
+built /home/user/goose-to-wasm/build/exp/lfp-br.exe
+br rc=0 7 lines
+LOGICAL-STATE-SAME
+{"compared": 4355, "differing": 0, "with_lifetime_fingerprints": 3128, "fingerprint_lines": 11589}
+logical fingerprint, reads held apart
+built /home/user/goose-to-wasm/build/exp/fpb-base.exe
+logical fingerprint, reads held apart
+built /home/user/goose-to-wasm/build/exp/fpb-cand.exe
+base rc=1
+28
+real	5m54.024s
+cand rc=1
+28
+real	2m51.084s
+BLOT2-LOGICAL-STATE-SAME 28 lines
+BLOT2-OUTPUT-SAME 38 diagnostic lines
+proved
