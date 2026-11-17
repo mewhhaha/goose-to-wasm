@@ -1,0 +1,374 @@
+{
+ "versions": {
+  "node": "v22.23.4 v8 12.4.254.21-node.57",
+  "wasmtime": "50.0.1",
+  "rust_host_sha256": "17316a2a57d91f95c8a5b7af0921eb12a502ab7604b4515c8568eef91b815ab6",
+  "rustc": "rustc 1.97.0 (2d8144b78 2026-07-07)",
+  "source": "9151d8724cfaa0a2f29162218d1d1fd04dbb3e82",
+  "source_dirty": false
+ },
+ "profile": "0 154\n1 74\n2 176\n3 2357524\n5 2275\n6 43946760\n7 109856320\n8 336141\n9 7603120\n11 138520\n12 240\n13 65536\n14 34992\n15 17496\n16 17536\n17 96\n19 26491708\n20 201560\n21 201560\n22 802528\n23 9438854\n24 4144320\n25 1751490\n26 3013344\n27 2937536\n28 43486800\n29 75019\n30 365504\n31 5492816\n32 26172715\n33 434262\n34 2935736\n35 265984\n36 5871072\n37 747504\n38 26491708\n39 176273909\n40 141816\n41 2939184\n42 2939184\n43 8192\n44 4809440\n45 5878376\n46 524288\n47 140143232\n48 2939184\n49 2266560\n50 7329498\n51 193192\n52 193192\n53 276840\n54 1696080\n55 33554432\n56 1776856\n57 524288\n58 6291456\n59 5878368\n60 478168\n61 1776856\n62 193192\n63 56800\n64 65936\n65 193192\n66 17504\n67 17504\n68 9872\n69 434256\n70 4096\n71 367312\n72 367312\n73 131072\n74 40672\n75 40672\n76 3145728\n77 778998\n78 17536\n79 2192\n80 2952\n81 48\n83 16384\n84 16384\n85 262144\n86 262144\n87 1536\n88 373816\n89 1536\n90 17232\n91 2154\n92 15040\n114 1024\n115 24576\n116 2560\n119 64\n120 8388608\n121 131072\n122 424\n123 480\n124 38752\n125 8\n126 480\n127 424\n",
+ "locals": {
+  "this compiler, 64-bit 256 GiB module": {
+   "functions": 3066,
+   "locals": 96908,
+   "most_in_one_function": 1241
+  },
+  "previous compiler, 64-bit 16 GiB module": {
+   "functions": 3066,
+   "locals": 96908,
+   "most_in_one_function": 1241
+  }
+ },
+ "rows": [
+  {
+   "name": "native: emit the compiler, 64-bit, 256 GiB, region statistics",
+   "command": "$COMPILER selfhost/main.goose --stdlib stdlib --target wasm-direct -O2 --debug --wasm-memory64 --wasm-region-stats --wasm-max-pages 4194304 -o $WORK/goose64.wasm",
+   "seconds": [
+    10.4,
+    10.322,
+    9.801
+   ],
+   "exit_code": 0,
+   "stderr": "",
+   "as_expected": true,
+   "bytes": 26253649,
+   "sha256": "d5b85162a53fe50d32d5d3cecae39c2499c8223df7271766351de17497d5626c"
+  },
+  {
+   "name": "previous compiler: emit the compiler, 64-bit, 16 GiB",
+   "command": "$BEFORE selfhost/main.goose --stdlib stdlib --target wasm-direct -O2 --debug --wasm-memory64 --wasm-max-pages 262144 -o $WORK/before64.wasm",
+   "seconds": [
+    14.126
+   ],
+   "exit_code": 0,
+   "stderr": "",
+   "as_expected": true,
+   "bytes": 25806037,
+   "sha256": "8716773b5a92c32838826ea97951843f5243ed6ede597a8464050f27c03b4fec"
+  },
+  {
+   "name": "native: squares to wasm32",
+   "command": "$COMPILER examples/squares.goose --stdlib stdlib --target wasm-direct -O2 -o $WORK/squares.native.wasm",
+   "seconds": [
+    0.004,
+    0.004,
+    0.004
+   ],
+   "exit_code": 0,
+   "stderr": "",
+   "as_expected": true,
+   "bytes": 1619,
+   "sha256": "1bc96b7fc8c8b52040f7c989280a4f84d5598da3e4e1125bc7e2562ccb1b753f"
+  },
+  {
+   "name": "wasmtime (rust host), first run, compiles the module: squares",
+   "command": "goose-wasmtime $WORK/goose64.wasm --cache $WORK/goose64.cwasm -- examples/squares.goose --stdlib stdlib --target wasm-direct -O2 -o $WORK/first.wasm",
+   "seconds": [
+    12.372
+   ],
+   "exit_code": 0,
+   "stderr": "",
+   "as_expected": true,
+   "bytes": 1619,
+   "sha256": "1bc96b7fc8c8b52040f7c989280a4f84d5598da3e4e1125bc7e2562ccb1b753f",
+   "same_as_native": true
+  },
+  {
+   "name": "wasmtime (rust host): squares",
+   "command": "goose-wasmtime $WORK/goose64.wasm --cache $WORK/goose64.cwasm -- examples/squares.goose --stdlib stdlib --target wasm-direct -O2 -o $WORK/sq.rs.wasm",
+   "seconds": [
+    0.049,
+    0.052,
+    0.049
+   ],
+   "exit_code": 0,
+   "stderr": "",
+   "as_expected": true,
+   "bytes": 1619,
+   "sha256": "1bc96b7fc8c8b52040f7c989280a4f84d5598da3e4e1125bc7e2562ccb1b753f",
+   "same_as_native": true
+  },
+  {
+   "name": "wasmtime (python runner), first run, compiles the module: squares",
+   "command": "python scripts/run_wasmtime.py $WORK/goose64.wasm --cache $WORK/goose64.py.cwasm -- examples/squares.goose --stdlib stdlib --target wasm-direct -O2 -o $WORK/firstpy.wasm",
+   "seconds": [
+    11.739
+   ],
+   "exit_code": 0,
+   "stderr": "",
+   "as_expected": true,
+   "bytes": 1619,
+   "sha256": "1bc96b7fc8c8b52040f7c989280a4f84d5598da3e4e1125bc7e2562ccb1b753f",
+   "same_as_native": true
+  },
+  {
+   "name": "wasmtime (python runner): squares",
+   "command": "python scripts/run_wasmtime.py $WORK/goose64.wasm --cache $WORK/goose64.py.cwasm -- examples/squares.goose --stdlib stdlib --target wasm-direct -O2 -o $WORK/sq.py.wasm",
+   "seconds": [
+    0.286,
+    0.294,
+    0.311
+   ],
+   "exit_code": 0,
+   "stderr": "",
+   "as_expected": true,
+   "bytes": 1619,
+   "sha256": "1bc96b7fc8c8b52040f7c989280a4f84d5598da3e4e1125bc7e2562ccb1b753f",
+   "same_as_native": true
+  },
+  {
+   "name": "native: check itself",
+   "command": "$COMPILER selfhost/main.goose --stdlib stdlib --check",
+   "seconds": [
+    6.857,
+    7.198,
+    6.65
+   ],
+   "exit_code": 0,
+   "stderr": "",
+   "as_expected": true
+  },
+  {
+   "name": "wasmtime (rust host): check itself",
+   "command": "goose-wasmtime $WORK/goose64.wasm --cache $WORK/goose64.cwasm -- selfhost/main.goose --stdlib stdlib --check",
+   "seconds": [
+    20.211,
+    21.649,
+    21.062
+   ],
+   "exit_code": 0,
+   "stderr": "",
+   "as_expected": true
+  },
+  {
+   "name": "wasmtime (python runner): check itself",
+   "command": "python scripts/run_wasmtime.py $WORK/goose64.wasm --cache $WORK/goose64.py.cwasm -- selfhost/main.goose --stdlib stdlib --check",
+   "seconds": [
+    22.058,
+    20.935,
+    20.544
+   ],
+   "exit_code": 0,
+   "stderr": "",
+   "as_expected": true
+  },
+  {
+   "name": "native: itself to wasm32",
+   "command": "$COMPILER selfhost/main.goose --stdlib stdlib --target wasm-direct -O2 --wasm-max-pages 65535 -o $WORK/itself-to-wasm32.native.wasm",
+   "seconds": [
+    9.568,
+    9.692,
+    9.621
+   ],
+   "exit_code": 0,
+   "stderr": "",
+   "as_expected": true,
+   "bytes": 26491708,
+   "sha256": "812aff9785ec7973a00c259b580c39e20de38ebbd254fdd8b84cbeeb56f669ff"
+  },
+  {
+   "name": "wasmtime (rust host): itself to wasm32, writing the region profile",
+   "command": "goose-wasmtime $WORK/goose64.wasm --cache $WORK/goose64.cwasm -- selfhost/main.goose --stdlib stdlib --target wasm-direct -O2 --wasm-max-pages 65535 -o $WORK/itself-to-wasm32.wasmtime.wasm",
+   "seconds": [
+    29.587,
+    28.702,
+    29.19
+   ],
+   "exit_code": 0,
+   "stderr": "regions: 129, memory 272763518976; most used #39:176273909/2114443160 #47:140143232/2114443160 #7:109856320/2114443160 #6:43946760/2114443160 #28:43486800/2114443160 #55:33554432/2114443160 #38:26491708/2114443160 #19:26491708/2114443160 #32:26172715/2114443160 #23:9438854/2114443160 #120:8388608/2114443160 #9:7603120/2114443160\n\n",
+   "as_expected": true,
+   "bytes": 26491708,
+   "sha256": "812aff9785ec7973a00c259b580c39e20de38ebbd254fdd8b84cbeeb56f669ff",
+   "same_as_native": true
+  },
+  {
+   "name": "native: itself to 64-bit Wasm",
+   "command": "$COMPILER selfhost/main.goose --stdlib stdlib --target wasm-direct -O2 --debug --wasm-memory64 --wasm-region-stats --wasm-max-pages 4194304 -o $WORK/itself-to-64-bit-Wasm.native.wasm",
+   "seconds": [
+    9.653,
+    9.474,
+    9.696
+   ],
+   "exit_code": 0,
+   "stderr": "",
+   "as_expected": true,
+   "bytes": 26253649,
+   "sha256": "d5b85162a53fe50d32d5d3cecae39c2499c8223df7271766351de17497d5626c"
+  },
+  {
+   "name": "wasmtime (rust host): itself to 64-bit Wasm",
+   "command": "goose-wasmtime $WORK/goose64.wasm --cache $WORK/goose64.cwasm -- selfhost/main.goose --stdlib stdlib --target wasm-direct -O2 --debug --wasm-memory64 --wasm-region-stats --wasm-max-pages 4194304 -o $WORK/itself-to-64-bit-Wasm.wasmtime.wasm",
+   "seconds": [
+    31.175,
+    32.416,
+    31.022
+   ],
+   "exit_code": 0,
+   "stderr": "",
+   "as_expected": true,
+   "bytes": 26253649,
+   "sha256": "d5b85162a53fe50d32d5d3cecae39c2499c8223df7271766351de17497d5626c",
+   "same_as_native": true
+  },
+  {
+   "name": "native: itself to C",
+   "command": "$COMPILER selfhost/main.goose --stdlib stdlib --target native -O2 -o $WORK/itself-to-C.native.c",
+   "seconds": [
+    9.993,
+    10.113,
+    10.338
+   ],
+   "exit_code": 0,
+   "stderr": "",
+   "as_expected": true,
+   "bytes": 46238264,
+   "sha256": "7a9beb4aa3e25fdda6fa705c23d38c1636323eb00ebcabbf712aa207081e6fbb"
+  },
+  {
+   "name": "wasmtime (rust host): itself to C",
+   "command": "goose-wasmtime $WORK/goose64.wasm --cache $WORK/goose64.cwasm -- selfhost/main.goose --stdlib stdlib --target native -O2 -o $WORK/itself-to-C.wasmtime.c",
+   "seconds": [
+    27.923,
+    28.618,
+    29.265
+   ],
+   "exit_code": 0,
+   "stderr": "",
+   "as_expected": true,
+   "bytes": 46238264,
+   "sha256": "7a9beb4aa3e25fdda6fa705c23d38c1636323eb00ebcabbf712aa207081e6fbb",
+   "same_as_native": true
+  },
+  {
+   "name": "native: emit the compiler, 64-bit, 16 GiB, profile",
+   "command": "$COMPILER selfhost/main.goose --stdlib stdlib --target wasm-direct -O2 --debug --wasm-memory64 --wasm-max-pages 262144 --wasm-region-profile $WORK/goose.profile -o $WORK/goose-v8-64.wasm",
+   "seconds": [
+    10.054
+   ],
+   "exit_code": 0,
+   "stderr": "",
+   "as_expected": true,
+   "bytes": 25806037,
+   "sha256": "255b9fd1b59c7c66f76b559d9ef8eb039dd78ff0d21aca10952e566327cf8d04"
+  },
+  {
+   "name": "native: emit the compiler, 32-bit, 4 GiB, profile",
+   "command": "$COMPILER selfhost/main.goose --stdlib stdlib --target wasm-direct -O2 --debug --wasm-max-pages 65535 --wasm-region-profile $WORK/goose.profile -o $WORK/goose-v8-32.wasm",
+   "seconds": [
+    11.58
+   ],
+   "exit_code": 0,
+   "stderr": "",
+   "as_expected": true,
+   "bytes": 26795620,
+   "sha256": "b3f228cb777bf318162fb30b167ee502dd831141739855304bc968c81a40c4c4"
+  },
+  {
+   "name": "v8, 64-bit module: squares",
+   "command": "node scripts/run_wasm.mjs $WORK/goose-v8-64.wasm -- examples/squares.goose --stdlib stdlib --target wasm-direct -O2 -o $WORK/sq.v8.wasm",
+   "seconds": [
+    2.662,
+    2.346,
+    2.09
+   ],
+   "exit_code": 0,
+   "stderr": "",
+   "as_expected": true,
+   "bytes": 1619,
+   "sha256": "1bc96b7fc8c8b52040f7c989280a4f84d5598da3e4e1125bc7e2562ccb1b753f",
+   "same_as_native": true
+  },
+  {
+   "name": "v8, 64-bit module: check itself",
+   "command": "node scripts/run_wasm.mjs $WORK/goose-v8-64.wasm -- selfhost/main.goose --stdlib stdlib --check",
+   "seconds": [
+    24.744,
+    25.235,
+    25.478
+   ],
+   "exit_code": 0,
+   "stderr": "",
+   "as_expected": true
+  },
+  {
+   "name": "v8, 64-bit module: itself, with the options it was built with",
+   "command": "node scripts/run_wasm.mjs $WORK/goose-v8-64.wasm -- selfhost/main.goose --stdlib stdlib --target wasm-direct -O2 --debug --wasm-memory64 --wasm-max-pages 262144 --wasm-region-profile $WORK/goose.profile -o $WORK/goose-v8-64.wasm.again",
+   "seconds": [
+    38.841,
+    38.681,
+    38.004
+   ],
+   "exit_code": 0,
+   "stderr": "",
+   "as_expected": true,
+   "bytes": 25806037,
+   "sha256": "255b9fd1b59c7c66f76b559d9ef8eb039dd78ff0d21aca10952e566327cf8d04",
+   "same_as_native": true
+  },
+  {
+   "name": "v8, 32-bit module: squares",
+   "command": "node scripts/run_wasm.mjs $WORK/goose-v8-32.wasm -- examples/squares.goose --stdlib stdlib --target wasm-direct -O2 -o $WORK/sq.v8.wasm",
+   "seconds": [
+    1.612,
+    1.525,
+    1.501
+   ],
+   "exit_code": 0,
+   "stderr": "",
+   "as_expected": true,
+   "bytes": 1619,
+   "sha256": "1bc96b7fc8c8b52040f7c989280a4f84d5598da3e4e1125bc7e2562ccb1b753f",
+   "same_as_native": true
+  },
+  {
+   "name": "v8, 32-bit module: check itself",
+   "command": "node scripts/run_wasm.mjs $WORK/goose-v8-32.wasm -- selfhost/main.goose --stdlib stdlib --check",
+   "seconds": [
+    20.572,
+    21.296,
+    21.696
+   ],
+   "exit_code": 0,
+   "stderr": "",
+   "as_expected": true
+  },
+  {
+   "name": "v8, 32-bit module: itself, with the options it was built with",
+   "command": "node scripts/run_wasm.mjs $WORK/goose-v8-32.wasm -- selfhost/main.goose --stdlib stdlib --target wasm-direct -O2 --debug --wasm-max-pages 65535 --wasm-region-profile $WORK/goose.profile -o $WORK/goose-v8-32.wasm.again",
+   "seconds": [
+    35.631,
+    36.285,
+    34.759
+   ],
+   "exit_code": 0,
+   "stderr": "",
+   "as_expected": true,
+   "bytes": 26795620,
+   "sha256": "b3f228cb777bf318162fb30b167ee502dd831141739855304bc968c81a40c4c4",
+   "same_as_native": true
+  },
+  {
+   "name": "native: emit the compiler, 64-bit, 16 GiB, no profile",
+   "command": "$COMPILER selfhost/main.goose --stdlib stdlib --target wasm-direct -O2 --debug --wasm-memory64 --wasm-max-pages 262144 -o $WORK/goose-v8-equal.wasm",
+   "seconds": [
+    9.535
+   ],
+   "exit_code": 0,
+   "stderr": "",
+   "as_expected": true,
+   "bytes": 25806037,
+   "sha256": "8716773b5a92c32838826ea97951843f5243ed6ede597a8464050f27c03b4fec"
+  },
+  {
+   "name": "v8, 64-bit module without a profile: check itself",
+   "command": "node scripts/run_wasm.mjs $WORK/goose-v8-equal.wasm -- selfhost/main.goose --stdlib stdlib --check",
+   "seconds": [
+    6.823
+   ],
+   "exit_code": 1,
+   "stderr": "goose runtime error: data region exhausted (line 802)\n",
+   "as_expected": true
+  }
+ ]
+}

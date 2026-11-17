@@ -1,0 +1,18 @@
+built /home/user/goose-to-wasm/build/exp/step0.exe
+built /home/user/goose-to-wasm/build/exp/step1.exe
+built /home/user/goose-to-wasm/build/exp/step2.exe
+built /home/user/goose-to-wasm/build/exp/step3.exe
+built /home/user/goose-to-wasm/build/exp/step4.exe
+built /home/user/goose-to-wasm/build/exp/step5.exe
+built /home/user/goose-to-wasm/build/exp/step6.exe
+built /home/user/goose-to-wasm/build/exp/step7.exe
+step7-is-final
+step0.exe      min  10.27  median  10.74  (1.000)  max  11.56  rss<= 568 MiB
+step1.exe      min   9.44  median   9.68  (0.901)  max   9.90  rss<= 568 MiB
+step2.exe      min   8.90  median   9.20  (0.856)  max   9.39  rss<= 568 MiB
+step3.exe      min   7.83  median   8.08  (0.753)  max   8.20  rss<= 568 MiB
+step4.exe      min   7.27  median   7.55  (0.703)  max   7.90  rss<= 568 MiB
+step5.exe      min   6.36  median   6.73  (0.626)  max   6.86  rss<= 568 MiB
+step6.exe      min   6.61  median   6.76  (0.630)  max   7.05  rss<= 568 MiB
+step7.exe      min   6.04  median   6.21  (0.578)  max   6.45  rss<= 568 MiB
+exit 0

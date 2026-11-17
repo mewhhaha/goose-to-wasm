@@ -1,0 +1,13 @@
+built /home/user/goose-to-wasm/build/exp/fpb-base.exe
+built /home/user/goose-to-wasm/build/exp/fpb-cand.exe
+base rc=1
+28
+real	6m3.121s
+cand rc=1
+28
+real	6m5.580s
+BLOT2-FINGERPRINTS-SAME 28 lines
+build/tmp/sp/fpb-base.out:0
+build/tmp/sp/fpb-cand.out:0
+BLOT2-OUTPUT-SAME
+exit 0

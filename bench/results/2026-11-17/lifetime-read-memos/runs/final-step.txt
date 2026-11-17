@@ -1,0 +1,6 @@
+selfbench.py -n 7, development builds, the same session; final.exe is the delivered source (steps 1 to 5 and the holder list),
+step7.exe the same with the validation memo that was not kept.
+step0.exe      min  10.26  median  10.41  (1.000)  max  11.45  rss<= 568 MiB
+step5.exe      min   6.42  median   6.63  (0.637)  max   6.89  rss<= 568 MiB
+step7.exe      min   6.03  median   6.20  (0.595)  max   6.47  rss<= 568 MiB
+final.exe      min   5.92  median   6.04  (0.580)  max   6.53  rss<= 568 MiB
