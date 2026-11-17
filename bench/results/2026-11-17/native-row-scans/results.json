@@ -1,0 +1,399 @@
+{
+  "source": "bench/results/2026-11-17/varint-foreach/native_rows.goose",
+  "source_sha256": "480b179837e5ef90357af0c4423520925b8448b0141ef874242fa7fa9e3fd9ed",
+  "host_input_sha256": "26f658dadb1c458334199ee1051a675417ec63d842c6b54fa84f7db250feb60d",
+  "compiler": {
+    "baseline": {
+      "sha256": "94c6428f4d203a2c2db83a6e89b37160407ca3d01abee466b265ba852b45e952",
+      "generated_c_sha256": "9a13329a831cf78067c9400064fa722f19d6b45f5d7232b8beb219917156b392",
+      "executable_sha256": "95b83d03bf45148d7e7007570a58fb5a61dbaf3e04a5b62c42c6fb6a2075c514",
+      "counted_c_sha256": "964554a091e0103b995b4f7ec02c314bfa9f7bf51497500f2e0a55f7b10664b6",
+      "counted_executable_sha256": "5c67de2b63adec7179ea527de2365f0706aa4492722674b53b7de833e3d3eb52",
+      "counted_host_sha256": "f90b77212f2e980f425728eabb6ab70bc44a37865006ed17c8ba93a4005f3d3e"
+    },
+    "candidate": {
+      "sha256": "e7807a460611e43bb9007717af6c347d312228d236c170daa796ac80edfef894",
+      "generated_c_sha256": "d2d31c0acbf4ba9fd8c9daebf8b6ac9401dfd293a6054ed6bcf6d877db00ee3d",
+      "executable_sha256": "3544a845499bc0a503413605f9f9092797801adcf1dee09a0a9b7631e2951abe",
+      "counted_c_sha256": "4de076d448241205ef59b2028bcfda513746050c7beb7eca01eb4400a93379a7",
+      "counted_executable_sha256": "60f0238360100f3051e6ee0be4fd6819eda5e8ab188ca9a6d63b2d700903f60a",
+      "counted_host_sha256": "f90b77212f2e980f425728eabb6ab70bc44a37865006ed17c8ba93a4005f3d3e"
+    }
+  },
+  "gcc": "gcc (GCC) 16.2.1 20260810",
+  "gcc_sha256": "b0b49531b313e70aee0254fb5e69b050a781506184e16ebee6ebe68eee94a145",
+  "target": "x86_64-pc-linux-gnu",
+  "cpu": 6,
+  "thread_siblings": "6,14",
+  "goose_flags": [
+    "--stdlib",
+    "stdlib",
+    "--target",
+    "native",
+    "-O2"
+  ],
+  "gcc_flags": [
+    "-O2",
+    "-rdynamic",
+    "-fno-strict-aliasing"
+  ],
+  "link_flags": [
+    "-lm",
+    "-ldl",
+    "-pthread"
+  ],
+  "timed_pairs_columns": [
+    "construct_ns",
+    "foreach_ns"
+  ],
+  "skip_calls_columns": [
+    "construct_calls",
+    "foreach_calls"
+  ],
+  "measurement": {
+    "1001": {
+      "warmups": 2,
+      "pairs": [
+        {
+          "baseline": [
+            4000141,
+            9478392
+          ],
+          "candidate": [
+            47199,
+            9789
+          ]
+        },
+        {
+          "candidate": [
+            50967,
+            9778
+          ],
+          "baseline": [
+            3768261,
+            9507327
+          ]
+        },
+        {
+          "baseline": [
+            3808367,
+            9494211
+          ],
+          "candidate": [
+            56968,
+            10871
+          ]
+        },
+        {
+          "candidate": [
+            51839,
+            9809
+          ],
+          "baseline": [
+            3789432,
+            9549727
+          ]
+        },
+        {
+          "baseline": [
+            3813296,
+            9517847
+          ],
+          "candidate": [
+            65214,
+            14077
+          ]
+        },
+        {
+          "candidate": [
+            47541,
+            9698
+          ],
+          "baseline": [
+            4188719,
+            10499753
+          ]
+        },
+        {
+          "baseline": [
+            5260175,
+            9994794
+          ],
+          "candidate": [
+            48723,
+            9868
+          ]
+        }
+      ],
+      "skip_calls": {
+        "baseline": [
+          1002001,
+          2507505
+        ],
+        "candidate": [
+          1001,
+          3003
+        ]
+      },
+      "expected_checksum": 500500
+    },
+    "2002": {
+      "warmups": 2,
+      "pairs": [
+        {
+          "baseline": [
+            16600265,
+            40708458
+          ],
+          "candidate": [
+            100010,
+            20068
+          ]
+        },
+        {
+          "candidate": [
+            93938,
+            19928
+          ],
+          "baseline": [
+            16200355,
+            41360207
+          ]
+        },
+        {
+          "baseline": [
+            15971030,
+            39699941
+          ],
+          "candidate": [
+            126530,
+            27512
+          ]
+        },
+        {
+          "candidate": [
+            128504,
+            27443
+          ],
+          "baseline": [
+            20094936,
+            49450951
+          ]
+        },
+        {
+          "baseline": [
+            15459257,
+            40638564
+          ],
+          "candidate": [
+            135458,
+            28935
+          ]
+        },
+        {
+          "candidate": [
+            128835,
+            30458
+          ],
+          "baseline": [
+            18446544,
+            47274455
+          ]
+        },
+        {
+          "baseline": [
+            16276139,
+            38586666
+          ],
+          "candidate": [
+            117092,
+            22082
+          ]
+        }
+      ],
+      "skip_calls": {
+        "baseline": [
+          4008004,
+          10025015
+        ],
+        "candidate": [
+          2002,
+          6006
+        ]
+      },
+      "expected_checksum": 2003001
+    },
+    "4004": {
+      "warmups": 2,
+      "pairs": [
+        {
+          "baseline": [
+            67472377,
+            154983353
+          ],
+          "candidate": [
+            199570,
+            40316
+          ]
+        },
+        {
+          "candidate": [
+            177949,
+            38543
+          ],
+          "baseline": [
+            66940386,
+            160872604
+          ]
+        },
+        {
+          "baseline": [
+            65319015,
+            153555710
+          ],
+          "candidate": [
+            184110,
+            38793
+          ]
+        },
+        {
+          "candidate": [
+            183379,
+            38543
+          ],
+          "baseline": [
+            62305118,
+            157302981
+          ]
+        },
+        {
+          "baseline": [
+            61975000,
+            177437152
+          ],
+          "candidate": [
+            301483,
+            56087
+          ]
+        },
+        {
+          "candidate": [
+            284922,
+            63992
+          ],
+          "baseline": [
+            76509370,
+            168183408
+          ]
+        },
+        {
+          "baseline": [
+            63481815,
+            193226365
+          ],
+          "candidate": [
+            282337,
+            54163
+          ]
+        }
+      ],
+      "skip_calls": {
+        "baseline": [
+          16032016,
+          40090050
+        ],
+        "candidate": [
+          4004,
+          12012
+        ]
+      },
+      "expected_checksum": 8014006
+    },
+    "8008": {
+      "warmups": 2,
+      "pairs": [
+        {
+          "baseline": [
+            240123283,
+            600394523
+          ],
+          "candidate": [
+            363391,
+            79912
+          ]
+        },
+        {
+          "candidate": [
+            359764,
+            75734
+          ],
+          "baseline": [
+            239541568,
+            612668377
+          ]
+        },
+        {
+          "baseline": [
+            238190221,
+            592719507
+          ],
+          "candidate": [
+            358351,
+            75193
+          ]
+        },
+        {
+          "candidate": [
+            341358,
+            74652
+          ],
+          "baseline": [
+            240176315,
+            593588078
+          ]
+        },
+        {
+          "baseline": [
+            236929484,
+            593308348
+          ],
+          "candidate": [
+            375543,
+            75704
+          ]
+        },
+        {
+          "candidate": [
+            363311,
+            75693
+          ],
+          "baseline": [
+            238683217,
+            601528137
+          ]
+        },
+        {
+          "baseline": [
+            238331269,
+            610967785
+          ],
+          "candidate": [
+            529978,
+            100220
+          ]
+        }
+      ],
+      "skip_calls": {
+        "baseline": [
+          64128064,
+          160340180
+        ],
+        "candidate": [
+          8008,
+          24024
+        ]
+      },
+      "expected_checksum": 32060028
+    }
+  }
+}

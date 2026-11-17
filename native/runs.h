@@ -26,18 +26,22 @@ static GImage g_run_view(const GRunRoot *root,int64_t index,GRunSkip skip) {
     return (GImage){(uint8_t*)at,(uint8_t*)skip(at,root->end),NULL};
 }
 /* A descriptor over the actual receiving region, never a second byte owner. */
-static GImage g_run_begin(GRunRoot *receiving,GRunSkip skip) {
-    g_run_check(receiving,skip);
+static GImage g_run_writer(GRunRoot *receiving) {
     if(receiving->header.len==INT64_MAX)g_panic("run length overflow");
     if(receiving->header.region->stack.top!=receiving->end)g_panic("run append has an open writer");
     return (GImage){receiving->end,receiving->end,receiving->header.region};
 }
-static uint8_t *g_run_finish(GRunRoot *receiving,GImage completed,GRunSkip skip) {
-    g_run_check(receiving,skip);
+static GImage g_run_begin(GRunRoot *receiving,GRunSkip skip) {
+    g_run_check(receiving,skip);return g_run_writer(receiving);
+}
+static uint8_t *g_run_commit(GRunRoot *receiving,GImage completed,GRunSkip skip) {
     if(completed.region!=receiving->header.region || completed.base!=receiving->end || completed.end!=completed.region->stack.top)g_panic("run element has no receiving authority");
     if(skip(completed.base,completed.end)!=completed.end)g_panic("completed run element has trailing bytes");
     if(receiving->header.len==INT64_MAX)g_panic("run length overflow");
     receiving->header.len++;receiving->end=completed.end;return completed.base;
+}
+static uint8_t *g_run_finish(GRunRoot *receiving,GImage completed,GRunSkip skip) {
+    g_run_check(receiving,skip);return g_run_commit(receiving,completed,skip);
 }
 /* Internal result adaptation may reuse a descriptor of the same receiver only. */
 static void g_run_land(GRunRoot *receiving,const GRunRoot *completed,GRunSkip skip) {

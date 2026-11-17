@@ -25,6 +25,8 @@ python3 scripts/bootstrap.py --build-dir build/dev --jobs 8 \
 
 The development build compiles eight program units beside one runtime unit without the profile. The one unit default is the release build. The cache reuses seed C when the seed, options and staged input bytes match. With `--verify`, the resulting compiler generates fresh C for the fixed-point check on every run. Use `--source-dir` to build a separate copy of the compiler sources. Use the [snapshot 63 protocol](results/2026-11-14/snapshot-63/README.md) to freeze a seed and profile.
 
+For local edits, `python3 scripts/bootstrap.py --reuse-toolchain build/toolchain.json` starts with the previously verified local compiler. It checks that executable against its receipt and verifies the new C fixed point before installation. [Measurements](../bench/results/2026-11-17/local-bootstrap/README.md)
+
 Modules found through `--stdlib` are libraries: their function bodies are lexed, parsed and checked only when the program reaches them. Unused functions in user sources are still checked.
 
 See [qualification](../tests/README.md#qualifying-a-change) for the frozen contracts and output comparison. [Open compatibility work](../docs/FEATURES.md#blot2-compatibility) · [Direct target and hosts](../docs/TARGET.md)

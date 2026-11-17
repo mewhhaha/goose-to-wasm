@@ -1,0 +1,1722 @@
+{
+  "source": "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/source",
+  "fingerprints": {
+    "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/dev/parent/goose": {
+      "sha256": "d146f5538b7df9994a4d3532040a2e4e9029b1e3f481025a00383fcb637c4307",
+      "bytes": 6980720
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/dev/candidate/goose": {
+      "sha256": "3601e8e2c78aefc746f2666d7205c357c5ce8833708478b8c4ee828130476864",
+      "bytes": 6980760
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/source/selfhost/checker.goose": {
+      "sha256": "ad0d41166fab91eedf7890f551a30b79be2c8e10b2729782133cae2a5f3a5fbb",
+      "bytes": 496429
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/source/selfhost/checker_lifetimes.goose": {
+      "sha256": "fd68474c7cfd70e0ed2d8aebe16c8ce0bd4fdc328ece88cfccd82e6e9615117f",
+      "bytes": 382252
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/source/selfhost/checker_operations.goose": {
+      "sha256": "30c41cdc001f0512d2c5d3017368a80dbfc824dfd1f11e1c53a5213f5114927f",
+      "bytes": 12303
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/source/selfhost/checker_rendering.goose": {
+      "sha256": "cd8b3602c9117914a8c35da201321183ae43c3a407642d7526379b3fe69bbe97",
+      "bytes": 17408
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/source/selfhost/checker_validation.goose": {
+      "sha256": "1d0a53fcf7f8607d4c4dbfaa210799f17859b683226a4310e9215d87ca298561",
+      "bytes": 40013
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/source/selfhost/codegen.goose": {
+      "sha256": "a8edeb3f4155189a5c726743289cb800d513379a531619b021de2faffec6546b",
+      "bytes": 442077
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/source/selfhost/codegen_c.goose": {
+      "sha256": "a43c5b63a56e17822a3c7fd783d36d953f48d78c3317f2e3c2cf5922680424cc",
+      "bytes": 335158
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/source/selfhost/codegen_c_images.goose": {
+      "sha256": "4addca16891b21ad19db5e04576ab530a339eb5dacc925e87d4b090f3cbefd14",
+      "bytes": 28363
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/source/selfhost/codegen_c_storage.goose": {
+      "sha256": "9cabe8c10c57f783c9962ff62cb7e26767dc30e39f497918d4cbbf44abea78a9",
+      "bytes": 23106
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/source/selfhost/codegen_c_threads.goose": {
+      "sha256": "f52675b945cf777a89231d6befc1c195e96f802d3bf6497e817e32d33cff66e5",
+      "bytes": 11434
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/source/selfhost/driver.goose": {
+      "sha256": "1cd6ff4b9237e5ad2c60a430e8654fe3e86ed810c85010ca8231dd0bed83cf4a",
+      "bytes": 27450
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/source/selfhost/expansion_bind.goose": {
+      "sha256": "42951b1303d7dca17558283dd7250b5d86b7eb1d35699ece0d6933166aa15641",
+      "bytes": 6887
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/source/selfhost/lexer.goose": {
+      "sha256": "70744dd80512f8f1e6ed36520bf62d9b22d942a06041028fe88e594365e2a5f2",
+      "bytes": 27712
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/source/selfhost/main.goose": {
+      "sha256": "aedbadf2bb4536fc059812d4eeec6151d57de2bf25c1005fa6f5d4470aa45d1e",
+      "bytes": 51
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/source/selfhost/model.goose": {
+      "sha256": "db82acd43762c4deda04a30953053705ae7d240cc4d6f179c5c5fc31237cba5a",
+      "bytes": 28280
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/source/selfhost/optimizer.goose": {
+      "sha256": "5db9272660c8772d3ee80933564638f22a4e92c68f4112f84396ab52971f3a56",
+      "bytes": 41368
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/source/selfhost/parser.goose": {
+      "sha256": "2707f6d42796cff5712e3225e0648fa3a78c21c24678f1682a611d9d2937cc18",
+      "bytes": 64355
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/source/selfhost/region_plan.goose": {
+      "sha256": "ea7804e188178980bd4f89ebdc8e230092cac5db55890ccb0bedbf89b46a77fb",
+      "bytes": 3970
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/source/selfhost/sources.goose": {
+      "sha256": "34c593056216efd45f091dba7e7bbaa40ebeb1058dba1412ffb30872965042c0",
+      "bytes": 15214
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/source/selfhost/thread_plan.goose": {
+      "sha256": "73e2ed70ce4c83ae7469b0e818c7b7d2df51035286537f84959cd3272dfbe594",
+      "bytes": 3679
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/source/selfhost/wasm.goose": {
+      "sha256": "2a58b1f04ca35a07280bc0e94fcdeb1bd3ee40985ab33bce9160124ca6517808",
+      "bytes": 13668
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/source/stdlib/base64.goose": {
+      "sha256": "fa1111ce46e9534311f825880dbd2988953430aeb3f1f52d8f0eaecbbc298a61",
+      "bytes": 4031
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/source/stdlib/binary.goose": {
+      "sha256": "6973e209428668c2db856eaa941de5d93938cfb1749ed07cac534bf9fe4cb031",
+      "bytes": 3100
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/source/stdlib/csv.goose": {
+      "sha256": "a49b0647f4a2f8ca36170e5a184ab6c6e505492434d0a10a5e05127e96da61ba",
+      "bytes": 2833
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/source/stdlib/dictionary.goose": {
+      "sha256": "fb39f896731faf3799e81727f7261849a62bdfbdc92d5fdbc36405a85830f322",
+      "bytes": 6948
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/source/stdlib/exception.goose": {
+      "sha256": "093863eda5433176750182b597aa6760a93808d86b0c9b713681443d2fb29160",
+      "bytes": 1301
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/source/stdlib/ffi.goose": {
+      "sha256": "e092b245fbe13ee2fdc71599b7b8eb44198e5261cad9600b7681e13ad75a6c2e",
+      "bytes": 1026
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/source/stdlib/json.goose": {
+      "sha256": "0e58291ed9051e4ecb8da1ad420290549d723336516507aed33cf7ced89dc29b",
+      "bytes": 84960
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/source/stdlib/math.goose": {
+      "sha256": "b4c1aee33b5b7033d36a4ddc5c6522c73b21cafe204dc20e8860cdeba22467da",
+      "bytes": 2873
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/source/stdlib/os.goose": {
+      "sha256": "2193f394d44469daffd993ed204a91b068084fd8db13e261e11156b40c66e934",
+      "bytes": 4107
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/source/stdlib/regex.goose": {
+      "sha256": "be0e50bab2a1db9f85e856250bcc592dfe25aca73c2ed900410047fbefb4b035",
+      "bytes": 45694
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/source/stdlib/slice_pool.goose": {
+      "sha256": "74ffe0d7b153a8728ced2974d493743576ed264c8b463f8bd5fe0bfade3a4424",
+      "bytes": 5525
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/source/stdlib/slice_pool_internal.goose": {
+      "sha256": "34a7eae1269a87c59487e3c15ea13b3332d14d9cd4bee8306bb520fd828eb121",
+      "bytes": 1149
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/source/stdlib/slot_pool.goose": {
+      "sha256": "e83b975bfff2806df0401afc3e37e147618c5673a9c98690007e6beb3bd51745",
+      "bytes": 2161
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/source/stdlib/std.goose": {
+      "sha256": "2243c2ef52ba5045b275eea35252d09f36544987c6884f4a8d35579fa6f781ff",
+      "bytes": 44251
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/source/stdlib/upstream.json": {
+      "sha256": "3c8aa9fb4cce92ca136ac4580e1fd2f9baf76d85c9236b865f473b6de6d4d2e9",
+      "bytes": 1508
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/source/stdlib/vec.goose": {
+      "sha256": "2cac168c72047834433bfb419734c38455c9429ea045b1273898031c53faa82e",
+      "bytes": 3062
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/source/native/README.md": {
+      "sha256": "01a9ebf6c9ae6d3ac8ecb7ba5fb64084d7146cfda575d8853981eb4cc3cb1bf5",
+      "bytes": 5806
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/source/native/images.h": {
+      "sha256": "6107261de647a67474c407c7da739aab8fbd2600e04f29a6e3bffccd43b15290",
+      "bytes": 7401
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/source/native/pack.py": {
+      "sha256": "2e2acae72b9ec2db4f19ce58d5c54472f01a4e083886a678c2f3496fa96e6f80",
+      "bytes": 3339
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/source/native/pools.h": {
+      "sha256": "052962725edfd70e0edacc6b372de04e93a941c4cbcc92cd750a056dc052c6cc",
+      "bytes": 5512
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/source/native/relative.h": {
+      "sha256": "4b3c41b7b929e3706412aaebb62b84640578f8963e473312fe66f0c597c296ba",
+      "bytes": 5297
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/source/native/runs.h": {
+      "sha256": "1458624355d3ea8e0da05523e5f0b5328b21d827381cd609f0541ec92b897f3c",
+      "bytes": 3137
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/source/native/runtime/LICENSE": {
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "bytes": 11358
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/source/native/runtime/NOTICE": {
+      "sha256": "803282561ca75117bd789df6d7d47af30ee958cf0a7c5cdd603e68b8fa374003",
+      "bytes": 288
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/source/native/runtime/goose.h": {
+      "sha256": "16e4d67ae7013050fa14a84162fe57f77ae8f0a7cd7c285d94cdfefc99a87de4",
+      "bytes": 1411
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/source/native/runtime/manifest.json": {
+      "sha256": "4381fbca7f703469cf6bd7e76ef4bc81a110640e5a877f36d60786ee3cda440e",
+      "bytes": 1390
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/source/native/runtime/runtime.h": {
+      "sha256": "5ac9487568c78c7cdf6e141d90d644da50436b1b7188047e6bfca09c7b801132",
+      "bytes": 51965
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/source/native/runtime/runtime_ext.h": {
+      "sha256": "bfce3ceee2d6d922d2ad2cdb527a293cde691c261aa4ecf9fe6e35e02637ddf3",
+      "bytes": 10014
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/source/native/runtime/runtime_impl.h": {
+      "sha256": "717f6d243575fa7e5de8229799cf86c22934dc202a4e6880c699db339b596bf1",
+      "bytes": 71690
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/source/native/runtime/runtime_os.h": {
+      "sha256": "27c4a80301075151434e8040222f72e0ed672ed0d4eb71857dd6028e978b4087",
+      "bytes": 25821
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/source/native/runtime/runtime_threads.h": {
+      "sha256": "b6a2a8f5ecde191093af1c6bde1939d172ef275156bd60e2e9e725d67f0a4285",
+      "bytes": 15528
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/source/native/runtime_unit.h": {
+      "sha256": "e11a0d180a048b95a8dd827d7e2664526a3ad3e368dc602a78d363f34bc13a58",
+      "bytes": 588
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/source/native/slice_pool.h": {
+      "sha256": "576d87376a557c4febb9ae9338add4d8a8059d75fee581b82cc2c1ef57bf2a1a",
+      "bytes": 20332
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/source/native/storage.h": {
+      "sha256": "52e3954130687897538ed20b6fb3f7208f915aff9c7f1817de6b5d2d1c45943c",
+      "bytes": 27063
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/source/native/tests/bounded_cells.c": {
+      "sha256": "4347362e07179ad9494ba1bed809348ceedd6ff20c095b52bb6637a1b3a18261",
+      "bytes": 3249
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/source/native/tests/check.py": {
+      "sha256": "608443c86874e1f9df45cd5c01c850744e58f260f23902f7e32cb9da0c2f70f5",
+      "bytes": 8867
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/source/native/tests/fixed_values.c": {
+      "sha256": "fd7bafbd0d44e113c2a9cf0678ce28ed0993a1e27231057e6191f997960d3b19",
+      "bytes": 1926
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/source/native/tests/image_storage.c": {
+      "sha256": "9eb14d0887f49e37e21854be95e976bbac15dcc5fd36b457d00e881b1bb9e304",
+      "bytes": 4893
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/source/native/tests/images.goose": {
+      "sha256": "946dbef9e148e50f67533c72d7806a76e88d3c2fe0d6fc3b469f3f36d19a7051",
+      "bytes": 2290
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/source/native/tests/large_values.goose": {
+      "sha256": "78501c63e2fb92257e92415d36808e080196171d824e7982b1b2b3fd79e27da8",
+      "bytes": 744
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/source/native/tests/lazy_regions.c": {
+      "sha256": "ef9cd60374728b852bec5ce6e8c5337eb91ec3aced5744eeda2624ff6a57d2c5",
+      "bytes": 3618
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/source/native/tests/ordinary_regions.goose": {
+      "sha256": "2ffa3461685b4822d3e440c0fbe90ae30c55f80f8f18327e7d0aa788a7415e24",
+      "bytes": 1333
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/source/native/tests/pools.c": {
+      "sha256": "1e1d20e1d105b7837f2231b7339ca8cd5694fb69a1b204df5efd5e93e18e5559",
+      "bytes": 2815
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/source/native/tests/receiving_views.goose": {
+      "sha256": "97316e9d22b2c1e24934f7830a786e1239504182e37e7c8149e03ad22a8bf0c2",
+      "bytes": 699
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/source/native/tests/relative.c": {
+      "sha256": "df2915990cdb28ccff508c4285aeb7f0b247b1bf4bda81239ca5ca578e0b5214",
+      "bytes": 2602
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/source/native/tests/relative.goose": {
+      "sha256": "de3659f3e7cb74e294ddbcb05777b3f6e9f13a0ab09566ddadff396a853a401d",
+      "bytes": 2007
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/source/native/tests/relative_overflow.goose": {
+      "sha256": "b6f04ea9ecee8cef4c92b2f51cfce70000b73c659ee54da8b5aa2a3027050a23",
+      "bytes": 278
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/source/native/tests/results.goose": {
+      "sha256": "32c6cd8288c73c17d84d72260643b04b5f4f39fc3931278ffb2c815073c8aa82",
+      "bytes": 2149
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/source/native/tests/runs.c": {
+      "sha256": "bca8968e299308eca4ddf63a03002b0c0fe291470a0bd3670d1a432edfcf82bd",
+      "bytes": 4259
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/source/native/tests/runtime_threads_lifecycle.c": {
+      "sha256": "2d4d9d70637bd73570ca511c7cbb95be96b19d6e73a7c38020e47a87a31cb386",
+      "bytes": 10346
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/source/native/tests/runtime_trim_memory.c": {
+      "sha256": "ec39bbb051fb0d138a0f16504455349a210550dec69321c497bae6fc514e9d1f",
+      "bytes": 5272
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/source/native/tests/slice_pool.c": {
+      "sha256": "5c3bfef7e1194a6f3d54ee0739337b4395d73815fb91af1477abab1cf4d1ee0e",
+      "bytes": 5745
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/source/native/tests/source-manifest.json": {
+      "sha256": "ed037a52a76daf8c2fdf0da268653dc4ea396ebf1e79bc4337e79801423f82c9",
+      "bytes": 698
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/source/native/tests/threads_adapter.c": {
+      "sha256": "c18cfcc1bcea1f02255ea3cace712203c20160c2025c78fb391f666e6eb578f9",
+      "bytes": 3817
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/source/native/tests/var_relative.c": {
+      "sha256": "ed3dfd054dadd5836f2c90cc473eb21ae99f38034724327e25a132efeed2f054",
+      "bytes": 4348
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/source/native/tests/variable_images.goose": {
+      "sha256": "fdebe9e12ea5a5d0657867fb5cfa44d4c614d3dc2ac77ce79ba476c4bf922bed",
+      "bytes": 2014
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/source/native/threads.h": {
+      "sha256": "bd9b605086d3475d86d76bb630f9d408ca987efe359f824a36b06d76e49c6cb4",
+      "bytes": 2045
+    },
+    "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/source/native/units.h": {
+      "sha256": "23b0395c15dc4ea9a7fc3545560a49427007d1d1f0019a9a46a920b3de5d5560",
+      "bytes": 2261
+    }
+  },
+  "cpu": 7,
+  "samples": 7,
+  "order_seed": 111757,
+  "machine_before": {
+    "utc": "2026-11-17T21:51:39.186004+00:00",
+    "uname": {
+      "system": "Linux",
+      "node": "cachyos-x8664",
+      "release": "7.3.4-1-cachyos",
+      "version": "#1 SMP PREEMPT_DYNAMIC Fri, 13 Nov 2026 19:45:18 +0000",
+      "machine": "x86_64",
+      "processor": ""
+    },
+    "parent_pid": 1162128,
+    "parent_affinity": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15
+    ],
+    "load_average": [
+      7.3349609375,
+      8.1689453125,
+      14.10302734375
+    ],
+    "cpu_count": 16,
+    "cpu_ticks": {
+      "cpu0": [
+        190219,
+        259943,
+        45470,
+        4677730,
+        8705,
+        8724,
+        11865,
+        0,
+        0,
+        0
+      ],
+      "cpu1": [
+        192183,
+        271001,
+        46938,
+        4663152,
+        10882,
+        9186,
+        5881,
+        0,
+        0,
+        0
+      ],
+      "cpu2": [
+        206679,
+        256094,
+        46136,
+        4663960,
+        11357,
+        9177,
+        6407,
+        0,
+        0,
+        0
+      ],
+      "cpu3": [
+        201587,
+        258565,
+        47625,
+        4665083,
+        11555,
+        9225,
+        5618,
+        0,
+        0,
+        0
+      ],
+      "cpu4": [
+        213134,
+        200270,
+        56402,
+        4699382,
+        9796,
+        9150,
+        4544,
+        0,
+        0,
+        0
+      ],
+      "cpu5": [
+        226033,
+        186716,
+        60773,
+        4696329,
+        10263,
+        9316,
+        4382,
+        0,
+        0,
+        0
+      ],
+      "cpu6": [
+        220940,
+        177673,
+        61101,
+        4707855,
+        9604,
+        8376,
+        2939,
+        0,
+        0,
+        0
+      ],
+      "cpu7": [
+        239208,
+        185659,
+        55013,
+        4688762,
+        10685,
+        10162,
+        5179,
+        0,
+        0,
+        0
+      ],
+      "cpu8": [
+        179651,
+        239064,
+        46136,
+        4713441,
+        8584,
+        8620,
+        2413,
+        0,
+        0,
+        0
+      ],
+      "cpu9": [
+        180476,
+        243724,
+        46707,
+        4702969,
+        13324,
+        8847,
+        2350,
+        0,
+        0,
+        0
+      ],
+      "cpu10": [
+        173147,
+        247988,
+        46327,
+        4707894,
+        12935,
+        8797,
+        2320,
+        0,
+        0,
+        0
+      ],
+      "cpu11": [
+        174974,
+        249214,
+        46342,
+        4704620,
+        13307,
+        8758,
+        2290,
+        0,
+        0,
+        0
+      ],
+      "cpu12": [
+        188070,
+        180756,
+        54002,
+        4747152,
+        9943,
+        8757,
+        2698,
+        0,
+        0,
+        0
+      ],
+      "cpu13": [
+        189881,
+        181709,
+        60674,
+        4716670,
+        10137,
+        37173,
+        2852,
+        0,
+        0,
+        0
+      ],
+      "cpu14": [
+        181322,
+        184529,
+        53987,
+        4751902,
+        9099,
+        8362,
+        2571,
+        0,
+        0,
+        0
+      ],
+      "cpu15": [
+        193450,
+        173443,
+        58263,
+        4744617,
+        9806,
+        8392,
+        2478,
+        0,
+        0,
+        0
+      ]
+    },
+    "smt_siblings": {
+      "/sys/devices/system/cpu/cpu0/topology/thread_siblings_list": "0,8",
+      "/sys/devices/system/cpu/cpu1/topology/thread_siblings_list": "1,9",
+      "/sys/devices/system/cpu/cpu10/topology/thread_siblings_list": "2,10",
+      "/sys/devices/system/cpu/cpu11/topology/thread_siblings_list": "3,11",
+      "/sys/devices/system/cpu/cpu12/topology/thread_siblings_list": "4,12",
+      "/sys/devices/system/cpu/cpu13/topology/thread_siblings_list": "5,13",
+      "/sys/devices/system/cpu/cpu14/topology/thread_siblings_list": "6,14",
+      "/sys/devices/system/cpu/cpu15/topology/thread_siblings_list": "7,15",
+      "/sys/devices/system/cpu/cpu2/topology/thread_siblings_list": "2,10",
+      "/sys/devices/system/cpu/cpu3/topology/thread_siblings_list": "3,11",
+      "/sys/devices/system/cpu/cpu4/topology/thread_siblings_list": "4,12",
+      "/sys/devices/system/cpu/cpu5/topology/thread_siblings_list": "5,13",
+      "/sys/devices/system/cpu/cpu6/topology/thread_siblings_list": "6,14",
+      "/sys/devices/system/cpu/cpu7/topology/thread_siblings_list": "7,15",
+      "/sys/devices/system/cpu/cpu8/topology/thread_siblings_list": "0,8",
+      "/sys/devices/system/cpu/cpu9/topology/thread_siblings_list": "1,9"
+    },
+    "commands": [
+      {
+        "command": [
+          "lscpu"
+        ],
+        "stdin": null,
+        "started_utc": "2026-11-17T21:51:39.188445+00:00",
+        "status": "passed",
+        "pid": 1163598,
+        "stdout": "Architecture:                            x86_64\nCPU op-mode(s):                          32-bit, 64-bit\nAddress sizes:                           43 bits physical, 48 bits virtual\nByte Order:                              Little Endian\nCPU(s):                                  16\nOn-line CPU(s) list:                     0-15\nVendor ID:                               AuthenticAMD\nModel name:                              AMD Ryzen 7 3800X 8-Core Processor\nCPU family:                              23\nModel:                                   113\nThread(s) per core:                      2\nCore(s) per socket:                      8\nSocket(s):                               1\nStepping:                                0\nMicrocode version:                       0x8701034\nFrequency boost:                         enabled\nCPU(s) scaling MHz:                      74%\nCPU max MHz:                             4558.8862\nCPU min MHz:                             2200.0000\nBogoMIPS:                                7785.31\nFlags:                                   fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm constant_tsc rep_good nopl xtopology nonstop_tsc cpuid extd_apicid aperfmperf rapl pni pclmulqdq monitor ssse3 fma cx16 sse4_1 sse4_2 movbe popcnt aes xsave avx f16c rdrand lahf_lm cmp_legacy svm extapic cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw ibs skinit wdt tce topoext perfctr_core perfctr_nb bpext perfctr_llc mwaitx cpb cat_l3 cdp_l3 hw_pstate ssbd mba ibpb stibp vmmcall fsgsbase bmi1 avx2 smep bmi2 cqm rdt_a rdseed adx smap clflushopt clwb sha_ni xsaveopt xsavec xgetbv1 cqm_llc cqm_occup_llc cqm_mbm_total cqm_mbm_local clzero irperf xsaveerptr rdpru wbnoinvd arat npt lbrv svm_lock nrip_save tsc_scale vmcb_clean flushbyasid decodeassists pausefilter pfthreshold avic v_vmsave_vmload vgif v_spec_ctrl umip rdpid overflow_recov succor smca sev sev_es\nVirtualization:                          AMD-V\nL1d cache:                               256 KiB (8 instances)\nL1i cache:                               256 KiB (8 instances)\nL2 cache:                                4 MiB (8 instances)\nL3 cache:                                32 MiB (2 instances)\nNUMA node(s):                            1\nNUMA node0 CPU(s):                       0-15\nVulnerability Gather data sampling:      Not affected\nVulnerability Ghostwrite:                Not affected\nVulnerability Indirect target selection: Not affected\nVulnerability Itlb multihit:             Not affected\nVulnerability L1tf:                      Not affected\nVulnerability Mds:                       Not affected\nVulnerability Meltdown:                  Not affected\nVulnerability Mmio stale data:           Not affected\nVulnerability Old microcode:             Not affected\nVulnerability Reg file data sampling:    Not affected\nVulnerability Retbleed:                  Mitigation; untrained return thunk; SMT enabled with STIBP protection\nVulnerability Spec rstack overflow:      Mitigation; Safe RET\nVulnerability Spec store bypass:         Mitigation; Speculative Store Bypass disabled via prctl\nVulnerability Spectre v1:                Mitigation; usercopy/swapgs barriers and __user pointer sanitization\nVulnerability Spectre v2:                Mitigation; Retpolines; IBPB conditional; STIBP always-on; RSB filling; PBRSB-eIBRS Not affected; BHI Not affected\nVulnerability Srbds:                     Not affected\nVulnerability Tsa:                       Not affected\nVulnerability Tsx async abort:           Not affected\nVulnerability Vmscape:                   Mitigation; IBPB before exit to userspace\n",
+        "stderr": "",
+        "exit_code": 0,
+        "wall_seconds": 0.00845404400024563
+      },
+      {
+        "command": [
+          "ps",
+          "-eo",
+          "pid,ppid,psr,pcpu,pmem,etimes,comm",
+          "--sort=-pcpu"
+        ],
+        "stdin": null,
+        "started_utc": "2026-11-17T21:51:39.196928+00:00",
+        "status": "passed",
+        "pid": 1163599,
+        "stdout": "    PID    PPID PSR %CPU %MEM ELAPSED COMMAND\n1163596 1162148   3  150  0.0       0 python\n1162093 1162092   2 98.8  5.0      30 clang-23\n1162201  191505   4 98.5  0.1       5 python3\n 187559  187558   7 95.8  2.6   11989 VampireSurvivor\n1162144 1161999   5 71.5  1.1       9 clang-23\n1162148  191505  15 22.3  0.2       6 python\n 191505  191492  13  8.5  1.8   11708 codex\n 191492     782   3  4.3  2.9   11708 node-MainThread\n1161130 1160528   0  2.8  1.5     136 MainThread\n   1629    1624  15  2.6  0.7   52478 kwin_wayland\n 186941    2217  14  2.3  0.2   12195 Isolated Web Co\n   3277    3079   9  1.4  0.9   52471 steamwebhelper\n 181718  181531   6  1.3  0.7   12330 Discord\n1162054 1162053   2  1.1  0.1      34 python\n 187758    2916  12  1.0  0.0   11985 gameoverlayui\n   2916    2883   6  0.9  0.5   52473 steam\n   1985     782  14  0.8  1.1   52475 zen\n1162128  191505  10  0.6  0.0      18 python\n   3097    3075   8  0.6  0.3   52472 steamwebhelper\n   3068    2916  11  0.5  0.4   52472 steamwebhelper\n1161199 1161130  10  0.5  0.4     134 workerd\n 692987       2   8  0.4  0.0    2946 kworker/u65:5-btrfs-endio-write\n 164599    2217  12  0.4  0.5   13321 Isolated Web Co\n 937493       2  10  0.4  0.0    1423 kworker/u65:0-btrfs-endio-meta\n 741903       2  10  0.4  0.0    2140 kworker/u65:3-btrfs-endio\n    147       2   6  0.4  0.0   52497 kswapd0\n 840319       2   8  0.3  0.0    1821 kworker/u65:7-btrfs-endio\n 938642       2  15  0.3  0.0    1384 kworker/u65:22-btrfs-endio\n 181531     782  13  0.3  0.1   12331 Discord\n 808563       2  15  0.3  0.0    1865 kworker/u66:21-btrfs-delalloc\n 692992       2   0  0.3  0.0    2946 kworker/u65:19-btrfs-endio-write\n 692988       2  10  0.3  0.0    2946 kworker/u65:9-btrfs-endio\n 725399       2  12  0.3  0.0    2396 kworker/u66:4-btrfs-endio-write\n 692989       2   8  0.3  0.0    2946 kworker/u65:12-btrfs-endio-write\n 696448       2   3  0.3  0.0    2874 kworker/u66:15-btrfs-delalloc\n 671841       2   9  0.3  0.0    3761 kworker/u65:15-btrfs-endio\n   1750    1629  12  0.3  0.2   52477 Xwayland\n 696435       2   7  0.3  0.0    2874 kworker/u66:10-blkcg_punt_bio\n   1869     782  12  0.3  0.0   52477 pipewire-pulse\n1160528  191505  13  0.3  0.4     165 MainThread\n 692206       2   4  0.3  0.0    3018 kworker/u66:3-btrfs-endio\n 671838       2   3  0.2  0.0    3761 kworker/u65:8-btrfs-endio-write\n 671836       2   2  0.2  0.0    3761 kworker/u65:4-btrfs-endio-write\n 192058  191505   1  0.2  0.0   11592 codex-code-mode\n1160415       2  10  0.2  0.0     181 kworker/u65:2-btrfs-endio\n 936928       2  12  0.2  0.0    1449 kworker/u66:0-btrfs-endio-write\n 667203       2  10  0.2  0.0    4191 kworker/u65:17-btrfs-endio-write\n 692667       2   4  0.2  0.0    2972 kworker/u66:5-btrfs-endio-write\n 696447       2  13  0.2  0.0    2874 kworker/u66:14-btrfs-endio-write\n 668191       2   6  0.2  0.0    3961 kworker/u66:11-btrfs-delalloc\n 667925       2   7  0.2  0.0    4012 kworker/u66:9-btrfs-delalloc\n 181601  181534  14  0.2  0.3   12330 Discord\n 667275       2   4  0.2  0.0    4145 kworker/u66:1-btrfs-endio\n 662560       2   9  0.2  0.0    4517 kworker/u66:19-btrfs-delalloc\n 668712       2  11  0.2  0.0    3863 kworker/u66:17-btrfs-delalloc\n 668192       2   0  0.2  0.0    3961 kworker/u66:13-btrfs-delalloc\n   2417    2217   8  0.2  0.0   52474 RDD Process\n 696422       2   1  0.1  0.0    2874 kworker/u65:21-btrfs-endio\n 667924       2  13  0.1  0.0    4012 kworker/u66:8-btrfs-endio-write\n    716       1   6  0.1  0.0   52491 ananicy-cpp\n1161330       2  10  0.1  0.0     125 kworker/u65:11-btrfs-endio-write\n 629180       2   6  0.1  0.0    7155 kworker/u66:18-btrfs-endio-write\n 649182       2  12  0.1  0.0    5710 kworker/u66:6-btrfs-endio-write\n 194191       2  11  0.1  0.0   11060 kworker/u65:1-btrfs-endio-write\n 660113       2   6  0.1  0.0    4765 kworker/u66:16-btrfs-endio-write\n 603224       2  13  0.1  0.0    8977 kworker/u66:2-btrfs-endio\n 407295       2   3  0.1  0.0    9554 kworker/u65:16-btrfs-endio\n   1551     815  15  0.1  0.0   52483 cloudflared\n1161999 1161987   5  0.1  0.3      45 python\n1149514       2  11  0.1  0.0     705 kworker/u65:6-btrfs-endio\n1159600       2   6  0.0  0.0     282 kworker/u66:20-events_unbound\n1162053 1162048   2  0.0  0.0      34 python\n    305       2  14  0.0  0.0   52493 nvidia-modeset/kthread_q\n    325       2   6  0.0  0.0   52493 btrfs-transaction\n1159003       2  12  0.0  0.0     362 kworker/u66:7-btrfs-endio\n1162048  191505   2  0.0  0.0      34 bash\n   1640     782  12  0.0  0.7   52478 plasmashell\n   2796    2217   0  0.0  0.1   52474 WebExtensions\n   1711     782  12  0.0  0.0   52478 pipewire\n    815     793   0  0.0  0.1   52490 MainThread\n 181604  181531  14  0.0  0.0   12330 Discord\n 340095       2   1  0.0  0.0    9595 kworker/u64:2+btrfs-discard\n1161987  191505  11  0.0  0.0      52 zsh\n1161194 1161130   7  0.0  0.0     134 esbuild\n 187617       2  13  0.0  0.0   11988 nvidia-drm/timeline-3a4\n1159935    2217  13  0.0  0.2     250 Web Content\n     16       2   7  0.0  0.0   52497 rcu_preempt\n 957897       2   5  0.0  0.0    1145 kworker/5:0-mm_percpu_wq\n 961347       2  12  0.0  0.0    1144 kworker/12:1-events\n    128       2  13  0.0  0.0   52497 khugepaged\n   1501       1  11  0.0  0.0   52484 upowerd\n1159604  191505  12  0.0  0.0     281 node_repl\n   1744     782  15  0.0  0.0   52477 org_kde_powerde\n    510       1  14  0.0  0.0   52492 systemd-resolve\n 733134       2   5  0.0  0.0    2294 kworker/5:2-events\n 715233       2   8  0.0  0.0    2591 kworker/u64:1-ipv6_addrconf\n 960438       2   4  0.0  0.0    1144 kworker/4:2-mm_percpu_wq\n   3198    3068  15  0.0  0.0   52471 steamwebhelper\n 187806       2   8  0.0  0.0   11958 kworker/8:1-events\n 187805       2   3  0.0  0.0   11958 kworker/3:1-events\n    126       2  15  0.0  0.0   52497 kcompactd0\n 406920       2  13  0.0  0.0    9554 kworker/13:2-events\n 169227    3068  14  0.0  0.0   13208 steamwebhelper\n 579030       2  10  0.0  0.0    9360 kworker/10:0-events\n 181337     782   6  0.0  0.2   12333 krunner\n1122032    2217   3  0.0  0.0     863 Web Content\n    715     714   1  0.0  0.0   52491 dbus-broker\n1159603  191505   5  0.0  0.0     281 wayland-compute\n   2855    2217   0  0.0  0.0   52474 Utility Process\n    782       1  10  0.0  0.0   52491 systemd\n   1708       2  13  0.0  0.0   52478 nvidia-drm/timeline-21\n   1578       1  13  0.0  0.0   52479 ksecretd\n 567891       2  14  0.0  0.0    9370 kworker/14:0-events\n1157302    2217  15  0.0  0.0     552 Web Content\n   2012     782  13  0.0  0.3   52475 systemsettings\n   1712     782  14  0.0  0.0   52478 wireplumber\n 632707       2   4  0.0  0.0    6899 kworker/4:0-events\n    293       2   0  0.0  0.0   52494 kworker/0:2-events\n    301       2  11  0.0  0.0   52493 kworker/11:1H-kblockd\n    378       2   9  0.0  0.0   52493 kworker/9:1H-kblockd\n    390       2  10  0.0  0.0   52493 kworker/10:1H-kblockd\n    392       2   3  0.0  0.0   52493 kworker/3:1H-kblockd\n    345       2   2  0.0  0.0   52493 kworker/2:1H-kblockd\n      1       0  11  0.0  0.0   52498 systemd\n    304       2   1  0.0  0.0   52493 kworker/1:1H-kblockd\n    486       2   2  0.0  0.0   52492 kworker/2:2-events\n    136       2   9  0.0  0.0   52497 kworker/9:1-events\n    134       2   1  0.0  0.0   52497 kworker/1:1-events\n    156       2  11  0.0  0.0   52496 kworker/11:1-events\n    379       2   8  0.0  0.0   52493 kworker/8:1H-kblockd\n   1116    1103   8  0.0  0.0   52488 dbus-broker\n    292       2  13  0.0  0.0   52494 kworker/13:1H-kblockd\n    393       2  12  0.0  0.0   52493 kworker/12:1H-kblockd\n    291       2   5  0.0  0.0   52494 kworker/5:1H-kblockd\n    359       2   7  0.0  0.0   52493 kworker/7:1H-kblockd\n 182161  181531   6  0.0  0.0   12328 Discord\n    372       2  15  0.0  0.0   52493 kworker/15:1H-kblockd\n   1964     782   2  0.0  0.0   52475 xdg-desktop-por\n    356       2   0  0.0  0.0   52493 kworker/0:1H-kblockd\n    302       2  14  0.0  0.0   52493 kworker/14:1H-kblockd\n    296       2   6  0.0  0.0   52494 kworker/6:1H-kblockd\n    320       2   4  0.0  0.0   52493 kworker/4:1H-kblockd\n1159480       2  14  0.0  0.0     303 kworker/u66:12-btrfs-delalloc\n   3379    3079   2  0.0  0.0   52468 steamwebhelper\n     94       2  12  0.0  0.0   52497 kworker/12:0-events\n   1634     782   6  0.0  0.0   52478 kded6\n    645       2   6  0.0  0.0   52492 kworker/6:3-events\n    406       1   0  0.0  0.0   52493 systemd-journal\n    162       2  15  0.0  0.0   52496 kworker/15:1-events\n     64       2   7  0.0  0.0   52497 kworker/7:0-events\n 911411  191505   9  0.0  0.0    1597 node_repl\n 742824  191505   0  0.0  0.0    2123 node_repl\n   2344    2332  10  0.0  0.0   52475 x86_64-linux-gn\n   1438       1   2  0.0  0.0   52484 polkitd\n 187554    2916  13  0.0  0.0   11989 steam-runtime-l\n    717       1   9  0.0  0.0   52491 NetworkManager\n     15       2   0  0.0  0.0   52497 ksoftirqd/0\n 742832  191505   4  0.0  0.0    2123 wayland-compute\n 911424  191505   6  0.0  0.0    1597 wayland-compute\n   1996     782  14  0.0  0.0   52475 xdg-document-po\n    719       1   1  0.0  0.0   52491 avahi-daemon\n     51       2   5  0.0  0.0   52497 ksoftirqd/5\n     45       2   4  0.0  0.0   52497 ksoftirqd/4\n   2066     782  14  0.0  0.0   52475 xdg-desktop-por\n 679901  191505   4  0.0  0.0    3468 node_repl\n     99       2  13  0.0  0.0   52497 ksoftirqd/13\n   2354    2332   5  0.0  0.0   52475 srt-bwrap\n     93       2  12  0.0  0.0   52497 ksoftirqd/12\n   2401    2217   1  0.0  0.0   52474 Privileged Cont\n     27       2   1  0.0  0.0   52497 ksoftirqd/1\n   1747       1  11  0.0  0.0   52477 udisksd\n    105       2  14  0.0  0.0   52497 ksoftirqd/14\n     33       2   2  0.0  0.0   52497 ksoftirqd/2\n   2010     782   5  0.0  0.0   52475 dolphin\n 668278  191505  13  0.0  0.0    3925 node_repl\n     57       2   6  0.0  0.0   52497 ksoftirqd/6\n    793     782  14  0.0  0.0   52491 MainThread\n     39       2   3  0.0  0.0   52497 ksoftirqd/3\n     63       2   7  0.0  0.0   52497 ksoftirqd/7\n     75       2   9  0.0  0.0   52497 ksoftirqd/9\n     56       2   6  0.0  0.0   52497 migration/6\n     87       2  11  0.0  0.0   52497 ksoftirqd/11\n   1781       2  13  0.0  0.0   52477 nvidia-drm/timeline-23\n    111       2  15  0.0  0.0   52497 ksoftirqd/15\n     81       2  10  0.0  0.0   52497 ksoftirqd/10\n     69       2   8  0.0  0.0   52497 ksoftirqd/8\n    110       2  15  0.0  0.0   52497 migration/15\n   1836     782   1  0.0  0.0   52477 at-spi2-registr\n     62       2   7  0.0  0.0   52497 migration/7\n     98       2  13  0.0  0.0   52497 migration/13\n     50       2   5  0.0  0.0   52497 migration/5\n    720       1  12  0.0  0.0   52491 systemd-logind\n 170598    3079  14  0.0  0.0   13124 steamwebhelper\n     44       2   4  0.0  0.0   52497 migration/4\n    771       2  13  0.0  0.0   52491 psimon\n    104       2  14  0.0  0.0   52497 migration/14\n 668279  191505  13  0.0  0.0    3925 wayland-compute\n   3199    3079   7  0.0  0.0   52471 steamwebhelper\n   1742     782   7  0.0  0.0   52477 kaccess\n   1826    1825   0  0.0  0.0   52477 dbus-broker\n     92       2  12  0.0  0.0   52497 migration/12\n    528       1   2  0.0  0.0   52492 systemd-udevd\n     20       2   0  0.0  0.0   52497 migration/0\n 250000  191505   9  0.0  0.0    9951 node_repl\n   1745     782   2  0.0  0.0   52477 xembedsniproxy\n   1462       1   7  0.0  0.0   52484 rtkit-daemon\n     26       2   1  0.0  0.0   52497 migration/1\n     32       2   2  0.0  0.0   52497 migration/2\n 626001  191505   8  0.0  0.0    7535 node_repl\n   2013     782   9  0.0  0.0   52475 xdg-desktop-por\n   1741     782  11  0.0  0.0   52477 gmenudbusmenupr\n     38       2   3  0.0  0.0   52497 migration/3\n     68       2   8  0.0  0.0   52497 migration/8\n 611015  191505   2  0.0  0.0    8694 node_repl\n   2058    2011   8  0.0  0.0   52475 steam\n    451       1  13  0.0  0.0   52493 systemd-userdbd\n     74       2   9  0.0  0.0   52497 migration/9\n     80       2  10  0.0  0.0   52497 migration/10\n 181429     782   4  0.0  0.0   12332 baloorunner\n     86       2  11  0.0  0.0   52497 migration/11\n   2217    1985   4  0.0  0.0   52475 forkserver\n 249999  191505   7  0.0  0.0    9951 wayland-compute\n 679883  191505   0  0.0  0.0    3468 wayland-compute\n   1728     782   8  0.0  0.0   52477 kactivitymanage\n 187558  187557  15  0.0  0.0   11989 reaper\n   1893     782   5  0.0  0.0   52476 kdeconnectd\n 181693       2  13  0.0  0.0   12330 nvidia-drm/timeline-35d\n   2215       2  14  0.0  0.0   52475 nvidia-drm/timeline-38\n    540       1   1  0.0  0.0   52492 systemd-timesyn\n 192193  191505   8  0.0  0.0   11576 node_repl\n 191924  191505   6  0.0  0.0   11599 node_repl\n 191766  191505  12  0.0  0.0   11614 node_repl\n   2718    2217  12  0.0  0.0   52474 Web Content\n 181534  181531   2  0.0  0.0   12331 Discord\n 181535  181531  10  0.0  0.0   12331 Discord\n    121       2   9  0.0  0.0   52497 khungtaskd\n   3100       2  14  0.0  0.0   52472 nvidia-drm/timeline-54\n 626000  191505   5  0.0  0.0    7535 wayland-compute\n 611013  191505   9  0.0  0.0    8694 wayland-compute\n   2871     782   1  0.0  0.0   52474 kwalletd6\n   1631     782   6  0.0  0.0   52478 ksmserver\n    714       1   6  0.0  0.0   52491 dbus-broker-lau\n   1743     782  12  0.0  0.0   52477 polkit-kde-auth\n 192192  191505  10  0.0  0.0   11576 wayland-compute\n 181571     782  15  0.0  0.0   12330 chrome_crashpad\n      2       0   6  0.0  0.0   52498 kthreadd\n   1952       1  14  0.0  0.0   52475 power-profiles-\n   1571    1282  11  0.0  0.0   52479 sddm-helper\n   3079    3076  12  0.0  0.0   52472 steamwebhelper\n   1983     782  13  0.0  0.0   52475 xdg-permission-\n   3075    3068  11  0.0  0.0   52472 steamwebhelper\n   3076    3068   1  0.0  0.0   52472 steamwebhelper\n   2287    2217   3  0.0  0.0   52475 Socket Process\n   2011     782   6  0.0  0.0   52475 bash\n   1579    1571  13  0.0  0.0   52479 startplasma-way\n   1282       1  10  0.0  0.0   52486 sddm\n   1103     782   4  0.0  0.0   52488 dbus-broker-lau\n      3       2   0  0.0  0.0   52497 pool_workqueue_release\n      4       2   0  0.0  0.0   52497 kworker/R-rcu_gp\n      5       2   0  0.0  0.0   52497 kworker/R-sync_wq\n      6       2   0  0.0  0.0   52497 kworker/R-kvfree_rcu_reclaim\n      7       2   0  0.0  0.0   52497 kworker/R-slub_flushwq\n      8       2   0  0.0  0.0   52497 kworker/R-netns\n     11       2   0  0.0  0.0   52497 kworker/0:0H-kblockd\n     14       2   0  0.0  0.0   52497 kworker/R-mm_percpu_wq\n     17       2   0  0.0  0.0   52497 rcub/0\n     18       2   0  0.0  0.0   52497 rcu_exp_par_gp_kthread_worker/0\n     19       2   6  0.0  0.0   52497 rcu_exp_gp_kthread_worker\n     21       2   0  0.0  0.0   52497 kprobe-optimizer\n     22       2   0  0.0  0.0   52497 idle_inject/0\n     23       2   0  0.0  0.0   52497 cpuhp/0\n     24       2   1  0.0  0.0   52497 cpuhp/1\n     25       2   1  0.0  0.0   52497 idle_inject/1\n     29       2   1  0.0  0.0   52497 kworker/1:0H-kblockd\n     30       2   2  0.0  0.0   52497 cpuhp/2\n     31       2   2  0.0  0.0   52497 idle_inject/2\n     35       2   2  0.0  0.0   52497 kworker/2:0H-kblockd\n     36       2   3  0.0  0.0   52497 cpuhp/3\n     37       2   3  0.0  0.0   52497 idle_inject/3\n     41       2   3  0.0  0.0   52497 kworker/3:0H-kblockd\n     42       2   4  0.0  0.0   52497 cpuhp/4\n     43       2   4  0.0  0.0   52497 idle_inject/4\n     47       2   4  0.0  0.0   52497 kworker/4:0H-kblockd\n     48       2   5  0.0  0.0   52497 cpuhp/5\n     49       2   5  0.0  0.0   52497 idle_inject/5\n     53       2   5  0.0  0.0   52497 kworker/5:0H-kblockd\n     54       2   6  0.0  0.0   52497 cpuhp/6\n     55       2   6  0.0  0.0   52497 idle_inject/6\n     59       2   6  0.0  0.0   52497 kworker/6:0H-kblockd\n     60       2   7  0.0  0.0   52497 cpuhp/7\n     61       2   7  0.0  0.0   52497 idle_inject/7\n     65       2   7  0.0  0.0   52497 kworker/7:0H-kblockd\n     66       2   8  0.0  0.0   52497 cpuhp/8\n     67       2   8  0.0  0.0   52497 idle_inject/8\n     71       2   8  0.0  0.0   52497 kworker/8:0H-kblockd\n     72       2   9  0.0  0.0   52497 cpuhp/9\n     73       2   9  0.0  0.0   52497 idle_inject/9\n     77       2   9  0.0  0.0   52497 kworker/9:0H-kblockd\n     78       2  10  0.0  0.0   52497 cpuhp/10\n     79       2  10  0.0  0.0   52497 idle_inject/10\n     83       2  10  0.0  0.0   52497 kworker/10:0H-kblockd\n     84       2  11  0.0  0.0   52497 cpuhp/11\n     85       2  11  0.0  0.0   52497 idle_inject/11\n     89       2  11  0.0  0.0   52497 kworker/11:0H-kblockd\n     90       2  12  0.0  0.0   52497 cpuhp/12\n     91       2  12  0.0  0.0   52497 idle_inject/12\n     95       2  12  0.0  0.0   52497 kworker/12:0H-kblockd\n     96       2  13  0.0  0.0   52497 cpuhp/13\n     97       2  13  0.0  0.0   52497 idle_inject/13\n    101       2  13  0.0  0.0   52497 kworker/13:0H-kblockd\n    102       2  14  0.0  0.0   52497 cpuhp/14\n    103       2  14  0.0  0.0   52497 idle_inject/14\n    107       2  14  0.0  0.0   52497 kworker/14:0H-kblockd\n    108       2  15  0.0  0.0   52497 cpuhp/15\n    109       2  15  0.0  0.0   52497 idle_inject/15\n    113       2  15  0.0  0.0   52497 kworker/15:0H-kblockd\n    116       2   2  0.0  0.0   52497 kdevtmpfs\n    117       2   6  0.0  0.0   52497 kworker/R-inet_frag_wq\n    118       2   6  0.0  0.0   52497 rcu_tasks_kthread\n    119       2   6  0.0  0.0   52497 rcu_tasks_rude_kthread\n    120       2   6  0.0  0.0   52497 kauditd\n    123       2   5  0.0  0.0   52497 oom_reaper\n    125       2   4  0.0  0.0   52497 kworker/R-writeback\n    127       2   4  0.0  0.0   52497 ksmd\n    129       2   4  0.0  0.0   52497 kworker/R-bio_complete\n    130       2   4  0.0  0.0   52497 kworker/R-kblockd\n    131       2   4  0.0  0.0   52497 kworker/R-blkcg_punt_bio\n    132       2   4  0.0  0.0   52497 kworker/R-kintegrityd\n    133       2   1  0.0  0.0   52497 irq/9-acpi\n    137       2   4  0.0  0.0   52497 kworker/R-tpm_dev_wq\n    138       2   4  0.0  0.0   52497 kworker/R-ata_sff\n    139       2   4  0.0  0.0   52497 kworker/R-edac-poller\n    140       2   4  0.0  0.0   52497 kworker/R-devfreq_wq\n    141       2   6  0.0  0.0   52497 watchdogd\n    142       2  15  0.0  0.0   52497 kworker/R-quota_events_unbound\n    144       2   2  0.0  0.0   52497 irq/26-AMD-Vi0-Evt\n    145       2   3  0.0  0.0   52497 irq/27-AMD-Vi0-PPR\n    146       2   4  0.0  0.0   52497 irq/28-AMD-Vi0-GA\n    148       2   6  0.0  0.0   52497 kworker/R-kthrotld\n    149       2  15  0.0  0.0   52497 kworker/u67:0\n    150       2  15  0.0  0.0   52497 kworker/R-acpi_thermal_pm\n    163       2  10  0.0  0.0   52495 scsi_eh_0\n    164       2   6  0.0  0.0   52495 kworker/R-scsi_tmf_0\n    165       2   6  0.0  0.0   52495 scsi_eh_1\n    166       2   6  0.0  0.0   52495 kworker/R-scsi_tmf_1\n    167       2   7  0.0  0.0   52495 scsi_eh_2\n    168       2   6  0.0  0.0   52495 kworker/R-scsi_tmf_2\n    169       2  11  0.0  0.0   52495 scsi_eh_3\n    170       2   6  0.0  0.0   52495 kworker/R-scsi_tmf_3\n    176       2   2  0.0  0.0   52495 scsi_eh_4\n    177       2   6  0.0  0.0   52495 kworker/R-scsi_tmf_4\n    178       2   9  0.0  0.0   52495 scsi_eh_5\n    179       2   6  0.0  0.0   52495 kworker/R-scsi_tmf_5\n    180       2   8  0.0  0.0   52495 scsi_eh_6\n    181       2   6  0.0  0.0   52495 kworker/R-scsi_tmf_6\n    182       2   6  0.0  0.0   52495 scsi_eh_7\n    183       2   6  0.0  0.0   52495 kworker/R-scsi_tmf_7\n    184       2   8  0.0  0.0   52495 scsi_eh_8\n    185       2   6  0.0  0.0   52495 kworker/R-scsi_tmf_8\n    186       2  10  0.0  0.0   52495 scsi_eh_9\n    187       2   6  0.0  0.0   52495 kworker/R-scsi_tmf_9\n    192       2  12  0.0  0.0   52495 scsi_eh_10\n    193       2   6  0.0  0.0   52495 kworker/R-scsi_tmf_10\n    194       2  12  0.0  0.0   52495 scsi_eh_11\n    195       2   6  0.0  0.0   52495 kworker/R-scsi_tmf_11\n    197       2   6  0.0  0.0   52495 kworker/R-mld\n    198       2   6  0.0  0.0   52495 kworker/R-ipv6_addrconf\n    199       2   6  0.0  0.0   52495 kworker/R-kstrp\n    203       2   6  0.0  0.0   52495 kworker/R-zswap-shrink\n    204       2   6  0.0  0.0   52495 kworker/u68:0\n    205       2   6  0.0  0.0   52495 kworker/u69:0\n    273       2  13  0.0  0.0   52494 kworker/R-nvme-wq\n    274       2   3  0.0  0.0   52494 kworker/R-nvme-reset-wq\n    275       2   7  0.0  0.0   52494 kworker/R-nvme-delete-wq\n    276       2   0  0.0  0.0   52494 kworker/R-nvme-auth-wq\n    277       2   3  0.0  0.0   52494 nv_queue\n    278       2   3  0.0  0.0   52494 nv_mem_pool_scrubber_queue\n    279       2   3  0.0  0.0   52494 nv_mem_pool_scrubber_queue\n    280       2   3  0.0  0.0   52494 nv_mem_pool_scrubber_queue\n    281       2   3  0.0  0.0   52494 nv_queue\n    283       2   0  0.0  0.0   52494 nv_open_q\n    297       2  13  0.0  0.0   52494 irq/128-nvidia\n    298       2  12  0.0  0.0   52494 nvidia\n    299       2  12  0.0  0.0   52494 nv_queue\n    306       2  13  0.0  0.0   52493 nvidia-modeset/deferred_close_kthread_q\n    308       2  13  0.0  0.0   52493 kworker/R-btrfs-worker\n    309       2  14  0.0  0.0   52493 kworker/R-btrfs-delalloc\n    310       2  14  0.0  0.0   52493 kworker/R-btrfs-flush_delalloc\n    311       2  14  0.0  0.0   52493 kworker/R-btrfs-cache\n    312       2  14  0.0  0.0   52493 kworker/R-btrfs-fixup\n    313       2  14  0.0  0.0   52493 kworker/R-btrfs-endio\n    314       2  14  0.0  0.0   52493 kworker/R-btrfs-endio-meta\n    315       2  14  0.0  0.0   52493 kworker/R-btrfs-rmw\n    316       2  14  0.0  0.0   52493 kworker/R-btrfs-endio-write\n    317       2  14  0.0  0.0   52493 kworker/R-btrfs-freespace-write\n    318       2  14  0.0  0.0   52493 kworker/R-btrfs-delayed-meta\n    319       2  14  0.0  0.0   52493 kworker/R-btrfs-qgroup-rescan\n    321       2  11  0.0  0.0   52493 UVM global queue\n    322       2   3  0.0  0.0   52493 UVM deferred release queue\n    323       2   8  0.0  0.0   52493 UVM Tools Event Queue\n    324       2   5  0.0  0.0   52493 btrfs-cleaner\n    491       2   7  0.0  0.0   52492 psimon\n    545       2   4  0.0  0.0   52492 psimon\n    753     719   3  0.0  0.0   52491 avahi-daemon\n    785     782   2  0.0  0.0   52491 (sd-pam)\n   1624     782  14  0.0  0.0   52478 kwin_wayland_wr\n   1645       2   4  0.0  0.0   52478 nvidia-drm/timeline-18\n   1679       2   4  0.0  0.0   52478 nvidia-drm/timeline-19\n   1682       2   4  0.0  0.0   52478 nvidia-drm/timeline-1a\n   1685       2   4  0.0  0.0   52478 nvidia-drm/timeline-1b\n   1686       2   4  0.0  0.0   52478 nvidia-drm/timeline-1c\n   1687       2   4  0.0  0.0   52478 nvidia-drm/timeline-1d\n   1688       2   4  0.0  0.0   52478 nvidia-drm/timeline-1e\n   1690       2   4  0.0  0.0   52478 nvidia-drm/timeline-1f\n   1707       2   8  0.0  0.0   52478 nvidia-drm/timeline-20\n   1714       2  13  0.0  0.0   52478 nvidia-drm/timeline-22\n   1791     782  12  0.0  0.0   52477 dconf-service\n   1815     782   2  0.0  0.0   52477 at-spi-bus-laun\n   1825    1815  13  0.0  0.0   52477 dbus-broker-lau\n   1847       2   4  0.0  0.0   52477 nvidia-drm/timeline-2a\n   1874       2  15  0.0  0.0   52477 nvidia-drm/timeline-2b\n   1877       2   1  0.0  0.0   52477 nvidia-drm/timeline-2d\n   1887     782  13  0.0  0.0   52477 xsettingsd\n   1923       2  14  0.0  0.0   52476 nvidia-drm/timeline-30\n   2005    1996  13  0.0  0.0   52475 fusermount3\n   2036     782   2  0.0  0.0   52475 srt-logger\n   2332    2058   2  0.0  0.0   52475 srt-client-cont\n   2338       2  13  0.0  0.0   52475 nvidia-drm/timeline-39\n   2883    2354   3  0.0  0.0   52473 pv-adverb\n   2998       2  13  0.0  0.0   52472 nvidia-drm/timeline-52\n   3101    3097   8  0.0  0.0   52472 steamwebhelper\n   3341       2  13  0.0  0.0   52470 nvidia-drm/timeline-61\n   3366       2  13  0.0  0.0   52469 nvidia-drm/timeline-6c\n 164632       2   8  0.0  0.0   13320 nvidia-drm/timeline-234\n 164639       2   8  0.0  0.0   13320 nvidia-drm/timeline-235\n 181379       2   1  0.0  0.0   12333 nvidia-drm/timeline-350\n 181381       2  15  0.0  0.0   12333 nvidia-drm/timeline-351\n 181383       2  10  0.0  0.0   12333 nvidia-drm/timeline-354\n 181537  181535  14  0.0  0.0   12331 Discord\n 181695  181601  13  0.0  0.0   12330 Discord\n 181703       2  11  0.0  0.0   12330 nvidia-drm/timeline-35e\n 181707       2  13  0.0  0.0   12330 nvidia-drm/timeline-35f\n 181710       2   9  0.0  0.0   12330 nvidia-drm/timeline-360\n 187557    2344   5  0.0  0.0   11989 steam-runtime-s\n 187610       2  13  0.0  0.0   11988 nvidia-drm/timeline-3a2\n 187757       2   5  0.0  0.0   11985 nvidia-drm/timeline-3a6\n 191764  191505   1  0.0  0.0   11614 wayland-compute\n 191923  191505   8  0.0  0.0   11599 wayland-compute\n 194412  191492  12  0.0  0.0   10886 systemd-inhibit\n 194414  194412   5  0.0  0.0   10886 sleep\n 437760       2   0  0.0  0.0    9524 kworker/0:0-events\n 653663       2   6  0.0  0.0    5507 kworker/6:1-events\n 676479       2  14  0.0  0.0    3642 kworker/14:1-events\n 706762       2  15  0.0  0.0    2715 kworker/15:0\n 748554       2  10  0.0  0.0    1978 kworker/10:2\n 785125       2   7  0.0  0.0    1897 kworker/7:2\n 799357       2   3  0.0  0.0    1882 kworker/3:0-events\n 960424       2   9  0.0  0.0    1144 kworker/9:0-events\n 962136       2  11  0.0  0.0    1144 kworker/11:2-events\n 965901       2   2  0.0  0.0    1141 kworker/2:0\n1030178       2  13  0.0  0.0    1080 kworker/13:1\n1129706       2   1  0.0  0.0     834 kworker/1:2\n1129916       2   8  0.0  0.0     833 kworker/8:0-events\n1159536     451  14  0.0  0.0     296 systemd-userwor\n1160473     451   1  0.0  0.0     172 systemd-userwor\n1161329       2  10  0.0  0.0     125 kworker/u65:10-btrfs-endio\n1161826     451   6  0.0  0.0      71 systemd-userwor\n1162091       2  14  0.0  0.0      30 kworker/u65:13\n1162092 1162054   2  0.0  0.1      30 clang-23\n1163599 1162128   9  0.0  0.0       0 ps\n",
+        "stderr": "",
+        "exit_code": 0,
+        "wall_seconds": 0.022811627997725736
+      },
+      {
+        "command": [
+          "git",
+          "status",
+          "--short"
+        ],
+        "stdin": null,
+        "started_utc": "2026-11-17T21:51:39.219767+00:00",
+        "status": "passed",
+        "pid": 1163600,
+        "stdout": " M scripts/bootstrap.py\n M selfhost/README.md\n M selfhost/bootstrap.py\n M selfhost/checker_lifetimes.goose\n M tests/test_bootstrap_optimization.py\n?? .claude/\n",
+        "stderr": "",
+        "exit_code": 0,
+        "wall_seconds": 0.011700372997438535
+      },
+      {
+        "command": [
+          "git",
+          "rev-parse",
+          "HEAD"
+        ],
+        "stdin": null,
+        "started_utc": "2026-11-17T21:51:39.231493+00:00",
+        "status": "passed",
+        "pid": 1163609,
+        "stdout": "90d4d19fe26337d0e777aec83cf0ab667b16e428\n",
+        "stderr": "",
+        "exit_code": 0,
+        "wall_seconds": 0.0016048589968704619
+      },
+      {
+        "command": [
+          "git",
+          "diff",
+          "--stat"
+        ],
+        "stdin": null,
+        "started_utc": "2026-11-17T21:51:39.233119+00:00",
+        "status": "passed",
+        "pid": 1163610,
+        "stdout": " scripts/bootstrap.py                 |  6 +++++\n selfhost/README.md                   |  2 ++\n selfhost/bootstrap.py                | 38 ++++++++++++++++++++++++++---\n selfhost/checker_lifetimes.goose     | 43 +++++++++++++++++++++------------\n tests/test_bootstrap_optimization.py | 47 +++++++++++++++++++++++++++++++++---\n 5 files changed, 114 insertions(+), 22 deletions(-)\n",
+        "stderr": "",
+        "exit_code": 0,
+        "wall_seconds": 0.008469412998238113
+      }
+    ],
+    "cpu_policy": {
+      "/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor": "schedutil",
+      "/sys/devices/system/cpu/cpu1/cpufreq/scaling_governor": "schedutil",
+      "/sys/devices/system/cpu/cpu10/cpufreq/scaling_governor": "schedutil",
+      "/sys/devices/system/cpu/cpu11/cpufreq/scaling_governor": "schedutil",
+      "/sys/devices/system/cpu/cpu12/cpufreq/scaling_governor": "schedutil",
+      "/sys/devices/system/cpu/cpu13/cpufreq/scaling_governor": "schedutil",
+      "/sys/devices/system/cpu/cpu14/cpufreq/scaling_governor": "schedutil",
+      "/sys/devices/system/cpu/cpu15/cpufreq/scaling_governor": "schedutil",
+      "/sys/devices/system/cpu/cpu2/cpufreq/scaling_governor": "schedutil",
+      "/sys/devices/system/cpu/cpu3/cpufreq/scaling_governor": "schedutil",
+      "/sys/devices/system/cpu/cpu4/cpufreq/scaling_governor": "schedutil",
+      "/sys/devices/system/cpu/cpu5/cpufreq/scaling_governor": "schedutil",
+      "/sys/devices/system/cpu/cpu6/cpufreq/scaling_governor": "schedutil",
+      "/sys/devices/system/cpu/cpu7/cpufreq/scaling_governor": "schedutil",
+      "/sys/devices/system/cpu/cpu8/cpufreq/scaling_governor": "schedutil",
+      "/sys/devices/system/cpu/cpu9/cpufreq/scaling_governor": "schedutil"
+    }
+  },
+  "rows": [
+    {
+      "command": [
+        "taskset",
+        "-c",
+        "7",
+        "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/dev/parent/goose",
+        "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/source/selfhost/main.goose",
+        "--stdlib",
+        "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/source/stdlib",
+        "--check",
+        "--wasm-stats",
+        "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/dev/check-pair/parent.check.stats.json"
+      ],
+      "stdin": null,
+      "started_utc": "2026-11-17T21:51:39.242551+00:00",
+      "status": "passed",
+      "pid": 1163619,
+      "stdout": "",
+      "stderr": "",
+      "exit_code": 0,
+      "wall_seconds": 3.2221910919979564,
+      "mode": "check",
+      "name": "parent",
+      "sample": -1,
+      "cpu_seconds": 3.158436,
+      "phases": {
+        "implementation": "goose",
+        "backend": "direct",
+        "functions": 1553,
+        "module_bytes": 0,
+        "source_files": 35,
+        "nodes": 371732,
+        "types": 2215,
+        "parse_ns": 61727628,
+        "typecheck_ns": 3147742842,
+        "lifetime_ns": 2876733996,
+        "optimize_ns": 0,
+        "backend_ns": 0,
+        "cache_complete": false
+      },
+      "artifact_sha256": null
+    },
+    {
+      "command": [
+        "taskset",
+        "-c",
+        "7",
+        "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/dev/candidate/goose",
+        "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/source/selfhost/main.goose",
+        "--stdlib",
+        "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/source/stdlib",
+        "--check",
+        "--wasm-stats",
+        "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/dev/check-pair/candidate.check.stats.json"
+      ],
+      "stdin": null,
+      "started_utc": "2026-11-17T21:51:42.467864+00:00",
+      "status": "passed",
+      "pid": 1164221,
+      "stdout": "",
+      "stderr": "",
+      "exit_code": 0,
+      "wall_seconds": 3.1600304530002177,
+      "mode": "check",
+      "name": "candidate",
+      "sample": -1,
+      "cpu_seconds": 3.082192,
+      "phases": {
+        "implementation": "goose",
+        "backend": "direct",
+        "functions": 1553,
+        "module_bytes": 0,
+        "source_files": 35,
+        "nodes": 371732,
+        "types": 2215,
+        "parse_ns": 62793394,
+        "typecheck_ns": 3086100186,
+        "lifetime_ns": 2799952062,
+        "optimize_ns": 0,
+        "backend_ns": 0,
+        "cache_complete": false
+      },
+      "artifact_sha256": null
+    },
+    {
+      "command": [
+        "taskset",
+        "-c",
+        "7",
+        "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/dev/parent/goose",
+        "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/source/selfhost/main.goose",
+        "--stdlib",
+        "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/source/stdlib",
+        "--check",
+        "--wasm-stats",
+        "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/dev/check-pair/parent.check.stats.json"
+      ],
+      "stdin": null,
+      "started_utc": "2026-11-17T21:51:45.630644+00:00",
+      "status": "passed",
+      "pid": 1164247,
+      "stdout": "",
+      "stderr": "",
+      "exit_code": 0,
+      "wall_seconds": 3.35273133499868,
+      "mode": "check",
+      "name": "parent",
+      "sample": 0,
+      "cpu_seconds": 3.290190000000001,
+      "phases": {
+        "implementation": "goose",
+        "backend": "direct",
+        "functions": 1553,
+        "module_bytes": 0,
+        "source_files": 35,
+        "nodes": 371732,
+        "types": 2215,
+        "parse_ns": 65521518,
+        "typecheck_ns": 3276268927,
+        "lifetime_ns": 2999039400,
+        "optimize_ns": 0,
+        "backend_ns": 0,
+        "cache_complete": false
+      },
+      "artifact_sha256": null
+    },
+    {
+      "command": [
+        "taskset",
+        "-c",
+        "7",
+        "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/dev/candidate/goose",
+        "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/source/selfhost/main.goose",
+        "--stdlib",
+        "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/source/stdlib",
+        "--check",
+        "--wasm-stats",
+        "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/dev/check-pair/candidate.check.stats.json"
+      ],
+      "stdin": null,
+      "started_utc": "2026-11-17T21:51:48.985977+00:00",
+      "status": "passed",
+      "pid": 1164277,
+      "stdout": "",
+      "stderr": "",
+      "exit_code": 0,
+      "wall_seconds": 3.140731933999632,
+      "mode": "check",
+      "name": "candidate",
+      "sample": 0,
+      "cpu_seconds": 3.1007399999999983,
+      "phases": {
+        "implementation": "goose",
+        "backend": "direct",
+        "functions": 1553,
+        "module_bytes": 0,
+        "source_files": 35,
+        "nodes": 371732,
+        "types": 2215,
+        "parse_ns": 59705346,
+        "typecheck_ns": 3069784555,
+        "lifetime_ns": 2748063613,
+        "optimize_ns": 0,
+        "backend_ns": 0,
+        "cache_complete": false
+      },
+      "artifact_sha256": null
+    },
+    {
+      "command": [
+        "taskset",
+        "-c",
+        "7",
+        "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/dev/candidate/goose",
+        "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/source/selfhost/main.goose",
+        "--stdlib",
+        "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/source/stdlib",
+        "--check",
+        "--wasm-stats",
+        "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/dev/check-pair/candidate.check.stats.json"
+      ],
+      "stdin": null,
+      "started_utc": "2026-11-17T21:51:52.129383+00:00",
+      "status": "passed",
+      "pid": 1164286,
+      "stdout": "",
+      "stderr": "",
+      "exit_code": 0,
+      "wall_seconds": 3.090152329998091,
+      "mode": "check",
+      "name": "candidate",
+      "sample": 1,
+      "cpu_seconds": 3.0343810000000015,
+      "phases": {
+        "implementation": "goose",
+        "backend": "direct",
+        "functions": 1553,
+        "module_bytes": 0,
+        "source_files": 35,
+        "nodes": 371732,
+        "types": 2215,
+        "parse_ns": 59500215,
+        "typecheck_ns": 3019559025,
+        "lifetime_ns": 2763614164,
+        "optimize_ns": 0,
+        "backend_ns": 0,
+        "cache_complete": false
+      },
+      "artifact_sha256": null
+    },
+    {
+      "command": [
+        "taskset",
+        "-c",
+        "7",
+        "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/dev/parent/goose",
+        "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/source/selfhost/main.goose",
+        "--stdlib",
+        "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/source/stdlib",
+        "--check",
+        "--wasm-stats",
+        "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/dev/check-pair/parent.check.stats.json"
+      ],
+      "stdin": null,
+      "started_utc": "2026-11-17T21:51:55.222076+00:00",
+      "status": "passed",
+      "pid": 1164316,
+      "stdout": "",
+      "stderr": "",
+      "exit_code": 0,
+      "wall_seconds": 3.15409998800169,
+      "mode": "check",
+      "name": "parent",
+      "sample": 1,
+      "cpu_seconds": 3.1073119999999985,
+      "phases": {
+        "implementation": "goose",
+        "backend": "direct",
+        "functions": 1553,
+        "module_bytes": 0,
+        "source_files": 35,
+        "nodes": 371732,
+        "types": 2215,
+        "parse_ns": 60189626,
+        "typecheck_ns": 3082495041,
+        "lifetime_ns": 2819540760,
+        "optimize_ns": 0,
+        "backend_ns": 0,
+        "cache_complete": false
+      },
+      "artifact_sha256": null
+    },
+    {
+      "command": [
+        "taskset",
+        "-c",
+        "7",
+        "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/dev/candidate/goose",
+        "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/source/selfhost/main.goose",
+        "--stdlib",
+        "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/source/stdlib",
+        "--check",
+        "--wasm-stats",
+        "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/dev/check-pair/candidate.check.stats.json"
+      ],
+      "stdin": null,
+      "started_utc": "2026-11-17T21:51:58.378766+00:00",
+      "status": "passed",
+      "pid": 1164326,
+      "stdout": "",
+      "stderr": "",
+      "exit_code": 0,
+      "wall_seconds": 3.148684728999797,
+      "mode": "check",
+      "name": "candidate",
+      "sample": 2,
+      "cpu_seconds": 3.1056240000000024,
+      "phases": {
+        "implementation": "goose",
+        "backend": "direct",
+        "functions": 1553,
+        "module_bytes": 0,
+        "source_files": 35,
+        "nodes": 371732,
+        "types": 2215,
+        "parse_ns": 62198574,
+        "typecheck_ns": 3074948802,
+        "lifetime_ns": 2806963011,
+        "optimize_ns": 0,
+        "backend_ns": 0,
+        "cache_complete": false
+      },
+      "artifact_sha256": null
+    },
+    {
+      "command": [
+        "taskset",
+        "-c",
+        "7",
+        "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/dev/parent/goose",
+        "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/source/selfhost/main.goose",
+        "--stdlib",
+        "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/source/stdlib",
+        "--check",
+        "--wasm-stats",
+        "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/dev/check-pair/parent.check.stats.json"
+      ],
+      "stdin": null,
+      "started_utc": "2026-11-17T21:52:01.529933+00:00",
+      "status": "passed",
+      "pid": 1164335,
+      "stdout": "",
+      "stderr": "",
+      "exit_code": 0,
+      "wall_seconds": 3.181043600998237,
+      "mode": "check",
+      "name": "parent",
+      "sample": 2,
+      "cpu_seconds": 3.1305529999999955,
+      "phases": {
+        "implementation": "goose",
+        "backend": "direct",
+        "functions": 1553,
+        "module_bytes": 0,
+        "source_files": 35,
+        "nodes": 371732,
+        "types": 2215,
+        "parse_ns": 60639771,
+        "typecheck_ns": 3109078799,
+        "lifetime_ns": 2843920981,
+        "optimize_ns": 0,
+        "backend_ns": 0,
+        "cache_complete": false
+      },
+      "artifact_sha256": null
+    },
+    {
+      "command": [
+        "taskset",
+        "-c",
+        "7",
+        "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/dev/parent/goose",
+        "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/source/selfhost/main.goose",
+        "--stdlib",
+        "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/source/stdlib",
+        "--check",
+        "--wasm-stats",
+        "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/dev/check-pair/parent.check.stats.json"
+      ],
+      "stdin": null,
+      "started_utc": "2026-11-17T21:52:04.713384+00:00",
+      "status": "passed",
+      "pid": 1164354,
+      "stdout": "",
+      "stderr": "",
+      "exit_code": 0,
+      "wall_seconds": 3.1459594130064943,
+      "mode": "check",
+      "name": "parent",
+      "sample": 3,
+      "cpu_seconds": 3.086197000000002,
+      "phases": {
+        "implementation": "goose",
+        "backend": "direct",
+        "functions": 1553,
+        "module_bytes": 0,
+        "source_files": 35,
+        "nodes": 371732,
+        "types": 2215,
+        "parse_ns": 61169407,
+        "typecheck_ns": 3073989752,
+        "lifetime_ns": 2804169946,
+        "optimize_ns": 0,
+        "backend_ns": 0,
+        "cache_complete": false
+      },
+      "artifact_sha256": null
+    },
+    {
+      "command": [
+        "taskset",
+        "-c",
+        "7",
+        "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/dev/candidate/goose",
+        "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/source/selfhost/main.goose",
+        "--stdlib",
+        "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/source/stdlib",
+        "--check",
+        "--wasm-stats",
+        "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/dev/check-pair/candidate.check.stats.json"
+      ],
+      "stdin": null,
+      "started_utc": "2026-11-17T21:52:07.861765+00:00",
+      "status": "passed",
+      "pid": 1164372,
+      "stdout": "",
+      "stderr": "",
+      "exit_code": 0,
+      "wall_seconds": 3.0889351830046508,
+      "mode": "check",
+      "name": "candidate",
+      "sample": 3,
+      "cpu_seconds": 3.030415999999999,
+      "phases": {
+        "implementation": "goose",
+        "backend": "direct",
+        "functions": 1553,
+        "module_bytes": 0,
+        "source_files": 35,
+        "nodes": 371732,
+        "types": 2215,
+        "parse_ns": 59939821,
+        "typecheck_ns": 3018281353,
+        "lifetime_ns": 2742575972,
+        "optimize_ns": 0,
+        "backend_ns": 0,
+        "cache_complete": false
+      },
+      "artifact_sha256": null
+    },
+    {
+      "command": [
+        "taskset",
+        "-c",
+        "7",
+        "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/dev/candidate/goose",
+        "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/source/selfhost/main.goose",
+        "--stdlib",
+        "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/source/stdlib",
+        "--check",
+        "--wasm-stats",
+        "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/dev/check-pair/candidate.check.stats.json"
+      ],
+      "stdin": null,
+      "started_utc": "2026-11-17T21:52:10.953128+00:00",
+      "status": "passed",
+      "pid": 1164389,
+      "stdout": "",
+      "stderr": "",
+      "exit_code": 0,
+      "wall_seconds": 3.2020989049997297,
+      "mode": "check",
+      "name": "candidate",
+      "sample": 4,
+      "cpu_seconds": 3.137942000000006,
+      "phases": {
+        "implementation": "goose",
+        "backend": "direct",
+        "functions": 1553,
+        "module_bytes": 0,
+        "source_files": 35,
+        "nodes": 371732,
+        "types": 2215,
+        "parse_ns": 60856353,
+        "typecheck_ns": 3129171594,
+        "lifetime_ns": 2863174642,
+        "optimize_ns": 0,
+        "backend_ns": 0,
+        "cache_complete": false
+      },
+      "artifact_sha256": null
+    },
+    {
+      "command": [
+        "taskset",
+        "-c",
+        "7",
+        "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/dev/parent/goose",
+        "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/source/selfhost/main.goose",
+        "--stdlib",
+        "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/source/stdlib",
+        "--check",
+        "--wasm-stats",
+        "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/dev/check-pair/parent.check.stats.json"
+      ],
+      "stdin": null,
+      "started_utc": "2026-11-17T21:52:14.158112+00:00",
+      "status": "passed",
+      "pid": 1164424,
+      "stdout": "",
+      "stderr": "",
+      "exit_code": 0,
+      "wall_seconds": 3.2408171810020576,
+      "mode": "check",
+      "name": "parent",
+      "sample": 4,
+      "cpu_seconds": 3.187413999999997,
+      "phases": {
+        "implementation": "goose",
+        "backend": "direct",
+        "functions": 1553,
+        "module_bytes": 0,
+        "source_files": 35,
+        "nodes": 371732,
+        "types": 2215,
+        "parse_ns": 61834551,
+        "typecheck_ns": 3167231169,
+        "lifetime_ns": 2893196472,
+        "optimize_ns": 0,
+        "backend_ns": 0,
+        "cache_complete": false
+      },
+      "artifact_sha256": null
+    },
+    {
+      "command": [
+        "taskset",
+        "-c",
+        "7",
+        "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/dev/candidate/goose",
+        "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/source/selfhost/main.goose",
+        "--stdlib",
+        "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/source/stdlib",
+        "--check",
+        "--wasm-stats",
+        "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/dev/check-pair/candidate.check.stats.json"
+      ],
+      "stdin": null,
+      "started_utc": "2026-11-17T21:52:17.400629+00:00",
+      "status": "passed",
+      "pid": 1164457,
+      "stdout": "",
+      "stderr": "",
+      "exit_code": 0,
+      "wall_seconds": 3.1010513820001506,
+      "mode": "check",
+      "name": "candidate",
+      "sample": 5,
+      "cpu_seconds": 3.054341000000001,
+      "phases": {
+        "implementation": "goose",
+        "backend": "direct",
+        "functions": 1553,
+        "module_bytes": 0,
+        "source_files": 35,
+        "nodes": 371732,
+        "types": 2215,
+        "parse_ns": 61086360,
+        "typecheck_ns": 3028581019,
+        "lifetime_ns": 2763259469,
+        "optimize_ns": 0,
+        "backend_ns": 0,
+        "cache_complete": false
+      },
+      "artifact_sha256": null
+    },
+    {
+      "command": [
+        "taskset",
+        "-c",
+        "7",
+        "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/dev/parent/goose",
+        "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/source/selfhost/main.goose",
+        "--stdlib",
+        "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/source/stdlib",
+        "--check",
+        "--wasm-stats",
+        "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/dev/check-pair/parent.check.stats.json"
+      ],
+      "stdin": null,
+      "started_utc": "2026-11-17T21:52:20.504443+00:00",
+      "status": "passed",
+      "pid": 1164475,
+      "stdout": "",
+      "stderr": "",
+      "exit_code": 0,
+      "wall_seconds": 3.193359311997483,
+      "mode": "check",
+      "name": "parent",
+      "sample": 5,
+      "cpu_seconds": 3.1416009999999943,
+      "phases": {
+        "implementation": "goose",
+        "backend": "direct",
+        "functions": 1553,
+        "module_bytes": 0,
+        "source_files": 35,
+        "nodes": 371732,
+        "types": 2215,
+        "parse_ns": 61656343,
+        "typecheck_ns": 3120698547,
+        "lifetime_ns": 2858005092,
+        "optimize_ns": 0,
+        "backend_ns": 0,
+        "cache_complete": false
+      },
+      "artifact_sha256": null
+    },
+    {
+      "command": [
+        "taskset",
+        "-c",
+        "7",
+        "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/dev/parent/goose",
+        "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/source/selfhost/main.goose",
+        "--stdlib",
+        "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/source/stdlib",
+        "--check",
+        "--wasm-stats",
+        "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/dev/check-pair/parent.check.stats.json"
+      ],
+      "stdin": null,
+      "started_utc": "2026-11-17T21:52:23.700279+00:00",
+      "status": "passed",
+      "pid": 1164517,
+      "stdout": "",
+      "stderr": "",
+      "exit_code": 0,
+      "wall_seconds": 3.171958856000856,
+      "mode": "check",
+      "name": "parent",
+      "sample": 6,
+      "cpu_seconds": 3.121657000000006,
+      "phases": {
+        "implementation": "goose",
+        "backend": "direct",
+        "functions": 1553,
+        "module_bytes": 0,
+        "source_files": 35,
+        "nodes": 371732,
+        "types": 2215,
+        "parse_ns": 60830874,
+        "typecheck_ns": 3099601139,
+        "lifetime_ns": 2836847678,
+        "optimize_ns": 0,
+        "backend_ns": 0,
+        "cache_complete": false
+      },
+      "artifact_sha256": null
+    },
+    {
+      "command": [
+        "taskset",
+        "-c",
+        "7",
+        "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/dev/candidate/goose",
+        "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/source/selfhost/main.goose",
+        "--stdlib",
+        "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/source/stdlib",
+        "--check",
+        "--wasm-stats",
+        "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/dev/check-pair/candidate.check.stats.json"
+      ],
+      "stdin": null,
+      "started_utc": "2026-11-17T21:52:26.875247+00:00",
+      "status": "passed",
+      "pid": 1164534,
+      "stdout": "",
+      "stderr": "",
+      "exit_code": 0,
+      "wall_seconds": 3.08652248600265,
+      "mode": "check",
+      "name": "candidate",
+      "sample": 6,
+      "cpu_seconds": 3.0344129999999936,
+      "phases": {
+        "implementation": "goose",
+        "backend": "direct",
+        "functions": 1553,
+        "module_bytes": 0,
+        "source_files": 35,
+        "nodes": 371732,
+        "types": 2215,
+        "parse_ns": 59662094,
+        "typecheck_ns": 3015676009,
+        "lifetime_ns": 2748843087,
+        "optimize_ns": 0,
+        "backend_ns": 0,
+        "cache_complete": false
+      },
+      "artifact_sha256": null
+    }
+  ],
+  "summary": {
+    "check": {
+      "parent": {
+        "wall_seconds": 3.181043600998237,
+        "cpu_seconds": 3.1305529999999955,
+        "parse_ns": 61169407,
+        "typecheck_ns": 3109078799,
+        "lifetime_ns": 2843920981,
+        "optimize_ns": 0,
+        "backend_ns": 0
+      },
+      "candidate": {
+        "wall_seconds": 3.1010513820001506,
+        "cpu_seconds": 3.054341000000001,
+        "parse_ns": 59939821,
+        "typecheck_ns": 3028581019,
+        "lifetime_ns": 2763259469,
+        "optimize_ns": 0,
+        "backend_ns": 0
+      },
+      "same_artifact": true,
+      "paired_cpu_ratios": [
+        0.9424197386777048,
+        0.9765292316960779,
+        0.992036870163197,
+        0.9819256515381218,
+        0.9844789537851089,
+        0.9722243531244121,
+        0.9720520223714482
+      ]
+    }
+  },
+  "machine_after": {
+    "utc": "2026-11-17T21:52:29.965265+00:00",
+    "uname": {
+      "system": "Linux",
+      "node": "cachyos-x8664",
+      "release": "7.3.4-1-cachyos",
+      "version": "#1 SMP PREEMPT_DYNAMIC Fri, 13 Nov 2026 19:45:18 +0000",
+      "machine": "x86_64",
+      "processor": ""
+    },
+    "parent_pid": 1162128,
+    "parent_affinity": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15
+    ],
+    "load_average": [
+      6.11181640625,
+      7.69580078125,
+      13.62890625
+    ],
+    "cpu_count": 16,
+    "cpu_ticks": {
+      "cpu0": [
+        190545,
+        262503,
+        45559,
+        4679684,
+        8729,
+        8742,
+        11896,
+        0,
+        0,
+        0
+      ],
+      "cpu1": [
+        192724,
+        271072,
+        47058,
+        4667295,
+        10893,
+        9201,
+        5919,
+        0,
+        0,
+        0
+      ],
+      "cpu2": [
+        206691,
+        261114,
+        46149,
+        4663960,
+        11357,
+        9202,
+        6414,
+        0,
+        0,
+        0
+      ],
+      "cpu3": [
+        202477,
+        258650,
+        47800,
+        4668845,
+        11565,
+        9239,
+        5644,
+        0,
+        0,
+        0
+      ],
+      "cpu4": [
+        214277,
+        200295,
+        56479,
+        4703067,
+        9798,
+        9165,
+        4554,
+        0,
+        0,
+        0
+      ],
+      "cpu5": [
+        231002,
+        186716,
+        60848,
+        4696329,
+        10263,
+        9342,
+        4389,
+        0,
+        0,
+        0
+      ],
+      "cpu6": [
+        221425,
+        177702,
+        61211,
+        4712124,
+        9606,
+        8389,
+        2945,
+        0,
+        0,
+        0
+      ],
+      "cpu7": [
+        244103,
+        185659,
+        55135,
+        4688772,
+        10685,
+        10196,
+        5196,
+        0,
+        0,
+        0
+      ],
+      "cpu8": [
+        179954,
+        239137,
+        46223,
+        4717895,
+        8595,
+        8631,
+        2417,
+        0,
+        0,
+        0
+      ],
+      "cpu9": [
+        180979,
+        243809,
+        46820,
+        4707184,
+        13330,
+        8861,
+        2354,
+        0,
+        0,
+        0
+      ],
+      "cpu10": [
+        173416,
+        248026,
+        46383,
+        4712484,
+        12941,
+        8809,
+        2322,
+        0,
+        0,
+        0
+      ],
+      "cpu11": [
+        175487,
+        249268,
+        46450,
+        4708845,
+        13313,
+        8770,
+        2293,
+        0,
+        0,
+        0
+      ],
+      "cpu12": [
+        188341,
+        180781,
+        54070,
+        4751682,
+        9944,
+        8769,
+        2702,
+        0,
+        0,
+        0
+      ],
+      "cpu13": [
+        190007,
+        181731,
+        60717,
+        4721300,
+        10138,
+        37305,
+        2856,
+        0,
+        0,
+        0
+      ],
+      "cpu14": [
+        181623,
+        184551,
+        54139,
+        4756228,
+        9102,
+        8376,
+        2575,
+        0,
+        0,
+        0
+      ],
+      "cpu15": [
+        194063,
+        173454,
+        58419,
+        4748630,
+        9806,
+        8408,
+        2481,
+        0,
+        0,
+        0
+      ]
+    },
+    "smt_siblings": {
+      "/sys/devices/system/cpu/cpu0/topology/thread_siblings_list": "0,8",
+      "/sys/devices/system/cpu/cpu1/topology/thread_siblings_list": "1,9",
+      "/sys/devices/system/cpu/cpu10/topology/thread_siblings_list": "2,10",
+      "/sys/devices/system/cpu/cpu11/topology/thread_siblings_list": "3,11",
+      "/sys/devices/system/cpu/cpu12/topology/thread_siblings_list": "4,12",
+      "/sys/devices/system/cpu/cpu13/topology/thread_siblings_list": "5,13",
+      "/sys/devices/system/cpu/cpu14/topology/thread_siblings_list": "6,14",
+      "/sys/devices/system/cpu/cpu15/topology/thread_siblings_list": "7,15",
+      "/sys/devices/system/cpu/cpu2/topology/thread_siblings_list": "2,10",
+      "/sys/devices/system/cpu/cpu3/topology/thread_siblings_list": "3,11",
+      "/sys/devices/system/cpu/cpu4/topology/thread_siblings_list": "4,12",
+      "/sys/devices/system/cpu/cpu5/topology/thread_siblings_list": "5,13",
+      "/sys/devices/system/cpu/cpu6/topology/thread_siblings_list": "6,14",
+      "/sys/devices/system/cpu/cpu7/topology/thread_siblings_list": "7,15",
+      "/sys/devices/system/cpu/cpu8/topology/thread_siblings_list": "0,8",
+      "/sys/devices/system/cpu/cpu9/topology/thread_siblings_list": "1,9"
+    },
+    "commands": [
+      {
+        "command": [
+          "lscpu"
+        ],
+        "stdin": null,
+        "started_utc": "2026-11-17T21:52:29.966426+00:00",
+        "status": "passed",
+        "pid": 1164564,
+        "stdout": "Architecture:                            x86_64\nCPU op-mode(s):                          32-bit, 64-bit\nAddress sizes:                           43 bits physical, 48 bits virtual\nByte Order:                              Little Endian\nCPU(s):                                  16\nOn-line CPU(s) list:                     0-15\nVendor ID:                               AuthenticAMD\nModel name:                              AMD Ryzen 7 3800X 8-Core Processor\nCPU family:                              23\nModel:                                   113\nThread(s) per core:                      2\nCore(s) per socket:                      8\nSocket(s):                               1\nStepping:                                0\nMicrocode version:                       0x8701034\nFrequency boost:                         enabled\nCPU(s) scaling MHz:                      70%\nCPU max MHz:                             4558.8862\nCPU min MHz:                             2200.0000\nBogoMIPS:                                7785.31\nFlags:                                   fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm constant_tsc rep_good nopl xtopology nonstop_tsc cpuid extd_apicid aperfmperf rapl pni pclmulqdq monitor ssse3 fma cx16 sse4_1 sse4_2 movbe popcnt aes xsave avx f16c rdrand lahf_lm cmp_legacy svm extapic cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw ibs skinit wdt tce topoext perfctr_core perfctr_nb bpext perfctr_llc mwaitx cpb cat_l3 cdp_l3 hw_pstate ssbd mba ibpb stibp vmmcall fsgsbase bmi1 avx2 smep bmi2 cqm rdt_a rdseed adx smap clflushopt clwb sha_ni xsaveopt xsavec xgetbv1 cqm_llc cqm_occup_llc cqm_mbm_total cqm_mbm_local clzero irperf xsaveerptr rdpru wbnoinvd arat npt lbrv svm_lock nrip_save tsc_scale vmcb_clean flushbyasid decodeassists pausefilter pfthreshold avic v_vmsave_vmload vgif v_spec_ctrl umip rdpid overflow_recov succor smca sev sev_es\nVirtualization:                          AMD-V\nL1d cache:                               256 KiB (8 instances)\nL1i cache:                               256 KiB (8 instances)\nL2 cache:                                4 MiB (8 instances)\nL3 cache:                                32 MiB (2 instances)\nNUMA node(s):                            1\nNUMA node0 CPU(s):                       0-15\nVulnerability Gather data sampling:      Not affected\nVulnerability Ghostwrite:                Not affected\nVulnerability Indirect target selection: Not affected\nVulnerability Itlb multihit:             Not affected\nVulnerability L1tf:                      Not affected\nVulnerability Mds:                       Not affected\nVulnerability Meltdown:                  Not affected\nVulnerability Mmio stale data:           Not affected\nVulnerability Old microcode:             Not affected\nVulnerability Reg file data sampling:    Not affected\nVulnerability Retbleed:                  Mitigation; untrained return thunk; SMT enabled with STIBP protection\nVulnerability Spec rstack overflow:      Mitigation; Safe RET\nVulnerability Spec store bypass:         Mitigation; Speculative Store Bypass disabled via prctl\nVulnerability Spectre v1:                Mitigation; usercopy/swapgs barriers and __user pointer sanitization\nVulnerability Spectre v2:                Mitigation; Retpolines; IBPB conditional; STIBP always-on; RSB filling; PBRSB-eIBRS Not affected; BHI Not affected\nVulnerability Srbds:                     Not affected\nVulnerability Tsa:                       Not affected\nVulnerability Tsx async abort:           Not affected\nVulnerability Vmscape:                   Mitigation; IBPB before exit to userspace\n",
+        "stderr": "",
+        "exit_code": 0,
+        "wall_seconds": 0.006925179004610982
+      },
+      {
+        "command": [
+          "ps",
+          "-eo",
+          "pid,ppid,psr,pcpu,pmem,etimes,comm",
+          "--sort=-pcpu"
+        ],
+        "stdin": null,
+        "started_utc": "2026-11-17T21:52:29.973377+00:00",
+        "status": "passed",
+        "pid": 1164565,
+        "stdout": "    PID    PPID PSR %CPU %MEM ELAPSED COMMAND\n1164353 1164349   0 99.0  1.5      25 seed\n1162093 1162092   2 98.8  5.1      81 clang-23\n1164466 1161999   5 98.6  1.2      10 clang-23\n 187559  187558  13 95.6  2.6   12039 VampireSurvivor\n1162148  191505  15 72.1  0.6      57 python\n 191505  191492  13  8.5  1.7   11759 codex\n 191492     782   1  4.3  2.2   11759 node-MainThread\n   1629    1624  15  2.6  0.7   52529 kwin_wayland\n 186941    2217  14  2.3  0.2   12246 Isolated Web Co\n1161130 1160528  10  2.0  1.6     187 MainThread\n   3277    3079  15  1.4  0.8   52522 steamwebhelper\n 181718  181531  12  1.3  0.7   12381 Discord\n 187758    2916  12  1.0  0.0   12035 gameoverlayui\n1164349 1164348   0  1.0  0.0      25 python\n   2916    2883   6  0.9  0.5   52524 steam\n   1985     782   5  0.8  1.1   52526 zen\n   3097    3075   8  0.6  0.3   52523 steamwebhelper\n   3068    2916   4  0.5  0.4   52523 steamwebhelper\n1162054 1162053   2  0.4  0.1      85 python\n 692987       2  13  0.4  0.0    2997 kworker/u65:5-btrfs-endio-write\n 164599    2217   6  0.4  0.5   13372 Isolated Web Co\n 937493       2   2  0.4  0.0    1474 kworker/u65:0-btrfs-endio-write\n1161199 1161130   9  0.4  0.4     185 workerd\n 741903       2   8  0.4  0.0    2191 kworker/u65:3-btrfs-endio-write\n    147       2   6  0.4  0.0   52548 kswapd0\n 840319       2   8  0.3  0.0    1872 kworker/u65:7-iou_exit\n 181531     782  14  0.3  0.1   12381 Discord\n 692992       2   2  0.3  0.0    2997 kworker/u65:19-btrfs-endio\n 808563       2  12  0.3  0.0    1916 kworker/u66:21-btrfs-delalloc\n 692988       2  14  0.3  0.0    2997 kworker/u65:9-btrfs-endio-write\n 938642       2  15  0.3  0.0    1435 kworker/u65:22-btrfs-endio\n 725399       2  12  0.3  0.0    2447 kworker/u66:4-btrfs-endio-write\n 692989       2   1  0.3  0.0    2997 kworker/u65:12-iou_exit\n 696448       2   7  0.3  0.0    2924 kworker/u66:15-btrfs-endio-write\n 671841       2   1  0.3  0.0    3812 kworker/u65:15-btrfs-endio\n   1750    1629  12  0.3  0.2   52528 Xwayland\n 696435       2   7  0.3  0.0    2925 kworker/u66:10-blkcg_punt_bio\n   1869     782  14  0.3  0.0   52528 pipewire-pulse\n 671838       2   3  0.2  0.0    3812 kworker/u65:8-events_unbound\n 671836       2   3  0.2  0.0    3812 kworker/u65:4-btrfs-endio\n 192058  191505   1  0.2  0.0   11642 codex-code-mode\n 936928       2   5  0.2  0.0    1499 kworker/u66:0-btrfs-endio\n 667203       2  10  0.2  0.0    4242 kworker/u65:17-btrfs-endio\n1162128  191505   9  0.2  0.0      68 python\n 692667       2   6  0.2  0.0    3023 kworker/u66:5-btrfs-endio\n 696447       2   6  0.2  0.0    2924 kworker/u66:14-btrfs-endio-write\n 668191       2  13  0.2  0.0    4012 kworker/u66:11-btrfs-endio\n1160415       2  10  0.2  0.0     232 kworker/u65:2-btrfs-endio-write\n 667925       2  12  0.2  0.0    4063 kworker/u66:9-btrfs-delalloc\n1160528  191505  13  0.2  0.4     215 MainThread\n 181601  181534  12  0.2  0.3   12381 Discord\n 667275       2   4  0.2  0.0    4196 kworker/u66:1-btrfs-endio\n 662560       2   7  0.2  0.0    4567 kworker/u66:19-btrfs-endio-write\n 668712       2   7  0.2  0.0    3914 kworker/u66:17-btrfs-endio-write\n   2417    2217   8  0.2  0.0   52525 RDD Process\n 668192       2  14  0.2  0.0    4012 kworker/u66:13-btrfs-endio-write\n 696422       2   0  0.1  0.0    2925 kworker/u65:21-btrfs-endio-write\n1164348 1164345   0  0.1  0.0      25 python\n1164345  191505   1  0.1  0.0      25 python\n 667924       2   6  0.1  0.0    4063 kworker/u66:8-btrfs-endio-write\n    716       1  15  0.1  0.0   52542 ananicy-cpp\n 629180       2   6  0.1  0.0    7206 kworker/u66:18-btrfs-endio-write\n 194191       2  12  0.1  0.0   11111 kworker/u65:1-btrfs-endio-write\n 649182       2  12  0.1  0.0    5760 kworker/u66:6-btrfs-endio-write\n 660113       2  13  0.1  0.0    4816 kworker/u66:16-btrfs-endio-write\n 603224       2  14  0.1  0.0    9028 kworker/u66:2-events_unbound\n 407295       2   3  0.1  0.0    9604 kworker/u65:16-btrfs-endio-write\n   1551     815  15  0.1  0.0   52533 cloudflared\n1161330       2   2  0.1  0.0     175 kworker/u65:11-btrfs-endio-write\n1149514       2   8  0.1  0.0     756 kworker/u65:6-thermal_events\n1159600       2  14  0.0  0.0     333 kworker/u66:20-btrfs-delalloc\n    305       2  14  0.0  0.0   52544 nvidia-modeset/kthread_q\n    325       2   1  0.0  0.0   52544 btrfs-transaction\n1159003       2  12  0.0  0.0     412 kworker/u66:7-btrfs-endio\n   1640     782  14  0.0  0.7   52529 plasmashell\n1161999 1161987   5  0.0  0.3      96 python\n   2796    2217   7  0.0  0.1   52525 WebExtensions\n   1711     782  12  0.0  0.0   52528 pipewire\n    815     793   1  0.0  0.1   52541 MainThread\n 181604  181531  14  0.0  0.0   12381 Discord\n 340095       2  14  0.0  0.0    9646 kworker/u64:2-ipv6_addrconf\n1162053 1162048   2  0.0  0.0      85 python\n1161194 1161130  15  0.0  0.0     185 esbuild\n 187617       2  13  0.0  0.0   12039 nvidia-drm/timeline-3a4\n     16       2   7  0.0  0.0   52548 rcu_preempt\n1162048  191505   2  0.0  0.0      85 bash\n1159935    2217  13  0.0  0.2     301 Web Content\n 957897       2   5  0.0  0.0    1196 kworker/5:0-mm_percpu_wq\n1161987  191505  11  0.0  0.0     103 zsh\n    128       2  13  0.0  0.0   52548 khugepaged\n   1501       1  15  0.0  0.0   52535 upowerd\n 961347       2  12  0.0  0.0    1195 kworker/12:1-mm_percpu_wq\n   1744     782  15  0.0  0.0   52528 org_kde_powerde\n1159604  191505  12  0.0  0.0     331 node_repl\n    510       1   1  0.0  0.0   52543 systemd-resolve\n 733134       2   5  0.0  0.0    2344 kworker/5:2-events\n 715233       2   8  0.0  0.0    2642 kworker/u64:1-ipv6_addrconf\n 960438       2   4  0.0  0.0    1195 kworker/4:2-mm_percpu_wq\n   3198    3068  15  0.0  0.0   52522 steamwebhelper\n 187806       2   8  0.0  0.0   12008 kworker/8:1-mm_percpu_wq\n1159480       2  14  0.0  0.0     353 kworker/u66:12-btrfs-endio\n 187805       2   3  0.0  0.0   12008 kworker/3:1-mm_percpu_wq\n    126       2  15  0.0  0.0   52548 kcompactd0\n 406920       2  13  0.0  0.0    9605 kworker/13:2-mm_percpu_wq\n 169227    3068  11  0.0  0.0   13259 steamwebhelper\n 579030       2  10  0.0  0.0    9410 kworker/10:0-mm_percpu_wq\n 181337     782   6  0.0  0.2   12384 krunner\n    715     714  12  0.0  0.0   52542 dbus-broker\n1122032    2217   3  0.0  0.0     914 Web Content\n   2855    2217   0  0.0  0.0   52524 Utility Process\n    782       1  12  0.0  0.0   52541 systemd\n   1708       2  13  0.0  0.0   52528 nvidia-drm/timeline-21\n   1578       1  13  0.0  0.0   52529 ksecretd\n1159603  191505   5  0.0  0.0     331 wayland-compute\n 567891       2  14  0.0  0.0    9421 kworker/14:0-mm_percpu_wq\n   2012     782  12  0.0  0.3   52526 systemsettings\n   1712     782  14  0.0  0.0   52528 wireplumber\n 632707       2   4  0.0  0.0    6950 kworker/4:0-events\n1157302    2217  15  0.0  0.0     603 Web Content\n    293       2   0  0.0  0.0   52545 kworker/0:2-events\n    378       2   9  0.0  0.0   52544 kworker/9:1H-kblockd\n    301       2  11  0.0  0.0   52544 kworker/11:1H-kblockd\n    390       2  10  0.0  0.0   52544 kworker/10:1H-kblockd\n    392       2   3  0.0  0.0   52544 kworker/3:1H-kblockd\n    345       2   2  0.0  0.0   52544 kworker/2:1H-kblockd\n      1       0   3  0.0  0.0   52548 systemd\n    304       2   1  0.0  0.0   52544 kworker/1:1H-kblockd\n    486       2   2  0.0  0.0   52543 kworker/2:2-events\n    136       2   9  0.0  0.0   52548 kworker/9:1-mm_percpu_wq\n    134       2   1  0.0  0.0   52548 kworker/1:1-mm_percpu_wq\n    156       2  11  0.0  0.0   52546 kworker/11:1-events\n    379       2   8  0.0  0.0   52544 kworker/8:1H-kblockd\n   1116    1103   8  0.0  0.0   52539 dbus-broker\n    292       2  13  0.0  0.0   52545 kworker/13:1H-kblockd\n    393       2  12  0.0  0.0   52544 kworker/12:1H-kblockd\n    291       2   5  0.0  0.0   52545 kworker/5:1H-kblockd\n    359       2   7  0.0  0.0   52544 kworker/7:1H-kblockd\n 182161  181531  14  0.0  0.0   12379 Discord\n    372       2  15  0.0  0.0   52544 kworker/15:1H-kblockd\n   1964     782   2  0.0  0.0   52526 xdg-desktop-por\n    356       2   0  0.0  0.0   52544 kworker/0:1H-kblockd\n    302       2  14  0.0  0.0   52544 kworker/14:1H-kblockd\n    296       2   6  0.0  0.0   52545 kworker/6:1H-kblockd\n    320       2   4  0.0  0.0   52544 kworker/4:1H-kblockd\n   3379    3079   2  0.0  0.0   52519 steamwebhelper\n     94       2  12  0.0  0.0   52548 kworker/12:0-events\n   1634     782  15  0.0  0.0   52529 kded6\n    645       2   6  0.0  0.0   52543 kworker/6:3-mm_percpu_wq\n    406       1  12  0.0  0.0   52543 systemd-journal\n    162       2  15  0.0  0.0   52546 kworker/15:1-mm_percpu_wq\n     64       2   7  0.0  0.0   52548 kworker/7:0-events\n 911411  191505   9  0.0  0.0    1648 node_repl\n 742824  191505   0  0.0  0.0    2173 node_repl\n   2344    2332  10  0.0  0.0   52525 x86_64-linux-gn\n   1438       1   2  0.0  0.0   52535 polkitd\n 187554    2916  13  0.0  0.0   12039 steam-runtime-l\n    717       1  10  0.0  0.0   52542 NetworkManager\n     15       2   0  0.0  0.0   52548 ksoftirqd/0\n   1996     782  14  0.0  0.0   52526 xdg-document-po\n 742832  191505   4  0.0  0.0    2173 wayland-compute\n 911424  191505   6  0.0  0.0    1648 wayland-compute\n    719       1  11  0.0  0.0   52542 avahi-daemon\n     51       2   5  0.0  0.0   52548 ksoftirqd/5\n     45       2   4  0.0  0.0   52548 ksoftirqd/4\n   2066     782  14  0.0  0.0   52526 xdg-desktop-por\n     99       2  13  0.0  0.0   52548 ksoftirqd/13\n 679901  191505   4  0.0  0.0    3518 node_repl\n   2354    2332   5  0.0  0.0   52525 srt-bwrap\n     93       2  12  0.0  0.0   52548 ksoftirqd/12\n   2401    2217   1  0.0  0.0   52525 Privileged Cont\n     27       2   1  0.0  0.0   52548 ksoftirqd/1\n   1747       1  11  0.0  0.0   52528 udisksd\n    105       2  14  0.0  0.0   52548 ksoftirqd/14\n     33       2   2  0.0  0.0   52548 ksoftirqd/2\n   2010     782   5  0.0  0.0   52526 dolphin\n     57       2   6  0.0  0.0   52548 ksoftirqd/6\n 668278  191505  13  0.0  0.0    3976 node_repl\n    793     782  12  0.0  0.0   52541 MainThread\n     39       2   3  0.0  0.0   52548 ksoftirqd/3\n     63       2   7  0.0  0.0   52548 ksoftirqd/7\n     75       2   9  0.0  0.0   52548 ksoftirqd/9\n     56       2   6  0.0  0.0   52548 migration/6\n     87       2  11  0.0  0.0   52548 ksoftirqd/11\n   1781       2  13  0.0  0.0   52528 nvidia-drm/timeline-23\n    111       2  15  0.0  0.0   52548 ksoftirqd/15\n     81       2  10  0.0  0.0   52548 ksoftirqd/10\n     69       2   8  0.0  0.0   52548 ksoftirqd/8\n    110       2  15  0.0  0.0   52548 migration/15\n   1836     782   1  0.0  0.0   52528 at-spi2-registr\n     62       2   7  0.0  0.0   52548 migration/7\n     98       2  13  0.0  0.0   52548 migration/13\n     50       2   5  0.0  0.0   52548 migration/5\n    720       1  12  0.0  0.0   52542 systemd-logind\n     44       2   4  0.0  0.0   52548 migration/4\n 170598    3079  14  0.0  0.0   13175 steamwebhelper\n    771       2  13  0.0  0.0   52542 psimon\n    104       2  14  0.0  0.0   52548 migration/14\n 668279  191505  13  0.0  0.0    3976 wayland-compute\n   3199    3079   7  0.0  0.0   52522 steamwebhelper\n   1742     782   7  0.0  0.0   52528 kaccess\n   1826    1825   0  0.0  0.0   52528 dbus-broker\n     92       2  12  0.0  0.0   52548 migration/12\n    528       1   2  0.0  0.0   52543 systemd-udevd\n     20       2   0  0.0  0.0   52548 migration/0\n 250000  191505   9  0.0  0.0   10002 node_repl\n   1745     782   2  0.0  0.0   52528 xembedsniproxy\n   1462       1   7  0.0  0.0   52535 rtkit-daemon\n     26       2   1  0.0  0.0   52548 migration/1\n     32       2   2  0.0  0.0   52548 migration/2\n 626001  191505   8  0.0  0.0    7586 node_repl\n   2013     782   9  0.0  0.0   52526 xdg-desktop-por\n   1741     782  11  0.0  0.0   52528 gmenudbusmenupr\n     38       2   3  0.0  0.0   52548 migration/3\n     68       2   8  0.0  0.0   52548 migration/8\n 611015  191505   2  0.0  0.0    8745 node_repl\n   2058    2011   8  0.0  0.0   52526 steam\n    451       1  13  0.0  0.0   52543 systemd-userdbd\n     74       2   9  0.0  0.0   52548 migration/9\n     80       2  10  0.0  0.0   52548 migration/10\n     86       2  11  0.0  0.0   52548 migration/11\n 181429     782   4  0.0  0.0   12382 baloorunner\n   2217    1985   4  0.0  0.0   52526 forkserver\n 249999  191505   7  0.0  0.0   10002 wayland-compute\n 679883  191505   0  0.0  0.0    3518 wayland-compute\n   1728     782   8  0.0  0.0   52528 kactivitymanage\n 187558  187557  15  0.0  0.0   12039 reaper\n   1893     782   5  0.0  0.0   52527 kdeconnectd\n 181693       2  13  0.0  0.0   12381 nvidia-drm/timeline-35d\n   2215       2  14  0.0  0.0   52526 nvidia-drm/timeline-38\n    540       1   1  0.0  0.0   52543 systemd-timesyn\n 192193  191505   8  0.0  0.0   11627 node_repl\n 191924  191505   6  0.0  0.0   11649 node_repl\n 191766  191505  12  0.0  0.0   11665 node_repl\n   2718    2217  12  0.0  0.0   52525 Web Content\n 181534  181531   2  0.0  0.0   12381 Discord\n 181535  181531  10  0.0  0.0   12381 Discord\n    121       2   9  0.0  0.0   52548 khungtaskd\n   3100       2  14  0.0  0.0   52523 nvidia-drm/timeline-54\n 626000  191505   5  0.0  0.0    7586 wayland-compute\n 611013  191505   9  0.0  0.0    8745 wayland-compute\n   2871     782   1  0.0  0.0   52524 kwalletd6\n   1631     782   6  0.0  0.0   52529 ksmserver\n    714       1   6  0.0  0.0   52542 dbus-broker-lau\n   1743     782  12  0.0  0.0   52528 polkit-kde-auth\n 192192  191505  10  0.0  0.0   11627 wayland-compute\n 181571     782  15  0.0  0.0   12381 chrome_crashpad\n      2       0   6  0.0  0.0   52548 kthreadd\n   1952       1  14  0.0  0.0   52526 power-profiles-\n   1571    1282  11  0.0  0.0   52530 sddm-helper\n   3079    3076  12  0.0  0.0   52523 steamwebhelper\n   1983     782  13  0.0  0.0   52526 xdg-permission-\n   3075    3068  11  0.0  0.0   52523 steamwebhelper\n   3076    3068   1  0.0  0.0   52523 steamwebhelper\n   2287    2217   3  0.0  0.0   52525 Socket Process\n   2011     782   6  0.0  0.0   52526 bash\n   1579    1571  13  0.0  0.0   52529 startplasma-way\n   1282       1  10  0.0  0.0   52537 sddm\n   1103     782   4  0.0  0.0   52539 dbus-broker-lau\n      3       2   0  0.0  0.0   52548 pool_workqueue_release\n      4       2   0  0.0  0.0   52548 kworker/R-rcu_gp\n      5       2   0  0.0  0.0   52548 kworker/R-sync_wq\n      6       2   0  0.0  0.0   52548 kworker/R-kvfree_rcu_reclaim\n      7       2   0  0.0  0.0   52548 kworker/R-slub_flushwq\n      8       2   0  0.0  0.0   52548 kworker/R-netns\n     11       2   0  0.0  0.0   52548 kworker/0:0H-kblockd\n     14       2   0  0.0  0.0   52548 kworker/R-mm_percpu_wq\n     17       2   0  0.0  0.0   52548 rcub/0\n     18       2   0  0.0  0.0   52548 rcu_exp_par_gp_kthread_worker/0\n     19       2   6  0.0  0.0   52548 rcu_exp_gp_kthread_worker\n     21       2   0  0.0  0.0   52548 kprobe-optimizer\n     22       2   0  0.0  0.0   52548 idle_inject/0\n     23       2   0  0.0  0.0   52548 cpuhp/0\n     24       2   1  0.0  0.0   52548 cpuhp/1\n     25       2   1  0.0  0.0   52548 idle_inject/1\n     29       2   1  0.0  0.0   52548 kworker/1:0H-kblockd\n     30       2   2  0.0  0.0   52548 cpuhp/2\n     31       2   2  0.0  0.0   52548 idle_inject/2\n     35       2   2  0.0  0.0   52548 kworker/2:0H-kblockd\n     36       2   3  0.0  0.0   52548 cpuhp/3\n     37       2   3  0.0  0.0   52548 idle_inject/3\n     41       2   3  0.0  0.0   52548 kworker/3:0H-kblockd\n     42       2   4  0.0  0.0   52548 cpuhp/4\n     43       2   4  0.0  0.0   52548 idle_inject/4\n     47       2   4  0.0  0.0   52548 kworker/4:0H-kblockd\n     48       2   5  0.0  0.0   52548 cpuhp/5\n     49       2   5  0.0  0.0   52548 idle_inject/5\n     53       2   5  0.0  0.0   52548 kworker/5:0H-kblockd\n     54       2   6  0.0  0.0   52548 cpuhp/6\n     55       2   6  0.0  0.0   52548 idle_inject/6\n     59       2   6  0.0  0.0   52548 kworker/6:0H-kblockd\n     60       2   7  0.0  0.0   52548 cpuhp/7\n     61       2   7  0.0  0.0   52548 idle_inject/7\n     65       2   7  0.0  0.0   52548 kworker/7:0H-kblockd\n     66       2   8  0.0  0.0   52548 cpuhp/8\n     67       2   8  0.0  0.0   52548 idle_inject/8\n     71       2   8  0.0  0.0   52548 kworker/8:0H-kblockd\n     72       2   9  0.0  0.0   52548 cpuhp/9\n     73       2   9  0.0  0.0   52548 idle_inject/9\n     77       2   9  0.0  0.0   52548 kworker/9:0H-kblockd\n     78       2  10  0.0  0.0   52548 cpuhp/10\n     79       2  10  0.0  0.0   52548 idle_inject/10\n     83       2  10  0.0  0.0   52548 kworker/10:0H-kblockd\n     84       2  11  0.0  0.0   52548 cpuhp/11\n     85       2  11  0.0  0.0   52548 idle_inject/11\n     89       2  11  0.0  0.0   52548 kworker/11:0H-kblockd\n     90       2  12  0.0  0.0   52548 cpuhp/12\n     91       2  12  0.0  0.0   52548 idle_inject/12\n     95       2  12  0.0  0.0   52548 kworker/12:0H-kblockd\n     96       2  13  0.0  0.0   52548 cpuhp/13\n     97       2  13  0.0  0.0   52548 idle_inject/13\n    101       2  13  0.0  0.0   52548 kworker/13:0H-kblockd\n    102       2  14  0.0  0.0   52548 cpuhp/14\n    103       2  14  0.0  0.0   52548 idle_inject/14\n    107       2  14  0.0  0.0   52548 kworker/14:0H-kblockd\n    108       2  15  0.0  0.0   52548 cpuhp/15\n    109       2  15  0.0  0.0   52548 idle_inject/15\n    113       2  15  0.0  0.0   52548 kworker/15:0H-kblockd\n    116       2   2  0.0  0.0   52548 kdevtmpfs\n    117       2   6  0.0  0.0   52548 kworker/R-inet_frag_wq\n    118       2   6  0.0  0.0   52548 rcu_tasks_kthread\n    119       2   6  0.0  0.0   52548 rcu_tasks_rude_kthread\n    120       2   6  0.0  0.0   52548 kauditd\n    123       2   5  0.0  0.0   52548 oom_reaper\n    125       2   4  0.0  0.0   52548 kworker/R-writeback\n    127       2   4  0.0  0.0   52548 ksmd\n    129       2   4  0.0  0.0   52548 kworker/R-bio_complete\n    130       2   4  0.0  0.0   52548 kworker/R-kblockd\n    131       2   4  0.0  0.0   52548 kworker/R-blkcg_punt_bio\n    132       2   4  0.0  0.0   52548 kworker/R-kintegrityd\n    133       2   1  0.0  0.0   52548 irq/9-acpi\n    137       2   4  0.0  0.0   52548 kworker/R-tpm_dev_wq\n    138       2   4  0.0  0.0   52548 kworker/R-ata_sff\n    139       2   4  0.0  0.0   52548 kworker/R-edac-poller\n    140       2   4  0.0  0.0   52548 kworker/R-devfreq_wq\n    141       2   6  0.0  0.0   52548 watchdogd\n    142       2  15  0.0  0.0   52548 kworker/R-quota_events_unbound\n    144       2   2  0.0  0.0   52548 irq/26-AMD-Vi0-Evt\n    145       2   3  0.0  0.0   52548 irq/27-AMD-Vi0-PPR\n    146       2   4  0.0  0.0   52548 irq/28-AMD-Vi0-GA\n    148       2   6  0.0  0.0   52548 kworker/R-kthrotld\n    149       2  15  0.0  0.0   52548 kworker/u67:0\n    150       2  15  0.0  0.0   52548 kworker/R-acpi_thermal_pm\n    163       2  10  0.0  0.0   52546 scsi_eh_0\n    164       2   6  0.0  0.0   52546 kworker/R-scsi_tmf_0\n    165       2   6  0.0  0.0   52546 scsi_eh_1\n    166       2   6  0.0  0.0   52546 kworker/R-scsi_tmf_1\n    167       2   7  0.0  0.0   52546 scsi_eh_2\n    168       2   6  0.0  0.0   52546 kworker/R-scsi_tmf_2\n    169       2  11  0.0  0.0   52546 scsi_eh_3\n    170       2   6  0.0  0.0   52546 kworker/R-scsi_tmf_3\n    176       2   2  0.0  0.0   52546 scsi_eh_4\n    177       2   6  0.0  0.0   52546 kworker/R-scsi_tmf_4\n    178       2   9  0.0  0.0   52546 scsi_eh_5\n    179       2   6  0.0  0.0   52546 kworker/R-scsi_tmf_5\n    180       2   8  0.0  0.0   52546 scsi_eh_6\n    181       2   6  0.0  0.0   52546 kworker/R-scsi_tmf_6\n    182       2   6  0.0  0.0   52546 scsi_eh_7\n    183       2   6  0.0  0.0   52546 kworker/R-scsi_tmf_7\n    184       2   8  0.0  0.0   52546 scsi_eh_8\n    185       2   6  0.0  0.0   52546 kworker/R-scsi_tmf_8\n    186       2  10  0.0  0.0   52546 scsi_eh_9\n    187       2   6  0.0  0.0   52546 kworker/R-scsi_tmf_9\n    192       2  12  0.0  0.0   52546 scsi_eh_10\n    193       2   6  0.0  0.0   52546 kworker/R-scsi_tmf_10\n    194       2  12  0.0  0.0   52546 scsi_eh_11\n    195       2   6  0.0  0.0   52546 kworker/R-scsi_tmf_11\n    197       2   6  0.0  0.0   52546 kworker/R-mld\n    198       2   6  0.0  0.0   52546 kworker/R-ipv6_addrconf\n    199       2   6  0.0  0.0   52546 kworker/R-kstrp\n    203       2   6  0.0  0.0   52546 kworker/R-zswap-shrink\n    204       2   6  0.0  0.0   52546 kworker/u68:0\n    205       2   6  0.0  0.0   52546 kworker/u69:0\n    273       2  13  0.0  0.0   52545 kworker/R-nvme-wq\n    274       2   3  0.0  0.0   52545 kworker/R-nvme-reset-wq\n    275       2   7  0.0  0.0   52545 kworker/R-nvme-delete-wq\n    276       2   0  0.0  0.0   52545 kworker/R-nvme-auth-wq\n    277       2   3  0.0  0.0   52545 nv_queue\n    278       2   3  0.0  0.0   52545 nv_mem_pool_scrubber_queue\n    279       2   3  0.0  0.0   52545 nv_mem_pool_scrubber_queue\n    280       2   3  0.0  0.0   52545 nv_mem_pool_scrubber_queue\n    281       2   3  0.0  0.0   52545 nv_queue\n    283       2   0  0.0  0.0   52545 nv_open_q\n    297       2  13  0.0  0.0   52545 irq/128-nvidia\n    298       2  12  0.0  0.0   52545 nvidia\n    299       2  12  0.0  0.0   52545 nv_queue\n    306       2  13  0.0  0.0   52544 nvidia-modeset/deferred_close_kthread_q\n    308       2  13  0.0  0.0   52544 kworker/R-btrfs-worker\n    309       2  14  0.0  0.0   52544 kworker/R-btrfs-delalloc\n    310       2  14  0.0  0.0   52544 kworker/R-btrfs-flush_delalloc\n    311       2  14  0.0  0.0   52544 kworker/R-btrfs-cache\n    312       2  14  0.0  0.0   52544 kworker/R-btrfs-fixup\n    313       2  14  0.0  0.0   52544 kworker/R-btrfs-endio\n    314       2  14  0.0  0.0   52544 kworker/R-btrfs-endio-meta\n    315       2  14  0.0  0.0   52544 kworker/R-btrfs-rmw\n    316       2  14  0.0  0.0   52544 kworker/R-btrfs-endio-write\n    317       2  14  0.0  0.0   52544 kworker/R-btrfs-freespace-write\n    318       2  14  0.0  0.0   52544 kworker/R-btrfs-delayed-meta\n    319       2  14  0.0  0.0   52544 kworker/R-btrfs-qgroup-rescan\n    321       2  11  0.0  0.0   52544 UVM global queue\n    322       2   3  0.0  0.0   52544 UVM deferred release queue\n    323       2   8  0.0  0.0   52544 UVM Tools Event Queue\n    324       2   5  0.0  0.0   52544 btrfs-cleaner\n    491       2   7  0.0  0.0   52543 psimon\n    545       2   4  0.0  0.0   52543 psimon\n    753     719   3  0.0  0.0   52542 avahi-daemon\n    785     782   2  0.0  0.0   52541 (sd-pam)\n   1624     782  14  0.0  0.0   52529 kwin_wayland_wr\n   1645       2   4  0.0  0.0   52529 nvidia-drm/timeline-18\n   1679       2   4  0.0  0.0   52529 nvidia-drm/timeline-19\n   1682       2   4  0.0  0.0   52529 nvidia-drm/timeline-1a\n   1685       2   4  0.0  0.0   52529 nvidia-drm/timeline-1b\n   1686       2   4  0.0  0.0   52529 nvidia-drm/timeline-1c\n   1687       2   4  0.0  0.0   52529 nvidia-drm/timeline-1d\n   1688       2   4  0.0  0.0   52529 nvidia-drm/timeline-1e\n   1690       2   4  0.0  0.0   52529 nvidia-drm/timeline-1f\n   1707       2   8  0.0  0.0   52528 nvidia-drm/timeline-20\n   1714       2  13  0.0  0.0   52528 nvidia-drm/timeline-22\n   1791     782  12  0.0  0.0   52528 dconf-service\n   1815     782   2  0.0  0.0   52528 at-spi-bus-laun\n   1825    1815  13  0.0  0.0   52528 dbus-broker-lau\n   1847       2   4  0.0  0.0   52528 nvidia-drm/timeline-2a\n   1874       2  15  0.0  0.0   52528 nvidia-drm/timeline-2b\n   1877       2   1  0.0  0.0   52527 nvidia-drm/timeline-2d\n   1887     782  13  0.0  0.0   52527 xsettingsd\n   1923       2   6  0.0  0.0   52527 nvidia-drm/timeline-30\n   2005    1996  13  0.0  0.0   52526 fusermount3\n   2036     782   2  0.0  0.0   52526 srt-logger\n   2332    2058   2  0.0  0.0   52525 srt-client-cont\n   2338       2  13  0.0  0.0   52525 nvidia-drm/timeline-39\n   2883    2354   3  0.0  0.0   52524 pv-adverb\n   2998       2  13  0.0  0.0   52523 nvidia-drm/timeline-52\n   3101    3097   8  0.0  0.0   52522 steamwebhelper\n   3341       2  13  0.0  0.0   52521 nvidia-drm/timeline-61\n   3366       2  13  0.0  0.0   52520 nvidia-drm/timeline-6c\n 164632       2   8  0.0  0.0   13370 nvidia-drm/timeline-234\n 164639       2   8  0.0  0.0   13370 nvidia-drm/timeline-235\n 181379       2   1  0.0  0.0   12383 nvidia-drm/timeline-350\n 181381       2  15  0.0  0.0   12383 nvidia-drm/timeline-351\n 181383       2  10  0.0  0.0   12383 nvidia-drm/timeline-354\n 181537  181535  14  0.0  0.0   12381 Discord\n 181695  181601  13  0.0  0.0   12381 Discord\n 181703       2  11  0.0  0.0   12381 nvidia-drm/timeline-35e\n 181707       2  13  0.0  0.0   12381 nvidia-drm/timeline-35f\n 181710       2   9  0.0  0.0   12381 nvidia-drm/timeline-360\n 187557    2344   5  0.0  0.0   12039 steam-runtime-s\n 187610       2  13  0.0  0.0   12039 nvidia-drm/timeline-3a2\n 187757       2   5  0.0  0.0   12035 nvidia-drm/timeline-3a6\n 191764  191505   1  0.0  0.0   11665 wayland-compute\n 191923  191505   8  0.0  0.0   11649 wayland-compute\n 194412  191492  12  0.0  0.0   10937 systemd-inhibit\n 194414  194412   5  0.0  0.0   10937 sleep\n 437760       2   0  0.0  0.0    9575 kworker/0:0-events\n 653663       2   6  0.0  0.0    5557 kworker/6:1-events\n 676479       2  14  0.0  0.0    3692 kworker/14:1-events\n 706762       2  15  0.0  0.0    2766 kworker/15:0\n 748554       2  10  0.0  0.0    2029 kworker/10:2\n 785125       2   7  0.0  0.0    1947 kworker/7:2\n 799357       2   3  0.0  0.0    1933 kworker/3:0-events\n 960424       2   9  0.0  0.0    1195 kworker/9:0-events\n 962136       2  11  0.0  0.0    1194 kworker/11:2-events\n 965901       2   2  0.0  0.0    1192 kworker/2:0\n1030178       2  13  0.0  0.0    1131 kworker/13:1\n1129706       2   1  0.0  0.0     885 kworker/1:2\n1129916       2   8  0.0  0.0     884 kworker/8:0-events\n1160473     451  11  0.0  0.0     223 systemd-userwor\n1161329       2  10  0.0  0.0     175 kworker/u65:10-btrfs-endio\n1161826     451   3  0.0  0.0     121 systemd-userwor\n1162091       2   2  0.0  0.0      81 kworker/u65:13-btrfs-endio-write\n1162092 1162054   2  0.0  0.1      81 clang-23\n1164313     451   4  0.0  0.0      35 systemd-userwor\n1164565 1162128   3  0.0  0.0       0 ps\n",
+        "stderr": "",
+        "exit_code": 0,
+        "wall_seconds": 0.017536354003823362
+      },
+      {
+        "command": [
+          "git",
+          "status",
+          "--short"
+        ],
+        "stdin": null,
+        "started_utc": "2026-11-17T21:52:29.990943+00:00",
+        "status": "passed",
+        "pid": 1164566,
+        "stdout": " M scripts/bootstrap.py\n M selfhost/README.md\n M selfhost/bootstrap.py\n M selfhost/checker_lifetimes.goose\n M tests/test_bootstrap_optimization.py\n?? .claude/\n",
+        "stderr": "",
+        "exit_code": 0,
+        "wall_seconds": 0.010666590002074372
+      },
+      {
+        "command": [
+          "git",
+          "rev-parse",
+          "HEAD"
+        ],
+        "stdin": null,
+        "started_utc": "2026-11-17T21:52:30.001637+00:00",
+        "status": "passed",
+        "pid": 1164575,
+        "stdout": "90d4d19fe26337d0e777aec83cf0ab667b16e428\n",
+        "stderr": "",
+        "exit_code": 0,
+        "wall_seconds": 0.0015023250016383827
+      },
+      {
+        "command": [
+          "git",
+          "diff",
+          "--stat"
+        ],
+        "stdin": null,
+        "started_utc": "2026-11-17T21:52:30.003167+00:00",
+        "status": "passed",
+        "pid": 1164576,
+        "stdout": " scripts/bootstrap.py                 |  6 +++++\n selfhost/README.md                   |  2 ++\n selfhost/bootstrap.py                | 38 ++++++++++++++++++++++++++---\n selfhost/checker_lifetimes.goose     | 43 +++++++++++++++++++++------------\n tests/test_bootstrap_optimization.py | 47 +++++++++++++++++++++++++++++++++---\n 5 files changed, 114 insertions(+), 22 deletions(-)\n",
+        "stderr": "",
+        "exit_code": 0,
+        "wall_seconds": 0.007426381002005655
+      }
+    ],
+    "cpu_policy": {
+      "/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor": "schedutil",
+      "/sys/devices/system/cpu/cpu1/cpufreq/scaling_governor": "schedutil",
+      "/sys/devices/system/cpu/cpu10/cpufreq/scaling_governor": "schedutil",
+      "/sys/devices/system/cpu/cpu11/cpufreq/scaling_governor": "schedutil",
+      "/sys/devices/system/cpu/cpu12/cpufreq/scaling_governor": "schedutil",
+      "/sys/devices/system/cpu/cpu13/cpufreq/scaling_governor": "schedutil",
+      "/sys/devices/system/cpu/cpu14/cpufreq/scaling_governor": "schedutil",
+      "/sys/devices/system/cpu/cpu15/cpufreq/scaling_governor": "schedutil",
+      "/sys/devices/system/cpu/cpu2/cpufreq/scaling_governor": "schedutil",
+      "/sys/devices/system/cpu/cpu3/cpufreq/scaling_governor": "schedutil",
+      "/sys/devices/system/cpu/cpu4/cpufreq/scaling_governor": "schedutil",
+      "/sys/devices/system/cpu/cpu5/cpufreq/scaling_governor": "schedutil",
+      "/sys/devices/system/cpu/cpu6/cpufreq/scaling_governor": "schedutil",
+      "/sys/devices/system/cpu/cpu7/cpufreq/scaling_governor": "schedutil",
+      "/sys/devices/system/cpu/cpu8/cpufreq/scaling_governor": "schedutil",
+      "/sys/devices/system/cpu/cpu9/cpufreq/scaling_governor": "schedutil"
+    }
+  }
+}

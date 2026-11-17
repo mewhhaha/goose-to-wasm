@@ -1,0 +1,78 @@
+{
+  "source": "tests/fixtures/native_row_scans.goose",
+  "sha256": "6e7395dee1008fe9fc0fa2ce16af619fa5bed6f261b0998b8be0eb8b9c40fae6",
+  "stdout": "12 129\n8228\n43 4 2\n0\n18 4\n",
+  "cc_sha256": "b0b49531b313e70aee0254fb5e69b050a781506184e16ebee6ebe68eee94a145",
+  "upstream": {
+    "sha256": "b56c1cf28f020a89ae164ee53c086d8ffff04f285331115ce448e1d4244eca24",
+    "version": "goose runtime 4d3da949e563",
+    "O0": "12 129\n8228\n43 4 2\n0\n18 4\n",
+    "O2": "12 129\n8228\n43 4 2\n0\n18 4\n"
+  },
+  "controls": [
+    {
+      "compiler": "baseline",
+      "compiler_sha256": "94c6428f4d203a2c2db83a6e89b37160407ca3d01abee466b265ba852b45e952",
+      "level": 0,
+      "generated_c_sha256": "49b498eaaa22d96867b00c887cd6b258d5cb25348f241647ad7c0988a61a8b15",
+      "stdout": "12 129\n8228\n43 4 2\n0\n18 4\n",
+      "row_checks": 59991
+    },
+    {
+      "compiler": "isolated",
+      "compiler_sha256": "e7807a460611e43bb9007717af6c347d312228d236c170daa796ac80edfef894",
+      "level": 0,
+      "generated_c_sha256": "2fb1824eb7ffe3b7920d7d517c370607c6160dbd5d6a35c2825061687ba1cbdb",
+      "stdout": "12 129\n8228\n43 4 2\n0\n18 4\n",
+      "row_checks": 724
+    },
+    {
+      "compiler": "combined",
+      "compiler_sha256": "6dc908de22b44263c36c7f8b31b6c44047df1e126cf465a71ee527116e7f1030",
+      "level": 0,
+      "generated_c_sha256": "2fb1824eb7ffe3b7920d7d517c370607c6160dbd5d6a35c2825061687ba1cbdb",
+      "stdout": "12 129\n8228\n43 4 2\n0\n18 4\n",
+      "row_checks": 724,
+      "first_append_malformed_count": {
+        "exit": 1,
+        "stderr": "goose runtime error: physical cell exceeds image extent (<native>:0)\n"
+      },
+      "first_foreach_malformed_count": {
+        "exit": 1,
+        "stderr": "goose runtime error: physical cell exceeds image extent (<native>:0)\n"
+      }
+    },
+    {
+      "compiler": "baseline",
+      "compiler_sha256": "94c6428f4d203a2c2db83a6e89b37160407ca3d01abee466b265ba852b45e952",
+      "level": 2,
+      "generated_c_sha256": "49b498eaaa22d96867b00c887cd6b258d5cb25348f241647ad7c0988a61a8b15",
+      "stdout": "12 129\n8228\n43 4 2\n0\n18 4\n",
+      "row_checks": 59991
+    },
+    {
+      "compiler": "isolated",
+      "compiler_sha256": "e7807a460611e43bb9007717af6c347d312228d236c170daa796ac80edfef894",
+      "level": 2,
+      "generated_c_sha256": "2fb1824eb7ffe3b7920d7d517c370607c6160dbd5d6a35c2825061687ba1cbdb",
+      "stdout": "12 129\n8228\n43 4 2\n0\n18 4\n",
+      "row_checks": 724
+    },
+    {
+      "compiler": "combined",
+      "compiler_sha256": "6dc908de22b44263c36c7f8b31b6c44047df1e126cf465a71ee527116e7f1030",
+      "level": 2,
+      "generated_c_sha256": "2fb1824eb7ffe3b7920d7d517c370607c6160dbd5d6a35c2825061687ba1cbdb",
+      "stdout": "12 129\n8228\n43 4 2\n0\n18 4\n",
+      "row_checks": 724,
+      "first_append_malformed_count": {
+        "exit": 1,
+        "stderr": "goose runtime error: physical cell exceeds image extent (<native>:0)\n"
+      },
+      "first_foreach_malformed_count": {
+        "exit": 1,
+        "stderr": "goose runtime error: physical cell exceeds image extent (<native>:0)\n"
+      }
+    }
+  ]
+}

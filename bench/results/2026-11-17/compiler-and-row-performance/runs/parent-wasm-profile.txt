@@ -1,0 +1,94 @@
+samples 2046
+life_* 60.7%
+ 10.75%      220 wb_reuse_locals
+  6.30%      129 life_eval_body
+  4.01%       82 life_effect_far
+  3.86%       79 life_effect
+  3.23%       66 life_replay
+  3.13%       64 life_construct_read
+  2.69%       55 life_function
+  2.64%       54 life_shrink
+  2.39%       49 life_readback
+  2.39%       49 life_contains
+  2.15%       44 life_eval
+  2.10%       43 life_in_scope
+  2.05%       42 opt_function
+  1.86%       38 life_read_find
+  1.81%       37 life_held_into
+  1.61%       33 life_list_set
+  1.56%       32 life_call
+  1.27%       26 life_holds_walk
+  1.27%       26 life_holder_scan
+  1.08%       22 <outside>
+  1.08%       22 wb_instruction
+  1.03%       21 life_next_live
+  0.98%       20 check_lookup_scope
+  0.98%       20 life_body
+  0.88%       18 life_cell
+  0.83%       17 mark_located_functions
+  0.68%       14 life_build_add_alt
+  0.68%       14 life_same
+  0.68%       14 cg_float_format_demand
+  0.64%       13 life_load
+--- self <- caller
+ 10.75%      220 wb_reuse_locals <- <outside>
+  6.30%      129 life_eval_body <- <outside>
+  4.01%       82 life_effect_far <- <outside>
+  3.86%       79 life_effect <- <outside>
+  3.23%       66 life_replay <- <outside>
+  3.13%       64 life_construct_read <- <outside>
+  2.69%       55 life_function <- <outside>
+  2.64%       54 life_shrink <- <outside>
+  2.39%       49 life_readback <- <outside>
+  2.39%       49 life_contains <- <outside>
+  2.15%       44 life_eval <- <outside>
+  2.10%       43 life_in_scope <- <outside>
+  2.05%       42 opt_function <- <outside>
+  1.86%       38 life_read_find <- <outside>
+  1.81%       37 life_held_into <- <outside>
+  1.61%       33 life_list_set <- <outside>
+  1.56%       32 life_call <- <outside>
+  1.27%       26 life_holds_walk <- <outside>
+  1.27%       26 life_holder_scan <- <outside>
+  1.08%       22 <outside> <- <outside>
+  1.08%       22 wb_instruction <- <outside>
+  1.03%       21 life_next_live <- <outside>
+  0.98%       20 check_lookup_scope <- <outside>
+  0.98%       20 life_body <- <outside>
+  0.88%       18 life_cell <- <outside>
+  0.83%       17 mark_located_functions <- <outside>
+  0.68%       14 life_build_add_alt <- <outside>
+  0.68%       14 life_same <- <outside>
+  0.68%       14 cg_float_format_demand <- <outside>
+  0.64%       13 life_load <- <outside>
+--- self <- caller <- caller2
+ 10.75%      220 wb_reuse_locals <- <outside> <- <outside>
+  6.30%      129 life_eval_body <- <outside> <- <outside>
+  4.01%       82 life_effect_far <- <outside> <- <outside>
+  3.86%       79 life_effect <- <outside> <- <outside>
+  3.23%       66 life_replay <- <outside> <- <outside>
+  3.13%       64 life_construct_read <- <outside> <- <outside>
+  2.69%       55 life_function <- <outside> <- <outside>
+  2.64%       54 life_shrink <- <outside> <- <outside>
+  2.39%       49 life_readback <- <outside> <- <outside>
+  2.39%       49 life_contains <- <outside> <- <outside>
+  2.15%       44 life_eval <- <outside> <- <outside>
+  2.10%       43 life_in_scope <- <outside> <- <outside>
+  2.05%       42 opt_function <- <outside> <- <outside>
+  1.86%       38 life_read_find <- <outside> <- <outside>
+  1.81%       37 life_held_into <- <outside> <- <outside>
+  1.61%       33 life_list_set <- <outside> <- <outside>
+  1.56%       32 life_call <- <outside> <- <outside>
+  1.27%       26 life_holds_walk <- <outside> <- <outside>
+  1.27%       26 life_holder_scan <- <outside> <- <outside>
+  1.08%       22 <outside> <- <outside> <- <outside>
+  1.08%       22 wb_instruction <- <outside> <- <outside>
+  1.03%       21 life_next_live <- <outside> <- <outside>
+  0.98%       20 check_lookup_scope <- <outside> <- <outside>
+  0.98%       20 life_body <- <outside> <- <outside>
+  0.88%       18 life_cell <- <outside> <- <outside>
+  0.83%       17 mark_located_functions <- <outside> <- <outside>
+  0.68%       14 life_build_add_alt <- <outside> <- <outside>
+  0.68%       14 life_same <- <outside> <- <outside>
+  0.68%       14 cg_float_format_demand <- <outside> <- <outside>
+  0.64%       13 life_load <- <outside> <- <outside>

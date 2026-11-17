@@ -1,0 +1,739 @@
+{
+ "schema": "goose-qualification-v1",
+ "started": "2026-11-17T22:57:12+0100",
+ "head": "90d4d19fe26337d0e777aec83cf0ab667b16e428",
+ "dirty": true,
+ "since": "90d4d19",
+ "units_pass": true,
+ "stages": [
+  {
+   "stage": "bootstrap",
+   "command": [
+    "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+    "scripts/bootstrap.py",
+    "--verify",
+    "--build-dir",
+    "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/qualification/bootstrap",
+    "--cache-dir",
+    "/home/jacobt/src/goose-to-wasm/build/qualify-cache/bootstrap"
+   ],
+   "exit": 0,
+   "seconds": 137.1,
+   "log": "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/qualification/bootstrap.log"
+  },
+  {
+   "stage": "conformance",
+   "command": [
+    "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+    "tests/conformance.py",
+    "--compiler",
+    "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/qualification/bootstrap/bin/goose",
+    "--levels",
+    "0",
+    "2",
+    "--cc",
+    "gcc",
+    "--known-gaps",
+    "tests/conformance/known-gaps.json",
+    "--native-cache",
+    "/home/jacobt/src/goose-to-wasm/build/qualify-cache/native",
+    "--output-dir",
+    "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/qualification/conformance",
+    "--jobs",
+    "6"
+   ],
+   "exit": 1,
+   "seconds": 120.3,
+   "log": "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/qualification/conformance.log",
+   "summary": "{'selected': 10793, 'passed': 10688, 'failed': 105}",
+   "gaps": "{'open_gaps': 104, 'unexpected_failures': 1, 'fixed_gaps': 0}",
+   "native_cache": "{'native_builds': 3216, 'cache_hits': 3124}"
+  },
+  {
+   "stage": "native-checks",
+   "command": [
+    "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+    "native/tests/check.py",
+    "--output",
+    "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/qualification/native"
+   ],
+   "exit": 0,
+   "seconds": 22.1,
+   "log": "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/qualification/native-checks.log",
+   "summary": "54 steps ok"
+  },
+  {
+   "stage": "conformance-native-units-3",
+   "command": [
+    "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+    "tests/conformance.py",
+    "--compiler",
+    "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/qualification/bootstrap/bin/goose",
+    "--levels",
+    "0",
+    "2",
+    "--cc",
+    "gcc",
+    "--known-gaps",
+    "tests/conformance/known-gaps.json",
+    "--native-cache",
+    "/home/jacobt/src/goose-to-wasm/build/qualify-cache/native",
+    "--output-dir",
+    "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/qualification/conformance-units",
+    "--jobs",
+    "3",
+    "--native-units",
+    "3",
+    "--targets",
+    "native"
+   ],
+   "exit": 0,
+   "seconds": 117.5,
+   "log": "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/qualification/conformance-native-units-3.log",
+   "summary": "{'selected': 6020, 'passed': 5924, 'failed': 96}",
+   "gaps": "{'open_gaps': 96, 'unexpected_failures': 0, 'fixed_gaps': 0}",
+   "native_cache": "{'native_builds': 3236, 'cache_hits': 3144}"
+  },
+  {
+   "stage": "conformance-memory64",
+   "command": [
+    "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+    "tests/conformance.py",
+    "--compiler",
+    "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/qualification/bootstrap/bin/goose",
+    "--levels",
+    "0",
+    "2",
+    "--cc",
+    "gcc",
+    "--known-gaps",
+    "tests/conformance/known-gaps-memory64.json",
+    "--native-cache",
+    "/home/jacobt/src/goose-to-wasm/build/qualify-cache/native",
+    "--output-dir",
+    "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/qualification/conformance-memory64",
+    "--jobs",
+    "3",
+    "--targets",
+    "wasm-direct",
+    "--wasm-memory64"
+   ],
+   "exit": 0,
+   "seconds": 288.1,
+   "log": "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/qualification/conformance-memory64.log",
+   "summary": "{'selected': 4773, 'passed': 4765, 'failed': 8}",
+   "gaps": "{'open_gaps': 8, 'unexpected_failures': 0, 'fixed_gaps': 0}",
+   "native_cache": "{'native_builds': 0, 'cache_hits': 0}"
+  },
+  {
+   "stage": "equivalence",
+   "command": [
+    "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+    "tests/output_equivalence.py",
+    "--baseline",
+    "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/goose-parent",
+    "--candidate",
+    "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/qualification/bootstrap/bin/goose",
+    "--output-dir",
+    "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/qualification/equivalence",
+    "--selfhost",
+    "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/qualification/frozen/selfhost",
+    "--jobs",
+    "3"
+   ],
+   "exit": 1,
+   "seconds": 119.4,
+   "log": "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/qualification/equivalence.log",
+   "summary": "{\"compared\": 10049, \"differing\": 26, \"seconds\": {\"baseline\": 174.739, \"candidate\": 171.786}}",
+   "differing": [
+    {
+     "source": "tests/fixtures/contracts/native-relative-runs/row-map.goose",
+     "mode": "native0",
+     "same": false,
+     "baseline": {
+      "exit": 0,
+      "stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_head": "",
+      "output": "d617e34c6498d8b5e1c270eca48e364ecf58ea397ccf68c9dba0070e9d98984f",
+      "seconds": 0.043
+     },
+     "candidate": {
+      "exit": 0,
+      "stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_head": "",
+      "output": "82236b4ed184de7143c07a93dc6eb6f383063c493e8b7e15462e4cecd4ac0043",
+      "seconds": 0.032
+     }
+    },
+    {
+     "source": "tests/fixtures/contracts/native-relative-runs/row-map.goose",
+     "mode": "native2",
+     "same": false,
+     "baseline": {
+      "exit": 0,
+      "stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_head": "",
+      "output": "d2d9709af34542d7ded17a0587717783304da337069990f6b0768b0200697141",
+      "seconds": 0.047
+     },
+     "candidate": {
+      "exit": 0,
+      "stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_head": "",
+      "output": "b4ac867e44eda6672fa89c79f4356c67bdefa92ae6ea775af1f517707038ecd6",
+      "seconds": 0.045
+     }
+    },
+    {
+     "source": "tests/fixtures/contracts/native-relative-runs/row-push-growth.goose",
+     "mode": "native0",
+     "same": false,
+     "baseline": {
+      "exit": 0,
+      "stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_head": "",
+      "output": "ae899f0c4a62f4fef1c6b6e4769e3e91ba7dbf54fdc3c798688e4f41e0f7ce87",
+      "seconds": 0.047
+     },
+     "candidate": {
+      "exit": 0,
+      "stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_head": "",
+      "output": "2eb1de53e30ef42eb432ce6f4585a99be3d00c8fdadd43778457feb97e61fe2b",
+      "seconds": 0.056
+     }
+    },
+    {
+     "source": "tests/fixtures/contracts/native-relative-runs/row-push-growth.goose",
+     "mode": "native2",
+     "same": false,
+     "baseline": {
+      "exit": 0,
+      "stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_head": "",
+      "output": "ae899f0c4a62f4fef1c6b6e4769e3e91ba7dbf54fdc3c798688e4f41e0f7ce87",
+      "seconds": 0.029
+     },
+     "candidate": {
+      "exit": 0,
+      "stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_head": "",
+      "output": "2eb1de53e30ef42eb432ce6f4585a99be3d00c8fdadd43778457feb97e61fe2b",
+      "seconds": 0.019
+     }
+    },
+    {
+     "source": "tests/fixtures/contracts/native-relative-runs/run-parameter-replace.goose",
+     "mode": "native0",
+     "same": false,
+     "baseline": {
+      "exit": 0,
+      "stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_head": "",
+      "output": "c6370096af5a069c06ba9d49bc0f436d788364a1eb10df34bef4896f1e4f6171",
+      "seconds": 0.033
+     },
+     "candidate": {
+      "exit": 0,
+      "stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_head": "",
+      "output": "3cdc802b61458454151de5faa88383f76e10005c1fc04abbdeaca5d767bc1f64",
+      "seconds": 0.039
+     }
+    },
+    {
+     "source": "tests/fixtures/contracts/native-relative-runs/run-parameter-replace.goose",
+     "mode": "native2",
+     "same": false,
+     "baseline": {
+      "exit": 0,
+      "stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_head": "",
+      "output": "9c73123b30417994f5033a579b4c59c811e0e1157b80077f4f7522abfcbb6992",
+      "seconds": 0.03
+     },
+     "candidate": {
+      "exit": 0,
+      "stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_head": "",
+      "output": "de736bb553e7b5bbb2536c8125c7ac30d0584321e7de8e1847fc363e2ad8a06c",
+      "seconds": 0.037
+     }
+    },
+    {
+     "source": "tests/fixtures/contracts/native-relative-runs/run-param-alias-call.goose",
+     "mode": "native0",
+     "same": false,
+     "baseline": {
+      "exit": 0,
+      "stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_head": "",
+      "output": "ade0a13d7f54136a2bc3828a8f78bef6f95af9480591af9cde2c46ea0c15f71a",
+      "seconds": 0.031
+     },
+     "candidate": {
+      "exit": 0,
+      "stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_head": "",
+      "output": "902f9f7ae7fb6a2dc8497bc60adc168272cf758425cf6740b9ea3226eb594192",
+      "seconds": 0.043
+     }
+    },
+    {
+     "source": "tests/fixtures/contracts/native-relative-runs/run-param-alias-call.goose",
+     "mode": "native2",
+     "same": false,
+     "baseline": {
+      "exit": 0,
+      "stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_head": "",
+      "output": "a60b3ce51dd207c4d861cafd55367ee58d57f4b7d3834e18ec8edfbe18fcfa26",
+      "seconds": 0.038
+     },
+     "candidate": {
+      "exit": 0,
+      "stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_head": "",
+      "output": "c7555bb95ad56c921f8efb3f1313f3bcab28be515ba10a6f8e358259026d57fd",
+      "seconds": 0.038
+     }
+    },
+    {
+     "source": "tests/fixtures/contracts/native-relative-runs/run-borrow-mutate.goose",
+     "mode": "native0",
+     "same": false,
+     "baseline": {
+      "exit": 0,
+      "stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_head": "",
+      "output": "b12be34b2af65652a252a6bafc3656aa087157835cc69797a8aceb7b9f27d4f1",
+      "seconds": 0.036
+     },
+     "candidate": {
+      "exit": 0,
+      "stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_head": "",
+      "output": "e4332949ef428ba6a58c5e9946306028edc383c09c6935bcdbcf6053d32817f0",
+      "seconds": 0.039
+     }
+    },
+    {
+     "source": "tests/fixtures/contracts/native-relative-runs/run-borrow-mutate.goose",
+     "mode": "native2",
+     "same": false,
+     "baseline": {
+      "exit": 0,
+      "stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_head": "",
+      "output": "b12be34b2af65652a252a6bafc3656aa087157835cc69797a8aceb7b9f27d4f1",
+      "seconds": 0.049
+     },
+     "candidate": {
+      "exit": 0,
+      "stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_head": "",
+      "output": "e4332949ef428ba6a58c5e9946306028edc383c09c6935bcdbcf6053d32817f0",
+      "seconds": 0.041
+     }
+    },
+    {
+     "source": "tests/fixtures/contracts/native-relative-runs/run-varint-padding.goose",
+     "mode": "native0",
+     "same": false,
+     "baseline": {
+      "exit": 0,
+      "stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_head": "",
+      "output": "8a5972e752e3863c04515439606d3f0120febde749bac1c6b50fe2917e1be9a7",
+      "seconds": 0.039
+     },
+     "candidate": {
+      "exit": 0,
+      "stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_head": "",
+      "output": "7de3940cc563493932e40daf01ca65790be616c375a62b0c42a8dd6e4adeb93e",
+      "seconds": 0.049
+     }
+    },
+    {
+     "source": "tests/fixtures/contracts/native-relative-runs/run-varint-padding.goose",
+     "mode": "native2",
+     "same": false,
+     "baseline": {
+      "exit": 0,
+      "stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_head": "",
+      "output": "8a5972e752e3863c04515439606d3f0120febde749bac1c6b50fe2917e1be9a7",
+      "seconds": 0.044
+     },
+     "candidate": {
+      "exit": 0,
+      "stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_head": "",
+      "output": "7de3940cc563493932e40daf01ca65790be616c375a62b0c42a8dd6e4adeb93e",
+      "seconds": 0.027
+     }
+    },
+    {
+     "source": "tests/fixtures/contracts/native-relative-runs/optional-param.goose",
+     "mode": "native0",
+     "same": false,
+     "baseline": {
+      "exit": 0,
+      "stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_head": "",
+      "output": "e46d7ca33a936d04abf861e08083775f1fd233c91d1af908ea8023baa8f57719",
+      "seconds": 0.017
+     },
+     "candidate": {
+      "exit": 0,
+      "stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_head": "",
+      "output": "989a3fa1175a2adfd4d20a5b535a347d004ee7db713e189ebff83173ff901d92",
+      "seconds": 0.021
+     }
+    },
+    {
+     "source": "tests/fixtures/contracts/native-relative-runs/optional-param.goose",
+     "mode": "native2",
+     "same": false,
+     "baseline": {
+      "exit": 0,
+      "stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_head": "",
+      "output": "0a1a3c04b8a24c819e159d73a3515367170efdb4998b5b2728602590d8edd82d",
+      "seconds": 0.025
+     },
+     "candidate": {
+      "exit": 0,
+      "stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_head": "",
+      "output": "e8a472487a7beaa6e51e390dffd5867f41e82540275427522806aaad49855573",
+      "seconds": 0.013
+     }
+    },
+    {
+     "source": "tests/fixtures/contracts/native-relative-runs/foreach-append-exits.goose",
+     "mode": "native0",
+     "same": false,
+     "baseline": {
+      "exit": 0,
+      "stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_head": "",
+      "output": "3c5337edb3612cfb8c10d59807e743385b5dc1b182be0066c1df8c82efa0e063",
+      "seconds": 0.026
+     },
+     "candidate": {
+      "exit": 0,
+      "stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_head": "",
+      "output": "6194ef345211b83dadeaad2e1d7463cd914afaf8195832140353b916671436fc",
+      "seconds": 0.022
+     }
+    },
+    {
+     "source": "tests/fixtures/contracts/native-relative-runs/foreach-append-exits.goose",
+     "mode": "native2",
+     "same": false,
+     "baseline": {
+      "exit": 0,
+      "stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_head": "",
+      "output": "3c5337edb3612cfb8c10d59807e743385b5dc1b182be0066c1df8c82efa0e063",
+      "seconds": 0.031
+     },
+     "candidate": {
+      "exit": 0,
+      "stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_head": "",
+      "output": "6194ef345211b83dadeaad2e1d7463cd914afaf8195832140353b916671436fc",
+      "seconds": 0.035
+     }
+    },
+    {
+     "source": "tests/fixtures/contracts/native-relative-runs/row-branch-return.goose",
+     "mode": "native0",
+     "same": false,
+     "baseline": {
+      "exit": 0,
+      "stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_head": "",
+      "output": "5e48a3d6a778c772ab9274748994bf1bc08c615be48b3cb9ba4ea68423b49aae",
+      "seconds": 0.029
+     },
+     "candidate": {
+      "exit": 0,
+      "stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_head": "",
+      "output": "b9310ceaf2f953e8e41abb07b72785efdd0bc30c0a352ce2c166405dd5582620",
+      "seconds": 0.041
+     }
+    },
+    {
+     "source": "tests/fixtures/contracts/native-relative-runs/row-branch-return.goose",
+     "mode": "native2",
+     "same": false,
+     "baseline": {
+      "exit": 0,
+      "stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_head": "",
+      "output": "00727fcec76d58d8d051b198e85eb08e53f1c0ac6482c70077fadc6fd55baf0f",
+      "seconds": 0.033
+     },
+     "candidate": {
+      "exit": 0,
+      "stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_head": "",
+      "output": "aa2e834f48f21feecffef5847b03a2ec570c0d4af25b69594812f7aaca1739c4",
+      "seconds": 0.039
+     }
+    },
+    {
+     "source": "tests/fixtures/contracts/native-relative-runs/ordinary-row-return.goose",
+     "mode": "native0",
+     "same": false,
+     "baseline": {
+      "exit": 0,
+      "stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_head": "",
+      "output": "99bcc4afd001342b365863233eb80b16c1d68964a05818a3e95ac5089f762b7d",
+      "seconds": 0.024
+     },
+     "candidate": {
+      "exit": 0,
+      "stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_head": "",
+      "output": "85fb499a6abcd8a645cd33d9fa1a7034dde58a5c9337fe5a1a5ca222ea8a34af",
+      "seconds": 0.033
+     }
+    },
+    {
+     "source": "tests/fixtures/contracts/native-relative-runs/ordinary-row-return.goose",
+     "mode": "native2",
+     "same": false,
+     "baseline": {
+      "exit": 0,
+      "stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_head": "",
+      "output": "3ce5e73a8441a15a31c784388ff6bf937f771044a75fe3da25503e0750afe6df",
+      "seconds": 0.017
+     },
+     "candidate": {
+      "exit": 0,
+      "stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_head": "",
+      "output": "0cdeb9764442b0410288137965fbadb3841ee07db0378a111110eff19ffeed44",
+      "seconds": 0.03
+     }
+    },
+    {
+     "source": "tests/fixtures/contracts/native-relative-runs/unused-null-nonlocal.goose",
+     "mode": "native0",
+     "same": false,
+     "baseline": {
+      "exit": 0,
+      "stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_head": "",
+      "output": "d90407d3e1a3964cf0e75dce4091d462e1ae6b7f91d04a47786012d30b574e98",
+      "seconds": 0.016
+     },
+     "candidate": {
+      "exit": 0,
+      "stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_head": "",
+      "output": "5c6593c20d0fbc3d05f06a7c04e25b89923325e172c38dfc90bdcba5f1aa0598",
+      "seconds": 0.019
+     }
+    },
+    {
+     "source": "tests/fixtures/contracts/native-relative-runs/unused-null-nonlocal.goose",
+     "mode": "native2",
+     "same": false,
+     "baseline": {
+      "exit": 0,
+      "stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_head": "",
+      "output": "6f3aec6b55933abc90ad75f2e8f8f5dfe8712c645529301bb051ae3df3be437c",
+      "seconds": 0.03
+     },
+     "candidate": {
+      "exit": 0,
+      "stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_head": "",
+      "output": "9e5243ac68e5b72394ccb0ccbcd250b348c855e4aba29919c2b6ffd98654ed22",
+      "seconds": 0.027
+     }
+    },
+    {
+     "source": "tests/fixtures/contracts/native-multi-interaction-v2/multi-row-fields.goose",
+     "mode": "native0",
+     "same": false,
+     "baseline": {
+      "exit": 0,
+      "stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_head": "",
+      "output": "03f04384883e2e0e3290c60d94101d4b3a89bbbdfff3225a6c7f39aaf9581bfc",
+      "seconds": 0.045
+     },
+     "candidate": {
+      "exit": 0,
+      "stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_head": "",
+      "output": "1a9e82643aab1493a87d9d07ea66e5b0b9eb6195b4b06c25f74bb42eebee6766",
+      "seconds": 0.044
+     }
+    },
+    {
+     "source": "tests/fixtures/contracts/native-multi-interaction-v2/multi-row-fields.goose",
+     "mode": "native2",
+     "same": false,
+     "baseline": {
+      "exit": 0,
+      "stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_head": "",
+      "output": "7d66282c4545f68721711313030a7ec0579c3c34c52ca40f5056c61ca60c0864",
+      "seconds": 0.036
+     },
+     "candidate": {
+      "exit": 0,
+      "stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_head": "",
+      "output": "9b1b38b9da883a6ea4f05f371451133408ec26c0ae56253b38c3a0fd5d8b593d",
+      "seconds": 0.029
+     }
+    },
+    {
+     "source": "tests/fixtures/contracts/native-multi-interaction-v2/multi-before-root-replace.goose",
+     "mode": "native0",
+     "same": false,
+     "baseline": {
+      "exit": 0,
+      "stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_head": "",
+      "output": "1b5b1d52ba23a06f5ef795e6066fd7701c71c55287dc161f1d1889a7ab8c6ce1",
+      "seconds": 0.045
+     },
+     "candidate": {
+      "exit": 0,
+      "stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_head": "",
+      "output": "2b521961bac624a30fe0165a91858698d584250527f80aaf1f6b7109e47fc189",
+      "seconds": 0.058
+     }
+    },
+    {
+     "source": "tests/fixtures/contracts/native-multi-interaction-v2/multi-before-root-replace.goose",
+     "mode": "native2",
+     "same": false,
+     "baseline": {
+      "exit": 0,
+      "stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_head": "",
+      "output": "e618b1440a82652b150fbaa817c988ab16a7ba3d8b2f56d68a5904cb33d2b864",
+      "seconds": 0.049
+     },
+     "candidate": {
+      "exit": 0,
+      "stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_head": "",
+      "output": "f21c7356858c4428b7407029c733470db48d23b406180a85853a05a5c889476a",
+      "seconds": 0.056
+     }
+    }
+   ]
+  },
+  {
+   "stage": "unit-tests",
+   "command": [
+    "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+    "-m",
+    "unittest",
+    "tests.test_conformance_runner",
+    "tests.test_bootstrap_optimization",
+    "tests.test_native_units",
+    "tests.test_driver_outputs",
+    "tests.test_cli_outputs",
+    "tests.test_root_struct_backends",
+    "tests.test_slice_pool_backends",
+    "tests.test_loop_ordinals",
+    "tests.test_dynamic_remainder",
+    "tests.test_descending_while",
+    "tests.test_zero_stores",
+    "tests.test_aggregate_print",
+    "tests.test_while_unroll"
+   ],
+   "exit": 0,
+   "seconds": 232.9,
+   "log": "/home/jacobt/src/goose-to-wasm/build/perf-next-1117/qualification/unit-tests.log"
+  }
+ ],
+ "bootstrap": {
+  "fixed_point": true,
+  "generated_c_sha256": "833925f65299e0e43d666cf22014e218a0fd0b3aa2374ddc453e5929698b468b",
+  "next_generation_c_sha256": "833925f65299e0e43d666cf22014e218a0fd0b3aa2374ddc453e5929698b468b",
+  "third_generation_c_sha256": null,
+  "executable_sha256": "6dc908de22b44263c36c7f8b31b6c44047df1e126cf465a71ee527116e7f1030",
+  "profile_used": false,
+  "cached": {
+   "build-seed": true,
+   "build-goose": false
+  }
+ },
+ "seconds": 425.4,
+ "status": "failed",
+ "failed": [
+  "conformance"
+ ]
+}

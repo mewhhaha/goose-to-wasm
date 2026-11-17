@@ -1785,8 +1785,17 @@ recursive fn cc_committed_run_loop(p: Program&, f: CcBody&, node: i64, array: i6
     let regions = f.region_live; let cursors = f.cursors.len; let publications = f.serial; f.serial++;
     cc_id(f.out, "GPublication *g_scope_publications", publications); cc_text(f.out, "=g_publication_top;\n");
     f.exits.push(CcExit { node: node, done: done, again: again, result: -1, type_id: TYPE_VOID, regions: regions, again_regions: regions, publications: publications, self_build_depth: f.self_build_depth, defers: f.defers.len });
-    cc_text(f.out, "for(;;){g_run_check("); cc_id(f.out, "g_run_cap", capability); cc_text(f.out, ","); cc_run_skip(p, f, array); cc_text(f.out, ");\nif("); cc_id(f.out, "g_v", counter); cc_text(f.out, ">="); cc_id(f.out, "g_run_cap", capability); cc_text(f.out, "->header.len)break;\n");
-    let view = cc_temp(p, f, element, true, false); cc_set(f, view); cc_text(f.out, "g_run_view("); cc_id(f.out, "g_run_cap", capability); cc_text(f.out, ","); cc_id(f.out, "g_v", counter); cc_text(f.out, ","); cc_run_skip(p, f, array); cc_text(f.out, ");\n");
+    let stable = cg_stable_scan_body(p, f.function, n.right, true);
+    if !stable { cc_text(f.out, "for(;;){"); }
+    cc_text(f.out, "g_run_check("); cc_id(f.out, "g_run_cap", capability); cc_text(f.out, ","); cc_run_skip(p, f, array); cc_text(f.out, ");\n");
+    if stable { f.out.format("uint8_t *g_row", counter, "=g_run_cap", capability, "->header.data;\nfor(;;){"); }
+    f.out.format("if(g_v", counter, ">=g_run_cap", capability, "->header.len)break;\n");
+    let view = cc_temp(p, f, element, true, false); cc_set(f, view);
+    if stable {
+        f.out.format("(GImage){g_row", counter, ",(uint8_t*)g_self_skip_", element, "(g_row", counter, ",g_run_cap", capability, "->end),NULL};\ng_row", counter, "=g_v", view, ".end;\n");
+    } else {
+        f.out.format("g_run_view(g_run_cap", capability, ",g_v", counter, ",g_self_skip_", element, ");\n");
+    }
     if (p.nodes[binding].flags & F_REFERENCE) != 0 {
         let header = cc_temporary_ref(f, view);
         cc_id(f.out, "g_s", p.nodes[binding].symbol); cc_text(f.out, "=g_ref("); cc_id(f.out, "g_v", view); cc_text(f.out, ".base);\n");
@@ -2082,12 +2091,49 @@ fn cc_array_slot(p: Program&, f: CcBody&, base: i64, array: i64, index: i64, lit
     let target = cc_ref_temp(f); cc_set(f, target); cc_text(f.out, "g_slot("); cc_id(f.out, "g_v", base); cc_text(f.out, ","); cc_literal_array_args(p, f.out, array);
     cc_text(f.out, ","); if literal_index { cc_number(f.out, index); } else { cc_id(f.out, "g_i", index); } cc_text(f.out, ");\n"); return target;
 }
-recursive fn cc_run_construct_element(p: Program&, f: CcBody&, node: i64, array: i64, capability: i64) -> i64 {
+// A counted loop whose whole body pushes one literal Row only changes the
+// committed prefix by publishing another complete Row. Validate the existing
+// prefix on its first iteration, including rows present before the loop.
+fn cc_run_append_ordinal(p: Program&, f: CcBody&, call: i64, element: i64, argument: i64) -> i64 {
+    if f.exits.len == 0 || p.nodes[argument].kind != N_RECORD { return -1; }
+    let loop_node = p.nodes[f.exits[f.exits.len - 1].node];
+    if loop_node.kind != N_FOR || cc_kind(p, p.nodes[loop_node.left].type_id) != TY_INT || p.nodes[loop_node.left].kind == N_RANGE { return -1; }
+    let body = p.nodes[loop_node.right]; var only = body.first;
+    if body.kind != N_BLOCK || only < 0 || p.nodes[only].next >= 0 { return -1; }
+    if p.nodes[only].kind == N_EXPR_STMT { only = p.nodes[only].left; }
+    if only != call { return -1; }
+    let receiver = p.nodes[p.nodes[call].first];
+    if receiver.kind != N_NAME || !cc_self_run(p, receiver.type_id) { return -1; }
+    var binding = p.nodes[argument].first;
+    var field = p.nodes[p.types[element].declaration].first;
+    while field >= 0 {
+        let current = field; let n = p.nodes[field]; field = n.next; if (n.flags & F_PAD) != 0 { continue; }
+        var init = n.right;
+        if binding >= 0 {
+            if p.nodes[binding].symbol != current { return -1; }
+            init = p.nodes[binding].right; binding = p.nodes[binding].next;
+        }
+        if init < 0 { return -1; }
+        let value = p.nodes[init];
+        if value.kind != N_SELF && value.kind != N_STRING && value.kind != N_INTEGER && value.kind != N_BOOL &&
+           !(value.kind == N_NAME && cg_scalar_slot_type(p, value.type_id)) { return -1; }
+    }
+    if binding >= 0 { return -1; }
+    return p.nodes[loop_node.first].symbol;
+}
+recursive fn cc_run_construct_element(p: Program&, f: CcBody&, node: i64, array: i64, capability: i64, ordinal: i64 = -1) -> i64 {
     let element = p.types[array].element; let value = cc_temp(p, f, element, true, false);
-    cc_set(f, value); cc_text(f.out, "g_run_begin("); cc_id(f.out, "g_run_cap", capability); cc_text(f.out, ","); cc_run_skip(p, f, array); cc_text(f.out, ");\n");
+    if ordinal >= 0 {
+        f.out.format("if(!g_s", ordinal, ")g_run_check(g_run_cap", capability, ",g_self_skip_", element, ");\n");
+        cc_set(f, value); f.out.format("g_run_writer(g_run_cap", capability, ");\n");
+    } else {
+        cc_set(f, value); f.out.format("g_run_begin(g_run_cap", capability, ",g_self_skip_", element, ");\n");
+    }
     let owner = cc_temporary_ref(f, value);
     f.self_build_depth++; cc_construct_into(p, f, node, element, owner); f.self_build_depth--;
-    let result = cc_ref_temp(f); cc_set(f, result); cc_text(f.out, "g_ref(g_run_finish("); cc_id(f.out, "g_run_cap", capability); cc_text(f.out, ","); cc_id(f.out, "g_v", value); cc_text(f.out, ","); cc_run_skip(p, f, array); cc_text(f.out, "));\n");
+    let result = cc_ref_temp(f); cc_set(f, result);
+    if ordinal >= 0 { cc_text(f.out, "g_ref(g_run_commit("); } else { cc_text(f.out, "g_ref(g_run_finish("); }
+    f.out.format("g_run_cap", capability, ",g_v", value, ",g_self_skip_", element, "));\n");
     return result;
 }
 recursive fn cc_committed_run_array(p: Program&, f: CcBody&, node: i64) -> i64 {
@@ -2778,7 +2824,8 @@ recursive fn cc_image_extend(p: Program&, f: CcBody&, node: i64, builtin: i64, b
     if cc_self_run(p, array) {
         if builtin != 24 { cc_fail(p, node, "c: variable-relative run extension requires complete bounded element adaptation"); return -1; }
         let capability = cc_run_require(p, f, base, node); if capability < 0 { return -1; }
-        let mark = f.region_live; let result = cc_run_construct_element(p, f, argument, array, capability); if result < 0 { return -1; }
+        let ordinal = cc_run_append_ordinal(p, f, node, p.types[array].element, argument);
+        let mark = f.region_live; let result = cc_run_construct_element(p, f, argument, array, capability, ordinal); if result < 0 { return -1; }
         let view = cc_temp(p, f, p.types[array].element, true, false); cc_set(f, view); cc_text(f.out, "(GImage){g_address("); cc_id(f.out, "g_v", result); cc_text(f.out, "),"); cc_id(f.out, "g_run_cap", capability); cc_text(f.out, "->end,NULL};\n");
         let owner = cc_temporary_ref(f, view); f.cursors.push(CcCursor { symbol: -1, index: -1, address: result, type_id: p.types[array].element, node: node, owner_header: owner });
         cc_restore(f, mark); f.region_live = mark; return result;

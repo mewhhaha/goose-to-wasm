@@ -25,6 +25,8 @@ def main():
     parser.add_argument('--optimization', type=int, choices=(0, 1, 2), default=2,
                         help='Goose optimization level for compiler emission (default: 2)')
     parser.add_argument('--verify', action='store_true', help='verify identical self-hosted C output')
+    parser.add_argument('--reuse-toolchain', type=Path,
+                        help='start from a local verified toolchain.json and verify the new build')
     parser.add_argument('--cache-dir', type=Path,
                         help='reuse native builds and closed seed emissions for identical inputs')
     parser.add_argument('--jobs', type=int, default=1,
@@ -45,6 +47,8 @@ def main():
                    '--optimization', str(args.optimization)]
         if args.verify:
             command.append('--verify')
+        if args.reuse_toolchain:
+            command += ['--reuse-toolchain', str(args.reuse_toolchain.resolve())]
         if args.jobs != 1:
             command += ['--jobs', str(args.jobs)]
         if args.cache_dir:
@@ -80,6 +84,8 @@ def main():
                     'profile_used': report.get('profile_used', False),
                     'executable_build': report.get('executable_build'),
                     'fixed_point': report.get('fixed_point', False)}
+        if 'reused_toolchain' in report:
+            metadata['reused_toolchain'] = report['reused_toolchain']
         (build / 'toolchain.json').write_text(json.dumps(metadata, indent=2) + '\n')
     print(install / 'goose')
     return 0

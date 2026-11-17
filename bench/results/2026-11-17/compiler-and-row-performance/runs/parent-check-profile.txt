@@ -1,0 +1,94 @@
+samples 1364
+life_* 87.9%
+  7.70%      105 life_eval_body
+  5.87%       80 life_effect_far
+  5.50%       75 life_construct_read
+  5.28%       72 life_effect
+  4.25%       58 life_eval
+  4.18%       57 life_function
+  4.11%       56 life_replay
+  3.81%       52 life_contains
+  3.74%       51 life_holder_scan
+  3.67%       50 life_shrink
+  3.37%       46 life_readback
+  3.30%       45 life_in_scope
+  2.86%       39 life_read_find
+  2.27%       31 life_cell
+  2.27%       31 life_held_into
+  1.91%       26 life_list_set
+  1.61%       22 life_call
+  1.61%       22 life_next_live
+  1.39%       19 life_holds_walk
+  1.32%       18 check_lookup_scope
+  1.32%       18 life_body
+  1.17%       16 life_same
+  1.10%       15 life_leaf
+  0.95%       13 life_load
+  0.88%       12 life_alt_overlaps
+  0.81%       11 lex_tokens
+  0.81%       11 life_temporary
+  0.73%       10 life_add_contents
+  0.73%       10 life_contents
+  0.73%       10 life_store
+--- self <- caller
+  7.70%      105 life_eval_body <- <outside>
+  5.87%       80 life_effect_far <- <outside>
+  5.50%       75 life_construct_read <- <outside>
+  5.28%       72 life_effect <- <outside>
+  4.25%       58 life_eval <- <outside>
+  4.18%       57 life_function <- <outside>
+  4.11%       56 life_replay <- <outside>
+  3.81%       52 life_contains <- <outside>
+  3.74%       51 life_holder_scan <- <outside>
+  3.67%       50 life_shrink <- <outside>
+  3.37%       46 life_readback <- <outside>
+  3.30%       45 life_in_scope <- <outside>
+  2.86%       39 life_read_find <- <outside>
+  2.27%       31 life_cell <- <outside>
+  2.27%       31 life_held_into <- <outside>
+  1.91%       26 life_list_set <- <outside>
+  1.61%       22 life_call <- <outside>
+  1.61%       22 life_next_live <- <outside>
+  1.39%       19 life_holds_walk <- <outside>
+  1.32%       18 check_lookup_scope <- <outside>
+  1.32%       18 life_body <- <outside>
+  1.17%       16 life_same <- <outside>
+  1.10%       15 life_leaf <- <outside>
+  0.95%       13 life_load <- <outside>
+  0.88%       12 life_alt_overlaps <- <outside>
+  0.81%       11 lex_tokens <- <outside>
+  0.81%       11 life_temporary <- <outside>
+  0.73%       10 life_add_contents <- <outside>
+  0.73%       10 life_contents <- <outside>
+  0.73%       10 life_store <- <outside>
+--- self <- caller <- caller2
+  7.70%      105 life_eval_body <- <outside> <- <outside>
+  5.87%       80 life_effect_far <- <outside> <- <outside>
+  5.50%       75 life_construct_read <- <outside> <- <outside>
+  5.28%       72 life_effect <- <outside> <- <outside>
+  4.25%       58 life_eval <- <outside> <- <outside>
+  4.18%       57 life_function <- <outside> <- <outside>
+  4.11%       56 life_replay <- <outside> <- <outside>
+  3.81%       52 life_contains <- <outside> <- <outside>
+  3.74%       51 life_holder_scan <- <outside> <- <outside>
+  3.67%       50 life_shrink <- <outside> <- <outside>
+  3.37%       46 life_readback <- <outside> <- <outside>
+  3.30%       45 life_in_scope <- <outside> <- <outside>
+  2.86%       39 life_read_find <- <outside> <- <outside>
+  2.27%       31 life_cell <- <outside> <- <outside>
+  2.27%       31 life_held_into <- <outside> <- <outside>
+  1.91%       26 life_list_set <- <outside> <- <outside>
+  1.61%       22 life_call <- <outside> <- <outside>
+  1.61%       22 life_next_live <- <outside> <- <outside>
+  1.39%       19 life_holds_walk <- <outside> <- <outside>
+  1.32%       18 check_lookup_scope <- <outside> <- <outside>
+  1.32%       18 life_body <- <outside> <- <outside>
+  1.17%       16 life_same <- <outside> <- <outside>
+  1.10%       15 life_leaf <- <outside> <- <outside>
+  0.95%       13 life_load <- <outside> <- <outside>
+  0.88%       12 life_alt_overlaps <- <outside> <- <outside>
+  0.81%       11 lex_tokens <- <outside> <- <outside>
+  0.81%       11 life_temporary <- <outside> <- <outside>
+  0.73%       10 life_add_contents <- <outside> <- <outside>
+  0.73%       10 life_contents <- <outside> <- <outside>
+  0.73%       10 life_store <- <outside> <- <outside>

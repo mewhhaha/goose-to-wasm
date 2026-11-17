@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Qualify loops without index bindings across source changes and exits."""
 import argparse
+import re
 from pathlib import Path
 import subprocess
 import sys
@@ -101,6 +102,28 @@ fn main() {
     print(visit(values[..])," ",values);
     print(visit(values[..])," ",values);
 }''', "5 [3, 20, 7, 4]\n5 [7, 41, 15, 4]\n")
+
+    def test_native_row_prefix_checks_scale_with_the_run(self):
+        fixture = goose_stats.ROOT / "tests/fixtures/native_row_scans.goose"
+        expected = "12 129\n8228\n43 4 2\n0\n18 4\n"
+        c = self.work / "rows.c"
+        exe = self.work / "rows"
+        for level in (0, 2):
+            with self.subTest(level=level):
+                subprocess.run([goose_stats.GOOSE, fixture, "--target", "native", "--standalone",
+                                f"-O{level}", "-o", c], check=True, capture_output=True)
+                # Count calls to the bounded Row decoder, including independent
+                # self-link resolution, the initial span check and slow paths.
+                source, matches = re.subn(
+                    r"(static const uint8_t \*g_self_skip_\d+\(const uint8_t \*start,const uint8_t \*end\)\{)",
+                    r'static int checks; static void report_checks(void){fprintf(stderr,"%d",checks);}'
+                    r'\n\1if(!checks++)atexit(report_checks);', c.read_text())
+                self.assertEqual(matches, 1)
+                c.write_text(source)
+                subprocess.run([goose_stats.CC, c, "-lm", "-o", exe], check=True, capture_output=True)
+                run = subprocess.run([exe], check=True, capture_output=True, text=True)
+                self.assertEqual(run.stdout, expected)
+                self.assertLess(int(run.stderr), 10 * 128, run.stderr)
 
     def test_immutable_varint_scan_fuel_scales_with_input(self):
         import wasmtime
