@@ -27,8 +27,9 @@ struct LifeSpan { first: i64 = 0, count: i64 = -1 }
 // (a span of body_globals, as found) and the nodes their calls go on to (a
 // span of body_calls, sorted). seen: the life_body_walk that last reached it.
 // owners: the functions that own the captured bindings it names, a span of
-// body_owners, each once.
-struct LifeBody { start: i64, captures: bool = false, globals: i64 = 0, global_count: i64 = 0, calls: i64 = 0, call_count: i64 = 0, seen: i64 = 0, owners: i64 = 0, owner_count: i64 = 0 }
+// body_owners, each once. named: those bindings themselves, a span of
+// body_captures, sorted, each once.
+struct LifeBody { start: i64, captures: bool = false, globals: i64 = 0, global_count: i64 = 0, calls: i64 = 0, call_count: i64 = 0, seen: i64 = 0, owners: i64 = 0, owner_count: i64 = 0, named: i64 = 0, named_count: i64 = 0 }
 // class_frame, class_index: for a class root, the class-keyed frame it
 // belongs to and its class there (life_classify, life_class_new);
 // class_one: it stands for one root exactly at every call. map_serial,
@@ -366,7 +367,7 @@ struct Lifetimes {
     // The owners of the captured bindings each body names (LifeBody.owners),
     // and per function node whether it is contained (life_contained): 0
     // unknown, 1 yes, 2 no.
-    body_owners: i64[>..]&, contained: i64[>..]&,
+    body_owners: i64[>..]&, body_captures: i64[>..]&, contained: i64[>..]&,
     // The storage classes of one pointee type, by parent and pointee (open
     // addressing over root indexes), and how many there are.
     typed_slots: i64[>..]&, typed_count: i64 = 0,
@@ -1986,6 +1987,34 @@ inline fn life_read_bucket(node: i64, symbol: i64, count: i64) -> i64 {
     var h = (node as! u64) * 11400714819323198485 ^ (symbol as! u64) * 14029467366897019727;
     h ^= h >> 29; return (h & ((count - 1) as! u64)) as i64;
 }
+// life_reads for a captured binding, from body to body. Its walk over nodes
+// goes on through every call but one into the function that owns the
+// binding, and asks each node whether it names the binding. What the nodes
+// of one stretch say, and which calls leave it, life_body has scanned once:
+// the same bodies are reached here, each asked for the binding in the sorted
+// list of those it names.
+fn life_reads_captured(p: Program&, l: Lifetimes&, node: i64, symbol: i64) -> bool {
+    let owner = p.symbols[symbol].owner; var barred: i64 = -1; if owner >= 0 { barred = p.nodes[owner].right; }
+    l.body_walks += 1; let walk = l.body_walks;
+    var reached: i64[>..] = []; let first = life_body(p, l, node); l.bodies[first].seen = walk; reached.push(first);
+    var at = 0;
+    while at < reached.len {
+        let body = l.bodies[reached[at]]; at += 1;
+        var low = body.named; var high = body.named + body.named_count;
+        while low < high {
+            let middle = (low + high) / 2; let value = l.body_captures[middle];
+            if value == symbol { return true; }
+            if value < symbol { low = middle + 1; } else { high = middle; }
+        }
+        for call in body.calls..body.calls + body.call_count {
+            let target = l.body_calls[call];
+            if target == barred { continue; }
+            let next = life_body(p, l, target);
+            if l.bodies[next].seen != walk { l.bodies[next].seen = walk; reached.push(next); }
+        }
+    }
+    return false;
+}
 fn life_reads(p: Program&, l: Lifetimes&, node: i64, symbol: i64) -> bool {
     if node < 0 { return false; }
     // Two cached answers per bucket at most, on average.
@@ -2000,7 +2029,9 @@ fn life_reads(p: Program&, l: Lifetimes&, node: i64, symbol: i64) -> bool {
     let bucket = life_read_bucket(node, symbol, l.read_heads.len);
     var cached = l.read_heads[bucket];
     while cached >= 0 { let q: const LifeRead& = l.reads[cached]; if q.node == node && q.symbol == symbol { return q.answer; } cached = q.next; }
-    l.visit += 1; var work: i64[>..] = []; life_read_child(l, work, node); var at = 0; var answer = false;
+    var work: i64[>..] = []; var at = 0; var answer = false;
+    if (p.symbols[symbol].flags & S_CAPTURE) != 0 { answer = life_reads_captured(p, l, node, symbol); }
+    else { l.visit += 1; life_read_child(l, work, node); }
     while at < work.len {
         let current = work[at]; at += 1; let n: const Node& = p.nodes[current];
         if n.kind == N_NAME && n.symbol == symbol { answer = true; break; }
@@ -2037,7 +2068,7 @@ fn life_body(p: Program&, l: Lifetimes&, start: i64) -> i64 {
         if l.bodies[found].start == start { return found; }
         slot = (slot + 1) & mask;
     }
-    var body = LifeBody { start: start, globals: l.body_globals.len, calls: l.body_calls.len, owners: l.body_owners.len };
+    var body = LifeBody { start: start, globals: l.body_globals.len, calls: l.body_calls.len, owners: l.body_owners.len, named: l.body_captures.len };
     l.visit += 1; var work: i64[>..] = []; life_read_child(l, work, start); var at = 0;
     while at < work.len {
         let current = work[at]; at += 1; let n: const Node& = p.nodes[current];
@@ -2047,6 +2078,7 @@ fn life_body(p: Program&, l: Lifetimes&, start: i64) -> i64 {
                 body.captures = true; let owner = p.symbols[n.symbol].owner; var listed = false;
                 for at in body.owners..l.body_owners.len { if l.body_owners[at] == owner { listed = true; break; } }
                 if !listed { l.body_owners.push(owner); }
+                l.body_captures.push(n.symbol);
             }
             if (flags & S_GLOBAL) != 0 { l.body_globals.push(n.symbol); }
         }
@@ -2065,6 +2097,13 @@ fn life_body(p: Program&, l: Lifetimes&, start: i64) -> i64 {
         if index == body.calls || l.body_calls[index] != l.body_calls[kept - 1] { l.body_calls[kept] = l.body_calls[index]; kept += 1; }
     }
     l.body_calls.resize(kept, 0);
+    // Each captured binding once, in order.
+    l.body_captures[body.named..l.body_captures.len].sort();
+    var named = body.named;
+    for index in body.named..l.body_captures.len {
+        if index == body.named || l.body_captures[index] != l.body_captures[named - 1] { l.body_captures[named] = l.body_captures[index]; named += 1; }
+    }
+    l.body_captures.resize(named, 0); body.named_count = named - body.named;
     body.global_count = l.body_globals.len - body.globals; body.call_count = kept - body.calls; body.owner_count = l.body_owners.len - body.owners;
     let index = l.bodies.len; l.bodies.push(body); l.body_slots[slot] = index;
     return index;
@@ -6024,7 +6063,7 @@ fn check_lifetimes(p: Program&, scope_parent: const i64[:], scope_depth: const i
     var readbacks: LifeReadBack[>..] = [];
     var class_list: i64[>..] = []; var class_heads: i64[>..] = []; var class_keys: i64[>..] = [];
     var map_sets: i64[>..] = []; var map_roots: i64[>..] = []; var map_types: i64[>..] = []; var map_depths: i64[>..] = []; var key_scratch: i64[>..] = []; var class_scratch: i64[>..] = []; var bound_scratch: i64[>..] = [];
-    var assumes: LifeAssume[>..] = []; var assume_slots: i64[>..] = []; var map_memo: LifeMapped[>..] = []; var body_owners: i64[>..] = []; var contained: i64[>..] = []; var typed_slots: i64[>..] = []; var global_types: i8[>..] = []; var refers: LifeRefers[>..] = []; var referable: LifeLoaded[>..] = []; var type_canon: i64[>..] = [];
+    var assumes: LifeAssume[>..] = []; var assume_slots: i64[>..] = []; var map_memo: LifeMapped[>..] = []; var body_owners: i64[>..] = []; var body_captures: i64[>..] = []; var contained: i64[>..] = []; var typed_slots: i64[>..] = []; var global_types: i8[>..] = []; var refers: LifeRefers[>..] = []; var referable: LifeLoaded[>..] = []; var type_canon: i64[>..] = [];
     var class_slots: i64[>..] = []; var joins: LifeJoin[>..] = []; var global_cells: i64[>..] = []; var global_candidates: LifeGlobalCandidates[>..] = []; var candidate_alts: LifeAlt[>..] = [];
     var l = Lifetimes { parents: scope_parent, depths: scope_depth, functions: scope_functions,
         roots: roots, sets: sets, alts: alts, cells: cells, frames: frames, items: items, pairs: pairs, pair_heads: pair_heads, exits: exits,
@@ -6037,7 +6076,7 @@ fn check_lifetimes(p: Program&, scope_parent: const i64[:], scope_depth: const i
         loaded: loaded, gs_asked: gs_asked, gs_answer: gs_answer, relative_storage: relative_storage, readbacks: readbacks,
         live_bits: live_bits, live_words: live_words, class_slots: class_slots, joins: joins, global_cells: global_cells, global_candidates: global_candidates, candidate_alts: candidate_alts,
         class_list: class_list, class_heads: class_heads, class_keys: class_keys,
-        map_sets: map_sets, map_roots: map_roots, map_types: map_types, map_depths: map_depths, key_scratch: key_scratch, class_scratch: class_scratch, bound_scratch: bound_scratch, assumes: assumes, assume_slots: assume_slots, map_memo: map_memo, body_owners: body_owners, contained: contained, typed_slots: typed_slots, type_canon: type_canon, global_types: global_types, refers: refers, referable: referable };
+        map_sets: map_sets, map_roots: map_roots, map_types: map_types, map_depths: map_depths, key_scratch: key_scratch, class_scratch: class_scratch, bound_scratch: bound_scratch, assumes: assumes, assume_slots: assume_slots, map_memo: map_memo, body_owners: body_owners, body_captures: body_captures, contained: contained, typed_slots: typed_slots, type_canon: type_canon, global_types: global_types, refers: refers, referable: referable };
     life_validate_pools(p, l, pool_references);
     if p.diagnostics.len > 0 { return; }
     var standalone: LifeStandalone[>..] = []; let node_count = p.nodes.len;
