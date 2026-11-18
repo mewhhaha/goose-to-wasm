@@ -1,0 +1,235 @@
+{
+  "compiler_commit": "4e9b78e6fc3d1294f31582600b62f7eea9f0e946",
+  "workload_commit": "90e086fe61f9ce019d6a6ef543212be63f6e1f57",
+  "cpu": 3,
+  "engine": "50.0.1",
+  "training_sources": [
+    "squares",
+    "sorting",
+    "tour"
+  ],
+  "policy": "per-region maximum of 64-bit training peaks; square root in Q8 weights; existing mean floor",
+  "policy_selection": "square root chosen after the raw maximum failed the frozen compiler, before testing borrow-tree",
+  "automatic_module": {
+    "sha256": "7eb18697c0bd5c1737e48c7a190d7f6321c74a291b26e49113eab0ae7a7acb68",
+    "bytes": 8614702
+  },
+  "profile_sha256": "584f2567b6519312d32e3afc53703af34cf1d07e5e37209457b633b093523893",
+  "median_guest_seconds": {
+    "self-check": {
+      "calibrated32": 3.818247,
+      "general64": 5.190292,
+      "root32": 3.805653
+    },
+    "self-emit": {
+      "calibrated32": 5.264944,
+      "general64": 6.977962,
+      "root32": 5.263401
+    }
+  },
+  "heldout_agreement": {
+    "trained32": [
+      "tree-emit",
+      "borrow-tree-emit",
+      "vm-emit",
+      "sudoku-emit",
+      "functions-emit",
+      "errors-emit",
+      "sieve-emit",
+      "life-emit",
+      "maze-emit"
+    ],
+    "uniform32": [
+      "vm-emit",
+      "sudoku-emit",
+      "functions-emit",
+      "errors-emit",
+      "sieve-emit",
+      "life-emit",
+      "maze-emit"
+    ],
+    "calibrated32": [
+      "self-check",
+      "self-emit",
+      "tree-emit",
+      "borrow-tree-emit",
+      "vm-emit",
+      "sudoku-emit",
+      "functions-emit",
+      "errors-emit",
+      "sieve-emit",
+      "life-emit",
+      "maze-emit"
+    ],
+    "general64": [
+      "self-check",
+      "self-emit",
+      "tree-emit",
+      "borrow-tree-emit",
+      "vm-emit",
+      "sudoku-emit",
+      "functions-emit",
+      "errors-emit",
+      "sieve-emit",
+      "life-emit",
+      "maze-emit"
+    ],
+    "root32": [
+      "self-check",
+      "self-emit",
+      "tree-emit",
+      "borrow-tree-emit",
+      "vm-emit",
+      "sudoku-emit",
+      "functions-emit",
+      "errors-emit",
+      "sieve-emit",
+      "life-emit",
+      "maze-emit"
+    ]
+  },
+  "first_failure": {
+    "uniform32": {
+      "self-check": {
+        "error": "goose runtime error: data region exhausted (line 277)",
+        "region": 6,
+        "usable_bytes": 31577972,
+        "cursor_bytes": 31577920,
+        "requested_bytes": 88,
+        "needed_bytes_at_trap": 31578008
+      },
+      "blot-parse": {
+        "error": "goose runtime error: data region exhausted (line 277)",
+        "region": 6,
+        "usable_bytes": 31577972,
+        "cursor_bytes": 31577920,
+        "requested_bytes": 88,
+        "needed_bytes_at_trap": 31578008
+      },
+      "tree-emit": {
+        "error": "goose runtime error: data region exhausted (line 586)",
+        "region": 7,
+        "usable_bytes": 31577972,
+        "cursor_bytes": 31577920,
+        "requested_bytes": 160,
+        "needed_bytes_at_trap": 31578080
+      }
+    },
+    "trained32": {
+      "self-check": {
+        "error": "goose runtime error: data region exhausted (line 762)",
+        "region": 53,
+        "usable_bytes": 28993892,
+        "cursor_bytes": 28993888,
+        "requested_bytes": 32,
+        "needed_bytes_at_trap": 28993920
+      },
+      "blot-parse": {
+        "error": "goose runtime error: data region exhausted (line 277)",
+        "region": 6,
+        "usable_bytes": 210180364,
+        "cursor_bytes": 210180344,
+        "requested_bytes": 88,
+        "needed_bytes_at_trap": 210180432
+      }
+    },
+    "root32": {
+      "blot-parse": {
+        "error": "goose runtime error: data region exhausted (line 277)",
+        "region": 6,
+        "usable_bytes": 123463076,
+        "cursor_bytes": 123463032,
+        "requested_bytes": 88,
+        "needed_bytes_at_trap": 123463120
+      }
+    },
+    "calibrated32": {
+      "blot-parse": {
+        "error": "goose runtime error: data region exhausted (line 277)",
+        "region": 6,
+        "usable_bytes": 250790380,
+        "cursor_bytes": 250790320,
+        "requested_bytes": 88,
+        "needed_bytes_at_trap": 250790408
+      }
+    },
+    "general64": {
+      "blot-parse": {
+        "error": "goose runtime error: data region exhausted (line 586)",
+        "region": 7,
+        "usable_bytes": 126320360,
+        "cursor_bytes": 126320320,
+        "requested_bytes": 160,
+        "needed_bytes_at_trap": 126320480
+      }
+    }
+  },
+  "blot2": {
+    "module": {
+      "sha256": "c580cbf6695520a26e6a1aa4fd55eab16e697d53b3e503ce1a21337af5bf0c1d",
+      "bytes": 9112140
+    },
+    "status": 0,
+    "stderr": "",
+    "profile": {
+      "sha256": "78846d1cba64efa1cd166d59169ba3a22f32f6e6192f94e6c29983ce482e954c",
+      "bytes": 224
+    },
+    "stdout": "",
+    "top_peaks": [
+      [
+        7,
+        430085760
+      ],
+      [
+        6,
+        408840784
+      ],
+      [
+        3,
+        19595607
+      ],
+      [
+        9,
+        4305840
+      ],
+      [
+        23,
+        1564934
+      ],
+      [
+        8,
+        499086
+      ],
+      [
+        24,
+        312984
+      ],
+      [
+        38,
+        307560
+      ],
+      [
+        39,
+        307560
+      ],
+      [
+        40,
+        307560
+      ]
+    ],
+    "blot_trained_32": {
+      "module": {
+        "sha256": "35dc3cad11a2779460b9f809482bbed8ed7fe0d1c5c76ccc8a18ab778640fdbd",
+        "bytes": 8614702
+      },
+      "status": 0,
+      "stderr": "",
+      "stdout": ""
+    }
+  },
+  "self_emission": {
+    "sha256": "66798403ae7eb64fcd6da5490114b2d6ae82072d3f8c7fab2519713ee2f7190f",
+    "bytes": 8821388
+  }
+}

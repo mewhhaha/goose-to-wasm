@@ -1,0 +1,24 @@
+--- a/selfhost/checker_lifetimes.goose
++++ b/selfhost/checker_lifetimes.goose
+@@ -5802,7 +5802,20 @@
+         while read >= 0 && (at < 0 || (l.summary_reads[read].before as i64) < at) {
+             let entry = read; let item: const LifeReadEntry& = l.summary_reads[entry];
+             let leaf = item.leaf as i64; read = item.next as i64;
+-            if (memo || quick) && life_leaf_offered_in(l, leaf, activation, replay_epoch, stamp_chain) { continue; }
++            if (memo || quick) && life_leaf_offered_in(l, leaf, activation, replay_epoch, stamp_chain) {
++                if read >= 0 {
++                    let entries = l.summary_reads[..]; let stamps = l.leaf_stamps[..]; let floors = l.leaf_floors[..];
++                    while read >= 0 {
++                        let candidate: const LifeReadEntry& = entries[read];
++                        if at >= 0 && (candidate.before as i64) >= at { break; }
++                        let id = candidate.leaf as i64; let stamp = stamps[id];
++                        let source = stamp >> 32;
++                        if (stamp & 4294967295) != replay_epoch || !(source == activation || source > activation && stamp_chain >= floors[id] as i64) { break; }
++                        read = candidate.next as i64;
++                    }
++                }
++                continue;
++            }
+             if memo { l.offer_count = 0; l.offer_recursive = false; }
+             if direct {
+                 // A compact entry already passed the construct-read type check.

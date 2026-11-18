@@ -1,0 +1,462 @@
+{
+  "phases": {
+    "discovery_summary": {
+      "first": {
+        "calls": 9916,
+        "visited_entries": 1383974,
+        "reached_application": 529950,
+        "added_records": 531980,
+        "global_revision_delta": 532061,
+        "calls_applying_entries": 8028,
+        "calls_changing_revision_or_adding_records": 3924,
+        "empty": 618,
+        "chain_hits": 0,
+        "mapped": 0,
+        "active_callee": 534,
+        "distinct_frame_pairs": 9916
+      },
+      "stable": {
+        "calls": 112902,
+        "visited_entries": 2211205,
+        "reached_application": 861824,
+        "added_records": 0,
+        "global_revision_delta": 0,
+        "calls_applying_entries": 29248,
+        "calls_changing_revision_or_adding_records": 0,
+        "empty": 6212,
+        "chain_hits": 103003,
+        "mapped": 0,
+        "active_callee": 5180,
+        "changed_caller_chain": 0,
+        "changed_caller_activation": 37177,
+        "changed_recursion_epoch": 9185,
+        "changed_semantic_destination": 87622,
+        "changed_call_site": 90148,
+        "changed_chain_activation_epoch_or_destination": 111030,
+        "distinct_frame_pairs": 9915
+      },
+      "changed": {
+        "calls": 3101,
+        "visited_entries": 4402761,
+        "reached_application": 1326945,
+        "added_records": 379540,
+        "global_revision_delta": 382291,
+        "calls_applying_entries": 2656,
+        "calls_changing_revision_or_adding_records": 752,
+        "empty": 0,
+        "chain_hits": 58,
+        "mapped": 0,
+        "active_callee": 1311,
+        "changed_caller_chain": 0,
+        "changed_caller_activation": 2481,
+        "changed_recursion_epoch": 1986,
+        "changed_semantic_destination": 1339,
+        "changed_call_site": 1441,
+        "changed_chain_activation_epoch_or_destination": 3063,
+        "distinct_frame_pairs": 1954
+      }
+    },
+    "validation_summary": {
+      "first": {
+        "calls": 534,
+        "visited_entries": 1011781,
+        "reached_application": 520725,
+        "added_records": 19522,
+        "global_revision_delta": 0,
+        "calls_applying_entries": 526,
+        "calls_changing_revision_or_adding_records": 245,
+        "empty": 0,
+        "chain_hits": 0,
+        "mapped": 0,
+        "active_callee": 534,
+        "distinct_frame_pairs": 534
+      },
+      "stable": {
+        "calls": 871,
+        "visited_entries": 1349590,
+        "reached_application": 64437,
+        "added_records": 13,
+        "global_revision_delta": 0,
+        "calls_applying_entries": 738,
+        "calls_changing_revision_or_adding_records": 2,
+        "empty": 0,
+        "chain_hits": 0,
+        "mapped": 0,
+        "active_callee": 871,
+        "changed_caller_chain": 0,
+        "changed_caller_activation": 0,
+        "changed_recursion_epoch": 0,
+        "changed_semantic_destination": 779,
+        "changed_call_site": 871,
+        "changed_chain_activation_epoch_or_destination": 779,
+        "distinct_frame_pairs": 301
+      }
+    },
+    "validation_effect_list": {
+      "first": {
+        "calls": 9381,
+        "visited_entries": 103682,
+        "reached_application": 49400,
+        "added_records": 25665,
+        "global_revision_delta": 0,
+        "calls_applying_entries": 7381,
+        "calls_changing_revision_or_adding_records": 2416,
+        "empty": 618,
+        "chain_hits": 0,
+        "mapped": 0,
+        "active_callee": 0,
+        "distinct_frame_pairs": 9381
+      },
+      "stable": {
+        "calls": 14398,
+        "visited_entries": 72335,
+        "reached_application": 22882,
+        "added_records": 0,
+        "global_revision_delta": 0,
+        "calls_applying_entries": 11574,
+        "calls_changing_revision_or_adding_records": 0,
+        "empty": 748,
+        "chain_hits": 0,
+        "mapped": 0,
+        "active_callee": 0,
+        "changed_caller_chain": 0,
+        "changed_caller_activation": 0,
+        "changed_recursion_epoch": 0,
+        "changed_semantic_destination": 14098,
+        "changed_call_site": 14398,
+        "changed_chain_activation_epoch_or_destination": 14098,
+        "distinct_frame_pairs": 3510
+      }
+    }
+  },
+  "discovery_pairs_by_type_of_revisit": {
+    "stable": 7961,
+    "changed+stable": 1954,
+    "no_revisit": 1
+  },
+  "validation_unchanged_productive_witnesses": [
+    {
+      "caller_frame": 421,
+      "callee_frame": 421,
+      "added_records": 1,
+      "visits": 2706,
+      "site": 80220,
+      "previous_site": 80183,
+      "changed_destination": true,
+      "changed_activation": false,
+      "changed_epoch": false,
+      "active_callee": true,
+      "caller": "check_inferred_result",
+      "callee": "check_inferred_result"
+    },
+    {
+      "caller_frame": 1148,
+      "callee_frame": 1024,
+      "added_records": 12,
+      "visits": 2477,
+      "site": 164079,
+      "previous_site": 163996,
+      "changed_destination": true,
+      "changed_activation": false,
+      "changed_epoch": false,
+      "active_callee": true,
+      "caller": "life_eval_body",
+      "callee": "life_eval"
+    }
+  ],
+  "top_discovery_function_edges_stable": [
+    {
+      "caller": "check_clone",
+      "caller_node": 36027,
+      "callee": "check_clone",
+      "callee_node": 36027,
+      "calls": 412,
+      "visited_entries": 38644,
+      "reached_application": 2808,
+      "added_records": 0,
+      "global_revision_delta": 0
+    },
+    {
+      "caller": "life_eval_body",
+      "caller_node": 163957,
+      "callee": "life_eval",
+      "callee_node": 163595,
+      "calls": 122,
+      "visited_entries": 33912,
+      "reached_application": 4044,
+      "added_records": 0,
+      "global_revision_delta": 0
+    },
+    {
+      "caller": "cc_expr",
+      "caller_node": 302485,
+      "callee": "cc_expr",
+      "callee_node": 302485,
+      "calls": 58,
+      "visited_entries": 31934,
+      "reached_application": 4071,
+      "added_records": 0,
+      "global_revision_delta": 0
+    },
+    {
+      "caller": "cc_builtin",
+      "caller_node": 298462,
+      "callee": "cc_to",
+      "callee_node": 274380,
+      "calls": 43,
+      "visited_entries": 25614,
+      "reached_application": 3357,
+      "added_records": 0,
+      "global_revision_delta": 0
+    },
+    {
+      "caller": "check_substitute",
+      "caller_node": 35063,
+      "callee": "check_substitute",
+      "callee_node": 35063,
+      "calls": 199,
+      "visited_entries": 25570,
+      "reached_application": 14137,
+      "added_records": 0,
+      "global_revision_delta": 0
+    },
+    {
+      "caller": "check_expansion_constant",
+      "caller_node": 99701,
+      "callee": "check_resolve_type",
+      "callee_node": 39233,
+      "calls": 15,
+      "visited_entries": 24555,
+      "reached_application": 13688,
+      "added_records": 0,
+      "global_revision_delta": 0
+    },
+    {
+      "caller": "check_choose_call",
+      "caller_node": 70076,
+      "callee": "check_prepare_function",
+      "callee_node": 66004,
+      "calls": 9,
+      "visited_entries": 24354,
+      "reached_application": 16524,
+      "added_records": 0,
+      "global_revision_delta": 0
+    },
+    {
+      "caller": "check_choose_call",
+      "caller_node": 70076,
+      "callee": "check_resolve_type",
+      "callee_node": 39233,
+      "calls": 9,
+      "visited_entries": 24354,
+      "reached_application": 972,
+      "added_records": 0,
+      "global_revision_delta": 0
+    },
+    {
+      "caller": "check_expression",
+      "caller_node": 82687,
+      "callee": "check_expression",
+      "callee_node": 82687,
+      "calls": 24,
+      "visited_entries": 23369,
+      "reached_application": 2052,
+      "added_records": 0,
+      "global_revision_delta": 0
+    },
+    {
+      "caller": "check_builtin",
+      "caller_node": 62634,
+      "callee": "check_expression",
+      "callee_node": 82687,
+      "calls": 21,
+      "visited_entries": 23052,
+      "reached_application": 338,
+      "added_records": 0,
+      "global_revision_delta": 0
+    }
+  ],
+  "top_discovery_function_edges_changed": [
+    {
+      "caller": "check_substitute",
+      "caller_node": 35063,
+      "callee": "check_substitute",
+      "callee_node": 35063,
+      "calls": 81,
+      "visited_entries": 117093,
+      "reached_application": 2657,
+      "added_records": 0,
+      "global_revision_delta": 0
+    },
+    {
+      "caller": "check_substitute",
+      "caller_node": 35063,
+      "callee": "check_nominal_instance",
+      "callee_node": 42760,
+      "calls": 40,
+      "visited_entries": 107980,
+      "reached_application": 100360,
+      "added_records": 92188,
+      "global_revision_delta": 92664
+    },
+    {
+      "caller": "check_clone",
+      "caller_node": 36027,
+      "callee": "check_clone",
+      "callee_node": 36027,
+      "calls": 30,
+      "visited_entries": 71749,
+      "reached_application": 2808,
+      "added_records": 0,
+      "global_revision_delta": 0
+    },
+    {
+      "caller": "check_clone",
+      "caller_node": 36027,
+      "callee": "check_substitute",
+      "callee_node": 35063,
+      "calls": 26,
+      "visited_entries": 70187,
+      "reached_application": 2808,
+      "added_records": 0,
+      "global_revision_delta": 0
+    },
+    {
+      "caller": "life_eval_body",
+      "caller_node": 163957,
+      "callee": "life_eval",
+      "callee_node": 163595,
+      "calls": 22,
+      "visited_entries": 48338,
+      "reached_application": 2804,
+      "added_records": 0,
+      "global_revision_delta": 0
+    },
+    {
+      "caller": "cc_expr",
+      "caller_node": 302485,
+      "callee": "cc_expr",
+      "callee_node": 302485,
+      "calls": 14,
+      "visited_entries": 44849,
+      "reached_application": 1533,
+      "added_records": 0,
+      "global_revision_delta": 0
+    },
+    {
+      "caller": "cc_builtin",
+      "caller_node": 298462,
+      "callee": "cc_to",
+      "callee_node": 274380,
+      "calls": 15,
+      "visited_entries": 38978,
+      "reached_application": 1397,
+      "added_records": 0,
+      "global_revision_delta": 0
+    },
+    {
+      "caller": "cc_pool_builtin",
+      "caller_node": 294715,
+      "callee": "cc_to",
+      "callee_node": 274380,
+      "calls": 11,
+      "visited_entries": 30968,
+      "reached_application": 11428,
+      "added_records": 3482,
+      "global_revision_delta": 3482
+    },
+    {
+      "caller": "cc_expr",
+      "caller_node": 302485,
+      "callee": "cc_to",
+      "callee_node": 274380,
+      "calls": 8,
+      "visited_entries": 28808,
+      "reached_application": 1314,
+      "added_records": 0,
+      "global_revision_delta": 0
+    },
+    {
+      "caller": "cc_thread_builtin",
+      "caller_node": 293880,
+      "callee": "cc_to",
+      "callee_node": 274380,
+      "calls": 12,
+      "visited_entries": 28431,
+      "reached_application": 15147,
+      "added_records": 4152,
+      "global_revision_delta": 4152
+    }
+  ],
+  "trial_medians": {
+    "check": {
+      "control": {
+        "cpu_ns": 5070752748,
+        "wall_ns": 5100565785,
+        "instructions": 45038463782
+      },
+      "certificate": {
+        "cpu_ns": 5021572166,
+        "wall_ns": 5050795118,
+        "instructions": 44781213602
+      },
+      "delta_percent": {
+        "cpu_ns": -0.9698872030271644,
+        "wall_ns": -0.9757871792648642,
+        "instructions": -0.5711788511374882
+      }
+    },
+    "emit": {
+      "control": {
+        "cpu_ns": 6735811205,
+        "wall_ns": 6767248168,
+        "instructions": 63042871472
+      },
+      "certificate": {
+        "cpu_ns": 6796230154,
+        "wall_ns": 6839200702,
+        "instructions": 62784022851
+      },
+      "delta_percent": {
+        "cpu_ns": 0.8969810340757611,
+        "wall_ns": 1.0632465695618931,
+        "instructions": -0.4105914197054972
+      }
+    }
+  },
+  "certificate_shadow": {
+    "hits": 40846,
+    "checked_non_read_entries": 112565,
+    "stamp_mismatches": 0
+  },
+  "proof": {
+    "logical_fingerprints": 7,
+    "logical_fingerprints_sha256": "8585d7afe60f146f25857ffd352979b1a9ea0113523caccd77c321bd787e65d7",
+    "negative_exit": 1,
+    "negative_stderr_sha256": "376fafd31e5c8ca3a3710beaa57d852f92f6aa601728fcbab8486e082a661fe2",
+    "emitted_bytes": 8821388,
+    "emitted_sha256": "66798403ae7eb64fcd6da5490114b2d6ae82072d3f8c7fab2519713ee2f7190f"
+  },
+  "pins": {
+    "compiler_commit": "4e9b78e6fc3d1294f31582600b62f7eea9f0e946",
+    "compiler_archive": "91059b1407c847532aea432c401953819e3650cae1f9267c4c7f15bbfe205c85",
+    "emitter": "b848317121b35d81f146ae0637f8b7694c9cab5ec05396231f13070c022ff76f",
+    "control_native": "b5861b426b583652f32b75f850c521672cea4a9cab62c34087efa55d2fbdd7c9",
+    "workload_commit": "90e086fe61f9ce019d6a6ef543212be63f6e1f57",
+    "workload_archive": "c9474661210aed23044b05faa4aa19bacee7063aa64cd6bf3092b9af9a1fdf1d",
+    "control_wasm": "4a5a91997c4a8614484f23f44c07284c3d249d9d7274199d8be6a009ce7dde13",
+    "candidate_wasm": "8dca4618520b46a2103d38d0342f6ee1edeba5c07ee269f914e8c71eadc4fd80",
+    "counts_source": "1ac8b4836398e4549b6758824073100fd7e255e8f8aa60a10e5842c7c19a1e93",
+    "counts_native": "1dde35c0c30707db5cac5eade572ac54fb048660a3e9d7e678a4ce782d27dd0b",
+    "patch": "9bf0d5f1a80da1f904a7ce3deea7fa62674c9c2243c8d5b544de0e6fdfd17fc5",
+    "counts_trace": "bfb71fd813099fd61f453e2a691319773058c17394b987a7b7b92019352d0aeb",
+    "cpu": 5,
+    "wasmtime": "50.0.1",
+    "engine": {
+      "sha256": "3127ca42fe7cdd3f0a43a358e79177dcfedd46c1746329826403b9d854de6178",
+      "bytes": 29673400
+    },
+    "native_probe_cc": "clang-23 -O0 -std=gnu11",
+    "fingerprint_engine": "Node 24.22.1 / V8 13.6.233.17-node.58 --stack-size=65500"
+  }
+}

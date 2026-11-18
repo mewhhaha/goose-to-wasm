@@ -1,0 +1,112 @@
+{
+  "compiler_sha256": {
+    "native": "b5861b426b583652f32b75f850c521672cea4a9cab62c34087efa55d2fbdd7c9",
+    "release": "4a5a91997c4a8614484f23f44c07284c3d249d9d7274199d8be6a009ce7dde13",
+    "frames": "02e22e40e149aa4ad2e833dfc28e8a955d90deb72ec30de8dbef0ce79d91eda9",
+    "certificate": "8dca4618520b46a2103d38d0342f6ee1edeba5c07ee269f914e8c71eadc4fd80"
+  },
+  "host_sha256": "b247393d8fbe3115246f20703f726e90eeaaed762a75932c7bb131a4433ad026",
+  "wasm_matches_release": [
+    "frames",
+    "certificate"
+  ],
+  "native_error_stream_suffix": "one extra LF in the same Rust host for all three Wasm compilers",
+  "fixtures": [
+    {
+      "source": "examples/errors.goose",
+      "source_sha256": "1b4d87ea59ca79ec0085e17d4b495972c6b468ca6f0b83401a16c677e6df39ca",
+      "status": 0,
+      "stdout": "",
+      "stderr": "",
+      "output": "26d11e006a4c2c188870078282c4d2b6a331aa754a4571413ad93d48e27354a5"
+    },
+    {
+      "source": "examples/functions.goose",
+      "source_sha256": "b11be17ac9ebd0d471c85eb8454cd40edde0924e5094a8baf3ab69bc639b3565",
+      "status": 0,
+      "stdout": "",
+      "stderr": "",
+      "output": "8c01ec1bd0ebe8c93759041c0c241757d4a235e4927830d84f009487a3afc632"
+    },
+    {
+      "source": "examples/life.goose",
+      "source_sha256": "9d1613869a3c086454dfdd24104d09e48499a8b1a4c653ebe5125e02d98aea97",
+      "status": 0,
+      "stdout": "",
+      "stderr": "",
+      "output": "5cc7e903f83ec09df4825ac4ae306128c2dc30b91d3686c11a9e99e76cd589fc"
+    },
+    {
+      "source": "examples/maze.goose",
+      "source_sha256": "217864f76018759196a101ad900315f5343683ccdc6a6e70eaecb3bec0343781",
+      "status": 0,
+      "stdout": "",
+      "stderr": "",
+      "output": "8a79a950130ef73ab549bb573f8b4def656cb75d0cf9ea3e0d1ebb86d04745c6"
+    },
+    {
+      "source": "examples/sieve.goose",
+      "source_sha256": "9b8d2b0066d8219e4dfce97b45a5e8b39dc20779e49d5b15b6aa31c8d561440a",
+      "status": 0,
+      "stdout": "",
+      "stderr": "",
+      "output": "8048461acafb4ec2c536b0e1a5c380fbd2b507619c07ffb8bf3aa1367314b801"
+    },
+    {
+      "source": "examples/sorting.goose",
+      "source_sha256": "00d2c7ed328100d018a3adc4ef3f2c5abd83d8219e8c6c0a56d00b0b1df8a27e",
+      "status": 0,
+      "stdout": "",
+      "stderr": "",
+      "output": "ed4414aa827b026f508dbfc669f38260c5061373934b4dc377533df0b467f69d"
+    },
+    {
+      "source": "examples/squares.goose",
+      "source_sha256": "420d9e6b4a2496865eb9f66603c4cbb0fdbb2add30e8ccc709a15102f4748b14",
+      "status": 0,
+      "stdout": "",
+      "stderr": "",
+      "output": "0eb7095f2b47851836ee4516e5b4e63344e158939f2e0fe3bb4b747eede0a3f9"
+    },
+    {
+      "source": "examples/sudoku.goose",
+      "source_sha256": "06ff5516f6a37769f4d373127e58214480a38a1e5c84c1331abfed7cdf7ec555",
+      "status": 0,
+      "stdout": "",
+      "stderr": "",
+      "output": "b1d32f3d5b715a595654e828471cb4bd3be2dacd6845249ba06193dc2351920c"
+    },
+    {
+      "source": "examples/tour.goose",
+      "source_sha256": "a46393946390a6fc888d013ae0a07383812a57667d2474071eb938f853b8b834",
+      "status": 0,
+      "stdout": "",
+      "stderr": "",
+      "output": "c3ddb36f28398475ea78d7ce8dd22651d2a91505d15d1cf44b60b456486c3720"
+    },
+    {
+      "source": "examples/vm.goose",
+      "source_sha256": "1ee3c3f94e0fcb15964e44ec8bde1f3fa3d64e62c144073f1803a87cca852498",
+      "status": 0,
+      "stdout": "",
+      "stderr": "",
+      "output": "ee6585152c71abd355f1d0b46142606c5b1cceb056b74c7d54354ab11aaee4d8"
+    },
+    {
+      "source": "tests/fixtures/contracts/temporary-region-retirement/escape_ref.goose",
+      "source_sha256": "08ef57e908f5095fb236d9f215809c3a0e21605ec87dfe976e2e5b580b2c3e23",
+      "status": 1,
+      "stdout": "",
+      "stderr": "tests/fixtures/contracts/temporary-region-retirement/escape_ref.goose:2:64: error: optional reference must be narrowed before writing through it\ntests/fixtures/contracts/temporary-region-retirement/escape_ref.goose:2:60: error: assignment cannot change read-only storage\n\n",
+      "output": null
+    },
+    {
+      "source": "tests/fixtures/contracts/temporary-values-and-copies/caller_escape.goose",
+      "source_sha256": "ccd7b7d5c51fea69caab1437eb3dfceaf44fe2532d770c8d04a89c2e5b0bf691",
+      "status": 1,
+      "stdout": "",
+      "stderr": "tests/fixtures/contracts/temporary-values-and-copies/caller_escape.goose:3:98: error: returned reference points into this invocation's local or temporary storage\ntests/fixtures/contracts/temporary-values-and-copies/caller_escape.goose:3:108: error: returned reference points into this invocation's local or temporary storage\n\n",
+      "output": null
+    }
+  ]
+}

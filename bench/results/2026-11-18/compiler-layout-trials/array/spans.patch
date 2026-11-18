@@ -1,0 +1,116 @@
+--- a/selfhost/wasm.goose
++++ b/selfhost/wasm.goose
+@@ -204,6 +204,11 @@
+     let total = params + locals.len;
+     var first: i64[>..] = []; var last: i64[>..] = []; var written: i64[>..] = []; var arm: i64[>..] = []; var stamp: i64[>..] = [];
+     first.resize(total, -1); last.resize(total, -1); written.resize(total, 0); arm.resize(total, -1); stamp.resize(total, -1);
++    let first_view = first[..];
++    let last_view = last[..];
++    let written_view = written[..];
++    let arm_view = arm[..];
++    let stamp_view = stamp[..];
+     var loop_end: i64[>..] = [];
+     var frames: WbFrame[>..] = []; var undo: i64[>..] = []; var covers: i64[>..] = []; var merged: i64[>..] = [];
+     // Only local accesses and control instructions contribute span endpoints.
+@@ -222,17 +227,17 @@
+         } else if op == 0x05 {
+             // The then arm ends: remember what it wrote, then forget it.
+             let depth = frames.len - 1; let mark = frames[depth].undo;
+-            for index in mark..undo.len { arm[undo[index]] = frames[depth].at; written[undo[index]] = 0; }
++            for index in mark..undo.len { arm_view[undo[index]] = frames[depth].at; written_view[undo[index]] = 0; }
+             undo.resize(mark); frames[depth].alternative = true;
+         } else if op == 0x0b {
+             if frames.len == 0 { break; }
+             let frame = frames.pop(); merged.clear();
+             for index in frame.undo..undo.len {
+-                let local = undo[index]; written[local] = 0;
+-                if frame.conditional && frame.alternative && !frame.branched && arm[local] == frame.at { merged.push(local); }
++                let local = undo[index]; written_view[local] = 0;
++                if frame.conditional && frame.alternative && !frame.branched && arm_view[local] == frame.at { merged.push(local); }
+             }
+             undo.resize(frame.undo);
+-            for local in merged { if written[local] == 0 { written[local] = frames.len + 1; undo.push(local); } }
++            for local in merged { if written_view[local] == 0 { written_view[local] = frames.len + 1; undo.push(local); } }
+             if frame.looping {
+                 if frame.at >= loop_end.len { loop_end.resize(frame.at + 1, -1); }
+                 loop_end[frame.at] = position;
+@@ -248,40 +253,43 @@
+         } else if rewrite {
+             locals_at.push(start);
+             let local = index;
+-            if first[local] < 0 { first[local] = position; } last[local] = position;
++            if first_view[local] < 0 { first_view[local] = position; } last_view[local] = position;
+             if op == 0x20 {
+                 // The outermost loop entered since the write, or of all.
+-                var depth = written[local] - 1; if depth < 0 { first[local] = 0; depth = 0; }
++                var depth = written_view[local] - 1; if depth < 0 { first_view[local] = 0; depth = 0; }
+                 while depth < frames.len && !frames[depth].looping { depth++; }
+-                if depth < frames.len && stamp[local] != frames[depth].at {
+-                    stamp[local] = frames[depth].at; covers.push(local); covers.push(frames[depth].at);
++                if depth < frames.len && stamp_view[local] != frames[depth].at {
++                    stamp_view[local] = frames[depth].at; covers.push(local); covers.push(frames[depth].at);
+                 }
+-            } else if written[local] == 0 { written[local] = frames.len + 1; undo.push(local); }
++            } else if written_view[local] == 0 { written_view[local] = frames.len + 1; undo.push(local); }
+         }
+     }
+     var pair = 0;
+     while pair < covers.len {
+         let local = covers[pair]; let start = covers[pair + 1]; pair += 2;
+-        if start < first[local] { first[local] = start; }
+-        if loop_end[start] > last[local] { last[local] = loop_end[start]; }
++        if start < first_view[local] { first_view[local] = start; }
++        if loop_end[start] > last_view[local] { last_view[local] = loop_end[start]; }
+     }
+     // Take the locals in the order their spans start; give each the first
+     // index of its type that is free again.
+     var head: i64[>..] = []; var next: i64[>..] = []; head.resize(position + 1, -1); next.resize(total, -1);
++    let head_view = head[..];
++    let next_view = next[..];
+     var local = total - 1;
+-    while local >= params { if first[local] >= 0 { next[local] = head[first[local]]; head[first[local]] = local; } local--; }
++    while local >= params { if first_view[local] >= 0 { next_view[local] = head_view[first_view[local]]; head_view[first_view[local]] = local; } local--; }
+     var slot_type: i64[>..] = []; var slot_free: i64[>..] = []; var slot_of: i64[>..] = []; slot_of.resize(total, -1);
++    let slot_of_view = slot_of[..];
+     // A skipped prefix contains only busy slots of this type and slots of
+     // other types. It stays skippable until its first same-type span ends.
+     var prefix_len: i64[128] = [0; 128];
+     var prefix_end: i64[128] = [0; 128];
+-    for span_start in 0..head.len {
+-        var member = head[span_start];
++    for span_start in 0..head_view.len {
++        var member = head_view[span_start];
+         while member >= 0 {
+             let kind = locals[member - params];
+             var chosen = prefix_len[kind];
+             var until = prefix_end[kind];
+-            if until < span_start { chosen = 0; until = head.len; }
++            if until < span_start { chosen = 0; until = head_view.len; }
+             while chosen < slot_free.len {
+                 if slot_type[chosen] == kind {
+                     let end = slot_free[chosen];
+@@ -293,20 +301,21 @@
+             prefix_len[kind] = chosen;
+             prefix_end[kind] = until;
+             if chosen == slot_type.len { slot_type.push(kind); slot_free.push(-1); }
+-            slot_free[chosen] = last[member]; slot_of[member] = chosen; member = next[member];
++            slot_free[chosen] = last_view[member]; slot_of_view[member] = chosen; member = next_view[member];
+         }
+     }
+     // Indexes of one type are adjacent, so the declaration is one group each.
+     var kinds: i64[>..] = []; var index_of: i64[>..] = []; index_of.resize(slot_type.len, -1); var kept: i64[>..] = [];
++    let index_of_view = index_of[..];
+     for kind in slot_type { var known = false; for seen in kinds { if seen == kind { known = true; } } if !known { kinds.push(kind); } }
+-    for kind in kinds { for candidate, slot in slot_type { if candidate == kind { index_of[slot] = params + kept.len; kept.push(kind); } } }
++    for kind in kinds { for candidate, slot in slot_type { if candidate == kind { index_of_view[slot] = params + kept.len; kept.push(kind); } } }
+     // Rewrite a one-byte index in place. Copy unchanged runs around wider
+     // replacements, including the opcode that precedes each index.
+     var encoded: u8[>..] = []; var copied = 0;
+     for start in locals_at {
+         var end = start + 1;
+         let old = wb_read_unsigned(bytes, end);
+-        let index = index_of[slot_of[old]];
++        let index = index_of_view[slot_of_view[old]];
+         if index < 128 && end == start + 2 {
+             bytes[start + 1] = index as u8;
+             continue;

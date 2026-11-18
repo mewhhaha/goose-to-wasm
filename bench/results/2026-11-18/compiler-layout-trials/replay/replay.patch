@@ -1,0 +1,57 @@
+--- a/selfhost/checker_lifetimes.goose
++++ b/selfhost/checker_lifetimes.goose
+@@ -68,7 +68,7 @@
+ // function_active: on the newest frame of a function, how many of the
+ // function's frames are active.
+ struct LifeFrame { function_node: i64 = -1, parent: i64 = -1, lexical: i64 = 0, call: i64 = -1, inputs: i64 = -1, base: i64 = 0, active: bool = false, result: LifeValue = LifeValue {}, destination: i64 = 0, selected_result: i64 = -1, checked_revision: i64 = -1, next_function: i64 = -1, first_cell: i64 = -1, first_capture_input: i64 = -1, first_parameter: i64 = -1, first_effect: i64 = -1, last_effect: i64 = -1, validated: bool = false, first_summary: i64 = -1, last_summary: i64 = -1, effect_epoch: i64 = 0, recursive_call: bool = false, home: i64 = -1, capture_inputs: i64 = -1, cycle: i64 = -1, activation: i64 = 0, context: i64 = 0, first_other: i64 = -1, last_other: i64 = -1, reads_version: i64 = 0, first_read: i64 = -1, last_read: i64 = -1, read_table: i64 = 0, read_cap: i64 = 0, read_count: i64 = 0, chain: i64 = 0, chain_epoch: i64 = -1, chain_recursive: i64 = 0, inputs_hash: i64 = 0, inputs_kinds: i64 = 0, mixed_kinds: bool = false, next_inputs: i64 = -1, next_home: i64 = -1, function_active: i64 = 0,
+-    first_exit: i64 = -1, parameter_version: i64 = 0,
++    first_exit: i64 = -1, replay_stamp: i64 = -1, parameter_version: i64 = 0,
+     // island: the class-keyed frame this frame last ran under, itself for
+     // such a frame, 0 for none. For a class-keyed frame: classes, class_count:
+     // its class roots, class_base of them for the arguments (the last of
+@@ -624,6 +624,7 @@
+             if !life_equal(l, places, old_places) || !life_equal(l, refs, old_refs) || !life_equal(l, contents, old_contents) || !life_equal(l, value_places, old_place) { l.revision += 1; }
+             l.effects[previous].places = places; l.effects[previous].value.refs = refs; l.effects[previous].value.contents = contents; l.effects[previous].value.place = value_places;
+             life_summary_seen(l, previous, effect);
++            l.frames[frame].replay_stamp = -1;
+             l.summaries[previous].walked = walked; l.summaries[previous].replayed = -1; l.summaries[previous].leaf = -1;
+             if effect.kind == 3 { l.frames[frame].reads_version += 1; }
+             return 1;
+@@ -938,6 +939,7 @@
+                 if last >= 0 { l.effects[last].next = index; l.summaries[last].after = index; }
+                 if l.discovery {
+                     if last < 0 { l.frames[frame].first_summary = index; }
++                    l.frames[frame].replay_stamp = -1;
+                     l.frames[frame].last_summary = index; l.revision += 1;
+                     if entry.kind == 3 { l.frames[frame].reads_version += 1; }
+                     else {
+@@ -5787,6 +5789,13 @@
+     var quick = !l.discovery && m.count == 0 && l.class_frames == 0 && l.frame > 0 && l.activations < 1073741824;
+     if quick { for index in l.hold_floor..l.hold_count { if l.holds[index].kind == 2 { quick = false; } } }
+     if others { at = l.frames[frame].first_other; }
++    // A hit in the chain table accounts for every read. Remember when the
++    // non-read list also consisted entirely of stamps for this activation.
++    // Replaying a different way, updating an entry, or appending invalidates it.
++    var all_stamped = others && l.compact && at >= 0 && !l.frames[frame].active;
++    let stamp = activation * 4294967296 + replay_epoch;
++    if all_stamped && l.frames[frame].replay_stamp == stamp { return; }
++    l.frames[frame].replay_stamp = -1;
+     var complete = chain >= 0 && !others;
+     // While summaries hold their construct reads by leaf, the list is the
+     // other entries with each read after the one it names
+@@ -5836,6 +5845,7 @@
+                 at = s.after; if others { at = s.other; }
+                 continue;
+             }
++            all_stamped = false;
+             if s.kind == 3 && s.leaf >= 0 && life_leaf_offered_in(l, s.leaf as i64, activation, replay_epoch, stamp_chain) { at = s.after; continue; }
+         }
+         if quick {
+@@ -5957,6 +5967,7 @@
+         if complete && effect.kind == 3 && (leaf < 0 || !life_leaf_offered_in(l, leaf, activation, replay_epoch, stamp_chain)) { complete = false; }
+         at = next;
+     }
++    if all_stamped { l.frames[frame].replay_stamp = stamp; }
+     if complete && l.frames[frame].reads_version == version { life_chain_replay(l, chain, version); }
+ }
+ 
