@@ -1,0 +1,70 @@
+{
+  "mode": "counts",
+  "cpu": 5,
+  "wasmtime": "50.0.1",
+  "library_sha256": "3127ca42fe7cdd3f0a43a358e79177dcfedd46c1746329826403b9d854de6178",
+  "workload_commit": "90e086fe61f9ce019d6a6ef543212be63f6e1f57",
+  "workload_archive_sha256": "c9474661210aed23044b05faa4aa19bacee7063aa64cd6bf3092b9af9a1fdf1d",
+  "host_sha256": "8df97fa8039771fd5675f148919bb61e43eaf562a29ee3e762235257d2bbe3af",
+  "sampler_sha256": "48f24367b052bad0d43aaf23866b913d44e99ce913bccd8341ff150b1e357318",
+  "modules": {
+    "grouped": {
+      "wasm_sha256": "37f01289a0b57d1575f5ee2a726cd8ce3abd7aecdf2d337350b19778e11d9e7e",
+      "lifetime_source_sha256": "52c3380a6c211f4e7d095a0747b6a73b5d2384e7ac82ccc7cd8ee9cc210b46fb"
+    },
+    "released": {
+      "wasm_sha256": "cbbac9a60e0e2d4784de7ff749bf2b6b0cc61dda56e842a8d7c17653da0e5561",
+      "lifetime_source_sha256": "31cd7d61c0e6f474899c547411c7b1566e63e70b751e99b2c39e0f5c067e2a56"
+    }
+  },
+  "runs": [
+    {
+      "label": "grouped",
+      "round": 1,
+      "period_ns": 1000000,
+      "guest_wall_ns": 8868851156,
+      "invocation_cpu_ns": 8834301959,
+      "counts": [
+        1652615,
+        1506891,
+        808503,
+        2472957,
+        0,
+        686645,
+        608495,
+        78150,
+        2911,
+        1034779,
+        250209,
+        784570,
+        8117,
+        1562,
+        635
+      ]
+    },
+    {
+      "label": "released",
+      "round": 1,
+      "period_ns": 1000000,
+      "guest_wall_ns": 8337141309,
+      "invocation_cpu_ns": 8308980458,
+      "counts": [
+        2088538,
+        1942766,
+        1227997,
+        2536871,
+        0,
+        693942,
+        608495,
+        85447,
+        2948,
+        1075015,
+        250209,
+        824806,
+        8115,
+        1562,
+        635
+      ]
+    }
+  ]
+}

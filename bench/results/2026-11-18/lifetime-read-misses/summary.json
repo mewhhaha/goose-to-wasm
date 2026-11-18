@@ -1,0 +1,114 @@
+{
+  "phases": {
+    "released": {
+      "rounds": 6,
+      "mean_scoped_cpu_ms": 762.7611193539798,
+      "scoped_cpu_ms_range": [
+        724.5756164460544,
+        795.9214149990727
+      ],
+      "mean_share_of_invocation_cpu_percent": 8.845574507001178,
+      "median_invocation_cpu_ms": 8620.548733,
+      "samples_in_scope": 3603,
+      "timer_overruns": 55,
+      "phase_ms": [
+        202.39110402124203,
+        147.2762897781779,
+        138.64074515896914,
+        67.66521344670245,
+        18.28111658347732,
+        90.94851401627025,
+        1.6699203118461297,
+        0.8347458229915277,
+        41.207913125089476,
+        37.09057653887345,
+        15.202163059679465,
+        1.5528174906606564
+      ],
+      "category_ms": {
+        "Construct, dispatch and stamp": 202.39110402124203,
+        "Compute propagation reach": 147.2762897781779,
+        "Check or record prior offer": 138.64074515896914,
+        "Walk caller chain": 67.66521344670245,
+        "Merge into offering frame": 111.73429673458523,
+        "Merge into caller frames": 95.05347021430305
+      },
+      "category_percent": {
+        "Construct, dispatch and stamp": 26.53400899519591,
+        "Compute propagation reach": 19.308311087344553,
+        "Check or record prior offer": 18.176168349586415,
+        "Walk caller chain": 8.87108843513307,
+        "Merge into offering frame": 14.648661802428858,
+        "Merge into caller frames": 12.461761330311193
+      }
+    },
+    "grouped": {
+      "rounds": 6,
+      "mean_scoped_cpu_ms": 660.5429014660763,
+      "scoped_cpu_ms_range": [
+        648.9248915807163,
+        674.6547073618432
+      ],
+      "mean_share_of_invocation_cpu_percent": 7.6839401823273565,
+      "median_invocation_cpu_ms": 8582.667753,
+      "samples_in_scope": 3104,
+      "timer_overruns": 42,
+      "phase_ms": [
+        166.46135862144735,
+        114.15054853936194,
+        110.9387096015846,
+        57.19610500598065,
+        23.413360137013974,
+        90.22286009417928,
+        1.1682640608622388,
+        1.451462625777298,
+        38.76005471581196,
+        39.11003381316593,
+        13.316218102641718,
+        4.353926148249306
+      ],
+      "category_ms": {
+        "Construct, dispatch and stamp": 166.46135862144735,
+        "Compute propagation reach": 114.15054853936194,
+        "Check or record prior offer": 110.9387096015846,
+        "Walk caller chain": 57.19610500598065,
+        "Merge into offering frame": 116.25594691783279,
+        "Merge into caller frames": 95.54023277986892
+      },
+      "category_percent": {
+        "Construct, dispatch and stamp": 25.200688441581317,
+        "Compute propagation reach": 17.28132242220824,
+        "Check or record prior offer": 16.795080131109714,
+        "Walk caller chain": 8.658953851299254,
+        "Merge into offering frame": 17.60005999001768,
+        "Merge into caller frames": 14.463895163783787
+      }
+    }
+  },
+  "outer": {
+    "released": {
+      "rounds": 4,
+      "mean_scoped_cpu_ms": 764.4614815264667,
+      "scoped_cpu_ms_range": [
+        752.6512576049223,
+        782.6265791501669
+      ],
+      "mean_share_of_invocation_cpu_percent": 8.705617387190475,
+      "median_invocation_cpu_ms": 8821.9503795,
+      "samples_in_scope": 2552,
+      "timer_overruns": 72
+    },
+    "grouped": {
+      "rounds": 4,
+      "mean_scoped_cpu_ms": 684.4538743443015,
+      "scoped_cpu_ms_range": [
+        666.4853778693973,
+        717.7170875048802
+      ],
+      "mean_share_of_invocation_cpu_percent": 7.813748858824679,
+      "median_invocation_cpu_ms": 8742.1133775,
+      "samples_in_scope": 2284,
+      "timer_overruns": 48
+    }
+  }
+}

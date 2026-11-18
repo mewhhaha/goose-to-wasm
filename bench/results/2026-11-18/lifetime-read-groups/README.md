@@ -17,6 +17,8 @@ Each experimental checker groups up to eight consecutive compact reads during di
 
 The earlier 58.55% figure counted individual visits within long runs of stamped reads on a different frozen project. A group hit here requires eight ordered reads previously certified together in the same destination chain and recursion epoch. The final version can also reuse that certificate across later appends. It still missed 719,695 lookups for lack of a matching entry and 110,450 because the source frame's recorded leaf version changed. It retained 421,435 certificates in 1,048,576 slots. The native and V8 counting probes agreed on all ten counters for the 4,096-slot append-invalidated version. [Operation counts](counts.json)
 
+On cache misses, the retained leaf-versioned compiler performed 1,652,615 individual reads. Merging into caller frames took 14.5% of the CPU inside those reads, about 96 ms per check. [CPU profile of the cache misses](../lifetime-read-misses/README.md)
+
 ![Cache reuse and change in Wasmtime instructions across four eight-read trials](groups.svg)
 
 ### Whole-project measurements
