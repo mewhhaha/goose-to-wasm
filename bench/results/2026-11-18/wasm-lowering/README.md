@@ -27,6 +27,20 @@ Two rounds on CPU 5 ran every variant in opposite orders. Instruction deltas com
 
 The lifetime checker's parent walk (`life_in_scope`) went from 234 to 147 static Wasm instructions. Memory loads fell from eleven to three and stores from seven to one. In a separate loop with two million calls passing a 128-byte record, the record change alone reduced the median from 29.98 to 22.44 ms across seven pairs. Upstream Goose and both Wasm modules printed the same total and left the original record unchanged. [Disassembly counts](parent-walk.json) · [Record loop](tools/record-loop.goose) · [Samples](record-loop.json)
 
+## Where the gap remains
+
+Lifetime analysis accounted for **80% of Wasmtime’s extra sampled CPU time during self-check and 54% during Wasm emission**. The first experiment to try is counting how many entries the lifetime checker revisits in `life_replay` and how many of those visits produce a new effect. [Lifetime replay](../../../../selfhost/checker_lifetimes.goose#L5664)
+
+![Lifetime analysis accounts for 80% of extra self-check CPU samples and 54% during Wasm emission](profile-gap.png)
+
+<details><summary>Details</summary>
+
+Two runs per engine on CPU 7 used the native executable, profiled memory32 compiler, and frozen input identified above. Engine order reversed for the second pair. Linux sampled user-mode task CPU time every 2 ms. For each workload, the bars divide the extra samples in lifetime functions by the extra samples across the entire invocation, pooling both pairs. Lifetime shares were 79–80% for checking and 50–57% for emission across the individual pairs. Shared host load varied. All four emissions reproduced the expected Wasm.
+
+Wasmtime reused a prepared module with an appended function-name section. The original and current compiler modules have identical type, import, function, export and element sections. The sampler resolved instruction pointers against Wasmtime’s perf map. Native used the same task-clock event attached to the child before `exec`, resolving its instruction pointers through the relocated ELF symbols and the exact native build’s function-name table. These are exclusive samples. Inlining can shift attribution to a caller. Unmapped samples count toward the total. [Raw counts and fingerprints](profile-gap.json) · [Wasm sampler](../selfhost-runtime-target/tools/profile.py)
+
+</details>
+
 ## Correctness and reader benchmarks
 
 The release reached its C bootstrap fixed point. The default suite passed 10,693 of 10,797 rows and memory64 passed 4,769 of 4,777, exactly matching the recorded gaps. On the first run the unoptimized native standard-library sort exceeded its 15-second limit under load. The full default replay used a 45-second limit. All 54 native checks passed. The unit runner ran 80 tests with one optional skip. The new callback, capture and defer case also passed at both optimization levels in V8 on both memory widths. Plain upstream `ee261a4` supplied its expected output. [Qualification](qualification.json) · [First run](qualification.log) · [Regression case](../../../../tests/fixtures/nested_initializer.goose)
