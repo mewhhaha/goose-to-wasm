@@ -1,0 +1,21 @@
+{
+  "compilers": {
+    "baseline": {
+      "path": "/home/jacobt/src/goose-to-wasm/build/wasm-copy-2026-11-18/selfhost-chart/emitter",
+      "sha256": "18b8113e3fc91d038882cdad8ab4b2e98971474f285f2dacc6756c047ceeb14d"
+    },
+    "candidate": {
+      "path": "/home/jacobt/src/goose-to-wasm/build/lifetime-exit-index-2026-11-18/qualification/bootstrap/bin/goose",
+      "sha256": "3b7071f41be6ddb799e5b597e77fcbce3900c15cae15a5e502cf456a8e266352"
+    }
+  },
+  "manifest_sha256": "a0a8b97f2ef8d0284266af6cadb34225635cc3ada151d7d4d07475135971ca06",
+  "summary": {
+    "compared": 10053,
+    "differing": 0,
+    "seconds": {
+      "baseline": 134.488,
+      "candidate": 129.135
+    }
+  }
+}
