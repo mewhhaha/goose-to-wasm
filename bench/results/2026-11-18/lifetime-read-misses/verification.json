@@ -1,0 +1,73 @@
+{
+  "emitter": {
+    "sha256": "659a76c4c8064ae0989fb66600ae161b680a17c81b935e51fae9fcd4f905c2c0",
+    "bytes": 6911016
+  },
+  "clang": {
+    "sha256": "ca0d2f7fbe94836762f36c7e73292289bc4d5e4b9b5defc320ef0856259a2855",
+    "bytes": 124768,
+    "version": "clang version 23.1.5\nTarget: x86_64-pc-linux-gnu\nThread model: posix\nInstalledDir: /usr/bin"
+  },
+  "expected_emission_sha256": "b9fd3e3718009ca54c7ce640adf9f1323a7e7dfaf1406c01d27791cfacc35787",
+  "workload_commit": "90e086fe61f9ce019d6a6ef543212be63f6e1f57",
+  "checker_source_archives": {
+    "released": {
+      "source_commit": "90e086fe61f9ce019d6a6ef543212be63f6e1f57",
+      "source_archive_sha256": "c9474661210aed23044b05faa4aa19bacee7063aa64cd6bf3092b9af9a1fdf1d"
+    },
+    "grouped": {
+      "source_commit": "71f45652632f5ff58a03e5e64949819d2397c456",
+      "source_archive_sha256": "ceb57af154db79dfc84255999e154731684593c1af4e54e9c032590c2a2fe9c8"
+    }
+  },
+  "probes": {
+    "released": {
+      "native_sha256": "d1371aa7a281a28fc8bf1e32d9207cf79d63a9b0fe6e2f05a71b00630ff3bd8e",
+      "native_and_wasmtime_counts": {
+        "calls": 2088538,
+        "compact_offers": 1942766,
+        "already_sent": 1227997,
+        "frames_visited": 2536871,
+        "own_merges": 693942,
+        "own_insertions": 608495,
+        "own_existing": 85447,
+        "own_unions": 2948,
+        "caller_merges": 1075015,
+        "caller_insertions": 250209,
+        "caller_existing": 824806,
+        "caller_unions": 8115,
+        "own_changed_by_union": 1562,
+        "caller_changed_by_union": 635
+      },
+      "emitted_wasm_sha256": {
+        "counts": "b9fd3e3718009ca54c7ce640adf9f1323a7e7dfaf1406c01d27791cfacc35787",
+        "phases": "b9fd3e3718009ca54c7ce640adf9f1323a7e7dfaf1406c01d27791cfacc35787",
+        "outer": "b9fd3e3718009ca54c7ce640adf9f1323a7e7dfaf1406c01d27791cfacc35787"
+      }
+    },
+    "grouped": {
+      "native_sha256": "516682a6f7185b38156e96e9f7cb2aa8d1b37a484b98045c515cb68140e651c9",
+      "native_and_wasmtime_counts": {
+        "calls": 1652615,
+        "compact_offers": 1506891,
+        "already_sent": 808503,
+        "frames_visited": 2472957,
+        "own_merges": 686645,
+        "own_insertions": 608495,
+        "own_existing": 78150,
+        "own_unions": 2911,
+        "caller_merges": 1034779,
+        "caller_insertions": 250209,
+        "caller_existing": 784570,
+        "caller_unions": 8117,
+        "own_changed_by_union": 1562,
+        "caller_changed_by_union": 635
+      },
+      "emitted_wasm_sha256": {
+        "counts": "b9fd3e3718009ca54c7ce640adf9f1323a7e7dfaf1406c01d27791cfacc35787",
+        "phases": "b9fd3e3718009ca54c7ce640adf9f1323a7e7dfaf1406c01d27791cfacc35787",
+        "outer": "b9fd3e3718009ca54c7ce640adf9f1323a7e7dfaf1406c01d27791cfacc35787"
+      }
+    }
+  }
+}
