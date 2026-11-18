@@ -68,6 +68,7 @@ struct LifeCell { symbol: i64, frame: i64, root: i64, parameter: bool = false, r
 // function_active: on the newest frame of a function, how many of the
 // function's frames are active.
 struct LifeFrame { function_node: i64 = -1, parent: i64 = -1, lexical: i64 = 0, call: i64 = -1, inputs: i64 = -1, base: i64 = 0, active: bool = false, result: LifeValue = LifeValue {}, destination: i64 = 0, selected_result: i64 = -1, checked_revision: i64 = -1, next_function: i64 = -1, first_cell: i64 = -1, first_effect: i64 = -1, last_effect: i64 = -1, validated: bool = false, first_summary: i64 = -1, last_summary: i64 = -1, effect_epoch: i64 = 0, recursive_call: bool = false, home: i64 = -1, capture_inputs: i64 = -1, cycle: i64 = -1, activation: i64 = 0, context: i64 = 0, first_other: i64 = -1, last_other: i64 = -1, reads_version: i64 = 0, first_read: i64 = -1, last_read: i64 = -1, read_table: i64 = 0, read_cap: i64 = 0, read_count: i64 = 0, chain: i64 = 0, chain_epoch: i64 = -1, chain_recursive: i64 = 0, inputs_hash: i64 = 0, inputs_kinds: i64 = 0, mixed_kinds: bool = false, next_inputs: i64 = -1, next_home: i64 = -1, function_active: i64 = 0,
+    first_exit: i64 = -1,
     // island: the class-keyed frame this frame last ran under, itself for
     // such a frame, 0 for none. For a class-keyed frame: classes, class_count:
     // its class roots, class_base of them for the arguments (the last of
@@ -119,7 +120,7 @@ struct LifeMap { classes: i64 = 0, count: i64 = 0, base: i64 = 1, sets: i64 = 0,
 struct LifeRefers { holder: i64 = -1, pointee: i64 = -1, answer: bool = false }
 struct LifeMapped { serial: i64 = -1, set: i64 = -1, result: i64 = 0, stored: i64 = 0 }
 struct LifePair { owner: i64, pointee: i64, answer: bool, next: i64 = -1 }
-struct LifeExit { node: i64, frame: i64, value: LifeValue, destination: i64 = 0, selected_result: i64 = -1 }
+struct LifeExit { node: i64, next: i64, value: LifeValue, destination: i64 = 0, selected_result: i64 = -1 }
 struct LifeFuture { node: i64, frame: i64, loop_scope: i64 = -1 }
 // A question a shrink check has asked of a live cell, and its answer
 // (life_shrink_array): a reference's pointee type and what it refers to, or
@@ -3888,11 +3889,26 @@ fn life_append(l: Lifetimes&, first: i64, value: LifeValue) -> i64 {
     var last = first; while l.items[last].next >= 0 { last = l.items[last].next; }
     l.items[last].next = item; return first;
 }
+// Each frame has at most one exit per target node. Entries survive replay.
+fn life_find_exit(l: Lifetimes&, node: i64) -> i64 {
+    var at = l.frames[l.frame].first_exit;
+    while at >= 0 && l.exits[at].node != node { at = l.exits[at].next; }
+    return at;
+}
+fn life_add_exit(l: Lifetimes&, node: i64, value: LifeValue, destination: i64 = 0, selected_result: i64 = -1) {
+    let next = l.frames[l.frame].first_exit;
+    let index = l.exits.len;
+    l.exits.push(LifeExit { node: node, next: next, value: value, destination: destination, selected_result: selected_result });
+    l.frames[l.frame].first_exit = index;
+}
 fn life_control_destination(l: Lifetimes&, node: i64, destination: i64, selected_result: i64) {
-    for exit, index in l.exits {
-        if exit.node == node && exit.frame == l.frame { l.exits[index].destination = destination; l.exits[index].selected_result = selected_result; return; }
+    let index = life_find_exit(l, node);
+    if index >= 0 {
+        l.exits[index].destination = destination;
+        l.exits[index].selected_result = selected_result;
+        return;
     }
-    l.exits.push(LifeExit { node: node, frame: l.frame, value: LifeValue {}, destination: destination, selected_result: selected_result });
+    life_add_exit(l, node, LifeValue {}, destination, selected_result);
 }
 recursive fn life_merge(l: Lifetimes&, a: LifeValue, b: LifeValue) -> LifeValue {
     var out = a;
@@ -5504,7 +5520,8 @@ recursive fn life_eval_body(p: Program&, l: Lifetimes&, node: i64, n: const Node
             if child == n.last && (p.nodes[child].flags & F_TAIL) != 0 { out = life_coerce(p, l, value, n.type_id); }
             child = p.nodes[child].next;
         }
-        for exit in l.exits { if exit.node == node && exit.frame == l.frame { out = life_merge(l, out, life_coerce(p, l, exit.value, n.type_id)); } }
+        let exit = life_find_exit(l, node);
+        if exit >= 0 { out = life_merge(l, out, life_coerce(p, l, l.exits[exit].value, n.type_id)); }
         life_branch(p, l, node, out, depth);
         var ci = l.frames[l.frame].first_cell;
         while ci >= 0 { let cell = l.cells[ci]; if n.scope >= 0 && life_in_scope(l, p.symbols[cell.symbol].scope, n.scope) { life_set_live(l, ci, false); } ci = cell.next_frame; }
@@ -5608,7 +5625,8 @@ recursive fn life_eval_body(p: Program&, l: Lifetimes&, node: i64, n: const Node
         }
         let futures = l.future_count; life_push_future(l, n.right, n.scope); life_push_future(l, n.left, n.scope);
         life_eval(p, l, n.right); l.future_count = futures;
-        for exit in l.exits { if exit.node == node && exit.frame == l.frame { out = life_merge(l, out, exit.value); } }
+        let exit = life_find_exit(l, node);
+        if exit >= 0 { out = life_merge(l, out, l.exits[exit].value); }
         var ci = l.frames[l.frame].first_cell;
         while ci >= 0 { let cell = l.cells[ci]; if n.scope >= 0 && life_in_scope(l, p.symbols[cell.symbol].scope, n.scope) { life_set_live(l, ci, false); } ci = cell.next_frame; }
         l.hold_count = held;
@@ -5616,12 +5634,14 @@ recursive fn life_eval_body(p: Program&, l: Lifetimes&, node: i64, n: const Node
     }
     if n.kind == N_BREAK {
         var receiving = destination; var projected = selected_result;
-        for exit in l.exits { if exit.node == n.symbol && exit.frame == l.frame { receiving = exit.destination; projected = exit.selected_result; break; } }
-        let value = life_eval(p, l, n.left, receiving, projected); var found = false;
-        for exit, index in l.exits {
-            if exit.node == n.symbol && exit.frame == l.frame { l.exits[index].value = life_merge(l, exit.value, value); found = true; break; }
-        }
-        if !found { l.exits.push(LifeExit { node: n.symbol, frame: l.frame, value: value }); }
+        let before = life_find_exit(l, n.symbol);
+        if before >= 0 { receiving = l.exits[before].destination; projected = l.exits[before].selected_result; }
+        let value = life_eval(p, l, n.left, receiving, projected);
+        let index = life_find_exit(l, n.symbol);
+        if index >= 0 {
+            let merged = life_merge(l, l.exits[index].value, value);
+            l.exits[index].value = merged;
+        } else { life_add_exit(l, n.symbol, value); }
         return out;
     }
     if n.kind == N_EXPR_STMT || n.kind == N_GUARD { life_eval(p, l, n.left); return out; }
