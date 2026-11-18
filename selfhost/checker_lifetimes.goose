@@ -68,7 +68,7 @@ struct LifeCell { symbol: i64, frame: i64, root: i64, parameter: bool = false, r
 // function_active: on the newest frame of a function, how many of the
 // function's frames are active.
 struct LifeFrame { function_node: i64 = -1, parent: i64 = -1, lexical: i64 = 0, call: i64 = -1, inputs: i64 = -1, base: i64 = 0, active: bool = false, result: LifeValue = LifeValue {}, destination: i64 = 0, selected_result: i64 = -1, checked_revision: i64 = -1, next_function: i64 = -1, first_cell: i64 = -1, first_capture_input: i64 = -1, first_parameter: i64 = -1, first_effect: i64 = -1, last_effect: i64 = -1, validated: bool = false, first_summary: i64 = -1, last_summary: i64 = -1, effect_epoch: i64 = 0, recursive_call: bool = false, home: i64 = -1, capture_inputs: i64 = -1, cycle: i64 = -1, activation: i64 = 0, context: i64 = 0, first_other: i64 = -1, last_other: i64 = -1, reads_version: i64 = 0, first_read: i64 = -1, last_read: i64 = -1, read_table: i64 = 0, read_cap: i64 = 0, read_count: i64 = 0, chain: i64 = 0, chain_epoch: i64 = -1, chain_recursive: i64 = 0, inputs_hash: i64 = 0, inputs_kinds: i64 = 0, mixed_kinds: bool = false, next_inputs: i64 = -1, next_home: i64 = -1, function_active: i64 = 0,
-    first_exit: i64 = -1,
+    first_exit: i64 = -1, parameter_version: i64 = 0,
     // island: the class-keyed frame this frame last ran under, itself for
     // such a frame, 0 for none. For a class-keyed frame: classes, class_count:
     // its class roots, class_base of them for the arguments (the last of
@@ -150,6 +150,8 @@ struct LifeContents { places: i64 = -1, stamp: i64 = 0, set: i64 = 0 }
 // What life_load makes of a holder's contents and its places: `contents` is
 // twice the contents set, plus one for a slot load.
 struct LifeLoaded { contents: i64 = -1, places: i64 = -1, set: i64 = 0 }
+// Read through a single exact local container in an ordinary frame.
+struct LifeLocalRead { places: i64 = -1, type_id: i64 = -1, frame: i64 = -1, contents: i64 = -1, parameters: i64 = -1, result: i64 = 0 }
 // What a read-back through global containers found (life_readback): it holds
 // for its type and places while global_epoch stays at `epoch`.
 struct LifeReadBack { type_id: i64 = -1, places: i64 = -1, epoch: i64 = -1, set: i64 = 0 }
@@ -298,7 +300,7 @@ struct Lifetimes {
     // asked: twice the pointee type, plus one for a byte view.
     gs_asked: i64[>..]&, gs_answer: bool[>..]&,
     // Recent read-backs through global containers, direct-mapped.
-    readbacks: LifeReadBack[>..]&, readbacks_recorded: i64 = 0,
+    local_reads: LifeLocalRead[>..]&, local_read_writes: i64 = 0, readbacks: LifeReadBack[>..]&, readbacks_recorded: i64 = 0,
     // Per type and include_pool: life_relative_storage, 0 until asked, then 1 or 2.
     relative_storage: i64[>..]&,
     // The cells of frame 0 whose root is deeper than depth 0: a local of a
@@ -1582,6 +1584,7 @@ fn life_set_live(l: Lifetimes&, cell: i64, live: bool) {
 }
 fn life_set_refs(l: Lifetimes&, cell: i64, refs: i64) {
     if l.cell_keys[cell].global { l.global_epoch += 1; }
+    if l.cells[cell].parameter { l.frames[l.cells[cell].frame].parameter_version += 1; }
     l.cells[cell].refs = refs;
 }
 // The first live cell after cell `after` in index order, or -1.
@@ -3458,6 +3461,20 @@ fn life_readback(p: Program&, l: Lifetimes&, type_id: i64, places: i64) -> i64 {
         let pool = life_pool_places(p, l, t.pool); if pool != 0 { return pool; }
         return places;
     }
+    var slot: i64 = -1; var contents: i64 = -1;
+    if l.types_frozen && l.class_frames == 0 && t.element >= 0 && l.sets[places].count == 1 {
+        let alt: const LifeAlt& = l.alts[l.sets[places].first];
+        let root: const LifeRoot& = l.roots[alt.root];
+        if alt.exact && root.frame > 0 {
+            // For an exact local place, readback uses only this root's contents
+            // and the current frame's parameter refs. Neither depends on liveness.
+            if l.local_reads.len == 0 { l.local_reads.resize(16, LifeLocalRead {}); }
+            slot = (places * 1000003 + type_id * 8191 + l.frame) & (l.local_reads.len - 1);
+            contents = root.contents;
+            let hit: const LifeLocalRead& = l.local_reads[slot];
+            if hit.places == places && hit.type_id == type_id && hit.frame == l.frame && hit.contents == contents && hit.parameters == l.frames[l.frame].parameter_version { return hit.result; }
+        }
+    }
     // Every global container at one depth has the same candidates, which it
     // adds read from itself (from), bounded by its own bound and slot-read
     // unless it holds a reference. A merge only ever admits more, so once two
@@ -3580,6 +3597,18 @@ fn life_readback(p: Program&, l: Lifetimes&, type_id: i64, places: i64) -> i64 {
         at = alt.next;
     }
     let set = life_fold(l, life_build_end(l, result));
+    if slot >= 0 {
+        // Grow on repeated misses. Small programs usually need only a few entries.
+        if l.local_reads.len < 16384 {
+            l.local_read_writes += 1;
+            if l.local_read_writes >= 2 * l.local_reads.len {
+                l.local_reads.resize(2 * l.local_reads.len, LifeLocalRead {});
+                l.local_read_writes = 0;
+                slot = (places * 1000003 + type_id * 8191 + l.frame) & (l.local_reads.len - 1);
+            }
+        }
+        l.local_reads[slot] = LifeLocalRead { places: places, type_id: type_id, frame: l.frame, contents: contents, parameters: l.frames[l.frame].parameter_version, result: set };
+    }
     if remembered {
         l.readbacks[memo] = LifeReadBack { type_id: type_id, places: places, epoch: l.global_epoch, set: set };
         // Entries keep their slots when the table grows, as joins do.
@@ -6209,7 +6238,7 @@ fn check_lifetimes(p: Program&, scope_parent: const i64[:], scope_depth: const i
     var deep_cells: i64[>..] = []; var input_heads: i64[>..] = []; var home_heads: i64[>..] = [];
     var cell_slots: i32[>..] = []; var temp_slots: i32[>..] = []; var contents_memo: LifeContents[>..] = []; var root_stamps: i64[>..] = [];
     var loaded: LifeLoaded[>..] = []; var gs_asked: i64[>..] = []; var gs_answer: bool[>..] = []; var relative_storage: i64[>..] = [];
-    var readbacks: LifeReadBack[>..] = [];
+    var local_reads: LifeLocalRead[>..] = []; var readbacks: LifeReadBack[>..] = [];
     var class_list: i64[>..] = []; var class_heads: i64[>..] = []; var class_keys: i64[>..] = [];
     var map_sets: i64[>..] = []; var map_roots: i64[>..] = []; var map_types: i64[>..] = []; var map_depths: i64[>..] = []; var key_scratch: i64[>..] = []; var class_scratch: i64[>..] = []; var bound_scratch: i64[>..] = [];
     var assumes: LifeAssume[>..] = []; var assume_slots: i64[>..] = []; var map_memo: LifeMapped[>..] = []; var body_owners: i64[>..] = []; var body_captures: i64[>..] = []; var contained: i64[>..] = []; var typed_slots: i64[>..] = []; var global_types: i8[>..] = []; var refers: LifeRefers[>..] = []; var referable: LifeLoaded[>..] = []; var type_canon: i64[>..] = [];
@@ -6222,7 +6251,7 @@ fn check_lifetimes(p: Program&, scope_parent: const i64[:], scope_depth: const i
         list_slots: list_slots, list_sets: list_sets, list_keys: list_keys, atom_slots: atom_slots, cell_keys: cell_keys, contains_pointee: contains_pointee, contains_answer: contains_answer,
         deep_cells: deep_cells, input_heads: input_heads, home_heads: home_heads,
         cell_slots: cell_slots, temp_slots: temp_slots, contents_memo: contents_memo, root_stamps: root_stamps,
-        loaded: loaded, gs_asked: gs_asked, gs_answer: gs_answer, relative_storage: relative_storage, readbacks: readbacks,
+        loaded: loaded, gs_asked: gs_asked, gs_answer: gs_answer, relative_storage: relative_storage, local_reads: local_reads, readbacks: readbacks,
         live_bits: live_bits, live_words: live_words, holder_bits: holder_bits, class_slots: class_slots, joins: joins, global_cells: global_cells, global_candidates: global_candidates, candidate_alts: candidate_alts,
         class_list: class_list, class_heads: class_heads, class_keys: class_keys,
         map_sets: map_sets, map_roots: map_roots, map_types: map_types, map_depths: map_depths, key_scratch: key_scratch, class_scratch: class_scratch, bound_scratch: bound_scratch, assumes: assumes, assume_slots: assume_slots, map_memo: map_memo, body_owners: body_owners, body_captures: body_captures, contained: contained, typed_slots: typed_slots, type_canon: type_canon, global_types: global_types, refers: refers, referable: referable };

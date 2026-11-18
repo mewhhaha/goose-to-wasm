@@ -23,7 +23,7 @@ fn main() {
 }'''
 
 
-def run_image(engine, module, width, payload, index, truncated=False):
+def run_image(engine, module, width, payload, index, mode=1, image_count=None):
     store = wasmtime.Store(engine)
     linker = wasmtime.Linker(engine)
     observed = []
@@ -32,14 +32,20 @@ def run_image(engine, module, width, payload, index, truncated=False):
 
     def prepare(caller, address):
         mem = caller.get('memory')
-        base, count, limit, capacity, _, mode = header.unpack(mem.read(caller, address, address + header.size))
-        assert (count, mode) == (3, 0)
+        base, count, limit, capacity, _, original_mode = header.unpack(mem.read(caller, address, address + header.size))
+        assert (count, original_mode) == (3, 0)
         image = mem.data_len(caller) - len(payload)
+        if image_count is not None:
+            # The mutable image and its region cursor must agree when a ULEB
+            # length changes width. The original data begins in this region.
+            image = base
+            count = image_count
+            prefix = len(payload) - count
+            base = image + prefix
+            if mode == 6:
+                capacity = prefix
+            mem.write(caller, struct.pack('<' + word, image + len(payload)), limit)
         mem.write(caller, payload, image)
-        # Mode 1 reads a one-byte length prefix. Mode 6 reads a ULEB prefix.
-        mode = 1
-        if truncated:
-            mode = 6
         mem.write(caller, header.pack(base, count, limit, capacity, image, mode), address)
         return index
 
@@ -85,7 +91,38 @@ class OwnerViewHost(unittest.TestCase):
                             module = wasmtime.Module.from_file(engine, str(output))
                             self.assertEqual(run_image(engine, module, width, b'\x02MN', 1), [7778])
                             self.assertEqual(run_image(engine, module, width, b'\x02MN', 2), [('array index out of bounds', 6)])
-                            self.assertEqual(run_image(engine, module, width, b'\x80', 1, True), [('truncated varint image', 5)])
+                            self.assertEqual(run_image(engine, module, width, b'\x80', 1, mode=6), [('truncated varint image', 5)])
+
+    def test_two_pops_update_host_image_and_preserve_payload(self):
+        source = self.work / "update.goose"
+        source.write_text("""extern fn prepare(rows: u8[>..]&) -> i64;
+var rows: u8[>..] = [17, 34, 51];
+fn main() {
+    prepare(rows);
+    let first = rows[0] as i64; let next = rows[1] as i64;
+    let last = rows.pop() as i64; let previous = rows.pop() as i64;
+    print(first * 100 + next); print(last); print(previous); print(rows.len);
+}""")
+        engine = wasmtime.Engine()
+        for width in (32, 64):
+            command = [str(goose_stats.GOOSE), str(source), '--stdlib', str(goose_stats.ROOT / 'stdlib'),
+                       '--target', 'wasm-direct', '-O2', '-o', str(self.work / 'update.wasm')]
+            if width == 64:
+                command.append('--wasm-memory64')
+            subprocess.run(command, check=True, capture_output=True, timeout=60)
+            module = wasmtime.Module.from_file(engine, str(self.work / 'update.wasm'))
+            for mode in range(1, 7):
+                with self.subTest(width=width, mode=mode):
+                    count = 128
+                    if mode < 5:
+                        prefix = count.to_bytes(1 << (mode - 1), 'little')
+                    elif mode == 5:
+                        prefix = b''.join(n.to_bytes(width // 8, 'little') for n in (count, count))
+                    else:
+                        prefix = bytes([0x80, 0x01])
+                    payload = prefix + bytes(range(count))
+                    values = run_image(engine, module, width, payload, 0, mode=mode, image_count=count)
+                    self.assertEqual(values, [1, 127, 126, 126])
 
 
 if __name__ == '__main__':
