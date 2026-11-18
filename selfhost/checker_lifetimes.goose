@@ -92,6 +92,13 @@ struct LifeFrame { function_node: i64 = -1, parent: i64 = -1, lexical: i64 = 0, 
     // without a summary being kept (life_effect). typed_first: its newest
     // storage class of one pointee type (LifeRoot.class_next).
     island: i64 = 0, classes: i64 = -1, class_count: i64 = 0, class_base: i64 = 0, key: i64 = -1, key_len: i64 = 0, key_hash: i64 = 0, next_class: i64 = -1, map_base: i64 = -1, assumptions: i64 = -1, class_destination: i64 = 0, discovered: bool = false, result_class: i64 = -1, class_stored: i64 = 0, quiet_pass: i64 = -1, typed_first: i64 = -1, stored_first: i64 = -1, stored_version: i64 = 0, map_serial: i64 = 0, assume_count: i64 = 0, all_stored: i64 = 0, stored_count: i64 = 0, typed_count: i64 = 0 }
+// The live storage and killed fields are the two mutable inputs of a
+// concrete holder reached during a shrink check.
+struct LifeWalkRoot { root: i64 = 0, contents: i64 = 0, kills: i64 = -1 }
+struct LifeWalkMemo {
+    owners: i64 = -1, holder: i64 = -1, target: i64 = -1, element: i64 = -1,
+    slot_safe: bool = false, count: i64 = 0, roots: LifeWalkRoot[2] = [LifeWalkRoot {}; 2]
+}
 struct LifeWalk { root: i64, type_id: i64 }
 // What a class-keyed frame's body asked about the arguments its classes stand
 // for, and the answer it was checked with (life_class_query): a later call
@@ -223,6 +230,7 @@ struct LifeOffer {
 struct Lifetimes {
     parents: const i64[:], depths: const i64[:], functions: const i64[:],
     roots: LifeRoot[>..]&, sets: LifeSet[>..]&, alts: LifeAlt[>..]&, cells: LifeCell[>..]&,
+    held_walks: LifeWalkMemo[>..]&,
     frames: LifeFrame[>..]&, items: LifeItem[>..]&, pairs: LifePair[>..]&, pair_heads: i64[>..]&, exits: LifeExit[>..]&,
     futures: LifeFuture[>..]&, holds: LifeHold[>..]&, temps: LifeTemp[>..]&, reads: LifeRead[>..]&,
     kills: LifeKill[>..]&,
@@ -3037,6 +3045,23 @@ fn life_holder_list(p: Program&, l: Lifetimes&, holder: i64) {
     l.holder_starts[holder] = l.holder_refs.len; l.holder_counts[holder] = found.len; l.holder_refs.append(found);
 }
 fn life_held_into(p: Program&, l: Lifetimes&, owners: i64, holder_type: i64, target: i64, element: i64, slot_safe: bool) -> bool {
+    // A concrete walk reads immutable types and alternative sets. Its
+    // negative answer survives until one of the roots it followed changes.
+    var slot: i64 = -1;
+    if l.types_frozen && l.class_frames == 0 {
+        if l.held_walks.len == 0 { l.held_walks.resize(64, LifeWalkMemo {}); }
+        slot = (owners * 131 + holder_type * 17 + target * 1000003 + element) & (l.held_walks.len - 1);
+        let memo: const LifeWalkMemo& = l.held_walks[slot];
+        if memo.owners == owners && memo.holder == holder_type && memo.target == target && memo.element == element && memo.slot_safe == slot_safe {
+            var valid = true;
+            for i in 0..memo.count {
+                let saved: const LifeWalkRoot& = memo.roots[i];
+                let root: const LifeRoot& = l.roots[saved.root];
+                if root.live_contents != saved.contents || root.first_kill != saved.kills { valid = false; break; }
+            }
+            if valid { return false; }
+        }
+    }
     var work: LifeWalk[>..] = []; var at = l.sets[owners].first;
     while at >= 0 { let alt = l.alts[at]; work.push(LifeWalk { root: alt.root, type_id: holder_type }); at = alt.next; }
     var current = 0; var scanned: i64[>..] = [];
@@ -3094,6 +3119,15 @@ fn life_held_into(p: Program&, l: Lifetimes&, owners: i64, holder_type: i64, tar
                     if !seen { work.push(LifeWalk { root: alt.root, type_id: t.element }); }
                 }
             }
+        }
+    }
+    if slot >= 0 && work.len <= 2 {
+        let memo: LifeWalkMemo& = l.held_walks[slot];
+        memo.owners = owners; memo.holder = holder_type; memo.target = target;
+        memo.element = element; memo.slot_safe = slot_safe; memo.count = work.len;
+        for item, i in work {
+            let root: const LifeRoot& = l.roots[item.root];
+            memo.roots[i] = LifeWalkRoot { root: item.root, contents: root.live_contents, kills: root.first_kill };
         }
     }
     return false;
@@ -6207,6 +6241,7 @@ fn check_lifetimes(p: Program&, scope_parent: const i64[:], scope_depth: const i
     if p.diagnostics.len > 0 { return; }
     var roots: LifeRoot[>..] = [LifeRoot {}]; var sets: LifeSet[>..] = [LifeSet {}];
     var alts: LifeAlt[>..] = []; var cells: LifeCell[>..] = []; var frames: LifeFrame[>..] = [LifeFrame {}];
+    var held_walks: LifeWalkMemo[>..] = [];
     var items: LifeItem[>..] = []; var pairs: LifePair[>..] = []; var pair_heads: i64[>..] = []; var exits: LifeExit[>..] = [];
     var futures: LifeFuture[>..] = []; var holds: LifeHold[>..] = []; var temps: LifeTemp[>..] = []; var reads: LifeRead[>..] = []; var kills: LifeKill[>..] = []; var atoms: LifeAtom[>..] = []; var failures: LifeFailure[>..] = []; var effects: LifeEffect[>..] = [];
     var symbol_cells: i64[>..] = []; symbol_cells.resize(p.symbols.len, -1);
@@ -6244,7 +6279,7 @@ fn check_lifetimes(p: Program&, scope_parent: const i64[:], scope_depth: const i
     var assumes: LifeAssume[>..] = []; var assume_slots: i64[>..] = []; var map_memo: LifeMapped[>..] = []; var body_owners: i64[>..] = []; var body_captures: i64[>..] = []; var contained: i64[>..] = []; var typed_slots: i64[>..] = []; var global_types: i8[>..] = []; var refers: LifeRefers[>..] = []; var referable: LifeLoaded[>..] = []; var type_canon: i64[>..] = [];
     var class_slots: i64[>..] = []; var joins: LifeJoin[>..] = []; var global_cells: i64[>..] = []; var global_candidates: LifeGlobalCandidates[>..] = []; var candidate_alts: LifeAlt[>..] = [];
     var l = Lifetimes { parents: scope_parent, depths: scope_depth, functions: scope_functions,
-        roots: roots, sets: sets, alts: alts, cells: cells, frames: frames, items: items, pairs: pairs, pair_heads: pair_heads, exits: exits,
+        roots: roots, sets: sets, alts: alts, cells: cells, frames: frames, items: items, pairs: pairs, held_walks: held_walks, pair_heads: pair_heads, exits: exits,
         futures: futures, holds: holds, temps: temps, reads: reads, kills: kills, size_classes: size_classes, holder_starts: holder_starts, holder_counts: holder_counts, holder_refs: holder_refs, index_types: index_types, asked: asked, atoms: atoms, failures: failures, effects: effects, symbol_cells: symbol_cells, node_roots: node_roots, function_frames: function_frames, read_heads: read_heads, visited: visited, summary_heads: summary_heads, effect_heads: effect_heads, summaries: summaries, leaves: leaves, leaf_heads: leaf_heads, leaf_stamps: leaf_stamps, leaf_floors: leaf_floors, summary_reads: summary_reads, read_slots: read_slots, contexts: contexts, context_heads: context_heads, chain_replays: chain_replays, chain_versions: chain_versions, capture_reads: capture_reads, offers: offers, global_read_spans: global_read_spans, global_read_list: global_read_list,
         bodies: bodies, body_slots: body_slots, body_globals: body_globals, body_calls: body_calls,
         build_alts: build_alts, build_slots: build_slots, set_index: set_index, scratch: scratch,
