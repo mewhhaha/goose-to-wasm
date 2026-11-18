@@ -1,0 +1,164 @@
+{
+  "cpu": 5,
+  "stack_mib": 256,
+  "workload": {
+    "source_commit": "4a9d35ea568647368c59185ef52383fb530e58da",
+    "source_archive_sha256": "2439e13fc0d5d0453d65b7fea9c5ba77891b088f04b98f44f90e09c466f4ca39"
+  },
+  "artifacts": {
+    "base": {
+      "bytes": 7446418,
+      "sha256": "46debdfb49ece29e08f54b4492fd4c965a668cde0872089891ab69460d3501fd"
+    },
+    "candidate": {
+      "bytes": 7410522,
+      "sha256": "098805cb5d08eff52b0bf71c51c0ba82251ffaba37e2d23ac01800b77baee00e"
+    },
+    "candidate_emitter": {
+      "bytes": 8888358,
+      "sha256": "2a54b8388386650cbe63e6ddca75b6f52c4c75166c8ae870c050b2b03f26422b"
+    },
+    "emitted": {
+      "bytes": 8882272,
+      "sha256": "58d73f6abf07825c1a76ee1696611f6ea7fec46817f609a584a9fb66c5a1287b"
+    },
+    "native": {
+      "bytes": 7071104,
+      "sha256": "b839c409844b0497f436268abcf94a5bc24ad10953883735d5289028ebfc9172"
+    },
+    "region_profile": {
+      "bytes": 871,
+      "sha256": "9b730069fc8b9c6e1be1842080bd1cafde13ebf38fb308313219e54309b3e49b"
+    },
+    "host": {
+      "bytes": 17245208,
+      "sha256": "b247393d8fbe3115246f20703f726e90eeaaed762a75932c7bb131a4433ad026"
+    }
+  },
+  "timings": {
+    "check": {
+      "base": {
+        "samples": 5,
+        "wall": 3.65119371,
+        "instructions": 25051102641,
+        "cycles": 12330702207
+      },
+      "scalar-records": {
+        "samples": 5,
+        "wall": 3.504536214,
+        "instructions": 23780493566,
+        "cycles": 11814641008
+      },
+      "paired_wall_changes_pct": [
+        6.16,
+        -5.25,
+        -8.24,
+        -3.97,
+        -4.02
+      ]
+    },
+    "emit": {
+      "base": {
+        "samples": 5,
+        "wall": 5.319790992,
+        "instructions": 37141211395,
+        "cycles": 17425861005
+      },
+      "scalar-records": {
+        "samples": 5,
+        "wall": 4.862001811,
+        "instructions": 35810605376,
+        "cycles": 16270803641
+      },
+      "paired_wall_changes_pct": [
+        -10.19,
+        -6.45,
+        0.68,
+        -1.65,
+        -10.51
+      ]
+    }
+  },
+  "traffic": {
+    "base": {
+      "static": {
+        "fill": 1249,
+        "copy": 6247
+      },
+      "check": {
+        "fill_calls": 24568668,
+        "fill_bytes": 1485552214,
+        "copy_calls": 114793628,
+        "copy_bytes": 7474128909
+      },
+      "emit": {
+        "fill_calls": 28564680,
+        "fill_bytes": 1607771125,
+        "copy_calls": 164253950,
+        "copy_bytes": 12460327199
+      }
+    },
+    "scalar-records": {
+      "static": {
+        "fill": 702,
+        "copy": 6088
+      },
+      "check": {
+        "fill_calls": 7190319,
+        "fill_bytes": 595930164,
+        "copy_calls": 102268872,
+        "copy_bytes": 6807691826
+      },
+      "emit": {
+        "fill_calls": 10261655,
+        "fill_bytes": 692293748,
+        "copy_calls": 151720987,
+        "copy_bytes": 11793666998
+      }
+    }
+  },
+  "controls": {
+    "compiles": 44,
+    "exact_compile_outcomes": 44,
+    "ok": 40,
+    "module_changed": 20,
+    "executions": 48,
+    "exact_run_outcomes": 48
+  },
+  "references": {
+    "compiles": 16,
+    "exact_compile_outcomes": 16,
+    "ok": 12,
+    "module_changed": 0,
+    "executions": 16,
+    "exact_run_outcomes": 16
+  },
+  "product": {
+    "product": "e3230623382760e4f276f280eaa61d25c6a560f314b0692239743f193614a0e0",
+    "fixed_point": "e3230623382760e4f276f280eaa61d25c6a560f314b0692239743f193614a0e0",
+    "expected": "9711190b77da9ace421f5d3c31562a7b6d59e87c905645df7961bf44fb922ccb",
+    "previous_expected": "58d73f6abf07825c1a76ee1696611f6ea7fec46817f609a584a9fb66c5a1287b",
+    "comparison": {
+      "base": {
+        "n": 4,
+        "wall": 6.371469244,
+        "cpu": 6.212867000000001,
+        "instructions": 37141238567.5,
+        "cycles": 18995615936.5
+      },
+      "product": {
+        "n": 4,
+        "wall": 7.414121443,
+        "cpu": 6.847567500000003,
+        "instructions": 35794505222.0,
+        "cycles": 20345206198.0
+      },
+      "paired_wall_pct": [
+        -4.2,
+        0.38,
+        63.46,
+        -8.24
+      ]
+    }
+  }
+}

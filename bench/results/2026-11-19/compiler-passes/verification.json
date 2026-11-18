@@ -1,0 +1,201 @@
+{
+  "source": {
+    "source_commit": "3084b81450a55ed4ba2eafa6ba90d2a2d5e2bc17",
+    "source_archive_sha256": "a633af84522b467c00fc4563fa9b63a154f7e4a3f6000abe560095aa086a7ff7"
+  },
+  "qualification": {
+    "status": "passed",
+    "compared_since": "2647c7e",
+    "seconds": 374.0,
+    "stages": {
+      "bootstrap": {
+        "exit": 0,
+        "seconds": 217.1
+      },
+      "conformance": {
+        "exit": 0,
+        "seconds": 113.6,
+        "summary": {
+          "selected": 10797,
+          "passed": 10693,
+          "failed": 104
+        },
+        "gaps": {
+          "open_gaps": 104,
+          "unexpected_failures": 0,
+          "fixed_gaps": 0
+        }
+      },
+      "native-checks": {
+        "exit": 0,
+        "seconds": 27.5,
+        "summary": "54 steps ok"
+      },
+      "conformance-memory64": {
+        "exit": 0,
+        "seconds": 145.3,
+        "summary": {
+          "selected": 4777,
+          "passed": 4769,
+          "failed": 8
+        },
+        "gaps": {
+          "open_gaps": 8,
+          "unexpected_failures": 0,
+          "fixed_gaps": 0
+        }
+      },
+      "equivalence": {
+        "exit": 0,
+        "seconds": 142.3,
+        "summary": {
+          "compared": 10057,
+          "differing": 0,
+          "seconds": {
+            "baseline": 70.379,
+            "candidate": 67.471
+          }
+        }
+      },
+      "unit-tests": {
+        "exit": 0,
+        "seconds": 156.7,
+        "tests": 89
+      }
+    },
+    "bootstrap": {
+      "fixed_point": true,
+      "generated_c_sha256": "16a7715f1f345b06d48dd2e90a15f06af2cf1efc998b18426cb1f62d61fcfe3c",
+      "next_generation_c_sha256": "16a7715f1f345b06d48dd2e90a15f06af2cf1efc998b18426cb1f62d61fcfe3c",
+      "third_generation_c_sha256": null,
+      "executable_sha256": "96d7d03989a65f71bdf6e5b75feed16201461a0bb93c94ad0458b47c6540e74d",
+      "profile_used": false,
+      "cached": {
+        "build-seed": true,
+        "build-goose": false
+      }
+    }
+  },
+  "native_benchmark": {
+    "sha256": "2d8a96c9169cbb855d51fec8e2f51f226dbfde8494181e49d98f681aeab85b15",
+    "bytes": 7071008
+  },
+  "fixed_memory32": {
+    "native_emission": {
+      "sha256": "49f770eb0507905daa3db096c4fa066155165643dda7eb87638ddfa0cc567951",
+      "bytes": 7448644
+    },
+    "self_emission": {
+      "sha256": "49f770eb0507905daa3db096c4fa066155165643dda7eb87638ddfa0cc567951",
+      "bytes": 7448644
+    },
+    "profile": {
+      "sha256": "5e9e71f639b0e43bb9bc3f840bf7c231c7dd6c92f2d09929d72a92335f29b325",
+      "bytes": 880
+    },
+    "training_examples": [
+      "squares",
+      "sorting",
+      "tour"
+    ]
+  },
+  "default_memory64": {
+    "sha256": "2f61226708403efb1860480fd05fbe0c274f8e34c5c5050886189273ad1e4762",
+    "bytes": 8885753
+  },
+  "cpu": "AMD Ryzen 7 3800X",
+  "clang": {
+    "sha256": "ca0d2f7fbe94836762f36c7e73292289bc4d5e4b9b5defc320ef0856259a2855",
+    "bytes": 124768,
+    "version": "clang version 23.1.5\nTarget: x86_64-pc-linux-gnu\nThread model: posix\nInstalledDir: /usr/bin"
+  },
+  "upstream_literal_control": {
+    "compiler": {
+      "sha256": "9e4d9ff8927c69c653031850f1b0911ce6827dc71648f1e11448ed06736b75e0",
+      "bytes": 11551864
+    },
+    "revision": "2e2bedef5b980bf013cac5aaa0095bfea64e5569",
+    "command": "goose run words-N.goose",
+    "checksums": {
+      "512": 26929,
+      "2048": 107494,
+      "8192": 430149
+    }
+  },
+  "lifetime_check": {
+    "compiler": "4a9d35ea568647368c59185ef52383fb530e58da",
+    "project": {
+      "source_commit": "4a9d35ea568647368c59185ef52383fb530e58da",
+      "source_archive_sha256": "2439e13fc0d5d0453d65b7fea9c5ba77891b088f04b98f44f90e09c466f4ca39"
+    },
+    "baseline_lifetime_goose": "f8af791116e5b081204a9d44dd38add7b69394b5c9bc41917a1df34abd7e3f4f",
+    "candidate_lifetime_goose": "b055045604540051548b9d76d94b1af945fc493caa4e0571b6962e37e7c03ae0",
+    "candidate_patch_sha256": "6b5243b67391032600bfa3e545a74af6aeee02b8b6151cc921c5f77978a1160b",
+    "baseline_native_probe_sha256": "6b2685d87c790742b21f4ec4c50580fb34a80efcaf9d99fe44fda7aa73486697",
+    "emitter_sha256": "b839c409844b0497f436268abcf94a5bc24ad10953883735d5289028ebfc9172",
+    "host_sha256": "b247393d8fbe3115246f20703f726e90eeaaed762a75932c7bb131a4433ad026",
+    "samples": {
+      "selfhost/main.goose": {
+        "base": {
+          "status": 0,
+          "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stderr_sha256": "d4ec258f56c336132c337700b0ac848911054e4f30a81d5bac8ce6406808ca48",
+          "fingerprints": 7,
+          "guest_diagnostics": 1,
+          "probe_sha256": "4ededb9448459de736e0f10588dde5477c35b1e3ab07daebdf86f45aaf4e134b"
+        },
+        "candidate": {
+          "status": 0,
+          "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stderr_sha256": "d4ec258f56c336132c337700b0ac848911054e4f30a81d5bac8ce6406808ca48",
+          "fingerprints": 7,
+          "guest_diagnostics": 1,
+          "probe_sha256": "6fed4a5e348352cfde0ee2ce3cf049059a0b5728798195d1cc1b4220fcfc97da"
+        }
+      },
+      "bench/results/2026-11-18/compiler-array-views/lifetime/class-exits.goose": {
+        "base": {
+          "status": 0,
+          "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stderr_sha256": "46b8480e8d9b05c60a28cd18bc0ae2b78c5e95b59967738ad9b5279008d58898",
+          "fingerprints": 3,
+          "guest_diagnostics": 1,
+          "probe_sha256": "e1b556ff9d154f6026d1b089c0982896639541cce5dd0667c9309abad0a342f8"
+        },
+        "candidate": {
+          "status": 0,
+          "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stderr_sha256": "46b8480e8d9b05c60a28cd18bc0ae2b78c5e95b59967738ad9b5279008d58898",
+          "fingerprints": 3,
+          "guest_diagnostics": 1,
+          "probe_sha256": "0bb3c022cb584901fb0c2e941624bf3ba32fb47385c3b11375228b8649cef1e7"
+        }
+      },
+      "bench/results/2026-11-18/compiler-replay-and-captures/replay/class-read.goose": {
+        "base": {
+          "status": 0,
+          "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stderr_sha256": "90e17c23e7a3456fe654554e04f74cf60ecddccd9a40c314dee64794c7b512df",
+          "fingerprints": 4,
+          "guest_diagnostics": 1,
+          "probe_sha256": "e1b556ff9d154f6026d1b089c0982896639541cce5dd0667c9309abad0a342f8"
+        },
+        "candidate": {
+          "status": 0,
+          "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stderr_sha256": "90e17c23e7a3456fe654554e04f74cf60ecddccd9a40c314dee64794c7b512df",
+          "fingerprints": 4,
+          "guest_diagnostics": 1,
+          "probe_sha256": "0bb3c022cb584901fb0c2e941624bf3ba32fb47385c3b11375228b8649cef1e7"
+        }
+      }
+    },
+    "candidate_native_probe_sha256": "7dbb0e0fb47ad51957cb31de13e3c277375d1cc3dcefc1daa50d6012c7e17a67",
+    "corpus": {
+      "compared": 4357,
+      "differing": 0,
+      "with_lifetime_fingerprints": 3130,
+      "fingerprint_lines": 11596
+    }
+  }
+}
