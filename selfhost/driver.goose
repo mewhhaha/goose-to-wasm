@@ -13,7 +13,7 @@ extern "libc.so.6" {
 
 struct DriverOptions {
     source_arg: i64 = -1, output_arg: i64 = -1, stdlib_arg: i64 = -1,
-    stats_arg: i64 = -1, dependencies_arg: i64 = -1, cc_arg: i64 = -1, profile_arg: i64 = -1, region_stats: bool = false,
+    stats_arg: i64 = -1, dependencies_arg: i64 = -1, cc_arg: i64 = -1, profile_arg: i64 = -1, region_stats: bool = false, bundled_host: bool = false,
     target: i64 = 0, optimization: i64 = 0, initial_pages: i64 = 16, maximum_pages: i64 = 256, memory64: bool = false,
     check: bool = false, parse: bool = false, tokens: bool = false,
     dump: bool = false, dump_ir: bool = false, run: bool = false, debug: bool = false, library: bool = false, reachable_program: bool = false, expansion_limit: i64 = 100000, stack_reserve: i64 = 0,
@@ -141,6 +141,7 @@ fn driver_options(o: DriverOptions&, arguments: u8[:][:]) {
         else if same_bytes(a, "--debug") { o.debug = true; }
         else if same_bytes(a, "--library") { o.library = true; }
         else if same_bytes(a, "--wasm-memory64") { o.memory64 = true; }
+        else if same_bytes(a, "--wasm-bundled-host") { o.bundled_host = true; }
         else if same_bytes(a, "--wasm-region-stats") { o.region_stats = true; }
         else if same_bytes(a, "--reachable-program") { o.reachable_program = true; }
         else if same_bytes(a, "--standalone") { /* C output is standalone. */ }
@@ -345,7 +346,7 @@ fn driver_exec(command: u8[>..]&) -> i64 {
     return (code >> 8) & 255;
 }
 fn driver_help() {
-    write_stdout("Goose-written compiler (unverified rewrite)\nUsage: goose-selfhost source.goose --target wasm-direct|native -o output [-O0|-O1|-O2]\n  --check --parse --tokens --dump --debug --stdlib DIR --wasm-stats FILE --wasm-deps FILE\n  --reachable-program  Check only functions a root reaches, and the signatures of the rest.\n  --expansion-node-limit N  Total const for expansion size (default 100000).\n  --stack-reserve SIZE  Address space reserved per data stack in a native program, from 64K to 256T\n                        with a K, M, G or T suffix (default 2G).\n  --run  Build native C with --cc and execute, or execute Wasm with GOOSE_WASM_HOST.\n");
+    write_stdout("Goose-written compiler (unverified rewrite)\nUsage: goose-selfhost source.goose --target wasm-direct|native -o output [-O0|-O1|-O2]\n  --check --parse --tokens --dump --debug --stdlib DIR --wasm-stats FILE --wasm-deps FILE\n  --wasm-bundled-host  Target the bundled host implementations for recognized imports.\n  --reachable-program  Check only functions a root reaches, and the signatures of the rest.\n  --expansion-node-limit N  Total const for expansion size (default 100000).\n  --stack-reserve SIZE  Address space reserved per data stack in a native program, from 64K to 256T\n                        with a K, M, G or T suffix (default 2G).\n  --run  Build native C with --cc and execute, or execute Wasm with GOOSE_WASM_HOST.\n");
 }
 fn driver_main() -> i64 {
     // Every path lives in one byte table: each array holds its own storage region.
@@ -407,7 +408,7 @@ fn driver_main() -> i64 {
                       inline_sites: inline_sites, region_profile: region_profile };
     p.optimization = o.optimization; p.debug = o.debug; p.library = o.library;
     p.check_only = o.check || o.parse; p.reachable_program = o.reachable_program; p.expansion_limit = o.expansion_limit; p.stack_reserve = o.stack_reserve;
-    p.initial_pages = o.initial_pages; p.maximum_pages = o.maximum_pages; p.region_stats = o.region_stats;
+    p.initial_pages = o.initial_pages; p.maximum_pages = o.maximum_pages; p.region_stats = o.region_stats; p.bundled_host = o.bundled_host;
     if o.target == 1 { p.pointer_bytes = 8; }
     else if o.memory64 { p.pointer_bytes = 8; p.wide = true; p.control_bytes = 48; p.control_align = 8; }
     initialize_types(p);
