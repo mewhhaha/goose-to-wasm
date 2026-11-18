@@ -1,0 +1,67 @@
+--- a/selfhost/codegen.goose
++++ b/selfhost/codegen.goose
+@@ -64,7 +64,7 @@
+     labels: i64[>..]&, exits: CgExit[>..]&, results: i64[>..]&, destinations: i64[>..]&, work: i64[>..]&, raw_slots: i64[>..]&, sequences: CgSequence[>..]&,
+     constructions: CgConstruction[>..]&, construction_destinations: CgDestination[>..]&, receiving: CgReceiving[>..]&,
+     function: i64 = -1, function_index: i64 = -1, params: i64 = 0, serial: i64 = 0,
+-    region_live: i64 = 0, region_peak: i64 = 0, region_mark: i64 = -1, publication_mark: i64 = -1,
++    region_live: i64 = 0, region_peak: i64 = 0, acquisitions: i64 = 0, publishes: bool = false, region_mark: i64 = -1, publication_mark: i64 = -1,
+     frame: i64 = -1, frame_bytes: i64 = 0, effect: i64 = 0, effect_metadata: i64 = -1, done: i64 = -1, frame_free: bool = false,
+     // diagnostic_line: a helper's line parameter. at: a located function's
+     // caller's line (mark_located_functions), the host's abort taking a line.
+@@ -1562,6 +1562,7 @@
+ fn cg_map_frame(p: Program&, m: CgModule&, f: CgBody&, source: i64, target: i64, prefix: i64) -> i64 {
+     // A publication record is six address-sized words: the previous record,
+     // the source, the target, the mapped prefix bytes twice, the mode.
++    f.publishes = true;
+     let previous = cg_mark_publications(m, f); let offset = cg_frame(f, ww(6), wa_bytes()); cg_frame_address(f, offset); let entry = cg_save(f, wa());
+     cg_get(f, entry); cg_get(f, previous); wa_store(f.code, 0);
+     cg_get(f, entry); cg_get(f, source); wa_store(f.code, ww(1));
+@@ -1937,7 +1938,7 @@
+     if (n.flags & F_EARLY) != 0 && n.origin >= 0 {
+         while cg_inline_argument(p, child) { child = p.nodes[child].next; }
+     }
+-    let live = f.region_live; var region_mark = -1;
++    let live = f.region_live; let acquisitions = f.acquisitions; var region_mark = -1;
+     if m.regions_enabled { region_mark = cg_mark_regions(f); }
+     let defer_mark = f.defers.len; var falls = true;
+     while child >= 0 {
+@@ -1971,7 +1972,10 @@
+     }
+     // The end of the block's text is an exit, after its value is built.
+     if f.defers.len > defer_mark { if falls { cg_run_defers(p, m, f, defer_mark); } f.defers.resize(defer_mark); }
+-    if m.regions_enabled { cg_restore_regions(f, region_mark); f.region_live = live; }
++    // Every callee restores its own cursor. With no local acquisition the
++    // saved value is dead and the engine can remove its read as well.
++    if f.acquisitions != acquisitions { cg_restore_regions(f, region_mark); }
++    f.region_live = live;
+ }
+ fn cg_control_slots(p: Program&, f: CgBody&, id: i64, node: i64) -> i64 {
+     var types: i64[>..] = []; cg_result_types(p, id, types); var first = -1;
+@@ -3282,7 +3286,6 @@
+     for id in results { if cg_aggregate(p, id) { f.params++; } }
+     if function >= 0 && (p.nodes[function].flags & F_LOCATED) != 0 { f.at = f.params; f.params++; }
+     f.frame = cg_local(f, wa());
+-    if m.regions_enabled { f.region_mark = cg_local(f, 0x7f); f.publication_mark = cg_local(f, wa()); }
+     if !m.scalar && function >= 0 {
+         let index = cg_function(m, p.nodes[function].symbol);
+         if index >= 0 && m.functions[index].arena_local {
+@@ -3433,6 +3436,9 @@
+             cg_copy(p, m, f, id, f.destinations[i], f.results[i], f.function); f.raw_node = saved_raw; cg_get(f, f.destinations[i]); cg_set(f, f.results[i]); }
+     }
+     cg_end(f);
++    // The prelude is written after the body. Only save globals this body can change.
++    if f.acquisitions > 0 { f.region_mark = cg_local(f, 0x7f); }
++    if f.publishes { f.publication_mark = cg_local(f, wa()); }
+     cg_restore_regions(f, f.region_mark); cg_restore_publications(f, f.publication_mark);
+     if f.heap_mark >= 0 { cg_get(f, f.heap_mark); wb_op(f.code, 0x24, 1); }
+     if f.forward_mark >= 0 { cg_get(f, f.forward_mark); wb_op(f.code, 0x24, 5); }
+@@ -5151,7 +5157,7 @@
+     let region = cg_save(f, 0x7f); cg_get(f, region); wb_op(f.code, 0x23, 8); wb_byte(f.code, 0x4f); cg_trap_if(p, m, f, node, "data-region count exhausted");
+     if global_region < 0 {
+         cg_get(f, region); wb_i32(f.code, 1); wb_byte(f.code, 0x6a); wb_op(f.code, 0x24, 3);
+-        f.region_live += 1; if f.region_live > f.region_peak { f.region_peak = f.region_live; }
++        f.acquisitions++; f.region_live += 1; if f.region_live > f.region_peak { f.region_peak = f.region_live; }
+     }
+     // The region table (global 9) holds where each region starts, and after
+     // the last where memory ends. The region's own three words end it.

@@ -1,0 +1,38 @@
+{
+  "32": {
+    "argv": [
+      "/home/jacobt/src/goose-to-wasm/build/wasm-lowering-1118/final-qualification/bootstrap/bin/goose",
+      "selfhost/main.goose",
+      "--stdlib",
+      "stdlib",
+      "--target",
+      "wasm-direct",
+      "-O2",
+      "--wasm-max-pages",
+      "65535",
+      "--wasm-region-profile",
+      "/home/jacobt/src/goose-to-wasm/bench/results/2026-11-18/lifetime-exit-index/regions.txt",
+      "-o",
+      "/home/jacobt/src/goose-to-wasm/build/wasm-lowering-1118/release32.wasm"
+    ],
+    "sha256": "3872a0f362424bb067e9d9ed7076a7ad7050d0d3e865e96a1cd6a7a1b133a251"
+  },
+  "64": {
+    "argv": [
+      "/home/jacobt/src/goose-to-wasm/build/wasm-lowering-1118/final-qualification/bootstrap/bin/goose",
+      "selfhost/main.goose",
+      "--stdlib",
+      "stdlib",
+      "--target",
+      "wasm-direct",
+      "-O2",
+      "--wasm-memory64",
+      "--wasm-max-pages",
+      "262144",
+      "-o",
+      "/home/jacobt/src/goose-to-wasm/build/wasm-lowering-1118/release64.wasm"
+    ],
+    "sha256": "ae60b7f37a9f09eb3d8942c2f0618afc491ab38648e9e37a4d187d615648c92b"
+  },
+  "emitter_sha256": "e3666cca0f4af376876c805456600eac41849f6360064b3970f9ca31e6c22700"
+}

@@ -1,0 +1,174 @@
+--- a/selfhost/codegen.goose
++++ b/selfhost/codegen.goose
+@@ -35,6 +35,7 @@
+     region_memo: i64[>..]&,
+     next_data: i64 = 1024, stack_limit: i64 = 0,
+     region_count: i64 = 0, global_region_count: i64 = 0, regions_enabled: bool = false,
++    nonlocal_returns: bool = false,
+     region_table_address: i64 = 0, host_reserve: i64 = -1, host_reserve_type: i64 = -1,
+     start: i64 = -1, allocator: i64 = -1, float_wrap: i64 = -1, scalar: bool = false, scalar_slots: bool = false, resolver: i64 = -1, header_helper: i64 = -1, prefix_helper: i64 = -1, pool_global: i64 = -1,
+     format_f32: i64 = -1, format_f64: i64 = -1, raw_append: i64 = -1, raw_append_type: i64 = -1,
+@@ -791,6 +792,7 @@
+ // too, through the landing of the statement being emitted where defer
+ // bodies are registered (cg_block_into).
+ fn cg_effect_check(p: Program&, m: CgModule&, f: CgBody&, types: i64[:]) {
++    if !m.nonlocal_returns { return; }
+     var saved: i64[>..] = [];
+     for id in types { saved.push(cg_local(f, cg_wasm_type(p, id))); }
+     var at = saved.len;
+@@ -815,8 +817,10 @@
+         let callee = p.symbols[n.symbol];
+         if (callee.flags & (S_FUNCTION | S_BUILTIN)) == S_FUNCTION && callee.node >= 0 && (p.nodes[callee.node].flags & F_UNWINDS) != 0 { return true; }
+     } else if n.kind == N_CALL { return true; }
+-    if cg_unwinding_tree(p, n.left) || cg_unwinding_tree(p, n.right) || cg_unwinding_tree(p, n.third) { return true; }
+-    var child = n.first; while child >= 0 { if cg_unwinding_tree(p, child) { return true; } child = p.nodes[child].next; }
++    for head in [n.left, n.right, n.third, n.first] {
++        var child = head;
++        while child >= 0 { if cg_unwinding_tree(p, child) { return true; } child = p.nodes[child].next; }
++    }
+     return false;
+ }
+ // One run of each `defer` body registered above mark, latest first (§6.6),
+@@ -1400,7 +1404,6 @@
+ fn cg_fixed_relative_results(p: Program&, type_id: i64) -> bool {
+     for ordinal in 0..cg_result_count(p, type_id) { if cg_fixed_relative(p, cg_result_at(p, type_id, ordinal)) { return true; } } return false;
+ }
+-let CG_EFFECT_SCANNED: i64 = 1152921504606846976;
+ let CG_EFFECT_TARGET: i64 = 2305843009213693952;
+ recursive fn cg_scan_effect_body(p: Program&, owner: i64, node: i64) {
+     if node < 0 { return; } let n = p.nodes[node];
+@@ -1409,14 +1412,18 @@
+         let target = p.symbols[n.symbol].node;
+         if target >= 0 && target != owner { p.nodes[target].flags |= CG_EFFECT_TARGET; p.nodes[node].flags |= F_NONLOCAL; }
+     }
+-    cg_scan_effect_body(p, owner, n.left); cg_scan_effect_body(p, owner, n.right); cg_scan_effect_body(p, owner, n.third);
+-    var child = n.first; while child >= 0 { cg_scan_effect_body(p, owner, child); child = p.nodes[child].next; }
+-}
+-fn cg_scan_effect_targets(p: Program&) {
+-    for n, node in p.nodes { if n.kind == N_FUNCTION || n.kind == N_FUNCTION_VALUE { p.nodes[node].flags = (n.flags & ~CG_EFFECT_TARGET) | CG_EFFECT_SCANNED; } }
++    for head in [n.left, n.right, n.third, n.first] {
++        var child = head;
++        while child >= 0 { cg_scan_effect_body(p, owner, child); child = p.nodes[child].next; }
++    }
++}
++fn cg_scan_effect_targets(p: Program&) -> bool {
++    for n, node in p.nodes { if n.kind == N_FUNCTION || n.kind == N_FUNCTION_VALUE { p.nodes[node].flags &= ~CG_EFFECT_TARGET; } }
+     for n, node in p.nodes {
+         if (n.kind == N_FUNCTION || n.kind == N_FUNCTION_VALUE) && (n.flags & F_CHECKED) != 0 && (n.flags & F_GENERIC) == 0 { cg_scan_effect_body(p, node, n.right); }
+     }
++    for n in p.nodes { if (n.flags & CG_EFFECT_TARGET) != 0 { return true; } }
++    return false;
+ }
+ fn cg_nonlocal_target(p: Program&, function: i64) -> bool { return function >= 0 && (p.nodes[function].flags & CG_EFFECT_TARGET) != 0; }
+ fn cg_effect_frame(p: Program&, m: CgModule&, f: CgBody&, target: i64, node: i64) -> i64 {
+@@ -1437,6 +1444,7 @@
+         cg_run_defers(p, m, f, 0);
+         cg_branch(p, f, f.done, false); return;
+     }
++    if !m.nonlocal_returns { cg_fail(p, node, "missing nonlocal return in effect scan"); return; }
+     let target_type = cg_result_type(p, target); let count = cg_result_count(p, target_type);
+     let frame = cg_effect_frame(p, m, f, target, node); let first_slot = cg_control_slots(p, f, target_type, node);
+     let attempt_mark = f.work.len;
+@@ -3334,6 +3342,7 @@
+             destination += 1;
+         } else { f.destinations.push(-1); }
+     }
++    if !m.nonlocal_returns { return; }
+     var mailbox_size = 16;
+     for id in results { mailbox_size = cg_align(mailbox_size, 8) + cg_size(p, id); }
+     if function >= 0 && cg_nonlocal_target(p, function) &&
+@@ -3355,6 +3364,7 @@
+     if f.heap_mark >= 0 { wb_op(f.code, 0x23, 1); cg_set(f, f.heap_mark); }
+     if f.forward_mark >= 0 { wb_op(f.code, 0x23, 5); cg_set(f, f.forward_mark); }
+     for address in f.addresses { cg_frame_address(f, address.offset); cg_set(f, address.local); }
++    if !m.nonlocal_returns { return; }
+     // The effect record: word 0 the previous chain, word 1 the function
+     // number, both address-sized; the result mailbox from byte 16 on.
+     cg_frame_address(f, f.effect); wb_op(f.code, 0x23, 4); wa_store(f.code, 0);
+@@ -3395,44 +3405,46 @@
+         for result in f.results { cg_get(f, result); } wb_byte(f.code, 0x0b); return;
+     }
+     var results: i64[>..] = []; if f.function >= 0 { cg_function_results(p, f.function, results); }
+-    wb_op(f.code, 0x23, 2); cg_frame_address(f, f.effect); wa_op(f.code, 0x46); cg_begin(f, 0x04, 0x40);
+-    var offset = 16;
+-    for id, i in results {
+-        offset = cg_align(offset, 8);
+-        if f.effect_metadata >= 0 && cg_fixed_relative(p, id) {
+-            cg_frame_address(f, f.effect + f.effect_metadata + i * ww(3)); wa_load(f.code, 0); cg_set(f, f.results[i]);
+-        } else if f.effect_metadata >= 0 && cg_region_value(p, id) {
+-            cg_frame_address(f, f.effect + f.effect_metadata + i * ww(3)); wa_load(f.code, 0); let original = cg_save(f, wa());
+-            cg_frame_address(f, f.effect + f.effect_metadata + i * ww(3) + ww(1)); wa_load(f.code, 0); let start = cg_save(f, wa());
+-            cg_frame_address(f, f.effect + f.effect_metadata + i * ww(3) + ww(2)); wa_load(f.code, 0); let entry = cg_save(f, wa());
+-            cg_frame_address(f, f.effect + offset); let stage = cg_save(f, wa());
+-            if cg_enum_image(p, id) { cg_set_enum_anchor(f, original, entry); cg_finish_enum(p, m, f, id, original, start, true, f.function); }
+-            else if cg_image_owner(p, id) {
+-                cg_set_record_anchor(p, m, f, id, original, entry, f.function); cg_finish_record_image(p, m, f, id, original, start, true, f.function);
+-            } else if cg_frame_owner(p, id) { cg_finish_frame_record(p, m, f, id, original, stage, start, entry, true, f.function); }
+-            else {
+-                if p.types[id].array_kind != A_LIMITED && p.types[id].array_kind != A_VAR { cg_get(f, original); cg_get(f, entry); wc_store(f.code, 0); }
+-                cg_finish_region_array(p, m, f, original, stage, start, id, false, true, f.function);
++    if m.nonlocal_returns {
++        wb_op(f.code, 0x23, 2); cg_frame_address(f, f.effect); wa_op(f.code, 0x46); cg_begin(f, 0x04, 0x40);
++        var offset = 16;
++        for id, i in results {
++            offset = cg_align(offset, 8);
++            if f.effect_metadata >= 0 && cg_fixed_relative(p, id) {
++                cg_frame_address(f, f.effect + f.effect_metadata + i * ww(3)); wa_load(f.code, 0); cg_set(f, f.results[i]);
++            } else if f.effect_metadata >= 0 && cg_region_value(p, id) {
++                cg_frame_address(f, f.effect + f.effect_metadata + i * ww(3)); wa_load(f.code, 0); let original = cg_save(f, wa());
++                cg_frame_address(f, f.effect + f.effect_metadata + i * ww(3) + ww(1)); wa_load(f.code, 0); let start = cg_save(f, wa());
++                cg_frame_address(f, f.effect + f.effect_metadata + i * ww(3) + ww(2)); wa_load(f.code, 0); let entry = cg_save(f, wa());
++                cg_frame_address(f, f.effect + offset); let stage = cg_save(f, wa());
++                if cg_enum_image(p, id) { cg_set_enum_anchor(f, original, entry); cg_finish_enum(p, m, f, id, original, start, true, f.function); }
++                else if cg_image_owner(p, id) {
++                    cg_set_record_anchor(p, m, f, id, original, entry, f.function); cg_finish_record_image(p, m, f, id, original, start, true, f.function);
++                } else if cg_frame_owner(p, id) { cg_finish_frame_record(p, m, f, id, original, stage, start, entry, true, f.function); }
++                else {
++                    if p.types[id].array_kind != A_LIMITED && p.types[id].array_kind != A_VAR { cg_get(f, original); cg_get(f, entry); wc_store(f.code, 0); }
++                    cg_finish_region_array(p, m, f, original, stage, start, id, false, true, f.function);
++                }
++                cg_get(f, original); cg_set(f, f.results[i]);
++            } else {
++                cg_frame_address(f, f.effect + offset);
++                if p.types[id].kind == TY_INT && p.types[id].storage == 1 { cg_load_fixed(p, f.code, TYPE_I64, 0); }
++                else { cg_load(p, m, f, id, 0); }
++                cg_set(f, f.results[i]);
+             }
+-            cg_get(f, original); cg_set(f, f.results[i]);
+-        } else {
+-            cg_frame_address(f, f.effect + offset);
+-            if p.types[id].kind == TY_INT && p.types[id].storage == 1 { cg_load_fixed(p, f.code, TYPE_I64, 0); }
+-            else { cg_load(p, m, f, id, 0); }
+-            cg_set(f, f.results[i]);
+-        }
+-        offset += cg_size(p, id);
+-    }
+-    wa_const(f.code, 0); wb_op(f.code, 0x24, 2); cg_end(f);
+-    cg_frame_address(f, f.effect); wa_load(f.code, 0); wb_op(f.code, 0x24, 4);
+-    wb_op(f.code, 0x23, 2); wa_op(f.code, 0x45); cg_begin(f, 0x04, 0x40);
++            offset += cg_size(p, id);
++        }
++        wa_const(f.code, 0); wb_op(f.code, 0x24, 2); cg_end(f);
++        cg_frame_address(f, f.effect); wa_load(f.code, 0); wb_op(f.code, 0x24, 4);
++        wb_op(f.code, 0x23, 2); wa_op(f.code, 0x45); cg_begin(f, 0x04, 0x40);
++    }
+     for id, i in results {
+         if f.destinations[i] >= 0 {
+             if m.regions_enabled && cg_region_value(p, id) { cg_get(f, f.destinations[i]); cg_set(f, f.results[i]); continue; }
+             let saved_raw = f.raw_node; if f.elements && i == 0 { f.raw_node = f.function; }
+             cg_copy(p, m, f, id, f.destinations[i], f.results[i], f.function); f.raw_node = saved_raw; cg_get(f, f.destinations[i]); cg_set(f, f.results[i]); }
+     }
+-    cg_end(f);
++    if m.nonlocal_returns { cg_end(f); }
+     cg_restore_regions(f, f.region_mark); cg_restore_publications(f, f.publication_mark);
+     if f.heap_mark >= 0 { cg_get(f, f.heap_mark); wb_op(f.code, 0x24, 1); }
+     if f.forward_mark >= 0 { cg_get(f, f.forward_mark); wb_op(f.code, 0x24, 5); }
+@@ -3881,7 +3893,7 @@
+ }
+ fn cg_collect(p: Program&, m: CgModule&) {
+     cg_root_layouts(p);
+-    cg_scan_effect_targets(p); p.unwinding = mark_unwinding_functions(p); mark_located_functions(p);
++    m.nonlocal_returns = cg_scan_effect_targets(p); p.unwinding = m.nonlocal_returns && mark_unwinding_functions(p); mark_located_functions(p);
+     for host in 0..9 { m.imports.push(CgImport { signature: cg_host_signature(m, host), host: host }); }
+     for symbol, i in p.symbols {
+         m.globals.push(-1); m.global_regions.push(-1);

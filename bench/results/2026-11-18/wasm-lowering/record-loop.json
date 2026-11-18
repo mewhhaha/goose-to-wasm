@@ -1,0 +1,95 @@
+{
+  "source_sha256": "538620889d31e52599b8b2c67f365f071fc15d1c613f5b0a06e8f2c2a70cd76c",
+  "modules": {
+    "direct": "a4fe3b2f0e81891e5614e99ef4a70ea7d5ec33908bb94a5aa8a17a117cdaad74",
+    "records": "8c3c3fc991922bae6157926d89bc9d071dd461b9d7591f5234e2067511c3b7a0"
+  },
+  "expected": "2000033000000 1\n",
+  "cpu": 0,
+  "samples": [
+    {
+      "label": "records",
+      "round": 1,
+      "wall_ns": 18653265,
+      "instructions": 239637615
+    },
+    {
+      "label": "direct",
+      "round": 1,
+      "wall_ns": 24636164,
+      "instructions": 287615944
+    },
+    {
+      "label": "direct",
+      "round": 2,
+      "wall_ns": 25294205,
+      "instructions": 287623343
+    },
+    {
+      "label": "records",
+      "round": 2,
+      "wall_ns": 25858478,
+      "instructions": 239622291
+    },
+    {
+      "label": "records",
+      "round": 3,
+      "wall_ns": 21884070,
+      "instructions": 239624989
+    },
+    {
+      "label": "direct",
+      "round": 3,
+      "wall_ns": 29393221,
+      "instructions": 287609910
+    },
+    {
+      "label": "direct",
+      "round": 4,
+      "wall_ns": 31467696,
+      "instructions": 287610267
+    },
+    {
+      "label": "records",
+      "round": 4,
+      "wall_ns": 23461139,
+      "instructions": 239597153
+    },
+    {
+      "label": "records",
+      "round": 5,
+      "wall_ns": 23565567,
+      "instructions": 239597380
+    },
+    {
+      "label": "direct",
+      "round": 5,
+      "wall_ns": 31936958,
+      "instructions": 287597452
+    },
+    {
+      "label": "direct",
+      "round": 6,
+      "wall_ns": 32816470,
+      "instructions": 287598653
+    },
+    {
+      "label": "records",
+      "round": 6,
+      "wall_ns": 22439516,
+      "instructions": 239599066
+    },
+    {
+      "label": "records",
+      "round": 7,
+      "wall_ns": 21953722,
+      "instructions": 239612930
+    },
+    {
+      "label": "direct",
+      "round": 7,
+      "wall_ns": 29975057,
+      "instructions": 287599749
+    }
+  ]
+}

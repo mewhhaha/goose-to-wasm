@@ -1,0 +1,75 @@
+--- a/selfhost/codegen.goose
++++ b/selfhost/codegen.goose
+@@ -3273,6 +3273,26 @@
+     if cg_type_kind(p, p.symbols[symbol].type_id) == TY_BOOL { wb_i32(f.code, 255); wb_byte(f.code, 0x71); }
+     cg_set(f, f.slots[symbol].local);
+ }
++// Only ordinary fixed records use their private call-site snapshot as the
++// parameter's storage. Packed images, owners and relative fields need their
++// normal copy semantics. Dispatch arguments may be adapted for each arm.
++let CG_DISPATCH_ENTRY: i64 = 144115188075855872;
++recursive fn cg_snapshot_field(p: Program&, id: i64) -> bool {
++    if id < 0 || p.types[id].size < 0 { return false; }
++    let t = p.types[id];
++    if t.kind == TY_STRUCT {
++        if root_struct_type(p, id) || t.tail >= 0 { return false; }
++        var field = t.first;
++        while field >= 0 {
++            if (p.nodes[field].flags & F_PAD) == 0 && !cg_snapshot_field(p, p.nodes[field].type_id) { return false; }
++            field = p.nodes[field].next;
++        }
++        return true;
++    }
++    if t.kind == TY_ARRAY { return t.array_kind == A_FIXED && cg_snapshot_field(p, t.element); }
++    if t.kind == TY_REF { return t.length_storage < 0; }
++    return t.kind == TY_BOOL || t.kind == TY_FLOAT || t.kind == TY_INT && t.storage == 0 || t.kind == TY_SLICE || t.kind == TY_FN;
++}
+ fn cg_prepare_function(p: Program&, m: CgModule&, f: CgBody&, function: i64) {
+     var param = -1; if function >= 0 { param = p.nodes[function].first; }
+     while param >= 0 { f.params++; param = p.nodes[param].next; }
+@@ -3290,7 +3310,13 @@
+         }
+     }
+     var parameter_count = 0; param = -1; if function >= 0 { param = p.nodes[function].first; }
+-    while param >= 0 { parameter_count++; param = p.nodes[param].next; }
++    while param >= 0 {
++        let id = p.nodes[param].type_id;
++        if (p.nodes[function].flags & (F_EXPORT | CG_DISPATCH_ENTRY)) == 0 && cg_type_kind(p, id) == TY_STRUCT && cg_snapshot_field(p, id) {
++            f.slots[p.nodes[param].symbol].local = parameter_count;
++        }
++        parameter_count++; param = p.nodes[param].next;
++    }
+     var capture_param = parameter_count;
+     for capture in m.captures {
+         if capture.function == function { f.slots[capture.symbol].local = capture_param; capture_param++; }
+@@ -3300,6 +3326,7 @@
+         let index = next; next = m.symbol_owners.next[index];
+         let symbol: const Symbol& = p.symbols[index];
+         if (symbol.flags & (S_FUNCTION | S_TYPE | S_GLOBAL | S_BUILTIN)) != 0 { continue; }
++        if f.slots[index].local >= 0 { continue; }
+         if function < 0 && !cg_storage_binding(p, index) { continue; }
+         let size = cg_slot_size(p, symbol.type_id);
+         if size <= 0 {
+@@ -3383,6 +3410,7 @@
+         let symbol = p.nodes[param].symbol;
+         if symbol < 0 { cg_fail(p, param, "wasm: parameter has no storage symbol"); return; }
+         let id = p.nodes[param].type_id;
++        if f.slots[symbol].local == index { param = p.nodes[param].next; index++; continue; }
+         if f.slots[symbol].value { cg_get(f, index); cg_scalar_slot_store(p, f, symbol); }
+         else if m.regions_enabled && cg_region_value(p, id) { cg_get(f, f.slots[symbol].local); cg_get(f, index); wa_const(f.code, cg_size(p, id)); wb_copy(f.code); }
+         else { cg_get(f, index); cg_write_value(p, m, f, id, f.slots[symbol].local, param); }
+@@ -3896,6 +3924,14 @@
+         if symbol.component_owner >= 0 && symbol.component >= 0 && m.globals[symbol.component_owner] >= 0 { m.globals[i] = m.globals[symbol.component_owner] + p.nodes[symbol.component].integer; }
+     }
+     for n, node in p.nodes {
++        if n.kind == N_CALL && (n.flags & F_DISPATCH) != 0 {
++            var arm = n.third;
++            while arm >= 0 {
++                let symbol = p.nodes[arm].symbol;
++                if symbol >= 0 && p.symbols[symbol].node >= 0 { p.nodes[p.symbols[symbol].node].flags |= CG_DISPATCH_ENTRY; }
++                arm = p.nodes[arm].next;
++            }
++        }
+         if n.kind != N_FUNCTION && n.kind != N_FUNCTION_VALUE || n.symbol < 0 || (n.flags & F_GENERIC) != 0 ||
+            (n.flags & (F_CHECKED | F_REACHABLE)) != (F_CHECKED | F_REACHABLE) { continue; }
+         if (n.flags & F_THREAD) != 0 { cg_fail(p, node, "wasm: threads are unsupported by the direct host ABI"); }

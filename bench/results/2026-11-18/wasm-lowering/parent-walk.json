@@ -1,0 +1,60 @@
+{
+  "function": "life_in_scope",
+  "name_section_source": "../selfhost-runtime-target/profile.json",
+  "counts": [
+    {
+      "variant": "direct",
+      "module": "ca4e2451bfb5d63ae1e9b571c0cf5ec9dc0a7d2a35b39a2a6cfde31673c28443",
+      "instructions": 234,
+      "memory_loads": 11,
+      "memory_stores": 7,
+      "global_get": 15,
+      "global_set": 15
+    },
+    {
+      "variant": "effects",
+      "module": "ea59004e3f382884d9f99828176ee2634034e3dc51c05fa508dfa2e6b68c5502",
+      "instructions": 197,
+      "memory_loads": 9,
+      "memory_stores": 5,
+      "global_get": 12,
+      "global_set": 12
+    },
+    {
+      "variant": "regions",
+      "module": "edef8c985fbaf06e7d84185be6692e33a1794d34d8b93fda1f225cfe88e76512",
+      "instructions": 218,
+      "memory_loads": 11,
+      "memory_stores": 7,
+      "global_get": 13,
+      "global_set": 9
+    },
+    {
+      "variant": "scalars",
+      "module": "7df0bd680753153dc1361beb953fd5a0fe33468f811eb617c0800f21ef479af7",
+      "instructions": 200,
+      "memory_loads": 5,
+      "memory_stores": 3,
+      "global_get": 15,
+      "global_set": 15
+    },
+    {
+      "variant": "records",
+      "module": "e8574e9a7365b9e503664f793a117d96f09d9550ae0f6ee7c34f83dbc0b13286",
+      "instructions": 234,
+      "memory_loads": 11,
+      "memory_stores": 7,
+      "global_get": 15,
+      "global_set": 15
+    },
+    {
+      "variant": "combined",
+      "module": "3872a0f362424bb067e9d9ed7076a7ad7050d0d3e865e96a1cd6a7a1b133a251",
+      "instructions": 147,
+      "memory_loads": 3,
+      "memory_stores": 1,
+      "global_get": 10,
+      "global_set": 6
+    }
+  ]
+}
