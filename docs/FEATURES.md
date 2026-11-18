@@ -23,6 +23,8 @@ Status key: **yes** = matches upstream on the tests named. **partial** = some fo
 
 ## Blot2 compatibility
 
+On Blot release `cb1e9e15`, using Blot's selected Goose standard library, checking the exported entry point and its reachable functions produces 33 lifetime diagnostics. Full-library emission also encounters 25 earlier type-checking diagnostics. Gdev cold and hot build times with a Blot compiler built by this toolchain remain unavailable. [Current probe and exact diagnostics](../bench/results/2026-11-18/compiler-request-latency/README.md#compiling-gdev)
+
 The frozen Blot2 compiler at `6ad5fbb` stops after its first lifetime pass with 38 diagnostics. Resolve this before tuning its compile speed. Use unpatched upstream Goose `d92c4315` for reduced cases. The next trace starts at `importedBinding` in `check/check.goose:1643:520`. [Trace and reproducer pairs](../bench/results/2026-11-17/class-slice-slots/README.md)
 
 Build a [development compiler](../selfhost/README.md#development) and check a separate copy of the pinned source from the repository root.

@@ -8,6 +8,10 @@ A [Goose](https://github.com/aardappel/goose) compiler written in Goose. It emit
 
 ![Wasmtime compiler CPU time relative to native on the frozen project](bench/results/2026-11-18/compiler-array-views/comparison.svg)
 
+**Cold and hot self-compilation.** Our Goose compiler rebuilt itself in **14.54 s** in a fresh Wasmtime process, **6.71 s** with the compiler module already loaded, and **6.93 s** after a one-line edit in that same process. The native build of our compiler took **2.67 s**. Gdev compilation through our toolchain is still blocked while compiling Blot. [End-to-end measurements and Gdev status](bench/results/2026-11-18/compiler-request-latency/README.md)
+
+![Wall time for our compiler to emit itself in native and cold or resident Wasmtime processes](bench/results/2026-11-18/compiler-request-latency/latency.svg)
+
 **Sizing memory32 from three examples.** An experimental layout cut frozen compiler check time from **5.19 to 3.81 s** and emission from **6.98 to 5.26 s** in the general Wasmtime host. It exhausted the token region parsing the 450-module Blot2 project. One 32-bit layout sized from both projects handled both. [Trials and capacity measurements](bench/results/2026-11-18/compiler-layout-trials/README.md)
 
 ![Compiler execution using default memory64 and two ways of sizing memory32](bench/results/2026-11-18/compiler-layout-trials/memory.svg)

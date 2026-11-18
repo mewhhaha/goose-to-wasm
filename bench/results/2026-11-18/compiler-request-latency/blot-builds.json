@@ -1,0 +1,241 @@
+{
+  "blot_commit": "cb1e9e156d73c87c873f15888cd4fb6d2a399576",
+  "source_tree": "3d3f67652e32e3419ac3a63bfdf8ca16909ad696",
+  "stdlib_sha256_by_file": {
+    "base64.goose": "fa1111ce46e9534311f825880dbd2988953430aeb3f1f52d8f0eaecbbc298a61",
+    "binary.goose": "28fe260195b4f89b879dd012577b32dbf308ea1a8b3929dcf1e34e4b66df3b56",
+    "csv.goose": "a49b0647f4a2f8ca36170e5a184ab6c6e505492434d0a10a5e05127e96da61ba",
+    "dictionary.goose": "fb39f896731faf3799e81727f7261849a62bdfbdc92d5fdbc36405a85830f322",
+    "exception.goose": "093863eda5433176750182b597aa6760a93808d86b0c9b713681443d2fb29160",
+    "ffi.goose": "e092b245fbe13ee2fdc71599b7b8eb44198e5261cad9600b7681e13ad75a6c2e",
+    "json.goose": "6311cac1fc926a26d6f02549ea7aaa86283e50aef1c920eee22d47e77eaa02a2",
+    "math.goose": "8c7f01d3b45aaeaf1bfc9eba3c8ed264c3a2ebb7ceb218dd300e107490f22853",
+    "os.goose": "7f2cf109a473ca69518ec1ccfc3f941f5f32a0c19933ea4c353de64fcfdded4d",
+    "regex.goose": "9fb86509727e18997ea0c14d49f39e08243983b62de047738ca1cb516c4627d4",
+    "slice_pool.goose": "74ffe0d7b153a8728ced2974d493743576ed264c8b463f8bd5fe0bfade3a4424",
+    "slice_pool_internal.goose": "34a7eae1269a87c59487e3c15ea13b3332d14d9cd4bee8306bb520fd828eb121",
+    "slot_pool.goose": "e83b975bfff2806df0401afc3e37e147618c5673a9c98690007e6beb3bd51745",
+    "std.goose": "4cdc7458215d53b4a491eac7798010ddbbd53549f1afafe76b4dbe162d15b79a",
+    "vec.goose": "2a7f7024c3a7a0dc64cfed92196c4bd25fc7db2f0e9167fd2c3b3f9e0960cec0"
+  },
+  "runs": {
+    "reachable": {
+      "seconds": 22.234213985997485,
+      "code": 1,
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/build/header-trial/reader/own/build-1/compiler-native",
+        "main.goose",
+        "--stdlib",
+        "/home/jacobt/src/goose-to-wasm/build/own-gdev-egqdrk2q/blot-stdlib",
+        "--reachable-program",
+        "--expansion-node-limit",
+        "1000000",
+        "--check"
+      ],
+      "diagnostic_lines": 33,
+      "diagnostics_file": "blot-reachable.txt"
+    },
+    "compatible-native": {
+      "seconds": 3.620819076000771,
+      "code": 1,
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/build/header-trial/reader/own/build-1/compiler-native",
+        "main.goose",
+        "--stdlib",
+        "/home/jacobt/src/goose-to-wasm/build/own-gdev-egqdrk2q/blot-stdlib",
+        "--library",
+        "--reachable-program",
+        "--expansion-node-limit",
+        "1000000",
+        "--target",
+        "native",
+        "-O2",
+        "-o",
+        "/home/jacobt/src/goose-to-wasm/build/own-gdev-egqdrk2q/release-blot.c"
+      ],
+      "output": false,
+      "diagnostic_lines": 25,
+      "diagnostics_file": "blot-library.txt"
+    },
+    "compatible-stdlib": {
+      "seconds": 3.671490297005221,
+      "code": 1,
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/build/header-trial/reader/own/build-1/compiler-native",
+        "main.goose",
+        "--stdlib",
+        "/home/jacobt/src/goose-to-wasm/build/own-gdev-egqdrk2q/blot-stdlib",
+        "--library",
+        "--reachable-program",
+        "--expansion-node-limit",
+        "1000000",
+        "--target",
+        "wasm-direct",
+        "-O2",
+        "-o",
+        "/home/jacobt/src/goose-to-wasm/build/own-gdev-egqdrk2q/release-blot.wasm",
+        "--wasm-memory64",
+        "--wasm-max-pages",
+        "262144"
+      ],
+      "output": false,
+      "diagnostic_lines": 25,
+      "diagnostics_file": "blot-library.txt"
+    },
+    "blot-wasmtime": {
+      "host": "bundled Rust Wasmtime host",
+      "seconds": 9.246932273999846,
+      "code": 1,
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/host/rust/target/release/goose-wasmtime",
+        "/home/jacobt/src/goose-to-wasm/build/header-trial/reader/own/build-1/compiler.wasm",
+        "--cache",
+        "/home/jacobt/src/goose-to-wasm/build/own-gdev-egqdrk2q/blot-probe.cwasm",
+        "--timing-json",
+        "/home/jacobt/src/goose-to-wasm/build/own-gdev-egqdrk2q/blot-wasmtime-timing.json",
+        "--",
+        "main.goose",
+        "--stdlib",
+        "/home/jacobt/src/goose-to-wasm/build/own-gdev-egqdrk2q/blot-stdlib",
+        "--library",
+        "--reachable-program",
+        "--expansion-node-limit",
+        "1000000",
+        "--target",
+        "wasm-direct",
+        "-O2",
+        "--wasm-memory64",
+        "--wasm-max-pages",
+        "262144",
+        "-o",
+        "/home/jacobt/src/goose-to-wasm/build/own-gdev-egqdrk2q/blot-via-wasmtime.wasm"
+      ],
+      "output": false,
+      "diagnostic_lines": 1,
+      "error": "goose runtime error: data region exhausted (line 586)"
+    },
+    "recover-library": {
+      "seconds": 12.337608869995165,
+      "status": 1,
+      "attempts": [
+        382913762,
+        3636955559,
+        8281023400
+      ],
+      "failures": [
+        {
+          "region": 6,
+          "used": 123463032,
+          "request": 88,
+          "capacity": 123463076
+        },
+        {
+          "region": 8,
+          "used": 41669703,
+          "request": 153,
+          "capacity": 41669732
+        }
+      ],
+      "module_sha256": "891e970032802a7b9b972ca1dcfd4aed3967b2903615ea94ba6005f2b3de324d",
+      "produced": false,
+      "argv": [
+        "compiler",
+        "main.goose",
+        "--stdlib",
+        "/home/jacobt/src/goose-to-wasm/build/own-gdev-egqdrk2q/blot-stdlib",
+        "--reachable-program",
+        "--expansion-node-limit",
+        "1000000",
+        "--library",
+        "--target",
+        "wasm-direct",
+        "-O2",
+        "--wasm-memory64",
+        "--wasm-max-pages",
+        "262144",
+        "-o",
+        "/home/jacobt/src/goose-to-wasm/build/own-gdev-egqdrk2q/blot-recovered.wasm"
+      ],
+      "diagnostic_lines": 25,
+      "diagnostics_file": "blot-library.txt"
+    },
+    "recover-reachable": {
+      "seconds": 51.03597770899796,
+      "status": 1,
+      "attempts": [
+        349583120,
+        3952586780,
+        7445254692,
+        7672140901,
+        7598536402,
+        7630802096,
+        7335435623,
+        8952167958
+      ],
+      "failures": [
+        {
+          "region": 6,
+          "used": 123463032,
+          "request": 88,
+          "capacity": 123463076
+        },
+        {
+          "region": 8,
+          "used": 41669703,
+          "request": 153,
+          "capacity": 41669740
+        },
+        {
+          "region": 45,
+          "used": 0,
+          "request": 36508648,
+          "capacity": 31818276
+        },
+        {
+          "region": 66,
+          "used": 0,
+          "request": 6651704,
+          "capacity": 4253348
+        },
+        {
+          "region": 68,
+          "used": 0,
+          "request": 6651704,
+          "capacity": 4769428
+        },
+        {
+          "region": 16,
+          "used": 3347920,
+          "request": 8,
+          "capacity": 3347924
+        },
+        {
+          "region": 48,
+          "used": 9182824,
+          "request": 8,
+          "capacity": 9182828
+        },
+        {
+          "region": 25,
+          "used": 5946129,
+          "request": 27,
+          "capacity": 5946148
+        }
+      ],
+      "module_sha256": "891e970032802a7b9b972ca1dcfd4aed3967b2903615ea94ba6005f2b3de324d",
+      "produced": false,
+      "argv": [
+        "compiler",
+        "main.goose",
+        "--stdlib",
+        "/home/jacobt/src/goose-to-wasm/build/own-gdev-egqdrk2q/blot-stdlib",
+        "--reachable-program",
+        "--expansion-node-limit",
+        "1000000",
+        "--check"
+      ],
+      "diagnostic_lines": 1,
+      "error": "goose runtime error: data region exhausted (line 1336)"
+    }
+  }
+}

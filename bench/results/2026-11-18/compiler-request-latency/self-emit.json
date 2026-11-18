@@ -1,0 +1,125 @@
+{
+  "pins": {
+    "compiler": "4e9b78e6fc3d1294f31582600b62f7eea9f0e946",
+    "source_archive_sha256": "91059b1407c847532aea432c401953819e3650cae1f9267c4c7f15bbfe205c85",
+    "native": {
+      "sha256": "b5861b426b583652f32b75f850c521672cea4a9cab62c34087efa55d2fbdd7c9",
+      "bytes": 7066976
+    },
+    "wasm": {
+      "sha256": "4a5a91997c4a8614484f23f44c07284c3d249d9d7274199d8be6a009ce7dde13",
+      "bytes": 8873765
+    },
+    "host": {
+      "sha256": "5f00e3b88c4a6271a5ca3f9040ffc3c96f95601df7d0e3ee7fe8a575ac2eda1e",
+      "bytes": 26880
+    },
+    "wasmtime": "50.0.1",
+    "cpu": 7,
+    "variant": "default memory64",
+    "before": "Usage: goose-selfhost",
+    "after": "Usage: goose-compiler"
+  },
+  "outputs": {
+    "fresh": {
+      "sha256": "4a5a91997c4a8614484f23f44c07284c3d249d9d7274199d8be6a009ce7dde13",
+      "bytes": 8873765
+    },
+    "edited": {
+      "sha256": "870d3c73d591dbf218d16d395398d17aad26f0b288f40a781fd397b7413594a9",
+      "bytes": 8873765
+    }
+  },
+  "samples": [
+    {
+      "round": 1,
+      "host": "native",
+      "mode": "fresh",
+      "ns": 2500979771
+    },
+    {
+      "round": 1,
+      "host": "native",
+      "mode": "edited",
+      "ns": 2475225680
+    },
+    {
+      "round": 1,
+      "host": "wasmtime",
+      "mode": "cold",
+      "ns": 14489792078
+    },
+    {
+      "round": 1,
+      "host": "wasmtime",
+      "mode": "hot",
+      "ns": 6513262069
+    },
+    {
+      "round": 1,
+      "host": "wasmtime",
+      "mode": "edited",
+      "ns": 6550395886
+    },
+    {
+      "round": 2,
+      "host": "native",
+      "mode": "fresh",
+      "ns": 2693221953
+    },
+    {
+      "round": 2,
+      "host": "native",
+      "mode": "edited",
+      "ns": 2593797443
+    },
+    {
+      "round": 2,
+      "host": "wasmtime",
+      "mode": "cold",
+      "ns": 15428034207
+    },
+    {
+      "round": 2,
+      "host": "wasmtime",
+      "mode": "hot",
+      "ns": 6945443410
+    },
+    {
+      "round": 2,
+      "host": "wasmtime",
+      "mode": "edited",
+      "ns": 6996579110
+    },
+    {
+      "round": 3,
+      "host": "native",
+      "mode": "fresh",
+      "ns": 2665378769
+    },
+    {
+      "round": 3,
+      "host": "native",
+      "mode": "edited",
+      "ns": 2644341825
+    },
+    {
+      "round": 3,
+      "host": "wasmtime",
+      "mode": "cold",
+      "ns": 14538986204
+    },
+    {
+      "round": 3,
+      "host": "wasmtime",
+      "mode": "hot",
+      "ns": 6712330273
+    },
+    {
+      "round": 3,
+      "host": "wasmtime",
+      "mode": "edited",
+      "ns": 6932448246
+    }
+  ]
+}
