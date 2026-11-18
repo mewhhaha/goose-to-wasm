@@ -1,0 +1,940 @@
+{
+  "compiler_source": "bcc3b4acb38ed1e8a7ec329b84b56d15d6aaa59a",
+  "baseline_native": {
+    "sha256": "b5861b426b583652f32b75f850c521672cea4a9cab62c34087efa55d2fbdd7c9",
+    "bytes": 7066976
+  },
+  "candidate_native": {
+    "sha256": "fec086bb1d656f5cec7cbcc357e2ad297bca2dde51ac00ebf05d09ecc940ff79",
+    "bytes": 7071072
+  },
+  "qualified_native": "667073f0d3b5d6e733ce8fcb541460c4836db362a5ef39a745b86cf29a0df3a6",
+  "bootstrap": {
+    "fixed_point": true,
+    "generated_c_sha256": "025bfd8d53578eca66dc57adf480766c8caf67e139ac20fefa260d36a8b60a4a",
+    "next_generation_c_sha256": "025bfd8d53578eca66dc57adf480766c8caf67e139ac20fefa260d36a8b60a4a",
+    "third_generation_c_sha256": null,
+    "executable_sha256": "667073f0d3b5d6e733ce8fcb541460c4836db362a5ef39a745b86cf29a0df3a6",
+    "profile_used": false,
+    "cached": {
+      "build-seed": true,
+      "build-goose": false
+    }
+  },
+  "conformance": [
+    {
+      "stage": "bootstrap",
+      "exit": 0,
+      "seconds": 282.4
+    },
+    {
+      "stage": "conformance",
+      "exit": 0,
+      "seconds": 109.4,
+      "summary": "{'selected': 10797, 'passed': 10693, 'failed': 104}",
+      "gaps": "{'open_gaps': 104, 'unexpected_failures': 0, 'fixed_gaps': 0}"
+    },
+    {
+      "stage": "native-checks",
+      "exit": 0,
+      "seconds": 29.4,
+      "summary": "54 steps ok"
+    },
+    {
+      "stage": "conformance-memory64",
+      "exit": 0,
+      "seconds": 108.1,
+      "summary": "{'selected': 4777, 'passed': 4769, 'failed': 8}",
+      "gaps": "{'open_gaps': 8, 'unexpected_failures': 0, 'fixed_gaps': 0}"
+    },
+    {
+      "stage": "equivalence",
+      "exit": 0,
+      "seconds": 109.6,
+      "summary": "{\"compared\": 10057, \"differing\": 0, \"seconds\": {\"baseline\": 104.816, \"candidate\": 98.437}}",
+      "differing": []
+    },
+    {
+      "stage": "unit-tests",
+      "exit": 0,
+      "seconds": 174.1
+    }
+  ],
+  "fingerprints": {
+    "summary": {
+      "compared": 4357,
+      "differing": 0,
+      "with_lifetime_fingerprints": 3130,
+      "fingerprint_lines": 11567
+    },
+    "differing": []
+  },
+  "state": {
+    "self": {
+      "out": {
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      "err": {
+        "sha256": "d93f87a10da65425693feb1e2e2f8e56b9e9113443fb74fff5be301dae51c753",
+        "bytes": 1921
+      },
+      "exit": {
+        "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+        "bytes": 2
+      },
+      "fingerprints": 7
+    },
+    "class": {
+      "out": {
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      "err": {
+        "sha256": "46b8480e8d9b05c60a28cd18bc0ae2b78c5e95b59967738ad9b5279008d58898",
+        "bytes": 749
+      },
+      "exit": {
+        "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+        "bytes": 2
+      },
+      "fingerprints": 3
+    }
+  },
+  "fixed_memory_controls": [
+    {
+      "fixture": "stack",
+      "wide": false,
+      "minimum": 1,
+      "maximum": 4,
+      "optimization": 0,
+      "depth": "0",
+      "result": [
+        0,
+        "0\n",
+        ""
+      ]
+    },
+    {
+      "fixture": "stack",
+      "wide": false,
+      "minimum": 1,
+      "maximum": 4,
+      "optimization": 0,
+      "depth": "10",
+      "result": [
+        0,
+        "55\n",
+        ""
+      ]
+    },
+    {
+      "fixture": "stack",
+      "wide": false,
+      "minimum": 1,
+      "maximum": 4,
+      "optimization": 0,
+      "depth": "2000",
+      "result": [
+        1,
+        "",
+        "goose runtime error: activation stack exhausted (line 2)\n"
+      ]
+    },
+    {
+      "fixture": "stack",
+      "wide": false,
+      "minimum": 1,
+      "maximum": 4,
+      "optimization": 2,
+      "depth": "0",
+      "result": [
+        0,
+        "0\n",
+        ""
+      ]
+    },
+    {
+      "fixture": "stack",
+      "wide": false,
+      "minimum": 1,
+      "maximum": 4,
+      "optimization": 2,
+      "depth": "10",
+      "result": [
+        0,
+        "55\n",
+        ""
+      ]
+    },
+    {
+      "fixture": "stack",
+      "wide": false,
+      "minimum": 1,
+      "maximum": 4,
+      "optimization": 2,
+      "depth": "2000",
+      "result": [
+        1,
+        "",
+        "goose runtime error: activation stack exhausted (line 2)\n"
+      ]
+    },
+    {
+      "fixture": "stack",
+      "wide": false,
+      "minimum": 4,
+      "maximum": 4,
+      "optimization": 0,
+      "depth": "0",
+      "result": [
+        0,
+        "0\n",
+        ""
+      ]
+    },
+    {
+      "fixture": "stack",
+      "wide": false,
+      "minimum": 4,
+      "maximum": 4,
+      "optimization": 0,
+      "depth": "10",
+      "result": [
+        0,
+        "55\n",
+        ""
+      ]
+    },
+    {
+      "fixture": "stack",
+      "wide": false,
+      "minimum": 4,
+      "maximum": 4,
+      "optimization": 0,
+      "depth": "2000",
+      "result": [
+        1,
+        "",
+        "goose runtime error: activation stack exhausted (line 2)\n"
+      ]
+    },
+    {
+      "fixture": "stack",
+      "wide": false,
+      "minimum": 4,
+      "maximum": 4,
+      "optimization": 2,
+      "depth": "0",
+      "result": [
+        0,
+        "0\n",
+        ""
+      ]
+    },
+    {
+      "fixture": "stack",
+      "wide": false,
+      "minimum": 4,
+      "maximum": 4,
+      "optimization": 2,
+      "depth": "10",
+      "result": [
+        0,
+        "55\n",
+        ""
+      ]
+    },
+    {
+      "fixture": "stack",
+      "wide": false,
+      "minimum": 4,
+      "maximum": 4,
+      "optimization": 2,
+      "depth": "2000",
+      "result": [
+        1,
+        "",
+        "goose runtime error: activation stack exhausted (line 2)\n"
+      ]
+    },
+    {
+      "fixture": "stack",
+      "wide": true,
+      "minimum": 1,
+      "maximum": 4,
+      "optimization": 0,
+      "depth": "0",
+      "result": [
+        0,
+        "0\n",
+        ""
+      ]
+    },
+    {
+      "fixture": "stack",
+      "wide": true,
+      "minimum": 1,
+      "maximum": 4,
+      "optimization": 0,
+      "depth": "10",
+      "result": [
+        0,
+        "55\n",
+        ""
+      ]
+    },
+    {
+      "fixture": "stack",
+      "wide": true,
+      "minimum": 1,
+      "maximum": 4,
+      "optimization": 0,
+      "depth": "2000",
+      "result": [
+        1,
+        "",
+        "goose runtime error: activation stack exhausted (line 2)\n"
+      ]
+    },
+    {
+      "fixture": "stack",
+      "wide": true,
+      "minimum": 1,
+      "maximum": 4,
+      "optimization": 2,
+      "depth": "0",
+      "result": [
+        0,
+        "0\n",
+        ""
+      ]
+    },
+    {
+      "fixture": "stack",
+      "wide": true,
+      "minimum": 1,
+      "maximum": 4,
+      "optimization": 2,
+      "depth": "10",
+      "result": [
+        0,
+        "55\n",
+        ""
+      ]
+    },
+    {
+      "fixture": "stack",
+      "wide": true,
+      "minimum": 1,
+      "maximum": 4,
+      "optimization": 2,
+      "depth": "2000",
+      "result": [
+        1,
+        "",
+        "goose runtime error: activation stack exhausted (line 2)\n"
+      ]
+    },
+    {
+      "fixture": "stack",
+      "wide": true,
+      "minimum": 4,
+      "maximum": 4,
+      "optimization": 0,
+      "depth": "0",
+      "result": [
+        0,
+        "0\n",
+        ""
+      ]
+    },
+    {
+      "fixture": "stack",
+      "wide": true,
+      "minimum": 4,
+      "maximum": 4,
+      "optimization": 0,
+      "depth": "10",
+      "result": [
+        0,
+        "55\n",
+        ""
+      ]
+    },
+    {
+      "fixture": "stack",
+      "wide": true,
+      "minimum": 4,
+      "maximum": 4,
+      "optimization": 0,
+      "depth": "2000",
+      "result": [
+        1,
+        "",
+        "goose runtime error: activation stack exhausted (line 2)\n"
+      ]
+    },
+    {
+      "fixture": "stack",
+      "wide": true,
+      "minimum": 4,
+      "maximum": 4,
+      "optimization": 2,
+      "depth": "0",
+      "result": [
+        0,
+        "0\n",
+        ""
+      ]
+    },
+    {
+      "fixture": "stack",
+      "wide": true,
+      "minimum": 4,
+      "maximum": 4,
+      "optimization": 2,
+      "depth": "10",
+      "result": [
+        0,
+        "55\n",
+        ""
+      ]
+    },
+    {
+      "fixture": "stack",
+      "wide": true,
+      "minimum": 4,
+      "maximum": 4,
+      "optimization": 2,
+      "depth": "2000",
+      "result": [
+        1,
+        "",
+        "goose runtime error: activation stack exhausted (line 2)\n"
+      ]
+    },
+    {
+      "fixture": "stack-regions",
+      "wide": false,
+      "minimum": 1,
+      "maximum": 4,
+      "optimization": 0,
+      "depth": "0",
+      "result": [
+        0,
+        "11 0\n",
+        ""
+      ]
+    },
+    {
+      "fixture": "stack-regions",
+      "wide": false,
+      "minimum": 1,
+      "maximum": 4,
+      "optimization": 0,
+      "depth": "10",
+      "result": [
+        0,
+        "11 55\n",
+        ""
+      ]
+    },
+    {
+      "fixture": "stack-regions",
+      "wide": false,
+      "minimum": 1,
+      "maximum": 4,
+      "optimization": 0,
+      "depth": "2000",
+      "result": [
+        1,
+        "",
+        "goose runtime error: activation stack exhausted (line 2)\n"
+      ]
+    },
+    {
+      "fixture": "stack-regions",
+      "wide": false,
+      "minimum": 1,
+      "maximum": 4,
+      "optimization": 2,
+      "depth": "0",
+      "result": [
+        0,
+        "11 0\n",
+        ""
+      ]
+    },
+    {
+      "fixture": "stack-regions",
+      "wide": false,
+      "minimum": 1,
+      "maximum": 4,
+      "optimization": 2,
+      "depth": "10",
+      "result": [
+        0,
+        "11 55\n",
+        ""
+      ]
+    },
+    {
+      "fixture": "stack-regions",
+      "wide": false,
+      "minimum": 1,
+      "maximum": 4,
+      "optimization": 2,
+      "depth": "2000",
+      "result": [
+        1,
+        "",
+        "goose runtime error: activation stack exhausted (line 2)\n"
+      ]
+    },
+    {
+      "fixture": "stack-regions",
+      "wide": false,
+      "minimum": 4,
+      "maximum": 4,
+      "optimization": 0,
+      "depth": "0",
+      "result": [
+        0,
+        "11 0\n",
+        ""
+      ]
+    },
+    {
+      "fixture": "stack-regions",
+      "wide": false,
+      "minimum": 4,
+      "maximum": 4,
+      "optimization": 0,
+      "depth": "10",
+      "result": [
+        0,
+        "11 55\n",
+        ""
+      ]
+    },
+    {
+      "fixture": "stack-regions",
+      "wide": false,
+      "minimum": 4,
+      "maximum": 4,
+      "optimization": 0,
+      "depth": "2000",
+      "result": [
+        1,
+        "",
+        "goose runtime error: activation stack exhausted (line 2)\n"
+      ]
+    },
+    {
+      "fixture": "stack-regions",
+      "wide": false,
+      "minimum": 4,
+      "maximum": 4,
+      "optimization": 2,
+      "depth": "0",
+      "result": [
+        0,
+        "11 0\n",
+        ""
+      ]
+    },
+    {
+      "fixture": "stack-regions",
+      "wide": false,
+      "minimum": 4,
+      "maximum": 4,
+      "optimization": 2,
+      "depth": "10",
+      "result": [
+        0,
+        "11 55\n",
+        ""
+      ]
+    },
+    {
+      "fixture": "stack-regions",
+      "wide": false,
+      "minimum": 4,
+      "maximum": 4,
+      "optimization": 2,
+      "depth": "2000",
+      "result": [
+        1,
+        "",
+        "goose runtime error: activation stack exhausted (line 2)\n"
+      ]
+    },
+    {
+      "fixture": "stack-regions",
+      "wide": true,
+      "minimum": 1,
+      "maximum": 4,
+      "optimization": 0,
+      "depth": "0",
+      "result": [
+        0,
+        "11 0\n",
+        ""
+      ]
+    },
+    {
+      "fixture": "stack-regions",
+      "wide": true,
+      "minimum": 1,
+      "maximum": 4,
+      "optimization": 0,
+      "depth": "10",
+      "result": [
+        0,
+        "11 55\n",
+        ""
+      ]
+    },
+    {
+      "fixture": "stack-regions",
+      "wide": true,
+      "minimum": 1,
+      "maximum": 4,
+      "optimization": 0,
+      "depth": "2000",
+      "result": [
+        1,
+        "",
+        "goose runtime error: activation stack exhausted (line 2)\n"
+      ]
+    },
+    {
+      "fixture": "stack-regions",
+      "wide": true,
+      "minimum": 1,
+      "maximum": 4,
+      "optimization": 2,
+      "depth": "0",
+      "result": [
+        0,
+        "11 0\n",
+        ""
+      ]
+    },
+    {
+      "fixture": "stack-regions",
+      "wide": true,
+      "minimum": 1,
+      "maximum": 4,
+      "optimization": 2,
+      "depth": "10",
+      "result": [
+        0,
+        "11 55\n",
+        ""
+      ]
+    },
+    {
+      "fixture": "stack-regions",
+      "wide": true,
+      "minimum": 1,
+      "maximum": 4,
+      "optimization": 2,
+      "depth": "2000",
+      "result": [
+        1,
+        "",
+        "goose runtime error: activation stack exhausted (line 2)\n"
+      ]
+    },
+    {
+      "fixture": "stack-regions",
+      "wide": true,
+      "minimum": 4,
+      "maximum": 4,
+      "optimization": 0,
+      "depth": "0",
+      "result": [
+        0,
+        "11 0\n",
+        ""
+      ]
+    },
+    {
+      "fixture": "stack-regions",
+      "wide": true,
+      "minimum": 4,
+      "maximum": 4,
+      "optimization": 0,
+      "depth": "10",
+      "result": [
+        0,
+        "11 55\n",
+        ""
+      ]
+    },
+    {
+      "fixture": "stack-regions",
+      "wide": true,
+      "minimum": 4,
+      "maximum": 4,
+      "optimization": 0,
+      "depth": "2000",
+      "result": [
+        1,
+        "",
+        "goose runtime error: activation stack exhausted (line 2)\n"
+      ]
+    },
+    {
+      "fixture": "stack-regions",
+      "wide": true,
+      "minimum": 4,
+      "maximum": 4,
+      "optimization": 2,
+      "depth": "0",
+      "result": [
+        0,
+        "11 0\n",
+        ""
+      ]
+    },
+    {
+      "fixture": "stack-regions",
+      "wide": true,
+      "minimum": 4,
+      "maximum": 4,
+      "optimization": 2,
+      "depth": "10",
+      "result": [
+        0,
+        "11 55\n",
+        ""
+      ]
+    },
+    {
+      "fixture": "stack-regions",
+      "wide": true,
+      "minimum": 4,
+      "maximum": 4,
+      "optimization": 2,
+      "depth": "2000",
+      "result": [
+        1,
+        "",
+        "goose runtime error: activation stack exhausted (line 2)\n"
+      ]
+    }
+  ],
+  "upstream_holder_fixtures": {
+    "upstream_sha256": "9e4d9ff8927c69c653031850f1b0911ce6827dc71648f1e11448ed06736b75e0",
+    "cases": [
+      {
+        "name": "changed.goose",
+        "source": "struct Holder { view: const i64[:] }\nfn main() {\n    var xs: i64[>..] = [1, 2, 3];\n    var ys: i64[>..] = [4, 5, 6];\n    var holder = Holder { view: ys[0..1] };\n    xs.pop();\n    xs.pop();\n    holder.view = xs[0..1];\n    xs.pop();\n    print(holder.view[0]);\n}\n",
+        "sha256": "a5898228cbffc68c0d3d21e7e6a972f120e13d7315532578600c159b758541f2",
+        "observations": {
+          "upstream": {
+            "status": 1,
+            "diagnostics": "parsed ok: 2 top-level declarations, 1 file(s)\nchanged.goose:9: error: cannot pop xs while holder is still used: a reference into it was stored there at changed.goose:8 (\u00a75.1)\n    xs.pop();\n  in fn main() instantiated from changed.goose:2\n",
+            "stdout": ""
+          },
+          "previous": {
+            "status": 1,
+            "diagnostics": "changed.goose:9:8: error: array shrink invalidates a reference or holder that is used afterward\n",
+            "stdout": ""
+          },
+          "candidate": {
+            "status": 1,
+            "diagnostics": "changed.goose:9:8: error: array shrink invalidates a reference or holder that is used afterward\n",
+            "stdout": ""
+          },
+          "shadow": {
+            "status": 1,
+            "diagnostics": "changed.goose:9:8: error: array shrink invalidates a reference or holder that is used afterward\n\n",
+            "stdout": "walk_counts [0, 1, 0, 3, 1, 0, 0, 0]\n"
+          }
+        }
+      },
+      {
+        "name": "killed.goose",
+        "source": "struct Holder { view: const i64[:], tag: i64 = 0 }\nfn main() {\n    var xs: i64[>..] = [1, 2, 3];\n    var ys: i64[>..] = [4, 5, 6];\n    var holder = Holder { view: ys[0..1] };\n    xs.pop();\n    xs.pop();\n    holder.tag = 42;\n    xs.pop();\n    print(holder.view[0]);\n}\n",
+        "sha256": "0a78d20e312e5bad45a100411ab1218221943a32f0a0afc7166a71a4ab4e86c3",
+        "observations": {
+          "upstream": {
+            "status": 0,
+            "diagnostics": "parsed ok: 2 top-level declarations, 1 file(s)\ntypechecked ok: 1 specialization(s), 1 struct/0 enum instance(s); optimized -O2: 0 inlined, 0 base case(s), 0 folded, 0 propagated, 0 tail loop(s), 0 reassociated\nbce: elided 0/1 index and 1/1 slice checks\n",
+            "stdout": ""
+          },
+          "previous": {
+            "status": 0,
+            "diagnostics": "",
+            "stdout": ""
+          },
+          "candidate": {
+            "status": 0,
+            "diagnostics": "",
+            "stdout": ""
+          },
+          "shadow": {
+            "status": 0,
+            "diagnostics": "",
+            "stdout": "walk_counts [0, 1, 0, 3, 0, 1, 0, 0]\n"
+          }
+        }
+      },
+      {
+        "name": "nested.goose",
+        "source": "struct Outer { holder: Holder& }\nstruct Holder { view: const i64[:] }\nfn main() {\n    var xs: i64[>..] = [1, 2, 3];\n    var ys: i64[>..] = [4, 5, 6];\n    var holder = Holder { view: ys[0..1] };\n    var outer = Outer { holder: holder };\n    xs.pop();\n    xs.pop();\n    holder.view = xs[0..1];\n    xs.pop();\n    print(outer.holder.view[0]);\n}\n",
+        "sha256": "2f7a9f07195e3c8d1d344416873ccca5a15908336dae43b53c4ba42104b7ff1a",
+        "observations": {
+          "upstream": {
+            "status": 1,
+            "diagnostics": "parsed ok: 3 top-level declarations, 1 file(s)\nnested.goose:11: error: cannot pop xs while outer is still used: a reference to what may hold a reference or slice into it was stored there at nested.goose:7 (\u00a75.1)\n    xs.pop();\n  in fn main() instantiated from nested.goose:3\n",
+            "stdout": ""
+          },
+          "previous": {
+            "status": 1,
+            "diagnostics": "nested.goose:11:8: error: array shrink invalidates a reference or holder that is used afterward\n",
+            "stdout": ""
+          },
+          "candidate": {
+            "status": 1,
+            "diagnostics": "nested.goose:11:8: error: array shrink invalidates a reference or holder that is used afterward\n",
+            "stdout": ""
+          },
+          "shadow": {
+            "status": 1,
+            "diagnostics": "nested.goose:11:8: error: array shrink invalidates a reference or holder that is used afterward\n\n",
+            "stdout": "walk_counts [0, 1, 1, 6, 2, 0, 0, 0]\n"
+          }
+        }
+      },
+      {
+        "name": "retained.goose",
+        "source": "struct Holder { view: const i64[:] }\nfn main() {\n    var xs: i64[>..] = [1, 2, 3];\n    var ys: i64[>..] = [4, 5, 6];\n    var holder = Holder { view: ys[0..1] };\n    xs.pop();\n    xs.pop();\n    holder.view = ys[0..1];\n    xs.pop();\n    print(holder.view[0]);\n}\n",
+        "sha256": "2a1bda3bd28868d4fc8a2b3c5acb1725910df791c46999b97154d4ef6dbdb2ab",
+        "observations": {
+          "upstream": {
+            "status": 0,
+            "diagnostics": "parsed ok: 2 top-level declarations, 1 file(s)\ntypechecked ok: 1 specialization(s), 1 struct/0 enum instance(s); optimized -O2: 0 inlined, 0 base case(s), 0 folded, 0 propagated, 0 tail loop(s), 0 reassociated\nbce: elided 0/1 index and 2/2 slice checks\n",
+            "stdout": ""
+          },
+          "previous": {
+            "status": 0,
+            "diagnostics": "",
+            "stdout": ""
+          },
+          "candidate": {
+            "status": 0,
+            "diagnostics": "",
+            "stdout": ""
+          },
+          "shadow": {
+            "status": 0,
+            "diagnostics": "",
+            "stdout": "walk_counts [0, 2, 0, 3, 0, 0, 0, 0]\n"
+          }
+        }
+      }
+    ]
+  },
+  "final": {
+    "source": "4a9d35ea568647368c59185ef52383fb530e58da",
+    "bootstrap": {
+      "fixed_point": true,
+      "generated_c_sha256": "f0907594ed29584661be064b75b9c5e9becd297cf6e13e11fdb4ccf5774cb727",
+      "next_generation_c_sha256": "f0907594ed29584661be064b75b9c5e9becd297cf6e13e11fdb4ccf5774cb727",
+      "third_generation_c_sha256": null,
+      "executable_sha256": "9d83a3a2515bbab1417d41d0f5ce27db42eb8f72131c4c1252f443fbe166d5ac",
+      "profile_used": false,
+      "cached": {
+        "build-seed": true,
+        "build-goose": false
+      }
+    },
+    "bench_compiler": {
+      "bytes": 7071104,
+      "sha256": "b839c409844b0497f436268abcf94a5bc24ad10953883735d5289028ebfc9172"
+    },
+    "fixed_compiler": {
+      "bytes": 7446418,
+      "sha256": "46debdfb49ece29e08f54b4492fd4c965a668cde0872089891ab69460d3501fd"
+    },
+    "fixed_self_emission": {
+      "bytes": 7446418,
+      "sha256": "46debdfb49ece29e08f54b4492fd4c965a668cde0872089891ab69460d3501fd"
+    },
+    "portable_self_emission": {
+      "bytes": 8882272,
+      "sha256": "58d73f6abf07825c1a76ee1696611f6ea7fec46817f609a584a9fb66c5a1287b"
+    },
+    "units": 88,
+    "stages": [
+      {
+        "stage": "bootstrap",
+        "exit": 0,
+        "seconds": 174.2
+      },
+      {
+        "stage": "conformance",
+        "exit": 0,
+        "seconds": 165.7,
+        "summary": "{'selected': 10797, 'passed': 10693, 'failed': 104}",
+        "gaps": "{'open_gaps': 104, 'unexpected_failures': 0, 'fixed_gaps': 0}"
+      },
+      {
+        "stage": "native-checks",
+        "exit": 0,
+        "seconds": 41.9,
+        "summary": "54 steps ok"
+      },
+      {
+        "stage": "conformance-memory64",
+        "exit": 0,
+        "seconds": 214.2,
+        "summary": "{'selected': 4777, 'passed': 4769, 'failed': 8}",
+        "gaps": "{'open_gaps': 8, 'unexpected_failures': 0, 'fixed_gaps': 0}"
+      },
+      {
+        "stage": "equivalence",
+        "exit": 0,
+        "seconds": 208.7,
+        "summary": "{\"compared\": 10057, \"differing\": 0, \"seconds\": {\"baseline\": 101.58, \"candidate\": 100.261}}",
+        "differing": []
+      },
+      {
+        "stage": "unit-tests",
+        "exit": 0,
+        "seconds": 208.9
+      }
+    ]
+  },
+  "fixed_width_conformance": {
+    "32": {
+      "summary": {
+        "selected": 4777,
+        "passed": 4769,
+        "failed": 8
+      },
+      "gaps": {
+        "open_gaps": 8,
+        "unexpected_failures": 0,
+        "fixed_gaps": 0
+      }
+    },
+    "64": {
+      "summary": {
+        "selected": 4777,
+        "passed": 4769,
+        "failed": 8
+      },
+      "gaps": {
+        "open_gaps": 8,
+        "unexpected_failures": 0,
+        "fixed_gaps": 0
+      }
+    }
+  }
+}

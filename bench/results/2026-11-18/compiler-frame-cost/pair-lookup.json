@@ -1,0 +1,505 @@
+{
+  "assembly": {
+    "native": {
+      "symbol": "g_fn124041",
+      "artifact": {
+        "sha256": "b5861b426b583652f32b75f850c521672cea4a9cab62c34087efa55d2fbdd7c9",
+        "bytes": 7066976
+      },
+      "samples": 115,
+      "hot_offsets": [
+        [
+          2035,
+          19
+        ],
+        [
+          2023,
+          11
+        ],
+        [
+          1944,
+          7
+        ],
+        [
+          2026,
+          6
+        ],
+        [
+          5369,
+          5
+        ],
+        [
+          2042,
+          5
+        ],
+        [
+          60,
+          4
+        ],
+        [
+          1972,
+          4
+        ]
+      ],
+      "instructions": [
+        {
+          "offset": 1968,
+          "instruction": "mov    rdi,QWORD PTR [rcx+0x11]"
+        },
+        {
+          "offset": 1972,
+          "instruction": "test   rdi,rdi"
+        },
+        {
+          "offset": 1975,
+          "instruction": "js     db1a9 <g_fn124041+0x809>"
+        },
+        {
+          "offset": 1977,
+          "instruction": "cmp    rdi,rsi"
+        },
+        {
+          "offset": 1980,
+          "instruction": "jge    dbf8d <g_fn124041+0x15ed>"
+        },
+        {
+          "offset": 1986,
+          "instruction": "cmp    rdi,r12"
+        },
+        {
+          "offset": 1989,
+          "instruction": "ja     dbf09 <g_fn124041+0x1569>"
+        },
+        {
+          "offset": 1995,
+          "instruction": "lea    rcx,[rdi+rdi*4]"
+        },
+        {
+          "offset": 1999,
+          "instruction": "lea    rcx,[rcx+rcx*4]"
+        },
+        {
+          "offset": 2003,
+          "instruction": "mov    rdx,QWORD PTR [r9]"
+        },
+        {
+          "offset": 2006,
+          "instruction": "add    rcx,rdx"
+        },
+        {
+          "offset": 2009,
+          "instruction": "or     rdi,rdx"
+        },
+        {
+          "offset": 2012,
+          "instruction": "lea    rdx,[rip+0x5d3325]        # 6ae4a8 <g_empty_byte>"
+        },
+        {
+          "offset": 2019,
+          "instruction": "cmove  rcx,rdx"
+        },
+        {
+          "offset": 2023,
+          "instruction": "test   rcx,rcx"
+        },
+        {
+          "offset": 2026,
+          "instruction": "je     dbf15 <g_fn124041+0x1575>"
+        },
+        {
+          "offset": 2032,
+          "instruction": "cmp    QWORD PTR [rcx],r14"
+        },
+        {
+          "offset": 2035,
+          "instruction": "jne    db150 <g_fn124041+0x7b0>"
+        },
+        {
+          "offset": 2037,
+          "instruction": "mov    rdx,QWORD PTR [rsp+0x38]"
+        },
+        {
+          "offset": 2042,
+          "instruction": "cmp    QWORD PTR [rcx+0x8],rdx"
+        },
+        {
+          "offset": 2046,
+          "instruction": "jne    db150 <g_fn124041+0x7b0>"
+        },
+        {
+          "offset": 2048,
+          "instruction": "movzx  eax,BYTE PTR [rcx+0x10]"
+        },
+        {
+          "offset": 2052,
+          "instruction": "jmp    dbe09 <g_fn124041+0x1469>"
+        }
+      ]
+    },
+    "wasmtime": {
+      "symbol": "wasm[0]::function[589]::life_contains",
+      "artifact": {
+        "sha256": "b26efefb9eee1be9d815d3ca3956326533552319fef6179fa5fff871e8ec9a71",
+        "bytes": 15943680
+      },
+      "samples": 216,
+      "hot_offsets": [
+        [
+          1820,
+          32
+        ],
+        [
+          1759,
+          23
+        ],
+        [
+          1575,
+          22
+        ],
+        [
+          1726,
+          18
+        ],
+        [
+          1744,
+          12
+        ],
+        [
+          1713,
+          8
+        ],
+        [
+          1543,
+          7
+        ],
+        [
+          1844,
+          7
+        ]
+      ],
+      "instructions": [
+        {
+          "offset": 1642,
+          "instruction": "mov    r15,QWORD PTR [rsp+0xa0]"
+        },
+        {
+          "offset": 1650,
+          "instruction": "mov    r8d,DWORD PTR [r13+r15*1+0x0]"
+        },
+        {
+          "offset": 1655,
+          "instruction": "mov    r8d,r8d"
+        },
+        {
+          "offset": 1658,
+          "instruction": "mov    r8,QWORD PTR [r13+r8*1+0x0]"
+        },
+        {
+          "offset": 1663,
+          "instruction": "mov    r9,r8"
+        },
+        {
+          "offset": 1666,
+          "instruction": "shr    r9,0x20"
+        },
+        {
+          "offset": 1670,
+          "instruction": "cmp    rdi,r9"
+        },
+        {
+          "offset": 1673,
+          "instruction": "jae    1e0a89 <wasm[0]::function[589]::life_contains+0x1429>"
+        },
+        {
+          "offset": 1679,
+          "instruction": "mov    r9,QWORD PTR [rsp]"
+        },
+        {
+          "offset": 1683,
+          "instruction": "mov    r9,QWORD PTR [r9+0x40]"
+        },
+        {
+          "offset": 1687,
+          "instruction": "lea    r10,[rax+0x19]"
+        },
+        {
+          "offset": 1691,
+          "instruction": "cmp    r10,r9"
+        },
+        {
+          "offset": 1694,
+          "instruction": "ja     1e1092 <wasm[0]::function[589]::life_contains+0x1a32>"
+        },
+        {
+          "offset": 1700,
+          "instruction": "imul   edi,edi,0x19"
+        },
+        {
+          "offset": 1703,
+          "instruction": "add    edi,r8d"
+        },
+        {
+          "offset": 1706,
+          "instruction": "lea    r8,[rdi+0x19]"
+        },
+        {
+          "offset": 1710,
+          "instruction": "cmp    r8,r9"
+        },
+        {
+          "offset": 1713,
+          "instruction": "ja     1e1094 <wasm[0]::function[589]::life_contains+0x1a34>"
+        },
+        {
+          "offset": 1719,
+          "instruction": "vmovdqu xmm0,XMMWORD PTR [r13+rdi*1+0x0]"
+        },
+        {
+          "offset": 1726,
+          "instruction": "mov    r8,QWORD PTR [r13+rdi*1+0x10]"
+        },
+        {
+          "offset": 1731,
+          "instruction": "movzx  rdi,BYTE PTR [r13+rdi*1+0x18]"
+        },
+        {
+          "offset": 1737,
+          "instruction": "vmovdqu XMMWORD PTR [r13+rax*1+0x0],xmm0"
+        },
+        {
+          "offset": 1744,
+          "instruction": "mov    QWORD PTR [r13+rax*1+0x10],r8"
+        },
+        {
+          "offset": 1749,
+          "instruction": "mov    BYTE PTR [r13+rax*1+0x18],dil"
+        },
+        {
+          "offset": 1754,
+          "instruction": "mov    rdi,QWORD PTR [r13+rax*1+0x0]"
+        },
+        {
+          "offset": 1759,
+          "instruction": "mov    r8,QWORD PTR [rsp+0x10]"
+        },
+        {
+          "offset": 1764,
+          "instruction": "cmp    rdi,r8"
+        },
+        {
+          "offset": 1767,
+          "instruction": "je     1dfd5a <wasm[0]::function[589]::life_contains+0x6fa>"
+        },
+        {
+          "offset": 1773,
+          "instruction": "mov    rdi,QWORD PTR [rsp+0x88]"
+        },
+        {
+          "offset": 1781,
+          "instruction": "jmp    1dfd6f <wasm[0]::function[589]::life_contains+0x70f>"
+        },
+        {
+          "offset": 1786,
+          "instruction": "mov    rdi,QWORD PTR [r13+rdx*1+0x0]"
+        },
+        {
+          "offset": 1791,
+          "instruction": "mov    r8,QWORD PTR [rsp+0x18]"
+        },
+        {
+          "offset": 1796,
+          "instruction": "cmp    rdi,r8"
+        },
+        {
+          "offset": 1799,
+          "instruction": "sete   dil"
+        },
+        {
+          "offset": 1803,
+          "instruction": "movzx  edi,dil"
+        },
+        {
+          "offset": 1807,
+          "instruction": "test   edi,edi"
+        },
+        {
+          "offset": 1809,
+          "instruction": "jne    1dfd81 <wasm[0]::function[589]::life_contains+0x721>"
+        },
+        {
+          "offset": 1815,
+          "instruction": "mov    rdi,QWORD PTR [r13+rsi*1+0x0]"
+        },
+        {
+          "offset": 1820,
+          "instruction": "jmp    1dfcc1 <wasm[0]::function[589]::life_contains+0x661>"
+        },
+        {
+          "offset": 1825,
+          "instruction": "mov    r12,QWORD PTR [rsp+0xb8]"
+        },
+        {
+          "offset": 1833,
+          "instruction": "lea    eax,[r12+0x50]"
+        }
+      ]
+    }
+  },
+  "original_counts": [
+    5678204,
+    37125,
+    811754,
+    0,
+    11820403,
+    1891516,
+    2282,
+    4096
+  ],
+  "counts_order": [
+    "calls",
+    "identical_type_id",
+    "nonaggregate_owner",
+    "mutable_type_graph",
+    "probed_entries",
+    "positive_pair_hits",
+    "cached_pairs",
+    "buckets"
+  ],
+  "calls_in_held_into": [
+    1781846,
+    3645002
+  ],
+  "shadow_counts": {
+    "upstream_sha256": "9e4d9ff8927c69c653031850f1b0911ce6827dc71648f1e11448ed06736b75e0",
+    "cases": [
+      {
+        "name": "changed.goose",
+        "source": "struct Holder { view: const i64[:] }\nfn main() {\n    var xs: i64[>..] = [1, 2, 3];\n    var ys: i64[>..] = [4, 5, 6];\n    var holder = Holder { view: ys[0..1] };\n    xs.pop();\n    xs.pop();\n    holder.view = xs[0..1];\n    xs.pop();\n    print(holder.view[0]);\n}\n",
+        "sha256": "a5898228cbffc68c0d3d21e7e6a972f120e13d7315532578600c159b758541f2",
+        "observations": {
+          "upstream": {
+            "status": 1,
+            "diagnostics": "parsed ok: 2 top-level declarations, 1 file(s)\nchanged.goose:9: error: cannot pop xs while holder is still used: a reference into it was stored there at changed.goose:8 (\u00a75.1)\n    xs.pop();\n  in fn main() instantiated from changed.goose:2\n",
+            "stdout": ""
+          },
+          "previous": {
+            "status": 1,
+            "diagnostics": "changed.goose:9:8: error: array shrink invalidates a reference or holder that is used afterward\n",
+            "stdout": ""
+          },
+          "candidate": {
+            "status": 1,
+            "diagnostics": "changed.goose:9:8: error: array shrink invalidates a reference or holder that is used afterward\n",
+            "stdout": ""
+          },
+          "shadow": {
+            "status": 1,
+            "diagnostics": "changed.goose:9:8: error: array shrink invalidates a reference or holder that is used afterward\n\n",
+            "stdout": "walk_counts [0, 1, 0, 3, 1, 0, 0, 0]\n"
+          }
+        }
+      },
+      {
+        "name": "killed.goose",
+        "source": "struct Holder { view: const i64[:], tag: i64 = 0 }\nfn main() {\n    var xs: i64[>..] = [1, 2, 3];\n    var ys: i64[>..] = [4, 5, 6];\n    var holder = Holder { view: ys[0..1] };\n    xs.pop();\n    xs.pop();\n    holder.tag = 42;\n    xs.pop();\n    print(holder.view[0]);\n}\n",
+        "sha256": "0a78d20e312e5bad45a100411ab1218221943a32f0a0afc7166a71a4ab4e86c3",
+        "observations": {
+          "upstream": {
+            "status": 0,
+            "diagnostics": "parsed ok: 2 top-level declarations, 1 file(s)\ntypechecked ok: 1 specialization(s), 1 struct/0 enum instance(s); optimized -O2: 0 inlined, 0 base case(s), 0 folded, 0 propagated, 0 tail loop(s), 0 reassociated\nbce: elided 0/1 index and 1/1 slice checks\n",
+            "stdout": ""
+          },
+          "previous": {
+            "status": 0,
+            "diagnostics": "",
+            "stdout": ""
+          },
+          "candidate": {
+            "status": 0,
+            "diagnostics": "",
+            "stdout": ""
+          },
+          "shadow": {
+            "status": 0,
+            "diagnostics": "",
+            "stdout": "walk_counts [0, 1, 0, 3, 0, 1, 0, 0]\n"
+          }
+        }
+      },
+      {
+        "name": "nested.goose",
+        "source": "struct Outer { holder: Holder& }\nstruct Holder { view: const i64[:] }\nfn main() {\n    var xs: i64[>..] = [1, 2, 3];\n    var ys: i64[>..] = [4, 5, 6];\n    var holder = Holder { view: ys[0..1] };\n    var outer = Outer { holder: holder };\n    xs.pop();\n    xs.pop();\n    holder.view = xs[0..1];\n    xs.pop();\n    print(outer.holder.view[0]);\n}\n",
+        "sha256": "2f7a9f07195e3c8d1d344416873ccca5a15908336dae43b53c4ba42104b7ff1a",
+        "observations": {
+          "upstream": {
+            "status": 1,
+            "diagnostics": "parsed ok: 3 top-level declarations, 1 file(s)\nnested.goose:11: error: cannot pop xs while outer is still used: a reference to what may hold a reference or slice into it was stored there at nested.goose:7 (\u00a75.1)\n    xs.pop();\n  in fn main() instantiated from nested.goose:3\n",
+            "stdout": ""
+          },
+          "previous": {
+            "status": 1,
+            "diagnostics": "nested.goose:11:8: error: array shrink invalidates a reference or holder that is used afterward\n",
+            "stdout": ""
+          },
+          "candidate": {
+            "status": 1,
+            "diagnostics": "nested.goose:11:8: error: array shrink invalidates a reference or holder that is used afterward\n",
+            "stdout": ""
+          },
+          "shadow": {
+            "status": 1,
+            "diagnostics": "nested.goose:11:8: error: array shrink invalidates a reference or holder that is used afterward\n\n",
+            "stdout": "walk_counts [0, 1, 1, 6, 2, 0, 0, 0]\n"
+          }
+        }
+      },
+      {
+        "name": "retained.goose",
+        "source": "struct Holder { view: const i64[:] }\nfn main() {\n    var xs: i64[>..] = [1, 2, 3];\n    var ys: i64[>..] = [4, 5, 6];\n    var holder = Holder { view: ys[0..1] };\n    xs.pop();\n    xs.pop();\n    holder.view = ys[0..1];\n    xs.pop();\n    print(holder.view[0]);\n}\n",
+        "sha256": "2a1bda3bd28868d4fc8a2b3c5acb1725910df791c46999b97154d4ef6dbdb2ab",
+        "observations": {
+          "upstream": {
+            "status": 0,
+            "diagnostics": "parsed ok: 2 top-level declarations, 1 file(s)\ntypechecked ok: 1 specialization(s), 1 struct/0 enum instance(s); optimized -O2: 0 inlined, 0 base case(s), 0 folded, 0 propagated, 0 tail loop(s), 0 reassociated\nbce: elided 0/1 index and 2/2 slice checks\n",
+            "stdout": ""
+          },
+          "previous": {
+            "status": 0,
+            "diagnostics": "",
+            "stdout": ""
+          },
+          "candidate": {
+            "status": 0,
+            "diagnostics": "",
+            "stdout": ""
+          },
+          "shadow": {
+            "status": 0,
+            "diagnostics": "",
+            "stdout": "walk_counts [0, 2, 0, 3, 0, 0, 0, 0]\n"
+          }
+        }
+      }
+    ]
+  },
+  "shadow_self": [
+    0,
+    110866,
+    11288,
+    143901,
+    0,
+    0,
+    0,
+    0
+  ],
+  "shadow_order": [
+    "hits_empty",
+    "hits_one",
+    "hits_two",
+    "queries",
+    "rejected_changed_contents",
+    "rejected_changed_kills",
+    "wrong_answers",
+    "unused"
+  ]
+}
