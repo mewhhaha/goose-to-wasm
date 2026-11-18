@@ -4,9 +4,9 @@ import model;
 // Every recursive edge within one call component must release its temporaries.
 struct RegionFunction {
     node: i64 = -1, own: i64 = 0, need: i64 = 0, entry: bool = false,
-    index: i64 = -1, low: i64 = -1, component: i64 = -1,
+    first_call: i64 = -1, index: i64 = -1, low: i64 = -1, component: i64 = -1,
 }
-struct RegionCall { caller: i64, callee: i64, live: i64, node: i64 = -1 }
+struct RegionCall { caller: i64, callee: i64, live: i64, node: i64 = -1, next: i64 = -1 }
 struct RegionGraph {
     functions: RegionFunction[>..]&, calls: RegionCall[>..]&, stack: i64[>..]&, members: i64[>..]&,
     serial: i64 = 0, components: i64 = 0,
@@ -25,9 +25,9 @@ recursive fn region_component(p: Program&, graph: RegionGraph&, function: i64) {
     let serial = graph.serial; graph.serial += 1;
     graph.functions[function].index = serial; graph.functions[function].low = serial;
     graph.functions[function].component = -2; graph.stack.push(function);
-    let call_count = graph.calls.len;
-    for index in 0..call_count {
-        let call = graph.calls[index]; if call.caller != function { continue; }
+    var edge = graph.functions[function].first_call;
+    while edge >= 0 {
+        let call: const RegionCall& = graph.calls[edge]; edge = call.next;
         if call.callee < 0 || call.callee >= graph.functions.len {
             region_diagnose(p, call.node, "region call has no function plan"); continue;
         }
@@ -47,8 +47,10 @@ recursive fn region_component(p: Program&, graph: RegionGraph&, function: i64) {
     let end = graph.members.len; var bound = 0;
     for index in mark..end {
         let member = graph.members[index]; if graph.functions[member].own > bound { bound = graph.functions[member].own; }
-        for call in graph.calls {
-            if call.caller != member || call.callee < 0 || call.callee >= graph.functions.len { continue; }
+        var next = graph.functions[member].first_call;
+        while next >= 0 {
+            let call: const RegionCall& = graph.calls[next]; next = call.next;
+            if call.callee < 0 || call.callee >= graph.functions.len { continue; }
             if graph.functions[call.callee].component == component {
                 if call.live != 0 { region_diagnose(p, call.node, "recursive call retains transient data regions"); }
             } else {
@@ -63,8 +65,17 @@ recursive fn region_component(p: Program&, graph: RegionGraph&, function: i64) {
 fn region_bound(p: Program&, graph: RegionGraph&, globals: i64) -> i64 {
     graph.serial = 0; graph.components = 0; graph.stack.clear(); graph.members.clear();
     for item, index in graph.functions {
-        graph.functions[index].index = -1; graph.functions[index].low = -1;
+        graph.functions[index].first_call = -1; graph.functions[index].index = -1; graph.functions[index].low = -1;
         graph.functions[index].component = -1; graph.functions[index].need = 0;
+    }
+    // Link each caller's outgoing edges in source order for the component
+    // walk and its bound calculation. Edges without a caller are ignored.
+    var index = graph.calls.len;
+    while index > 0 {
+        index--; let caller = graph.calls[index].caller;
+        if caller < 0 || caller >= graph.functions.len { continue; }
+        graph.calls[index].next = graph.functions[caller].first_call;
+        graph.functions[caller].first_call = index;
     }
     let count = graph.functions.len;
     for index in 0..count { if graph.functions[index].index < 0 { region_component(p, graph, index); } }
