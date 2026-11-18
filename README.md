@@ -34,9 +34,9 @@ A [Goose](https://github.com/aardappel/goose) compiler written in Goose. It emit
 
 **Native rows.** Stable scans and counted literal pushes reduced append time from 238.683 ms to 0.363 ms and traversal from 600.395 ms to 0.076 ms for 8,008 rows across seven pairs. [Measurements](bench/results/2026-11-17/native-row-scans/README.md)
 
-**Closing the gap to native.** On the same frozen compiler project, the earlier `065aff3` backend reduced Wasmtime checking from 2.83× to 2.40× native time and emission from 3.55× to 3.13× with profiled memory32. Default memory64 improved from 4.25× to 3.57× for checking and from 3.99× to 3.54× for emission. In a separate memory32 CPU profile, lifetime analysis accounted for 80% of the extra sampled CPU time during checking and 54% during emission. [Measurements and CPU profile](bench/results/2026-11-18/wasm-lowering/README.md#where-the-gap-remains)
+**Why the compiler runs slower in Wasm.** On the same frozen project, self-check took 2.81 s native, 9.91 s in Wasmtime and 10.21 s in V8. A project-sized 32-bit build took 7.76 s in Wasmtime. Lifetime analysis accounted for 83% of the extra sampled CPU time. In one hot loop, reading two fields from the same record took 45 machine instructions in Wasmtime and two in native code. Reusing the checked address brought the Wasmtime sequence down to eight. [Measurements and disassembly](bench/results/2026-11-18/compiler-runtime-gap/README.md) · [Earlier backend comparison](bench/results/2026-11-18/wasm-lowering/README.md#where-the-gap-remains)
 
-![Wasmtime compiler execution relative to native before and after the changes](bench/results/2026-11-18/wasm-lowering/runtime.svg)
+![Time to check the frozen compiler project by engine and memory width](bench/results/2026-11-18/compiler-runtime-gap/comparison.svg)
 
 **Compiler iteration.** Reusing known reads in lifetime analysis changed the full compiler self-check from 9.57 s to 9.31 s of Wasmtime CPU time and Wasm emission from 13.51 s to 13.47 s. The same project emitted byte-identical Wasm on both compilers. [Measurements](bench/results/2026-11-18/known-read-replay/README.md) · [Earlier eight-read cache experiment](bench/results/2026-11-18/lifetime-read-groups/README.md)
 

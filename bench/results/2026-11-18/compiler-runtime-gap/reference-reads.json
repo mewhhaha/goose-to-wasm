@@ -1,0 +1,32 @@
+{
+  "artifact_sha256": "43f4803ff27817cb3c2db6fb952a6e1420d415b375c0033dc23749f490169aaf",
+  "function": "wasm[0]::function[810]::life_replay",
+  "function_start": "0xe6d080",
+  "instruction_count": 8,
+  "groups": {
+    "requested field loads": 2,
+    "explicit x86 stack reads and writes": 2,
+    "remaining address calculations, loads and register moves": 2,
+    "Cranelift memory64 address guards (compare or conditional move)": 2
+  },
+  "function_relative_instructions": [
+    "+0x626e  mov      edx,DWORD PTR [rdx]",
+    "+0x6270  mov      QWORD PTR [rsp+0x388],rdx",
+    "+0x6278  mov      rdx,QWORD PTR [rsp+0x390]",
+    "+0x6280  lea      rdx,[rax+rdx*1+0x18]",
+    "+0x6285  lea      rax,[r15+rcx*1+0x18]",
+    "+0x628a  cmp      rdx,QWORD PTR [rip+0x299e7]",
+    "+0x6291  cmova    rax,r14",
+    "+0x6295  mov      eax,DWORD PTR [rax]"
+  ],
+  "goose": [
+    "let entry = read; let item: const LifeReadEntry& = l.summary_reads[entry];",
+    "let leaf = item.leaf as i64; read = item.next as i64;"
+  ],
+  "source_change": "Single checked reference for both fields in life_replay. The surrounding loop and the before comparison are unchanged.",
+  "input_wasm_sha256": "98972c6d502dcc204fdbc4f54e76eace7f82453d643c476de42c2f7f6ae54423",
+  "name_section_appended_wasm_sha256": "95bdc42358716fa0ebf396f292c1e47669b346e2784e4f911d855085b391ad61",
+  "evidence": "Wasmtime address-map locations 0x6bd6f8 and 0x6bd70a are i32.load in the candidate file. The preceding address adds are 8 (leaf) and 24 (next).",
+  "scope": "Both x86 loads included. The first element address and its guard have already been computed at the start of the counted fragment, just as in replay-reads.json.",
+  "reproduce": "python reference_reads.py /path/to/reference.cwasm"
+}
