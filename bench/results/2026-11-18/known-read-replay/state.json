@@ -1,0 +1,64 @@
+{
+  "corpus": {
+    "compared": 4357,
+    "differing": 0,
+    "with_lifetime_fingerprints": 3130,
+    "fingerprint_lines": 11596,
+    "with_exits": 205,
+    "fingerprint_lines_with_exits": 567,
+    "max_exits": 180,
+    "invalid_index": 0
+  },
+  "corpus_report_sha256": "27690cfd116357c02bbfa74f57d1423cd43161792552736df3948b467b80d07c",
+  "equivalence": {
+    "compared": 10057,
+    "differing": 0,
+    "seconds": {
+      "baseline": 233.878,
+      "candidate": 229.289
+    }
+  },
+  "equivalence_sha256": "bffc6b99519ab6c13b231481a514f48d03c8bc1b31eae4cf6082404cf53a096d",
+  "checked_selfhost": [
+    "LIFEFP pass_begin pass=1 frames=1 summary=0 checked=0 rev=0 h=3993494066718008219 roots=3838726955998930053 cells=5 frames=5651820506201672116 effects=1161353661784754675 items=6241856590347334420 exits=0 exit_state=20 bad_exits=0",
+    "LIFEFP pass_begin pass=2 frames=2832 summary=669051 checked=0 rev=681444 h=707409006545437147 roots=6277602782355691700 cells=4195649684500147700 frames=1085654290954580391 effects=5344886300109130704 items=4275616478587425985 exits=406 exit_state=6431273114848319589 bad_exits=0",
+    "LIFEFP pass_begin pass=3 frames=2833 summary=1042143 checked=0 rev=1059941 h=8109120999091800226 roots=4959495874181384882 cells=7920946093463000896 frames=614002167494972366 effects=7119685523587300937 items=5434797649976292776 exits=406 exit_state=6431273114848319589 bad_exits=0",
+    "LIFEFP pass_begin pass=4 frames=2833 summary=1048587 checked=0 rev=1067077 h=6533955157497129464 roots=4959495874181384882 cells=2159691190753226906 frames=2241485303424067114 effects=5405612194883189362 items=9009429102386591671 exits=406 exit_state=6431273114848319589 bad_exits=0",
+    "LIFEFP pass_begin pass=5 frames=2833 summary=1048600 checked=0 rev=1067100 h=6469034649315671840 roots=4959495874181384882 cells=2159691190753226906 frames=4991451992576779378 effects=9195141564503018148 items=7160729218643849627 exits=406 exit_state=6431273114848319589 bad_exits=0",
+    "LIFEFP discovered pass=5 frames=2833 summary=1048600 checked=0 rev=1067100 h=7145858577380763993 roots=4959495874181384882 cells=2159691190753226906 frames=6137187695330996261 effects=9195141564503018148 items=5007210043852273425 exits=406 exit_state=6431273114848319589 bad_exits=0",
+    "LIFEFP validated pass=5 frames=2836 summary=1048600 checked=54486 rev=1067114 h=4683327000508547078 roots=3386431232336302979 cells=2178833412970246813 frames=2497886192351879153 effects=6723506916169416387 items=155618414039768851 exits=406 exit_state=6431273114848319589 bad_exits=0"
+  ],
+  "low_class_threshold": 64,
+  "class_fixture_sha256": "ce2086a9013f5071c1cc8b3fd73e770634dfc98934a0b541934435ee875b8def",
+  "class_states": [
+    "LIFEFP pass_begin pass=1 frames=1 summary=0 checked=0 rev=0 h=2369528755224267597 roots=707858788716768134 cells=5 frames=5651820506201672116 effects=1161353661784754675 items=14 exits=0 exit_state=20 bad_exits=0",
+    "LIFEFP discovered pass=1 frames=98 summary=0 checked=0 rev=0 h=7672468546852280563 roots=3475316164529508413 cells=5498446574517162855 frames=5635596183496838420 effects=9168244424846241046 items=4394041718983648787 exits=96 exit_state=1426533295219278065 bad_exits=0",
+    "LIFEFP validated pass=1 frames=98 summary=0 checked=0 rev=0 h=1823905218477130275 roots=3475316164529508413 cells=5498446574517162855 frames=3173421837729257472 effects=9168244424846241046 items=5611333124420798813 exits=96 exit_state=1426533295219278065 bad_exits=0"
+  ],
+  "negative": {
+    "source": "tests/fixtures/contracts/upstream-differential/harvest/private_snapshot_parameters/98f0101e11.goose",
+    "source_sha256": "1b063db9cd6e252c0fb7f88694762cfaba26f4d8dd9bde12ea6982ed9773b08d",
+    "diagnostic": "/home/jacobt/src/goose-to-wasm/tests/fixtures/contracts/upstream-differential/harvest/private_snapshot_parameters/98f0101e11.goose:3:36: error: stored reference does not outlive the storage that receives it",
+    "runs": {
+      "released": {
+        "exit": 1,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "376fafd31e5c8ca3a3710beaa57d852f92f6aa601728fcbab8486e082a661fe2"
+      },
+      "direct": {
+        "exit": 1,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "376fafd31e5c8ca3a3710beaa57d852f92f6aa601728fcbab8486e082a661fe2"
+      }
+    }
+  },
+  "native_fingerprint_compilers": {
+    "candidate": "766a69253f4147e691ab1c89ac5660c1909811ae8269f876e72742d8a3403a05",
+    "baseline": "313305a25c31671680529cd57f54faaecab30b092411722c9006cf8af480d589"
+  },
+  "wasm_fingerprint_compilers": {
+    "candidate": "34e3ed1ea5eb521416948dd2ffbb8bb4f1a68acc757eeba8e11df824c5b5eccd",
+    "baseline": "f11ec95da885eddbebaccef494085e653d28f15b7bb3058548873d301fa080e1",
+    "early-class": "75a7c4e8b687b37028e40dd0d72518d4aa9e15622ae2e6630296a5b33345ba30"
+  }
+}

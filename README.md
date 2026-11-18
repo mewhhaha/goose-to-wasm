@@ -4,7 +4,7 @@ A [Goose](https://github.com/aardappel/goose) compiler written in Goose. It emit
 
 ## Benchmarks
 
-**Compiler speed.** On 2026-11-18, compiler `90e086f` used 1.002× as much CPU time as `065aff3` to emit Wasm and 0.997× as much to emit C. These are geometric means of medians across eleven programs, with 31 measurements per cell on a shared host. The chart shows wall time. C emission excludes C compilation and linking. In a separate 2026-11-11 campaign, snapshot 59 took 0.58× the earlier C++ compiler's time for Wasm and 0.53× for C. [Current measurements](bench/results/2026-11-18/compiler-iteration-tools/README.md) · [Snapshot 59](bench/results/2026-11-11/compiler-throughput-59/README.md)
+**Compiler speed.** Across eleven programs, compiler `2e42394` used 0.966× the CPU time of `90e086f` to emit Wasm and 0.986× to emit C. These are geometric means of medians over 31 measurements per cell. The chart shows wall time. In the earlier snapshot 59 comparison, Wasm emission took 0.58× the C++ compiler’s time and C emission took 0.53×. [Measurements](bench/results/2026-11-18/known-read-replay/README.md) · [Snapshot 59](bench/results/2026-11-11/compiler-throughput-59/README.md)
 
 ![Compiler execution time for eleven programs](bench/charts/compiler-comparison.svg)
 
@@ -14,11 +14,11 @@ A [Goose](https://github.com/aardappel/goose) compiler written in Goose. It emit
 
 **Bootstrap iteration.** A warm verified bootstrap of the frozen compiler sources fell from 52.05 s to 5.80 s wall time across three paired repetitions, with native executables already cached. The generated C and compiler executable were identical. The build used Clang 23.1.5 with `-O2` and one C unit. With native executables cached, the opt-in `--reuse-toolchain` path reduced a changed-source build from 36.19 s to 8.42 s across three pairs while producing the same C and result and verifying the live fixed point. [Measurements](bench/results/2026-11-17/compiler-iteration/README.md) · [Changed-source builds](bench/results/2026-11-17/local-bootstrap/README.md)
 
-**The compiler as Wasm.** Building fixed-point compiler sources `90e086f` took a median of 4.28 s for direct Wasm and 50.62 s for native through C and Clang, including compilation and linking across eight C units on five CPUs, over three builds. Median self-check times were 2.95 s native, 10.61 s in Wasmtime and 11.19 s in V8. Self-compilation took 4.62 s, 14.57 s and 18.91 s respectively. Both engines reuse a prepared memory64 module and time execution after instantiation. The native control uses this compiler's C backend. [Method and results](bench/results/2026-11-18/compiler-iteration-tools/README.md)
+**The compiler as Wasm.** Building compiler `2e42394` on its own sources took 3.78 s for direct Wasm and 30.40 s through C and Clang. Across three runs, self-check took 2.82 s native, 9.86 s in Wasmtime and 10.28 s in V8. Emitting the compiler took 4.05 s, 14.59 s and 15.70 s respectively. Both Wasm engines reused prepared modules and timed guest execution after instantiation. [Measurements](bench/results/2026-11-18/known-read-replay/README.md)
 
 ![Compiler self-hosting build and execution times](bench/charts/compiler-selfhost-execution.svg)
 
-**Example programs.** On a shared host, median cold builds for ten examples took 83.9–105.2 ms for direct Wasm and 0.381–2.853 s for native executables, including C compilation and linking. Full process times include launch and exit. Sorting took 301 ms with minimal Wasmtime AOT and 205 ms native in the host comparison. [Method and results](bench/results/2026-11-18/compiler-iteration-tools/README.md)
+**Example programs.** Cold builds for the ten examples took 67.6–88.5 ms for direct Wasm and 0.314–2.323 s through C, including compilation and linking. Sorting took 177 ms with minimal Wasmtime AOT and 132 ms native, including process launch and exit. [Measurements](bench/results/2026-11-18/known-read-replay/README.md)
 
 ![Example program build times](bench/charts/goose-examples-compilation.svg)
 
@@ -38,7 +38,11 @@ A [Goose](https://github.com/aardappel/goose) compiler written in Goose. It emit
 
 ![Wasmtime compiler execution relative to native before and after the changes](bench/results/2026-11-18/wasm-lowering/runtime.svg)
 
-**Compiler iteration.** Reusing Wasmtime's compiled module cut preparation from 40.6 s to 141 ms. The Rust host ran all 4,777 memory64 contracts in 40 s against Python's 161 s, with identical outcomes. On a frozen project, indexing local slots reduced Wasmtime emission from 13.70 s to 13.45 s across four pairs. An eight-read replay cache cut Wasmtime self-check instructions by 1.00%, but checking took 9.95 s versus 9.85 s and peak memory rose from 472 to 516 MiB. The released compiler keeps the per-read check. [Measurements](bench/results/2026-11-18/compiler-iteration-tools/README.md) · [Replay experiment](bench/results/2026-11-18/lifetime-read-groups/README.md) · [CPU profile of the 1.65M fallback reads](bench/results/2026-11-18/lifetime-read-misses/README.md)
+**Compiler iteration.** Reusing known reads in lifetime analysis changed the full compiler self-check from 9.57 s to 9.31 s of Wasmtime CPU time and Wasm emission from 13.51 s to 13.47 s. The same project emitted byte-identical Wasm on both compilers. [Measurements](bench/results/2026-11-18/known-read-replay/README.md) · [Earlier eight-read cache experiment](bench/results/2026-11-18/lifetime-read-groups/README.md)
+
+![Wasmtime and native compiler CPU time before and after reusing lifetime reads](bench/results/2026-11-18/known-read-replay/comparison.svg)
+
+In separate tooling measurements, caching Wasmtime preparation cut 40.6 s to 141 ms, and the Rust host ran 4,777 memory64 contracts in 40 s versus 161 s under Python. [Tooling measurements](bench/results/2026-11-18/compiler-iteration-tools/README.md)
 
 ![Wasmtime compiler preparation and memory64 conformance time](bench/results/2026-11-18/compiler-iteration-tools/iteration.svg)
 

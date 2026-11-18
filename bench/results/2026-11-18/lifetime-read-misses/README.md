@@ -29,7 +29,7 @@ The grouped and released columns cover different numbers of reads. The grouped c
 
 About 39 ms of the grouped caller-merge cost went to finding the entry and checking the walk state, 39 ms to inserting a new entry, 13 ms to testing an existing entry, and 4 ms to joining sets and recording the result. An unchanged set can still require updating propagation bookkeeping. Native and Wasmtime produced identical counts for each checker. All six Wasm probes emitted the same 24,508,740-byte compiler as the unmodified control. [Counts and artifact hashes](verification.json)
 
-The next experiment is to pass the known read leaf directly through discovery replay in the released checker. Today that path takes the stored value, checks its type, constructs a read effect and then offers it. The largest bucket includes dispatch and stamp maintenance as well, so its 202 ms on the released checker is a ceiling for eliminating the entire bucket. Measure the whole check and emission and compare lifetime-state fingerprints before adopting a shortcut.
+The follow-up passed the known read directly through discovery replay and measured the whole compiler on the same frozen project. [Implementation and paired results](../known-read-replay/README.md)
 
 ## Measurement and reproduction
 
