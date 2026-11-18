@@ -1,0 +1,81 @@
+{
+  "sort_parent_c_sha256": "00135fef136e5d48cc740af07d36f04d0253ee18f35d569f1fbe7c1040bfd8f2",
+  "sort_candidate_c_sha256": "00135fef136e5d48cc740af07d36f04d0253ee18f35d569f1fbe7c1040bfd8f2",
+  "initial_error": "Command '['/home/jacobt/src/goose-to-wasm/build/lifetime-exit-index-2026-11-18/qualification/conformance/artifacts/5923/program']' timed out after 15 seconds",
+  "sort-retry": {
+    "summary": {
+      "selected": 2,
+      "passed": 2,
+      "failed": 0
+    },
+    "status": "passed",
+    "configuration": {
+      "compiler": "/home/jacobt/src/goose-to-wasm/build/lifetime-exit-index-2026-11-18/qualification/bootstrap/bin/goose",
+      "manifest": "/home/jacobt/src/goose-to-wasm/tests/conformance/cases.json",
+      "levels": [
+        0,
+        2
+      ],
+      "filter": "upstream/stdlib/stdlib_sort",
+      "engine": "wasmtime",
+      "host": "/home/jacobt/src/goose-to-wasm/build/bin/goose-wasmtime",
+      "frontend_only": false,
+      "upstream_extracted": true,
+      "upstream_sources": "/home/jacobt/src/goose-to-wasm/build/conformance-upstream/344f973e3dbc0b71",
+      "jobs": 1,
+      "timeout": 30.0,
+      "cc_timeout": 120,
+      "native_units": 0,
+      "targets": null,
+      "wasm_memory64": false,
+      "native_cache": {
+        "directory": "/home/jacobt/src/goose-to-wasm/build/qualify-cache/native",
+        "compiler": {
+          "driver": "/usr/bin/gcc",
+          "driver_sha256": "b0b49531b313e70aee0254fb5e69b050a781506184e16ebee6ebe68eee94a145",
+          "version": "gcc (GCC) 16.2.1 20260810\nCopyright (C) 2026 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n\n",
+          "schema": 1
+        }
+      }
+    },
+    "raw_sha256": "1e48a977a76d7e95cc6a889238cbe27bf33cb6cb1b527a98bb93a401ad363ce8"
+  },
+  "conformance-retry": {
+    "summary": {
+      "selected": 10795,
+      "passed": 10691,
+      "failed": 104
+    },
+    "status": "failed",
+    "configuration": {
+      "compiler": "/home/jacobt/src/goose-to-wasm/build/lifetime-exit-index-2026-11-18/qualification/bootstrap/bin/goose",
+      "manifest": "/home/jacobt/src/goose-to-wasm/tests/conformance/cases.json",
+      "levels": [
+        0,
+        2
+      ],
+      "filter": "",
+      "engine": "wasmtime",
+      "host": "/home/jacobt/src/goose-to-wasm/build/bin/goose-wasmtime",
+      "frontend_only": false,
+      "upstream_extracted": true,
+      "upstream_sources": "/home/jacobt/src/goose-to-wasm/build/conformance-upstream/344f973e3dbc0b71",
+      "jobs": 4,
+      "timeout": 30.0,
+      "cc_timeout": 120,
+      "native_units": 0,
+      "targets": null,
+      "wasm_memory64": false,
+      "native_cache": {
+        "directory": "/home/jacobt/src/goose-to-wasm/build/qualify-cache/native",
+        "compiler": {
+          "driver": "/usr/bin/gcc",
+          "driver_sha256": "b0b49531b313e70aee0254fb5e69b050a781506184e16ebee6ebe68eee94a145",
+          "version": "gcc (GCC) 16.2.1 20260810\nCopyright (C) 2026 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n\n",
+          "schema": 1
+        }
+      }
+    },
+    "raw_sha256": "e5ca8a4ea1c7c2787ba7c8ac0a499b6968fda9df7f468a5f02c55c30a61bdd46"
+  }
+}

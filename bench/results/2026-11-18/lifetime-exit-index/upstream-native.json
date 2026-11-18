@@ -1,0 +1,54 @@
+{
+  "source_commit": "ba9dece0d4e58abb22c815dae1f37e28c99758de",
+  "cpu": 4,
+  "runs": [
+    {
+      "commit": "d92c4315eb6be2ba12fc8052ed5a44cc0cf27826",
+      "argv": [
+        "/home/jacobt/src/goose-to-wasm/build/continue-2026-11-17/upstream-build/goose",
+        "build",
+        "selfhost/main.goose",
+        "--stdlib",
+        "stdlib",
+        "--cc",
+        "clang-23",
+        "--offline",
+        "-O2",
+        "-o",
+        "/home/jacobt/src/goose-to-wasm/build/lifetime-exit-index-2026-11-18/upstream-d92c431"
+      ],
+      "compiler_sha256": "fe5031bfd91f65174195321280ab2e15b3de1ed708ef89c886d01db483a79c78",
+      "cwd": "/home/jacobt/src/goose-to-wasm/build/lifetime-exit-index-2026-11-18/source",
+      "exit_code": 1,
+      "executable_written": false,
+      "seconds": 2.7514353759997903,
+      "errors": 31,
+      "first_error": "selfhost/checker.goose:1195: error: cannot call check_type, which may shrink p: p.nodes[param].type_id, which the assignment writes after it, may be in p (\u00a75.1)",
+      "output_sha256": "1a8aa847b2ddecba6e9c052d500374755be0ebca788b9a2e74de3aa5dc42ac3f"
+    },
+    {
+      "commit": "ee261a4c7baf025dcb254d24103b48a6b15279e9",
+      "argv": [
+        "/home/jacobt/src/goose-to-wasm/build/native-selfhost-chart-upstream/latest-build/goose",
+        "build",
+        "selfhost/main.goose",
+        "--stdlib",
+        "stdlib",
+        "--cc",
+        "clang-23",
+        "--offline",
+        "-O2",
+        "-o",
+        "/home/jacobt/src/goose-to-wasm/build/lifetime-exit-index-2026-11-18/upstream-ee261a4"
+      ],
+      "compiler_sha256": "90704b06e25b03093cd1f9c29f1a6bf47540ba330df1cf0fd63c3dc37593f1e2",
+      "cwd": "/home/jacobt/src/goose-to-wasm/build/lifetime-exit-index-2026-11-18/source",
+      "exit_code": 1,
+      "executable_written": false,
+      "seconds": 2.7578397050001513,
+      "errors": 31,
+      "first_error": "selfhost/checker.goose:1195: error: cannot call check_type, which may shrink p: p.nodes[param].type_id, which the assignment writes after it, may be in p (\u00a75.1)",
+      "output_sha256": "1a8aa847b2ddecba6e9c052d500374755be0ebca788b9a2e74de3aa5dc42ac3f"
+    }
+  ]
+}
