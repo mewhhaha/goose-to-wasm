@@ -34,7 +34,7 @@ struct CgModule {
     parameter_uses: CgParameterUse[>..]&,
     functions: CgFunction[>..]&, captures: CgCapture[>..]&, imports: CgImport[>..]&,
     signatures: CgSignature[>..]&, signature_bytes: u8[>..]&,
-    segments: CgSegment[>..]&, data: u8[>..]&, globals: i64[>..]&,
+    segments: CgSegment[>..]&, segment_slots: i64[>..]&, data: u8[>..]&, globals: i64[>..]&,
     symbol_owners: SymbolOwners,
     global_regions: i64[>..]&, region_functions: RegionFunction[>..]&, region_calls: RegionCall[>..]&,
     region_memo: i64[>..]&,
@@ -43,7 +43,7 @@ struct CgModule {
     nonlocal_returns: bool = false, ordinary_owners: bool = false,
     region_table_address: i64 = 0, host_reserve: i64 = -1, host_reserve_type: i64 = -1,
     start: i64 = -1, allocator: i64 = -1, float_wrap: i64 = -1, scalar: bool = false, resolver: i64 = -1, header_helper: i64 = -1, prefix_helper: i64 = -1, pool_global: i64 = -1,
-    owner_index_sites: i64 = 0, owner_view: i64 = -1, owner_mutations: i64 = 0, update_length: i64 = -1,
+    owner_view: i64 = -1, update_length: i64 = -1,
     format_f32: i64 = -1, format_f64: i64 = -1, raw_append: i64 = -1, raw_append_type: i64 = -1,
 }
 // defers: the height of the defer stack the exit runs back down to (§6.6).
@@ -318,10 +318,30 @@ fn cg_signature(m: CgModule&, args: u8[:], results: u8[:]) -> i64 {
     m.signatures.push(CgSignature { start: at, count: encoded.len });
     return result;
 }
-fn cg_data(m: CgModule&, bytes: u8[:]) -> i64 {
-    for segment in m.segments {
-        if same_bytes(bytes, m.data[segment.start..segment.start + segment.count]) { return segment.address; }
+// Slots hold segment index + 1. The segments themselves stay in emission order.
+fn cg_data_slot(m: CgModule&, bytes: u8[:]) -> i64 {
+    let mask = m.segment_slots.len - 1;
+    var slot = bytes_hash(bytes) & mask;
+    while m.segment_slots[slot] > 0 {
+        let segment: const CgSegment& = m.segments[m.segment_slots[slot] - 1];
+        if bytes.len == segment.count && same_bytes(bytes, m.data[segment.start..segment.start + segment.count]) { break; }
+        slot = (slot + 1) & mask;
     }
+    return slot;
+}
+fn cg_data(m: CgModule&, bytes: u8[:]) -> i64 {
+    if 2 * m.segments.len >= m.segment_slots.len {
+        var size = m.segment_slots.len * 2; if size == 0 { size = 16; }
+        m.segment_slots.clear(); m.segment_slots.resize(size, 0);
+        for segment, index in m.segments {
+            let slot = cg_data_slot(m, m.data[segment.start..segment.start + segment.count]);
+            m.segment_slots[slot] = index + 1;
+        }
+    }
+    let slot = cg_data_slot(m, bytes);
+    let found = m.segment_slots[slot];
+    if found > 0 { return m.segments[found - 1].address; }
+    m.segment_slots[slot] = m.segments.len + 1;
     let address = m.next_data;
     let at = m.data.len;
     m.data.append(bytes); m.next_data += bytes.len;
@@ -3911,56 +3931,49 @@ fn cg_unforwarded_module(p: Program&, m: CgModule&) -> bool {
     for item in m.functions { if !cg_unforwarded_body(p, item.node, item.node) { return false; } }
     return true;
 }
-recursive fn cg_uses_pool(p: Program&, node: i64) -> bool {
-    if node < 0 { return false; } let n = p.nodes[node];
-    if n.kind == N_FUNCTION || n.kind == N_FUNCTION_VALUE || n.kind == N_STRUCT || n.kind == N_ENUM || n.kind == N_ALIAS || n.kind == N_IMPORT || n.kind == N_PATTERN { return false; }
-    if n.kind == N_CALL && n.symbol >= 0 && (p.symbols[n.symbol].flags & S_BUILTIN) != 0 {
-        let builtin = p.symbols[n.symbol].index; if builtin >= 30 && builtin <= 32 { return true; }
-    }
-    if cg_uses_pool(p, n.left) || cg_uses_pool(p, n.right) || cg_uses_pool(p, n.third) { return true; }
-    var child = n.first; while child >= 0 { if cg_uses_pool(p, child) { return true; } child = p.nodes[child].next; } return false;
+// Collect host imports and array helpers in the same walk of emitted bodies.
+struct CgHelperDemand {
+    pool: bool = false, formats: i64 = 0, raw_appends: i64 = 0, raw_append_type: i64 = -1,
+    owner_indexes: i64 = 0, owner_mutations: i64 = 0
 }
-recursive fn cg_float_format_demand(p: Program&, node: i64) -> i64 {
-    if node < 0 { return 0; } let n = p.nodes[node];
-    if n.kind == N_FUNCTION || n.kind == N_FUNCTION_VALUE || n.kind == N_STRUCT || n.kind == N_ENUM || n.kind == N_ALIAS || n.kind == N_IMPORT || n.kind == N_PATTERN { return 0; }
-    var demand = 0;
+recursive fn cg_scan_helpers(p: Program&, demand: CgHelperDemand&, node: i64, arrays: bool) {
+    if node < 0 { return; }
+    let n: const Node& = p.nodes[node];
+    if n.kind == N_FUNCTION || n.kind == N_FUNCTION_VALUE || n.kind == N_STRUCT || n.kind == N_ENUM || n.kind == N_ALIAS || n.kind == N_IMPORT || n.kind == N_PATTERN { return; }
+    if arrays && n.kind == N_INDEX && demand.owner_indexes < 2 {
+        var id = p.nodes[n.left].type_id; while cg_type_kind(p, id) == TY_REF { id = p.types[id].element; }
+        if cg_owner(p, id) { demand.owner_indexes++; }
+    }
     if n.kind == N_CALL && n.symbol >= 0 && (p.symbols[n.symbol].flags & S_BUILTIN) != 0 {
         let builtin = p.symbols[n.symbol].index;
+        if builtin >= 30 && builtin <= 32 { demand.pool = true; }
+        if arrays && demand.owner_mutations < 2 && builtin >= 24 && builtin <= 29 && n.first >= 0 {
+            var id = p.nodes[n.first].type_id; while cg_type_kind(p, id) == TY_REF { id = p.types[id].element; }
+            if cg_owner(p, id) { demand.owner_mutations++; }
+        }
         if builtin == 1 || builtin == 2 {
-            var arg = n.first; if builtin == 2 && arg >= 0 { arg = p.nodes[arg].next; }
+            var output = n.type_id; var arg = n.first;
+            if builtin == 2 {
+                output = -1;
+                if arg >= 0 { output = p.nodes[arg].type_id; arg = p.nodes[arg].next; }
+            }
+            while cg_type_kind(p, output) == TY_REF { output = p.types[output].element; }
+            if arrays && arg >= 0 && cg_raw_append_type(p, output) {
+                demand.raw_appends++;
+                if demand.raw_append_type < 0 { demand.raw_append_type = output; }
+            }
             while arg >= 0 {
                 var id = p.nodes[arg].type_id;
                 while cg_type_kind(p, id) == TY_REF { id = p.types[id].element; }
-                if cg_type_kind(p, id) == TY_FLOAT { if p.types[id].count == 32 { demand |= 1; } else { demand |= 2; } }
+                if cg_type_kind(p, id) == TY_FLOAT { if p.types[id].count == 32 { demand.formats |= 1; } else { demand.formats |= 2; } }
                 arg = p.nodes[arg].next;
             }
         }
     }
-    demand |= cg_float_format_demand(p, n.left) | cg_float_format_demand(p, n.right) | cg_float_format_demand(p, n.third);
-    var child = n.first; while child >= 0 { demand |= cg_float_format_demand(p, child); child = p.nodes[child].next; } return demand;
-}
-recursive fn cg_array_helper_demand(p: Program&, m: CgModule&, node: i64) -> i64 {
-    if node < 0 { return 0; } let n = p.nodes[node];
-    if n.kind == N_FUNCTION || n.kind == N_FUNCTION_VALUE || n.kind == N_STRUCT || n.kind == N_ENUM || n.kind == N_ALIAS || n.kind == N_IMPORT || n.kind == N_PATTERN { return 0; }
-    if !m.ordinary_owners && m.owner_index_sites < 2 && m.resolver < 0 && n.kind == N_INDEX {
-        var id = p.nodes[n.left].type_id; while cg_type_kind(p, id) == TY_REF { id = p.types[id].element; }
-        if cg_owner(p, id) { m.owner_index_sites++; }
-    }
-    var count = 0;
-    if n.kind == N_CALL && n.symbol >= 0 && (p.symbols[n.symbol].flags & S_BUILTIN) != 0 {
-        let builtin = p.symbols[n.symbol].index;
-        if m.owner_mutations < 2 && builtin >= 24 && builtin <= 29 && n.first >= 0 {
-            var id = p.nodes[n.first].type_id; while cg_type_kind(p, id) == TY_REF { id = p.types[id].element; }
-            if cg_owner(p, id) { m.owner_mutations++; }
-        }
-        var output = -1; var arg = n.first;
-        if builtin == 1 { output = n.type_id; }
-        else if builtin == 2 && arg >= 0 { output = p.nodes[arg].type_id; arg = p.nodes[arg].next; }
-        while cg_type_kind(p, output) == TY_REF { output = p.types[output].element; }
-        if arg >= 0 && cg_raw_append_type(p, output) { count = 1; if m.raw_append_type < 0 { m.raw_append_type = output; } }
-    }
-    count += cg_array_helper_demand(p, m, n.left) + cg_array_helper_demand(p, m, n.right) + cg_array_helper_demand(p, m, n.third);
-    var child = n.first; while child >= 0 { count += cg_array_helper_demand(p, m, child); child = p.nodes[child].next; } return count;
+    if n.left >= 0 { cg_scan_helpers(p, demand, n.left, arrays); }
+    if n.right >= 0 { cg_scan_helpers(p, demand, n.right, arrays); }
+    if n.third >= 0 { cg_scan_helpers(p, demand, n.third, arrays); }
+    var child = n.first; while child >= 0 { cg_scan_helpers(p, demand, child, arrays); child = p.nodes[child].next; }
 }
 // A root owner's frame places its components' own storage side by side, as
 // native C's does: each field takes the slot its type takes as a variable, so
@@ -4043,19 +4056,20 @@ fn cg_collect(p: Program&, m: CgModule&) {
             m.functions.push(CgFunction { node: item.node, symbol: item.symbol, elements: true });
         }
     }
-    for item in m.functions { if cg_uses_pool(p, p.nodes[item.node].right) { m.pool_global = 0; break; } }
-    if m.pool_global < 0 { for symbol in p.symbols { if (symbol.flags & S_GLOBAL) != 0 && symbol.node >= 0 && cg_uses_pool(p, p.nodes[symbol.node].right) { m.pool_global = 0; break; } } }
-    var format_demand = 0;
-    for item in m.functions { format_demand |= cg_float_format_demand(p, p.nodes[item.node].right); }
-    for symbol in p.symbols { if (symbol.flags & S_GLOBAL) != 0 && symbol.node >= 0 { format_demand |= cg_float_format_demand(p, p.nodes[symbol.node].right); } }
-    if (format_demand & 1) != 0 { m.format_f32 = m.imports.len; m.imports.push(CgImport { signature: cg_host_signature(m, CG_FORMAT_F32), host: CG_FORMAT_F32 }); }
-    if (format_demand & 2) != 0 { m.format_f64 = m.imports.len; m.imports.push(CgImport { signature: cg_host_signature(m, CG_FORMAT_F64), host: CG_FORMAT_F64 }); }
+    var helpers = CgHelperDemand {};
+    for item in m.functions { cg_scan_helpers(p, helpers, p.nodes[item.node].right, true); }
+    for symbol in p.symbols {
+        if (symbol.flags & S_GLOBAL) != 0 && symbol.node >= 0 { cg_scan_helpers(p, helpers, p.nodes[symbol.node].right, symbol.component_owner < 0); }
+    }
+    if helpers.pool { m.pool_global = 0; }
+    if (helpers.formats & 1) != 0 { m.format_f32 = m.imports.len; m.imports.push(CgImport { signature: cg_host_signature(m, CG_FORMAT_F32), host: CG_FORMAT_F32 }); }
+    if (helpers.formats & 2) != 0 { m.format_f64 = m.imports.len; m.imports.push(CgImport { signature: cg_host_signature(m, CG_FORMAT_F64), host: CG_FORMAT_F64 }); }
     cg_plan_private_arenas(p, m);
     for item in m.functions { cg_scan_captures(p, m, item.node, p.nodes[item.node].right); }
-    loop {
-        let count = m.captures.len;
+    var previous_captures = 0;
+    while previous_captures < m.captures.len {
+        previous_captures = m.captures.len;
         for item in m.functions { cg_propagate_captures(p, m, item.node, p.nodes[item.node].right); }
-        if count == m.captures.len { break; }
     }
     for capture in m.captures { p.symbols[capture.symbol].flags |= CG_ADDRESS_TAKEN; }
     for item, i in m.functions {
@@ -4080,12 +4094,9 @@ fn cg_collect(p: Program&, m: CgModule&) {
         if frames { m.prefix_helper = thunk_base; thunk_base += 1; }
     }
     m.ordinary_owners = cg_ordinary_owner_module(p, m);
-    var raw_appends = 0;
-    for item in m.functions { raw_appends += cg_array_helper_demand(p, m, p.nodes[item.node].right); }
-    for symbol in p.symbols { if (symbol.flags & S_GLOBAL) != 0 && symbol.node >= 0 && symbol.component_owner < 0 { raw_appends += cg_array_helper_demand(p, m, p.nodes[symbol.node].right); } }
-    if raw_appends > 1 { m.raw_append = thunk_base; thunk_base += 1; }
-    if m.owner_index_sites > 1 { m.owner_view = thunk_base; thunk_base += 1; }
-    if !m.ordinary_owners && m.regions_enabled && m.owner_mutations > 1 { m.update_length = thunk_base; thunk_base++; }
+    if helpers.raw_appends > 1 { m.raw_append_type = helpers.raw_append_type; m.raw_append = thunk_base; thunk_base++; }
+    if !m.ordinary_owners && m.resolver < 0 && helpers.owner_indexes > 1 { m.owner_view = thunk_base; thunk_base++; }
+    if !m.ordinary_owners && m.regions_enabled && helpers.owner_mutations > 1 { m.update_length = thunk_base; thunk_base++; }
     for item, i in m.functions { m.functions[i].thunk = thunk_base + i; }
     if m.regions_enabled {
         m.host_reserve_type = cg_host_reserve_type(p, m);
@@ -4278,13 +4289,13 @@ fn generate_wasm(p: Program&, out: u8[>..]&) {
     }
     if p.pointer_bytes != 4 && p.pointer_bytes != 8 { cg_fail(p, -1, "wasm: checked layout must use memory32 or memory64 pointers"); return; }
     var functions: CgFunction[>..] = []; var captures: CgCapture[>..] = []; var imports: CgImport[>..] = [];
-    var signatures: CgSignature[>..] = []; var signature_bytes: u8[>..] = []; var segments: CgSegment[>..] = []; var data: u8[>..] = []; var globals: i64[>..] = []; var global_regions: i64[>..] = []; var region_functions: RegionFunction[>..] = []; var region_calls: RegionCall[>..] = [];
+    var signatures: CgSignature[>..] = []; var signature_bytes: u8[>..] = []; var segments: CgSegment[>..] = []; var segment_slots: i64[>..] = []; var data: u8[>..] = []; var globals: i64[>..] = []; var global_regions: i64[>..] = []; var region_functions: RegionFunction[>..] = []; var region_calls: RegionCall[>..] = [];
     var region_memo: i64[>..] = [];
     var binding_heads: i64[>..] = []; var binding_next: i64[>..] = [];
     var owners = SymbolOwners { heads: binding_heads, next: binding_next };
     index_symbol_owners(p, owners);
     var parameter_uses: CgParameterUse[>..] = [];
-    var m = CgModule { parameter_uses: parameter_uses, functions: functions, captures: captures, imports: imports, signatures: signatures, signature_bytes: signature_bytes, segments: segments, data: data, globals: globals, global_regions: global_regions, symbol_owners: owners, region_functions: region_functions, region_calls: region_calls, region_memo: region_memo,
+    var m = CgModule { parameter_uses: parameter_uses, functions: functions, captures: captures, imports: imports, signatures: signatures, signature_bytes: signature_bytes, segments: segments, segment_slots: segment_slots, data: data, globals: globals, global_regions: global_regions, symbol_owners: owners, region_functions: region_functions, region_calls: region_calls, region_memo: region_memo,
         stack_limit: (p.maximum_pages * 65536 / 2) & -8 };
     cg_collect(p, m); if p.diagnostics.len > 0 { return; }
     if m.scalar { m.resolver = -1; m.host_reserve = -1; }

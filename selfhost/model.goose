@@ -397,6 +397,11 @@ fn index_symbol_owners(p: Program&, owners: SymbolOwners&) {
         owners.heads[owner] = index;
     }
 }
+fn bytes_hash(bytes: u8[:]) -> i64 {
+    var hash: u32 = 2166136261;
+    for byte in bytes { hash = (hash ^ (byte as u32)) * 16777619; }
+    return hash as i64;
+}
 inline fn same_bytes(a: u8[:], b: u8[:]) -> bool {
     if a.len != b.len { return false; }
     for c, i in a { if c != b[i] { return false; } }
