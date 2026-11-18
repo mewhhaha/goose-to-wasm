@@ -21,7 +21,7 @@ The README’s self-hosting chart measures the new compiler on its own `90e086f`
 
 ## Lifetime replay
 
-The frozen compiler visited **10,535,264 entries** during a self-check. Existing stamps skipped **7,159,123** (68.0%). **680,227** visits (6.46%) added or changed a recorded effect. Native and Wasmtime agreed on every count during checking and emission, reproduced the control module, and rejected the held-out escaping reference with the same diagnostic. The next experiment is to skip groups of eight validated reads. Runs of at least eight already-stamped reads accounted for 58.55% of all visits. [Counts and reproduction](REPLAY.md)
+The frozen compiler visited **10,535,264 entries** during a self-check. Existing stamps skipped **7,159,123** (68.0%). **680,227** visits (6.46%) added or changed a recorded effect. Native and Wasmtime agreed on every count during checking and emission, reproduced the control module, and rejected the held-out escaping reference with the same diagnostic. Runs of at least eight already-stamped reads accounted for 58.55% of all visits. A follow-up tested whether those groups could be reused on the frozen compiler. [Counts and reproduction](REPLAY.md) · [Eight-read trials](../lifetime-read-groups/README.md)
 
 ## Qualification and environment
 

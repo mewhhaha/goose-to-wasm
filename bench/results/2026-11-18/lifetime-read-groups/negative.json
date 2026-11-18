@@ -1,0 +1,32 @@
+{
+  "source": "tests/fixtures/contracts/upstream-differential/harvest/private_snapshot_parameters/98f0101e11.goose",
+  "source_sha256": "1b063db9cd6e252c0fb7f88694762cfaba26f4d8dd9bde12ea6982ed9773b08d",
+  "diagnostic": "/home/jacobt/src/goose-to-wasm/tests/fixtures/contracts/upstream-differential/harvest/private_snapshot_parameters/98f0101e11.goose:3:36: error: stored reference does not outlive the storage that receives it",
+  "runs": {
+    "baseline": {
+      "exit": 1,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "376fafd31e5c8ca3a3710beaa57d852f92f6aa601728fcbab8486e082a661fe2"
+    },
+    "bounded": {
+      "exit": 1,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "376fafd31e5c8ca3a3710beaa57d852f92f6aa601728fcbab8486e082a661fe2"
+    },
+    "retained": {
+      "exit": 1,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "376fafd31e5c8ca3a3710beaa57d852f92f6aa601728fcbab8486e082a661fe2"
+    },
+    "bounded_leaf_version": {
+      "exit": 1,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "376fafd31e5c8ca3a3710beaa57d852f92f6aa601728fcbab8486e082a661fe2"
+    },
+    "retained_leaf_version": {
+      "exit": 1,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "376fafd31e5c8ca3a3710beaa57d852f92f6aa601728fcbab8486e082a661fe2"
+    }
+  }
+}

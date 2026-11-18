@@ -1,0 +1,98 @@
+{
+  "workload_commit": "90e086fe61f9ce019d6a6ef543212be63f6e1f57",
+  "source_archive_sha256": "c9474661210aed23044b05faa4aa19bacee7063aa64cd6bf3092b9af9a1fdf1d",
+  "baseline_probe_native_sha256": "313305a25c31671680529cd57f54faaecab30b092411722c9006cf8af480d589",
+  "baseline_probe_wasm_sha256": "f11ec95da885eddbebaccef494085e653d28f15b7bb3058548873d301fa080e1",
+  "build_emitter": {
+    "sha256": "659a76c4c8064ae0989fb66600ae161b680a17c81b935e51fae9fcd4f905c2c0",
+    "bytes": 6911016
+  },
+  "native_probe_cc": "clang-23 -O0 -std=gnu11",
+  "emission_flags": [
+    "-O2",
+    "--wasm-memory64",
+    "--wasm-max-pages",
+    "262144"
+  ],
+  "case_manifest_sha256": "114d9ecbf070ee26eae6e6fb5fe75b202fda471bb36880d105480dd3dd402961",
+  "corpus_rows_sha256": "27690cfd116357c02bbfa74f57d1423cd43161792552736df3948b467b80d07c",
+  "corpus_summary": {
+    "compared": 4357,
+    "differing": 0,
+    "with_lifetime_fingerprints": 3130,
+    "fingerprint_lines": 11596,
+    "with_exits": 205,
+    "fingerprint_lines_with_exits": 567,
+    "max_exits": 180,
+    "invalid_index": 0
+  },
+  "state_helper_sha256": "0c3cafced3cbdeba0a5f63837bfd4ca56a4c2624287acaa4a7308a2b5dd03499",
+  "exit_helper_sha256": "0190fa1f05e422809cdd94353a3c2ee5dc09f734e190dbc065d590e6bbcaf405",
+  "data": {
+    "bounded": {
+      "candidate_source_commit": "da1a028555f9a5e76b48121879d42116f1e0c042",
+      "lifetime_source_sha256": "638bdaf0f69ffc3d3bb705365400544f437270c085899f10c9aa102691e2e369",
+      "probe_native_sha256": "ef403020798bbc8e57275b943576f0f366e50a0c16c6754d1f95b73ff55c8750",
+      "probe_wasm_sha256": "fb90dd8f502f9995b8adbbe2e410b49cd3925189acd80d2ac25b6aa13874dc66",
+      "self_check_fingerprints": 7,
+      "self_check_stderr_sha256": "8585d7afe60f146f25857ffd352979b1a9ea0113523caccd77c321bd787e65d7",
+      "self_check_stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "corpus_comparisons": 4357,
+      "corpus_fingerprints": 11596
+    },
+    "retained": {
+      "candidate_source_commit": "50978f61fcfc037074c8205fc42d57ce10ffa9ac",
+      "lifetime_source_sha256": "62899266ae7cbf90edd72423b80800a13ddc2611196e6fa605760a10566954fe",
+      "probe_native_sha256": "192ff8ce2b87ec164c89fb0af4a0534757307ae183de1bd1e69ffe8ed95c9bc0",
+      "probe_wasm_sha256": "18ddb72d36724a48a2542d3dec8322f90e0318f3ef26e24bb76ae76abb78fc3e",
+      "self_check_fingerprints": 7,
+      "self_check_stderr_sha256": "8585d7afe60f146f25857ffd352979b1a9ea0113523caccd77c321bd787e65d7",
+      "self_check_stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "corpus_comparisons": 4357,
+      "corpus_fingerprints": 11596
+    },
+    "bounded_leaf_version": {
+      "candidate_source_commit": "20a0b573f036e4453d0b36daa6bc5f995318c390",
+      "lifetime_source_sha256": "4c571c00c0f62e6bbab7fa8837356fcdbe92e64f8baa253662ea95efb3354758",
+      "probe_native_sha256": "3b89d1a463adb71933790e273d3bdfa20733b5a2cdeaf74286cb9d8541d74c3f",
+      "probe_wasm_sha256": "1031cd8a85cbf0552643b32eaa1efd2420d277ac2e9dcd2d14959655524f6f34",
+      "self_check_fingerprints": 7,
+      "self_check_stderr_sha256": "8585d7afe60f146f25857ffd352979b1a9ea0113523caccd77c321bd787e65d7",
+      "self_check_stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "corpus_comparisons": 4357,
+      "corpus_fingerprints": 11596
+    },
+    "retained_leaf_version": {
+      "candidate_source_commit": "71f45652632f5ff58a03e5e64949819d2397c456",
+      "lifetime_source_sha256": "d079df70e7156434c1ad2de23fa5b455388f3a849cd962769dc371670258f310",
+      "probe_native_sha256": "51c8f1d20c2f70a8aaf42f36a9cc654f2febfa5b64e2d38b0edbde06b9661e19",
+      "probe_wasm_sha256": "1bc756fc978ff5195604ed0dbd977d15324e5381b04e53b62750b8b9635cbe58",
+      "self_check_fingerprints": 7,
+      "self_check_stderr_sha256": "8585d7afe60f146f25857ffd352979b1a9ea0113523caccd77c321bd787e65d7",
+      "self_check_stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "corpus_comparisons": 4357,
+      "corpus_fingerprints": 11596
+    }
+  },
+  "bounded_compiler_outputs": {
+    "summary": {
+      "compared": 10057,
+      "differing": 0,
+      "seconds": {
+        "baseline": 57.698,
+        "candidate": 57.335
+      }
+    },
+    "report_sha256": "f88c37debf5c4f35dd6043ed721d14cd84f1033fa74ffb77523488b58144c23f"
+  },
+  "bounded_early_class": {
+    "threshold": 64,
+    "fixture_sha256": "ce2086a9013f5071c1cc8b3fd73e770634dfc98934a0b541934435ee875b8def",
+    "stderr_sha256": "7ca491219824373a88a5f6c2a35e5a39e595b67b024693d1566ccbe148e6036b",
+    "fingerprints": [
+      "LIFEFP pass_begin pass=1 frames=1 summary=0 checked=0 rev=0 h=2369528755224267597 roots=707858788716768134 cells=5 frames=5651820506201672116 effects=1161353661784754675 items=14 exits=0 exit_state=20 bad_exits=0",
+      "LIFEFP discovered pass=1 frames=98 summary=0 checked=0 rev=0 h=7672468546852280563 roots=3475316164529508413 cells=5498446574517162855 frames=5635596183496838420 effects=9168244424846241046 items=4394041718983648787 exits=96 exit_state=1426533295219278065 bad_exits=0",
+      "LIFEFP validated pass=1 frames=98 summary=0 checked=0 rev=0 h=1823905218477130275 roots=3475316164529508413 cells=5498446574517162855 frames=3173421837729257472 effects=9168244424846241046 items=5611333124420798813 exits=96 exit_state=1426533295219278065 bad_exits=0"
+    ]
+  }
+}

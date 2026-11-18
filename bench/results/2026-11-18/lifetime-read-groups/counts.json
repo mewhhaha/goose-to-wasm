@@ -1,0 +1,93 @@
+{
+  "workload_commit": "90e086fe61f9ce019d6a6ef543212be63f6e1f57",
+  "fields": [
+    "lookups",
+    "hits",
+    "first_or_empty_miss",
+    "chain_miss",
+    "version_miss",
+    "order_miss",
+    "ordinary_reads",
+    "ordinary_construct_calls",
+    "full_groups",
+    "certificates_written"
+  ],
+  "variants": {
+    "bounded": {
+      "counters": {
+        "lookups": 1037998,
+        "hits": 3560,
+        "first_or_empty_miss": 630313,
+        "chain_miss": 362967,
+        "version_miss": 41158,
+        "order_miss": 0,
+        "ordinary_reads": 6858950,
+        "ordinary_construct_calls": 2088538,
+        "full_groups": 752265,
+        "certificates_written": 736087
+      },
+      "skipped_reads": 28480,
+      "probe_module_sha256": "9136c79f5ca758f59d319dc67f60e181d54c8b27a7aacfb82e91c43fbc11304e",
+      "probe_source_sha256": "5e165c9b08fcc48fa66f8f5d6e785edcf8ace3ce38cd71643462cf8197a0b5f9",
+      "table_slots": 4096
+    },
+    "retained": {
+      "counters": {
+        "lookups": 1037998,
+        "hits": 4051,
+        "first_or_empty_miss": 719751,
+        "chain_miss": 0,
+        "version_miss": 314196,
+        "order_miss": 0,
+        "ordinary_reads": 6855022,
+        "ordinary_construct_calls": 2087497,
+        "full_groups": 751774,
+        "certificates_written": 735596
+      },
+      "skipped_reads": 32408,
+      "probe_module_sha256": "f7651307aa8d6b21e7fc83fc4e96e8727ef89118ef47ca19a8ca429141becebf",
+      "probe_source_sha256": "9ffe99845b171188c62c7c8b62da39bceddc1fe54874e54c836ffb5b450c3f65",
+      "table_keys": 421413,
+      "table_slots": 1048576
+    },
+    "bounded_leaf_version": {
+      "counters": {
+        "lookups": 1037998,
+        "hits": 42127,
+        "first_or_empty_miss": 630282,
+        "chain_miss": 362964,
+        "version_miss": 2625,
+        "order_miss": 0,
+        "ordinary_reads": 6550414,
+        "ordinary_construct_calls": 2087874,
+        "full_groups": 713698,
+        "certificates_written": 697617
+      },
+      "skipped_reads": 337016,
+      "probe_module_sha256": "807184c97e179ffaa5249d9cd99e397c22b398f5b5cc365a1adc873d509991e3",
+      "probe_source_sha256": "a849e69ec0061071d924f4b5030afd04aeaff7b62896ecb3c9d4d9657d2bbe90",
+      "table_slots": 4096
+    },
+    "retained_leaf_version": {
+      "counters": {
+        "lookups": 1038037,
+        "hits": 207892,
+        "first_or_empty_miss": 719695,
+        "chain_miss": 0,
+        "version_miss": 110450,
+        "order_miss": 0,
+        "ordinary_reads": 5224531,
+        "ordinary_construct_calls": 1652615,
+        "full_groups": 547960,
+        "certificates_written": 531885
+      },
+      "skipped_reads": 1663136,
+      "probe_module_sha256": "138b9f576899abfe6b645ea34711054fe69e8efeee3bd91e8ad0b8c994fba1b9",
+      "probe_source_sha256": "cf29fe94fab1c855aedbabfcad52adf15f9d73592d27df63a460af19122e7aa2",
+      "table_keys": 421435,
+      "table_slots": 1048576
+    }
+  },
+  "v8": "13.6.233.17-node.58",
+  "emitter_sha256": "659a76c4c8064ae0989fb66600ae161b680a17c81b935e51fae9fcd4f905c2c0"
+}

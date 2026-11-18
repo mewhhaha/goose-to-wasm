@@ -1,0 +1,39 @@
+diff --git a/selfhost/checker_lifetimes.goose b/selfhost/checker_lifetimes.goose
+index 376c1ad..38df3fa 100644
+--- a/selfhost/checker_lifetimes.goose
++++ b/selfhost/checker_lifetimes.goose
+@@ -67,7 +67,7 @@ struct LifeCell { symbol: i64, frame: i64, root: i64, parameter: bool = false, r
+ // next older frame in its input_heads and home_heads buckets.
+ // function_active: on the newest frame of a function, how many of the
+ // function's frames are active.
+-struct LifeFrame { function_node: i64 = -1, parent: i64 = -1, lexical: i64 = 0, call: i64 = -1, inputs: i64 = -1, base: i64 = 0, active: bool = false, result: LifeValue = LifeValue {}, destination: i64 = 0, selected_result: i64 = -1, checked_revision: i64 = -1, next_function: i64 = -1, first_cell: i64 = -1, first_effect: i64 = -1, last_effect: i64 = -1, validated: bool = false, first_summary: i64 = -1, last_summary: i64 = -1, effect_epoch: i64 = 0, recursive_call: bool = false, home: i64 = -1, capture_inputs: i64 = -1, cycle: i64 = -1, activation: i64 = 0, context: i64 = 0, first_other: i64 = -1, last_other: i64 = -1, reads_version: i64 = 0, first_read: i64 = -1, last_read: i64 = -1, read_table: i64 = 0, read_cap: i64 = 0, read_count: i64 = 0, chain: i64 = 0, chain_epoch: i64 = -1, chain_recursive: i64 = 0, inputs_hash: i64 = 0, inputs_kinds: i64 = 0, mixed_kinds: bool = false, next_inputs: i64 = -1, next_home: i64 = -1, function_active: i64 = 0,
++struct LifeFrame { function_node: i64 = -1, parent: i64 = -1, lexical: i64 = 0, call: i64 = -1, inputs: i64 = -1, base: i64 = 0, active: bool = false, result: LifeValue = LifeValue {}, destination: i64 = 0, selected_result: i64 = -1, checked_revision: i64 = -1, next_function: i64 = -1, first_cell: i64 = -1, first_effect: i64 = -1, last_effect: i64 = -1, validated: bool = false, first_summary: i64 = -1, last_summary: i64 = -1, effect_epoch: i64 = 0, recursive_call: bool = false, home: i64 = -1, capture_inputs: i64 = -1, cycle: i64 = -1, activation: i64 = 0, context: i64 = 0, first_other: i64 = -1, last_other: i64 = -1, reads_version: i64 = 0, changed_read_version: i64 = 0, first_read: i64 = -1, last_read: i64 = -1, read_table: i64 = 0, read_cap: i64 = 0, read_count: i64 = 0, chain: i64 = 0, chain_epoch: i64 = -1, chain_recursive: i64 = 0, inputs_hash: i64 = 0, inputs_kinds: i64 = 0, mixed_kinds: bool = false, next_inputs: i64 = -1, next_home: i64 = -1, function_active: i64 = 0,
+     first_exit: i64 = -1,
+     // island: the class-keyed frame this frame last ran under, itself for
+     // such a frame, 0 for none. For a class-keyed frame: classes, class_count:
+@@ -794,6 +794,7 @@ fn life_read_merge(l: Lifetimes&, frame: i64, leaf: i64, key: i64, outside: bool
+     if !life_equal(l, refs, value.refs) || !life_equal(l, contents, value.contents) || !life_equal(l, place, value.place) { l.revision += 1; }
+     value.refs = refs; value.contents = contents; value.place = place;
+     let joined = life_leaf(l, 3, l.leaves[held].node, value);
++    if held != joined { l.frames[frame].changed_read_version += 1; }
+     l.summary_reads[index].leaf = joined as i32; l.summary_reads[index].seen = leaf as i32; l.summary_reads[index].walked = walked; l.summary_reads[index].sent = -1;
+     l.frames[frame].reads_version += 1;
+     return 1;
+@@ -5686,7 +5687,7 @@ fn life_group_grow(l: Lifetimes&) {
+ fn life_replay_group(p: Program&, l: Lifetimes&, frame: i64, chain: i64, first: i64, at: i64, complete: bool&) -> i64 {
+     if 2 * (l.read_group_count + 1) > l.read_groups.len { life_group_grow(l); }
+     let slot = life_group_slot(l, first, chain); let group = l.read_groups[slot];
+-    let version = l.frames[frame].reads_version;
++    let version = l.frames[frame].changed_read_version;
+     if group.first as i64 == first && group.chain == chain && group.version == version {
+         let last = group.last as i64;
+         if at < 0 || (l.summary_reads[last].before as i64) < at { return l.summary_reads[last].next as i64; }
+@@ -5700,7 +5701,7 @@ fn life_replay_group(p: Program&, l: Lifetimes&, frame: i64, chain: i64, first:
+         life_construct_read(p, l, l.leaves[leaf].node, l.leaves[leaf].value, leaf);
+         if !life_leaf_offered(l, leaf) { offered = false; complete = false; }
+     }
+-    if count == 8 && offered && l.frames[frame].reads_version == version {
++    if count == 8 && offered && l.frames[frame].changed_read_version == version {
+         if l.read_groups[slot].first < 0 { l.read_group_count++; }
+         l.read_groups[slot] = LifeReadGroup { first: first as i32, last: last as i32, chain: chain, version: version };
+     }
