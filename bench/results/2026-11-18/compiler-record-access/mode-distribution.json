@@ -1,0 +1,42 @@
+{
+  "source_sha256": "992700745f9c95adcf7a3453f1d960c86fbcbcafba5c0e691c416f48afec4110",
+  "instrumented_sha256": "570e486ef1d4bc3d479cc92e8420cd1201cdebf9d231bfd840cf8266679a3d11",
+  "modes": {
+    "rest.0": 732178302,
+    "rest.1": 0,
+    "rest.2": 0,
+    "rest.3": 0,
+    "rest.4": 0,
+    "rest.5": 0,
+    "rest.6": 0,
+    "rest.7": 0,
+    "life_replay.0": 70670797,
+    "life_replay.1": 0,
+    "life_replay.2": 0,
+    "life_replay.3": 0,
+    "life_replay.4": 0,
+    "life_replay.5": 0,
+    "life_replay.6": 0,
+    "life_replay.7": 0,
+    "life_read_find.0": 16672839,
+    "life_read_find.1": 0,
+    "life_read_find.2": 0,
+    "life_read_find.3": 0,
+    "life_read_find.4": 0,
+    "life_read_find.5": 0,
+    "life_read_find.6": 0,
+    "life_read_find.7": 0
+  },
+  "static_sites": {
+    "rest": 12551,
+    "life_read_find": 3,
+    "life_replay": 109
+  },
+  "wasmtime": "50.0.1",
+  "workload": "90e086f / self-check",
+  "cpu": [
+    1,
+    2,
+    3
+  ]
+}

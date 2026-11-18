@@ -1,0 +1,156 @@
+{
+  "workload": "90e086fe61f9ce019d6a6ef543212be63f6e1f57",
+  "archive_sha256": "c9474661210aed23044b05faa4aa19bacee7063aa64cd6bf3092b9af9a1fdf1d",
+  "wasmtime": "50.0.1",
+  "engine": {
+    "sha256": "3127ca42fe7cdd3f0a43a358e79177dcfedd46c1746329826403b9d854de6178",
+    "bytes": 29673400
+  },
+  "artifacts": {
+    "default32": {
+      "sha256": "801b4008b1b64af84909448dab4fd529bbfc55ab1509b81cbeb1edf6f1e73a27",
+      "bytes": 25552746
+    },
+    "bundled32": {
+      "sha256": "0b52ade33198e84cb3838c6fc3e654aed2882dd85168186bf1c13f3cb44a2771",
+      "bytes": 7964716
+    }
+  },
+  "expected": {
+    "default32": {
+      "sha256": "b9fd3e3718009ca54c7ce640adf9f1323a7e7dfaf1406c01d27791cfacc35787",
+      "bytes": 24508740
+    },
+    "bundled32": {
+      "sha256": "b9fd3e3718009ca54c7ce640adf9f1323a7e7dfaf1406c01d27791cfacc35787",
+      "bytes": 24508740
+    }
+  },
+  "cpu": 5,
+  "samples": [
+    {
+      "label": "default32",
+      "mode": "check",
+      "round": 1,
+      "cpu_ns": 7198993211,
+      "wall_ns": 7256740986,
+      "counters": {
+        "cycles": {
+          "value": 26819038920,
+          "time_enabled_ns": 7247980507,
+          "time_running_ns": 7247980507
+        },
+        "instructions": {
+          "value": 59798750481,
+          "time_enabled_ns": 7247981509,
+          "time_running_ns": 7247981509
+        },
+        "branches": {
+          "value": 8638845192,
+          "time_enabled_ns": 7247980587,
+          "time_running_ns": 7247980587
+        },
+        "branch_misses": {
+          "value": 41200977,
+          "time_enabled_ns": 7247978513,
+          "time_running_ns": 7247978513
+        }
+      }
+    },
+    {
+      "label": "bundled32",
+      "mode": "check",
+      "round": 1,
+      "cpu_ns": 5419201212,
+      "wall_ns": 5485598682,
+      "counters": {
+        "cycles": {
+          "value": 19693715169,
+          "time_enabled_ns": 5464858292,
+          "time_running_ns": 5464858292
+        },
+        "instructions": {
+          "value": 42339410534,
+          "time_enabled_ns": 5464858993,
+          "time_running_ns": 5464858993
+        },
+        "branches": {
+          "value": 6060775223,
+          "time_enabled_ns": 5464858873,
+          "time_running_ns": 5464858873
+        },
+        "branch_misses": {
+          "value": 29105543,
+          "time_enabled_ns": 5464857010,
+          "time_running_ns": 5464857010
+        }
+      }
+    },
+    {
+      "label": "default32",
+      "mode": "emit",
+      "round": 1,
+      "cpu_ns": 12338289825,
+      "wall_ns": 12498839587,
+      "counters": {
+        "cycles": {
+          "value": 44621167710,
+          "time_enabled_ns": 12441886340,
+          "time_running_ns": 12441886340
+        },
+        "instructions": {
+          "value": 95793396228,
+          "time_enabled_ns": 12441887483,
+          "time_running_ns": 12441887483
+        },
+        "branches": {
+          "value": 14240348630,
+          "time_enabled_ns": 12441886521,
+          "time_running_ns": 12441886521
+        },
+        "branch_misses": {
+          "value": 72209863,
+          "time_enabled_ns": 12441884227,
+          "time_running_ns": 12441884227
+        }
+      },
+      "emitted": {
+        "sha256": "b9fd3e3718009ca54c7ce640adf9f1323a7e7dfaf1406c01d27791cfacc35787",
+        "bytes": 24508740
+      }
+    },
+    {
+      "label": "bundled32",
+      "mode": "emit",
+      "round": 1,
+      "cpu_ns": 7339960687,
+      "wall_ns": 7393296851,
+      "counters": {
+        "cycles": {
+          "value": 27071004008,
+          "time_enabled_ns": 7384285705,
+          "time_running_ns": 7384285705
+        },
+        "instructions": {
+          "value": 69718490207,
+          "time_enabled_ns": 7384286365,
+          "time_running_ns": 7384286365
+        },
+        "branches": {
+          "value": 10024341005,
+          "time_enabled_ns": 7384285413,
+          "time_running_ns": 7384285413
+        },
+        "branch_misses": {
+          "value": 45452304,
+          "time_enabled_ns": 7384283500,
+          "time_running_ns": 7384283500
+        }
+      },
+      "emitted": {
+        "sha256": "b9fd3e3718009ca54c7ce640adf9f1323a7e7dfaf1406c01d27791cfacc35787",
+        "bytes": 24508740
+      }
+    }
+  ]
+}

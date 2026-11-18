@@ -1,0 +1,332 @@
+{
+  "baseline_release": "2e42394d3b9638e2d8f2a8900d62e70d0ee5dfaf",
+  "workload": "90e086fe61f9ce019d6a6ef543212be63f6e1f57",
+  "workload_archive_sha256": "c9474661210aed23044b05faa4aa19bacee7063aa64cd6bf3092b9af9a1fdf1d",
+  "emitter": {
+    "sha256": "659a76c4c8064ae0989fb66600ae161b680a17c81b935e51fae9fcd4f905c2c0",
+    "bytes": 6911016
+  },
+  "control_lifetime_source": {
+    "bytes": 385561,
+    "sha256": "5bf5a964c76aa271aded08c73b5375a0efd5378850e26bc6872193fbe2acd1b4"
+  },
+  "candidate_lifetime_source": {
+    "bytes": 385594,
+    "sha256": "66ace2d20a107488462bb1dbb2c30c71b7dbd1df783a0f13c7bc4781d5f2b697"
+  },
+  "candidate_patch": {
+    "bytes": 17816,
+    "sha256": "0bb4793d17bb884ca570cc9a2b2772b51b8eb1b006dd2c5210fdf3026ae2e3b9"
+  },
+  "delta": {
+    "bytes": 690,
+    "sha256": "d82f275d966c4d7ccd68b10beb4d748c3991a78d73639868a609717bf38f1297"
+  },
+  "engine": "Wasmtime 50.0.1, prepared direct -O2 default memory64, speed",
+  "cpu": 4,
+  "control_medians": {
+    "instructions": 63632081869.0,
+    "wall_ns": 8652221798.5
+  },
+  "candidate_medians": {
+    "instructions": 63352948101.5,
+    "wall_ns": 8522409252.0
+  },
+  "instruction_change_percent": -0.4386682932591368,
+  "wall_change_percent": -1.5003377112050575,
+  "runs": [
+    {
+      "label": "final-live-scope-kill-kspan-bits",
+      "mode": "check",
+      "wall_ns": 8873268429,
+      "counters": {
+        "cycles": {
+          "value": 31552260829,
+          "time_enabled_ns": 8812164920,
+          "time_running_ns": 8812164920
+        },
+        "instructions": {
+          "value": 63670048607,
+          "time_enabled_ns": 8812165051,
+          "time_running_ns": 8812165051
+        },
+        "branches": {
+          "value": 7498087585,
+          "time_enabled_ns": 8812163788,
+          "time_running_ns": 8812163788
+        },
+        "branch_misses": {
+          "value": 38358533,
+          "time_enabled_ns": 8812161383,
+          "time_running_ns": 8812161383
+        }
+      },
+      "cpu": 4,
+      "module": {
+        "bytes": 24516956,
+        "sha256": "0d0400bd34305db4f7862784e9918d486f098f5d24568489f0ab62866f86f829"
+      }
+    },
+    {
+      "label": "adjacent",
+      "mode": "check",
+      "wall_ns": 8052072836,
+      "counters": {
+        "cycles": {
+          "value": 29637235831,
+          "time_enabled_ns": 8062298071,
+          "time_running_ns": 8062298071
+        },
+        "instructions": {
+          "value": 63355761708,
+          "time_enabled_ns": 8062298582,
+          "time_running_ns": 8062298582
+        },
+        "branches": {
+          "value": 7464526218,
+          "time_enabled_ns": 8062296979,
+          "time_running_ns": 8062296979
+        },
+        "branch_misses": {
+          "value": 35592426,
+          "time_enabled_ns": 8062294444,
+          "time_running_ns": 8062294444
+        }
+      },
+      "cpu": 4,
+      "module": {
+        "bytes": 24516331,
+        "sha256": "2bfc06843bea99e3a6ed353ac100517325cb7fb0eaa58cd0e5e7c02f432cd7c9"
+      }
+    },
+    {
+      "label": "adjacent",
+      "mode": "check",
+      "wall_ns": 8366613730,
+      "counters": {
+        "cycles": {
+          "value": 30787333995,
+          "time_enabled_ns": 8353757335,
+          "time_running_ns": 8353757335
+        },
+        "instructions": {
+          "value": 63350134495,
+          "time_enabled_ns": 8353758877,
+          "time_running_ns": 8353758877
+        },
+        "branches": {
+          "value": 7463212809,
+          "time_enabled_ns": 8353757715,
+          "time_running_ns": 8353757715
+        },
+        "branch_misses": {
+          "value": 37733962,
+          "time_enabled_ns": 8353755711,
+          "time_running_ns": 8353755711
+        }
+      },
+      "cpu": 4,
+      "module": {
+        "bytes": 24516331,
+        "sha256": "2bfc06843bea99e3a6ed353ac100517325cb7fb0eaa58cd0e5e7c02f432cd7c9"
+      }
+    },
+    {
+      "label": "final-live-scope-kill-kspan-bits",
+      "mode": "check",
+      "wall_ns": 8389760044,
+      "counters": {
+        "cycles": {
+          "value": 31119484689,
+          "time_enabled_ns": 8373963285,
+          "time_running_ns": 8373963285
+        },
+        "instructions": {
+          "value": 63632087364,
+          "time_enabled_ns": 8373964147,
+          "time_running_ns": 8373964147
+        },
+        "branches": {
+          "value": 7490369944,
+          "time_enabled_ns": 8373963135,
+          "time_running_ns": 8373963135
+        },
+        "branch_misses": {
+          "value": 37173433,
+          "time_enabled_ns": 8373960620,
+          "time_running_ns": 8373960620
+        }
+      },
+      "cpu": 4,
+      "module": {
+        "bytes": 24516956,
+        "sha256": "0d0400bd34305db4f7862784e9918d486f098f5d24568489f0ab62866f86f829"
+      }
+    },
+    {
+      "label": "final-live-scope-kill-kspan-bits",
+      "mode": "check",
+      "wall_ns": 8572652969,
+      "counters": {
+        "cycles": {
+          "value": 32124193321,
+          "time_enabled_ns": 8575504826,
+          "time_running_ns": 8575504826
+        },
+        "instructions": {
+          "value": 63632076374,
+          "time_enabled_ns": 8575505748,
+          "time_running_ns": 8575505748
+        },
+        "branches": {
+          "value": 7490366243,
+          "time_enabled_ns": 8575504826,
+          "time_running_ns": 8575504826
+        },
+        "branch_misses": {
+          "value": 36463974,
+          "time_enabled_ns": 8575502742,
+          "time_running_ns": 8575502742
+        }
+      },
+      "cpu": 4,
+      "module": {
+        "bytes": 24516956,
+        "sha256": "0d0400bd34305db4f7862784e9918d486f098f5d24568489f0ab62866f86f829"
+      }
+    },
+    {
+      "label": "adjacent",
+      "mode": "check",
+      "wall_ns": 8723016696,
+      "counters": {
+        "cycles": {
+          "value": 31541608150,
+          "time_enabled_ns": 8647995619,
+          "time_running_ns": 8647995619
+        },
+        "instructions": {
+          "value": 63357805223,
+          "time_enabled_ns": 8647996931,
+          "time_running_ns": 8647996931
+        },
+        "branches": {
+          "value": 7465069995,
+          "time_enabled_ns": 8647996039,
+          "time_running_ns": 8647996039
+        },
+        "branch_misses": {
+          "value": 36831793,
+          "time_enabled_ns": 8647994256,
+          "time_running_ns": 8647994256
+        }
+      },
+      "cpu": 4,
+      "module": {
+        "bytes": 24516331,
+        "sha256": "2bfc06843bea99e3a6ed353ac100517325cb7fb0eaa58cd0e5e7c02f432cd7c9"
+      }
+    },
+    {
+      "label": "adjacent",
+      "mode": "check",
+      "wall_ns": 8678204774,
+      "counters": {
+        "cycles": {
+          "value": 31443319019,
+          "time_enabled_ns": 8665244431,
+          "time_running_ns": 8665244431
+        },
+        "instructions": {
+          "value": 63348530327,
+          "time_enabled_ns": 8665244620,
+          "time_running_ns": 8665244620
+        },
+        "branches": {
+          "value": 7462841565,
+          "time_enabled_ns": 8665243478,
+          "time_running_ns": 8665243478
+        },
+        "branch_misses": {
+          "value": 37310110,
+          "time_enabled_ns": 8665240974,
+          "time_running_ns": 8665240974
+        }
+      },
+      "cpu": 4,
+      "module": {
+        "bytes": 24516331,
+        "sha256": "2bfc06843bea99e3a6ed353ac100517325cb7fb0eaa58cd0e5e7c02f432cd7c9"
+      }
+    },
+    {
+      "label": "final-live-scope-kill-kspan-bits",
+      "mode": "check",
+      "wall_ns": 8731790628,
+      "counters": {
+        "cycles": {
+          "value": 31567467729,
+          "time_enabled_ns": 8721237224,
+          "time_running_ns": 8721237224
+        },
+        "instructions": {
+          "value": 63632053961,
+          "time_enabled_ns": 8721237895,
+          "time_running_ns": 8721237895
+        },
+        "branches": {
+          "value": 7490362605,
+          "time_enabled_ns": 8721236602,
+          "time_running_ns": 8721236602
+        },
+        "branch_misses": {
+          "value": 37613948,
+          "time_enabled_ns": 8721234439,
+          "time_running_ns": 8721234439
+        }
+      },
+      "cpu": 4,
+      "module": {
+        "bytes": 24516956,
+        "sha256": "0d0400bd34305db4f7862784e9918d486f098f5d24568489f0ab62866f86f829"
+      }
+    },
+    {
+      "label": "adjacent",
+      "mode": "emit",
+      "wall_ns": 13949717889,
+      "counters": {
+        "cycles": {
+          "value": 49443488951,
+          "time_enabled_ns": 13864026322,
+          "time_running_ns": 13864026322
+        },
+        "instructions": {
+          "value": 104942052517,
+          "time_enabled_ns": 13864027916,
+          "time_running_ns": 13864027916
+        },
+        "branches": {
+          "value": 13357367273,
+          "time_enabled_ns": 13864026453,
+          "time_running_ns": 13864026453
+        },
+        "branch_misses": {
+          "value": 71753302,
+          "time_enabled_ns": 13864022816,
+          "time_running_ns": 13864022816
+        }
+      },
+      "cpu": 4,
+      "module": {
+        "bytes": 24516331,
+        "sha256": "2bfc06843bea99e3a6ed353ac100517325cb7fb0eaa58cd0e5e7c02f432cd7c9"
+      },
+      "emitted": {
+        "bytes": 24508740,
+        "sha256": "b9fd3e3718009ca54c7ce640adf9f1323a7e7dfaf1406c01d27791cfacc35787"
+      }
+    }
+  ],
+  "timing_note": "Four alternating pairs. Concurrent work on shared machine. Each emission was checked against the frozen artifact."
+}

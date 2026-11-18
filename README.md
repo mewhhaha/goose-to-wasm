@@ -34,13 +34,9 @@ A [Goose](https://github.com/aardappel/goose) compiler written in Goose. It emit
 
 **Native rows.** Stable scans and counted literal pushes reduced append time from 238.683 ms to 0.363 ms and traversal from 600.395 ms to 0.076 ms for 8,008 rows across seven pairs. [Measurements](bench/results/2026-11-17/native-row-scans/README.md)
 
-**Why the compiler runs slower in Wasm.** On the same frozen project, self-check took 2.81 s native, 9.91 s in Wasmtime and 10.21 s in V8. A project-sized 32-bit build took 7.76 s in Wasmtime. Lifetime analysis accounted for 83% of the extra sampled CPU time. In one hot loop, reading two fields from the same record took 45 machine instructions in Wasmtime and two in native code. Reusing the checked address brought the Wasmtime sequence down to eight. [Measurements and disassembly](bench/results/2026-11-18/compiler-runtime-gap/README.md) · [Earlier backend comparison](bench/results/2026-11-18/wasm-lowering/README.md#where-the-gap-remains)
+**Closing the compiler’s runtime gap.** On the same frozen project, the default Wasmtime compiler went from **9.09 to 6.95 s** of CPU time to check and **12.65 to 9.44 s** to emit Wasm. That is **2.93× and 3.01× native**. The optional `--wasm-bundled-host` build took 2.45× and 2.47× native time in memory64. With a 32-bit layout sized for this project, it reached **1.73× and 1.92×**. [Paired measurements](bench/results/2026-11-18/compiler-record-access/README.md) · [Earlier runtime profile](bench/results/2026-11-18/compiler-runtime-gap/README.md) · [Earlier lifetime changes](bench/results/2026-11-18/known-read-replay/README.md)
 
-![Time to check the frozen compiler project by engine and memory width](bench/results/2026-11-18/compiler-runtime-gap/comparison.svg)
-
-**Compiler iteration.** Reusing known reads in lifetime analysis changed the full compiler self-check from 9.57 s to 9.31 s of Wasmtime CPU time and Wasm emission from 13.51 s to 13.47 s. The same project emitted byte-identical Wasm on both compilers. [Measurements](bench/results/2026-11-18/known-read-replay/README.md) · [Earlier eight-read cache experiment](bench/results/2026-11-18/lifetime-read-groups/README.md)
-
-![Wasmtime and native compiler CPU time before and after reusing lifetime reads](bench/results/2026-11-18/known-read-replay/comparison.svg)
+![Native and Wasmtime CPU time for the frozen compiler project](bench/results/2026-11-18/compiler-record-access/comparison.svg)
 
 In separate tooling measurements, caching Wasmtime preparation cut 40.6 s to 141 ms, and the Rust host ran 4,777 memory64 contracts in 40 s versus 161 s under Python. [Tooling measurements](bench/results/2026-11-18/compiler-iteration-tools/README.md)
 
