@@ -1,0 +1,229 @@
+{
+  "compiler_commit": "f61fe052cb69df83dc04a87088fefb7a82539291",
+  "baseline_source": {
+    "bytes": 385594,
+    "sha256": "66ace2d20a107488462bb1dbb2c30c71b7dbd1df783a0f13c7bc4781d5f2b697"
+  },
+  "candidate_source": {
+    "bytes": 387312,
+    "sha256": "7a774c5a2bd4c5d7a0742eadb71f76a6b66b29ab85a33594b50db8d9410e56a9"
+  },
+  "frozen_source": "90e086fe61f9ce019d6a6ef543212be63f6e1f57",
+  "source_archive_sha256": "c9474661210aed23044b05faa4aa19bacee7063aa64cd6bf3092b9af9a1fdf1d",
+  "emitter": {
+    "bytes": 6939752,
+    "sha256": "bb06a3005ef7b29917cf3489167edae8ddbf191b6a0f6c7a8481a889a93f8595"
+  },
+  "wasmtime": "50.0.1",
+  "v8_probe_cli": "Node 24.12.0 --stack-size=65500",
+  "flags": [
+    "--target",
+    "wasm-direct",
+    "-O2",
+    "--wasm-memory64",
+    "--wasm-max-pages",
+    "262144"
+  ],
+  "native": {
+    "compiler": "Clang 23.1.5",
+    "units": 8,
+    "runtime": "compiled",
+    "optimization": "-O2"
+  },
+  "cpu": 2,
+  "expected_output": {
+    "sha256": "d60c88511dec7c07af9cb9ca070ce03c951a63eb8f2e2bca269dcbcce19bd793",
+    "bytes": 17322012
+  },
+  "counts": {
+    "replays": 151103,
+    "historical_chain_hits": 103061,
+    "quick": 25184,
+    "direct": 125919,
+    "compact_entries": 9174940,
+    "already_stamped": 6596974,
+    "fast_only_replays": 13261,
+    "fast_only_entries": 6164774,
+    "repeated_leaf_within_same_replay": 0,
+    "direct_misses": 2100312,
+    "misses_in_reading_place": 146222,
+    "direct_place_offers": 1954090,
+    "adjacent_equal_places": 1207334,
+    "places_seen_previously_in_replay": 1884622,
+    "chained_lookups": 2027812,
+    "chained_early_returns": 1308835,
+    "frame_merges": 1919647,
+    "new_entries": 994087,
+    "matched_entries": 257899,
+    "already_walked_entries": 667661
+  },
+  "count_validation": "V8 and Wasmtime emitted the same 48 counters.",
+  "group_trial": {
+    "calls_skipping_reads": 13840,
+    "sum_read_counts_of_skipped_summaries": 3922864,
+    "check_instructions_before": 58678984164,
+    "check_instructions_after": 59144795831,
+    "decision": "Rejected. Higher instruction count despite avoiding whole read lists."
+  },
+  "shadow": {
+    "stamp_decisions": 11423904,
+    "discovery": 9003635,
+    "validation": 2420269,
+    "mismatches": 0,
+    "forced_threshold": 64,
+    "fixture_decisions": 1030,
+    "fixture_with_class_frames": 719,
+    "fixture_mismatches": 0,
+    "place_reaches": 1954090,
+    "reach_mismatches": 0,
+    "merge_lookup_comparisons": 1919647,
+    "merge_lookup_mismatches": 0,
+    "propagation_lookup_comparisons": 718977,
+    "propagation_lookup_mismatches": 0,
+    "cut_off_walks": 2234330,
+    "recursive_ancestors_checked": 868024,
+    "recursive_ancestors_that_would_take_effect": 0,
+    "frozen_fingerprints": {
+      "lines": 7,
+      "file": {
+        "bytes": 1927,
+        "sha256": "8585d7afe60f146f25857ffd352979b1a9ea0113523caccd77c321bd787e65d7"
+      }
+    }
+  },
+  "logic": [
+    "A replay can temporarily rebind frame in life_cell and life_used_after. Both restore it before returning. None of the 183 reachable checker functions (external calls ctz and diagnose) mutates recursion_epoch, class_frames or a frame activation/chain.",
+    "Construct reads in a compact summary are keyed by node and value type. The walk can reuse the reach when the set of places is identical. Root owners and set membership are stable across the replay.",
+    "When far <= depth and the reach has no recursive place, no recursive ancestor can take the offer by its cells. An out-of-chain place sets far to the sentinel and every frame takes the offer as external.",
+    "An external compact read enters the current unvalidated frame before it propagates. Reuse its already-found slot and record the next appended entry index on a miss."
+  ],
+  "wasmtime_pairs": {
+    "check": {
+      "before": {
+        "cpu_ns": 8569612650,
+        "wall_ns": 8714248612,
+        "instructions": 58671095658
+      },
+      "after": {
+        "cpu_ns": 7501007263,
+        "wall_ns": 7639133151,
+        "instructions": 56056232364
+      }
+    },
+    "emit": {
+      "before": {
+        "cpu_ns": 11157545472,
+        "wall_ns": 11332357913,
+        "instructions": 88255574275
+      },
+      "after": {
+        "cpu_ns": 11551282102,
+        "wall_ns": 11721960709,
+        "instructions": 85639107396
+      }
+    }
+  },
+  "native_pairs": {
+    "check": {
+      "before": {
+        "cpu_ns": 2904134000,
+        "wall_ns": 3024347488,
+        "instructions": 21309254495
+      },
+      "after": {
+        "cpu_ns": 2861858000,
+        "wall_ns": 2961839035,
+        "instructions": 20387113892
+      }
+    },
+    "emit": {
+      "before": {
+        "cpu_ns": 4402368000,
+        "wall_ns": 4586814045,
+        "instructions": 32464757655
+      },
+      "after": {
+        "cpu_ns": 4075570000,
+        "wall_ns": 4184255429,
+        "instructions": 31542655760
+      }
+    }
+  },
+  "caveat": "Three alternating rounds on a shared Ryzen 7 3800X. Several comparisons overlapped other builds, the CPU medians are noisy, and isolated Wasmtime emission CPU increased.",
+  "probes": {
+    "replay-counts.wasm": {
+      "bytes": 17370365,
+      "sha256": "9ace89e30885b616f14eccd890ac46caeb82dc4909bc79bc4352f90df31402b4"
+    },
+    "group+p2.wasm": {
+      "bytes": 17366512,
+      "sha256": "78ef1fca96a6917354c0a8a314ff6728e0e5bd044cb3481de73f68082b732bf7"
+    },
+    "selected-shadow.wasm": {
+      "bytes": 17370167,
+      "sha256": "b40dac3beca443b5ebcb029d9013f6368d385f1d2607a690eb489c55e50f57f6"
+    },
+    "selected-shadow-64.wasm": {
+      "bytes": 17370167,
+      "sha256": "b6d4640441488de112376dd06c4b1df7c065b3adb4710fe4aac471d86d611a52"
+    },
+    "detail-shadow.wasm": {
+      "bytes": 17365278,
+      "sha256": "6de80e8e78e7d6300161241c57ef0e0bd2f6fcff5cb32d19679ead4dcca7902e"
+    },
+    "proof.wasm": {
+      "bytes": 17390359,
+      "sha256": "08d556a4510de60012a63aa01338d16d780f816c41d062c2cfd15881a1ceb3c6"
+    }
+  },
+  "artifacts": {
+    "selected.patch": {
+      "bytes": 11202,
+      "sha256": "eba9e7dcbea186ea6205e8d0647d4654e1d34d9e8891769343e38f21535d9b4f"
+    },
+    "counts.patch": {
+      "bytes": 8677,
+      "sha256": "4df3e80b4706395ef562cb3bb19d1d47c1de7fdb2fb5a6e4b4653c9072010c11"
+    },
+    "group-counts.patch": {
+      "bytes": 7517,
+      "sha256": "c821e0de235539e9f8763805425425e330b2590baed5c342ad9a15a7081410fa"
+    },
+    "group.patch": {
+      "bytes": 5979,
+      "sha256": "00983bee105bb98dd16341e9134c934d9e765dd53cb5781b1ab520efd339e4aa"
+    },
+    "stamp-shadow.patch": {
+      "bytes": 1617,
+      "sha256": "efc32a6d8497e2dbac8c7179f76124bb740c87a8b1e1e06cb1d20a1168a8ef5e"
+    },
+    "detail-shadow.patch": {
+      "bytes": 4188,
+      "sha256": "5149d9bb692cd9cf088a32592f49c3d9b5155f884cf3e4d1fa41e50bcdbe440e"
+    },
+    "class-read.goose": {
+      "bytes": 7212,
+      "sha256": "55edab8e0ef546b72a2da4c129ce413313fe304c835ba451d6aa518b90ed958d"
+    },
+    "isolated-screens.json": {
+      "bytes": 5401,
+      "sha256": "1276616c9ff78e07772b0a85cbdf7d23a213ef7bcee75121ecec1951e2414225"
+    },
+    "first-screens.json": {
+      "bytes": 5418,
+      "sha256": "097d552f0dad8d4d4dca581c152fc24dd1c6a3e6709b47fd19fead4dcd6fce71"
+    },
+    "wasmtime-pairs.json": {
+      "bytes": 10801,
+      "sha256": "2ffd3c7f1c1b7f84586f9b73f3a795760326d4dfcd271cf516b8cc114324a5a8"
+    },
+    "native-pairs.json": {
+      "bytes": 10712,
+      "sha256": "e686e64d2910013ddd319033ad01da58cef6fb8bab858b6b150390684b85d1c8"
+    },
+    "frozen-fingerprints.txt": {
+      "bytes": 1927,
+      "sha256": "8585d7afe60f146f25857ffd352979b1a9ea0113523caccd77c321bd787e65d7"
+    }
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "compiler": "4e7e1b3277448da923540c95b19040a71fe86a30",
+  "workload": "90e086fe61f9ce019d6a6ef543212be63f6e1f57",
+  "regular": {
+    "compared": 4358,
+    "differing": 0,
+    "with_lifetime_fingerprints": 3131,
+    "fingerprint_lines": 11603,
+    "with_exits": 206,
+    "fingerprint_lines_with_exits": 573,
+    "max_exits": 406,
+    "invalid_index": 0
+  },
+  "early_class_threshold": 64,
+  "early_class_fixture_sha256": "ce2086a9013f5071c1cc8b3fd73e770634dfc98934a0b541934435ee875b8def",
+  "early_class_stdout_equal": true,
+  "early_class_pass_state_sha256": "7ca491219824373a88a5f6c2a35e5a39e595b67b024693d1566ccbe148e6036b",
+  "output_equivalence": {
+    "summary": {
+      "compared": 10057,
+      "differing": 0,
+      "seconds": {
+        "baseline": 215.209,
+        "candidate": 206.391
+      }
+    },
+    "differing": []
+  }
+}

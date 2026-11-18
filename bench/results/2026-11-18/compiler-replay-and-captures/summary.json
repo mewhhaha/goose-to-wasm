@@ -1,0 +1,158 @@
+{
+  "native-before": {
+    "check": {
+      "cpu_s": 2.4520185,
+      "cpu_range_s": [
+        2.173304,
+        3.666256
+      ],
+      "billion_instructions": 21.309253982
+    },
+    "emit": {
+      "cpu_s": 3.573264,
+      "cpu_range_s": [
+        3.116625,
+        5.002204
+      ],
+      "billion_instructions": 32.46477779
+    }
+  },
+  "wasm-before": {
+    "check": {
+      "cpu_s": 7.3341892405,
+      "cpu_range_s": [
+        6.512826264,
+        9.943669005
+      ],
+      "billion_instructions": 58.6711804125,
+      "native_time_ratio": 2.991082343179711
+    },
+    "emit": {
+      "cpu_s": 10.5528434355,
+      "cpu_range_s": [
+        9.233171536,
+        14.720033065
+      ],
+      "billion_instructions": 88.255592696,
+      "native_time_ratio": 2.953278413097941
+    }
+  },
+  "bundled32-before": {
+    "check": {
+      "cpu_s": 4.3436298175,
+      "cpu_range_s": [
+        3.894599112,
+        5.738180309
+      ],
+      "billion_instructions": 37.038104507,
+      "native_time_ratio": 1.7714506711511353
+    },
+    "emit": {
+      "cpu_s": 6.1942655105,
+      "cpu_range_s": [
+        5.652463987,
+        9.041428028
+      ],
+      "billion_instructions": 57.7742428005,
+      "native_time_ratio": 1.7335034608414044
+    }
+  },
+  "bundled64-before": {
+    "check": {
+      "cpu_s": 5.983520011,
+      "cpu_range_s": [
+        5.653520167,
+        8.457253749
+      ],
+      "billion_instructions": 47.639247,
+      "native_time_ratio": 2.4402426046133017
+    },
+    "emit": {
+      "cpu_s": 8.268061917,
+      "cpu_range_s": [
+        7.580318158,
+        11.130989069
+      ],
+      "billion_instructions": 72.0640444255,
+      "native_time_ratio": 2.313868193617936
+    }
+  },
+  "native-after": {
+    "check": {
+      "cpu_s": 2.341383,
+      "cpu_range_s": [
+        2.193322,
+        3.416293
+      ],
+      "billion_instructions": 19.6488026655
+    },
+    "emit": {
+      "cpu_s": 3.2103775,
+      "cpu_range_s": [
+        2.936429,
+        3.72713
+      ],
+      "billion_instructions": 30.313303885
+    }
+  },
+  "wasm-after": {
+    "check": {
+      "cpu_s": 7.3913893095,
+      "cpu_range_s": [
+        6.244922469,
+        10.045052474
+      ],
+      "billion_instructions": 53.2067128365,
+      "native_time_ratio": 3.156847602250465
+    },
+    "emit": {
+      "cpu_s": 9.399216855,
+      "cpu_range_s": [
+        8.705342454,
+        10.854960168
+      ],
+      "billion_instructions": 80.977872026,
+      "native_time_ratio": 2.927760630953837
+    }
+  },
+  "bundled32": {
+    "check": {
+      "cpu_s": 4.3547394725,
+      "cpu_range_s": [
+        3.79960076,
+        6.439447293
+      ],
+      "billion_instructions": 34.14924735,
+      "native_time_ratio": 1.8599005256722203
+    },
+    "emit": {
+      "cpu_s": 5.776100654,
+      "cpu_range_s": [
+        5.35711664,
+        6.412605946
+      ],
+      "billion_instructions": 53.397484307,
+      "native_time_ratio": 1.7991967156510413
+    }
+  },
+  "bundled64": {
+    "check": {
+      "cpu_s": 5.979058887,
+      "cpu_range_s": [
+        5.228142952,
+        7.794492133
+      ],
+      "billion_instructions": 43.65843908,
+      "native_time_ratio": 2.5536441013708564
+    },
+    "emit": {
+      "cpu_s": 7.6289897945,
+      "cpu_range_s": [
+        7.252357833,
+        8.289267039
+      ],
+      "billion_instructions": 66.818364285,
+      "native_time_ratio": 2.3763528726761884
+    }
+  }
+}

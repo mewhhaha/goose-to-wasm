@@ -1,0 +1,44 @@
+--- a/selfhost/checker_lifetimes.goose
++++ b/selfhost/checker_lifetimes.goose
+@@ -5729,6 +5729,8 @@
+ // m: for a class-keyed frame, how the call reads its class roots; an effect
+ // that names one is replayed as the call's own (life_map_set). call: the
+ // call's node, where a store that the arguments' depths forbid is reported.
++var cache_counts: i64[2];
++struct LifeCachedFar { place_tag: i64 = 0, reach: LifeFar = LifeFar { far: 0, home: 0 } }
+ fn life_replay(p: Program&, l: Lifetimes&, frame: i64, summary: bool = false, m: LifeMap = LifeMap {}, call: i64 = -1) {
+     var at = l.frames[frame].first_effect; if summary { at = l.frames[frame].first_summary; }
+     // A discovery replay only offers effects and joins into contents and
+@@ -5761,7 +5763,7 @@
+     let direct = plain && l.types_frozen;
+     // Replaying an effect keeps the caller's activation, recursive frames and chain.
+     var stamp_chain: i64 = -1; if l.class_frames == 0 { stamp_chain = l.frames[l.frame].chain; }
+-    var prior_places: i64 = -1; var prior_reach = LifeFar { far: 0, home: 0 };
++    var reach_table: LifeCachedFar[8];
+     var read: i64 = -1; if summary && l.compact && !others { read = l.frames[frame].first_read; }
+     var passed: i64 = -1; var open = false;
+     loop {
+@@ -5776,9 +5778,13 @@
+                 if l.reading_place == 0 {
+                     let value: const LifeValue& = l.leaves[leaf].value;
+                     var places = value.place; if life_is_ref(p, value.type_id) { places = value.refs; }
+-                    if prior_places != places { prior_places = places; prior_reach = life_effect_far(l, places); }
++                    let cache: LifeCachedFar& = reach_table[places & 7];
++                    cache_counts[0]++; if cache.place_tag != places + 1 {
++                        cache_counts[1]++;
++                        cache.place_tag = places + 1; cache.reach = life_effect_far(l, places);
++                    }
+                     l.offer_count += 1;
+-                    let far = life_read_reach(l, leaf, places, l.summary_reads[entry].key, prior_reach);
++                    let far = life_read_reach(l, leaf, places, l.summary_reads[entry].key, cache.reach);
+                     if !l.offer_recursive { life_leaf_stamp(l, leaf, far); }
+                 }
+             } else {
+@@ -6268,6 +6274,7 @@
+     }
+     if p.entry >= 0 { life_function(p, l, p.entry, -1, -1, 0); }
+     for root in standalone { life_function(p, l, root.function_node, -1, root.arguments, 0); }
++    print("CACHE ", cache_counts);
+     l.types_frozen = false;
+     if p.diagnostics.len == 0 { life_export_provenance(p, l); life_refresh_named_results(p); }
+ }

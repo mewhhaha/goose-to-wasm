@@ -1,0 +1,99 @@
+--- a/selfhost/checker_lifetimes.goose
++++ b/selfhost/checker_lifetimes.goose
+@@ -67,7 +67,7 @@
+ // next older frame in its input_heads and home_heads buckets.
+ // function_active: on the newest frame of a function, how many of the
+ // function's frames are active.
+-struct LifeFrame { function_node: i64 = -1, parent: i64 = -1, lexical: i64 = 0, call: i64 = -1, inputs: i64 = -1, base: i64 = 0, active: bool = false, result: LifeValue = LifeValue {}, destination: i64 = 0, selected_result: i64 = -1, checked_revision: i64 = -1, next_function: i64 = -1, first_cell: i64 = -1, first_effect: i64 = -1, last_effect: i64 = -1, validated: bool = false, first_summary: i64 = -1, last_summary: i64 = -1, effect_epoch: i64 = 0, recursive_call: bool = false, home: i64 = -1, capture_inputs: i64 = -1, cycle: i64 = -1, activation: i64 = 0, context: i64 = 0, first_other: i64 = -1, last_other: i64 = -1, reads_version: i64 = 0, first_read: i64 = -1, last_read: i64 = -1, read_table: i64 = 0, read_cap: i64 = 0, read_count: i64 = 0, chain: i64 = 0, chain_epoch: i64 = -1, chain_recursive: i64 = 0, inputs_hash: i64 = 0, inputs_kinds: i64 = 0, mixed_kinds: bool = false, next_inputs: i64 = -1, next_home: i64 = -1, function_active: i64 = 0,
++struct LifeFrame { function_node: i64 = -1, parent: i64 = -1, lexical: i64 = 0, call: i64 = -1, inputs: i64 = -1, base: i64 = 0, active: bool = false, result: LifeValue = LifeValue {}, destination: i64 = 0, selected_result: i64 = -1, checked_revision: i64 = -1, next_function: i64 = -1, first_cell: i64 = -1, first_effect: i64 = -1, last_effect: i64 = -1, validated: bool = false, first_summary: i64 = -1, last_summary: i64 = -1, effect_epoch: i64 = 0, recursive_call: bool = false, home: i64 = -1, capture_inputs: i64 = -1, cycle: i64 = -1, activation: i64 = 0, context: i64 = 0, first_other: i64 = -1, last_other: i64 = -1, reads_version: i64 = 0, offered_version: i64 = -1, offered_stamp: i64 = -1, offered_floor: i64 = 0, first_read: i64 = -1, last_read: i64 = -1, read_table: i64 = 0, read_cap: i64 = 0, read_count: i64 = 0, chain: i64 = 0, chain_epoch: i64 = -1, chain_recursive: i64 = 0, inputs_hash: i64 = 0, inputs_kinds: i64 = 0, mixed_kinds: bool = false, next_inputs: i64 = -1, next_home: i64 = -1, function_active: i64 = 0,
+     first_exit: i64 = -1,
+     // island: the class-keyed frame this frame last ran under, itself for
+     // such a frame, 0 for none. For a class-keyed frame: classes, class_count:
+@@ -5711,6 +5711,7 @@
+ // m: for a class-keyed frame, how the call reads its class roots; an effect
+ // that names one is replayed as the call's own (life_map_set). call: the
+ // call's node, where a store that the arguments' depths forbid is reported.
++var screen_r: i64[24];
+ fn life_replay(p: Program&, l: Lifetimes&, frame: i64, summary: bool = false, m: LifeMap = LifeMap {}, call: i64 = -1) {
+     var at = l.frames[frame].first_effect; if summary { at = l.frames[frame].first_summary; }
+     // A discovery replay only offers effects and joins into contents and
+@@ -5726,13 +5727,28 @@
+     // in that chain again has only the other entries to go through, in the
+     // same order: each frame of the chain took the reads then.
+     let version = l.frames[frame].reads_version; var chain: i64 = -1; if plain { chain = life_chain_key(l, frame, l.recursion_epoch); }
+-    let others = chain >= 0 && life_chain_replayed(l, chain) == version;
++    var others = chain >= 0 && life_chain_replayed(l, chain) == version;
+     // In validation a construct read does two things: it is recorded up the
+     // chain, which the activation's stamp on its leaf says has been done,
+     // and it is checked against the values under construction, of which
+     // there are none here most of the time.
+     var quick = !l.discovery && m.count == 0 && l.class_frames == 0 && l.frame > 0 && l.activations < 1073741824;
+     if quick { for index in l.hold_floor..l.hold_count { if l.holds[index].kind == 2 { quick = false; } } }
++    let group = summary && l.compact && (plain || quick);
++    let old_others = others;
++    if group && !others {
++        let f: const LifeFrame& = l.frames[frame];
++        let stamp = f.offered_stamp;
++        if f.offered_version == version && (stamp & 4294967295) == l.recursion_epoch {
++            others = (stamp >> 32) == into as i64 || (stamp >> 32) > into as i64 && l.frames[l.frame].chain >= f.offered_floor;
++        }
++    }
++    var floor = 1; var all_offered = group && !others;
++    if others && !old_others {
++        screen_r[0]++; screen_r[1] += l.frames[frame].read_count;
++        if quick { screen_r[2]++; screen_r[3] += l.frames[frame].read_count; }
++    }
++    var fast = 0; var slow = 0;
+     if others { at = l.frames[frame].first_other; }
+     var complete = chain >= 0 && !others;
+     // While summaries hold their construct reads by leaf, the list is the
+@@ -5746,8 +5762,12 @@
+         while read >= 0 && (at < 0 || (l.summary_reads[read].before as i64) < at) {
+             let entry = read; let item: const LifeReadEntry& = l.summary_reads[entry];
+             let leaf = item.leaf as i64; read = item.next as i64;
+-            if (memo || quick) && life_leaf_offered(l, leaf) { continue; }
+-            if memo { l.offer_count = 0; l.offer_recursive = false; }
++            if (memo || quick) && life_leaf_offered(l, leaf) {
++                fast++;
++                if all_offered && l.leaf_floors[leaf] as i64 > floor { floor = l.leaf_floors[leaf] as i64; }
++                continue;
++            }
++            slow++; if memo { l.offer_count = 0; l.offer_recursive = false; }
+             if direct {
+                 // A compact entry already passed the construct-read type check.
+                 // Merging keeps its site, type and element-array identity.
+@@ -5762,7 +5782,10 @@
+                 let node = l.leaves[leaf].node; let value = l.leaves[leaf].value;
+                 life_construct_read(p, l, node, value, known);
+             }
+-            if complete && !life_leaf_offered(l, leaf) { complete = false; }
++            if complete || all_offered {
++                if !life_leaf_offered(l, leaf) { complete = false; all_offered = false; }
++                else if all_offered && l.leaf_floors[leaf] as i64 > floor { floor = l.leaf_floors[leaf] as i64; }
++            }
+         }
+         // A replay of a frame of the chain can add to the list it is going
+         // through. The list ends at the entry that was its last when the
+@@ -5899,6 +5922,16 @@
+         if complete && effect.kind == 3 && (leaf < 0 || !life_leaf_offered(l, leaf)) { complete = false; }
+         at = next;
+     }
++    if slow == 0 && fast > 0 {
++        screen_r[4]++; screen_r[5] += fast;
++        if quick { screen_r[6]++; screen_r[7] += fast; }
++    }
++    if quick { screen_r[8] += fast; screen_r[9] += slow; }
++    else { screen_r[10] += fast; screen_r[11] += slow; }
++    if all_offered && l.frames[frame].reads_version == version {
++        l.frames[frame].offered_version = version; l.frames[frame].offered_stamp = (into as i64) * 4294967296 + l.recursion_epoch;
++        l.frames[frame].offered_floor = floor;
++    }
+     if complete && l.frames[frame].reads_version == version { life_chain_replay(l, chain, version); }
+ }
+ 
+@@ -6246,4 +6279,5 @@
+     for root in standalone { life_function(p, l, root.function_node, -1, root.arguments, 0); }
+     l.types_frozen = false;
+     if p.diagnostics.len == 0 { life_export_provenance(p, l); life_refresh_named_results(p); }
++    print("SCREEN ", screen_r);
+ }

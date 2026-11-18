@@ -1,0 +1,55 @@
+--- a/selfhost/checker_lifetimes.goose
++++ b/selfhost/checker_lifetimes.goose
+@@ -19,7 +19,7 @@
+ // plain: the set without its class roots (life_strip), itself if it has
+ // none, once asked; -1 before. folded, lasting: likewise what life_fold and
+ // life_lasting make of it.
+-struct LifeSet { first: i64 = -1, count: i64 = 0, bound_depth: i64 = -1, bound_result: i64 = 0, index: i64 = -1, index_mask: i64 = 0, hash: i64 = 0, plain: i64 = -1, folded: i64 = -1, lasting: i64 = -1 }
++struct LifeSet { first: i64 = -1, count: i64 = 0, bound_depth: i64 = -1, bound_result: i64 = 0, index: i64 = -1, index_mask: i64 = 0, hash: i64 = 0, plain: i64 = -1, folded: i64 = -1, lasting: i64 = -1, effect_owner: i64 = -3 }
+ // A span of global_read_list; count -1 until computed.
+ struct LifeSpan { first: i64 = 0, count: i64 = -1 }
+ // What the nodes a walk reaches from `start` say without following calls
+@@ -409,7 +409,34 @@
+ // frame of the chain; with a place outside the chain every frame takes the
+ // effect as external, and none is asked about its cells.
+ struct LifeFar { far: i64, home: i64, cyclic: bool = false }
++// All nonzero roots in an effect can share an owner, regardless of their
++// order. Frame zero always puts the effect outside the chain. Only mixed
++// owners depend on multiple frames. A newly inserted root clears this cache.
++fn life_effect_owner(l: Lifetimes&, places: i64) -> i64 {
++    var owner: i64 = -1; var at = l.sets[places].first;
++    while at >= 0 {
++        let alt: const LifeAlt& = l.alts[at]; at = alt.next;
++        if alt.root == 0 { continue; }
++        let frame = l.roots[alt.root].frame;
++        if frame <= 0 { owner = 0; break; }
++        if owner == -1 { owner = frame; }
++        else if owner != frame { owner = -2; }
++    }
++    l.sets[places].effect_owner = owner;
++    return owner;
++}
+ fn life_effect_far(l: Lifetimes&, places: i64) -> LifeFar {
++    var owner = l.sets[places].effect_owner;
++    if owner == -3 { owner = life_effect_owner(l, places); }
++    if owner == -1 { return LifeFar { far: 0, home: l.frame }; }
++    if owner >= 0 {
++        if owner == 0 || l.frame <= 0 { return LifeFar { far: 9223372036854775807, home: 0 }; }
++        let h: const LifeFrame& = l.frames[owner];
++        if owner == l.frame { return LifeFar { far: 0, home: owner, cyclic: h.recursive_call }; }
++        let chain = l.frames[l.frame].chain;
++        if !h.active || h.chain >= chain { return LifeFar { far: 9223372036854775807, home: 0 }; }
++        return LifeFar { far: chain - h.chain, home: owner, cyclic: h.recursive_call };
++    }
+     var out = LifeFar { far: 0, home: l.frame }; var at = l.sets[places].first; let chain = l.frames[l.frame].chain;
+     while at >= 0 {
+         let root = l.alts[at].root;
+@@ -1136,7 +1163,7 @@
+     let old = life_find_linear(l, set, alt.root);
+     if old >= 0 { l.alts[old] = life_merged(l.alts[old], alt); return; }
+     let index = l.alts.len; var entry = alt; entry.next = l.sets[set].first as i32;
+-    l.alts.push(entry); l.sets[set].first = index; l.sets[set].count += 1;
++    l.alts.push(entry); l.sets[set].first = index; l.sets[set].count += 1; l.sets[set].effect_owner = -3;
+ }
+ // Whether old, for the same root, already admits everything incoming does.
+ inline fn life_covers(old: LifeAlt, incoming: LifeAlt) -> bool {
