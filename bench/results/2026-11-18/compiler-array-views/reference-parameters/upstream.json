@@ -1,0 +1,15 @@
+{
+  "version": "goose d92c4315 (runtime d521138194f1)",
+  "binary_sha256": "fe5031bfd91f65174195321280ab2e15b3de1ed708ef89c886d01db483a79c78",
+  "fixture_sha256": "67d61e62c701bcaf56889d0344e81e3661b423f745103614d39ca69100a17299",
+  "args": [
+    "run",
+    "tests/fixtures/wasm_reference_parameters.goose",
+    "--offline",
+    "--color",
+    "never"
+  ],
+  "exit_code": 0,
+  "stdout": "8 5 [3, 7, 8]\n",
+  "stderr": ""
+}

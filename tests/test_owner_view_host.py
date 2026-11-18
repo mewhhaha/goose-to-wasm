@@ -93,6 +93,21 @@ class OwnerViewHost(unittest.TestCase):
                             self.assertEqual(run_image(engine, module, width, b'\x02MN', 2), [('array index out of bounds', 6)])
                             self.assertEqual(run_image(engine, module, width, b'\x80', 1, mode=6), [('truncated varint image', 5)])
 
+    def test_reference_parameters_keep_rebound_and_captured_cells(self):
+        source = goose_stats.ROOT / 'tests/fixtures/wasm_reference_parameters.goose'
+        output = self.work / 'parameters.wasm'
+        for width in (32, 64):
+            for level in (0, 2):
+                with self.subTest(width=width, level=level):
+                    command = [goose_stats.GOOSE, source, '--stdlib', goose_stats.ROOT / 'stdlib',
+                               '--target', 'wasm-direct', f'-O{level}', '-o', output]
+                    if width == 64:
+                        command.append('--wasm-memory64')
+                    subprocess.run(command, check=True, capture_output=True, timeout=60)
+                    result = subprocess.check_output(
+                        [sys.executable, goose_stats.ROOT / 'scripts/run_wasmtime.py', output], timeout=30)
+                    self.assertEqual(result, b'8 5 [3, 7, 8]\n')
+
     def test_two_pops_update_host_image_and_preserve_payload(self):
         source = self.work / "update.goose"
         source.write_text("""extern fn prepare(rows: u8[>..]&) -> i64;

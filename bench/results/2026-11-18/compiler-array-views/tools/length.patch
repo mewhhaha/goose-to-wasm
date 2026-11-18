@@ -1,0 +1,15 @@
+--- a/selfhost/codegen.goose
++++ b/selfhost/codegen.goose
+@@ -4523,6 +4523,12 @@
+ // array (5), with two address-sized words, the capacity and the length.
+ fn cg_owner_read_length(p: Program&, m: CgModule&, f: CgBody&, header: i64, node: i64) {
+     if m.ordinary_owners { cg_get(f, header); wc_load(f.code, 1); return; }
++    if m.owner_view >= 0 && f.diagnostic_line < 0 {
++        cg_get(f, header); wc_load(f.code, 5); wa_op(f.code, 0x45); cg_begin(f, 0x04, wa());
++        cg_get(f, header); wc_load(f.code, 1); wb_byte(f.code, 0x05);
++        cg_get(f, header); cg_diagnostic_line(p, f, node); wb_op(f.code, 0x10, m.owner_view); ws_len(f.code);
++        cg_end(f); return;
++    }
+     cg_get(f, header); wc_load(f.code, 5); let mode = cg_save(f, wa());
+     cg_get(f, header); wc_load(f.code, 1); let result = cg_save(f, wa());
+     let done = cg_begin(f, 0x02, 0x40);

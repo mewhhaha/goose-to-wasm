@@ -1,0 +1,60 @@
+--- a/selfhost/codegen.goose
++++ b/selfhost/codegen.goose
+@@ -2197,7 +2197,8 @@
+     cg_get(f, counter); cg_get(f, limit); var comparison = T_GTEQ;
+     if iterable.kind == N_RANGE && (iterable.flags & F_INCLUSIVE) != 0 { comparison = T_GT; }
+     wb_byte(f.code, cg_numeric_opcode(comparison, cg_wasm_type(p, counter_type), cg_unsigned(p, counter_type))); cg_branch(p, f, done, true);
+-    cg_symbol_address(p, m, f, element_binding, node); let place = cg_save(f, wa());
++    var place = -1;
++    if !f.slots[element_binding].value { cg_symbol_address(p, m, f, element_binding, node); place = cg_save(f, wa()); }
+     let binding_type = p.symbols[element_binding].type_id;
+     if sequence {
+         let element = p.types[type_id].element;
+@@ -2212,10 +2213,12 @@
+         else { cg_get(f, sequence_base); cg_get(f, counter); wa_wrap(f.code); wa_const(f.code, cg_size(p, element)); wa_op(f.code, 0x6c); wa_op(f.code, 0x6a); }
+         if cg_type_kind(p, binding_type) != TY_REF || cg_type_kind(p, element) == TY_REF { cg_load(p, m, f, element, 0); cg_convert(p, m, f, element, binding_type, node); }
+     } else { cg_get(f, counter); cg_convert(p, m, f, counter_type, binding_type, node); }
+-    cg_write_value(p, m, f, binding_type, place, node);
++    if f.slots[element_binding].value { cg_scalar_slot_store(p, f, element_binding); }
++    else { cg_write_value(p, m, f, binding_type, place, node); }
+     if ordinal_binding >= 0 {
+-        cg_symbol_address(p, m, f, ordinal_binding, node); let destination = cg_save(f, wa());
+-        cg_get(f, ordinal); cg_convert(p, m, f, TYPE_U64, p.symbols[ordinal_binding].type_id, node); cg_write_value(p, m, f, p.symbols[ordinal_binding].type_id, destination, node);
++        cg_get(f, ordinal); cg_convert(p, m, f, TYPE_U64, p.symbols[ordinal_binding].type_id, node);
++        if f.slots[ordinal_binding].value { cg_scalar_slot_store(p, f, ordinal_binding); }
++        else { cg_symbol_address(p, m, f, ordinal_binding, node); let destination = cg_save(f, wa()); cg_write_value(p, m, f, p.symbols[ordinal_binding].type_id, destination, node); }
+     }
+     wb_op(f.code, 0x23, 0); let scratch = cg_save(f, wa()); var regions = -1; if m.regions_enabled { regions = cg_mark_regions(f); }
+     let step = cg_begin(f, 0x02, 0x40); f.exits.push(CgExit { label: done, again: step, node: node, scratch: scratch, regions: regions, publication: cg_mark_publications(m, f), defers: f.defers.len });
+@@ -3290,6 +3293,7 @@
+ }
+ // A scalar can live in a Wasm local unless code can observe its address.
+ let CG_ADDRESS_TAKEN: i64 = 512;
++let CG_FOR_BINDING: i64 = 1024;
+ fn cg_scalar_slot_type(p: Program&, id: i64) -> bool {
+     if !cg_scalar_type(p, id) { return false; }
+     let kind = cg_type_kind(p, id);
+@@ -3361,7 +3365,7 @@
+         var value = false;
+         if function >= 0 && symbol.node >= 0 && (symbol.flags & CG_ADDRESS_TAKEN) == 0 && cg_scalar_slot_type(p, symbol.type_id) {
+             let binding = p.nodes[symbol.node];
+-            value = binding.kind == N_PARAM || binding.kind == N_VARIABLE && binding.first < 0 && !cg_decl_diverges(p, symbol.node);
++            value = (symbol.flags & CG_FOR_BINDING) != 0 || binding.kind == N_PARAM || binding.kind == N_VARIABLE && binding.first < 0 && !cg_decl_diverges(p, symbol.node);
+         }
+         var wasm_type = wa(); if value { wasm_type = cg_wasm_type(p, symbol.type_id); }
+         let local = cg_local(f, wasm_type);
+@@ -3972,6 +3976,14 @@
+                 let symbol = p.nodes[arm].symbol;
+                 if symbol >= 0 && p.symbols[symbol].node >= 0 { p.nodes[p.symbols[symbol].node].flags |= CG_DISPATCH_ENTRY; }
+                 arm = p.nodes[arm].next;
++            }
++        }
++        if n.kind == N_FOR {
++            var binding = n.first;
++            while binding >= 0 {
++                let symbol = p.nodes[binding].symbol;
++                if symbol >= 0 { p.symbols[symbol].flags |= CG_FOR_BINDING; }
++                binding = p.nodes[binding].next;
+             }
+         }
+         // Checking makes implicit borrows explicit. Also keep a place for a

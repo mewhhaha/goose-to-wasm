@@ -1,0 +1,93 @@
+{
+  "schema": "goose-langbench-hot-chart-v1",
+  "report": "bench/results/2026-11-18/compiler-array-views/langbench-hot.json",
+  "report_sha256": "7dba375f6408db5c25ba072e26acab823fa6b276a2e1e2813391682852f2b57d",
+  "charts": {
+    "langbench-hot-runtime.svg": {
+      "values": [
+        {
+          "profile": "small",
+          "cells": [
+            "c-gcc",
+            "c-clang",
+            "upstream-goose-native",
+            "goose-native",
+            "goose-wasm-wasmtime",
+            "goose-wasm-v8"
+          ],
+          "median_ms": [
+            79.964,
+            85.149917,
+            79.66996,
+            82.096093,
+            85.910953,
+            84.475535
+          ],
+          "mad_ms": [
+            1.166296,
+            0.575823,
+            0.968239,
+            1.636752,
+            0.975042,
+            0.794409
+          ]
+        },
+        {
+          "profile": "medium",
+          "cells": [
+            "c-gcc",
+            "c-clang",
+            "upstream-goose-native",
+            "goose-native",
+            "goose-wasm-wasmtime",
+            "goose-wasm-v8"
+          ],
+          "median_ms": [
+            631.68534,
+            665.653198,
+            625.848183,
+            624.577515,
+            679.39018,
+            656.582498
+          ],
+          "mad_ms": [
+            11.181109,
+            0.484056,
+            4.700957,
+            5.118899,
+            9.445485,
+            9.198954
+          ]
+        },
+        {
+          "profile": "official",
+          "cells": [
+            "c-gcc",
+            "c-clang",
+            "upstream-goose-native",
+            "goose-native",
+            "goose-wasm-wasmtime",
+            "goose-wasm-v8"
+          ],
+          "median_ms": [
+            2506.669086,
+            2661.204309,
+            2501.742653,
+            2499.236562,
+            2711.671882,
+            2620.467963
+          ],
+          "mad_ms": [
+            22.180127,
+            19.263855,
+            14.699893,
+            27.489002,
+            36.669945,
+            22.724558
+          ]
+        }
+      ],
+      "sha256": "7f9eaae9f930f9d180b01e90c5d3a417b7d8e50127151829818f3341969a7c36"
+    }
+  }
+}

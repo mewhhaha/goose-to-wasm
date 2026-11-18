@@ -1,0 +1,45 @@
+{
+  "wasm-direct": {
+    "candidate_cpu_ratio": 0.9736621422178118,
+    "workload_cpu_ratios": {
+      "errors": 0.979353233830832,
+      "functions": 0.9752982159822504,
+      "life": 0.9887178281819139,
+      "mandelbrot": 0.9631469315813133,
+      "maze": 0.9924872768398355,
+      "sieve": 0.9869426309211685,
+      "sorting": 0.996816941665579,
+      "squares": 0.9353178155773458,
+      "sudoku": 0.9740637498485378,
+      "tour": 0.9639819004524927,
+      "vm": 0.9558762886596758
+    },
+    "changed_program_artifacts": [
+      "errors",
+      "functions",
+      "life",
+      "maze",
+      "sieve",
+      "sorting",
+      "sudoku",
+      "tour"
+    ]
+  },
+  "native-c": {
+    "candidate_cpu_ratio": 0.9835793569763762,
+    "workload_cpu_ratios": {
+      "errors": 0.993245554035421,
+      "functions": 0.9849666713941374,
+      "life": 1.0011977482333825,
+      "mandelbrot": 0.966702470461849,
+      "maze": 1.0082254255232612,
+      "sieve": 0.9850862202890776,
+      "sorting": 0.999002285088986,
+      "squares": 0.9627029398858289,
+      "sudoku": 0.9692124105012749,
+      "tour": 0.9866437936528025,
+      "vm": 0.9637015933312923
+    },
+    "changed_program_artifacts": []
+  }
+}

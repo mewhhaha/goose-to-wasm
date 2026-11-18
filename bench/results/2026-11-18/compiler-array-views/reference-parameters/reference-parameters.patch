@@ -1,0 +1,87 @@
+--- a/selfhost/codegen.goose
++++ b/selfhost/codegen.goose
+@@ -26,7 +26,12 @@
+ struct CgCapture { function: i64, symbol: i64 }
+ struct CgText { data: i64, length: i64 }
+ struct CgSegment { address: i64, start: i64, count: i64 }
++// A private reference parameter can stay in its incoming Wasm local. Record
++// its initial store and direct slot loads until body emission has revealed
++// whether any operation requires the address of the parameter cell itself.
++struct CgParameterUse { symbol: i64, start: i64, end: i64, initial: bool = false }
+ struct CgModule {
++    parameter_uses: CgParameterUse[>..]&,
+     functions: CgFunction[>..]&, captures: CgCapture[>..]&, imports: CgImport[>..]&,
+     signatures: CgSignature[>..]&, signature_bytes: u8[>..]&,
+     segments: CgSegment[>..]&, data: u8[>..]&, globals: i64[>..]&,
+@@ -59,7 +64,7 @@
+ struct CgSequence {
+     kind: i64, node: i64, parent: i64 = -1, saved: i64 = -1, index: i64 = -1, pointer: i64 = -1, address: bool = false,
+ }
+-struct CgSlot { local: i64 = -1, value: bool = false }
++struct CgSlot { local: i64 = -1, value: bool = false, incoming: i64 = -1, address_used: bool = false }
+ struct CgFrameAddress { local: i64, offset: i64 }
+ struct CgBody {
+     code: u8[>..]&, locals: i64[>..]&, slots: CgSlot[>..]&, addresses: CgFrameAddress[>..]&,
+@@ -612,6 +617,7 @@
+     }
+     if symbol >= f.slots.len || f.slots[symbol].local < 0 { cg_fail(p, node, "wasm: local or capture storage was not assigned"); return; }
+     if f.slots[symbol].value { cg_fail(p, node, "wasm: scalar local unexpectedly requires an address"); return; }
++    f.slots[symbol].address_used = true;
+     cg_get(f, f.slots[symbol].local);
+ }
+ fn cg_field_place(p: Program&, m: CgModule&, f: CgBody&, object_type: i64, node: i64, field_id: i64 = -1) {
+@@ -3156,6 +3162,12 @@
+     if n.kind == N_NAME {
+         if n.symbol >= 0 && (p.symbols[n.symbol].flags & S_FUNCTION) != 0 { cg_closure(p, m, f, n.symbol, node); return; }
+         if n.symbol >= 0 && n.symbol < f.slots.len && f.slots[n.symbol].value { cg_get(f, f.slots[n.symbol].local); return; }
++        if n.symbol >= 0 && n.symbol < f.slots.len && f.slots[n.symbol].incoming >= 0 {
++            let start = f.code.len;
++            cg_get(f, f.slots[n.symbol].local); cg_load_fixed(p, f.code, p.symbols[n.symbol].type_id, 0);
++            m.parameter_uses.push(CgParameterUse { symbol: n.symbol, start: start, end: f.code.len });
++            return;
++        }
+         cg_symbol_address(p, m, f, n.symbol, node);
+         let stored = p.symbols[n.symbol].type_id;
+         if stored >= 0 && p.types[stored].kind == TY_INT && p.types[stored].storage == 1 { cg_load_fixed(p, f.code, TYPE_I64, 0); return; }
+@@ -3437,9 +3449,14 @@
+         if symbol < 0 { cg_fail(p, param, "wasm: parameter has no storage symbol"); return; }
+         let id = p.nodes[param].type_id;
+         if f.slots[symbol].local == index { param = p.nodes[param].next; index++; continue; }
++        let start = f.code.len;
+         if f.slots[symbol].value { cg_get(f, index); cg_scalar_slot_store(p, f, symbol); }
+         else if m.regions_enabled && cg_region_value(p, id) { cg_get(f, f.slots[symbol].local); cg_get(f, index); wa_const(f.code, cg_size(p, id)); wb_copy(f.code); }
+         else { cg_get(f, index); cg_write_value(p, m, f, id, f.slots[symbol].local, param); }
++        if m.prefix_helper < 0 && m.resolver < 0 && cg_type_kind(p, id) == TY_REF && !cg_relative_type(p, id) {
++            f.slots[symbol].incoming = index;
++            m.parameter_uses.push(CgParameterUse { symbol: symbol, start: start, end: f.code.len, initial: true });
++        }
+         param = p.nodes[param].next; index++;
+     }
+ }
+@@ -3527,7 +3544,15 @@
+     cg_end(f); cg_emit_epilogue(p, m, f);
+     // Frame size includes literals and call snapshots discovered recursively.
+     // Emit the reservation only after that size has become final.
+-    var body: u8[>..] = []; body.append(code); code.clear(); cg_emit_prelude(p, m, f); code.append(body);
++    var body: u8[>..] = []; var cursor = 0;
++    for use in m.parameter_uses {
++        if slots[use.symbol].address_used { continue; }
++        body.append(code[cursor..use.start]);
++        if !use.initial { wb_op(body, 0x20, slots[use.symbol].incoming); }
++        cursor = use.end;
++    }
++    m.parameter_uses.clear();
++    body.append(code[cursor..]); code.clear(); cg_emit_prelude(p, m, f); code.append(body);
+     if m.scalar { wb_compact_body(out, locals, code, f.params); }
+     else { wb_reuse_locals(locals, code, f.params); wb_body(out, locals, code); }
+     m.region_functions[function_index].own = f.region_peak;
+@@ -4237,7 +4262,8 @@
+     var binding_heads: i64[>..] = []; var binding_next: i64[>..] = [];
+     var owners = SymbolOwners { heads: binding_heads, next: binding_next };
+     index_symbol_owners(p, owners);
+-    var m = CgModule { functions: functions, captures: captures, imports: imports, signatures: signatures, signature_bytes: signature_bytes, segments: segments, data: data, globals: globals, global_regions: global_regions, symbol_owners: owners, region_functions: region_functions, region_calls: region_calls, region_memo: region_memo,
++    var parameter_uses: CgParameterUse[>..] = [];
++    var m = CgModule { parameter_uses: parameter_uses, functions: functions, captures: captures, imports: imports, signatures: signatures, signature_bytes: signature_bytes, segments: segments, data: data, globals: globals, global_regions: global_regions, symbol_owners: owners, region_functions: region_functions, region_calls: region_calls, region_memo: region_memo,
+         stack_limit: (p.maximum_pages * 65536 / 2) & -8 };
+     cg_collect(p, m); if p.diagnostics.len > 0 { return; }
+     if m.scalar { m.resolver = -1; m.host_reserve = -1; }

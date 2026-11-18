@@ -1,0 +1,17 @@
+--- a/selfhost/codegen.goose
++++ b/selfhost/codegen.goose
+@@ -589,9 +589,11 @@
+         // An ordinary control starts with the slice itself. Keep image decoding
+         // and its caller's diagnostic line in one shared fallback.
+         if m.owner_view >= 0 {
+-            cg_get(f, base); wc_load(f.code, 5); wa_op(f.code, 0x45); cg_begin(f, 0x04, ws());
+-            cg_get(f, base); ws_load(f.code, 0); wb_byte(f.code, 0x05);
+-            cg_get(f, base); cg_diagnostic_line(p, f, node); wb_op(f.code, 0x10, m.owner_view); cg_end(f); return;
++            let ready = cg_begin(f, 0x02, ws());
++            cg_get(f, base); ws_load(f.code, 0);
++            cg_get(f, base); wc_load(f.code, 5); wa_op(f.code, 0x45); cg_branch(p, f, ready, true);
++            wb_byte(f.code, 0x1a); cg_get(f, base); cg_diagnostic_line(p, f, node);
++            wb_op(f.code, 0x10, m.owner_view); cg_end(f); return;
+         }
+         cg_owner_read_base(p, m, f, base, node); wa_extend(f.code);
+         cg_owner_read_length(p, m, f, base, node); wa_extend(f.code);

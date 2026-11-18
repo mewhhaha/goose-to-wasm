@@ -1,0 +1,82 @@
+--- a/selfhost/checker_lifetimes.goose
++++ b/selfhost/checker_lifetimes.goose
+@@ -221,6 +221,7 @@
+ struct Lifetimes {
+     parents: const i64[:], depths: const i64[:], functions: const i64[:],
+     roots: LifeRoot[>..]&, sets: LifeSet[>..]&, alts: LifeAlt[>..]&, cells: LifeCell[>..]&,
++    containment_rows: i64[>..]&, containment_bits: u64[>..]&, containment_seen: i64[>..]&,
+     frames: LifeFrame[>..]&, items: LifeItem[>..]&, pairs: LifePair[>..]&, pair_heads: i64[>..]&, exits: LifeExit[>..]&,
+     futures: LifeFuture[>..]&, holds: LifeHold[>..]&, temps: LifeTemp[>..]&, reads: LifeRead[>..]&,
+     kills: LifeKill[>..]&,
+@@ -992,8 +993,54 @@
+     let b = pointee ^ (pointee >> 14) ^ (pointee >> 28) ^ (pointee >> 42) ^ (pointee >> 56);
+     return (a ^ b ^ ((b & 8191) << 1) ^ (b >> 13)) & (count - 1);
+ }
++// A row records all pointee classes reached through one owner's inline storage.
++fn life_containment_row(p: Program&, l: Lifetimes&, owner: i64) -> i64 {
++    let row = l.containment_bits.len;
++    l.containment_rows[owner] = row;
++    l.containment_bits.resize(row + ((l.type_canon.len + 63) >> 6), 0 as u64);
++    var work: i64[>..] = [owner];
++    l.containment_seen[owner] = owner;
++    var at = 0;
++    while at < work.len {
++        let id = work[at]; at += 1;
++        let canonical = l.type_canon[id];
++        l.containment_bits[row + (canonical >> 6)] |= (1 as u64) << (canonical & 63);
++        let t: const Type& = p.types[id];
++        if t.kind == TY_ARRAY && t.element >= 0 {
++            if l.containment_seen[t.element] != owner {
++                l.containment_seen[t.element] = owner; work.push(t.element);
++            }
++        } else if t.kind == TY_STRUCT || t.kind == TY_ENUM || t.kind == TY_TUPLE {
++            var field = t.first;
++            while field >= 0 {
++                let child = p.nodes[field].type_id;
++                if child >= 0 && l.containment_seen[child] != owner {
++                    l.containment_seen[child] = owner; work.push(child);
++                }
++                field = p.nodes[field].next;
++            }
++        }
++    }
++    return row;
++}
+ fn life_contains(p: Program&, l: Lifetimes&, owner: i64, pointee: i64) -> bool {
+     if owner < 0 || pointee < 0 { return false; }
++    // Keep the pair table for growing type graphs and very large programs.
++    if l.types_frozen && p.types.len <= 8192 {
++        if l.containment_rows.len == 0 {
++            if l.type_canon.len < p.types.len { life_canon_types(p, l); }
++            l.containment_rows.resize(p.types.len, -1);
++            l.containment_seen.resize(p.types.len, -1);
++        }
++        var row = l.containment_rows[owner];
++        if row < 0 { row = life_containment_row(p, l, owner); }
++        let id = l.type_canon[pointee];
++        return (l.containment_bits[row + (id >> 6)] & ((1 as u64) << (id & 63))) != 0;
++    }
++    return life_contains_pair(p, l, owner, pointee);
++}
++fn life_contains_pair(p: Program&, l: Lifetimes&, owner: i64, pointee: i64) -> bool {
++    if owner < 0 || pointee < 0 { return false; }
+     // Two cached pairs per bucket at most, on average.
+     if 2 * l.pair_heads.len <= l.pairs.len {
+         var count: i64 = 16;
+@@ -6178,6 +6225,7 @@
+     if p.diagnostics.len > 0 { return; }
+     var roots: LifeRoot[>..] = [LifeRoot {}]; var sets: LifeSet[>..] = [LifeSet {}];
+     var alts: LifeAlt[>..] = []; var cells: LifeCell[>..] = []; var frames: LifeFrame[>..] = [LifeFrame {}];
++    var containment_rows: i64[>..] = []; var containment_bits: u64[>..] = []; var containment_seen: i64[>..] = [];
+     var items: LifeItem[>..] = []; var pairs: LifePair[>..] = []; var pair_heads: i64[>..] = []; var exits: LifeExit[>..] = [];
+     var futures: LifeFuture[>..] = []; var holds: LifeHold[>..] = []; var temps: LifeTemp[>..] = []; var reads: LifeRead[>..] = []; var kills: LifeKill[>..] = []; var atoms: LifeAtom[>..] = []; var failures: LifeFailure[>..] = []; var effects: LifeEffect[>..] = [];
+     var symbol_cells: i64[>..] = []; symbol_cells.resize(p.symbols.len, -1);
+@@ -6215,7 +6263,7 @@
+     var assumes: LifeAssume[>..] = []; var assume_slots: i64[>..] = []; var map_memo: LifeMapped[>..] = []; var body_owners: i64[>..] = []; var body_captures: i64[>..] = []; var contained: i64[>..] = []; var typed_slots: i64[>..] = []; var global_types: i8[>..] = []; var refers: LifeRefers[>..] = []; var referable: LifeLoaded[>..] = []; var type_canon: i64[>..] = [];
+     var class_slots: i64[>..] = []; var joins: LifeJoin[>..] = []; var global_cells: i64[>..] = []; var global_candidates: LifeGlobalCandidates[>..] = []; var candidate_alts: LifeAlt[>..] = [];
+     var l = Lifetimes { parents: scope_parent, depths: scope_depth, functions: scope_functions,
+-        roots: roots, sets: sets, alts: alts, cells: cells, frames: frames, items: items, pairs: pairs, pair_heads: pair_heads, exits: exits,
++        roots: roots, sets: sets, alts: alts, cells: cells, containment_rows: containment_rows, containment_bits: containment_bits, containment_seen: containment_seen, frames: frames, items: items, pairs: pairs, pair_heads: pair_heads, exits: exits,
+         futures: futures, holds: holds, temps: temps, reads: reads, kills: kills, size_classes: size_classes, holder_starts: holder_starts, holder_counts: holder_counts, holder_refs: holder_refs, index_types: index_types, asked: asked, atoms: atoms, failures: failures, effects: effects, symbol_cells: symbol_cells, node_roots: node_roots, function_frames: function_frames, read_heads: read_heads, visited: visited, summary_heads: summary_heads, effect_heads: effect_heads, summaries: summaries, leaves: leaves, leaf_heads: leaf_heads, leaf_stamps: leaf_stamps, leaf_floors: leaf_floors, summary_reads: summary_reads, read_slots: read_slots, contexts: contexts, context_heads: context_heads, chain_replays: chain_replays, chain_versions: chain_versions, capture_reads: capture_reads, offers: offers, global_read_spans: global_read_spans, global_read_list: global_read_list,
+         bodies: bodies, body_slots: body_slots, body_globals: body_globals, body_calls: body_calls,
+         build_alts: build_alts, build_slots: build_slots, set_index: set_index, scratch: scratch,
