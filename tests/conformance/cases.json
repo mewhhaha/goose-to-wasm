@@ -13,6 +13,20 @@
   },
   "cases": [
     {
+      "id": "corpus/packed-copy/empty-field",
+      "source": "tests/fixtures/packed_copy_empty.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [0, 2],
+      "stdin": "",
+      "expect": {
+        "stdout": "2 17 34\n",
+        "exit": 0
+      },
+      "debug": false,
+      "provenance": "Copying an item with a trailing zero-sized field preserves the enclosing record's sentinel. Expected output verified with plain upstream ee261a4."
+    },
+    {
       "id": "corpus/checked-leaves/scalars",
       "source": "tests/fixtures/checked_leaves.goose",
       "phase": "run",

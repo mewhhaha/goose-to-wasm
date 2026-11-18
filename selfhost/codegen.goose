@@ -660,7 +660,8 @@ recursive fn cg_copy(p: Program&, m: CgModule&, f: CgBody&, id: i64, destination
         else if cg_image_owner(p, id) { cg_construct_image_captured(p, m, f, id, from, receiving, node); }
         else { cg_construct_frame_captured(p, m, f, id, from, receiving, node); } return;
     }
-    if m.prefix_helper >= 0 && cg_aggregate(p, id) && !cg_has_owner(p, id) {
+    // Without forwarding, this value's complete image needs no field repairs.
+    if m.resolver < 0 && cg_aggregate(p, id) && !cg_has_owner(p, id) {
         cg_get(f, into); cg_canonical_address(m, f, cg_size(p, id)); cg_get(f, from); cg_canonical_address(m, f, cg_size(p, id)); wa_const(f.code, cg_size(p, id)); wb_copy(f.code); return;
     }
     if !cg_aggregate(p, id) {
@@ -4369,6 +4370,7 @@ fn cg_owner_read_length(p: Program&, m: CgModule&, f: CgBody&, header: i64, node
     cg_get(f, header); wc_load(f.code, 5); let mode = cg_save(f, wa());
     cg_get(f, header); wc_load(f.code, 1); let result = cg_save(f, wa());
     let done = cg_begin(f, 0x02, 0x40);
+    cg_get(f, mode); wa_op(f.code, 0x45); cg_branch(p, f, done, true);
     for selected in 1..7 {
         cg_get(f, mode); wa_const(f.code, selected); wa_op(f.code, 0x46); cg_begin(f, 0x04, 0x40);
         cg_get(f, header); wc_load(f.code, 4); let image = cg_save(f, wa());
@@ -4401,6 +4403,7 @@ fn cg_owner_read_base(p: Program&, m: CgModule&, f: CgBody&, header: i64, node: 
     cg_get(f, header); wc_load(f.code, 5); let mode = cg_save(f, wa());
     cg_get(f, header); wc_load(f.code, 0); let result = cg_save(f, wa());
     let done = cg_begin(f, 0x02, 0x40);
+    cg_get(f, mode); wa_op(f.code, 0x45); cg_branch(p, f, done, true);
     for selected in 1..7 {
         cg_get(f, mode); wa_const(f.code, selected); wa_op(f.code, 0x46); cg_begin(f, 0x04, 0x40);
         cg_get(f, header); wc_load(f.code, 4); let image = cg_save(f, wa());
