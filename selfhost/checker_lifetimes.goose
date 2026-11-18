@@ -409,8 +409,8 @@ fn life_same_effect(l: Lifetimes&, old: const LifeEffect&, effect: const LifeEff
 // frame of the chain; with a place outside the chain every frame takes the
 // effect as external, and none is asked about its cells.
 struct LifeFar { far: i64, home: i64, cyclic: bool = false }
-fn life_effect_far(l: Lifetimes&, effect: const LifeEffect&) -> LifeFar {
-    var out = LifeFar { far: 0, home: l.frame }; var at = l.sets[effect.places].first; let chain = l.frames[l.frame].chain;
+fn life_effect_far(l: Lifetimes&, places: i64) -> LifeFar {
+    var out = LifeFar { far: 0, home: l.frame }; var at = l.sets[places].first; let chain = l.frames[l.frame].chain;
     while at >= 0 {
         let root = l.alts[at].root;
         if root != 0 {
@@ -429,8 +429,8 @@ fn life_effect_far(l: Lifetimes&, effect: const LifeEffect&) -> LifeFar {
 }
 // A recursive activation's own root reached through one of its parameters
 // belongs to another activation.
-fn life_effect_recursive(l: Lifetimes&, effect: const LifeEffect&, frame: i64) -> bool {
-    var at = l.sets[effect.places].first;
+fn life_effect_recursive(l: Lifetimes&, places: i64, frame: i64) -> bool {
+    var at = l.sets[places].first;
     while at >= 0 {
         let root = l.alts[at].root;
         if root != 0 && l.roots[root].frame == frame {
@@ -799,11 +799,10 @@ fn life_read_merge(l: Lifetimes&, frame: i64, leaf: i64, key: i64, outside: bool
 // life_effect for a construct read in discovery while summaries hold their
 // reads by leaf: the same walk up the chain, each frame that takes the
 // effect as external taking it in its reads.
-fn life_read_offer(l: Lifetimes&, leaf: i64, effect: const LifeEffect&) -> i64 {
+fn life_read_offer(l: Lifetimes&, leaf: i64, places: i64, key: i64) -> i64 {
     l.offer_count += 1;
-    let reach = life_effect_far(l, effect); let far = reach.far; let outside = far == 9223372036854775807;
+    let reach = life_effect_far(l, places); let far = reach.far; let outside = far == 9223372036854775807;
     if reach.cyclic { l.offer_recursive = true; }
-    let key = life_read_key(effect.node, effect.value.type_id);
     // The same frames in the same order are the same chain in every pass
     // and activation. An offer the offering frame's own entry last took, and
     // sent up this chain with no place in a recursive frame, went as far up
@@ -826,7 +825,7 @@ fn life_read_offer(l: Lifetimes&, leaf: i64, effect: const LifeEffect&) -> i64 {
         }
         if !l.frames[frame].validated {
             var external = far > depth;
-            if !external && l.frames[frame].recursive_call { external = life_effect_recursive(l, effect, frame); }
+            if !external && l.frames[frame].recursive_call { external = life_effect_recursive(l, places, frame); }
             if external {
                 let merged = life_read_merge(l, frame, leaf, key, outside);
                 if merged == 2 { if outside { break; } settled = true; }
@@ -855,7 +854,7 @@ fn life_effect(l: Lifetimes&, effect: LifeEffect) -> i64 {
     l.offer_count += 1;
     // A repeated offer is recorded only where no frame of the chain is recursive.
     if l.discovery && l.frame > 0 && life_offer_repeated(l, effect) { return -1; }
-    let reach = life_effect_far(l, effect); let far = reach.far; let outside = far == 9223372036854775807;
+    let reach = life_effect_far(l, effect.places); let far = reach.far; let outside = far == 9223372036854775807;
     if reach.cyclic { l.offer_recursive = true; }
     let ordered = effect.kind == 1 || effect.kind == 4 || effect.kind == 6 || effect.kind == 7;
     var indexed_key = -1;
@@ -881,7 +880,7 @@ fn life_effect(l: Lifetimes&, effect: LifeEffect) -> i64 {
         if island == 0 && l.discovery && l.class_frames > 0 && life_nearest_recursive(l, frame) == 0 { break; }
         if !l.frames[frame].validated {
             var external = far > depth;
-            if !external && l.frames[frame].recursive_call { external = life_effect_recursive(l, effect, frame); }
+            if !external && l.frames[frame].recursive_call { external = life_effect_recursive(l, effect.places, frame); }
             var last = l.frames[frame].last_effect; if l.discovery { last = l.frames[frame].last_summary; }
             var bucket = 0; var summary_key = -1; var indexed = -1;
             if external && l.discovery {
@@ -3199,9 +3198,9 @@ fn life_offer_once(l: Lifetimes&, offer: LifeEffect, known: i64) {
     if !offered {
         let offers = l.offer_count; let cyclic = l.offer_recursive; l.offer_recursive = false;
         var far: i64 = 0;
-        if compact { far = life_read_offer(l, leaf, offer); } else { far = life_effect(l, offer); }
+        if compact { far = life_read_offer(l, leaf, offer.places, life_read_key(offer.node, offer.value.type_id)); } else { far = life_effect(l, offer); }
         if stamps && l.offer_count > offers && !l.offer_recursive {
-            if far < 0 { far = life_effect_far(l, offer).far; }
+            if far < 0 { far = life_effect_far(l, offer.places).far; }
             life_leaf_stamp(l, leaf, far);
         }
         if cyclic { l.offer_recursive = true; }
@@ -5689,16 +5688,28 @@ fn life_replay(p: Program&, l: Lifetimes&, frame: i64, summary: bool = false, m:
     // other entries with each read after the one it names
     // (LifeReadEntry.before): entries are numbered as they are added, so a
     // read comes before the first other entry with a larger number.
+    let direct = plain && l.types_frozen;
     var read: i64 = -1; if summary && l.compact && !others { read = l.frames[frame].first_read; }
     var passed: i64 = -1; var open = false;
     loop {
         while read >= 0 && (at < 0 || (l.summary_reads[read].before as i64) < at) {
-            let leaf = l.summary_reads[read].leaf as i64; read = l.summary_reads[read].next as i64;
+            let entry = read; let leaf = l.summary_reads[entry].leaf as i64; read = l.summary_reads[entry].next as i64;
             if (memo || quick) && life_leaf_offered(l, leaf) { continue; }
             if memo { l.offer_count = 0; l.offer_recursive = false; }
-            var known: i64 = -1; if memo || quick { known = leaf; }
-            let node = l.leaves[leaf].node; let value = l.leaves[leaf].value;
-            life_construct_read(p, l, node, value, known);
+            if direct {
+                // A compact entry already passed the construct-read type check.
+                // Merging keeps its site, type and element-array identity.
+                if l.reading_place == 0 {
+                    var places = l.leaves[leaf].value.place;
+                    if life_is_ref(p, l.leaves[leaf].value.type_id) { places = l.leaves[leaf].value.refs; }
+                    let far = life_read_offer(l, leaf, places, l.summary_reads[entry].key);
+                    if !l.offer_recursive { life_leaf_stamp(l, leaf, far); }
+                }
+            } else {
+                var known: i64 = -1; if memo || quick { known = leaf; }
+                let node = l.leaves[leaf].node; let value = l.leaves[leaf].value;
+                life_construct_read(p, l, node, value, known);
+            }
             if complete && !life_leaf_offered(l, leaf) { complete = false; }
         }
         // A replay of a frame of the chain can add to the list it is going
