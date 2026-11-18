@@ -8,6 +8,8 @@ import math
 from pathlib import Path
 import statistics
 
+from report_io import decode_report
+
 import matplotlib
 
 matplotlib.use("Agg")
@@ -191,7 +193,7 @@ def save(fig, output, name, title, note, report_path, report_bytes, report):
 
 def render(report_path, output):
     report_bytes = report_path.read_bytes()
-    report = json.loads(report_bytes)
+    report = decode_report(report_bytes)
     names, runtime, preparation = validate(report)
     plt.rcParams.update({
         "font.family": "DejaVu Sans", "font.size": 10, "text.color": "#0f172a",

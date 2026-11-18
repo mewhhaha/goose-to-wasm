@@ -15,6 +15,7 @@ import time
 
 import benchmark as common
 import process
+from report_io import decode_report
 
 ROOT=Path(__file__).resolve().parents[1]
 BACKENDS=('direct',)
@@ -88,7 +89,7 @@ def main():
         pointer=json.loads((ROOT/'bench/results/examples-latest.json').read_text())
         args.example_report=ROOT/'bench/results'/pointer['report']
     if not args.smoke and min(args.samples,args.prepare_samples)<5:parser.error('performance evidence requires five samples; use --smoke for correctness checks')
-    baseline=json.loads(args.example_report.read_text())
+    baseline=decode_report(args.example_report.read_bytes())
     assert baseline['status']in ['passed','passed-smoke'] and not baseline['failures']
     catalog=json.loads((ROOT/'examples/manifest.json').read_text())
     examples=[e for e in catalog['examples'] if not args.examples or e['name']in args.examples]
