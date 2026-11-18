@@ -1,0 +1,93 @@
+{
+  "schema": "goose-langbench-hot-chart-v1",
+  "report": "bench/results/2026-11-19/compiler-passes/langbench-hot.json.gz",
+  "report_sha256": "375217aa53e7a0767b5f970ad3f996978992d22265690bf60f1025c06ea8de2f",
+  "charts": {
+    "langbench-hot-runtime.svg": {
+      "values": [
+        {
+          "profile": "small",
+          "cells": [
+            "c-gcc",
+            "c-clang",
+            "upstream-goose-native",
+            "goose-native",
+            "goose-wasm-wasmtime",
+            "goose-wasm-v8"
+          ],
+          "median_ms": [
+            118.049931,
+            132.204921,
+            113.24484,
+            137.455932,
+            135.398661,
+            121.061635
+          ],
+          "mad_ms": [
+            17.839221,
+            28.72166,
+            21.420255,
+            37.631955,
+            37.549015,
+            22.883144
+          ]
+        },
+        {
+          "profile": "medium",
+          "cells": [
+            "c-gcc",
+            "c-clang",
+            "upstream-goose-native",
+            "goose-native",
+            "goose-wasm-wasmtime",
+            "goose-wasm-v8"
+          ],
+          "median_ms": [
+            983.578531,
+            1036.882797,
+            963.126634,
+            973.390466,
+            872.879647,
+            948.178929
+          ],
+          "mad_ms": [
+            111.76817,
+            237.007781,
+            208.929816,
+            248.954257,
+            108.307337,
+            193.744984
+          ]
+        },
+        {
+          "profile": "official",
+          "cells": [
+            "c-gcc",
+            "c-clang",
+            "upstream-goose-native",
+            "goose-native",
+            "goose-wasm-wasmtime",
+            "goose-wasm-v8"
+          ],
+          "median_ms": [
+            3311.070428,
+            4487.603254,
+            4006.805022,
+            3721.133196,
+            4436.848849,
+            3346.278748
+          ],
+          "mad_ms": [
+            437.137183,
+            569.473067,
+            286.825922,
+            859.82471,
+            793.615251,
+            322.346667
+          ]
+        }
+      ],
+      "sha256": "9078fc894eafc76c9a0ea555f6a2d16791e1dec660ab05ac6295138725b11bb7"
+    }
+  }
+}
