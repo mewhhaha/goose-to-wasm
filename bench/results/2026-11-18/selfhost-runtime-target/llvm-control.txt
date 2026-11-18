@@ -1,0 +1,17 @@
+Runtime guard probe, native Clang 23.1.5
+mprotect=0
+returncode=-11
+
+Emscripten 6.0.13 memory64, Node 24.19.0
+mprotect=0
+read after PROT_NONE=42
+
+Wasmtime 50.0.1, imports of the runtime smoke
+wasi_snapshot_preview1 args_sizes_get [i64, i64] [i32]
+wasi_snapshot_preview1 args_get [i64, i64] [i32]
+wasi_snapshot_preview1 proc_exit [i32] []
+wasi_snapshot_preview1 fd_close [i32] [i32]
+wasi_snapshot_preview1 fd_write [i32, i64, i64, i64] [i32]
+wasi_snapshot_preview1 fd_seek [i32, i64, i32, i64] [i32]
+
+types incompatible: expected type `(func (param i64 i64) (result i32))`, found type `(func (param i32 i32) (result i32))`

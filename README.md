@@ -34,7 +34,7 @@ A [Goose](https://github.com/aardappel/goose) compiler written in Goose. It emit
 
 **Native rows.** Stable scans and counted literal pushes reduced append time from 238.683 ms to 0.363 ms and traversal from 600.395 ms to 0.076 ms for 8,008 rows across seven pairs. [Measurements](bench/results/2026-11-17/native-row-scans/README.md)
 
-**Profiled memory32.** On a separate frozen `f89ecf3` compiler workload, with region sizes tuned to that workload, the `ba9dece` compiler checked its source in 3.12× native time and emitted Wasm in 3.25× native time across two paired runs. Indexing lifetime exits reduced memory32 instructions by 6.5% for checking and 4.0% for emission. Native also gained. [Measurements](bench/results/2026-11-18/lifetime-exit-index/README.md)
+**Profiled memory32.** On a separate frozen `f89ecf3` compiler workload, with region sizes tuned to that workload, the `ba9dece` compiler checked its source in 3.12× native time and emitted Wasm in 3.25× native time across two paired runs. Indexing lifetime exits reduced memory32 instructions by 6.5% for checking and 4.0% for emission. Native also gained. A CPU profile of the same memory32 build attributed 82.5% of self-check samples and 52.7% of self-emission samples to lifetime functions. [Measurements](bench/results/2026-11-18/lifetime-exit-index/README.md) · [CPU profile and experiments](bench/results/2026-11-18/selfhost-runtime-target/README.md)
 
 **Wasm local allocation.** Replaying optimized self-compilation bodies fell from 543 ms to 491 ms with identical local tables and instruction bytes. An overlapping-span stress case fell from 241 ms to 31 ms. [Measurements](bench/results/2026-11-17/wasm-slot-prefix/README.md)
 

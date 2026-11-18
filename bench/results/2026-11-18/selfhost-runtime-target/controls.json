@@ -1,0 +1,48 @@
+{
+  "compiler_source_commit": "ba9dece0d4e58abb22c815dae1f37e28c99758de",
+  "input_commit": "f89ecf30aea76003e4536bcf6fa8f280efb287cc",
+  "profile_sha256": "2e4d41758050cba309ecb53fa8ee393bc32657e8cdb1650489ec32181db4c55b",
+  "binaryen": {
+    "version": 133,
+    "binary": {
+      "bytes": 18711520,
+      "sha256": "8f25e9fd5db0fc5f210003aaa432922feb2e52d309e430def2f929e34da9466b"
+    },
+    "O3": {
+      "cpus": [
+        1,
+        2,
+        4
+      ],
+      "wall_seconds": 567.861635,
+      "first_output": {
+        "bytes": 19092175,
+        "sha256": "256641c53fbe69570e9cd126ae9928fb890642f0d21496890626eae74b1ee06c"
+      },
+      "ordinary_import_output": {
+        "bytes": 19092223,
+        "sha256": "7b89417191021e5fc31c42a9b4ee29bce9c271ccf9196dbd033a00a0eb09e6a8"
+      }
+    },
+    "local_passes": {
+      "cpus": [
+        7
+      ],
+      "wall_seconds": 20.859,
+      "output": {
+        "bytes": 25621432,
+        "sha256": "a76e85084879646364e52973df973363dc7ee6f30aa1f7e4a01367e67b5f4895"
+      }
+    }
+  },
+  "no_return_targets": {
+    "module": {
+      "bytes": 26673902,
+      "sha256": "ea59004e3f382884d9f99828176ee2634034e3dc51c05fa508dfa2e6b68c5502"
+    },
+    "unchanged_fixtures": {
+      "nonlocal-return-receiver.goose": "469cd095b51ecab3c31d3f4e6fcdb734e47f0aa0d926c7c4cc8e17f4386a5589",
+      "unwind.goose": "83751a9bf182a5dcf3eea0e30b756a56a6b5217bd95b8c5a956b8dbc134285c4"
+    }
+  }
+}

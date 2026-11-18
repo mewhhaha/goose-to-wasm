@@ -1,0 +1,92 @@
+diff --git a/selfhost/codegen.goose b/selfhost/codegen.goose
+index 01dbf83..6f8ab97 100644
+--- a/selfhost/codegen.goose
++++ b/selfhost/codegen.goose
+@@ -35,6 +35,7 @@ struct CgModule {
+     region_memo: i64[>..]&,
+     next_data: i64 = 1024, stack_limit: i64 = 0,
+     region_count: i64 = 0, global_region_count: i64 = 0, regions_enabled: bool = false,
++    effects: bool = false,
+     region_table_address: i64 = 0, host_reserve: i64 = -1, host_reserve_type: i64 = -1,
+     start: i64 = -1, allocator: i64 = -1, float_wrap: i64 = -1, scalar: bool = false, scalar_slots: bool = false, resolver: i64 = -1, header_helper: i64 = -1, prefix_helper: i64 = -1, pool_global: i64 = -1,
+     format_f32: i64 = -1, format_f64: i64 = -1, raw_append: i64 = -1, raw_append_type: i64 = -1,
+@@ -791,6 +792,7 @@ fn cg_float_remainder(p: Program&, m: CgModule&, f: CgBody&, node: i64, w: i64)
+ // too, through the landing of the statement being emitted where defer
+ // bodies are registered (cg_block_into).
+ fn cg_effect_check(p: Program&, m: CgModule&, f: CgBody&, types: i64[:]) {
++    if !m.effects { return; }
+     var saved: i64[>..] = [];
+     for id in types { saved.push(cg_local(f, cg_wasm_type(p, id))); }
+     var at = saved.len;
+@@ -1412,11 +1414,13 @@ recursive fn cg_scan_effect_body(p: Program&, owner: i64, node: i64) {
+     cg_scan_effect_body(p, owner, n.left); cg_scan_effect_body(p, owner, n.right); cg_scan_effect_body(p, owner, n.third);
+     var child = n.first; while child >= 0 { cg_scan_effect_body(p, owner, child); child = p.nodes[child].next; }
+ }
+-fn cg_scan_effect_targets(p: Program&) {
++fn cg_scan_effect_targets(p: Program&) -> bool {
+     for n, node in p.nodes { if n.kind == N_FUNCTION || n.kind == N_FUNCTION_VALUE { p.nodes[node].flags = (n.flags & ~CG_EFFECT_TARGET) | CG_EFFECT_SCANNED; } }
+     for n, node in p.nodes {
+         if (n.kind == N_FUNCTION || n.kind == N_FUNCTION_VALUE) && (n.flags & F_CHECKED) != 0 && (n.flags & F_GENERIC) == 0 { cg_scan_effect_body(p, node, n.right); }
+     }
++    for n in p.nodes { if (n.flags & CG_EFFECT_TARGET) != 0 { return true; } }
++    return false;
+ }
+ fn cg_nonlocal_target(p: Program&, function: i64) -> bool { return function >= 0 && (p.nodes[function].flags & CG_EFFECT_TARGET) != 0; }
+ fn cg_effect_frame(p: Program&, m: CgModule&, f: CgBody&, target: i64, node: i64) -> i64 {
+@@ -1437,6 +1441,7 @@ recursive fn cg_emit_return(p: Program&, m: CgModule&, f: CgBody&, node: i64) {
+         cg_run_defers(p, m, f, 0);
+         cg_branch(p, f, f.done, false); return;
+     }
++    if !m.effects { cg_fail(p, node, "missing nonlocal return in effect scan"); return; }
+     let target_type = cg_result_type(p, target); let count = cg_result_count(p, target_type);
+     let frame = cg_effect_frame(p, m, f, target, node); let first_slot = cg_control_slots(p, f, target_type, node);
+     let attempt_mark = f.work.len;
+@@ -3334,6 +3339,7 @@ fn cg_prepare_function(p: Program&, m: CgModule&, f: CgBody&, function: i64) {
+             destination += 1;
+         } else { f.destinations.push(-1); }
+     }
++    if !m.effects { return; }
+     var mailbox_size = 16;
+     for id in results { mailbox_size = cg_align(mailbox_size, 8) + cg_size(p, id); }
+     if function >= 0 && cg_nonlocal_target(p, function) &&
+@@ -3355,6 +3361,7 @@ fn cg_emit_prelude(p: Program&, m: CgModule&, f: CgBody&) {
+     if f.heap_mark >= 0 { wb_op(f.code, 0x23, 1); cg_set(f, f.heap_mark); }
+     if f.forward_mark >= 0 { wb_op(f.code, 0x23, 5); cg_set(f, f.forward_mark); }
+     for address in f.addresses { cg_frame_address(f, address.offset); cg_set(f, address.local); }
++    if !m.effects { return; }
+     // The effect record: word 0 the previous chain, word 1 the function
+     // number, both address-sized; the result mailbox from byte 16 on.
+     cg_frame_address(f, f.effect); wb_op(f.code, 0x23, 4); wa_store(f.code, 0);
+@@ -3395,6 +3402,7 @@ fn cg_emit_epilogue(p: Program&, m: CgModule&, f: CgBody&) {
+         for result in f.results { cg_get(f, result); } wb_byte(f.code, 0x0b); return;
+     }
+     var results: i64[>..] = []; if f.function >= 0 { cg_function_results(p, f.function, results); }
++    if m.effects {
+     wb_op(f.code, 0x23, 2); cg_frame_address(f, f.effect); wa_op(f.code, 0x46); cg_begin(f, 0x04, 0x40);
+     var offset = 16;
+     for id, i in results {
+@@ -3426,13 +3434,14 @@ fn cg_emit_epilogue(p: Program&, m: CgModule&, f: CgBody&) {
+     wa_const(f.code, 0); wb_op(f.code, 0x24, 2); cg_end(f);
+     cg_frame_address(f, f.effect); wa_load(f.code, 0); wb_op(f.code, 0x24, 4);
+     wb_op(f.code, 0x23, 2); wa_op(f.code, 0x45); cg_begin(f, 0x04, 0x40);
++    }
+     for id, i in results {
+         if f.destinations[i] >= 0 {
+             if m.regions_enabled && cg_region_value(p, id) { cg_get(f, f.destinations[i]); cg_set(f, f.results[i]); continue; }
+             let saved_raw = f.raw_node; if f.elements && i == 0 { f.raw_node = f.function; }
+             cg_copy(p, m, f, id, f.destinations[i], f.results[i], f.function); f.raw_node = saved_raw; cg_get(f, f.destinations[i]); cg_set(f, f.results[i]); }
+     }
+-    cg_end(f);
++    if m.effects { cg_end(f); }
+     cg_restore_regions(f, f.region_mark); cg_restore_publications(f, f.publication_mark);
+     if f.heap_mark >= 0 { cg_get(f, f.heap_mark); wb_op(f.code, 0x24, 1); }
+     if f.forward_mark >= 0 { cg_get(f, f.forward_mark); wb_op(f.code, 0x24, 5); }
+@@ -3881,7 +3890,7 @@ fn cg_region_width(p: Program&, id: i64) -> i64 {
+ }
+ fn cg_collect(p: Program&, m: CgModule&) {
+     cg_root_layouts(p);
+-    cg_scan_effect_targets(p); p.unwinding = mark_unwinding_functions(p); mark_located_functions(p);
++    m.effects = cg_scan_effect_targets(p); p.unwinding = m.effects && mark_unwinding_functions(p); mark_located_functions(p);
+     for host in 0..9 { m.imports.push(CgImport { signature: cg_host_signature(m, host), host: host }); }
+     for symbol, i in p.symbols {
+         m.globals.push(-1); m.global_regions.push(-1);
