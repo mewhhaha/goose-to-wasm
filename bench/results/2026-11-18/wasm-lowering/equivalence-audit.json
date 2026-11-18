@@ -1,0 +1,40 @@
+{
+  "compared": 10057,
+  "differing": 1349,
+  "wasm_section_sets": {
+    "10": 1348
+  },
+  "diagnostic_changes": [
+    {
+      "source": "tests/fixtures/nested_initializer.goose",
+      "mode": "wasm2",
+      "baseline": {
+        "exit": 1,
+        "stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr": "db6a76e3e6ce45b2df59f35c3841463e67993ba85d6dfff20930e92d56ff63a8",
+        "stderr_head": "/home/jacobt/src/goose-to-wasm/tests/fixtures/nested_initializer.goose:16:23: error: wasm: local or capture storage was not assigned\n",
+        "output": null,
+        "seconds": 0.022
+      },
+      "candidate": {
+        "exit": 0,
+        "stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_head": "",
+        "output": "3230da7850dd2a70089fb01d3d7d905b53b4bcf4d0214236e0394c3728be36ef",
+        "seconds": 0.019
+      }
+    }
+  ],
+  "manifest_sha256": "7a64b906141f3a175e3b1ee7fac05d7a6c14c9dbc8bb8e2374f2fbc61f071e46",
+  "compilers": {
+    "baseline": {
+      "path": "/home/jacobt/src/goose-to-wasm/build/lifetime-exit-index-2026-11-18/selfhost-chart/emitter",
+      "sha256": "3b7071f41be6ddb799e5b597e77fcbce3900c15cae15a5e502cf456a8e266352"
+    },
+    "candidate": {
+      "path": "/home/jacobt/src/goose-to-wasm/build/wasm-lowering-1118/final-qualification/bootstrap/bin/goose",
+      "sha256": "e3666cca0f4af376876c805456600eac41849f6360064b3970f9ca31e6c22700"
+    }
+  }
+}

@@ -1,0 +1,92 @@
+--- a/selfhost/codegen.goose
++++ b/selfhost/codegen.goose
+@@ -36,7 +36,7 @@
+     next_data: i64 = 1024, stack_limit: i64 = 0,
+     region_count: i64 = 0, global_region_count: i64 = 0, regions_enabled: bool = false,
+     region_table_address: i64 = 0, host_reserve: i64 = -1, host_reserve_type: i64 = -1,
+-    start: i64 = -1, allocator: i64 = -1, float_wrap: i64 = -1, scalar: bool = false, scalar_slots: bool = false, resolver: i64 = -1, header_helper: i64 = -1, prefix_helper: i64 = -1, pool_global: i64 = -1,
++    start: i64 = -1, allocator: i64 = -1, float_wrap: i64 = -1, scalar: bool = false, resolver: i64 = -1, header_helper: i64 = -1, prefix_helper: i64 = -1, pool_global: i64 = -1,
+     format_f32: i64 = -1, format_f64: i64 = -1, raw_append: i64 = -1, raw_append_type: i64 = -1,
+ }
+ // defers: the height of the defer stack the exit runs back down to (§6.6).
+@@ -390,9 +390,10 @@
+             m.captures.push(CgCapture { function: function, symbol: n.symbol });
+         }
+     }
+-    cg_scan_captures(p, m, function, n.left); cg_scan_captures(p, m, function, n.right); cg_scan_captures(p, m, function, n.third);
+-    var child = n.first;
+-    while child >= 0 { cg_scan_captures(p, m, function, child); child = p.nodes[child].next; }
++    for head in [n.left, n.right, n.third, n.first] {
++        var child = head;
++        while child >= 0 { cg_scan_captures(p, m, function, child); child = p.nodes[child].next; }
++    }
+ }
+ fn cg_result_types(p: Program&, id: i64, out: i64[>..]&) {
+     let kind = cg_type_kind(p, id);
+@@ -3264,6 +3265,8 @@
+     wb_op(f.code, 0x3f, 0); wa_op(f.code, 0x6b); wb_op(f.code, 0x40, 0); wa_const(f.code, -1); wa_op(f.code, 0x46);
+     cg_trap_if(p, m, f, node, "linear memory exhausted"); cg_end(f);
+ }
++// A scalar can live in a Wasm local unless code can observe its address.
++let CG_ADDRESS_TAKEN: i64 = 512;
+ fn cg_scalar_slot_type(p: Program&, id: i64) -> bool {
+     if !cg_scalar_type(p, id) { return false; }
+     let kind = cg_type_kind(p, id);
+@@ -3307,10 +3310,9 @@
+             cg_fail(p, symbol.node, "wasm: variable has no physical layout"); continue;
+         }
+         var value = false;
+-        if m.scalar_slots && function >= 0 && symbol.node >= 0 && cg_scalar_slot_type(p, symbol.type_id) {
++        if function >= 0 && symbol.node >= 0 && (symbol.flags & CG_ADDRESS_TAKEN) == 0 && cg_scalar_slot_type(p, symbol.type_id) {
+             let binding = p.nodes[symbol.node];
+             value = binding.kind == N_PARAM || binding.kind == N_VARIABLE && binding.first < 0 && !cg_decl_diverges(p, symbol.node);
+-            for capture in m.captures { if capture.symbol == index { value = false; } }
+         }
+         var wasm_type = wa(); if value { wasm_type = cg_wasm_type(p, symbol.type_id); }
+         let local = cg_local(f, wasm_type);
+@@ -3582,8 +3584,10 @@
+             arm = p.nodes[arm].next;
+         }
+     }
+-    cg_propagate_captures(p, m, function, n.left); cg_propagate_captures(p, m, function, n.right); cg_propagate_captures(p, m, function, n.third);
+-    var child = n.first; while child >= 0 { cg_propagate_captures(p, m, function, child); child = p.nodes[child].next; }
++    for head in [n.left, n.right, n.third, n.first] {
++        var child = head;
++        while child >= 0 { cg_propagate_captures(p, m, function, child); child = p.nodes[child].next; }
++    }
+ }
+ fn cg_host_signature(m: CgModule&, host: i64) -> i64 {
+     var args: u8[>..] = []; var results: u8[>..] = [];
+@@ -3896,6 +3900,14 @@
+         if symbol.component_owner >= 0 && symbol.component >= 0 && m.globals[symbol.component_owner] >= 0 { m.globals[i] = m.globals[symbol.component_owner] + p.nodes[symbol.component].integer; }
+     }
+     for n, node in p.nodes {
++        // Checking makes implicit borrows explicit. Also keep a place for a
++        // reference-typed name retained by specialization or inlining.
++        if n.kind == N_UNARY && n.integer == T_BITAND && n.left >= 0 && p.nodes[n.left].kind == N_NAME {
++            let symbol = p.nodes[n.left].symbol; if symbol >= 0 { p.symbols[symbol].flags |= CG_ADDRESS_TAKEN; }
++        }
++        if n.kind == N_NAME && n.symbol >= 0 && ((n.flags & F_REFERENCE_CONTEXT) != 0 || cg_type_kind(p, n.type_id) == TY_REF || cg_type_kind(p, n.coerced_type) == TY_REF) {
++            p.symbols[n.symbol].flags |= CG_ADDRESS_TAKEN;
++        }
+         if n.kind != N_FUNCTION && n.kind != N_FUNCTION_VALUE || n.symbol < 0 || (n.flags & F_GENERIC) != 0 ||
+            (n.flags & (F_CHECKED | F_REACHABLE)) != (F_CHECKED | F_REACHABLE) { continue; }
+         if (n.flags & F_THREAD) != 0 { cg_fail(p, node, "wasm: threads are unsupported by the direct host ABI"); }
+@@ -3926,6 +3938,7 @@
+         for item in m.functions { cg_propagate_captures(p, m, item.node, p.nodes[item.node].right); }
+         if count == m.captures.len { break; }
+     }
++    for capture in m.captures { p.symbols[capture.symbol].flags |= CG_ADDRESS_TAKEN; }
+     for item, i in m.functions {
+         m.region_functions.push(RegionFunction { node: item.node, entry: item.node == p.entry || (p.nodes[item.node].flags & F_EXPORT) != 0 });
+         var count = 0; for capture in m.captures { if capture.function == item.node { count++; } }
+@@ -3939,8 +3952,7 @@
+     if m.pool_global < 0 { m.regions_enabled = cg_array_regions_supported(p, m); }
+     var grows = false;
+     for ty in p.types { if ty.kind == TY_ARRAY && (ty.array_kind == A_GROW || ty.array_kind == A_GROWSHRINK) { grows = true; } }
+-    m.scalar_slots = cg_unforwarded_module(p, m);
+-    if grows && !m.regions_enabled && !m.scalar_slots { m.resolver = m.start + 3; }
++    if grows && !m.regions_enabled && !cg_unforwarded_module(p, m) { m.resolver = m.start + 3; }
+     if m.pool_global >= 0 { m.pool_global = 5; if m.resolver >= 0 { m.pool_global = 8; } }
+     var thunk_base = m.start + 3; if m.resolver >= 0 { thunk_base++; }
+     if m.regions_enabled {
