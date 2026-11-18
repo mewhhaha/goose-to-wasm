@@ -1,0 +1,18 @@
+.................................................................................
+Slowest test durations
+----------------------------------------------------------------------
+75.712s    test_compiler_compiles_itself (tests.test_cli_outputs.WasmMemory64.test_compiler_compiles_itself)
+23.340s    test_units_match_one_translation_unit (tests.test_native_units.NativeUnits.test_units_match_one_translation_unit)
+11.946s    test_more_than_32_bits_of_elements (tests.test_cli_outputs.WasmMemory64.test_more_than_32_bits_of_elements)
+10.412s    test_same_outputs (tests.test_cli_outputs.WasmHostedCompiler.test_same_outputs)
+4.361s     test_replayed_slice_slot_store (tests.test_cli_outputs.ClassLifetimeChecks.test_replayed_slice_slot_store)
+3.954s     test_varint_cursor_exits_and_slice_rebinding (tests.test_loop_ordinals.LoopOrdinals.test_varint_cursor_exits_and_slice_rebinding)
+3.837s     test_runtime_unit_is_cached (tests.test_native_units.NativeUnits.test_runtime_unit_is_cached)
+3.822s     test_varint_growth_and_rebinding_survive_continue (tests.test_loop_ordinals.LoopOrdinals.test_varint_growth_and_rebinding_survive_continue)
+3.381s     test_zero_fills_reused_frames_and_scalar_widths (tests.test_zero_stores.ZeroStores.test_zero_fills_reused_frames_and_scalar_widths)
+3.301s     test_exits_and_mutating_conditions_keep_the_original_loop (tests.test_descending_while.DescendingWhile.test_exits_and_mutating_conditions_keep_the_original_loop)
+
+----------------------------------------------------------------------
+Ran 81 tests in 177.664s
+
+OK

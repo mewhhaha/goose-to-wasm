@@ -45167,6 +45167,7 @@
     },
     {
       "id": "upstream/stdlib/stdlib_sort",
+      "run_timeout_seconds": 30,
       "source": "upstream:test/stdlib/stdlib_sort.goose",
       "phase": "run",
       "target": "native",

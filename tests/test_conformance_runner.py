@@ -6,6 +6,7 @@ import importlib.util
 import json
 from pathlib import Path
 import shutil
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -88,6 +89,54 @@ output.write_text('#include <stdio.h>\\nextern int helper(void);\\nint main(void
                          sorted(helper_paths))
         for command in native_commands:
             self.assertIn("-rdynamic", command)
+
+    def test_only_the_timed_out_runtime_row_retries_with_its_fixture_limit(self):
+        source = self.work / "same.goose"
+        source.write_text("fn main() {}\n")
+        cases = [dict(id=name, source=f"{self.relative_work}/same.goose", phase="run",
+                      target="wasm-direct", levels=[0], stdin=name, expect=dict(stdout=name, exit=0))
+                 for name in ("slow", "ordinary", "failed")]
+        cases[0]["run_timeout_seconds"] = 30
+        manifest = self.work / "cases.json"
+        upstream = json.loads((ROOT / "tests/conformance/cases.json").read_text())["upstream"]
+        manifest.write_text(json.dumps(dict(upstream=upstream, cases=cases)))
+        library = self.work / "stdlib"
+        library.mkdir()
+        compiler = self.work / "compiler"
+        host = self.work / "host"
+        compiler.touch()
+        host.touch()
+        output = self.work / "report"
+        argv = ["conformance.py", "--compiler", str(compiler), "--host", str(host),
+                "--output-dir", str(output), "--stdlib", str(library), "--manifest", str(manifest),
+                "--timeout", "15", "--jobs", "1"]
+        attempts = []
+        original_run = subprocess.run
+
+        def run(command, *args, **kwargs):
+            if command[0] == str(compiler):
+                Path(command[command.index("-o") + 1]).write_bytes(b"module")
+                return subprocess.CompletedProcess(command, 0, b"", b"")
+            if command[0] == str(host):
+                stdin = kwargs["input"]
+                attempts.append((stdin, kwargs["timeout"]))
+                if stdin == b"slow" and len(attempts) == 1:
+                    raise subprocess.TimeoutExpired(command, kwargs["timeout"])
+                status = int(stdin == b"failed")
+                return subprocess.CompletedProcess(command, status, stdin, b"")
+            return original_run(command, *args, **kwargs)
+
+        with mock.patch.object(sys, "argv", argv), mock.patch.object(subprocess, "run", run), contextlib.redirect_stdout(None):
+            self.assertEqual(CONFORMANCE.main(), 1)
+        self.assertEqual(attempts, [(b"slow", 30), (b"ordinary", 15), (b"failed", 15), (b"slow", 30)])
+        report = json.loads((output / "report.json").read_text())
+        slow, ordinary, failed = report["results"]
+        first = report["commands"][slow["timed_out_run_command"]]
+        second = report["commands"][slow["run_command"]]
+        self.assertTrue(first["timed_out"])
+        self.assertEqual((first["command"], first["cwd"]), (second["command"], second["cwd"]))
+        self.assertEqual([row["status"] for row in (slow, ordinary, failed)], ["pass", "pass", "fail"])
+        self.assertEqual(len({row["compile_command"] for row in (slow, ordinary, failed)}), 1)
 
     def test_native_link_command_adds_exports_only_with_case_sources(self):
         artifact = Path("program.c")

@@ -1,0 +1,976 @@
+{
+  "method": "du -B1 -d1 build; hard links counted once; live workspace snapshot",
+  "reference_commit": "054d463d1e91800f6909604e46f2bf08a12d457d",
+  "total_allocated_bytes": 203317997568,
+  "groups_bytes": {
+    "referenced or active run trees": 135023734784,
+    "unclassified; inspect before removal": 59285893120,
+    "rebuildable caches": 6542364672,
+    "installed tools and inputs": 2465177600,
+    "root files and directory metadata": 827392
+  },
+  "directories": [
+    {
+      "path": "build/completion-runs",
+      "allocated_bytes": 47501090816,
+      "group": "referenced or active run trees"
+    },
+    {
+      "path": "build/perf-2026-11-17-followup",
+      "allocated_bytes": 9809330176,
+      "group": "referenced or active run trees"
+    },
+    {
+      "path": "build/qz",
+      "allocated_bytes": 7465111552,
+      "group": "referenced or active run trees"
+    },
+    {
+      "path": "build/wasm-lowering-1118",
+      "allocated_bytes": 7174152192,
+      "group": "referenced or active run trees"
+    },
+    {
+      "path": "build/qs",
+      "allocated_bytes": 6871973888,
+      "group": "unclassified; inspect before removal"
+    },
+    {
+      "path": "build/qualify-cache",
+      "allocated_bytes": 6512541696,
+      "group": "rebuildable caches"
+    },
+    {
+      "path": "build/perf-next-1117",
+      "allocated_bytes": 5388529664,
+      "group": "referenced or active run trees"
+    },
+    {
+      "path": "build/six-hills-1118",
+      "allocated_bytes": 5258878976,
+      "group": "referenced or active run trees"
+    },
+    {
+      "path": "build/lifetime-exit-index-2026-11-18",
+      "allocated_bytes": 4795838464,
+      "group": "referenced or active run trees"
+    },
+    {
+      "path": "build/construction-speed",
+      "allocated_bytes": 4424499200,
+      "group": "referenced or active run trees"
+    },
+    {
+      "path": "build/q-s63",
+      "allocated_bytes": 3999911936,
+      "group": "unclassified; inspect before removal"
+    },
+    {
+      "path": "build/qualify-ebeb25a",
+      "allocated_bytes": 3996487680,
+      "group": "unclassified; inspect before removal"
+    },
+    {
+      "path": "build/full-hills",
+      "allocated_bytes": 3903029248,
+      "group": "referenced or active run trees"
+    },
+    {
+      "path": "build/wasm-copy-2026-11-18",
+      "allocated_bytes": 3819761664,
+      "group": "referenced or active run trees"
+    },
+    {
+      "path": "build/continue-2026-11-17",
+      "allocated_bytes": 3757486080,
+      "group": "referenced or active run trees"
+    },
+    {
+      "path": "build/q-s63b",
+      "allocated_bytes": 3386363904,
+      "group": "unclassified; inspect before removal"
+    },
+    {
+      "path": "build/wt-pending",
+      "allocated_bytes": 2973085696,
+      "group": "unclassified; inspect before removal"
+    },
+    {
+      "path": "build/blot2-diag",
+      "allocated_bytes": 2724585472,
+      "group": "unclassified; inspect before removal"
+    },
+    {
+      "path": "build/q-life2",
+      "allocated_bytes": 2507665408,
+      "group": "referenced or active run trees"
+    },
+    {
+      "path": "build/q-export",
+      "allocated_bytes": 2507280384,
+      "group": "referenced or active run trees"
+    },
+    {
+      "path": "build/qualify-6ea8540",
+      "allocated_bytes": 2424578048,
+      "group": "unclassified; inspect before removal"
+    },
+    {
+      "path": "build/q-fixedcost",
+      "allocated_bytes": 2406686720,
+      "group": "unclassified; inspect before removal"
+    },
+    {
+      "path": "build/wq-conformance-u3",
+      "allocated_bytes": 2204438528,
+      "group": "unclassified; inspect before removal"
+    },
+    {
+      "path": "build/ls-conformance-u3",
+      "allocated_bytes": 2196910080,
+      "group": "unclassified; inspect before removal"
+    },
+    {
+      "path": "build/cq-conformance-units",
+      "allocated_bytes": 2181419008,
+      "group": "unclassified; inspect before removal"
+    },
+    {
+      "path": "build/cold-bootstrap-trial-2",
+      "allocated_bytes": 2133561344,
+      "group": "referenced or active run trees"
+    },
+    {
+      "path": "build/functions-grow",
+      "allocated_bytes": 1968398336,
+      "group": "referenced or active run trees"
+    },
+    {
+      "path": "build/wt-s62",
+      "allocated_bytes": 1928445952,
+      "group": "unclassified; inspect before removal"
+    },
+    {
+      "path": "build/wt-base",
+      "allocated_bytes": 1914765312,
+      "group": "unclassified; inspect before removal"
+    },
+    {
+      "path": "build/wt-life2",
+      "allocated_bytes": 1914765312,
+      "group": "unclassified; inspect before removal"
+    },
+    {
+      "path": "build/performance",
+      "allocated_bytes": 1875042304,
+      "group": "referenced or active run trees"
+    },
+    {
+      "path": "build/emsdk",
+      "allocated_bytes": 1795457024,
+      "group": "installed tools and inputs"
+    },
+    {
+      "path": "build/next-runtime-hills",
+      "allocated_bytes": 1648996352,
+      "group": "referenced or active run trees"
+    },
+    {
+      "path": "build/stride-hills",
+      "allocated_bytes": 1600204800,
+      "group": "referenced or active run trees"
+    },
+    {
+      "path": "build/scan-hills",
+      "allocated_bytes": 1561550848,
+      "group": "referenced or active run trees"
+    },
+    {
+      "path": "build/next-hills",
+      "allocated_bytes": 1491705856,
+      "group": "referenced or active run trees"
+    },
+    {
+      "path": "build/functions-native-hills",
+      "allocated_bytes": 1427357696,
+      "group": "referenced or active run trees"
+    },
+    {
+      "path": "build/completion-archives",
+      "allocated_bytes": 1346109440,
+      "group": "unclassified; inspect before removal"
+    },
+    {
+      "path": "build/next-levers",
+      "allocated_bytes": 1335521280,
+      "group": "referenced or active run trees"
+    },
+    {
+      "path": "build/perf-dce",
+      "allocated_bytes": 1314185216,
+      "group": "unclassified; inspect before removal"
+    },
+    {
+      "path": "build/functions-hill",
+      "allocated_bytes": 1104891904,
+      "group": "referenced or active run trees"
+    },
+    {
+      "path": "build/wq-conformance",
+      "allocated_bytes": 1104416768,
+      "group": "unclassified; inspect before removal"
+    },
+    {
+      "path": "build/ls-conformance",
+      "allocated_bytes": 1100451840,
+      "group": "unclassified; inspect before removal"
+    },
+    {
+      "path": "build/cq-conformance",
+      "allocated_bytes": 1093124096,
+      "group": "unclassified; inspect before removal"
+    },
+    {
+      "path": "build/nc-conformance",
+      "allocated_bytes": 1082552320,
+      "group": "unclassified; inspect before removal"
+    },
+    {
+      "path": "build/speed63",
+      "allocated_bytes": 1055113216,
+      "group": "referenced or active run trees"
+    },
+    {
+      "path": "build/functions-init",
+      "allocated_bytes": 1037283328,
+      "group": "referenced or active run trees"
+    },
+    {
+      "path": "build/wq-eq",
+      "allocated_bytes": 1010819072,
+      "group": "unclassified; inspect before removal"
+    },
+    {
+      "path": "build/ls-eq",
+      "allocated_bytes": 1006579712,
+      "group": "unclassified; inspect before removal"
+    },
+    {
+      "path": "build/eq-nc",
+      "allocated_bytes": 979456000,
+      "group": "unclassified; inspect before removal"
+    },
+    {
+      "path": "build/functions-next",
+      "allocated_bytes": 946556928,
+      "group": "referenced or active run trees"
+    },
+    {
+      "path": "build/eq-life6",
+      "allocated_bytes": 937181184,
+      "group": "unclassified; inspect before removal"
+    },
+    {
+      "path": "build/eq-life5",
+      "allocated_bytes": 935182336,
+      "group": "unclassified; inspect before removal"
+    },
+    {
+      "path": "build/eq-life4",
+      "allocated_bytes": 927580160,
+      "group": "unclassified; inspect before removal"
+    },
+    {
+      "path": "build/runtime-reference",
+      "allocated_bytes": 866410496,
+      "group": "referenced or active run trees"
+    },
+    {
+      "path": "build/native-hills",
+      "allocated_bytes": 858165248,
+      "group": "referenced or active run trees"
+    },
+    {
+      "path": "build/execution-hill",
+      "allocated_bytes": 856002560,
+      "group": "referenced or active run trees"
+    },
+    {
+      "path": "build/wasm-audit",
+      "allocated_bytes": 815353856,
+      "group": "referenced or active run trees"
+    },
+    {
+      "path": "build/wasmtime-host",
+      "allocated_bytes": 563896320,
+      "group": "installed tools and inputs"
+    },
+    {
+      "path": "build/one-x-effects",
+      "allocated_bytes": 521486336,
+      "group": "unclassified; inspect before removal"
+    },
+    {
+      "path": "build/native-gap",
+      "allocated_bytes": 472166400,
+      "group": "referenced or active run trees"
+    },
+    {
+      "path": "build/remaining-hills",
+      "allocated_bytes": 453001216,
+      "group": "referenced or active run trees"
+    },
+    {
+      "path": "build/sorting-climb",
+      "allocated_bytes": 430383104,
+      "group": "referenced or active run trees"
+    },
+    {
+      "path": "build/native-selfhost-chart-upstream",
+      "allocated_bytes": 398888960,
+      "group": "referenced or active run trees"
+    },
+    {
+      "path": "build/astra-wasm-profile-1117",
+      "allocated_bytes": 366157824,
+      "group": "referenced or active run trees"
+    },
+    {
+      "path": "build/row-traversal",
+      "allocated_bytes": 356966400,
+      "group": "unclassified; inspect before removal"
+    },
+    {
+      "path": "build/speed62",
+      "allocated_bytes": 351911936,
+      "group": "unclassified; inspect before removal"
+    },
+    {
+      "path": "build/src-base",
+      "allocated_bytes": 324833280,
+      "group": "unclassified; inspect before removal"
+    },
+    {
+      "path": "build/s62check",
+      "allocated_bytes": 324550656,
+      "group": "unclassified; inspect before removal"
+    },
+    {
+      "path": "build/wq-frozen",
+      "allocated_bytes": 323084288,
+      "group": "unclassified; inspect before removal"
+    },
+    {
+      "path": "build/ls-frozen",
+      "allocated_bytes": 322011136,
+      "group": "unclassified; inspect before removal"
+    },
+    {
+      "path": "build/wt-nc",
+      "allocated_bytes": 320057344,
+      "group": "unclassified; inspect before removal"
+    },
+    {
+      "path": "build/wt-life6",
+      "allocated_bytes": 318922752,
+      "group": "unclassified; inspect before removal"
+    },
+    {
+      "path": "build/wt-life5",
+      "allocated_bytes": 318918656,
+      "group": "unclassified; inspect before removal"
+    },
+    {
+      "path": "build/wt-life3",
+      "allocated_bytes": 318914560,
+      "group": "unclassified; inspect before removal"
+    },
+    {
+      "path": "build/wt-life4",
+      "allocated_bytes": 318914560,
+      "group": "unclassified; inspect before removal"
+    },
+    {
+      "path": "build/snapshot61",
+      "allocated_bytes": 318238720,
+      "group": "referenced or active run trees"
+    },
+    {
+      "path": "build/wasm-slot-allocation-2",
+      "allocated_bytes": 293429248,
+      "group": "referenced or active run trees"
+    },
+    {
+      "path": "build/selfhost-comparison-2026-11-17",
+      "allocated_bytes": 284098560,
+      "group": "referenced or active run trees"
+    },
+    {
+      "path": "build/one-x-binaryen",
+      "allocated_bytes": 214306816,
+      "group": "referenced or active run trees"
+    },
+    {
+      "path": "build/tmp",
+      "allocated_bytes": 179671040,
+      "group": "referenced or active run trees"
+    },
+    {
+      "path": "build/tmpvjk_eaed",
+      "allocated_bytes": 159653888,
+      "group": "unclassified; inspect before removal"
+    },
+    {
+      "path": "build/wasm-execution-gap-2026-11-18",
+      "allocated_bytes": 157786112,
+      "group": "referenced or active run trees"
+    },
+    {
+      "path": "build/lowering-profile-1118",
+      "allocated_bytes": 151957504,
+      "group": "unclassified; inspect before removal"
+    },
+    {
+      "path": "build/feature-inventory",
+      "allocated_bytes": 139923456,
+      "group": "referenced or active run trees"
+    },
+    {
+      "path": "build/eq-life5-self",
+      "allocated_bytes": 139112448,
+      "group": "unclassified; inspect before removal"
+    },
+    {
+      "path": "build/wasmtime-ceiling-2026-11-18",
+      "allocated_bytes": 104914944,
+      "group": "unclassified; inspect before removal"
+    },
+    {
+      "path": "build/one-x-c-control",
+      "allocated_bytes": 87896064,
+      "group": "unclassified; inspect before removal"
+    },
+    {
+      "path": "build/pr11-review-i942stg9",
+      "allocated_bytes": 82612224,
+      "group": "unclassified; inspect before removal"
+    },
+    {
+      "path": "build/upstream-goose",
+      "allocated_bytes": 60071936,
+      "group": "referenced or active run trees"
+    },
+    {
+      "path": "build/legacy-cleanup",
+      "allocated_bytes": 53907456,
+      "group": "unclassified; inspect before removal"
+    },
+    {
+      "path": "build/functions-init-before-verifier-default",
+      "allocated_bytes": 53006336,
+      "group": "unclassified; inspect before removal"
+    },
+    {
+      "path": "build/source",
+      "allocated_bytes": 43094016,
+      "group": "referenced or active run trees"
+    },
+    {
+      "path": "build/policy-stage",
+      "allocated_bytes": 42713088,
+      "group": "unclassified; inspect before removal"
+    },
+    {
+      "path": "build/langbench-native",
+      "allocated_bytes": 40869888,
+      "group": "installed tools and inputs"
+    },
+    {
+      "path": "build/native-selfhost-chart",
+      "allocated_bytes": 37978112,
+      "group": "unclassified; inspect before removal"
+    },
+    {
+      "path": "build/baselines",
+      "allocated_bytes": 34856960,
+      "group": "referenced or active run trees"
+    },
+    {
+      "path": "build/langbench-goose-source",
+      "allocated_bytes": 33701888,
+      "group": "installed tools and inputs"
+    },
+    {
+      "path": "build/bin",
+      "allocated_bytes": 31252480,
+      "group": "installed tools and inputs"
+    },
+    {
+      "path": "build/em-cache",
+      "allocated_bytes": 28741632,
+      "group": "rebuildable caches"
+    },
+    {
+      "path": "build/native",
+      "allocated_bytes": 25362432,
+      "group": "referenced or active run trees"
+    },
+    {
+      "path": "build/example-benchmarks",
+      "allocated_bytes": 24260608,
+      "group": "referenced or active run trees"
+    },
+    {
+      "path": "build/inventory-smoke",
+      "allocated_bytes": 23355392,
+      "group": "unclassified; inspect before removal"
+    },
+    {
+      "path": "build/blot2-compile-2026-11-13",
+      "allocated_bytes": 20611072,
+      "group": "unclassified; inspect before removal"
+    },
+    {
+      "path": "build/vi",
+      "allocated_bytes": 20488192,
+      "group": "unclassified; inspect before removal"
+    },
+    {
+      "path": "build/blot2-main",
+      "allocated_bytes": 20258816,
+      "group": "unclassified; inspect before removal"
+    },
+    {
+      "path": "build/langarena-upstream",
+      "allocated_bytes": 20234240,
+      "group": "referenced or active run trees"
+    },
+    {
+      "path": "build/runtime-scaling-1117",
+      "allocated_bytes": 17772544,
+      "group": "referenced or active run trees"
+    },
+    {
+      "path": "build/eq-smoke",
+      "allocated_bytes": 15773696,
+      "group": "unclassified; inspect before removal"
+    },
+    {
+      "path": "build/conformance-upstream",
+      "allocated_bytes": 14868480,
+      "group": "referenced or active run trees"
+    },
+    {
+      "path": "build/semantic-artifacts",
+      "allocated_bytes": 11911168,
+      "group": "unclassified; inspect before removal"
+    },
+    {
+      "path": "build/runtime-next-cache",
+      "allocated_bytes": 8974336,
+      "group": "referenced or active run trees"
+    },
+    {
+      "path": "build/runtime-next-address",
+      "allocated_bytes": 8974336,
+      "group": "referenced or active run trees"
+    },
+    {
+      "path": "build/runtime-hash-strip",
+      "allocated_bytes": 8953856,
+      "group": "referenced or active run trees"
+    },
+    {
+      "path": "build/runtime-next-baseline",
+      "allocated_bytes": 8953856,
+      "group": "referenced or active run trees"
+    },
+    {
+      "path": "build/runtime-next-select",
+      "allocated_bytes": 8953856,
+      "group": "referenced or active run trees"
+    },
+    {
+      "path": "build/runtime-hash-linear",
+      "allocated_bytes": 8949760,
+      "group": "referenced or active run trees"
+    },
+    {
+      "path": "build/runtime-hash-linear2",
+      "allocated_bytes": 8949760,
+      "group": "referenced or active run trees"
+    },
+    {
+      "path": "build/runtime-round2-unroll",
+      "allocated_bytes": 8937472,
+      "group": "unclassified; inspect before removal"
+    },
+    {
+      "path": "build/runtime-sieve-baseline",
+      "allocated_bytes": 8937472,
+      "group": "referenced or active run trees"
+    },
+    {
+      "path": "build/runtime-sieve-leaf",
+      "allocated_bytes": 8937472,
+      "group": "referenced or active run trees"
+    },
+    {
+      "path": "build/runtime-sieve-fill",
+      "allocated_bytes": 8937472,
+      "group": "referenced or active run trees"
+    },
+    {
+      "path": "build/runtime-sieve-fill-only",
+      "allocated_bytes": 8937472,
+      "group": "referenced or active run trees"
+    },
+    {
+      "path": "build/runtime-sieve-scoped",
+      "allocated_bytes": 8937472,
+      "group": "referenced or active run trees"
+    },
+    {
+      "path": "build/runtime-hash-baseline",
+      "allocated_bytes": 8937472,
+      "group": "referenced or active run trees"
+    },
+    {
+      "path": "build/runtime-hash-policy",
+      "allocated_bytes": 8937472,
+      "group": "referenced or active run trees"
+    },
+    {
+      "path": "build/runtime-select",
+      "allocated_bytes": 8929280,
+      "group": "unclassified; inspect before removal"
+    },
+    {
+      "path": "build/runtime-policy",
+      "allocated_bytes": 8929280,
+      "group": "unclassified; inspect before removal"
+    },
+    {
+      "path": "build/runtime-round2-baseline",
+      "allocated_bytes": 8929280,
+      "group": "referenced or active run trees"
+    },
+    {
+      "path": "build/runtime-round2-ordinal",
+      "allocated_bytes": 8929280,
+      "group": "unclassified; inspect before removal"
+    },
+    {
+      "path": "build/runtime-round2-counters",
+      "allocated_bytes": 8929280,
+      "group": "unclassified; inspect before removal"
+    },
+    {
+      "path": "build/runtime-baseline",
+      "allocated_bytes": 8921088,
+      "group": "referenced or active run trees"
+    },
+    {
+      "path": "build/runtime-arithmetic",
+      "allocated_bytes": 8921088,
+      "group": "unclassified; inspect before removal"
+    },
+    {
+      "path": "build/selfhost",
+      "allocated_bytes": 8286208,
+      "group": "unclassified; inspect before removal"
+    },
+    {
+      "path": "build/dev-export",
+      "allocated_bytes": 6819840,
+      "group": "unclassified; inspect before removal"
+    },
+    {
+      "path": "build/dev-base",
+      "allocated_bytes": 6815744,
+      "group": "referenced or active run trees"
+    },
+    {
+      "path": "build/dev-units",
+      "allocated_bytes": 6799360,
+      "group": "unclassified; inspect before removal"
+    },
+    {
+      "path": "build/dev-offers",
+      "allocated_bytes": 6795264,
+      "group": "unclassified; inspect before removal"
+    },
+    {
+      "path": "build/examples-qualification",
+      "allocated_bytes": 6778880,
+      "group": "unclassified; inspect before removal"
+    },
+    {
+      "path": "build/examples-qualified-final",
+      "allocated_bytes": 6778880,
+      "group": "referenced or active run trees"
+    },
+    {
+      "path": "build/wq-bootstrap",
+      "allocated_bytes": 6643712,
+      "group": "referenced or active run trees"
+    },
+    {
+      "path": "build/ls-bootstrap",
+      "allocated_bytes": 6631424,
+      "group": "unclassified; inspect before removal"
+    },
+    {
+      "path": "build/cq-bootstrap",
+      "allocated_bytes": 6529024,
+      "group": "unclassified; inspect before removal"
+    },
+    {
+      "path": "build/nc-bootstrap",
+      "allocated_bytes": 6496256,
+      "group": "unclassified; inspect before removal"
+    },
+    {
+      "path": "build/benchmark-refresh",
+      "allocated_bytes": 5812224,
+      "group": "referenced or active run trees"
+    },
+    {
+      "path": "build/readme-reference-check",
+      "allocated_bytes": 5554176,
+      "group": "unclassified; inspect before removal"
+    },
+    {
+      "path": "build/ls-native",
+      "allocated_bytes": 4624384,
+      "group": "unclassified; inspect before removal"
+    },
+    {
+      "path": "build/wq-native",
+      "allocated_bytes": 4624384,
+      "group": "unclassified; inspect before removal"
+    },
+    {
+      "path": "build/langbench-upstream",
+      "allocated_bytes": 4390912,
+      "group": "unclassified; inspect before removal"
+    },
+    {
+      "path": "build/example-benchmarks-instrumented-aborted",
+      "allocated_bytes": 4059136,
+      "group": "unclassified; inspect before removal"
+    },
+    {
+      "path": "build/cq-native",
+      "allocated_bytes": 3973120,
+      "group": "unclassified; inspect before removal"
+    },
+    {
+      "path": "build/tiny-tests",
+      "allocated_bytes": 3473408,
+      "group": "unclassified; inspect before removal"
+    },
+    {
+      "path": "build/langbench-qualification",
+      "allocated_bytes": 3358720,
+      "group": "referenced or active run trees"
+    },
+    {
+      "path": "build/differential-next-baseline-signed-widen",
+      "allocated_bytes": 3211264,
+      "group": "unclassified; inspect before removal"
+    },
+    {
+      "path": "build/differential-next-cache-signed-widen",
+      "allocated_bytes": 3203072,
+      "group": "unclassified; inspect before removal"
+    },
+    {
+      "path": "build/differential-strip-cache-baseline",
+      "allocated_bytes": 3198976,
+      "group": "unclassified; inspect before removal"
+    },
+    {
+      "path": "build/differential-next-cache-strip",
+      "allocated_bytes": 3190784,
+      "group": "unclassified; inspect before removal"
+    },
+    {
+      "path": "build/differential-strip-baseline",
+      "allocated_bytes": 3084288,
+      "group": "unclassified; inspect before removal"
+    },
+    {
+      "path": "build/differential-strip-candidate",
+      "allocated_bytes": 3084288,
+      "group": "unclassified; inspect before removal"
+    },
+    {
+      "path": "build/langbench-trial-2026-11-07",
+      "allocated_bytes": 2994176,
+      "group": "referenced or active run trees"
+    },
+    {
+      "path": "build/selfcheck-current.eERhVR",
+      "allocated_bytes": 2756608,
+      "group": "unclassified; inspect before removal"
+    },
+    {
+      "path": "build/comparison-audit",
+      "allocated_bytes": 2703360,
+      "group": "unclassified; inspect before removal"
+    },
+    {
+      "path": "build/snapshot63",
+      "allocated_bytes": 2326528,
+      "group": "referenced or active run trees"
+    },
+    {
+      "path": "build/snapshot62",
+      "allocated_bytes": 2297856,
+      "group": "unclassified; inspect before removal"
+    },
+    {
+      "path": "build/differential-next-cache-bit-fold",
+      "allocated_bytes": 2121728,
+      "group": "unclassified; inspect before removal"
+    },
+    {
+      "path": "build/differential-bit-fold-baseline",
+      "allocated_bytes": 2105344,
+      "group": "unclassified; inspect before removal"
+    },
+    {
+      "path": "build/backend-extensions",
+      "allocated_bytes": 1835008,
+      "group": "unclassified; inspect before removal"
+    },
+    {
+      "path": "build/cache",
+      "allocated_bytes": 1081344,
+      "group": "rebuildable caches"
+    },
+    {
+      "path": "build/examples",
+      "allocated_bytes": 954368,
+      "group": "unclassified; inspect before removal"
+    },
+    {
+      "path": "build/charts-34",
+      "allocated_bytes": 892928,
+      "group": "unclassified; inspect before removal"
+    },
+    {
+      "path": "build/example-benchmark-smoke",
+      "allocated_bytes": 778240,
+      "group": "referenced or active run trees"
+    },
+    {
+      "path": "build/functions-floor",
+      "allocated_bytes": 761856,
+      "group": "referenced or active run trees"
+    },
+    {
+      "path": "build/tmpuvd3az2d",
+      "allocated_bytes": 622592,
+      "group": "unclassified; inspect before removal"
+    },
+    {
+      "path": "build/compact-logs-smoke",
+      "allocated_bytes": 503808,
+      "group": "referenced or active run trees"
+    },
+    {
+      "path": "build/example-chart-preview",
+      "allocated_bytes": 499712,
+      "group": "unclassified; inspect before removal"
+    },
+    {
+      "path": "build/next-levers-delivery-attempts",
+      "allocated_bytes": 475136,
+      "group": "unclassified; inspect before removal"
+    },
+    {
+      "path": "build/tmp_wvnobvm",
+      "allocated_bytes": 462848,
+      "group": "unclassified; inspect before removal"
+    },
+    {
+      "path": "build/langbench-hot-2026-11-07",
+      "allocated_bytes": 286720,
+      "group": "referenced or active run trees"
+    },
+    {
+      "path": "build/next-hills-delivery-attempts",
+      "allocated_bytes": 258048,
+      "group": "unclassified; inspect before removal"
+    },
+    {
+      "path": "build/selfhost-chart-preview",
+      "allocated_bytes": 204800,
+      "group": "unclassified; inspect before removal"
+    },
+    {
+      "path": "build/example-survey",
+      "allocated_bytes": 172032,
+      "group": "referenced or active run trees"
+    },
+    {
+      "path": "build/tmp.2AnM9reG43",
+      "allocated_bytes": 159744,
+      "group": "unclassified; inspect before removal"
+    },
+    {
+      "path": "build/langbench-hot-qualification",
+      "allocated_bytes": 151552,
+      "group": "unclassified; inspect before removal"
+    },
+    {
+      "path": "build/next-lever-profile",
+      "allocated_bytes": 69632,
+      "group": "unclassified; inspect before removal"
+    },
+    {
+      "path": "build/environment-review-2026-11-18",
+      "allocated_bytes": 49152,
+      "group": "unclassified; inspect before removal"
+    },
+    {
+      "path": "build/example-benchmark-failure",
+      "allocated_bytes": 36864,
+      "group": "referenced or active run trees"
+    },
+    {
+      "path": "build/bootstrap",
+      "allocated_bytes": 32768,
+      "group": "unclassified; inspect before removal"
+    },
+    {
+      "path": "build/examples-rejection",
+      "allocated_bytes": 28672,
+      "group": "unclassified; inspect before removal"
+    },
+    {
+      "path": "build/selfhost-rewrite",
+      "allocated_bytes": 24576,
+      "group": "unclassified; inspect before removal"
+    },
+    {
+      "path": "build/selfhost-chart-replay",
+      "allocated_bytes": 24576,
+      "group": "unclassified; inspect before removal"
+    },
+    {
+      "path": "build/tmphgw97he4",
+      "allocated_bytes": 0,
+      "group": "unclassified; inspect before removal"
+    }
+  ],
+  "generated_duplicates": {
+    "first": "build/qz/cold/conformance/artifacts",
+    "second": "build/qz/warm/conformance/artifacts",
+    "matching_warm_paths": 6392,
+    "independent_warm_inodes": 6369,
+    "duplicate_logical_bytes": 1057853563
+  }
+}

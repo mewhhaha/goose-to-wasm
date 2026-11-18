@@ -1,0 +1,8 @@
+bootstrap                    exit 0      4.8 s
+conformance                  exit 0    102.9 s  {'selected': 10797, 'passed': 10693, 'failed': 104}
+native-checks                exit 0     28.5 s  54 steps ok
+conformance-native-units-3   exit 0    104.3 s  {'selected': 6020, 'passed': 5924, 'failed': 96}
+conformance-memory64         exit 0    105.4 s  {'selected': 4777, 'passed': 4769, 'failed': 8}
+equivalence                  exit 0    104.8 s  {"compared": 10057, "differing": 0, "seconds": {"baseline": 155.256, "candidate": 147.505}}
+unit-tests                   exit 0    177.8 s
+passed in 182.6 s; /home/jacobt/src/goose-to-wasm/build/six-hills-1118/final-qualification/summary.json

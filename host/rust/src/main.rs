@@ -1,4 +1,4 @@
-//! goose-wasmtime module.wasm [--timing-json path] [--cache path] [-- program arguments]
+//! goose-wasmtime module.wasm [--timing-json path] [--cache path | --no-cache] [-- program arguments]
 //!
 //! Runs a direct Goose WebAssembly module with Wasmtime, as
 //! scripts/run_wasmtime.py does: stdin is the program's input, stdout its
@@ -14,7 +14,7 @@ use std::process::exit;
 use goose_wasmtime::pytext::normalized_path;
 use goose_wasmtime::run::{bytes_of, create_config, os_error_text, path_of, read_file, run_module, Outcome, HOSTED_STACK_BYTES};
 
-const USAGE: &str = "usage: goose-wasmtime module.wasm [--timing-json path] [--cache path] [-- program arguments]";
+const USAGE: &str = "usage: goose-wasmtime module.wasm [--timing-json path] [--cache path | --no-cache] [-- program arguments]";
 
 struct Options {
     module: PathBuf,
@@ -40,6 +40,7 @@ fn options() -> Options {
         rest
     });
     let (mut module, mut timing_json, mut cache) = (None, None, None);
+    let mut no_cache = false;
     let mut unrecognized: Vec<String> = Vec::new();
     let mut own = own.into_iter();
     while let Some(argument) = own.next() {
@@ -61,6 +62,10 @@ fn options() -> Options {
             println!("{USAGE}\n\nRun direct Goose WebAssembly with Wasmtime. Stdin is the program's input.\n\n  --timing-json path  write engine timings to this file\n  --cache path        keep the compiled module in this file and reuse it for the same module bytes");
             exit(0);
         }
+        if name == b"--no-cache" && value.is_none() {
+            no_cache = true;
+            continue;
+        }
         let slot = if named(b"--timing-json") {
             &mut timing_json
         } else if named(b"--cache") {
@@ -76,6 +81,9 @@ fn options() -> Options {
             Some(value) => *slot = Some(value),
             None => usage_error(&format!("argument {}: expected one argument", String::from_utf8_lossy(name))),
         }
+    }
+    if no_cache && cache.is_some() {
+        usage_error("--cache and --no-cache cannot be used together");
     }
     let Some(module) = module else { usage_error("the following arguments are required: module") };
     if !unrecognized.is_empty() {

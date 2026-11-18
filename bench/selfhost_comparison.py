@@ -48,6 +48,33 @@ def frozen_archive(commit):
     return git("archive", commit, *(file for file in files if file.endswith(".goose")), *NATIVE_SOURCES)
 
 
+def verify_frozen_source(source, commit, expected_sha256):
+    archive = frozen_archive(commit)
+    if hashlib.sha256(archive).hexdigest() != expected_sha256:
+        raise RuntimeError("frozen source archive changed")
+    with tarfile.open(fileobj=io.BytesIO(archive)) as tar:
+        for item in tar:
+            if item.isfile() and tar.extractfile(item).read() != (source / item.name).read_bytes():
+                raise RuntimeError(f"frozen source changed: {item.name}")
+
+
+def preparation_options(parser):
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument("--cold-preparation", action="store_true", help="disable the Wasmtime compilation cache")
+    group.add_argument("--cache-config", type=lambda path: Path(path).resolve(), help="Wasmtime cache TOML")
+
+
+def benchmark_engine(args):
+    from run_wasmtime import create_engine, create_hosted_config
+
+    config = create_hosted_config()
+    if args.cache_config:
+        config.cache = str(args.cache_config)
+    elif not args.cold_preparation:
+        config.cache = True
+    return create_engine(config)
+
+
 def write_report(path, report):
     path.write_text(json.dumps(report, indent=2) + "\n")
 
@@ -155,13 +182,7 @@ def measure(args):
     stage = args.stage
     source = stage / "source"
     builds = json.loads((stage / "builds.json").read_text())
-    archive = frozen_archive(builds["source_commit"])
-    if hashlib.sha256(archive).hexdigest() != builds["source_archive_sha256"]:
-        raise RuntimeError("frozen source archive changed")
-    with tarfile.open(fileobj=io.BytesIO(archive)) as tar:
-        for item in tar:
-            if item.isfile() and tar.extractfile(item).read() != (source / item.name).read_bytes():
-                raise RuntimeError(f"frozen source changed: {item.name}")
+    verify_frozen_source(source, builds["source_commit"], builds["source_archive_sha256"])
     artifacts = builds["samples"][0]["artifacts"]
     binaries = stage / "build-1"
     if any(identity(binaries / name) != digest for name, digest in artifacts.items()):
@@ -189,18 +210,20 @@ def measure(args):
     sys.path.insert(0, str(ROOT / "scripts"))
     import wasmtime
     from wasmtime import _ffi
-    from run_wasmtime import create_hosted_config, create_engine, PreparedModule, run_module, HOSTED_STACK_BYTES
+    from run_wasmtime import PreparedModule, run_module, HOSTED_STACK_BYTES
 
     data = wasm.read_bytes()
     # File imports in both runtime hosts resolve relative to the guest's working directory.
     os.chdir(source)
     started = time.perf_counter_ns()
-    engine = create_engine(create_hosted_config())
+    engine = benchmark_engine(args)
     compiled = wasmtime.Module(engine, data)
     compile_ns = time.perf_counter_ns() - started
     prepared = PreparedModule(engine, compiled, artifacts["compiler.wasm"]["sha256"], None, {})
     report["wasmtime"] = {
         "version": version("wasmtime"), "library": identity(Path(_ffi.dll._name)),
+        "preparation_cache_enabled": not args.cold_preparation,
+        "cache_config_sha256": sha256(args.cache_config) if args.cache_config else None,
         "config": "hosted config, Cranelift speed", "engine_and_module_ns": compile_ns,
     }
     print(f"Wasmtime prepared: {compile_ns / 1e9:.3f} s", flush=True)
@@ -274,6 +297,7 @@ def main():
     command.add_argument("stage", type=lambda path: Path(path).resolve())
     command.add_argument("--cpu", type=int, required=True)
     command.add_argument("--rounds", type=int, default=3)
+    preparation_options(command)
     command.set_defaults(action=measure)
     args = parser.parse_args()
     args.action(args)

@@ -1,0 +1,266 @@
+{
+  "miss": {
+    "workload_commit": "065aff32e9e200a8a8e346c353810944a3e5a2ff",
+    "cpu": 4,
+    "workload_sha256": "66615fae87452d841cb43eaf6c7a02c6aa82d94a32db2c26ce37f379c08cc5f7",
+    "wasmtime": "50.0.1",
+    "engine": {
+      "sha256": "3127ca42fe7cdd3f0a43a358e79177dcfedd46c1746329826403b9d854de6178",
+      "bytes": 29673400
+    },
+    "cache_enabled": true,
+    "compilers": {
+      "candidate": {
+        "source_commit": "90e086fe61f9ce019d6a6ef543212be63f6e1f57",
+        "artifacts": {
+          "compiler-native": {
+            "sha256": "5974068bf4c6e23059d1ff9714308f8b7cf75f6a285ddaa013182606b5bb6795",
+            "bytes": 7013800
+          },
+          "compiler.wasm": {
+            "sha256": "b9fd3e3718009ca54c7ce640adf9f1323a7e7dfaf1406c01d27791cfacc35787",
+            "bytes": 24508740
+          },
+          "compiler.c": {
+            "sha256": "d8931181bd54757b178182cbd874a7c79877615920b381f23b8ac303a68465e7",
+            "bytes": 49928825
+          }
+        },
+        "preparation_ns": 37973215656
+      }
+    },
+    "samples": [
+      {
+        "label": "candidate",
+        "host": "wasmtime",
+        "mode": "check",
+        "round": 1,
+        "wall_ns": 12718793120,
+        "counters": {
+          "cycles": {
+            "value": 39232453451,
+            "time_enabled_ns": 12087856618,
+            "time_running_ns": 12087856618
+          },
+          "instructions": {
+            "value": 75331583116,
+            "time_enabled_ns": 12087856377,
+            "time_running_ns": 12087856377
+          },
+          "branches": {
+            "value": 9149174152,
+            "time_enabled_ns": 12087854854,
+            "time_running_ns": 12087854854
+          },
+          "branch_misses": {
+            "value": 47836151,
+            "time_enabled_ns": 12087851938,
+            "time_running_ns": 12087851938
+          }
+        },
+        "emitted": null
+      }
+    ]
+  },
+  "hit1": {
+    "workload_commit": "065aff32e9e200a8a8e346c353810944a3e5a2ff",
+    "cpu": 4,
+    "workload_sha256": "66615fae87452d841cb43eaf6c7a02c6aa82d94a32db2c26ce37f379c08cc5f7",
+    "wasmtime": "50.0.1",
+    "engine": {
+      "sha256": "3127ca42fe7cdd3f0a43a358e79177dcfedd46c1746329826403b9d854de6178",
+      "bytes": 29673400
+    },
+    "cache_enabled": true,
+    "compilers": {
+      "candidate": {
+        "source_commit": "90e086fe61f9ce019d6a6ef543212be63f6e1f57",
+        "artifacts": {
+          "compiler-native": {
+            "sha256": "5974068bf4c6e23059d1ff9714308f8b7cf75f6a285ddaa013182606b5bb6795",
+            "bytes": 7013800
+          },
+          "compiler.wasm": {
+            "sha256": "b9fd3e3718009ca54c7ce640adf9f1323a7e7dfaf1406c01d27791cfacc35787",
+            "bytes": 24508740
+          },
+          "compiler.c": {
+            "sha256": "d8931181bd54757b178182cbd874a7c79877615920b381f23b8ac303a68465e7",
+            "bytes": 49928825
+          }
+        },
+        "preparation_ns": 153703390
+      }
+    },
+    "samples": [
+      {
+        "label": "candidate",
+        "host": "wasmtime",
+        "mode": "check",
+        "round": 1,
+        "wall_ns": 10986041004,
+        "counters": {
+          "cycles": {
+            "value": 35499517970,
+            "time_enabled_ns": 10694854662,
+            "time_running_ns": 10694854662
+          },
+          "instructions": {
+            "value": 75331601592,
+            "time_enabled_ns": 10694855253,
+            "time_running_ns": 10694855253
+          },
+          "branches": {
+            "value": 9149142768,
+            "time_enabled_ns": 10694854351,
+            "time_running_ns": 10694854351
+          },
+          "branch_misses": {
+            "value": 44455515,
+            "time_enabled_ns": 10694852258,
+            "time_running_ns": 10694852258
+          }
+        },
+        "emitted": null
+      }
+    ]
+  },
+  "hit2": {
+    "workload_commit": "065aff32e9e200a8a8e346c353810944a3e5a2ff",
+    "cpu": 4,
+    "workload_sha256": "66615fae87452d841cb43eaf6c7a02c6aa82d94a32db2c26ce37f379c08cc5f7",
+    "wasmtime": "50.0.1",
+    "engine": {
+      "sha256": "3127ca42fe7cdd3f0a43a358e79177dcfedd46c1746329826403b9d854de6178",
+      "bytes": 29673400
+    },
+    "cache_enabled": true,
+    "compilers": {
+      "candidate": {
+        "source_commit": "90e086fe61f9ce019d6a6ef543212be63f6e1f57",
+        "artifacts": {
+          "compiler-native": {
+            "sha256": "5974068bf4c6e23059d1ff9714308f8b7cf75f6a285ddaa013182606b5bb6795",
+            "bytes": 7013800
+          },
+          "compiler.wasm": {
+            "sha256": "b9fd3e3718009ca54c7ce640adf9f1323a7e7dfaf1406c01d27791cfacc35787",
+            "bytes": 24508740
+          },
+          "compiler.c": {
+            "sha256": "d8931181bd54757b178182cbd874a7c79877615920b381f23b8ac303a68465e7",
+            "bytes": 49928825
+          }
+        },
+        "preparation_ns": 127392951
+      }
+    },
+    "samples": [
+      {
+        "label": "candidate",
+        "host": "wasmtime",
+        "mode": "check",
+        "round": 1,
+        "wall_ns": 10939524042,
+        "counters": {
+          "cycles": {
+            "value": 35646011664,
+            "time_enabled_ns": 10718557037,
+            "time_running_ns": 10718557037
+          },
+          "instructions": {
+            "value": 75331699425,
+            "time_enabled_ns": 10718556917,
+            "time_running_ns": 10718556917
+          },
+          "branches": {
+            "value": 9149205429,
+            "time_enabled_ns": 10718555705,
+            "time_running_ns": 10718555705
+          },
+          "branch_misses": {
+            "value": 43612940,
+            "time_enabled_ns": 10718552899,
+            "time_running_ns": 10718552899
+          }
+        },
+        "emitted": null
+      }
+    ]
+  },
+  "cold": {
+    "workload_commit": "065aff32e9e200a8a8e346c353810944a3e5a2ff",
+    "cpu": 4,
+    "workload_sha256": "66615fae87452d841cb43eaf6c7a02c6aa82d94a32db2c26ce37f379c08cc5f7",
+    "wasmtime": "50.0.1",
+    "engine": {
+      "sha256": "3127ca42fe7cdd3f0a43a358e79177dcfedd46c1746329826403b9d854de6178",
+      "bytes": 29673400
+    },
+    "cache_enabled": false,
+    "compilers": {
+      "candidate": {
+        "source_commit": "90e086fe61f9ce019d6a6ef543212be63f6e1f57",
+        "artifacts": {
+          "compiler-native": {
+            "sha256": "5974068bf4c6e23059d1ff9714308f8b7cf75f6a285ddaa013182606b5bb6795",
+            "bytes": 7013800
+          },
+          "compiler.wasm": {
+            "sha256": "b9fd3e3718009ca54c7ce640adf9f1323a7e7dfaf1406c01d27791cfacc35787",
+            "bytes": 24508740
+          },
+          "compiler.c": {
+            "sha256": "d8931181bd54757b178182cbd874a7c79877615920b381f23b8ac303a68465e7",
+            "bytes": 49928825
+          }
+        },
+        "preparation_ns": 40610259506
+      }
+    },
+    "samples": [
+      {
+        "label": "candidate",
+        "host": "wasmtime",
+        "mode": "check",
+        "round": 1,
+        "wall_ns": 10777749538,
+        "counters": {
+          "cycles": {
+            "value": 35683847263,
+            "time_enabled_ns": 10558655908,
+            "time_running_ns": 10558655908
+          },
+          "instructions": {
+            "value": 75331522949,
+            "time_enabled_ns": 10558655637,
+            "time_running_ns": 10558655637
+          },
+          "branches": {
+            "value": 9149122155,
+            "time_enabled_ns": 10558654806,
+            "time_running_ns": 10558654806
+          },
+          "branch_misses": {
+            "value": 44460827,
+            "time_enabled_ns": 10558652322,
+            "time_running_ns": 10558652322
+          }
+        },
+        "emitted": null
+      }
+    ]
+  },
+  "method": {
+    "cache_config": "build/six-hills-1118/cache-trial/cache.toml",
+    "cache_config_sha256": "2367f92a6d5529811238ff7c5aada67253c16c10b0682ff285c81799eefd728e",
+    "order": [
+      "miss",
+      "hit1",
+      "hit2",
+      "cold"
+    ],
+    "trial": "one independent process per sample; one complete guest check after each preparation",
+    "cold_flag": "--cold-preparation"
+  }
+}

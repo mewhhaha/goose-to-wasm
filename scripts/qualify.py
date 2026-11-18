@@ -138,7 +138,10 @@ def main():
                                      '--candidate', compiler, '--output-dir', out / 'equivalence',
                                      '--selfhost', frozen / 'selfhost', '--jobs', max(1, share // 4)]))
     environment = dict(os.environ, GOOSE_COMPILER=str(compiler))
-    jobs.append(('unit-tests', [python, '-m', 'unittest', *UNIT_TESTS]))
+    unit_command = [python, '-m', 'unittest']
+    if '--durations' in subprocess.check_output([*unit_command, '--help'], text=True):
+        unit_command.extend(['--durations', '10'])
+    jobs.append(('unit-tests', [*unit_command, *UNIT_TESTS]))
     with ThreadPoolExecutor(len(jobs)) as pool:
         results = list(pool.map(lambda job: run(job[0], job[1], out / (job[0] + '.log'), environment), jobs))
     summary['stages'] += results

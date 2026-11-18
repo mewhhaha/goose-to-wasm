@@ -1,0 +1,624 @@
+{
+  "compiler_commit": "ba9dece0d4e58abb22c815dae1f37e28c99758de",
+  "workload_commit": "f89ecf30aea76003e4536bcf6fa8f280efb287cc",
+  "emitter_commit": "065aff32e9e200a8a8e346c353810944a3e5a2ff",
+  "probe_wasm_width": 64,
+  "clang": "clang version 23.1.5",
+  "wasmtime": "50.0.1",
+  "workloads": {
+    "check": {
+      "runs": {
+        "native": {
+          "cpu": 12,
+          "engine": "native",
+          "arguments": [
+            "selfhost/main.goose",
+            "--stdlib",
+            "stdlib",
+            "--check"
+          ],
+          "exit": 0,
+          "stdout_sha256": "ecdd65ed370e014677fc2f12c0ae74b0c9ad959334d747013e2fe73a3a25cf3a",
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "wasm": {
+          "cpu": 4,
+          "engine": "wasm",
+          "arguments": [
+            "selfhost/main.goose",
+            "--stdlib",
+            "stdlib",
+            "--check"
+          ],
+          "exit": 0,
+          "stdout_sha256": "ecdd65ed370e014677fc2f12c0ae74b0c9ad959334d747013e2fe73a3a25cf3a",
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "baseline": {
+          "cpu": 4,
+          "engine": "baseline",
+          "arguments": [
+            "selfhost/main.goose",
+            "--stdlib",
+            "stdlib",
+            "--check"
+          ],
+          "exit": 0,
+          "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "counts": {
+        "discovery": {
+          "calls": 125924,
+          "chain_hits": 103082,
+          "compact_reads_bypassed": 12587070,
+          "noncompact_bypasses": 0,
+          "max_replay_depth": 1,
+          "by_kind": {
+            "1": {
+              "visited": 146051,
+              "summary_stamp": 59572,
+              "leaf_stamp": 0,
+              "filtered": 0,
+              "applied": 86479,
+              "productive": 4983,
+              "visits_adding": 4980,
+              "visits_updating": 3,
+              "effects_added": 6948,
+              "effects_updated": 3,
+              "revision_only": 0,
+              "mapping_context": 0,
+              "mapped": 0
+            },
+            "2": {
+              "visited": 919717,
+              "summary_stamp": 394687,
+              "leaf_stamp": 0,
+              "filtered": 0,
+              "applied": 525030,
+              "productive": 26863,
+              "visits_adding": 26854,
+              "visits_updating": 9,
+              "effects_added": 36878,
+              "effects_updated": 9,
+              "revision_only": 0,
+              "mapping_context": 0,
+              "mapped": 0
+            },
+            "3": {
+              "visited": 6920863,
+              "summary_stamp": 0,
+              "leaf_stamp": 4820622,
+              "filtered": 0,
+              "applied": 2100241,
+              "productive": 615584,
+              "visits_adding": 613820,
+              "visits_updating": 1784,
+              "effects_added": 867193,
+              "effects_updated": 2520,
+              "revision_only": 0,
+              "mapping_context": 0,
+              "mapped": 0
+            },
+            "4": {
+              "visited": 11298,
+              "summary_stamp": 4369,
+              "leaf_stamp": 0,
+              "filtered": 0,
+              "applied": 6929,
+              "productive": 535,
+              "visits_adding": 341,
+              "visits_updating": 194,
+              "effects_added": 481,
+              "effects_updated": 300,
+              "revision_only": 0,
+              "mapping_context": 0,
+              "mapped": 0
+            }
+          },
+          "total": {
+            "visited": 7997929,
+            "summary_stamp": 458628,
+            "leaf_stamp": 4820622,
+            "filtered": 0,
+            "applied": 2718679,
+            "productive": 647965,
+            "visits_adding": 645995,
+            "visits_updating": 1990,
+            "effects_added": 911500,
+            "effects_updated": 2832,
+            "revision_only": 0,
+            "mapping_context": 0,
+            "mapped": 0
+          }
+        },
+        "validation": {
+          "calls": 25185,
+          "chain_hits": 0,
+          "compact_reads_bypassed": 0,
+          "noncompact_bypasses": 0,
+          "max_replay_depth": 1,
+          "by_kind": {
+            "1": {
+              "visited": 20967,
+              "summary_stamp": 0,
+              "leaf_stamp": 0,
+              "filtered": 0,
+              "applied": 20967,
+              "productive": 1772,
+              "visits_adding": 1772,
+              "visits_updating": 0,
+              "effects_added": 2640,
+              "effects_updated": 0,
+              "revision_only": 0,
+              "mapping_context": 0,
+              "mapped": 0
+            },
+            "2": {
+              "visited": 135634,
+              "summary_stamp": 0,
+              "leaf_stamp": 0,
+              "filtered": 0,
+              "applied": 135634,
+              "productive": 7663,
+              "visits_adding": 7663,
+              "visits_updating": 0,
+              "effects_added": 10755,
+              "effects_updated": 0,
+              "revision_only": 0,
+              "mapping_context": 0,
+              "mapped": 0
+            },
+            "3": {
+              "visited": 2378277,
+              "summary_stamp": 0,
+              "leaf_stamp": 1879873,
+              "filtered": 0,
+              "applied": 498404,
+              "productive": 22437,
+              "visits_adding": 22437,
+              "visits_updating": 0,
+              "effects_added": 31231,
+              "effects_updated": 0,
+              "revision_only": 0,
+              "mapping_context": 0,
+              "mapped": 0
+            },
+            "4": {
+              "visited": 2455,
+              "summary_stamp": 0,
+              "leaf_stamp": 0,
+              "filtered": 0,
+              "applied": 2455,
+              "productive": 388,
+              "visits_adding": 388,
+              "visits_updating": 0,
+              "effects_added": 551,
+              "effects_updated": 0,
+              "revision_only": 0,
+              "mapping_context": 0,
+              "mapped": 0
+            },
+            "7": {
+              "visited": 2,
+              "summary_stamp": 0,
+              "leaf_stamp": 0,
+              "filtered": 0,
+              "applied": 2,
+              "productive": 2,
+              "visits_adding": 2,
+              "visits_updating": 0,
+              "effects_added": 2,
+              "effects_updated": 0,
+              "revision_only": 0,
+              "mapping_context": 0,
+              "mapped": 0
+            }
+          },
+          "total": {
+            "visited": 2537335,
+            "summary_stamp": 0,
+            "leaf_stamp": 1879873,
+            "filtered": 0,
+            "applied": 657462,
+            "productive": 32262,
+            "visits_adding": 32262,
+            "visits_updating": 0,
+            "effects_added": 45179,
+            "effects_updated": 0,
+            "revision_only": 0,
+            "mapping_context": 0,
+            "mapped": 0
+          }
+        }
+      }
+    },
+    "emit": {
+      "runs": {
+        "native": {
+          "cpu": 12,
+          "engine": "native",
+          "arguments": [
+            "selfhost/main.goose",
+            "--stdlib",
+            "stdlib",
+            "--target",
+            "wasm-direct",
+            "-O2",
+            "--wasm-memory64",
+            "--wasm-max-pages",
+            "262144",
+            "-o",
+            "/home/jacobt/src/goose-to-wasm/build/six-hills-1118/replay-probe/native.wasm.out"
+          ],
+          "exit": 0,
+          "stdout_sha256": "ecdd65ed370e014677fc2f12c0ae74b0c9ad959334d747013e2fe73a3a25cf3a",
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "artifact_sha256": "31783c320929638535d7c50da591954cdf1eebf3af83f2d1f5c3ab5a7089e468"
+        },
+        "wasm": {
+          "cpu": 4,
+          "engine": "wasm",
+          "arguments": [
+            "selfhost/main.goose",
+            "--stdlib",
+            "stdlib",
+            "--target",
+            "wasm-direct",
+            "-O2",
+            "--wasm-memory64",
+            "--wasm-max-pages",
+            "262144",
+            "-o",
+            "/home/jacobt/src/goose-to-wasm/build/six-hills-1118/replay-probe/wasm.wasm.out"
+          ],
+          "exit": 0,
+          "stdout_sha256": "ecdd65ed370e014677fc2f12c0ae74b0c9ad959334d747013e2fe73a3a25cf3a",
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "artifact_sha256": "31783c320929638535d7c50da591954cdf1eebf3af83f2d1f5c3ab5a7089e468"
+        },
+        "baseline": {
+          "cpu": 4,
+          "engine": "baseline",
+          "arguments": [
+            "selfhost/main.goose",
+            "--stdlib",
+            "stdlib",
+            "--target",
+            "wasm-direct",
+            "-O2",
+            "--wasm-memory64",
+            "--wasm-max-pages",
+            "262144",
+            "-o",
+            "/home/jacobt/src/goose-to-wasm/build/six-hills-1118/replay-probe/baseline.wasm.out"
+          ],
+          "exit": 0,
+          "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "artifact_sha256": "31783c320929638535d7c50da591954cdf1eebf3af83f2d1f5c3ab5a7089e468"
+        }
+      },
+      "counts": {
+        "discovery": {
+          "calls": 125924,
+          "chain_hits": 103082,
+          "compact_reads_bypassed": 12587070,
+          "noncompact_bypasses": 0,
+          "max_replay_depth": 1,
+          "by_kind": {
+            "1": {
+              "visited": 146051,
+              "summary_stamp": 59572,
+              "leaf_stamp": 0,
+              "filtered": 0,
+              "applied": 86479,
+              "productive": 4983,
+              "visits_adding": 4980,
+              "visits_updating": 3,
+              "effects_added": 6948,
+              "effects_updated": 3,
+              "revision_only": 0,
+              "mapping_context": 0,
+              "mapped": 0
+            },
+            "2": {
+              "visited": 919717,
+              "summary_stamp": 394687,
+              "leaf_stamp": 0,
+              "filtered": 0,
+              "applied": 525030,
+              "productive": 26863,
+              "visits_adding": 26854,
+              "visits_updating": 9,
+              "effects_added": 36878,
+              "effects_updated": 9,
+              "revision_only": 0,
+              "mapping_context": 0,
+              "mapped": 0
+            },
+            "3": {
+              "visited": 6920863,
+              "summary_stamp": 0,
+              "leaf_stamp": 4820622,
+              "filtered": 0,
+              "applied": 2100241,
+              "productive": 615584,
+              "visits_adding": 613820,
+              "visits_updating": 1784,
+              "effects_added": 867193,
+              "effects_updated": 2520,
+              "revision_only": 0,
+              "mapping_context": 0,
+              "mapped": 0
+            },
+            "4": {
+              "visited": 11298,
+              "summary_stamp": 4369,
+              "leaf_stamp": 0,
+              "filtered": 0,
+              "applied": 6929,
+              "productive": 535,
+              "visits_adding": 341,
+              "visits_updating": 194,
+              "effects_added": 481,
+              "effects_updated": 300,
+              "revision_only": 0,
+              "mapping_context": 0,
+              "mapped": 0
+            }
+          },
+          "total": {
+            "visited": 7997929,
+            "summary_stamp": 458628,
+            "leaf_stamp": 4820622,
+            "filtered": 0,
+            "applied": 2718679,
+            "productive": 647965,
+            "visits_adding": 645995,
+            "visits_updating": 1990,
+            "effects_added": 911500,
+            "effects_updated": 2832,
+            "revision_only": 0,
+            "mapping_context": 0,
+            "mapped": 0
+          }
+        },
+        "validation": {
+          "calls": 25185,
+          "chain_hits": 0,
+          "compact_reads_bypassed": 0,
+          "noncompact_bypasses": 0,
+          "max_replay_depth": 1,
+          "by_kind": {
+            "1": {
+              "visited": 20967,
+              "summary_stamp": 0,
+              "leaf_stamp": 0,
+              "filtered": 0,
+              "applied": 20967,
+              "productive": 1772,
+              "visits_adding": 1772,
+              "visits_updating": 0,
+              "effects_added": 2640,
+              "effects_updated": 0,
+              "revision_only": 0,
+              "mapping_context": 0,
+              "mapped": 0
+            },
+            "2": {
+              "visited": 135634,
+              "summary_stamp": 0,
+              "leaf_stamp": 0,
+              "filtered": 0,
+              "applied": 135634,
+              "productive": 7663,
+              "visits_adding": 7663,
+              "visits_updating": 0,
+              "effects_added": 10755,
+              "effects_updated": 0,
+              "revision_only": 0,
+              "mapping_context": 0,
+              "mapped": 0
+            },
+            "3": {
+              "visited": 2378277,
+              "summary_stamp": 0,
+              "leaf_stamp": 1879873,
+              "filtered": 0,
+              "applied": 498404,
+              "productive": 22437,
+              "visits_adding": 22437,
+              "visits_updating": 0,
+              "effects_added": 31231,
+              "effects_updated": 0,
+              "revision_only": 0,
+              "mapping_context": 0,
+              "mapped": 0
+            },
+            "4": {
+              "visited": 2455,
+              "summary_stamp": 0,
+              "leaf_stamp": 0,
+              "filtered": 0,
+              "applied": 2455,
+              "productive": 388,
+              "visits_adding": 388,
+              "visits_updating": 0,
+              "effects_added": 551,
+              "effects_updated": 0,
+              "revision_only": 0,
+              "mapping_context": 0,
+              "mapped": 0
+            },
+            "7": {
+              "visited": 2,
+              "summary_stamp": 0,
+              "leaf_stamp": 0,
+              "filtered": 0,
+              "applied": 2,
+              "productive": 2,
+              "visits_adding": 2,
+              "visits_updating": 0,
+              "effects_added": 2,
+              "effects_updated": 0,
+              "revision_only": 0,
+              "mapping_context": 0,
+              "mapped": 0
+            }
+          },
+          "total": {
+            "visited": 2537335,
+            "summary_stamp": 0,
+            "leaf_stamp": 1879873,
+            "filtered": 0,
+            "applied": 657462,
+            "productive": 32262,
+            "visits_adding": 32262,
+            "visits_updating": 0,
+            "effects_added": 45179,
+            "effects_updated": 0,
+            "revision_only": 0,
+            "mapping_context": 0,
+            "mapped": 0
+          }
+        }
+      }
+    },
+    "negative": {
+      "runs": {
+        "native": {
+          "cpu": 12,
+          "engine": "native",
+          "arguments": [
+            "/home/jacobt/src/goose-to-wasm/tests/fixtures/contracts/upstream-differential/harvest/private_snapshot_parameters/98f0101e11.goose",
+            "--stdlib",
+            "stdlib",
+            "--check"
+          ],
+          "exit": 1,
+          "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stderr_sha256": "376fafd31e5c8ca3a3710beaa57d852f92f6aa601728fcbab8486e082a661fe2"
+        },
+        "wasm": {
+          "cpu": 4,
+          "engine": "wasm",
+          "arguments": [
+            "/home/jacobt/src/goose-to-wasm/tests/fixtures/contracts/upstream-differential/harvest/private_snapshot_parameters/98f0101e11.goose",
+            "--stdlib",
+            "stdlib",
+            "--check"
+          ],
+          "exit": 1,
+          "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stderr_sha256": "376fafd31e5c8ca3a3710beaa57d852f92f6aa601728fcbab8486e082a661fe2"
+        },
+        "baseline": {
+          "cpu": 4,
+          "engine": "baseline",
+          "arguments": [
+            "/home/jacobt/src/goose-to-wasm/tests/fixtures/contracts/upstream-differential/harvest/private_snapshot_parameters/98f0101e11.goose",
+            "--stdlib",
+            "stdlib",
+            "--check"
+          ],
+          "exit": 1,
+          "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stderr_sha256": "376fafd31e5c8ca3a3710beaa57d852f92f6aa601728fcbab8486e082a661fe2"
+        }
+      },
+      "counts": {}
+    }
+  },
+  "sha256": {
+    "build/bin/goose": "e3666cca0f4af376876c805456600eac41849f6360064b3970f9ca31e6c22700",
+    "build/lifetime-exit-index-2026-11-18/native-candidate": "90513e00dc8cdddb74a1ca364e3185ead31ebccc7b85b8b43d603905c2eba198",
+    "probe.wasm": "0c21a9f8cd8199d57f2b7e16183e7025b55671f0dbb746b21e2a9eefdcac5e83",
+    "probe.c": "1c20366b1fdc33a89628af77325f648408beaff7b6bf267ede0e3fddd33e16ff",
+    "probe-native": "99782d332ea4058645ca17cdfd1c96e08a5f5a73d23be1736178a41e65b582ab",
+    "instrument.py": "66216cf0fd389ccd62edf2c3fb8c80b851d0895fa17282eb27cbac6e40e401f8",
+    "checker_lifetimes.goose": "25d6bc16eea6042d15c7a818547080a4d3022c491ad82de33a3197519feabd01",
+    "clang-23": "ca0d2f7fbe94836762f36c7e73292289bc4d5e4b9b5defc320ef0856259a2855",
+    "runs.wasm": "10cbc835b5b75550c492f6f64474183632c4c482df3091e399de0b30fc73f44b",
+    "stamp_runs.py": "193b587bb242461e77c74415acbe6afa28d00447a4146fa256311c0a7430d21e"
+  },
+  "wasm_command": "--target wasm-direct -O2 --wasm-memory64 --wasm-max-pages 262144",
+  "native_build_flags": "-std=gnu11 -w -O1 -lm -ldl -pthread",
+  "stamp_runs": {
+    "discovery": [
+      {
+        "minimum": 1,
+        "runs": 58110,
+        "entries": 58110
+      },
+      {
+        "minimum": 2,
+        "runs": 48024,
+        "entries": 111599
+      },
+      {
+        "minimum": 4,
+        "runs": 31153,
+        "entries": 167897
+      },
+      {
+        "minimum": 8,
+        "runs": 30419,
+        "entries": 322770
+      },
+      {
+        "minimum": 16,
+        "runs": 21693,
+        "entries": 498053
+      },
+      {
+        "minimum": 32,
+        "runs": 17243,
+        "entries": 790628
+      },
+      {
+        "minimum": 64,
+        "runs": 18544,
+        "entries": 2871565
+      }
+    ],
+    "validation": [
+      {
+        "minimum": 1,
+        "runs": 42392,
+        "entries": 42392
+      },
+      {
+        "minimum": 2,
+        "runs": 26249,
+        "entries": 60530
+      },
+      {
+        "minimum": 4,
+        "runs": 17566,
+        "entries": 91964
+      },
+      {
+        "minimum": 8,
+        "runs": 12993,
+        "entries": 133868
+      },
+      {
+        "minimum": 16,
+        "runs": 7382,
+        "entries": 170064
+      },
+      {
+        "minimum": 32,
+        "runs": 6849,
+        "entries": 311258
+      },
+      {
+        "minimum": 64,
+        "runs": 7235,
+        "entries": 1069797
+      }
+    ]
+  }
+}

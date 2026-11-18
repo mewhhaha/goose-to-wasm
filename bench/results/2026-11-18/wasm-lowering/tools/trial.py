@@ -16,7 +16,10 @@ baseline = root / "build/lifetime-exit-index-2026-11-18"
 workload = root / "build/wasm-copy-2026-11-18/selfhost-chart"
 sys.path.insert(0, str(root / "scripts"))
 sys.path.insert(0, str(root / "bench/results/2026-11-18/selfhost-wasm-runtime/tools"))
-from measure import HOSTED_STACK_BYTES, PreparedModule, create_engine, create_hosted_config, measured, sha256, wasmtime, run_module
+sys.path.insert(0, str(root / "bench"))
+from selfhost_comparison import benchmark_engine, preparation_options, verify_frozen_source
+from selfhost_charts import timings
+from measure import HOSTED_STACK_BYTES, PreparedModule, measured, sha256, wasmtime, run_module
 from wasmtime import _ffi
 
 reference = json.loads((root / "bench/results/2026-11-18/lifetime-exit-index/matched.json").read_text())
@@ -25,6 +28,9 @@ parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument("--cpu", type=int, default=5)
 parser.add_argument("--stage", type=Path, default=root / "build/wasm-lowering-1118")
 parser.add_argument("--wide", action="store_true")
+parser.add_argument("--preflight", action="store_true", help="check all inputs, report shape, counters and hosted execution")
+parser.add_argument("--comparison-report", type=Path, default=Path(__file__).resolve().parents[1] / "measurements.json")
+preparation_options(parser)
 args = parser.parse_args()
 stage = args.stage.resolve()
 width = "candidate32"
@@ -37,15 +43,36 @@ if args.wide:
     labels = ("combined",)
     inputs = {"direct": baseline / "candidate64.wasm", "combined": stage / "release64.wasm"}
 native = baseline / "native-candidate"
-assert sha256(native.read_bytes()) == reference["candidate_native_sha256"]
+if sha256(native.read_bytes()) != reference["candidate_native_sha256"]:
+    raise ValueError(f"native compiler changed: {native}")
 run_cpu = args.cpu
 os.sched_setaffinity(0, {run_cpu})
-engine = create_engine(create_hosted_config())
+folder = Path(__file__).resolve().parents[1]
+expected = json.loads((folder / f"{candidate}-samples.json").read_text())
+timings(json.loads(args.comparison_report.read_text()))
+verify_frozen_source(workload / "source", reference["source_commit"], reference["source_archive_sha256"])
+if set(inputs) != set(expected["modules"]) or expected["modules"]["direct"]["sha256"] != widths[width]["sha256"]:
+    raise ValueError(f"invalid module set for {width}")
+for label, path in inputs.items():
+    if sha256(path.read_bytes()) != expected["modules"][label]["sha256"]:
+        raise ValueError(f"module changed: {path}")
+if version("wasmtime") != expected["wasmtime"] or sha256(Path(_ffi.dll._name).read_bytes()) != expected["wasmtime_sha256"]:
+    raise ValueError("Wasmtime library changed")
+engine = benchmark_engine(args)
+smoke = wasmtime.wat2wasm('(module (memory (export "memory") 1) (func (export "_start")))')
+tiny = PreparedModule(engine, wasmtime.Module(engine, smoke), sha256(smoke), None, {})
+result, _, counters = measured(lambda: run_module(smoke, b"", prepared=tiny))
+if (result["exit_code"], result["stdout"], result["stderr"]) != (0, b"", "") or counters["instructions"]["value"] <= 0:
+    raise RuntimeError("hosted counter smoke failed")
+if args.preflight:
+    print(f"{width}: verified {len(inputs)} modules, native compiler, frozen project, report rounds and hosted counters")
+    sys.exit(0)
 modules = {}
 report = {
     "compiler_source_commit": "ba9dece0d4e58abb22c815dae1f37e28c99758de",
     "workload_commit": reference["source_commit"], "workload_archive_sha256": reference["source_archive_sha256"],
     "wasmtime": version("wasmtime"), "wasmtime_sha256": sha256(Path(_ffi.dll._name).read_bytes()),
+    "preparation_cache_enabled": not args.cold_preparation,
     "cpu": run_cpu, "native_sha256": reference["candidate_native_sha256"],
     "expected_emission_sha256": reference["artifact"], "modules": {}, "samples": [],
 }
