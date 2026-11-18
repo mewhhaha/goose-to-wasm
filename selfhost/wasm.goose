@@ -112,7 +112,7 @@ fn wb_body(out: u8[>..]&, locals: i64[:], code: u8[:]) {
 }
 
 struct WbInstruction { start: i64, end: i64, opcode: i64, index: i64 = -1, omitted: bool = false }
-fn wb_read_unsigned(bytes: u8[:], at: i64&) -> i64 {
+inline fn wb_read_unsigned(bytes: u8[:], at: i64&) -> i64 {
     var value: i64 = 0; var shift = 0;
     loop {
         let byte = bytes[at]; at++;
@@ -120,7 +120,7 @@ fn wb_read_unsigned(bytes: u8[:], at: i64&) -> i64 {
         if (byte & 128) == 0 { return value; } shift += 7;
     }
 }
-fn wb_skip_leb(bytes: u8[:], at: i64&) {
+inline fn wb_skip_leb(bytes: u8[:], at: i64&) {
     loop { let byte = bytes[at]; at++; if (byte & 128) == 0 { return; } }
 }
 fn wb_read_operands(bytes: u8[:], at: i64&, opcode: i64) -> i64 {
@@ -199,32 +199,32 @@ struct WbFrame { at: i64, looping: bool = false, conditional: bool = false, alte
 // it. Everything else is taken as not written, which only costs sharing.
 fn wb_reuse_locals(locals: i64[>..]&, code: u8[>..]&, params: i64) {
     if locals.len < 2 { return; }
-    var instructions: WbInstruction[>..] = []; var at = 0;
-    // Only control flow and non-parameter locals can change a live span.
-    // Keep instruction zero so implicit zero reads still start before any
-    // later span, even when the function opens with unrelated instructions.
-    while at < code.len {
-        let start = at; let op = code[at] as i64; at++;
-        let index = wb_read_operands(code, at, op);
-        if start == 0 || op >= 0x02 && op <= 0x05 || op >= 0x0b && op <= 0x0e || op >= 0x20 && op <= 0x22 && index >= params {
-            instructions.push(WbInstruction { start: start, end: at, opcode: op, index: index });
-        }
-    }
+    var locals_at: i64[>..] = [];
+    let bytes: u8[:] = code;
     let total = params + locals.len;
     var first: i64[>..] = []; var last: i64[>..] = []; var written: i64[>..] = []; var arm: i64[>..] = []; var stamp: i64[>..] = [];
     first.resize(total, -1); last.resize(total, -1); written.resize(total, 0); arm.resize(total, -1); stamp.resize(total, -1);
-    var loop_end: i64[>..] = []; loop_end.resize(instructions.len + 1, -1);
+    var loop_end: i64[>..] = [];
     var frames: WbFrame[>..] = []; var undo: i64[>..] = []; var covers: i64[>..] = []; var merged: i64[>..] = [];
-    for instruction, position in instructions {
-        let opcode = instruction.opcode;
-        if opcode == 0x02 || opcode == 0x03 || opcode == 0x04 {
-            frames.push(WbFrame { at: position, looping: opcode == 0x03, conditional: opcode == 0x04, undo: undo.len });
-        } else if opcode == 0x05 {
+    // Only local accesses and control instructions contribute span endpoints.
+    // Keep the first position for reads of an implicitly zeroed local.
+    var position = -1; var at = 0;
+    while at < bytes.len {
+        let start = at; let op = bytes[at] as i64; at++;
+        var index = -1;
+        // Numeric instructions emitted in this range have no immediates.
+        if op < 0x45 || op >= 0xfc { index = wb_read_operands(bytes, at, op); }
+        let rewrite = op >= 0x20 && op <= 0x22 && index >= params;
+        if start != 0 && !rewrite && !(op >= 0x02 && op <= 0x05 || op >= 0x0b && op <= 0x0e) { continue; }
+        position++;
+        if op == 0x02 || op == 0x03 || op == 0x04 {
+            frames.push(WbFrame { at: position, looping: op == 0x03, conditional: op == 0x04, undo: undo.len });
+        } else if op == 0x05 {
             // The then arm ends: remember what it wrote, then forget it.
             let depth = frames.len - 1; let mark = frames[depth].undo;
             for index in mark..undo.len { arm[undo[index]] = frames[depth].at; written[undo[index]] = 0; }
             undo.resize(mark); frames[depth].alternative = true;
-        } else if opcode == 0x0b {
+        } else if op == 0x0b {
             if frames.len == 0 { break; }
             let frame = frames.pop(); merged.clear();
             for index in frame.undo..undo.len {
@@ -233,19 +233,23 @@ fn wb_reuse_locals(locals: i64[>..]&, code: u8[>..]&, params: i64) {
             }
             undo.resize(frame.undo);
             for local in merged { if written[local] == 0 { written[local] = frames.len + 1; undo.push(local); } }
-            if frame.looping { loop_end[frame.at] = position; }
-        } else if opcode == 0x0c || opcode == 0x0d {
-            if instruction.index < frames.len { frames[frames.len - 1 - instruction.index].branched = true; }
-        } else if opcode == 0x0e {
-            var cursor = instruction.start + 1; let count = wb_read_unsigned(code, cursor);
+            if frame.looping {
+                if frame.at >= loop_end.len { loop_end.resize(frame.at + 1, -1); }
+                loop_end[frame.at] = position;
+            }
+        } else if op == 0x0c || op == 0x0d {
+            if index < frames.len { frames[frames.len - 1 - index].branched = true; }
+        } else if op == 0x0e {
+            var cursor = start + 1; let count = wb_read_unsigned(bytes, cursor);
             for target in 0..count + 1 {
-                let label = wb_read_unsigned(code, cursor);
+                let label = wb_read_unsigned(bytes, cursor);
                 if label < frames.len { frames[frames.len - 1 - label].branched = true; }
             }
-        } else if opcode >= 0x20 && opcode <= 0x22 && instruction.index >= params {
-            let local = instruction.index;
+        } else if rewrite {
+            locals_at.push(start);
+            let local = index;
             if first[local] < 0 { first[local] = position; } last[local] = position;
-            if opcode == 0x20 {
+            if op == 0x20 {
                 // The outermost loop entered since the write, or of all.
                 var depth = written[local] - 1; if depth < 0 { first[local] = 0; depth = 0; }
                 while depth < frames.len && !frames[depth].looping { depth++; }
@@ -263,7 +267,7 @@ fn wb_reuse_locals(locals: i64[>..]&, code: u8[>..]&, params: i64) {
     }
     // Take the locals in the order their spans start; give each the first
     // index of its type that is free again.
-    var head: i64[>..] = []; var next: i64[>..] = []; head.resize(instructions.len + 1, -1); next.resize(total, -1);
+    var head: i64[>..] = []; var next: i64[>..] = []; head.resize(position + 1, -1); next.resize(total, -1);
     var local = total - 1;
     while local >= params { if first[local] >= 0 { next[local] = head[first[local]]; head[first[local]] = local; } local--; }
     var slot_type: i64[>..] = []; var slot_free: i64[>..] = []; var slot_of: i64[>..] = []; slot_of.resize(total, -1);
@@ -271,17 +275,17 @@ fn wb_reuse_locals(locals: i64[>..]&, code: u8[>..]&, params: i64) {
     // other types. It stays skippable until its first same-type span ends.
     var prefix_len: i64[128] = [0; 128];
     var prefix_end: i64[128] = [0; 128];
-    for position in 0..instructions.len {
-        var member = head[position];
+    for span_start in 0..head.len {
+        var member = head[span_start];
         while member >= 0 {
             let kind = locals[member - params];
             var chosen = prefix_len[kind];
             var until = prefix_end[kind];
-            if until < position { chosen = 0; until = instructions.len; }
+            if until < span_start { chosen = 0; until = head.len; }
             while chosen < slot_free.len {
                 if slot_type[chosen] == kind {
                     let end = slot_free[chosen];
-                    if end < position { break; }
+                    if end < span_start { break; }
                     if end < until { until = end; }
                 }
                 chosen++;
@@ -296,13 +300,23 @@ fn wb_reuse_locals(locals: i64[>..]&, code: u8[>..]&, params: i64) {
     var kinds: i64[>..] = []; var index_of: i64[>..] = []; index_of.resize(slot_type.len, -1); var kept: i64[>..] = [];
     for kind in slot_type { var known = false; for seen in kinds { if seen == kind { known = true; } } if !known { kinds.push(kind); } }
     for kind in kinds { for candidate, slot in slot_type { if candidate == kind { index_of[slot] = params + kept.len; kept.push(kind); } } }
+    // Rewrite a one-byte index in place. Copy unchanged runs around wider
+    // replacements, including the opcode that precedes each index.
     var encoded: u8[>..] = []; var copied = 0;
-    for instruction in instructions {
-        if instruction.opcode >= 0x20 && instruction.opcode <= 0x22 && instruction.index >= params {
-            if copied < instruction.start { wb_raw(encoded, code[copied..instruction.start]); }
-            wb_op(encoded, instruction.opcode, index_of[slot_of[instruction.index]]); copied = instruction.end;
+    for start in locals_at {
+        var end = start + 1;
+        let old = wb_read_unsigned(bytes, end);
+        let index = index_of[slot_of[old]];
+        if index < 128 && end == start + 2 {
+            bytes[start + 1] = index as u8;
+            continue;
         }
+        wb_raw(encoded, bytes[copied..start + 1]);
+        wb_u(encoded, index);
+        copied = end;
     }
-    if copied < code.len { wb_raw(encoded, code[copied..code.len]); }
-    locals.clear(); locals.append(kept); code.clear(); code.append(encoded);
+    locals.clear(); locals.append(kept);
+    if copied == 0 { return; }
+    if copied < bytes.len { wb_raw(encoded, bytes[copied..bytes.len]); }
+    code.clear(); code.append(encoded);
 }
