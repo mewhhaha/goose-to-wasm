@@ -1,0 +1,229 @@
+{
+  "cpu": 3,
+  "rounds": 1,
+  "cases": [
+    "recover"
+  ],
+  "datasets": [
+    "escape",
+    "tree-emit",
+    "borrow-emit",
+    "vm",
+    "sudoku",
+    "functions",
+    "errors",
+    "sieve",
+    "life",
+    "maze",
+    "padded",
+    "wide-parse"
+  ],
+  "modules": {
+    "adapter": "891e970032802a7b9b972ca1dcfd4aed3967b2903615ea94ba6005f2b3de324d",
+    "initial": "7eb18697c0bd5c1737e48c7a190d7f6321c74a291b26e49113eab0ae7a7acb68",
+    "fit": "0db64807fa3b4516ce591848a8ecb546a61dc0eb74f18684a1951f494256c663"
+  },
+  "native": "b5861b426b583652f32b75f850c521672cea4a9cab62c34087efa55d2fbdd7c9",
+  "projects": {
+    "compiler": "91059b1407c847532aea432c401953819e3650cae1f9267c4c7f15bbfe205c85",
+    "frozen": "c9474661210aed23044b05faa4aa19bacee7063aa64cd6bf3092b9af9a1fdf1d"
+  },
+  "native_emissions": {
+    "escape": null,
+    "tree-emit": "1512cebb75aab42c49c1d77d4070ec45f33eaedb7a7a49f5fe9ec417cc6f0daf",
+    "borrow-emit": "34ab3cd0e48240cae8e0900bf12ad4f3853eace6d90ca41bfc4c0edbc05df62e",
+    "vm": "4ea004414d09c36e65b68770cbbb0c0976945cb0d8c7036fc45934485e3ec788",
+    "sudoku": "187b74b72caa303b7b107c01855e0200388cba0d998585ee8e5bb1520f7488a4",
+    "functions": "aa4eafb72fea420dc7cd4aec5b7ee25c4da515dd128cfc53934bf72bf667a96d",
+    "errors": "d101f9bcd86aead2760ad6cb2a75a12a442e6ddbf98c33a8c1386c7f475e0ba3",
+    "sieve": "fe3abb456195045844db4354276c89fb0fcd7fbac386124a6677b6463c9c10b1",
+    "life": "6416eaa89a849c58e9e1ea60a29b3fc6c30f7d786c9cdfc46ad00d9e615702ee",
+    "maze": "8d48613bdaf87025e2a9dd1bfd29c2dd187296e75d0ba1060d05db69a2357a7d",
+    "padded": null,
+    "wide-parse": null
+  },
+  "host_sha256": "5f00e3b88c4a6271a5ca3f9040ffc3c96f95601df7d0e3ee7fe8a575ac2eda1e",
+  "samples": [
+    {
+      "cpu_ns": 16324058,
+      "wall_ns": 16449201,
+      "guest_attempt_ns": [
+        3219312
+      ],
+      "matches": true,
+      "status": 1,
+      "error": "tests/fixtures/contracts/temporary-values-and-copies/caller_escape.goose:3:98: error: returned reference points into this invocation's local or temporary storage\ntests/fixtures/contracts/temporary-values-and-copies/caller_escape.goose:3:108: error: returned reference points into this invocation's local or temporary storage\n",
+      "output_sha256": null,
+      "failures": [],
+      "round": 1,
+      "dataset": "escape",
+      "case": "recover"
+    },
+    {
+      "cpu_ns": 2364452024,
+      "wall_ns": 2378100156,
+      "guest_attempt_ns": [
+        2369039526
+      ],
+      "matches": true,
+      "status": 0,
+      "error": "",
+      "output_sha256": "1512cebb75aab42c49c1d77d4070ec45f33eaedb7a7a49f5fe9ec417cc6f0daf",
+      "failures": [],
+      "round": 1,
+      "dataset": "tree-emit",
+      "case": "recover"
+    },
+    {
+      "cpu_ns": 1292551624,
+      "wall_ns": 1301571676,
+      "guest_attempt_ns": [
+        1293259900
+      ],
+      "matches": true,
+      "status": 0,
+      "error": "",
+      "output_sha256": "34ab3cd0e48240cae8e0900bf12ad4f3853eace6d90ca41bfc4c0edbc05df62e",
+      "failures": [],
+      "round": 1,
+      "dataset": "borrow-emit",
+      "case": "recover"
+    },
+    {
+      "cpu_ns": 16043501,
+      "wall_ns": 16190129,
+      "guest_attempt_ns": [
+        10237127
+      ],
+      "matches": true,
+      "status": 0,
+      "error": "",
+      "output_sha256": "4ea004414d09c36e65b68770cbbb0c0976945cb0d8c7036fc45934485e3ec788",
+      "failures": [],
+      "round": 1,
+      "dataset": "vm",
+      "case": "recover"
+    },
+    {
+      "cpu_ns": 14268643,
+      "wall_ns": 14364527,
+      "guest_attempt_ns": [
+        8184394
+      ],
+      "matches": true,
+      "status": 0,
+      "error": "",
+      "output_sha256": "187b74b72caa303b7b107c01855e0200388cba0d998585ee8e5bb1520f7488a4",
+      "failures": [],
+      "round": 1,
+      "dataset": "sudoku",
+      "case": "recover"
+    },
+    {
+      "cpu_ns": 37406689,
+      "wall_ns": 37737314,
+      "guest_attempt_ns": [
+        31610774
+      ],
+      "matches": true,
+      "status": 0,
+      "error": "",
+      "output_sha256": "aa4eafb72fea420dc7cd4aec5b7ee25c4da515dd128cfc53934bf72bf667a96d",
+      "failures": [],
+      "round": 1,
+      "dataset": "functions",
+      "case": "recover"
+    },
+    {
+      "cpu_ns": 18029027,
+      "wall_ns": 18195973,
+      "guest_attempt_ns": [
+        12244876
+      ],
+      "matches": true,
+      "status": 0,
+      "error": "",
+      "output_sha256": "d101f9bcd86aead2760ad6cb2a75a12a442e6ddbf98c33a8c1386c7f475e0ba3",
+      "failures": [],
+      "round": 1,
+      "dataset": "errors",
+      "case": "recover"
+    },
+    {
+      "cpu_ns": 12732896,
+      "wall_ns": 12853113,
+      "guest_attempt_ns": [
+        6883460
+      ],
+      "matches": true,
+      "status": 0,
+      "error": "",
+      "output_sha256": "fe3abb456195045844db4354276c89fb0fcd7fbac386124a6677b6463c9c10b1",
+      "failures": [],
+      "round": 1,
+      "dataset": "sieve",
+      "case": "recover"
+    },
+    {
+      "cpu_ns": 14253057,
+      "wall_ns": 14397379,
+      "guest_attempt_ns": [
+        8547113
+      ],
+      "matches": true,
+      "status": 0,
+      "error": "",
+      "output_sha256": "6416eaa89a849c58e9e1ea60a29b3fc6c30f7d786c9cdfc46ad00d9e615702ee",
+      "failures": [],
+      "round": 1,
+      "dataset": "life",
+      "case": "recover"
+    },
+    {
+      "cpu_ns": 21169878,
+      "wall_ns": 21372333,
+      "guest_attempt_ns": [
+        13150186
+      ],
+      "matches": true,
+      "status": 0,
+      "error": "",
+      "output_sha256": "8d48613bdaf87025e2a9dd1bfd29c2dd187296e75d0ba1060d05db69a2357a7d",
+      "failures": [],
+      "round": 1,
+      "dataset": "maze",
+      "case": "recover"
+    },
+    {
+      "cpu_ns": 67681092,
+      "wall_ns": 68025301,
+      "guest_attempt_ns": [
+        61403940
+      ],
+      "matches": true,
+      "status": 0,
+      "error": "",
+      "output_sha256": null,
+      "failures": [],
+      "round": 1,
+      "dataset": "padded",
+      "case": "recover"
+    },
+    {
+      "cpu_ns": 317014039,
+      "wall_ns": 319237025,
+      "guest_attempt_ns": [
+        312297929
+      ],
+      "matches": true,
+      "status": 0,
+      "error": "",
+      "output_sha256": null,
+      "failures": [],
+      "round": 1,
+      "dataset": "wide-parse",
+      "case": "recover"
+    }
+  ],
+  "wide_source_sha256": "762fe96096fd420826d7b9ec75a722bdf45cb49d21fe87dd5e4d9c59f6c75f6e"
+}

@@ -1,0 +1,122 @@
+[
+  {
+    "case": "blot",
+    "mode": "fixed",
+    "round": 1,
+    "status": 0,
+    "stdout": "",
+    "stderr": "",
+    "time": {
+      "engine": "Wasmtime",
+      "wasmtime": "50.0.1",
+      "optimization": "cranelift speed",
+      "compile_instantiate_ns": 7106839374,
+      "start_function_ns": 1666988416,
+      "engine_total_ns": 8773827790
+    }
+  },
+  {
+    "case": "blot",
+    "mode": "live",
+    "round": 1,
+    "status": 0,
+    "stdout": "",
+    "stderr": "",
+    "time": {
+      "engine": "Wasmtime",
+      "wasmtime": "50.0.1",
+      "optimization": "cranelift speed",
+      "compile_instantiate_ns": 16378270,
+      "start_function_ns": 1678755448,
+      "engine_total_ns": 1695133718
+    },
+    "hooks": {
+      "event": "hooks",
+      "acquires": 74,
+      "grows": 65,
+      "image_grows": 0,
+      "acquire_ns": 6186864,
+      "grow_ns": 4706869
+    }
+  },
+  {
+    "case": "blot",
+    "mode": "live",
+    "round": 2,
+    "status": 0,
+    "stdout": "",
+    "stderr": "",
+    "time": {
+      "engine": "Wasmtime",
+      "wasmtime": "50.0.1",
+      "optimization": "cranelift speed",
+      "compile_instantiate_ns": 16346239,
+      "start_function_ns": 1679091946,
+      "engine_total_ns": 1695438185
+    },
+    "hooks": {
+      "event": "hooks",
+      "acquires": 74,
+      "grows": 65,
+      "image_grows": 0,
+      "acquire_ns": 5923996,
+      "grow_ns": 4596434
+    }
+  },
+  {
+    "case": "blot",
+    "mode": "fixed",
+    "round": 2,
+    "status": 0,
+    "stdout": "",
+    "stderr": "",
+    "time": {
+      "engine": "Wasmtime",
+      "wasmtime": "50.0.1",
+      "optimization": "cranelift speed",
+      "compile_instantiate_ns": 15659293,
+      "start_function_ns": 1662674953,
+      "engine_total_ns": 1678334246
+    }
+  },
+  {
+    "case": "blot",
+    "mode": "fixed",
+    "round": 3,
+    "status": 0,
+    "stdout": "",
+    "stderr": "",
+    "time": {
+      "engine": "Wasmtime",
+      "wasmtime": "50.0.1",
+      "optimization": "cranelift speed",
+      "compile_instantiate_ns": 16028545,
+      "start_function_ns": 1714602622,
+      "engine_total_ns": 1730631167
+    }
+  },
+  {
+    "case": "blot",
+    "mode": "live",
+    "round": 3,
+    "status": 0,
+    "stdout": "",
+    "stderr": "",
+    "time": {
+      "engine": "Wasmtime",
+      "wasmtime": "50.0.1",
+      "optimization": "cranelift speed",
+      "compile_instantiate_ns": 16296905,
+      "start_function_ns": 1698856483,
+      "engine_total_ns": 1715153388
+    },
+    "hooks": {
+      "event": "hooks",
+      "acquires": 74,
+      "grows": 65,
+      "image_grows": 0,
+      "acquire_ns": 6005256,
+      "grow_ns": 4613887
+    }
+  }
+]

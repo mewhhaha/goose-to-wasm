@@ -12,6 +12,10 @@ A [Goose](https://github.com/aardappel/goose) compiler written in Goose. It emit
 
 ![Compiler execution using default memory64 and two ways of sizing memory32](bench/results/2026-11-18/compiler-layout-trials/memory.svg)
 
+**Growing memory32 as the compiler runs.** An experimental compiler parsed all 450 Blot2 modules in one pass in **1.69 s**, compared with **1.68 s** for a fixed layout sized from Blot2 itself. Across two benchmark runs, live growth cost **1.8–5.2%** when checking the compiler project and **0.6–0.7%** when emitting it. Every emission matched native output byte for byte. [Measurements and capacity limits](bench/results/2026-11-18/compiler-region-recovery/README.md)
+
+![Wasmtime execution time with live region growth and fixed layouts for Blot2 parsing, compiler checking and compiler emission](bench/results/2026-11-18/compiler-region-recovery/live.svg)
+
 **Compiler speed.** Across eleven programs, compiler `4e9b78e` used 0.974× the CPU time of `ac55de2` to emit Wasm and 0.984× to emit C. These are geometric means of medians over 31 measurements per cell. The chart shows wall time. In the earlier snapshot 59 comparison, Wasm emission took 0.58× the C++ compiler’s time and C emission took 0.53×. [Measurements](bench/results/2026-11-18/compiler-array-views/catalog-summary.json) · [Snapshot 59](bench/results/2026-11-11/compiler-throughput-59/README.md)
 
 ![Compiler execution time for eleven programs](bench/charts/compiler-comparison.svg)

@@ -1,0 +1,448 @@
+[
+  {
+    "case": "compact",
+    "mode": "live",
+    "round": 0,
+    "status": 0,
+    "stdout": "",
+    "stderr": "",
+    "time": {
+      "engine": "Wasmtime",
+      "wasmtime": "50.0.1",
+      "optimization": "cranelift speed",
+      "compile_instantiate_ns": 19757837,
+      "start_function_ns": 1129477946,
+      "engine_total_ns": 1149235783
+    },
+    "hooks": {
+      "event": "hooks",
+      "acquires": 71,
+      "grows": 50,
+      "image_grows": 0,
+      "acquire_ns": 8076657,
+      "grow_ns": 6944755
+    }
+  },
+  {
+    "case": "compact",
+    "mode": "fixed",
+    "round": 0,
+    "status": 1,
+    "stdout": "",
+    "stderr": "goose runtime error: data region exhausted (line 277)\n",
+    "time": {
+      "engine": "Wasmtime",
+      "wasmtime": "50.0.1",
+      "optimization": "cranelift speed",
+      "compile_instantiate_ns": 7704435398,
+      "start_function_ns": 153148845,
+      "engine_total_ns": 7857584243
+    }
+  },
+  {
+    "case": "padded",
+    "mode": "live",
+    "round": 0,
+    "status": 0,
+    "stdout": "",
+    "stderr": "",
+    "time": {
+      "engine": "Wasmtime",
+      "wasmtime": "50.0.1",
+      "optimization": "cranelift speed",
+      "compile_instantiate_ns": 17628609,
+      "start_function_ns": 73640308,
+      "engine_total_ns": 91268917
+    },
+    "hooks": {
+      "event": "hooks",
+      "acquires": 71,
+      "grows": 22,
+      "image_grows": 0,
+      "acquire_ns": 5705390,
+      "grow_ns": 1421712
+    }
+  },
+  {
+    "case": "padded",
+    "mode": "fixed",
+    "round": 0,
+    "status": 0,
+    "stdout": "",
+    "stderr": "",
+    "time": {
+      "engine": "Wasmtime",
+      "wasmtime": "50.0.1",
+      "optimization": "cranelift speed",
+      "compile_instantiate_ns": 16406315,
+      "start_function_ns": 65879983,
+      "engine_total_ns": 82286298
+    }
+  },
+  {
+    "case": "blot",
+    "mode": "fixed",
+    "round": 1,
+    "status": 0,
+    "stdout": "",
+    "stderr": "",
+    "time": {
+      "engine": "Wasmtime",
+      "wasmtime": "50.0.1",
+      "optimization": "cranelift speed",
+      "compile_instantiate_ns": 7703027400,
+      "start_function_ns": 1790170478,
+      "engine_total_ns": 9493197878
+    }
+  },
+  {
+    "case": "blot",
+    "mode": "live",
+    "round": 1,
+    "status": 0,
+    "stdout": "",
+    "stderr": "",
+    "time": {
+      "engine": "Wasmtime",
+      "wasmtime": "50.0.1",
+      "optimization": "cranelift speed",
+      "compile_instantiate_ns": 17261330,
+      "start_function_ns": 1851654491,
+      "engine_total_ns": 1868915821
+    },
+    "hooks": {
+      "event": "hooks",
+      "acquires": 74,
+      "grows": 65,
+      "image_grows": 0,
+      "acquire_ns": 6418747,
+      "grow_ns": 5258617
+    }
+  },
+  {
+    "case": "blot",
+    "mode": "live",
+    "round": 2,
+    "status": 0,
+    "stdout": "",
+    "stderr": "",
+    "time": {
+      "engine": "Wasmtime",
+      "wasmtime": "50.0.1",
+      "optimization": "cranelift speed",
+      "compile_instantiate_ns": 16993291,
+      "start_function_ns": 1806127265,
+      "engine_total_ns": 1823120556
+    },
+    "hooks": {
+      "event": "hooks",
+      "acquires": 74,
+      "grows": 65,
+      "image_grows": 0,
+      "acquire_ns": 6481952,
+      "grow_ns": 5231830
+    }
+  },
+  {
+    "case": "blot",
+    "mode": "fixed",
+    "round": 2,
+    "status": 0,
+    "stdout": "",
+    "stderr": "",
+    "time": {
+      "engine": "Wasmtime",
+      "wasmtime": "50.0.1",
+      "optimization": "cranelift speed",
+      "compile_instantiate_ns": 16737354,
+      "start_function_ns": 1750292431,
+      "engine_total_ns": 1767029785
+    }
+  },
+  {
+    "case": "blot",
+    "mode": "fixed",
+    "round": 3,
+    "status": 0,
+    "stdout": "",
+    "stderr": "",
+    "time": {
+      "engine": "Wasmtime",
+      "wasmtime": "50.0.1",
+      "optimization": "cranelift speed",
+      "compile_instantiate_ns": 16531954,
+      "start_function_ns": 1798661388,
+      "engine_total_ns": 1815193342
+    }
+  },
+  {
+    "case": "blot",
+    "mode": "live",
+    "round": 3,
+    "status": 0,
+    "stdout": "",
+    "stderr": "",
+    "time": {
+      "engine": "Wasmtime",
+      "wasmtime": "50.0.1",
+      "optimization": "cranelift speed",
+      "compile_instantiate_ns": 17533828,
+      "start_function_ns": 1824088343,
+      "engine_total_ns": 1841622171
+    },
+    "hooks": {
+      "event": "hooks",
+      "acquires": 74,
+      "grows": 65,
+      "image_grows": 0,
+      "acquire_ns": 6605408,
+      "grow_ns": 5501009
+    }
+  },
+  {
+    "case": "self",
+    "mode": "fixed",
+    "round": 1,
+    "status": 0,
+    "stdout": "",
+    "stderr": "",
+    "time": {
+      "engine": "Wasmtime",
+      "wasmtime": "50.0.1",
+      "optimization": "cranelift speed",
+      "compile_instantiate_ns": 16432093,
+      "start_function_ns": 4226606136,
+      "engine_total_ns": 4243038229
+    }
+  },
+  {
+    "case": "self",
+    "mode": "live",
+    "round": 1,
+    "status": 0,
+    "stdout": "",
+    "stderr": "",
+    "time": {
+      "engine": "Wasmtime",
+      "wasmtime": "50.0.1",
+      "optimization": "cranelift speed",
+      "compile_instantiate_ns": 19172344,
+      "start_function_ns": 4390950620,
+      "engine_total_ns": 4410122964
+    },
+    "hooks": {
+      "event": "hooks",
+      "acquires": 134,
+      "grows": 229,
+      "image_grows": 0,
+      "acquire_ns": 12603816,
+      "grow_ns": 22126221
+    }
+  },
+  {
+    "case": "self",
+    "mode": "live",
+    "round": 2,
+    "status": 0,
+    "stdout": "",
+    "stderr": "",
+    "time": {
+      "engine": "Wasmtime",
+      "wasmtime": "50.0.1",
+      "optimization": "cranelift speed",
+      "compile_instantiate_ns": 16966069,
+      "start_function_ns": 4300943196,
+      "engine_total_ns": 4317909265
+    },
+    "hooks": {
+      "event": "hooks",
+      "acquires": 134,
+      "grows": 229,
+      "image_grows": 0,
+      "acquire_ns": 12062971,
+      "grow_ns": 21100500
+    }
+  },
+  {
+    "case": "self",
+    "mode": "fixed",
+    "round": 2,
+    "status": 0,
+    "stdout": "",
+    "stderr": "",
+    "time": {
+      "engine": "Wasmtime",
+      "wasmtime": "50.0.1",
+      "optimization": "cranelift speed",
+      "compile_instantiate_ns": 16745710,
+      "start_function_ns": 4087879486,
+      "engine_total_ns": 4104625196
+    }
+  },
+  {
+    "case": "self",
+    "mode": "fixed",
+    "round": 3,
+    "status": 0,
+    "stdout": "",
+    "stderr": "",
+    "time": {
+      "engine": "Wasmtime",
+      "wasmtime": "50.0.1",
+      "optimization": "cranelift speed",
+      "compile_instantiate_ns": 16304431,
+      "start_function_ns": 3834564284,
+      "engine_total_ns": 3850868715
+    }
+  },
+  {
+    "case": "self",
+    "mode": "live",
+    "round": 3,
+    "status": 0,
+    "stdout": "",
+    "stderr": "",
+    "time": {
+      "engine": "Wasmtime",
+      "wasmtime": "50.0.1",
+      "optimization": "cranelift speed",
+      "compile_instantiate_ns": 16596917,
+      "start_function_ns": 3903052881,
+      "engine_total_ns": 3919649798
+    },
+    "hooks": {
+      "event": "hooks",
+      "acquires": 134,
+      "grows": 229,
+      "image_grows": 0,
+      "acquire_ns": 11318337,
+      "grow_ns": 18792892
+    }
+  },
+  {
+    "case": "emit",
+    "mode": "fixed",
+    "round": 1,
+    "status": 0,
+    "stdout": "",
+    "stderr": "",
+    "time": {
+      "engine": "Wasmtime",
+      "wasmtime": "50.0.1",
+      "optimization": "cranelift speed",
+      "compile_instantiate_ns": 15912696,
+      "start_function_ns": 5209648207,
+      "engine_total_ns": 5225560903
+    },
+    "emission": "66798403ae7eb64fcd6da5490114b2d6ae82072d3f8c7fab2519713ee2f7190f"
+  },
+  {
+    "case": "emit",
+    "mode": "live",
+    "round": 1,
+    "status": 0,
+    "stdout": "",
+    "stderr": "",
+    "time": {
+      "engine": "Wasmtime",
+      "wasmtime": "50.0.1",
+      "optimization": "cranelift speed",
+      "compile_instantiate_ns": 16183000,
+      "start_function_ns": 5284288287,
+      "engine_total_ns": 5300471287
+    },
+    "hooks": {
+      "event": "hooks",
+      "acquires": 134,
+      "grows": 267,
+      "image_grows": 0,
+      "acquire_ns": 11179025,
+      "grow_ns": 21194704
+    },
+    "emission": "66798403ae7eb64fcd6da5490114b2d6ae82072d3f8c7fab2519713ee2f7190f"
+  },
+  {
+    "case": "emit",
+    "mode": "live",
+    "round": 2,
+    "status": 0,
+    "stdout": "",
+    "stderr": "",
+    "time": {
+      "engine": "Wasmtime",
+      "wasmtime": "50.0.1",
+      "optimization": "cranelift speed",
+      "compile_instantiate_ns": 16232604,
+      "start_function_ns": 5304630616,
+      "engine_total_ns": 5320863220
+    },
+    "hooks": {
+      "event": "hooks",
+      "acquires": 134,
+      "grows": 267,
+      "image_grows": 0,
+      "acquire_ns": 10928309,
+      "grow_ns": 20932963
+    },
+    "emission": "66798403ae7eb64fcd6da5490114b2d6ae82072d3f8c7fab2519713ee2f7190f"
+  },
+  {
+    "case": "emit",
+    "mode": "fixed",
+    "round": 2,
+    "status": 0,
+    "stdout": "",
+    "stderr": "",
+    "time": {
+      "engine": "Wasmtime",
+      "wasmtime": "50.0.1",
+      "optimization": "cranelift speed",
+      "compile_instantiate_ns": 16033235,
+      "start_function_ns": 5265292993,
+      "engine_total_ns": 5281326228
+    },
+    "emission": "66798403ae7eb64fcd6da5490114b2d6ae82072d3f8c7fab2519713ee2f7190f"
+  },
+  {
+    "case": "emit",
+    "mode": "fixed",
+    "round": 3,
+    "status": 0,
+    "stdout": "",
+    "stderr": "",
+    "time": {
+      "engine": "Wasmtime",
+      "wasmtime": "50.0.1",
+      "optimization": "cranelift speed",
+      "compile_instantiate_ns": 15732804,
+      "start_function_ns": 5246990715,
+      "engine_total_ns": 5262723519
+    },
+    "emission": "66798403ae7eb64fcd6da5490114b2d6ae82072d3f8c7fab2519713ee2f7190f"
+  },
+  {
+    "case": "emit",
+    "mode": "live",
+    "round": 3,
+    "status": 0,
+    "stdout": "",
+    "stderr": "",
+    "time": {
+      "engine": "Wasmtime",
+      "wasmtime": "50.0.1",
+      "optimization": "cranelift speed",
+      "compile_instantiate_ns": 16173711,
+      "start_function_ns": 5258383740,
+      "engine_total_ns": 5274557451
+    },
+    "hooks": {
+      "event": "hooks",
+      "acquires": 134,
+      "grows": 267,
+      "image_grows": 0,
+      "acquire_ns": 10974151,
+      "grow_ns": 20872125
+    },
+    "emission": "66798403ae7eb64fcd6da5490114b2d6ae82072d3f8c7fab2519713ee2f7190f"
+  }
+]

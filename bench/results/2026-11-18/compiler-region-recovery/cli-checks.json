@@ -1,0 +1,58 @@
+[
+  {
+    "case": "blot-first",
+    "release_reference_status": 0,
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "cache_before": null,
+    "cache_after": "52bc6965c502e3b012fd95dfd80e0ee8ec4efab15db644f9689f309eb4f52beb",
+    "observation": "region 6 held 123463032 of 123463076 bytes and requested 88 more\n2 attempt(s), 3.839 guest seconds\n"
+  },
+  {
+    "case": "blot-repeated",
+    "release_reference_status": 0,
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "cache_before": "52bc6965c502e3b012fd95dfd80e0ee8ec4efab15db644f9689f309eb4f52beb",
+    "cache_after": "52bc6965c502e3b012fd95dfd80e0ee8ec4efab15db644f9689f309eb4f52beb",
+    "observation": "1 attempt(s), 3.842 guest seconds\n"
+  },
+  {
+    "case": "compact-after-blot",
+    "release_reference_status": 0,
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "cache_before": "52bc6965c502e3b012fd95dfd80e0ee8ec4efab15db644f9689f309eb4f52beb",
+    "cache_after": "52bc6965c502e3b012fd95dfd80e0ee8ec4efab15db644f9689f309eb4f52beb",
+    "observation": "1 attempt(s), 1.700 guest seconds\n"
+  },
+  {
+    "case": "check-after-compact",
+    "release_reference_status": 0,
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "cache_before": "52bc6965c502e3b012fd95dfd80e0ee8ec4efab15db644f9689f309eb4f52beb",
+    "cache_after": "52bc6965c502e3b012fd95dfd80e0ee8ec4efab15db644f9689f309eb4f52beb",
+    "observation": "1 attempt(s), 8.896 guest seconds\n"
+  },
+  {
+    "case": "negative",
+    "release_reference_status": 1,
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "cache_before": "52bc6965c502e3b012fd95dfd80e0ee8ec4efab15db644f9689f309eb4f52beb",
+    "cache_after": "52bc6965c502e3b012fd95dfd80e0ee8ec4efab15db644f9689f309eb4f52beb",
+    "observation": "1 attempt(s), 0.005 guest seconds\n"
+  },
+  {
+    "case": "emit-squares",
+    "release_reference_status": 0,
+    "stdout_sha256": "fc8ae2dbef752d8e8eaaafec21e1c7500c3b27677f9030c502bf8c196ca7d845",
+    "cache_before": "52bc6965c502e3b012fd95dfd80e0ee8ec4efab15db644f9689f309eb4f52beb",
+    "cache_after": "52bc6965c502e3b012fd95dfd80e0ee8ec4efab15db644f9689f309eb4f52beb",
+    "observation": "1 attempt(s), 0.015 guest seconds\n"
+  },
+  {
+    "case": "raw-maxima",
+    "release_reference_status": 0,
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "cache_before": null,
+    "cache_after": "50cbb1bb1d05b009f40717857f5b47bbc04557f4ffdebdf41f6c617689f85642",
+    "observation": "region 53 held 28993888 of 28993892 bytes and requested 32 more\n2 attempt(s), 12.440 guest seconds\n"
+  }
+]

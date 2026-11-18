@@ -207,7 +207,7 @@ def prepare_module(data: bytes, artifact: Path) -> PreparedModule:
 
 def run_module(data: bytes, stdin: bytes | str, *, timing: bool = True,
                prepared: PreparedModule | None = None, arguments: list[str] | None = None,
-               config=None, cache: Path | None = None) -> dict:
+               config=None, cache: Path | None = None, invoke_start=None) -> dict:
     """Run a module; `stdin` is bytes as given, or a string as its UTF-8 bytes.
 
     fd_read sees exactly those bytes. Scalar imports read tokens from a
@@ -215,6 +215,8 @@ def run_module(data: bytes, stdin: bytes | str, *, timing: bool = True,
     `arguments` are what the program's os.arg sees, the program first. `cache`
     is a file this host keeps the compiled module in, beside the SHA-256 of the
     module it was compiled from; it is reused only for those same bytes.
+    An optional `invoke_start(store, exports)` can configure a fresh instance
+    before calling its entry point. Its work is included in the execution timer.
     """
     import wasmtime
 
@@ -511,7 +513,10 @@ def run_module(data: bytes, stdin: bytes | str, *, timing: bool = True,
                 store, exports["emscripten_stack_get_base"](store), exports["emscripten_stack_get_end"](store)
             )
         instantiated = time.perf_counter_ns()
-        exports["_start"](store)
+        if invoke_start is None:
+            exports["_start"](store)
+        else:
+            invoke_start(store, exports)
     except ProgramExit as failure:
         exit_code = failure.code
     except Exception as failure:

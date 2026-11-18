@@ -1,0 +1,18 @@
+{
+  "workload": "90e086fe61f9ce019d6a6ef543212be63f6e1f57",
+  "trial_compiler_sha256": "4ddc34321e5cff4d4db225922b2ae23907e08f7c69f594cfedb0e7ed681a3b81",
+  "profile": "raw maximum observed in each region on squares, sorting and tour",
+  "arguments": [
+    "selfhost/main.goose",
+    "--stdlib",
+    "stdlib",
+    "--mode",
+    "check",
+    "--verbose"
+  ],
+  "status": 0,
+  "stdout": "",
+  "verbose_stderr": "region 53 held 28993888 of 28993892 bytes and requested 32 more\n2 attempt(s), 5.403 guest seconds\n",
+  "native_status": 0,
+  "native_stderr": ""
+}
