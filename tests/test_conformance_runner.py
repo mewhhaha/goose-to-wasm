@@ -20,7 +20,9 @@ SPEC.loader.exec_module(CONFORMANCE)
 
 class NativeConformanceSources(unittest.TestCase):
     def setUp(self):
-        self.directory = tempfile.TemporaryDirectory(dir=ROOT / "build")
+        build = ROOT / "build"
+        build.mkdir(exist_ok=True)
+        self.directory = tempfile.TemporaryDirectory(dir=build)
         self.addCleanup(self.directory.cleanup)
         self.work = Path(self.directory.name)
         self.relative_work = self.work.relative_to(ROOT).as_posix()
