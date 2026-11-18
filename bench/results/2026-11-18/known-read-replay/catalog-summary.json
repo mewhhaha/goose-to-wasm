@@ -1,0 +1,34 @@
+{
+  "wasm-direct": {
+    "candidate_cpu_ratio": 0.9664238669418006,
+    "identical_program_artifacts": [
+      "errors",
+      "functions",
+      "life",
+      "mandelbrot",
+      "maze",
+      "sieve",
+      "sorting",
+      "squares",
+      "sudoku",
+      "tour",
+      "vm"
+    ]
+  },
+  "native-c": {
+    "candidate_cpu_ratio": 0.986277063455759,
+    "identical_program_artifacts": [
+      "errors",
+      "functions",
+      "life",
+      "mandelbrot",
+      "maze",
+      "sieve",
+      "sorting",
+      "squares",
+      "sudoku",
+      "tour",
+      "vm"
+    ]
+  }
+}
