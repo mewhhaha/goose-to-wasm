@@ -1,0 +1,242 @@
+{
+  "fixture": "tests/fixtures/packed_copy_empty.goose",
+  "sha256": "3d6cfa15277987ae89583a4f83ab0396a210390769273c324fb6ac8898d90488",
+  "expected_stdout": "2 17 34\n",
+  "upstream": "ee261a4c7baf025dcb254d24103b48a6b15279e9",
+  "runs": [
+    {
+      "arm": "baseline",
+      "memory_bits": 32,
+      "receipt_sha256": "d358aa08315e2a09df3fb044fe4d5b7bcb4f1768903398ea57378e3a1fec081e",
+      "config": {
+        "compiler": "/home/jacobt/src/goose-to-wasm/build/bin/goose",
+        "manifest": "/home/jacobt/src/goose-to-wasm/tests/conformance/cases.json",
+        "levels": [
+          0,
+          2
+        ],
+        "filter": "corpus/packed-copy/empty-field",
+        "engine": "wasmtime",
+        "host": "/home/jacobt/src/goose-to-wasm/build/bin/goose-wasmtime",
+        "frontend_only": false,
+        "upstream_extracted": false,
+        "upstream_sources": "/home/jacobt/src/goose-to-wasm/build/wasm-copy-2026-11-18/focused-baseline-32/upstream",
+        "jobs": 1,
+        "timeout": 15,
+        "cc_timeout": 120,
+        "native_units": 0,
+        "targets": null,
+        "wasm_memory64": false
+      },
+      "rows": [
+        {
+          "level": 0,
+          "status": "fail",
+          "stdout": "2 34 34\n",
+          "exit_code": 0
+        },
+        {
+          "level": 2,
+          "status": "fail",
+          "stdout": "2 34 34\n",
+          "exit_code": 0
+        }
+      ]
+    },
+    {
+      "arm": "baseline",
+      "memory_bits": 64,
+      "receipt_sha256": "990fcf86fd563ee81fd810a8220889e6542690de0c38c71a94a68882ac856c43",
+      "config": {
+        "compiler": "/home/jacobt/src/goose-to-wasm/build/bin/goose",
+        "manifest": "/home/jacobt/src/goose-to-wasm/tests/conformance/cases.json",
+        "levels": [
+          0,
+          2
+        ],
+        "filter": "corpus/packed-copy/empty-field",
+        "engine": "wasmtime",
+        "host": "None",
+        "frontend_only": false,
+        "upstream_extracted": false,
+        "upstream_sources": "/home/jacobt/src/goose-to-wasm/build/wasm-copy-2026-11-18/focused-baseline-64/upstream",
+        "jobs": 1,
+        "timeout": 15,
+        "cc_timeout": 120,
+        "native_units": 0,
+        "targets": null,
+        "wasm_memory64": true
+      },
+      "rows": [
+        {
+          "level": 0,
+          "status": "fail",
+          "stdout": "2 34 34\n",
+          "exit_code": 0
+        },
+        {
+          "level": 2,
+          "status": "fail",
+          "stdout": "2 34 34\n",
+          "exit_code": 0
+        }
+      ]
+    },
+    {
+      "arm": "wasmtime",
+      "memory_bits": 32,
+      "receipt_sha256": "4da6009e5926f9e78952277cabeec33914d7c6c08b59503f68830b79fd1871eb",
+      "config": {
+        "compiler": "/home/jacobt/src/goose-to-wasm/build/wasm-copy-2026-11-18/combined-emitter",
+        "manifest": "/home/jacobt/src/goose-to-wasm/tests/conformance/cases.json",
+        "levels": [
+          0,
+          2
+        ],
+        "filter": "corpus/packed-copy/empty-field",
+        "engine": "wasmtime",
+        "host": "/home/jacobt/src/goose-to-wasm/build/bin/goose-wasmtime",
+        "frontend_only": false,
+        "upstream_extracted": false,
+        "upstream_sources": "/home/jacobt/src/goose-to-wasm/build/wasm-copy-2026-11-18/focused-wasmtime-32/upstream",
+        "jobs": 1,
+        "timeout": 15,
+        "cc_timeout": 120,
+        "native_units": 0,
+        "targets": null,
+        "wasm_memory64": false
+      },
+      "rows": [
+        {
+          "level": 0,
+          "status": "pass",
+          "stdout": "2 17 34\n",
+          "exit_code": 0
+        },
+        {
+          "level": 2,
+          "status": "pass",
+          "stdout": "2 17 34\n",
+          "exit_code": 0
+        }
+      ]
+    },
+    {
+      "arm": "wasmtime",
+      "memory_bits": 64,
+      "receipt_sha256": "e38f192b074c496ebeba5bc0246b08f37acc1e58925f629edbc051cef5d43b68",
+      "config": {
+        "compiler": "/home/jacobt/src/goose-to-wasm/build/wasm-copy-2026-11-18/combined-emitter",
+        "manifest": "/home/jacobt/src/goose-to-wasm/tests/conformance/cases.json",
+        "levels": [
+          0,
+          2
+        ],
+        "filter": "corpus/packed-copy/empty-field",
+        "engine": "wasmtime",
+        "host": "None",
+        "frontend_only": false,
+        "upstream_extracted": false,
+        "upstream_sources": "/home/jacobt/src/goose-to-wasm/build/wasm-copy-2026-11-18/focused-wasmtime-64/upstream",
+        "jobs": 1,
+        "timeout": 15,
+        "cc_timeout": 120,
+        "native_units": 0,
+        "targets": null,
+        "wasm_memory64": true
+      },
+      "rows": [
+        {
+          "level": 0,
+          "status": "pass",
+          "stdout": "2 17 34\n",
+          "exit_code": 0
+        },
+        {
+          "level": 2,
+          "status": "pass",
+          "stdout": "2 17 34\n",
+          "exit_code": 0
+        }
+      ]
+    },
+    {
+      "arm": "v8",
+      "memory_bits": 32,
+      "receipt_sha256": "181753988c3a92f6575953330066352cc0eff6e89b9897cfe1b40ccd0cb85dc8",
+      "config": {
+        "compiler": "/home/jacobt/src/goose-to-wasm/build/wasm-copy-2026-11-18/combined-emitter",
+        "manifest": "/home/jacobt/src/goose-to-wasm/tests/conformance/cases.json",
+        "levels": [
+          0,
+          2
+        ],
+        "filter": "corpus/packed-copy/empty-field",
+        "engine": "v8",
+        "host": "None",
+        "frontend_only": false,
+        "upstream_extracted": false,
+        "upstream_sources": "/home/jacobt/src/goose-to-wasm/build/wasm-copy-2026-11-18/focused-v8-32/upstream",
+        "jobs": 1,
+        "timeout": 15,
+        "cc_timeout": 120,
+        "native_units": 0,
+        "targets": null,
+        "wasm_memory64": false
+      },
+      "rows": [
+        {
+          "level": 0,
+          "status": "pass",
+          "stdout": "2 17 34\n",
+          "exit_code": 0
+        },
+        {
+          "level": 2,
+          "status": "pass",
+          "stdout": "2 17 34\n",
+          "exit_code": 0
+        }
+      ]
+    },
+    {
+      "arm": "v8",
+      "memory_bits": 64,
+      "receipt_sha256": "b65f4d3c27dad1e75a0faf69092850435f7681fadd21fcc844d24e549a45cfcd",
+      "config": {
+        "compiler": "/home/jacobt/src/goose-to-wasm/build/wasm-copy-2026-11-18/combined-emitter",
+        "manifest": "/home/jacobt/src/goose-to-wasm/tests/conformance/cases.json",
+        "levels": [
+          0,
+          2
+        ],
+        "filter": "corpus/packed-copy/empty-field",
+        "engine": "v8",
+        "host": "None",
+        "frontend_only": false,
+        "upstream_extracted": false,
+        "upstream_sources": "/home/jacobt/src/goose-to-wasm/build/wasm-copy-2026-11-18/focused-v8-64/upstream",
+        "jobs": 1,
+        "timeout": 15,
+        "cc_timeout": 120,
+        "native_units": 0,
+        "targets": null,
+        "wasm_memory64": true
+      },
+      "rows": [
+        {
+          "level": 0,
+          "status": "pass",
+          "stdout": "2 17 34\n",
+          "exit_code": 0
+        },
+        {
+          "level": 2,
+          "status": "pass",
+          "stdout": "2 17 34\n",
+          "exit_code": 0
+        }
+      ]
+    }
+  ]
+}

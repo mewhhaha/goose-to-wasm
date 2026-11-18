@@ -1,0 +1,236 @@
+selfhost/checker.goose:1195: error: cannot call check_type, which may shrink p: p.nodes[param].type_id, which the assignment writes after it, may be in p (§5.1)
+        if p.nodes[param].type_id < 0 { p.nodes[param].type_id = check_type(p, TY_GENERIC, -1, 0, param, 0); }
+                                                                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  in fn check_ensure_generics(Program&, Checker&, i64) instantiated from selfhost/checker.goose:3843
+  in fn check_prepare_function(Program&, Checker&, i64) instantiated from selfhost/checker.goose:7859
+  in fn check_program_types(Program&, bool, i64[>..]&, i64[>..]&, i64[>..]&, i64[>..]&) instantiated from selfhost/checker.goose:7923
+  in fn check_program(Program&, bool) instantiated from selfhost/driver.goose:422
+  in fn driver_main() instantiated from selfhost/main.goose:3
+  in fn main() instantiated from selfhost/main.goose:3
+selfhost/codegen_c.goose:3918: error: cannot call cc_emit_function: it may shrink indices while f is still used, and f may refer into indices (§5.1)
+        cc_emit_function(p, out, node, plans, calls, indices, self_images, natural_members, has_self_runs, bindings); cc_emit_export(p, out, node); cc_text(out, "#endif\n");
+        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  in fn generate_c(Program&, u8[>..]&) instantiated from selfhost/codegen_c.goose:3821
+selfhost/checker_lifetimes.goose:472: error: cannot clear l while l is still used: what it refers to may hold a reference or slice into it (§5.1)
+        l.leaf_heads.clear(); l.leaf_heads.resize(size, -1);
+        ^~~~~~~~~~~~~~~~~~~~
+  in fn life_leaf(Lifetimes&, i64, i64, const LifeValue&) instantiated from selfhost/checker_lifetimes.goose:469
+selfhost/checker_lifetimes.goose:511: error: cannot clear l while l is still used: what it refers to may hold a reference or slice into it (§5.1)
+        l.context_heads.clear(); l.context_heads.resize(size, -1);
+        ^~~~~~~~~~~~~~~~~~~~~~~
+  in fn life_context(Lifetimes&, i64, i64) instantiated from selfhost/checker_lifetimes.goose:507
+selfhost/checker_lifetimes.goose:547: error: cannot clear l while l is still used: what it refers to may hold a reference or slice into it (§5.1)
+        l.chain_replays.clear(); l.chain_replays.resize(size, -1); l.chain_versions.clear(); l.chain_versions.resize(size, -1);
+        ^~~~~~~~~~~~~~~~~~~~~~~
+  in fn life_chain_replay(Lifetimes&, i64, i64) instantiated from selfhost/checker_lifetimes.goose:543
+selfhost/checker_lifetimes.goose:1423: error: cannot resize l while l is still used: what it refers to may hold a reference or slice into it (§5.1)
+        if l.joins.len == 0 { l.joins.resize(1024, LifeJoin {}); }
+                              ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  in fn life_join(Lifetimes&, i64, i64) instantiated from selfhost/checker_lifetimes.goose:613
+  in fn life_effect_merge(Lifetimes&, const LifeEffect&, i64, i64, i64, bool, i64) instantiated from selfhost/checker_lifetimes.goose:588
+selfhost/checker_lifetimes.goose:634: error: cannot clear l while l is still used: what it refers to may hold a reference or slice into it (§5.1)
+    l.effect_heads.clear(); l.effect_heads.resize(size, -1);
+    ^~~~~~~~~~~~~~~~~~~~~~
+  in fn life_index_reserve(Lifetimes&) instantiated from selfhost/checker_lifetimes.goose:631
+selfhost/checker_lifetimes.goose:2229: error: cannot clear l while l is still used: what it refers to may hold a reference or slice into it (§5.1)
+        l.assume_slots.clear(); l.assume_slots.resize(size, -1);
+        ^~~~~~~~~~~~~~~~~~~~~~
+  in fn life_assume_slot(Lifetimes&, i64, i64, i64, i64, bool) instantiated from selfhost/checker_lifetimes.goose:2249
+  in fn life_assumed(Lifetimes&, i64, i64, i64, i64, bool) instantiated from selfhost/checker_lifetimes.goose:2725
+  in fn life_class_query_roots(Lifetimes&, i64, i64, i64, i64, bool) instantiated from selfhost/checker_lifetimes.goose:2786
+  in fn life_class_alias(Lifetimes&, LifeAlt, LifeAlt) instantiated from selfhost/checker_lifetimes.goose:2881
+  in fn life_alias(Lifetimes&, LifeAlt, LifeAlt) instantiated from selfhost/checker_lifetimes.goose:2893
+  in fn life_alt_overlaps(Lifetimes&, LifeAlt, i64, bool) instantiated from selfhost/checker_lifetimes.goose:2886
+  in fn life_overlaps(Lifetimes&, i64, i64, bool) instantiated from selfhost/checker_lifetimes.goose:665
+  in fn life_effect_repeated(Lifetimes&, const LifeEffect&, i64) instantiated from selfhost/checker_lifetimes.goose:660
+selfhost/checker_lifetimes.goose:717: error: cannot resize l while l is still used: what it refers to may hold a reference or slice into it (§5.1)
+    if l.offers_recorded > 4 * l.offers.len && l.offers.len < 65536 { l.offers.resize(4 * l.offers.len, LifeOffer {}); l.offers_recorded = 0; }
+                                                                      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  in fn life_offer_repeated(Lifetimes&, const LifeEffect&) instantiated from selfhost/checker_lifetimes.goose:701
+selfhost/checker_lifetimes.goose:717: error: cannot resize l while l is still used: what it refers to may hold a reference or slice into it (§5.1)
+    if l.offers_recorded > 4 * l.offers.len && l.offers.len < 65536 { l.offers.resize(4 * l.offers.len, LifeOffer {}); l.offers_recorded = 0; }
+                                                                      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  in fn life_offer_repeated(Lifetimes&, const LifeEffect&) instantiated from selfhost/checker_lifetimes.goose:856
+  in fn life_effect(Lifetimes&, LifeEffect) instantiated from selfhost/checker_lifetimes.goose:844
+selfhost/checker_lifetimes.goose:986: error: cannot clear l while l is still used: what it refers to may hold a reference or slice into it (§5.1)
+        l.pair_heads.clear(); l.pair_heads.resize(count, -1);
+        ^~~~~~~~~~~~~~~~~~~~
+  in fn life_contains(Program&, Lifetimes&, i64, i64) instantiated from selfhost/checker_lifetimes.goose:980
+selfhost/checker_lifetimes.goose:1186: error: cannot resize l while l is still used: what it refers to may hold a reference or slice into it (§5.1)
+    l.build_slots.resize(b.table); l.build_slots.resize(b.table + size, -1); b.mask = size - 1;
+    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  in fn life_build_rehash(Lifetimes&, LifeBuild&, i64) instantiated from selfhost/checker_lifetimes.goose:1185
+selfhost/checker_lifetimes.goose:1198: error: cannot resize l while l is still used: what it refers to may hold a reference or slice into it (§5.1)
+    l.build_slots.resize(b.table + size, -1); b.mask = size - 1;
+    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  in fn life_build_open(Lifetimes&, LifeBuild&) instantiated from selfhost/checker_lifetimes.goose:1195
+selfhost/checker_lifetimes.goose:1290: error: cannot clear l while l is still used: what it refers to may hold a reference or slice into it (§5.1)
+    l.list_slots.clear(); l.list_slots.resize(size, -1);
+    ^~~~~~~~~~~~~~~~~~~~
+  in fn life_list_rehash(Lifetimes&) instantiated from selfhost/checker_lifetimes.goose:1309
+  in fn life_list_set(Lifetimes&, i64) instantiated from selfhost/checker_lifetimes.goose:1245
+  in fn life_alt_set(Lifetimes&, LifeAlt) instantiated from selfhost/checker_lifetimes.goose:1217
+  in fn life_build_add_alt(Lifetimes&, LifeBuild&, LifeAlt) instantiated from selfhost/checker_lifetimes.goose:1213
+selfhost/checker_lifetimes.goose:1389: error: cannot clear l while l is still used: what it refers to may hold a reference or slice into it (§5.1)
+    l.atom_slots.clear(); l.atom_slots.resize(size, LifeAtomSlot {});
+    ^~~~~~~~~~~~~~~~~~~~
+  in fn life_atom_rehash(Lifetimes&) instantiated from selfhost/checker_lifetimes.goose:1364
+  in fn life_single(Lifetimes&, i64, bool, i64, bool, bool, i64, i64, i64) instantiated from selfhost/checker_lifetimes.goose:1353
+selfhost/checker_lifetimes.goose:1628: error: cannot resize l while l is still used: what it refers to may hold a reference or slice into it (§5.1)
+        if l.contents_memo.len == 0 { l.contents_memo.resize(64, LifeContents {}); }
+                                      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  in fn life_contents_plain(Lifetimes&, i64) instantiated from selfhost/checker_lifetimes.goose:1622
+selfhost/checker_lifetimes.goose:2061: error: cannot clear l while l is still used: what it refers to may hold a reference or slice into it (§5.1)
+        l.body_slots.clear(); l.body_slots.resize(size, -1);
+        ^~~~~~~~~~~~~~~~~~~~
+  in fn life_body(Program&, Lifetimes&, i64) instantiated from selfhost/checker_lifetimes.goose:2003
+  in fn life_reads_captured(Program&, Lifetimes&, i64, i64) instantiated from selfhost/checker_lifetimes.goose:2000
+selfhost/checker_lifetimes.goose:2027: error: cannot clear l while l is still used: what it refers to may hold a reference or slice into it (§5.1)
+        l.read_heads.clear(); l.read_heads.resize(count, -1);
+        ^~~~~~~~~~~~~~~~~~~~
+  in fn life_reads(Program&, Lifetimes&, i64, i64) instantiated from selfhost/checker_lifetimes.goose:2022
+selfhost/checker_lifetimes.goose:2321: error: cannot clear l while l is still used: what it refers to may hold a reference or slice into it (§5.1)
+        l.typed_slots.clear(); l.typed_slots.resize(size, -1);
+        ^~~~~~~~~~~~~~~~~~~~~
+  in fn life_class_typed(Lifetimes&, i64, i64) instantiated from selfhost/checker_lifetimes.goose:2318
+selfhost/checker_lifetimes.goose:2411: error: cannot resize l while l is still used: what it refers to may hold a reference or slice into it (§5.1)
+        if l.map_memo.len == 0 { l.map_memo.resize(8192, LifeMapped {}); }
+                                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  in fn life_typed_set(Program&, Lifetimes&, i64, i64, i64, i64, i64) instantiated from selfhost/checker_lifetimes.goose:2408
+selfhost/checker_lifetimes.goose:2507: error: cannot clear l while l is still used: what it refers to may hold a reference or slice into it (§5.1)
+    var slots: i64[>..] = []; slots.resize(size, -1); l.type_canon.clear();
+                                                      ^~~~~~~~~~~~~~~~~~~~
+  in fn life_canon_types(Program&, Lifetimes&) instantiated from selfhost/checker_lifetimes.goose:2505
+selfhost/checker_lifetimes.goose:2582: error: cannot resize l while l is still used: what it refers to may hold a reference or slice into it (§5.1)
+    if l.refers.len == 0 { l.refers.resize(16384, LifeRefers {}); }
+                           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  in fn life_refers(Program&, Lifetimes&, i64, i64, bool) instantiated from selfhost/checker_lifetimes.goose:2580
+selfhost/checker_lifetimes.goose:2631: error: cannot resize l while l is still used: what it refers to may hold a reference or slice into it (§5.1)
+    if l.referable.len == 0 { l.referable.resize(16384, LifeLoaded {}); }
+                              ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  in fn life_referable(Program&, Lifetimes&, i64, i64) instantiated from selfhost/checker_lifetimes.goose:2627
+selfhost/checker_lifetimes.goose:3995: error: cannot resize l while l is still used: what it refers to may hold a reference or slice into it (§5.1)
+    let table = l.class_slots.len; l.class_slots.resize(table + 2 * size, -1); let mask = size - 1;
+                                   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  in fn life_classes_cover(Program&, Lifetimes&, i64, i64) instantiated from selfhost/checker_lifetimes.goose:3993
+selfhost/checker_lifetimes.goose:4212: error: cannot clear l while l is still used: what it refers to may hold a reference or slice into it (§5.1)
+    l.input_heads.clear(); l.input_heads.resize(size, -1); l.home_heads.clear(); l.home_heads.resize(size, -1);
+    ^~~~~~~~~~~~~~~~~~~~~
+  in fn life_frames_reserve(Lifetimes&) instantiated from selfhost/checker_lifetimes.goose:4209
+selfhost/checker_lifetimes.goose:4327: error: cannot clear l while l is still used: what it refers to may hold a reference or slice into it (§5.1)
+    l.key_scratch.clear(); l.class_scratch.clear(); l.bound_scratch.clear();
+    ^~~~~~~~~~~~~~~~~~~~~
+  in fn life_classify(Program&, Lifetimes&, i64, i64, i64, bool, i64) instantiated from selfhost/checker_lifetimes.goose:4324
+selfhost/checker_lifetimes.goose:4472: error: cannot clear l while l is still used: what it refers to may hold a reference or slice into it (§5.1)
+    l.summary_reads.clear(); l.read_slots.clear();
+    ^~~~~~~~~~~~~~~~~~~~~~~
+  in fn life_reads_materialize(Program&, Lifetimes&) instantiated from selfhost/checker_lifetimes.goose:4442
+selfhost/checker_lifetimes.goose:4602: error: cannot resize l while l is still used: what it refers to may hold a reference or slice into it (§5.1)
+    if l.map_memo.len == 0 { l.map_memo.resize(8192, LifeMapped {}); }
+                             ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  in fn life_map_set(Program&, Lifetimes&, i64, const LifeMap&, i64) instantiated from selfhost/checker_lifetimes.goose:4593
+selfhost/checker_lifetimes.goose:4602: error: cannot resize l while l is still used: what it refers to may hold a reference or slice into it (§5.1)
+    if l.map_memo.len == 0 { l.map_memo.resize(8192, LifeMapped {}); }
+                             ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  in fn life_map_set(Program&, Lifetimes&, i64, const LifeMap&, i64) instantiated from selfhost/checker_lifetimes.goose:4660
+  in fn life_map_value(Program&, Lifetimes&, LifeValue, const LifeMap&) instantiated from selfhost/checker_lifetimes.goose:4658
+selfhost/checker_lifetimes.goose:986: error: cannot clear l while l is still used: what it refers to may hold a reference or slice into it (§5.1)
+        l.pair_heads.clear(); l.pair_heads.resize(count, -1);
+        ^~~~~~~~~~~~~~~~~~~~
+  in fn life_contains(Program&, Lifetimes&, i64, i64) instantiated from selfhost/checker_lifetimes.goose:6059
+  in fn life_validate_pools(Program&, Lifetimes&, const i64[:]) instantiated from selfhost/checker_lifetimes.goose:6117
+  in fn check_lifetimes(Program&, const i64[:], const i64[:], const i64[:], const i64[:]) instantiated from selfhost/checker_lifetimes.goose:6065
+selfhost/checker.goose:1195: error: cannot call check_type, which may shrink p: p.nodes[param].type_id, which the assignment writes after it, may be in p (§5.1)
+        if p.nodes[param].type_id < 0 { p.nodes[param].type_id = check_type(p, TY_GENERIC, -1, 0, param, 0); }
+                                                                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  in fn check_ensure_generics(Program&, Checker&, i64) instantiated from selfhost/checker.goose:1611
+  in fn check_nominal_instance(Program&, Checker&, i64, i64, i64) instantiated from selfhost/checker.goose:869
+  in fn check_substitute(Program&, Checker&, i64, CheckList&) instantiated from selfhost/checker.goose:792
+  in fn check_unify(Program&, Checker&, i64, i64, CheckList&) instantiated from selfhost/checker.goose:785
+selfhost/driver.goose:83: warning: redundant `as i64`: a u8 converts to i64 implicitly here
+        n = n * 10 + (byte - '0') as i64;
+                      ^~~~~~~~~~~~~~~~~~
+selfhost/codegen_c.goose:3787: warning: redundant `as i64`: a u8 converts to i64 implicitly here
+        while next < to && out[next] >= '0' && out[next] <= '9' { if node < first.len { node = node * 10 + (out[next] - '0') as i64; } next++; }
+                                                                                                            ^~~~~~~~~~~~~~~~~~~~~~~
+selfhost/checker_lifetimes.goose:564: warning: redundant `as i64`: an i32 converts to i64 implicitly here
+    return l.class_frames == 0 && (stamp >> 32) > f.activation && f.chain >= l.leaf_floors[leaf] as i64;
+                                                                             ^~~~~~~~~~~~~~~~~~~~~~~~~~
+selfhost/checker_lifetimes.goose:816: warning: redundant `as i64`: an i32 converts to i64 implicitly here
+        if own >= 0 && l.summary_reads[own].seen as i64 == leaf && l.summary_reads[own].sent as i64 == context { return far; }
+                       ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+selfhost/checker_lifetimes.goose:816: warning: redundant `as i64`: an i32 converts to i64 implicitly here
+        if own >= 0 && l.summary_reads[own].seen as i64 == leaf && l.summary_reads[own].sent as i64 == context { return far; }
+                                                                   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+selfhost/checker_lifetimes.goose:1306: warning: redundant `as i64`: an i32 converts to i64 implicitly here
+        for part in [a.root as i64, a.from as i64, a.target_type as i64, a.bound as i64, a.component as i64, flags] { h = (h ^ (part as! u64)) * 1099511628211; h ^= h >> 29; }
+                                    ^~~~~~~~~~~~~
+selfhost/checker_lifetimes.goose:1306: warning: redundant `as i64`: an i32 converts to i64 implicitly here
+        for part in [a.root as i64, a.from as i64, a.target_type as i64, a.bound as i64, a.component as i64, flags] { h = (h ^ (part as! u64)) * 1099511628211; h ^= h >> 29; }
+                                                   ^~~~~~~~~~~~~~~~~~~~
+selfhost/checker_lifetimes.goose:1306: warning: redundant `as i64`: an i32 converts to i64 implicitly here
+        for part in [a.root as i64, a.from as i64, a.target_type as i64, a.bound as i64, a.component as i64, flags] { h = (h ^ (part as! u64)) * 1099511628211; h ^= h >> 29; }
+                                                                         ^~~~~~~~~~~~~~
+selfhost/checker_lifetimes.goose:1306: warning: redundant `as i64`: an i32 converts to i64 implicitly here
+        for part in [a.root as i64, a.from as i64, a.target_type as i64, a.bound as i64, a.component as i64, flags] { h = (h ^ (part as! u64)) * 1099511628211; h ^= h >> 29; }
+                                                                                         ^~~~~~~~~~~~~~~~~~
+selfhost/checker_lifetimes.goose:1384: warning: redundant `as i64`: an i32 converts to i64 implicitly here
+    for part in [alt.root as i64, alt.from as i64, alt.target_type as i64, alt.bound as i64, alt.component as i64, flags] { h = (h ^ (part as! u64)) * 1099511628211; h ^= h >> 29; }
+                                  ^~~~~~~~~~~~~~~
+selfhost/checker_lifetimes.goose:1384: warning: redundant `as i64`: an i32 converts to i64 implicitly here
+    for part in [alt.root as i64, alt.from as i64, alt.target_type as i64, alt.bound as i64, alt.component as i64, flags] { h = (h ^ (part as! u64)) * 1099511628211; h ^= h >> 29; }
+                                                   ^~~~~~~~~~~~~~~~~~~~~~
+selfhost/checker_lifetimes.goose:1384: warning: redundant `as i64`: an i32 converts to i64 implicitly here
+    for part in [alt.root as i64, alt.from as i64, alt.target_type as i64, alt.bound as i64, alt.component as i64, flags] { h = (h ^ (part as! u64)) * 1099511628211; h ^= h >> 29; }
+                                                                           ^~~~~~~~~~~~~~~~
+selfhost/checker_lifetimes.goose:1384: warning: redundant `as i64`: an i32 converts to i64 implicitly here
+    for part in [alt.root as i64, alt.from as i64, alt.target_type as i64, alt.bound as i64, alt.component as i64, flags] { h = (h ^ (part as! u64)) * 1099511628211; h ^= h >> 29; }
+                                                                                             ^~~~~~~~~~~~~~~~~~~~
+selfhost/checker_lifetimes.goose:2614: warning: redundant `as i64`: an i32 converts to i64 implicitly here
+    if x.target_type >= 0 { return x.target_type as i64; }
+                                   ^~~~~~~~~~~~~~~~~~~~
+selfhost/checker_lifetimes.goose:4449: warning: redundant `as i64`: an i32 converts to i64 implicitly here
+            while read >= 0 && (at < 0 || (l.summary_reads[read].before as i64) < at) {
+                                           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+selfhost/checker_lifetimes.goose:4450: warning: redundant `as i64`: an i32 converts to i64 implicitly here
+                let entry = l.summary_reads[read]; read = entry.next as i64;
+                                                          ^~~~~~~~~~~~~~~~~
+selfhost/checker_operations.goose:10: warning: redundant `as i64`: 97 fits i64 here
+        loop { p.text.push(('a' as i64 + value % 26) as u8); value /= 26; if value == 0 { break; } }
+                            ^~~~~~~~~~
+selfhost/optimizer.goose:76: warning: redundant `as f64`: an f32 converts to f64 implicitly here
+    if check_numeric_value_type(p, type_id) == TYPE_F32 { return (value as! f32) as f64; }
+                                                                  ^~~~~~~~~~~~~~~~~~~~~
+selfhost/optimizer.goose:420: warning: redundant `as f64`: an f32 converts to f64 implicitly here
+        if n.type_id == TYPE_F32 || n.aux == TYPE_F32 { a = (a as! f32) as f64; b = (b as! f32) as f64; }
+                                                             ^~~~~~~~~~~~~~~~~
+selfhost/optimizer.goose:420: warning: redundant `as f64`: an f32 converts to f64 implicitly here
+        if n.type_id == TYPE_F32 || n.aux == TYPE_F32 { a = (a as! f32) as f64; b = (b as! f32) as f64; }
+                                                                                     ^~~~~~~~~~~~~~~~~
+selfhost/optimizer.goose:506: warning: redundant `as f64`: a u64 converts to f64 implicitly here
+            if unsigned { value = (source.integer as! u64) as f64; }
+                                   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+selfhost/optimizer.goose:508: warning: redundant `as f64`: an f32 converts to f64 implicitly here
+                value = (source.integer as f32) as f64;
+                         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+selfhost/optimizer.goose:509: warning: redundant `as f64`: an f32 converts to f64 implicitly here
+                if unsigned { value = ((source.integer as! u64) as f32) as f64; }
+                                        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+selfhost/checker.goose:322: warning: redundant `as u32`: a u8 converts to u32 implicitly here
+    for byte in token_text(p, token) { hash = (hash ^ (byte as u32)) * 16777619; }
+                                                       ^~~~~~~~~~~
+selfhost/checker.goose:323: warning: redundant `as i64`: a u32 converts to i64 implicitly here
+    return hash as i64;
+           ^~~~~~~~~~~
+selfhost/lexer.goose:130: warning: redundant `as i64`: a u8 converts to i64 implicitly here
+    if c != '\\' { return c as i64; }
+                          ^~~~~~~~
+selfhost/lexer.goose:136: warning: redundant `as i64`: a u8 converts to i64 implicitly here
+    if e == '\\' || e == '"' || e == '\'' { return e as i64; }
+                                                   ^~~~~~~~
+selfhost/lexer.goose:147: warning: redundant `as i64`: a u8 converts to i64 implicitly here
+    return e as i64;
+           ^~~~~~~~
+selfhost/lexer.goose:560: warning: redundant `as i64`: a u8 converts to i64 implicitly here
+            if text[at] != '_' && exponent < 1000000 { exponent = exponent * 10 + text[at] as i64 - 48; }
+                                                                                  ^~~~~~~~~~~~~~~

@@ -1,0 +1,7 @@
+bootstrap                    exit 0    126.1 s
+conformance                  exit 0     75.1 s  {'selected': 10795, 'passed': 10691, 'failed': 104}
+native-checks                exit 0     17.0 s  54 steps ok
+conformance-memory64         exit 0    302.0 s  {'selected': 4775, 'passed': 4767, 'failed': 8}
+equivalence                  exit 1     87.6 s  {"compared": 10053, "differing": 779, "seconds": {"baseline": 81.199, "candidate": 80.819}}
+unit-tests                   exit 0    197.5 s
+passed in 428.2 s; /home/jacobt/src/goose-to-wasm/build/wasm-copy-2026-11-18/qualification/summary.json

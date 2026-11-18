@@ -1,0 +1,18 @@
+{
+  "compared": 10053,
+  "wasm_output_changes": 779,
+  "section_changes": {
+    "10": 779
+  },
+  "compilers": {
+    "baseline": {
+      "path": "/home/jacobt/src/goose-to-wasm/build/selfhost-comparison-2026-11-17/emitter",
+      "sha256": "6dc908de22b44263c36c7f8b31b6c44047df1e126cf465a71ee527116e7f1030"
+    },
+    "candidate": {
+      "path": "/home/jacobt/src/goose-to-wasm/build/wasm-copy-2026-11-18/qualification/bootstrap/bin/goose",
+      "sha256": "18b8113e3fc91d038882cdad8ab4b2e98971474f285f2dacc6756c047ceeb14d"
+    }
+  },
+  "manifest_sha256": "a0a8b97f2ef8d0284266af6cadb34225635cc3ada151d7d4d07475135971ca06"
+}
