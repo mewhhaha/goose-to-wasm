@@ -40,6 +40,7 @@ struct OptFact { writes: i64 = 0, addresses: i64 = 0, calls: i64 = 0, literal: i
 struct OptMap { from: i64, to: i64 }
 struct OptNodeMap { from: i64, to: i64 }
 struct Optimizer {
+    first_free_slots: const i64[:],
     facts: OptFact[>..]&, visited: i64[>..]&, active: i64[>..]&, maps: OptMap[>..]&, node_maps: OptNodeMap[>..]&, dependency_work: i64[>..]&, proof_old: i64[>..]&, proof_new: i64[>..]&,
     current_function: i64 = -1, next_slot: i64 = 0, folded: i64 = 0, propagated: i64 = 0,
     inlined: i64 = 0, tail_loops: i64 = 0,
@@ -292,11 +293,6 @@ recursive fn opt_fix_inline(p: Program&, o: Optimizer&, node: i64, callee: i64, 
     if n.kind != N_CALL || (n.flags & F_DISPATCH) != 0 { opt_fix_inline(p, o, n.third, callee, target, map_start, node_start); }
 }
 
-fn opt_next_slot(p: Program&, owner: i64) -> i64 {
-    var result = 0;
-    for s in p.symbols { if s.owner == owner && s.slot >= result { result = s.slot + 1; } }
-    return result;
-}
 fn opt_temporary(p: Program&, o: Optimizer&, owner: i64, scope: i64, token: i64, ty: i64, value: i64) -> i64 {
     let node = new_node(p, N_VARIABLE, token);
     let symbol = p.symbols.len; let slot = o.next_slot; o.next_slot++;
@@ -653,7 +649,8 @@ recursive fn opt_function(p: Program&, o: Optimizer&, node: i64) {
     if n.right >= 0 {
         opt_callees(p, o, n.right);
         let saved = o.current_function; let saved_slot = o.next_slot;
-        o.current_function = node; o.next_slot = opt_next_slot(p, node);
+        o.current_function = node; o.next_slot = 0;
+        if node < o.first_free_slots.len { o.next_slot = o.first_free_slots[node]; }
         opt_node(p, o, n.right, 0); opt_tail_function(p, o, node);
         o.current_function = saved; o.next_slot = saved_slot;
     }
@@ -666,7 +663,15 @@ fn optimize_program(p: Program&) {
     var optimizer_active: i64[>..] = [];
     var optimizer_maps: OptMap[>..] = []; var optimizer_node_maps: OptNodeMap[>..] = [];
     var optimizer_dependencies: i64[>..] = []; var optimizer_proof_old: i64[>..] = []; var optimizer_proof_new: i64[>..] = [];
-    var o = Optimizer { facts: optimizer_facts, visited: optimizer_visited, active: optimizer_active, maps: optimizer_maps, node_maps: optimizer_node_maps, dependency_work: optimizer_dependencies, proof_old: optimizer_proof_old, proof_new: optimizer_proof_new };
+    // Each function is optimized once. Inlining and tail calls allocate their
+    // temporaries from next_slot while that function is active.
+    var slots: i64[>..] = [];
+    for symbol in p.symbols {
+        if symbol.owner < 0 || symbol.slot < 0 { continue; }
+        if symbol.owner >= slots.len { slots.resize(symbol.owner + 1, 0); }
+        if symbol.slot >= slots[symbol.owner] { slots[symbol.owner] = symbol.slot + 1; }
+    }
+    var o = Optimizer { first_free_slots: slots[..], facts: optimizer_facts, visited: optimizer_visited, active: optimizer_active, maps: optimizer_maps, node_maps: optimizer_node_maps, dependency_work: optimizer_dependencies, proof_old: optimizer_proof_old, proof_new: optimizer_proof_new };
     for symbol, id in p.symbols { opt_fact(o, id); }
     let count = p.symbols.len;
     for i in 0..count {
