@@ -30,10 +30,10 @@ A second approach keeps the original fixed-region allocator. On a failed reserva
 
 | Frozen input | First request | Attempts | Reuse successful layout | Pre-sized control |
 | --- | ---: | ---: | ---: | ---: |
-| Parse Blot2 | 2.18 s | 2 | 1.76 s | 1.79 s |
+| Parse Blot2 | 2.17 s | 2 | 1.76 s | 1.79 s |
 | Parse the 131,071-function tree | 1.35 s | 3 | 0.72 s | 0.73 s |
 
-These are median CPU seconds for the entire prepared request, including failed attempts, on CPU 7 in four alternating rounds. The pre-sized control uses the layout trained on Blot2 and compiler self-emission. From the original three-example layout, compiler self-check and emission completed on the first attempt in every round. With and without the recovery mechanism those CPU medians were 4.02 / 3.98 s for checking and 5.72 / 5.85 s for emission. Descheduling and other jobs affected these timings. [All attempts and outputs](paired.json)
+These are median CPU seconds for the entire prepared request, including failed attempts, on CPU 7 in four alternating rounds. The pre-sized control uses the layout trained on Blot2 and compiler self-emission. From the original three-example layout, compiler self-check and emission completed on the first attempt in every round. With and without the recovery mechanism those CPU medians were 4.02 / 3.98 s for checking and 5.72 / 5.86 s for emission. Descheduling and other jobs affected these timings. [All attempts and outputs](paired.json)
 
 ![First request, reused layout and pre-sized control for two projects that exceeded their initial bounds](retry.svg)
 
