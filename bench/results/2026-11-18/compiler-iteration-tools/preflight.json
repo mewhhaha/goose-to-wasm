@@ -1,0 +1,58 @@
+[
+  {
+    "name": "memory32",
+    "argv": [
+      "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+      "bench/results/2026-11-18/wasm-lowering/tools/trial.py",
+      "--preflight"
+    ],
+    "exit": 0,
+    "result": "candidate32: verified 6 modules, native compiler, frozen project, report rounds and hosted counters"
+  },
+  {
+    "name": "memory64",
+    "argv": [
+      "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+      "bench/results/2026-11-18/wasm-lowering/tools/trial.py",
+      "--preflight",
+      "--wide"
+    ],
+    "exit": 0,
+    "result": "candidate64: verified 2 modules, native compiler, frozen project, report rounds and hosted counters"
+  },
+  {
+    "name": "record",
+    "argv": [
+      "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+      "bench/results/2026-11-18/wasm-lowering/tools/record_trial.py",
+      "--preflight"
+    ],
+    "exit": 0,
+    "result": "Verified both hosted record modules against the frozen checksum"
+  },
+  {
+    "name": "flat report",
+    "argv": [
+      "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+      "bench/results/2026-11-18/wasm-lowering/tools/trial.py",
+      "--preflight",
+      "--comparison-report",
+      "build/six-hills-1118/flat.json"
+    ],
+    "exit": 1,
+    "result": "ValueError: expected execution samples grouped by round"
+  },
+  {
+    "name": "wrong module",
+    "argv": [
+      "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+      "bench/results/2026-11-18/wasm-lowering/tools/trial.py",
+      "--preflight",
+      "--wide",
+      "--stage",
+      "build/six-hills-1118/mismatched"
+    ],
+    "exit": 1,
+    "result": "ValueError: module changed: /home/jacobt/src/goose-to-wasm/build/six-hills-1118/mismatched/release64.wasm"
+  }
+]

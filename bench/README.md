@@ -141,3 +141,7 @@ the host timing shim compiled at GCC O2 in every cell. It retains generated C,
 recursive inlining reports, optimized GCC IR, and disassembly alongside verified
 runtime-input measurements. The [retained follow-up](results/2026-10-26/fibonacci-followup/README.md)
 explains the native result and its limits.
+
+Resident compiler benchmarks reuse Wasmtime's on-disk compilation cache across processes. Guest execution timing starts at `_start` after instantiation. Use `bench/selfhost_comparison.py run ... --cold-preparation` for a fresh engine compilation, or `--cache-config FILE` to isolate a trial. The cold examples and lifecycle benchmarks retain their own preparation settings.
+
+The [frozen compiler comparison](results/2026-11-18/wasm-lowering/tools/trial.py) accepts `--preflight` and `--preflight --wide`. Both check the native binary, frozen project, module fingerprints, grouped report rounds and an actual hosted call with performance counters before preparing a compiler module.

@@ -4,7 +4,7 @@ A [Goose](https://github.com/aardappel/goose) compiler written in Goose. It emit
 
 ## Benchmarks
 
-**Compiler speed.** On 2026-11-18, compiler `065aff3` took 0.982× its parent's CPU time to emit Wasm and 1.012× to emit C. These are geometric means of medians across eleven programs, with 31 measurements per cell on a shared host. The chart shows wall time. C emission excludes C compilation and linking. In a separate 2026-11-11 campaign, snapshot 59 took 0.58× the earlier C++ compiler's time for Wasm and 0.53× for C. [Current measurements](bench/results/2026-11-18/wasm-lowering/README.md) · [Snapshot 59](bench/results/2026-11-11/compiler-throughput-59/README.md)
+**Compiler speed.** On 2026-11-18, compiler `90e086f` used 1.002× as much CPU time as `065aff3` to emit Wasm and 0.997× as much to emit C. These are geometric means of medians across eleven programs, with 31 measurements per cell on a shared host. The chart shows wall time. C emission excludes C compilation and linking. In a separate 2026-11-11 campaign, snapshot 59 took 0.58× the earlier C++ compiler's time for Wasm and 0.53× for C. [Current measurements](bench/results/2026-11-18/compiler-iteration-tools/README.md) · [Snapshot 59](bench/results/2026-11-11/compiler-throughput-59/README.md)
 
 ![Compiler execution time for eleven programs](bench/charts/compiler-comparison.svg)
 
@@ -14,11 +14,11 @@ A [Goose](https://github.com/aardappel/goose) compiler written in Goose. It emit
 
 **Bootstrap iteration.** A warm verified bootstrap of the frozen compiler sources fell from 52.05 s to 5.80 s wall time across three paired repetitions, with native executables already cached. The generated C and compiler executable were identical. The build used Clang 23.1.5 with `-O2` and one C unit. With native executables cached, the opt-in `--reuse-toolchain` path reduced a changed-source build from 36.19 s to 8.42 s across three pairs while producing the same C and result and verifying the live fixed point. [Measurements](bench/results/2026-11-17/compiler-iteration/README.md) · [Changed-source builds](bench/results/2026-11-17/local-bootstrap/README.md)
 
-**The compiler as Wasm.** Building fixed-point compiler sources `065aff3` took a median of 4.98 s for direct Wasm and 56.25 s for native through C and Clang, including compilation and linking across eight C units on five CPUs, over three builds. Median self-check times were 2.87 s native, 10.67 s in Wasmtime and 11.05 s in V8. Self-compilation took 4.72 s, 16.83 s and 17.73 s respectively. Both engines reuse a prepared memory64 module and time execution after instantiation. All three executions emitted identical Wasm. The native control uses this compiler’s C backend. [Method and results](bench/results/2026-11-18/wasm-lowering/README.md)
+**The compiler as Wasm.** Building fixed-point compiler sources `90e086f` took a median of 4.28 s for direct Wasm and 50.62 s for native through C and Clang, including compilation and linking across eight C units on five CPUs, over three builds. Median self-check times were 2.95 s native, 10.61 s in Wasmtime and 11.19 s in V8. Self-compilation took 4.62 s, 14.57 s and 18.91 s respectively. Both engines reuse a prepared memory64 module and time execution after instantiation. The native control uses this compiler's C backend. [Method and results](bench/results/2026-11-18/compiler-iteration-tools/README.md)
 
 ![Compiler self-hosting build and execution times](bench/charts/compiler-selfhost-execution.svg)
 
-**Example programs.** On a shared host, median cold builds for ten examples took 91.4–127.0 ms for direct Wasm and 0.419–3.317 s for native executables, including C compilation and linking. Full process times include launch and exit. Sorting took 269 ms with minimal Wasmtime AOT and 179 ms native in the host comparison. [Method and results](bench/results/2026-11-18/wasm-lowering/README.md)
+**Example programs.** On a shared host, median cold builds for ten examples took 83.9–105.2 ms for direct Wasm and 0.381–2.853 s for native executables, including C compilation and linking. Full process times include launch and exit. Sorting took 301 ms with minimal Wasmtime AOT and 205 ms native in the host comparison. [Method and results](bench/results/2026-11-18/compiler-iteration-tools/README.md)
 
 ![Example program build times](bench/charts/goose-examples-compilation.svg)
 
@@ -34,9 +34,13 @@ A [Goose](https://github.com/aardappel/goose) compiler written in Goose. It emit
 
 **Native rows.** Stable scans and counted literal pushes reduced append time from 238.683 ms to 0.363 ms and traversal from 600.395 ms to 0.076 ms for 8,008 rows across seven pairs. [Measurements](bench/results/2026-11-17/native-row-scans/README.md)
 
-**Closing the gap to native.** On the same frozen compiler project, the new backend reduced Wasmtime checking from 2.83× to 2.40× native time and emission from 3.55× to 3.13× with profiled memory32. Default memory64 improved from 4.25× to 3.57× for checking and from 3.99× to 3.54× for emission. In a separate memory32 CPU profile, lifetime analysis accounted for 80% of the extra sampled CPU time during checking and 54% during emission. [Measurements and CPU profile](bench/results/2026-11-18/wasm-lowering/README.md#where-the-gap-remains)
+**Closing the gap to native.** On the same frozen compiler project, the earlier `065aff3` backend reduced Wasmtime checking from 2.83× to 2.40× native time and emission from 3.55× to 3.13× with profiled memory32. Default memory64 improved from 4.25× to 3.57× for checking and from 3.99× to 3.54× for emission. In a separate memory32 CPU profile, lifetime analysis accounted for 80% of the extra sampled CPU time during checking and 54% during emission. [Measurements and CPU profile](bench/results/2026-11-18/wasm-lowering/README.md#where-the-gap-remains)
 
 ![Wasmtime compiler execution relative to native before and after the changes](bench/results/2026-11-18/wasm-lowering/runtime.svg)
+
+**Compiler iteration.** Reusing Wasmtime's compiled module cut preparation from 40.6 s to 141 ms. The Rust host ran all 4,777 memory64 contracts in 40 s against Python's 161 s, with identical outcomes. On a frozen project, indexing local slots reduced Wasmtime emission from 13.70 s to 13.45 s across four pairs. [Measurements](bench/results/2026-11-18/compiler-iteration-tools/README.md)
+
+![Wasmtime compiler preparation and memory64 conformance time](bench/results/2026-11-18/compiler-iteration-tools/iteration.svg)
 
 **Wasm local allocation.** Replaying optimized self-compilation bodies fell from 543 ms to 491 ms with identical local tables and instruction bytes. An overlapping-span stress case fell from 241 ms to 31 ms. [Measurements](bench/results/2026-11-17/wasm-slot-prefix/README.md)
 

@@ -90,7 +90,9 @@ def main():
                         help='only rows for these targets, such as native; default: every target')
     parser.add_argument('--levels', type=int, nargs='+', choices=(0, 2), default=[0, 2])
     parser.add_argument('--engine', choices=('wasmtime', 'v8'), default='wasmtime')
-    parser.add_argument('--host', type=Path)
+    hosts = parser.add_mutually_exclusive_group()
+    hosts.add_argument('--host', type=Path)
+    hosts.add_argument('--python-host', action='store_true', help='run Wasmtime through the Python reference host')
     parser.add_argument('--wasm-memory64', action='store_true',
                         help='build every wasm-direct row with --wasm-memory64: the same contracts on 64-bit memory')
     parser.add_argument('--cc', default='gcc')
@@ -162,10 +164,12 @@ def main():
                     raise
     host = args.host
     legacy_host = ROOT / 'build/bin/goose-wasmtime'
-    # The legacy host's imports use 32-bit pointers. Memory64 uses the
-    # Python runner unless the caller supplies a compatible host explicitly.
-    if host is None and args.engine == 'wasmtime' and not args.wasm_memory64 and legacy_host.is_file():
-        host = legacy_host
+    rust_host = ROOT / 'host/rust/target/release/goose-wasmtime'
+    if host is None and args.engine == 'wasmtime' and not args.python_host:
+        if args.wasm_memory64 and rust_host.is_file():
+            host = rust_host
+        elif not args.wasm_memory64 and legacy_host.is_file():
+            host = legacy_host
     cc = shutil.which(args.cc)
     if not cc:
         parser.error('C compiler unavailable: ' + args.cc)
@@ -217,7 +221,10 @@ def main():
                     time.sleep(0.01)
             row.update(exit_code=process.returncode, stdout=process.stdout.decode(errors='replace'),
                        stderr=process.stderr.decode(errors='replace'))
-        except (OSError, subprocess.TimeoutExpired) as error:
+        except subprocess.TimeoutExpired as error:
+            row['timed_out'] = True
+            row['error'] = str(error)
+        except OSError as error:
             row['error'] = str(error)
         row['seconds'] = time.monotonic() - start
         with lock:
@@ -444,11 +451,13 @@ def main():
             else:
                 command = [sys.executable, ROOT / 'scripts/run_wasmtime.py', compiled['artifact']]
             if command:
+                limit = max(args.timeout, case.get('run_timeout_seconds', 0))
+                stdin = case.get('stdin', '')
                 if uses_files:
                     with filesystem:
-                        index, observed = execute(command, cwd, case.get('stdin', ''))
+                        index, observed = execute(command, cwd, stdin, limit)
                 else:
-                    index, observed = execute(command, cwd, case.get('stdin', ''))
+                    index, observed = execute(command, cwd, stdin, limit)
                 row['run_command'] = index
                 expected = case['expect']
                 stdout = expected.get('stdout', '')
@@ -512,6 +521,13 @@ def main():
                             save()
                         last_save = time.monotonic()
                     print(len(report['results']), 'checked;', sum(x['status'] == 'pass' for x in report['results']), 'passed', flush=True)
+        # Let competing workers finish before retrying an isolated slow execution.
+        for i, (job, row) in enumerate(zip(jobs, report['results'])):
+            run_id = row.get('run_command')
+            if run_id is not None and not job[4] and report['commands'][run_id].get('timed_out'):
+                retried = check(*job)
+                retried['timed_out_run_command'] = run_id
+                report['results'][i] = retried
         if not selected:
             raise RuntimeError('no selected contracts')
         if native_cache:

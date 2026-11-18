@@ -8,9 +8,9 @@
    <cc:Work>
     <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
     <dc:title>Example compilation</dc:title>
-    <dc:description>Complete uncached builds, including C compiler/linker work for the native backend. Environment: {"bootstrap_seed_sha256": {"seed.c.gz": "6dc051d4e1b581ce4b6b7409b5a3c3b3d352c6a66602c8c047d63a16d1efec09", "seed.json": "d5a180f0a28adb21520a15a6f19af2e5cd8109e4e4907e6f4d7fe13b586c223f", "sources.tar.gz": "d3fbbe14eb4336d1dcc9819922dc12d4ff2478ce8d6c305ea448ecf9c197d995"}, "compiler_sha256": "e3666cca0f4af376876c805456600eac41849f6360064b3970f9ca31e6c22700", "cpu": "AMD Ryzen 7 3800X 8-Core Processor", "cpu_affinity": [1], "env_overrides": {"CC": null, "CFLAGS": null, "GOOSE_STDLIB": null, "NODE_OPTIONS": null}, "input_sha256": {"/home/jacobt/.local/share/fnm/node-versions/v24.22.1/installation/bin/node": "e32e2d16081cf644f88392934288086e7662529d0d43277c34f7aad2207cfafb", "/home/jacobt/src/goose-to-wasm/.venv/lib/python3.14/site-packages/wasmtime/linux-x86_64/_libwasmtime.so": "3127ca42fe7cdd3f0a43a358e79177dcfedd46c1746329826403b9d854de6178", "/home/jacobt/src/goose-to-wasm/bench/benchmark.py": "408ee67f585dc4febea45d36a251e8ff4fd95ce11767c042b0d2a473d8ed0d6a", "/home/jacobt/src/goose-to-wasm/bench/examples.py": "fe4102bb7f6d26ba01bc16433d2712501208dd6ef5cc4d1646475c2468f80aae", "/home/jacobt/src/goose-to-wasm/bench/process.py": "ded4f0856702001f29d1f80bc12c0e54407354fda5adae48ffbd896321ecef72", "/home/jacobt/src/goose-to-wasm/bootstrap/seed.c.gz": "6dc051d4e1b581ce4b6b7409b5a3c3b3d352c6a66602c8c047d63a16d1efec09", "/home/jacobt/src/goose-to-wasm/bootstrap/seed.json": "d5a180f0a28adb21520a15a6f19af2e5cd8109e4e4907e6f4d7fe13b586c223f", "/home/jacobt/src/goose-to-wasm/bootstrap/sources.tar.gz": "d3fbbe14eb4336d1dcc9819922dc12d4ff2478ce8d6c305ea448ecf9c197d995", "/home/jacobt/src/goose-to-wasm/build/wasm-lowering-1118/final-qualification/bootstrap/bin/stdlib/base64.goose": "fa1111ce46e9534311f825880dbd2988953430aeb3f1f52d8f0eaecbbc298a61", "/home/jacobt/src/goose-to-wasm/build/wasm-lowering-1118/final-qualification/bootstrap/bin/stdlib/binary.goose": "6973e209428668c2db856eaa941de5d93938cfb1749ed07cac534bf9fe4cb031", "/home/jacobt/src/goose-to-wasm/build/wasm-lowering-1118/final-qualification/bootstrap/bin/stdlib/csv.goose": "a49b0647f4a2f8ca36170e5a184ab6c6e505492434d0a10a5e05127e96da61ba", "/home/jacobt/src/goose-to-wasm/build/wasm-lowering-1118/final-qualification/bootstrap/bin/stdlib/dictionary.goose": "fb39f896731faf3799e81727f7261849a62bdfbdc92d5fdbc36405a85830f322", "/home/jacobt/src/goose-to-wasm/build/wasm-lowering-1118/final-qualification/bootstrap/bin/stdlib/exception.goose": "093863eda5433176750182b597aa6760a93808d86b0c9b713681443d2fb29160", "/home/jacobt/src/goose-to-wasm/build/wasm-lowering-1118/final-qualification/bootstrap/bin/stdlib/ffi.goose": "e092b245fbe13ee2fdc71599b7b8eb44198e5261cad9600b7681e13ad75a6c2e", "/home/jacobt/src/goose-to-wasm/build/wasm-lowering-1118/final-qualification/bootstrap/bin/stdlib/json.goose": "0e58291ed9051e4ecb8da1ad420290549d723336516507aed33cf7ced89dc29b", "/home/jacobt/src/goose-to-wasm/build/wasm-lowering-1118/final-qualification/bootstrap/bin/stdlib/math.goose": "b4c1aee33b5b7033d36a4ddc5c6522c73b21cafe204dc20e8860cdeba22467da", "/home/jacobt/src/goose-to-wasm/build/wasm-lowering-1118/final-qualification/bootstrap/bin/stdlib/os.goose": "2193f394d44469daffd993ed204a91b068084fd8db13e261e11156b40c66e934", "/home/jacobt/src/goose-to-wasm/build/wasm-lowering-1118/final-qualification/bootstrap/bin/stdlib/regex.goose": "be0e50bab2a1db9f85e856250bcc592dfe25aca73c2ed900410047fbefb4b035", "/home/jacobt/src/goose-to-wasm/build/wasm-lowering-1118/final-qualification/bootstrap/bin/stdlib/slice_pool.goose": "74ffe0d7b153a8728ced2974d493743576ed264c8b463f8bd5fe0bfade3a4424", "/home/jacobt/src/goose-to-wasm/build/wasm-lowering-1118/final-qualification/bootstrap/bin/stdlib/slice_pool_internal.goose": "34a7eae1269a87c59487e3c15ea13b3332d14d9cd4bee8306bb520fd828eb121", "/home/jacobt/src/goose-to-wasm/build/wasm-lowering-1118/final-qualification/bootstrap/bin/stdlib/slot_pool.goose": "e83b975bfff2806df0401afc3e37e147618c5673a9c98690007e6beb3bd51745", "/home/jacobt/src/goose-to-wasm/build/wasm-lowering-1118/final-qualification/bootstrap/bin/stdlib/std.goose": "2243c2ef52ba5045b275eea35252d09f36544987c6884f4a8d35579fa6f781ff", "/home/jacobt/src/goose-to-wasm/build/wasm-lowering-1118/final-qualification/bootstrap/bin/stdlib/vec.goose": "2cac168c72047834433bfb419734c38455c9429ea045b1273898031c53faa82e", "/home/jacobt/src/goose-to-wasm/examples/errors.goose": "1b4d87ea59ca79ec0085e17d4b495972c6b468ca6f0b83401a16c677e6df39ca", "/home/jacobt/src/goose-to-wasm/examples/expected/errors.out": "95f36d26a29d3704ef48b866ed792484224a59780628d09247871bc8aa44147f", "/home/jacobt/src/goose-to-wasm/examples/expected/functions.out": "16d0729d8856f3e02da6adc75bc7576652a37ceafec7ede438737a5602459b43", "/home/jacobt/src/goose-to-wasm/examples/expected/life.out": "f04a69f7117a62b3c8db5c5fc276dfca51886de77662206d502f26de3ef78008", "/home/jacobt/src/goose-to-wasm/examples/expected/maze.out": "b1b00eaf76b55400c358a12718c6128d683302226631943e7b00bebd6e5fe46e", "/home/jacobt/src/goose-to-wasm/examples/expected/sieve.out": "08895a562abaddd9d176a6466d508dfc034521cf8c32815a1d6b85cc0851c446", "/home/jacobt/src/goose-to-wasm/examples/expected/sorting.out": "cfed1a4061c2db639e7fad2c677cf6444b96d4a42740426746e34d1bd1be9341", "/home/jacobt/src/goose-to-wasm/examples/expected/squares.out": "fb4b7bb75a4ba6d156b72b0438797bcf302022d5f69a07c3c82561dfe98b9bbc", "/home/jacobt/src/goose-to-wasm/examples/expected/sudoku.out": "33843957751f720192c57d9ca0ad5d0d811213faf261308cce54c54dbfb3dfcf", "/home/jacobt/src/goose-to-wasm/examples/expected/tour.out": "884fee23ddb2ec4e79a2fae5d2fab27ada0c58add3827a969cdcb0a500234ccf", "/home/jacobt/src/goose-to-wasm/examples/expected/vm.out": "c0a05690abc2741f2065959a2b5edb63ed66b6c714b7dca7aaa542e553436561", "/home/jacobt/src/goose-to-wasm/examples/functions.goose": "b11be17ac9ebd0d471c85eb8454cd40edde0924e5094a8baf3ab69bc639b3565", "/home/jacobt/src/goose-to-wasm/examples/life.goose": "9d1613869a3c086454dfdd24104d09e48499a8b1a4c653ebe5125e02d98aea97", "/home/jacobt/src/goose-to-wasm/examples/manifest.json": "e239facfd3387d9d3141a22fffc39542abdc33f893a5e5b3b1144da997100e3a", "/home/jacobt/src/goose-to-wasm/examples/maze.goose": "217864f76018759196a101ad900315f5343683ccdc6a6e70eaecb3bec0343781", "/home/jacobt/src/goose-to-wasm/examples/sieve.goose": "9b8d2b0066d8219e4dfce97b45a5e8b39dc20779e49d5b15b6aa31c8d561440a", "/home/jacobt/src/goose-to-wasm/examples/sorting.goose": "00d2c7ed328100d018a3adc4ef3f2c5abd83d8219e8c6c0a56d00b0b1df8a27e", "/home/jacobt/src/goose-to-wasm/examples/squares.goose": "420d9e6b4a2496865eb9f66603c4cbb0fdbb2add30e8ccc709a15102f4748b14", "/home/jacobt/src/goose-to-wasm/examples/sudoku.goose": "06ff5516f6a37769f4d373127e58214480a38a1e5c84c1331abfed7cdf7ec555", "/home/jacobt/src/goose-to-wasm/examples/tour.goose": "a46393946390a6fc888d013ae0a07383812a57667d2474071eb938f853b8b834", "/home/jacobt/src/goose-to-wasm/examples/vm.goose": "1ee3c3f94e0fcb15964e44ec8bde1f3fa3d64e62c144073f1803a87cca852498", "/home/jacobt/src/goose-to-wasm/native/images.h": "6107261de647a67474c407c7da739aab8fbd2600e04f29a6e3bffccd43b15290", "/home/jacobt/src/goose-to-wasm/native/pools.h": "052962725edfd70e0edacc6b372de04e93a941c4cbcc92cd750a056dc052c6cc", "/home/jacobt/src/goose-to-wasm/native/relative.h": "4b3c41b7b929e3706412aaebb62b84640578f8963e473312fe66f0c597c296ba", "/home/jacobt/src/goose-to-wasm/native/runs.h": "3042381a521680e5991439ba553b7fa093ea67c2e84be54adcb0f4049451a271", "/home/jacobt/src/goose-to-wasm/native/runtime/goose.h": "16e4d67ae7013050fa14a84162fe57f77ae8f0a7cd7c285d94cdfefc99a87de4", "/home/jacobt/src/goose-to-wasm/native/runtime/runtime.h": "5ac9487568c78c7cdf6e141d90d644da50436b1b7188047e6bfca09c7b801132", "/home/jacobt/src/goose-to-wasm/native/runtime/runtime_ext.h": "bfce3ceee2d6d922d2ad2cdb527a293cde691c261aa4ecf9fe6e35e02637ddf3", "/home/jacobt/src/goose-to-wasm/native/runtime/runtime_impl.h": "717f6d243575fa7e5de8229799cf86c22934dc202a4e6880c699db339b596bf1", "/home/jacobt/src/goose-to-wasm/native/runtime/runtime_os.h": "27c4a80301075151434e8040222f72e0ed672ed0d4eb71857dd6028e978b4087", "/home/jacobt/src/goose-to-wasm/native/runtime/runtime_threads.h": "b6a2a8f5ecde191093af1c6bde1939d172ef275156bd60e2e9e725d67f0a4285", "/home/jacobt/src/goose-to-wasm/native/runtime_unit.h": "e11a0d180a048b95a8dd827d7e2664526a3ad3e368dc602a78d363f34bc13a58", "/home/jacobt/src/goose-to-wasm/native/slice_pool.h": "576d87376a557c4febb9ae9338add4d8a8059d75fee581b82cc2c1ef57bf2a1a", "/home/jacobt/src/goose-to-wasm/native/storage.h": "52e3954130687897538ed20b6fb3f7208f915aff9c7f1817de6b5d2d1c45943c", "/home/jacobt/src/goose-to-wasm/native/threads.h": "bd9b605086d3475d86d76bb630f9d408ca987efe359f824a36b06d76e49c6cb4", "/home/jacobt/src/goose-to-wasm/native/units.h": "23b0395c15dc4ea9a7fc3545560a49427007d1d1f0019a9a46a920b3de5d5560", "/home/jacobt/src/goose-to-wasm/scripts/goose_wasm.py": "f12a546aa414bfd17e9b6d40a5cfdeeaac1a85ef469b6f9a9b17c1917f6a4198", "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs": "7e4fdf993a26567c9923e7431acdcc5b8c972b5bc48df832fd402e0de35103d1", "/home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py": "8df97fa8039771fd5675f148919bb61e43eaf562a29ee3e762235257d2bbe3af", "/home/jacobt/src/goose-to-wasm/selfhost/bootstrap.py": "b2f71c5fe204bf272d350ec5c2bf5b706aba81acd554102c048327ace1fd0058", "/home/jacobt/src/goose-to-wasm/selfhost/checker.goose": "ad0d41166fab91eedf7890f551a30b79be2c8e10b2729782133cae2a5f3a5fbb", "/home/jacobt/src/goose-to-wasm/selfhost/checker_lifetimes.goose": "3c0b79b1a2360f921d2cddb32ae1c359169a06a83d7b7e1cbba4b75baba165d3", "/home/jacobt/src/goose-to-wasm/selfhost/checker_operations.goose": "30c41cdc001f0512d2c5d3017368a80dbfc824dfd1f11e1c53a5213f5114927f", "/home/jacobt/src/goose-to-wasm/selfhost/checker_rendering.goose": "cd8b3602c9117914a8c35da201321183ae43c3a407642d7526379b3fe69bbe97", "/home/jacobt/src/goose-to-wasm/selfhost/checker_validation.goose": "1d0a53fcf7f8607d4c4dbfaa210799f17859b683226a4310e9215d87ca298561", "/home/jacobt/src/goose-to-wasm/selfhost/codegen.goose": "08ca769be040a742252d7756fb3f330d3c48848aa8671009f8d1b445d8618a5b", "/home/jacobt/src/goose-to-wasm/selfhost/codegen_c.goose": "1f02dd3f11d12cd6c035a8e293db1cb42454c8ff993c7232e27f55c9a779d716", "/home/jacobt/src/goose-to-wasm/selfhost/codegen_c_images.goose": "4addca16891b21ad19db5e04576ab530a339eb5dacc925e87d4b090f3cbefd14", "/home/jacobt/src/goose-to-wasm/selfhost/codegen_c_storage.goose": "9cabe8c10c57f783c9962ff62cb7e26767dc30e39f497918d4cbbf44abea78a9", "/home/jacobt/src/goose-to-wasm/selfhost/codegen_c_threads.goose": "f52675b945cf777a89231d6befc1c195e96f802d3bf6497e817e32d33cff66e5", "/home/jacobt/src/goose-to-wasm/selfhost/driver.goose": "1cd6ff4b9237e5ad2c60a430e8654fe3e86ed810c85010ca8231dd0bed83cf4a", "/home/jacobt/src/goose-to-wasm/selfhost/expansion_bind.goose": "42951b1303d7dca17558283dd7250b5d86b7eb1d35699ece0d6933166aa15641", "/home/jacobt/src/goose-to-wasm/selfhost/lexer.goose": "70744dd80512f8f1e6ed36520bf62d9b22d942a06041028fe88e594365e2a5f2", "/home/jacobt/src/goose-to-wasm/selfhost/main.goose": "aedbadf2bb4536fc059812d4eeec6151d57de2bf25c1005fa6f5d4470aa45d1e", "/home/jacobt/src/goose-to-wasm/selfhost/model.goose": "db82acd43762c4deda04a30953053705ae7d240cc4d6f179c5c5fc31237cba5a", "/home/jacobt/src/goose-to-wasm/selfhost/optimizer.goose": "5db9272660c8772d3ee80933564638f22a4e92c68f4112f84396ab52971f3a56", "/home/jacobt/src/goose-to-wasm/selfhost/parser.goose": "2707f6d42796cff5712e3225e0648fa3a78c21c24678f1682a611d9d2937cc18", "/home/jacobt/src/goose-to-wasm/selfhost/region_plan.goose": "ea7804e188178980bd4f89ebdc8e230092cac5db55890ccb0bedbf89b46a77fb", "/home/jacobt/src/goose-to-wasm/selfhost/sources.goose": "34c593056216efd45f091dba7e7bbaa40ebeb1058dba1412ffb30872965042c0", "/home/jacobt/src/goose-to-wasm/selfhost/thread_plan.goose": "73e2ed70ce4c83ae7469b0e818c7b7d2df51035286537f84959cd3272dfbe594", "/home/jacobt/src/goose-to-wasm/selfhost/wasm.goose": "f6cc0ef104c3a4caa18c5726f3f4f36810a0f246b4fdb54a1bcbc5ff9a79bad9", "/home/jacobt/src/goose-to-wasm/stdlib/base64.goose": "fa1111ce46e9534311f825880dbd2988953430aeb3f1f52d8f0eaecbbc298a61", "/home/jacobt/src/goose-to-wasm/stdlib/binary.goose": "6973e209428668c2db856eaa941de5d93938cfb1749ed07cac534bf9fe4cb031", "/home/jacobt/src/goose-to-wasm/stdlib/csv.goose": "a49b0647f4a2f8ca36170e5a184ab6c6e505492434d0a10a5e05127e96da61ba", "/home/jacobt/src/goose-to-wasm/stdlib/dictionary.goose": "fb39f896731faf3799e81727f7261849a62bdfbdc92d5fdbc36405a85830f322", "/home/jacobt/src/goose-to-wasm/stdlib/exception.goose": "093863eda5433176750182b597aa6760a93808d86b0c9b713681443d2fb29160", "/home/jacobt/src/goose-to-wasm/stdlib/ffi.goose": "e092b245fbe13ee2fdc71599b7b8eb44198e5261cad9600b7681e13ad75a6c2e", "/home/jacobt/src/goose-to-wasm/stdlib/json.goose": "0e58291ed9051e4ecb8da1ad420290549d723336516507aed33cf7ced89dc29b", "/home/jacobt/src/goose-to-wasm/stdlib/math.goose": "b4c1aee33b5b7033d36a4ddc5c6522c73b21cafe204dc20e8860cdeba22467da", "/home/jacobt/src/goose-to-wasm/stdlib/os.goose": "2193f394d44469daffd993ed204a91b068084fd8db13e261e11156b40c66e934", "/home/jacobt/src/goose-to-wasm/stdlib/regex.goose": "be0e50bab2a1db9f85e856250bcc592dfe25aca73c2ed900410047fbefb4b035", "/home/jacobt/src/goose-to-wasm/stdlib/slice_pool.goose": "74ffe0d7b153a8728ced2974d493743576ed264c8b463f8bd5fe0bfade3a4424", "/home/jacobt/src/goose-to-wasm/stdlib/slice_pool_internal.goose": "34a7eae1269a87c59487e3c15ea13b3332d14d9cd4bee8306bb520fd828eb121", "/home/jacobt/src/goose-to-wasm/stdlib/slot_pool.goose": "e83b975bfff2806df0401afc3e37e147618c5673a9c98690007e6beb3bd51745", "/home/jacobt/src/goose-to-wasm/stdlib/std.goose": "2243c2ef52ba5045b275eea35252d09f36544987c6884f4a8d35579fa6f781ff", "/home/jacobt/src/goose-to-wasm/stdlib/vec.goose": "2cac168c72047834433bfb419734c38455c9429ea045b1273898031c53faa82e", "/home/jacobt/src/goose-to-wasm/toolchain.json": "25a2323d4af8a9f0ac01df227c1e9de90932b03e2a21be721a32a81a99b41800", "/usr/bin/gcc": "b0b49531b313e70aee0254fb5e69b050a781506184e16ebee6ebe68eee94a145", "/usr/bin/python3.14": "a38210a53e07ac5eb912ee35c2d92ddb7eaa349301b60c188a5f496c7c87449d"}, "logical_cpu_count": 16, "machine": "x86_64", "native_cc": {"command": ["gcc", "--version"], "exit_code": 0, "output": "gcc (GCC) 16.2.1 20260810\nCopyright (C) 2026 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE."}, "node": {"command": ["node", "-p", "JSON.stringify(process.versions)"], "exit_code": 0, "output": "{\"node\":\"24.22.1\",\"acorn\":\"8.18.0\",\"ada\":\"4.0.0\",\"amaro\":\"1.1.11\",\"ares\":\"1.34.9\",\"brotli\":\"1.2.0\",\"cldr\":\"48.0\",\"icu\":\"78.3\",\"llhttp\":\"9.4.3\",\"merve\":\"1.2.2\",\"modules\":\"137\",\"napi\":\"10\",\"nbytes\":\"0.1.4\",\"ncrypto\":\"0.0.1\",\"nghttp2\":\"1.70.0\",\"nghttp3\":\"\",\"ngtcp2\":\"\",\"openssl\":\"3.5.9\",\"simdjson\":\"4.6.11\",\"simdutf\":\"6.4.0\",\"sqlite\":\"3.53.4\",\"tz\":\"2026e\",\"undici\":\"7.30.1\",\"unicode\":\"17.0\",\"uv\":\"1.52.1\",\"uvwasi\":\"0.0.23\",\"v8\":\"13.6.233.17-node.58\",\"zlib\":\"1.3.2.1-motley-285e94b\",\"zstd\":\"1.5.7\"}"}, "platform": "Linux-7.3.4-1-cachyos-x86_64-with-glibc2.44", "python": "3.14.10 (main, Nov 13 2026, 15:10:24) [GCC 16.2.1 20260810]", "supplied_machine_label": "Ryzen 7 3800X \u00b7 CPU 1", "tool_paths": {"cc": "/usr/bin/gcc", "node": "/home/jacobt/.local/share/fnm/node-versions/v24.22.1/installation/bin/node", "python": "/usr/bin/python3.14", "wasmtime_library": "/home/jacobt/src/goose-to-wasm/.venv/lib/python3.14/site-packages/wasmtime/linux-x86_64/_libwasmtime.so"}, "toolchain_pin": {"bootstrap": {"language": "C11", "seed": "bootstrap/seed.json", "source": "selfhost/main.goose"}, "implementation": "goose", "minimum_python": "3.11", "node": "24.22.1", "schema": "goose-to-wasm-toolchain-v2", "upstream_contract": {"repository": "https://github.com/aardappel/goose.git", "revision": "2e2bedef5b980bf013cac5aaa0095bfea64e5569"}, "v8": "13.6.233.17-node.58", "wasmtime_python": "50.0.1"}, "v8_runner_flags": [], "wasmtime": "50.0.1", "wasmtime_config": {"cranelift_opt_level": "speed", "wasm_bulk_memory": true, "wasm_exceptions": true, "wasm_memory64": true, "wasm_multi_value": true, "wasm_relaxed_simd": false, "wasm_simd": true, "wasm_tail_call": true, "wasm_threads": false}}</dc:description>
+    <dc:description>Complete uncached builds, including C compiler/linker work for the native backend. Environment: {"bootstrap_seed_sha256": {"seed.c.gz": "6dc051d4e1b581ce4b6b7409b5a3c3b3d352c6a66602c8c047d63a16d1efec09", "seed.json": "d5a180f0a28adb21520a15a6f19af2e5cd8109e4e4907e6f4d7fe13b586c223f", "sources.tar.gz": "d3fbbe14eb4336d1dcc9819922dc12d4ff2478ce8d6c305ea448ecf9c197d995"}, "compiler_sha256": "659a76c4c8064ae0989fb66600ae161b680a17c81b935e51fae9fcd4f905c2c0", "cpu": "AMD Ryzen 7 3800X 8-Core Processor", "cpu_affinity": [1], "env_overrides": {"CC": null, "CFLAGS": null, "GOOSE_STDLIB": null, "NODE_OPTIONS": null}, "input_sha256": {"/home/jacobt/.local/share/fnm/node-versions/v24.22.1/installation/bin/node": "e32e2d16081cf644f88392934288086e7662529d0d43277c34f7aad2207cfafb", "/home/jacobt/src/goose-to-wasm/.venv/lib/python3.14/site-packages/wasmtime/linux-x86_64/_libwasmtime.so": "3127ca42fe7cdd3f0a43a358e79177dcfedd46c1746329826403b9d854de6178", "/home/jacobt/src/goose-to-wasm/bench/benchmark.py": "408ee67f585dc4febea45d36a251e8ff4fd95ce11767c042b0d2a473d8ed0d6a", "/home/jacobt/src/goose-to-wasm/bench/examples.py": "fe4102bb7f6d26ba01bc16433d2712501208dd6ef5cc4d1646475c2468f80aae", "/home/jacobt/src/goose-to-wasm/bench/process.py": "ded4f0856702001f29d1f80bc12c0e54407354fda5adae48ffbd896321ecef72", "/home/jacobt/src/goose-to-wasm/bootstrap/seed.c.gz": "6dc051d4e1b581ce4b6b7409b5a3c3b3d352c6a66602c8c047d63a16d1efec09", "/home/jacobt/src/goose-to-wasm/bootstrap/seed.json": "d5a180f0a28adb21520a15a6f19af2e5cd8109e4e4907e6f4d7fe13b586c223f", "/home/jacobt/src/goose-to-wasm/bootstrap/sources.tar.gz": "d3fbbe14eb4336d1dcc9819922dc12d4ff2478ce8d6c305ea448ecf9c197d995", "/home/jacobt/src/goose-to-wasm/build/six-hills-1118/verified/bin/stdlib/base64.goose": "fa1111ce46e9534311f825880dbd2988953430aeb3f1f52d8f0eaecbbc298a61", "/home/jacobt/src/goose-to-wasm/build/six-hills-1118/verified/bin/stdlib/binary.goose": "6973e209428668c2db856eaa941de5d93938cfb1749ed07cac534bf9fe4cb031", "/home/jacobt/src/goose-to-wasm/build/six-hills-1118/verified/bin/stdlib/csv.goose": "a49b0647f4a2f8ca36170e5a184ab6c6e505492434d0a10a5e05127e96da61ba", "/home/jacobt/src/goose-to-wasm/build/six-hills-1118/verified/bin/stdlib/dictionary.goose": "fb39f896731faf3799e81727f7261849a62bdfbdc92d5fdbc36405a85830f322", "/home/jacobt/src/goose-to-wasm/build/six-hills-1118/verified/bin/stdlib/exception.goose": "093863eda5433176750182b597aa6760a93808d86b0c9b713681443d2fb29160", "/home/jacobt/src/goose-to-wasm/build/six-hills-1118/verified/bin/stdlib/ffi.goose": "e092b245fbe13ee2fdc71599b7b8eb44198e5261cad9600b7681e13ad75a6c2e", "/home/jacobt/src/goose-to-wasm/build/six-hills-1118/verified/bin/stdlib/json.goose": "0e58291ed9051e4ecb8da1ad420290549d723336516507aed33cf7ced89dc29b", "/home/jacobt/src/goose-to-wasm/build/six-hills-1118/verified/bin/stdlib/math.goose": "b4c1aee33b5b7033d36a4ddc5c6522c73b21cafe204dc20e8860cdeba22467da", "/home/jacobt/src/goose-to-wasm/build/six-hills-1118/verified/bin/stdlib/os.goose": "2193f394d44469daffd993ed204a91b068084fd8db13e261e11156b40c66e934", "/home/jacobt/src/goose-to-wasm/build/six-hills-1118/verified/bin/stdlib/regex.goose": "be0e50bab2a1db9f85e856250bcc592dfe25aca73c2ed900410047fbefb4b035", "/home/jacobt/src/goose-to-wasm/build/six-hills-1118/verified/bin/stdlib/slice_pool.goose": "74ffe0d7b153a8728ced2974d493743576ed264c8b463f8bd5fe0bfade3a4424", "/home/jacobt/src/goose-to-wasm/build/six-hills-1118/verified/bin/stdlib/slice_pool_internal.goose": "34a7eae1269a87c59487e3c15ea13b3332d14d9cd4bee8306bb520fd828eb121", "/home/jacobt/src/goose-to-wasm/build/six-hills-1118/verified/bin/stdlib/slot_pool.goose": "e83b975bfff2806df0401afc3e37e147618c5673a9c98690007e6beb3bd51745", "/home/jacobt/src/goose-to-wasm/build/six-hills-1118/verified/bin/stdlib/std.goose": "2243c2ef52ba5045b275eea35252d09f36544987c6884f4a8d35579fa6f781ff", "/home/jacobt/src/goose-to-wasm/build/six-hills-1118/verified/bin/stdlib/vec.goose": "2cac168c72047834433bfb419734c38455c9429ea045b1273898031c53faa82e", "/home/jacobt/src/goose-to-wasm/examples/errors.goose": "1b4d87ea59ca79ec0085e17d4b495972c6b468ca6f0b83401a16c677e6df39ca", "/home/jacobt/src/goose-to-wasm/examples/expected/errors.out": "95f36d26a29d3704ef48b866ed792484224a59780628d09247871bc8aa44147f", "/home/jacobt/src/goose-to-wasm/examples/expected/functions.out": "16d0729d8856f3e02da6adc75bc7576652a37ceafec7ede438737a5602459b43", "/home/jacobt/src/goose-to-wasm/examples/expected/life.out": "f04a69f7117a62b3c8db5c5fc276dfca51886de77662206d502f26de3ef78008", "/home/jacobt/src/goose-to-wasm/examples/expected/maze.out": "b1b00eaf76b55400c358a12718c6128d683302226631943e7b00bebd6e5fe46e", "/home/jacobt/src/goose-to-wasm/examples/expected/sieve.out": "08895a562abaddd9d176a6466d508dfc034521cf8c32815a1d6b85cc0851c446", "/home/jacobt/src/goose-to-wasm/examples/expected/sorting.out": "cfed1a4061c2db639e7fad2c677cf6444b96d4a42740426746e34d1bd1be9341", "/home/jacobt/src/goose-to-wasm/examples/expected/squares.out": "fb4b7bb75a4ba6d156b72b0438797bcf302022d5f69a07c3c82561dfe98b9bbc", "/home/jacobt/src/goose-to-wasm/examples/expected/sudoku.out": "33843957751f720192c57d9ca0ad5d0d811213faf261308cce54c54dbfb3dfcf", "/home/jacobt/src/goose-to-wasm/examples/expected/tour.out": "884fee23ddb2ec4e79a2fae5d2fab27ada0c58add3827a969cdcb0a500234ccf", "/home/jacobt/src/goose-to-wasm/examples/expected/vm.out": "c0a05690abc2741f2065959a2b5edb63ed66b6c714b7dca7aaa542e553436561", "/home/jacobt/src/goose-to-wasm/examples/functions.goose": "b11be17ac9ebd0d471c85eb8454cd40edde0924e5094a8baf3ab69bc639b3565", "/home/jacobt/src/goose-to-wasm/examples/life.goose": "9d1613869a3c086454dfdd24104d09e48499a8b1a4c653ebe5125e02d98aea97", "/home/jacobt/src/goose-to-wasm/examples/manifest.json": "e239facfd3387d9d3141a22fffc39542abdc33f893a5e5b3b1144da997100e3a", "/home/jacobt/src/goose-to-wasm/examples/maze.goose": "217864f76018759196a101ad900315f5343683ccdc6a6e70eaecb3bec0343781", "/home/jacobt/src/goose-to-wasm/examples/sieve.goose": "9b8d2b0066d8219e4dfce97b45a5e8b39dc20779e49d5b15b6aa31c8d561440a", "/home/jacobt/src/goose-to-wasm/examples/sorting.goose": "00d2c7ed328100d018a3adc4ef3f2c5abd83d8219e8c6c0a56d00b0b1df8a27e", "/home/jacobt/src/goose-to-wasm/examples/squares.goose": "420d9e6b4a2496865eb9f66603c4cbb0fdbb2add30e8ccc709a15102f4748b14", "/home/jacobt/src/goose-to-wasm/examples/sudoku.goose": "06ff5516f6a37769f4d373127e58214480a38a1e5c84c1331abfed7cdf7ec555", "/home/jacobt/src/goose-to-wasm/examples/tour.goose": "a46393946390a6fc888d013ae0a07383812a57667d2474071eb938f853b8b834", "/home/jacobt/src/goose-to-wasm/examples/vm.goose": "1ee3c3f94e0fcb15964e44ec8bde1f3fa3d64e62c144073f1803a87cca852498", "/home/jacobt/src/goose-to-wasm/native/images.h": "6107261de647a67474c407c7da739aab8fbd2600e04f29a6e3bffccd43b15290", "/home/jacobt/src/goose-to-wasm/native/pools.h": "052962725edfd70e0edacc6b372de04e93a941c4cbcc92cd750a056dc052c6cc", "/home/jacobt/src/goose-to-wasm/native/relative.h": "4b3c41b7b929e3706412aaebb62b84640578f8963e473312fe66f0c597c296ba", "/home/jacobt/src/goose-to-wasm/native/runs.h": "3042381a521680e5991439ba553b7fa093ea67c2e84be54adcb0f4049451a271", "/home/jacobt/src/goose-to-wasm/native/runtime/goose.h": "16e4d67ae7013050fa14a84162fe57f77ae8f0a7cd7c285d94cdfefc99a87de4", "/home/jacobt/src/goose-to-wasm/native/runtime/runtime.h": "5ac9487568c78c7cdf6e141d90d644da50436b1b7188047e6bfca09c7b801132", "/home/jacobt/src/goose-to-wasm/native/runtime/runtime_ext.h": "bfce3ceee2d6d922d2ad2cdb527a293cde691c261aa4ecf9fe6e35e02637ddf3", "/home/jacobt/src/goose-to-wasm/native/runtime/runtime_impl.h": "717f6d243575fa7e5de8229799cf86c22934dc202a4e6880c699db339b596bf1", "/home/jacobt/src/goose-to-wasm/native/runtime/runtime_os.h": "27c4a80301075151434e8040222f72e0ed672ed0d4eb71857dd6028e978b4087", "/home/jacobt/src/goose-to-wasm/native/runtime/runtime_threads.h": "b6a2a8f5ecde191093af1c6bde1939d172ef275156bd60e2e9e725d67f0a4285", "/home/jacobt/src/goose-to-wasm/native/runtime_unit.h": "e11a0d180a048b95a8dd827d7e2664526a3ad3e368dc602a78d363f34bc13a58", "/home/jacobt/src/goose-to-wasm/native/slice_pool.h": "576d87376a557c4febb9ae9338add4d8a8059d75fee581b82cc2c1ef57bf2a1a", "/home/jacobt/src/goose-to-wasm/native/storage.h": "52e3954130687897538ed20b6fb3f7208f915aff9c7f1817de6b5d2d1c45943c", "/home/jacobt/src/goose-to-wasm/native/threads.h": "bd9b605086d3475d86d76bb630f9d408ca987efe359f824a36b06d76e49c6cb4", "/home/jacobt/src/goose-to-wasm/native/units.h": "23b0395c15dc4ea9a7fc3545560a49427007d1d1f0019a9a46a920b3de5d5560", "/home/jacobt/src/goose-to-wasm/scripts/goose_wasm.py": "f12a546aa414bfd17e9b6d40a5cfdeeaac1a85ef469b6f9a9b17c1917f6a4198", "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs": "7e4fdf993a26567c9923e7431acdcc5b8c972b5bc48df832fd402e0de35103d1", "/home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py": "8df97fa8039771fd5675f148919bb61e43eaf562a29ee3e762235257d2bbe3af", "/home/jacobt/src/goose-to-wasm/selfhost/bootstrap.py": "b2f71c5fe204bf272d350ec5c2bf5b706aba81acd554102c048327ace1fd0058", "/home/jacobt/src/goose-to-wasm/selfhost/checker.goose": "ad0d41166fab91eedf7890f551a30b79be2c8e10b2729782133cae2a5f3a5fbb", "/home/jacobt/src/goose-to-wasm/selfhost/checker_lifetimes.goose": "3c0b79b1a2360f921d2cddb32ae1c359169a06a83d7b7e1cbba4b75baba165d3", "/home/jacobt/src/goose-to-wasm/selfhost/checker_operations.goose": "30c41cdc001f0512d2c5d3017368a80dbfc824dfd1f11e1c53a5213f5114927f", "/home/jacobt/src/goose-to-wasm/selfhost/checker_rendering.goose": "cd8b3602c9117914a8c35da201321183ae43c3a407642d7526379b3fe69bbe97", "/home/jacobt/src/goose-to-wasm/selfhost/checker_validation.goose": "1d0a53fcf7f8607d4c4dbfaa210799f17859b683226a4310e9215d87ca298561", "/home/jacobt/src/goose-to-wasm/selfhost/codegen.goose": "08ca769be040a742252d7756fb3f330d3c48848aa8671009f8d1b445d8618a5b", "/home/jacobt/src/goose-to-wasm/selfhost/codegen_c.goose": "1f02dd3f11d12cd6c035a8e293db1cb42454c8ff993c7232e27f55c9a779d716", "/home/jacobt/src/goose-to-wasm/selfhost/codegen_c_images.goose": "4addca16891b21ad19db5e04576ab530a339eb5dacc925e87d4b090f3cbefd14", "/home/jacobt/src/goose-to-wasm/selfhost/codegen_c_storage.goose": "9cabe8c10c57f783c9962ff62cb7e26767dc30e39f497918d4cbbf44abea78a9", "/home/jacobt/src/goose-to-wasm/selfhost/codegen_c_threads.goose": "f52675b945cf777a89231d6befc1c195e96f802d3bf6497e817e32d33cff66e5", "/home/jacobt/src/goose-to-wasm/selfhost/driver.goose": "1cd6ff4b9237e5ad2c60a430e8654fe3e86ed810c85010ca8231dd0bed83cf4a", "/home/jacobt/src/goose-to-wasm/selfhost/expansion_bind.goose": "42951b1303d7dca17558283dd7250b5d86b7eb1d35699ece0d6933166aa15641", "/home/jacobt/src/goose-to-wasm/selfhost/lexer.goose": "70744dd80512f8f1e6ed36520bf62d9b22d942a06041028fe88e594365e2a5f2", "/home/jacobt/src/goose-to-wasm/selfhost/main.goose": "aedbadf2bb4536fc059812d4eeec6151d57de2bf25c1005fa6f5d4470aa45d1e", "/home/jacobt/src/goose-to-wasm/selfhost/model.goose": "db82acd43762c4deda04a30953053705ae7d240cc4d6f179c5c5fc31237cba5a", "/home/jacobt/src/goose-to-wasm/selfhost/optimizer.goose": "9096dce36b5b2c846cf8e4ee2b4cf01eba56bf872dac870e35fadc4d2f779aff", "/home/jacobt/src/goose-to-wasm/selfhost/parser.goose": "2707f6d42796cff5712e3225e0648fa3a78c21c24678f1682a611d9d2937cc18", "/home/jacobt/src/goose-to-wasm/selfhost/region_plan.goose": "ea7804e188178980bd4f89ebdc8e230092cac5db55890ccb0bedbf89b46a77fb", "/home/jacobt/src/goose-to-wasm/selfhost/sources.goose": "34c593056216efd45f091dba7e7bbaa40ebeb1058dba1412ffb30872965042c0", "/home/jacobt/src/goose-to-wasm/selfhost/thread_plan.goose": "73e2ed70ce4c83ae7469b0e818c7b7d2df51035286537f84959cd3272dfbe594", "/home/jacobt/src/goose-to-wasm/selfhost/wasm.goose": "f6cc0ef104c3a4caa18c5726f3f4f36810a0f246b4fdb54a1bcbc5ff9a79bad9", "/home/jacobt/src/goose-to-wasm/stdlib/base64.goose": "fa1111ce46e9534311f825880dbd2988953430aeb3f1f52d8f0eaecbbc298a61", "/home/jacobt/src/goose-to-wasm/stdlib/binary.goose": "6973e209428668c2db856eaa941de5d93938cfb1749ed07cac534bf9fe4cb031", "/home/jacobt/src/goose-to-wasm/stdlib/csv.goose": "a49b0647f4a2f8ca36170e5a184ab6c6e505492434d0a10a5e05127e96da61ba", "/home/jacobt/src/goose-to-wasm/stdlib/dictionary.goose": "fb39f896731faf3799e81727f7261849a62bdfbdc92d5fdbc36405a85830f322", "/home/jacobt/src/goose-to-wasm/stdlib/exception.goose": "093863eda5433176750182b597aa6760a93808d86b0c9b713681443d2fb29160", "/home/jacobt/src/goose-to-wasm/stdlib/ffi.goose": "e092b245fbe13ee2fdc71599b7b8eb44198e5261cad9600b7681e13ad75a6c2e", "/home/jacobt/src/goose-to-wasm/stdlib/json.goose": "0e58291ed9051e4ecb8da1ad420290549d723336516507aed33cf7ced89dc29b", "/home/jacobt/src/goose-to-wasm/stdlib/math.goose": "b4c1aee33b5b7033d36a4ddc5c6522c73b21cafe204dc20e8860cdeba22467da", "/home/jacobt/src/goose-to-wasm/stdlib/os.goose": "2193f394d44469daffd993ed204a91b068084fd8db13e261e11156b40c66e934", "/home/jacobt/src/goose-to-wasm/stdlib/regex.goose": "be0e50bab2a1db9f85e856250bcc592dfe25aca73c2ed900410047fbefb4b035", "/home/jacobt/src/goose-to-wasm/stdlib/slice_pool.goose": "74ffe0d7b153a8728ced2974d493743576ed264c8b463f8bd5fe0bfade3a4424", "/home/jacobt/src/goose-to-wasm/stdlib/slice_pool_internal.goose": "34a7eae1269a87c59487e3c15ea13b3332d14d9cd4bee8306bb520fd828eb121", "/home/jacobt/src/goose-to-wasm/stdlib/slot_pool.goose": "e83b975bfff2806df0401afc3e37e147618c5673a9c98690007e6beb3bd51745", "/home/jacobt/src/goose-to-wasm/stdlib/std.goose": "2243c2ef52ba5045b275eea35252d09f36544987c6884f4a8d35579fa6f781ff", "/home/jacobt/src/goose-to-wasm/stdlib/vec.goose": "2cac168c72047834433bfb419734c38455c9429ea045b1273898031c53faa82e", "/home/jacobt/src/goose-to-wasm/toolchain.json": "25a2323d4af8a9f0ac01df227c1e9de90932b03e2a21be721a32a81a99b41800", "/usr/bin/gcc": "b0b49531b313e70aee0254fb5e69b050a781506184e16ebee6ebe68eee94a145", "/usr/bin/python3.14": "a38210a53e07ac5eb912ee35c2d92ddb7eaa349301b60c188a5f496c7c87449d"}, "logical_cpu_count": 16, "machine": "x86_64", "native_cc": {"command": ["gcc", "--version"], "exit_code": 0, "output": "gcc (GCC) 16.2.1 20260810\nCopyright (C) 2026 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE."}, "node": {"command": ["node", "-p", "JSON.stringify(process.versions)"], "exit_code": 0, "output": "{\"node\":\"24.22.1\",\"acorn\":\"8.18.0\",\"ada\":\"4.0.0\",\"amaro\":\"1.1.11\",\"ares\":\"1.34.9\",\"brotli\":\"1.2.0\",\"cldr\":\"48.0\",\"icu\":\"78.3\",\"llhttp\":\"9.4.3\",\"merve\":\"1.2.2\",\"modules\":\"137\",\"napi\":\"10\",\"nbytes\":\"0.1.4\",\"ncrypto\":\"0.0.1\",\"nghttp2\":\"1.70.0\",\"nghttp3\":\"\",\"ngtcp2\":\"\",\"openssl\":\"3.5.9\",\"simdjson\":\"4.6.11\",\"simdutf\":\"6.4.0\",\"sqlite\":\"3.53.4\",\"tz\":\"2026e\",\"undici\":\"7.30.1\",\"unicode\":\"17.0\",\"uv\":\"1.52.1\",\"uvwasi\":\"0.0.23\",\"v8\":\"13.6.233.17-node.58\",\"zlib\":\"1.3.2.1-motley-285e94b\",\"zstd\":\"1.5.7\"}"}, "platform": "Linux-7.3.4-1-cachyos-x86_64-with-glibc2.44", "python": "3.14.10 (main, Nov 13 2026, 15:10:24) [GCC 16.2.1 20260810]", "supplied_machine_label": "Ryzen 7 3800X \u00b7 CPU 1", "tool_paths": {"cc": "/usr/bin/gcc", "node": "/home/jacobt/.local/share/fnm/node-versions/v24.22.1/installation/bin/node", "python": "/usr/bin/python3.14", "wasmtime_library": "/home/jacobt/src/goose-to-wasm/.venv/lib/python3.14/site-packages/wasmtime/linux-x86_64/_libwasmtime.so"}, "toolchain_pin": {"bootstrap": {"language": "C11", "seed": "bootstrap/seed.json", "source": "selfhost/main.goose"}, "implementation": "goose", "minimum_python": "3.11", "node": "24.22.1", "schema": "goose-to-wasm-toolchain-v2", "upstream_contract": {"repository": "https://github.com/aardappel/goose.git", "revision": "2e2bedef5b980bf013cac5aaa0095bfea64e5569"}, "v8": "13.6.233.17-node.58", "wasmtime_python": "50.0.1"}, "v8_runner_flags": [], "wasmtime": "50.0.1", "wasmtime_config": {"cranelift_opt_level": "speed", "wasm_bulk_memory": true, "wasm_exceptions": true, "wasm_memory64": true, "wasm_multi_value": true, "wasm_relaxed_simd": false, "wasm_simd": true, "wasm_tail_call": true, "wasm_threads": false}}</dc:description>
     <dc:format>image/svg+xml</dc:format>
-    <dc:source>/home/jacobt/src/goose-to-wasm/bench/results/2026-11-18/wasm-lowering/examples.json sha256:56e0760c0cd99f5f48c807515b2434e0ce20d7e1e11d17069fc7b2012a6f7a3d; /home/jacobt/src/goose-to-wasm/bench/example_charts.py sha256:c0c411bb2c94566020e365d6dd74a0aed3bc32c16569591887757fc4e061d8fa; /home/jacobt/src/goose-to-wasm/examples/manifest.json sha256:e239facfd3387d9d3141a22fffc39542abdc33f893a5e5b3b1144da997100e3a; /home/jacobt/src/goose-to-wasm/bench/examples.py sha256:fe4102bb7f6d26ba01bc16433d2712501208dd6ef5cc4d1646475c2468f80aae; /home/jacobt/src/goose-to-wasm/bench/benchmark.py sha256:408ee67f585dc4febea45d36a251e8ff4fd95ce11767c042b0d2a473d8ed0d6a; /home/jacobt/src/goose-to-wasm/bench/process.py sha256:ded4f0856702001f29d1f80bc12c0e54407354fda5adae48ffbd896321ecef72; /home/jacobt/src/goose-to-wasm/toolchain.json sha256:25a2323d4af8a9f0ac01df227c1e9de90932b03e2a21be721a32a81a99b41800; /home/jacobt/src/goose-to-wasm/scripts/goose_wasm.py sha256:f12a546aa414bfd17e9b6d40a5cfdeeaac1a85ef469b6f9a9b17c1917f6a4198; /home/jacobt/src/goose-to-wasm/selfhost/bootstrap.py sha256:b2f71c5fe204bf272d350ec5c2bf5b706aba81acd554102c048327ace1fd0058; /home/jacobt/src/goose-to-wasm/bootstrap/seed.json sha256:d5a180f0a28adb21520a15a6f19af2e5cd8109e4e4907e6f4d7fe13b586c223f; /home/jacobt/src/goose-to-wasm/bootstrap/seed.c.gz sha256:6dc051d4e1b581ce4b6b7409b5a3c3b3d352c6a66602c8c047d63a16d1efec09; /home/jacobt/src/goose-to-wasm/bootstrap/sources.tar.gz sha256:d3fbbe14eb4336d1dcc9819922dc12d4ff2478ce8d6c305ea448ecf9c197d995; /home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs sha256:7e4fdf993a26567c9923e7431acdcc5b8c972b5bc48df832fd402e0de35103d1; /home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py sha256:8df97fa8039771fd5675f148919bb61e43eaf562a29ee3e762235257d2bbe3af; /home/jacobt/src/goose-to-wasm/selfhost/checker.goose sha256:ad0d41166fab91eedf7890f551a30b79be2c8e10b2729782133cae2a5f3a5fbb; /home/jacobt/src/goose-to-wasm/selfhost/checker_lifetimes.goose sha256:3c0b79b1a2360f921d2cddb32ae1c359169a06a83d7b7e1cbba4b75baba165d3; /home/jacobt/src/goose-to-wasm/selfhost/checker_operations.goose sha256:30c41cdc001f0512d2c5d3017368a80dbfc824dfd1f11e1c53a5213f5114927f; /home/jacobt/src/goose-to-wasm/selfhost/checker_rendering.goose sha256:cd8b3602c9117914a8c35da201321183ae43c3a407642d7526379b3fe69bbe97; /home/jacobt/src/goose-to-wasm/selfhost/checker_validation.goose sha256:1d0a53fcf7f8607d4c4dbfaa210799f17859b683226a4310e9215d87ca298561; /home/jacobt/src/goose-to-wasm/selfhost/codegen.goose sha256:08ca769be040a742252d7756fb3f330d3c48848aa8671009f8d1b445d8618a5b; /home/jacobt/src/goose-to-wasm/selfhost/codegen_c.goose sha256:1f02dd3f11d12cd6c035a8e293db1cb42454c8ff993c7232e27f55c9a779d716; /home/jacobt/src/goose-to-wasm/selfhost/codegen_c_images.goose sha256:4addca16891b21ad19db5e04576ab530a339eb5dacc925e87d4b090f3cbefd14; /home/jacobt/src/goose-to-wasm/selfhost/codegen_c_storage.goose sha256:9cabe8c10c57f783c9962ff62cb7e26767dc30e39f497918d4cbbf44abea78a9; /home/jacobt/src/goose-to-wasm/selfhost/codegen_c_threads.goose sha256:f52675b945cf777a89231d6befc1c195e96f802d3bf6497e817e32d33cff66e5; /home/jacobt/src/goose-to-wasm/selfhost/driver.goose sha256:1cd6ff4b9237e5ad2c60a430e8654fe3e86ed810c85010ca8231dd0bed83cf4a; /home/jacobt/src/goose-to-wasm/selfhost/expansion_bind.goose sha256:42951b1303d7dca17558283dd7250b5d86b7eb1d35699ece0d6933166aa15641; /home/jacobt/src/goose-to-wasm/selfhost/lexer.goose sha256:70744dd80512f8f1e6ed36520bf62d9b22d942a06041028fe88e594365e2a5f2; /home/jacobt/src/goose-to-wasm/selfhost/main.goose sha256:aedbadf2bb4536fc059812d4eeec6151d57de2bf25c1005fa6f5d4470aa45d1e; /home/jacobt/src/goose-to-wasm/selfhost/model.goose sha256:db82acd43762c4deda04a30953053705ae7d240cc4d6f179c5c5fc31237cba5a; /home/jacobt/src/goose-to-wasm/selfhost/optimizer.goose sha256:5db9272660c8772d3ee80933564638f22a4e92c68f4112f84396ab52971f3a56; /home/jacobt/src/goose-to-wasm/selfhost/parser.goose sha256:2707f6d42796cff5712e3225e0648fa3a78c21c24678f1682a611d9d2937cc18; /home/jacobt/src/goose-to-wasm/selfhost/region_plan.goose sha256:ea7804e188178980bd4f89ebdc8e230092cac5db55890ccb0bedbf89b46a77fb; /home/jacobt/src/goose-to-wasm/selfhost/sources.goose sha256:34c593056216efd45f091dba7e7bbaa40ebeb1058dba1412ffb30872965042c0; /home/jacobt/src/goose-to-wasm/selfhost/thread_plan.goose sha256:73e2ed70ce4c83ae7469b0e818c7b7d2df51035286537f84959cd3272dfbe594; /home/jacobt/src/goose-to-wasm/selfhost/wasm.goose sha256:f6cc0ef104c3a4caa18c5726f3f4f36810a0f246b4fdb54a1bcbc5ff9a79bad9; /home/jacobt/src/goose-to-wasm/native/images.h sha256:6107261de647a67474c407c7da739aab8fbd2600e04f29a6e3bffccd43b15290; /home/jacobt/src/goose-to-wasm/native/pools.h sha256:052962725edfd70e0edacc6b372de04e93a941c4cbcc92cd750a056dc052c6cc; /home/jacobt/src/goose-to-wasm/native/relative.h sha256:4b3c41b7b929e3706412aaebb62b84640578f8963e473312fe66f0c597c296ba; /home/jacobt/src/goose-to-wasm/native/runs.h sha256:3042381a521680e5991439ba553b7fa093ea67c2e84be54adcb0f4049451a271; /home/jacobt/src/goose-to-wasm/native/runtime/goose.h sha256:16e4d67ae7013050fa14a84162fe57f77ae8f0a7cd7c285d94cdfefc99a87de4; /home/jacobt/src/goose-to-wasm/native/runtime/runtime.h sha256:5ac9487568c78c7cdf6e141d90d644da50436b1b7188047e6bfca09c7b801132; /home/jacobt/src/goose-to-wasm/native/runtime/runtime_ext.h sha256:bfce3ceee2d6d922d2ad2cdb527a293cde691c261aa4ecf9fe6e35e02637ddf3; /home/jacobt/src/goose-to-wasm/native/runtime/runtime_impl.h sha256:717f6d243575fa7e5de8229799cf86c22934dc202a4e6880c699db339b596bf1; /home/jacobt/src/goose-to-wasm/native/runtime/runtime_os.h sha256:27c4a80301075151434e8040222f72e0ed672ed0d4eb71857dd6028e978b4087; /home/jacobt/src/goose-to-wasm/native/runtime/runtime_threads.h sha256:b6a2a8f5ecde191093af1c6bde1939d172ef275156bd60e2e9e725d67f0a4285; /home/jacobt/src/goose-to-wasm/native/runtime_unit.h sha256:e11a0d180a048b95a8dd827d7e2664526a3ad3e368dc602a78d363f34bc13a58; /home/jacobt/src/goose-to-wasm/native/slice_pool.h sha256:576d87376a557c4febb9ae9338add4d8a8059d75fee581b82cc2c1ef57bf2a1a; /home/jacobt/src/goose-to-wasm/native/storage.h sha256:52e3954130687897538ed20b6fb3f7208f915aff9c7f1817de6b5d2d1c45943c; /home/jacobt/src/goose-to-wasm/native/threads.h sha256:bd9b605086d3475d86d76bb630f9d408ca987efe359f824a36b06d76e49c6cb4; /home/jacobt/src/goose-to-wasm/native/units.h sha256:23b0395c15dc4ea9a7fc3545560a49427007d1d1f0019a9a46a920b3de5d5560; /home/jacobt/src/goose-to-wasm/examples/squares.goose sha256:420d9e6b4a2496865eb9f66603c4cbb0fdbb2add30e8ccc709a15102f4748b14; /home/jacobt/src/goose-to-wasm/examples/expected/squares.out sha256:fb4b7bb75a4ba6d156b72b0438797bcf302022d5f69a07c3c82561dfe98b9bbc; /home/jacobt/src/goose-to-wasm/examples/tour.goose sha256:a46393946390a6fc888d013ae0a07383812a57667d2474071eb938f853b8b834; /home/jacobt/src/goose-to-wasm/examples/expected/tour.out sha256:884fee23ddb2ec4e79a2fae5d2fab27ada0c58add3827a969cdcb0a500234ccf; /home/jacobt/src/goose-to-wasm/examples/functions.goose sha256:b11be17ac9ebd0d471c85eb8454cd40edde0924e5094a8baf3ab69bc639b3565; /home/jacobt/src/goose-to-wasm/examples/expected/functions.out sha256:16d0729d8856f3e02da6adc75bc7576652a37ceafec7ede438737a5602459b43; /home/jacobt/src/goose-to-wasm/examples/errors.goose sha256:1b4d87ea59ca79ec0085e17d4b495972c6b468ca6f0b83401a16c677e6df39ca; /home/jacobt/src/goose-to-wasm/examples/expected/errors.out sha256:95f36d26a29d3704ef48b866ed792484224a59780628d09247871bc8aa44147f; /home/jacobt/src/goose-to-wasm/examples/sieve.goose sha256:9b8d2b0066d8219e4dfce97b45a5e8b39dc20779e49d5b15b6aa31c8d561440a; /home/jacobt/src/goose-to-wasm/examples/expected/sieve.out sha256:08895a562abaddd9d176a6466d508dfc034521cf8c32815a1d6b85cc0851c446; /home/jacobt/src/goose-to-wasm/examples/sorting.goose sha256:00d2c7ed328100d018a3adc4ef3f2c5abd83d8219e8c6c0a56d00b0b1df8a27e; /home/jacobt/src/goose-to-wasm/examples/expected/sorting.out sha256:cfed1a4061c2db639e7fad2c677cf6444b96d4a42740426746e34d1bd1be9341; /home/jacobt/src/goose-to-wasm/examples/sudoku.goose sha256:06ff5516f6a37769f4d373127e58214480a38a1e5c84c1331abfed7cdf7ec555; /home/jacobt/src/goose-to-wasm/examples/expected/sudoku.out sha256:33843957751f720192c57d9ca0ad5d0d811213faf261308cce54c54dbfb3dfcf; /home/jacobt/src/goose-to-wasm/examples/maze.goose sha256:217864f76018759196a101ad900315f5343683ccdc6a6e70eaecb3bec0343781; /home/jacobt/src/goose-to-wasm/examples/expected/maze.out sha256:b1b00eaf76b55400c358a12718c6128d683302226631943e7b00bebd6e5fe46e; /home/jacobt/src/goose-to-wasm/examples/vm.goose sha256:1ee3c3f94e0fcb15964e44ec8bde1f3fa3d64e62c144073f1803a87cca852498; /home/jacobt/src/goose-to-wasm/examples/expected/vm.out sha256:c0a05690abc2741f2065959a2b5edb63ed66b6c714b7dca7aaa542e553436561; /home/jacobt/src/goose-to-wasm/examples/life.goose sha256:9d1613869a3c086454dfdd24104d09e48499a8b1a4c653ebe5125e02d98aea97; /home/jacobt/src/goose-to-wasm/examples/expected/life.out sha256:f04a69f7117a62b3c8db5c5fc276dfca51886de77662206d502f26de3ef78008; /home/jacobt/src/goose-to-wasm/build/wasm-lowering-1118/final-qualification/bootstrap/bin/stdlib/base64.goose sha256:fa1111ce46e9534311f825880dbd2988953430aeb3f1f52d8f0eaecbbc298a61; /home/jacobt/src/goose-to-wasm/build/wasm-lowering-1118/final-qualification/bootstrap/bin/stdlib/binary.goose sha256:6973e209428668c2db856eaa941de5d93938cfb1749ed07cac534bf9fe4cb031; /home/jacobt/src/goose-to-wasm/build/wasm-lowering-1118/final-qualification/bootstrap/bin/stdlib/csv.goose sha256:a49b0647f4a2f8ca36170e5a184ab6c6e505492434d0a10a5e05127e96da61ba; /home/jacobt/src/goose-to-wasm/build/wasm-lowering-1118/final-qualification/bootstrap/bin/stdlib/dictionary.goose sha256:fb39f896731faf3799e81727f7261849a62bdfbdc92d5fdbc36405a85830f322; /home/jacobt/src/goose-to-wasm/build/wasm-lowering-1118/final-qualification/bootstrap/bin/stdlib/exception.goose sha256:093863eda5433176750182b597aa6760a93808d86b0c9b713681443d2fb29160; /home/jacobt/src/goose-to-wasm/build/wasm-lowering-1118/final-qualification/bootstrap/bin/stdlib/ffi.goose sha256:e092b245fbe13ee2fdc71599b7b8eb44198e5261cad9600b7681e13ad75a6c2e; /home/jacobt/src/goose-to-wasm/build/wasm-lowering-1118/final-qualification/bootstrap/bin/stdlib/json.goose sha256:0e58291ed9051e4ecb8da1ad420290549d723336516507aed33cf7ced89dc29b; /home/jacobt/src/goose-to-wasm/build/wasm-lowering-1118/final-qualification/bootstrap/bin/stdlib/math.goose sha256:b4c1aee33b5b7033d36a4ddc5c6522c73b21cafe204dc20e8860cdeba22467da; /home/jacobt/src/goose-to-wasm/build/wasm-lowering-1118/final-qualification/bootstrap/bin/stdlib/os.goose sha256:2193f394d44469daffd993ed204a91b068084fd8db13e261e11156b40c66e934; /home/jacobt/src/goose-to-wasm/build/wasm-lowering-1118/final-qualification/bootstrap/bin/stdlib/regex.goose sha256:be0e50bab2a1db9f85e856250bcc592dfe25aca73c2ed900410047fbefb4b035; /home/jacobt/src/goose-to-wasm/build/wasm-lowering-1118/final-qualification/bootstrap/bin/stdlib/slice_pool.goose sha256:74ffe0d7b153a8728ced2974d493743576ed264c8b463f8bd5fe0bfade3a4424; /home/jacobt/src/goose-to-wasm/build/wasm-lowering-1118/final-qualification/bootstrap/bin/stdlib/slice_pool_internal.goose sha256:34a7eae1269a87c59487e3c15ea13b3332d14d9cd4bee8306bb520fd828eb121; /home/jacobt/src/goose-to-wasm/build/wasm-lowering-1118/final-qualification/bootstrap/bin/stdlib/slot_pool.goose sha256:e83b975bfff2806df0401afc3e37e147618c5673a9c98690007e6beb3bd51745; /home/jacobt/src/goose-to-wasm/build/wasm-lowering-1118/final-qualification/bootstrap/bin/stdlib/std.goose sha256:2243c2ef52ba5045b275eea35252d09f36544987c6884f4a8d35579fa6f781ff; /home/jacobt/src/goose-to-wasm/build/wasm-lowering-1118/final-qualification/bootstrap/bin/stdlib/vec.goose sha256:2cac168c72047834433bfb419734c38455c9429ea045b1273898031c53faa82e; /home/jacobt/src/goose-to-wasm/stdlib/base64.goose sha256:fa1111ce46e9534311f825880dbd2988953430aeb3f1f52d8f0eaecbbc298a61; /home/jacobt/src/goose-to-wasm/stdlib/binary.goose sha256:6973e209428668c2db856eaa941de5d93938cfb1749ed07cac534bf9fe4cb031; /home/jacobt/src/goose-to-wasm/stdlib/csv.goose sha256:a49b0647f4a2f8ca36170e5a184ab6c6e505492434d0a10a5e05127e96da61ba; /home/jacobt/src/goose-to-wasm/stdlib/dictionary.goose sha256:fb39f896731faf3799e81727f7261849a62bdfbdc92d5fdbc36405a85830f322; /home/jacobt/src/goose-to-wasm/stdlib/exception.goose sha256:093863eda5433176750182b597aa6760a93808d86b0c9b713681443d2fb29160; /home/jacobt/src/goose-to-wasm/stdlib/ffi.goose sha256:e092b245fbe13ee2fdc71599b7b8eb44198e5261cad9600b7681e13ad75a6c2e; /home/jacobt/src/goose-to-wasm/stdlib/json.goose sha256:0e58291ed9051e4ecb8da1ad420290549d723336516507aed33cf7ced89dc29b; /home/jacobt/src/goose-to-wasm/stdlib/math.goose sha256:b4c1aee33b5b7033d36a4ddc5c6522c73b21cafe204dc20e8860cdeba22467da; /home/jacobt/src/goose-to-wasm/stdlib/os.goose sha256:2193f394d44469daffd993ed204a91b068084fd8db13e261e11156b40c66e934; /home/jacobt/src/goose-to-wasm/stdlib/regex.goose sha256:be0e50bab2a1db9f85e856250bcc592dfe25aca73c2ed900410047fbefb4b035; /home/jacobt/src/goose-to-wasm/stdlib/slice_pool.goose sha256:74ffe0d7b153a8728ced2974d493743576ed264c8b463f8bd5fe0bfade3a4424; /home/jacobt/src/goose-to-wasm/stdlib/slice_pool_internal.goose sha256:34a7eae1269a87c59487e3c15ea13b3332d14d9cd4bee8306bb520fd828eb121; /home/jacobt/src/goose-to-wasm/stdlib/slot_pool.goose sha256:e83b975bfff2806df0401afc3e37e147618c5673a9c98690007e6beb3bd51745; /home/jacobt/src/goose-to-wasm/stdlib/std.goose sha256:2243c2ef52ba5045b275eea35252d09f36544987c6884f4a8d35579fa6f781ff; /home/jacobt/src/goose-to-wasm/stdlib/vec.goose sha256:2cac168c72047834433bfb419734c38455c9429ea045b1273898031c53faa82e; /usr/bin/python3.14 sha256:a38210a53e07ac5eb912ee35c2d92ddb7eaa349301b60c188a5f496c7c87449d; /home/jacobt/src/goose-to-wasm/.venv/lib/python3.14/site-packages/wasmtime/linux-x86_64/_libwasmtime.so sha256:3127ca42fe7cdd3f0a43a358e79177dcfedd46c1746329826403b9d854de6178; /usr/bin/gcc sha256:b0b49531b313e70aee0254fb5e69b050a781506184e16ebee6ebe68eee94a145; /home/jacobt/.local/share/fnm/node-versions/v24.22.1/installation/bin/node sha256:e32e2d16081cf644f88392934288086e7662529d0d43277c34f7aad2207cfafb; compiler sha256:e3666cca0f4af376876c805456600eac41849f6360064b3970f9ca31e6c22700</dc:source>
+    <dc:source>/home/jacobt/src/goose-to-wasm/bench/results/2026-11-18/compiler-iteration-tools/examples.json sha256:72b6aa11f62cba1a4249e04fd1080a8d1031ac4acccdfb07d4e2a76f96eb8888; /home/jacobt/src/goose-to-wasm/bench/example_charts.py sha256:c0c411bb2c94566020e365d6dd74a0aed3bc32c16569591887757fc4e061d8fa; /home/jacobt/src/goose-to-wasm/examples/manifest.json sha256:e239facfd3387d9d3141a22fffc39542abdc33f893a5e5b3b1144da997100e3a; /home/jacobt/src/goose-to-wasm/bench/examples.py sha256:fe4102bb7f6d26ba01bc16433d2712501208dd6ef5cc4d1646475c2468f80aae; /home/jacobt/src/goose-to-wasm/bench/benchmark.py sha256:408ee67f585dc4febea45d36a251e8ff4fd95ce11767c042b0d2a473d8ed0d6a; /home/jacobt/src/goose-to-wasm/bench/process.py sha256:ded4f0856702001f29d1f80bc12c0e54407354fda5adae48ffbd896321ecef72; /home/jacobt/src/goose-to-wasm/toolchain.json sha256:25a2323d4af8a9f0ac01df227c1e9de90932b03e2a21be721a32a81a99b41800; /home/jacobt/src/goose-to-wasm/scripts/goose_wasm.py sha256:f12a546aa414bfd17e9b6d40a5cfdeeaac1a85ef469b6f9a9b17c1917f6a4198; /home/jacobt/src/goose-to-wasm/selfhost/bootstrap.py sha256:b2f71c5fe204bf272d350ec5c2bf5b706aba81acd554102c048327ace1fd0058; /home/jacobt/src/goose-to-wasm/bootstrap/seed.json sha256:d5a180f0a28adb21520a15a6f19af2e5cd8109e4e4907e6f4d7fe13b586c223f; /home/jacobt/src/goose-to-wasm/bootstrap/seed.c.gz sha256:6dc051d4e1b581ce4b6b7409b5a3c3b3d352c6a66602c8c047d63a16d1efec09; /home/jacobt/src/goose-to-wasm/bootstrap/sources.tar.gz sha256:d3fbbe14eb4336d1dcc9819922dc12d4ff2478ce8d6c305ea448ecf9c197d995; /home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs sha256:7e4fdf993a26567c9923e7431acdcc5b8c972b5bc48df832fd402e0de35103d1; /home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py sha256:8df97fa8039771fd5675f148919bb61e43eaf562a29ee3e762235257d2bbe3af; /home/jacobt/src/goose-to-wasm/selfhost/checker.goose sha256:ad0d41166fab91eedf7890f551a30b79be2c8e10b2729782133cae2a5f3a5fbb; /home/jacobt/src/goose-to-wasm/selfhost/checker_lifetimes.goose sha256:3c0b79b1a2360f921d2cddb32ae1c359169a06a83d7b7e1cbba4b75baba165d3; /home/jacobt/src/goose-to-wasm/selfhost/checker_operations.goose sha256:30c41cdc001f0512d2c5d3017368a80dbfc824dfd1f11e1c53a5213f5114927f; /home/jacobt/src/goose-to-wasm/selfhost/checker_rendering.goose sha256:cd8b3602c9117914a8c35da201321183ae43c3a407642d7526379b3fe69bbe97; /home/jacobt/src/goose-to-wasm/selfhost/checker_validation.goose sha256:1d0a53fcf7f8607d4c4dbfaa210799f17859b683226a4310e9215d87ca298561; /home/jacobt/src/goose-to-wasm/selfhost/codegen.goose sha256:08ca769be040a742252d7756fb3f330d3c48848aa8671009f8d1b445d8618a5b; /home/jacobt/src/goose-to-wasm/selfhost/codegen_c.goose sha256:1f02dd3f11d12cd6c035a8e293db1cb42454c8ff993c7232e27f55c9a779d716; /home/jacobt/src/goose-to-wasm/selfhost/codegen_c_images.goose sha256:4addca16891b21ad19db5e04576ab530a339eb5dacc925e87d4b090f3cbefd14; /home/jacobt/src/goose-to-wasm/selfhost/codegen_c_storage.goose sha256:9cabe8c10c57f783c9962ff62cb7e26767dc30e39f497918d4cbbf44abea78a9; /home/jacobt/src/goose-to-wasm/selfhost/codegen_c_threads.goose sha256:f52675b945cf777a89231d6befc1c195e96f802d3bf6497e817e32d33cff66e5; /home/jacobt/src/goose-to-wasm/selfhost/driver.goose sha256:1cd6ff4b9237e5ad2c60a430e8654fe3e86ed810c85010ca8231dd0bed83cf4a; /home/jacobt/src/goose-to-wasm/selfhost/expansion_bind.goose sha256:42951b1303d7dca17558283dd7250b5d86b7eb1d35699ece0d6933166aa15641; /home/jacobt/src/goose-to-wasm/selfhost/lexer.goose sha256:70744dd80512f8f1e6ed36520bf62d9b22d942a06041028fe88e594365e2a5f2; /home/jacobt/src/goose-to-wasm/selfhost/main.goose sha256:aedbadf2bb4536fc059812d4eeec6151d57de2bf25c1005fa6f5d4470aa45d1e; /home/jacobt/src/goose-to-wasm/selfhost/model.goose sha256:db82acd43762c4deda04a30953053705ae7d240cc4d6f179c5c5fc31237cba5a; /home/jacobt/src/goose-to-wasm/selfhost/optimizer.goose sha256:9096dce36b5b2c846cf8e4ee2b4cf01eba56bf872dac870e35fadc4d2f779aff; /home/jacobt/src/goose-to-wasm/selfhost/parser.goose sha256:2707f6d42796cff5712e3225e0648fa3a78c21c24678f1682a611d9d2937cc18; /home/jacobt/src/goose-to-wasm/selfhost/region_plan.goose sha256:ea7804e188178980bd4f89ebdc8e230092cac5db55890ccb0bedbf89b46a77fb; /home/jacobt/src/goose-to-wasm/selfhost/sources.goose sha256:34c593056216efd45f091dba7e7bbaa40ebeb1058dba1412ffb30872965042c0; /home/jacobt/src/goose-to-wasm/selfhost/thread_plan.goose sha256:73e2ed70ce4c83ae7469b0e818c7b7d2df51035286537f84959cd3272dfbe594; /home/jacobt/src/goose-to-wasm/selfhost/wasm.goose sha256:f6cc0ef104c3a4caa18c5726f3f4f36810a0f246b4fdb54a1bcbc5ff9a79bad9; /home/jacobt/src/goose-to-wasm/native/images.h sha256:6107261de647a67474c407c7da739aab8fbd2600e04f29a6e3bffccd43b15290; /home/jacobt/src/goose-to-wasm/native/pools.h sha256:052962725edfd70e0edacc6b372de04e93a941c4cbcc92cd750a056dc052c6cc; /home/jacobt/src/goose-to-wasm/native/relative.h sha256:4b3c41b7b929e3706412aaebb62b84640578f8963e473312fe66f0c597c296ba; /home/jacobt/src/goose-to-wasm/native/runs.h sha256:3042381a521680e5991439ba553b7fa093ea67c2e84be54adcb0f4049451a271; /home/jacobt/src/goose-to-wasm/native/runtime/goose.h sha256:16e4d67ae7013050fa14a84162fe57f77ae8f0a7cd7c285d94cdfefc99a87de4; /home/jacobt/src/goose-to-wasm/native/runtime/runtime.h sha256:5ac9487568c78c7cdf6e141d90d644da50436b1b7188047e6bfca09c7b801132; /home/jacobt/src/goose-to-wasm/native/runtime/runtime_ext.h sha256:bfce3ceee2d6d922d2ad2cdb527a293cde691c261aa4ecf9fe6e35e02637ddf3; /home/jacobt/src/goose-to-wasm/native/runtime/runtime_impl.h sha256:717f6d243575fa7e5de8229799cf86c22934dc202a4e6880c699db339b596bf1; /home/jacobt/src/goose-to-wasm/native/runtime/runtime_os.h sha256:27c4a80301075151434e8040222f72e0ed672ed0d4eb71857dd6028e978b4087; /home/jacobt/src/goose-to-wasm/native/runtime/runtime_threads.h sha256:b6a2a8f5ecde191093af1c6bde1939d172ef275156bd60e2e9e725d67f0a4285; /home/jacobt/src/goose-to-wasm/native/runtime_unit.h sha256:e11a0d180a048b95a8dd827d7e2664526a3ad3e368dc602a78d363f34bc13a58; /home/jacobt/src/goose-to-wasm/native/slice_pool.h sha256:576d87376a557c4febb9ae9338add4d8a8059d75fee581b82cc2c1ef57bf2a1a; /home/jacobt/src/goose-to-wasm/native/storage.h sha256:52e3954130687897538ed20b6fb3f7208f915aff9c7f1817de6b5d2d1c45943c; /home/jacobt/src/goose-to-wasm/native/threads.h sha256:bd9b605086d3475d86d76bb630f9d408ca987efe359f824a36b06d76e49c6cb4; /home/jacobt/src/goose-to-wasm/native/units.h sha256:23b0395c15dc4ea9a7fc3545560a49427007d1d1f0019a9a46a920b3de5d5560; /home/jacobt/src/goose-to-wasm/examples/squares.goose sha256:420d9e6b4a2496865eb9f66603c4cbb0fdbb2add30e8ccc709a15102f4748b14; /home/jacobt/src/goose-to-wasm/examples/expected/squares.out sha256:fb4b7bb75a4ba6d156b72b0438797bcf302022d5f69a07c3c82561dfe98b9bbc; /home/jacobt/src/goose-to-wasm/examples/tour.goose sha256:a46393946390a6fc888d013ae0a07383812a57667d2474071eb938f853b8b834; /home/jacobt/src/goose-to-wasm/examples/expected/tour.out sha256:884fee23ddb2ec4e79a2fae5d2fab27ada0c58add3827a969cdcb0a500234ccf; /home/jacobt/src/goose-to-wasm/examples/functions.goose sha256:b11be17ac9ebd0d471c85eb8454cd40edde0924e5094a8baf3ab69bc639b3565; /home/jacobt/src/goose-to-wasm/examples/expected/functions.out sha256:16d0729d8856f3e02da6adc75bc7576652a37ceafec7ede438737a5602459b43; /home/jacobt/src/goose-to-wasm/examples/errors.goose sha256:1b4d87ea59ca79ec0085e17d4b495972c6b468ca6f0b83401a16c677e6df39ca; /home/jacobt/src/goose-to-wasm/examples/expected/errors.out sha256:95f36d26a29d3704ef48b866ed792484224a59780628d09247871bc8aa44147f; /home/jacobt/src/goose-to-wasm/examples/sieve.goose sha256:9b8d2b0066d8219e4dfce97b45a5e8b39dc20779e49d5b15b6aa31c8d561440a; /home/jacobt/src/goose-to-wasm/examples/expected/sieve.out sha256:08895a562abaddd9d176a6466d508dfc034521cf8c32815a1d6b85cc0851c446; /home/jacobt/src/goose-to-wasm/examples/sorting.goose sha256:00d2c7ed328100d018a3adc4ef3f2c5abd83d8219e8c6c0a56d00b0b1df8a27e; /home/jacobt/src/goose-to-wasm/examples/expected/sorting.out sha256:cfed1a4061c2db639e7fad2c677cf6444b96d4a42740426746e34d1bd1be9341; /home/jacobt/src/goose-to-wasm/examples/sudoku.goose sha256:06ff5516f6a37769f4d373127e58214480a38a1e5c84c1331abfed7cdf7ec555; /home/jacobt/src/goose-to-wasm/examples/expected/sudoku.out sha256:33843957751f720192c57d9ca0ad5d0d811213faf261308cce54c54dbfb3dfcf; /home/jacobt/src/goose-to-wasm/examples/maze.goose sha256:217864f76018759196a101ad900315f5343683ccdc6a6e70eaecb3bec0343781; /home/jacobt/src/goose-to-wasm/examples/expected/maze.out sha256:b1b00eaf76b55400c358a12718c6128d683302226631943e7b00bebd6e5fe46e; /home/jacobt/src/goose-to-wasm/examples/vm.goose sha256:1ee3c3f94e0fcb15964e44ec8bde1f3fa3d64e62c144073f1803a87cca852498; /home/jacobt/src/goose-to-wasm/examples/expected/vm.out sha256:c0a05690abc2741f2065959a2b5edb63ed66b6c714b7dca7aaa542e553436561; /home/jacobt/src/goose-to-wasm/examples/life.goose sha256:9d1613869a3c086454dfdd24104d09e48499a8b1a4c653ebe5125e02d98aea97; /home/jacobt/src/goose-to-wasm/examples/expected/life.out sha256:f04a69f7117a62b3c8db5c5fc276dfca51886de77662206d502f26de3ef78008; /home/jacobt/src/goose-to-wasm/build/six-hills-1118/verified/bin/stdlib/base64.goose sha256:fa1111ce46e9534311f825880dbd2988953430aeb3f1f52d8f0eaecbbc298a61; /home/jacobt/src/goose-to-wasm/build/six-hills-1118/verified/bin/stdlib/binary.goose sha256:6973e209428668c2db856eaa941de5d93938cfb1749ed07cac534bf9fe4cb031; /home/jacobt/src/goose-to-wasm/build/six-hills-1118/verified/bin/stdlib/csv.goose sha256:a49b0647f4a2f8ca36170e5a184ab6c6e505492434d0a10a5e05127e96da61ba; /home/jacobt/src/goose-to-wasm/build/six-hills-1118/verified/bin/stdlib/dictionary.goose sha256:fb39f896731faf3799e81727f7261849a62bdfbdc92d5fdbc36405a85830f322; /home/jacobt/src/goose-to-wasm/build/six-hills-1118/verified/bin/stdlib/exception.goose sha256:093863eda5433176750182b597aa6760a93808d86b0c9b713681443d2fb29160; /home/jacobt/src/goose-to-wasm/build/six-hills-1118/verified/bin/stdlib/ffi.goose sha256:e092b245fbe13ee2fdc71599b7b8eb44198e5261cad9600b7681e13ad75a6c2e; /home/jacobt/src/goose-to-wasm/build/six-hills-1118/verified/bin/stdlib/json.goose sha256:0e58291ed9051e4ecb8da1ad420290549d723336516507aed33cf7ced89dc29b; /home/jacobt/src/goose-to-wasm/build/six-hills-1118/verified/bin/stdlib/math.goose sha256:b4c1aee33b5b7033d36a4ddc5c6522c73b21cafe204dc20e8860cdeba22467da; /home/jacobt/src/goose-to-wasm/build/six-hills-1118/verified/bin/stdlib/os.goose sha256:2193f394d44469daffd993ed204a91b068084fd8db13e261e11156b40c66e934; /home/jacobt/src/goose-to-wasm/build/six-hills-1118/verified/bin/stdlib/regex.goose sha256:be0e50bab2a1db9f85e856250bcc592dfe25aca73c2ed900410047fbefb4b035; /home/jacobt/src/goose-to-wasm/build/six-hills-1118/verified/bin/stdlib/slice_pool.goose sha256:74ffe0d7b153a8728ced2974d493743576ed264c8b463f8bd5fe0bfade3a4424; /home/jacobt/src/goose-to-wasm/build/six-hills-1118/verified/bin/stdlib/slice_pool_internal.goose sha256:34a7eae1269a87c59487e3c15ea13b3332d14d9cd4bee8306bb520fd828eb121; /home/jacobt/src/goose-to-wasm/build/six-hills-1118/verified/bin/stdlib/slot_pool.goose sha256:e83b975bfff2806df0401afc3e37e147618c5673a9c98690007e6beb3bd51745; /home/jacobt/src/goose-to-wasm/build/six-hills-1118/verified/bin/stdlib/std.goose sha256:2243c2ef52ba5045b275eea35252d09f36544987c6884f4a8d35579fa6f781ff; /home/jacobt/src/goose-to-wasm/build/six-hills-1118/verified/bin/stdlib/vec.goose sha256:2cac168c72047834433bfb419734c38455c9429ea045b1273898031c53faa82e; /home/jacobt/src/goose-to-wasm/stdlib/base64.goose sha256:fa1111ce46e9534311f825880dbd2988953430aeb3f1f52d8f0eaecbbc298a61; /home/jacobt/src/goose-to-wasm/stdlib/binary.goose sha256:6973e209428668c2db856eaa941de5d93938cfb1749ed07cac534bf9fe4cb031; /home/jacobt/src/goose-to-wasm/stdlib/csv.goose sha256:a49b0647f4a2f8ca36170e5a184ab6c6e505492434d0a10a5e05127e96da61ba; /home/jacobt/src/goose-to-wasm/stdlib/dictionary.goose sha256:fb39f896731faf3799e81727f7261849a62bdfbdc92d5fdbc36405a85830f322; /home/jacobt/src/goose-to-wasm/stdlib/exception.goose sha256:093863eda5433176750182b597aa6760a93808d86b0c9b713681443d2fb29160; /home/jacobt/src/goose-to-wasm/stdlib/ffi.goose sha256:e092b245fbe13ee2fdc71599b7b8eb44198e5261cad9600b7681e13ad75a6c2e; /home/jacobt/src/goose-to-wasm/stdlib/json.goose sha256:0e58291ed9051e4ecb8da1ad420290549d723336516507aed33cf7ced89dc29b; /home/jacobt/src/goose-to-wasm/stdlib/math.goose sha256:b4c1aee33b5b7033d36a4ddc5c6522c73b21cafe204dc20e8860cdeba22467da; /home/jacobt/src/goose-to-wasm/stdlib/os.goose sha256:2193f394d44469daffd993ed204a91b068084fd8db13e261e11156b40c66e934; /home/jacobt/src/goose-to-wasm/stdlib/regex.goose sha256:be0e50bab2a1db9f85e856250bcc592dfe25aca73c2ed900410047fbefb4b035; /home/jacobt/src/goose-to-wasm/stdlib/slice_pool.goose sha256:74ffe0d7b153a8728ced2974d493743576ed264c8b463f8bd5fe0bfade3a4424; /home/jacobt/src/goose-to-wasm/stdlib/slice_pool_internal.goose sha256:34a7eae1269a87c59487e3c15ea13b3332d14d9cd4bee8306bb520fd828eb121; /home/jacobt/src/goose-to-wasm/stdlib/slot_pool.goose sha256:e83b975bfff2806df0401afc3e37e147618c5673a9c98690007e6beb3bd51745; /home/jacobt/src/goose-to-wasm/stdlib/std.goose sha256:2243c2ef52ba5045b275eea35252d09f36544987c6884f4a8d35579fa6f781ff; /home/jacobt/src/goose-to-wasm/stdlib/vec.goose sha256:2cac168c72047834433bfb419734c38455c9429ea045b1273898031c53faa82e; /usr/bin/python3.14 sha256:a38210a53e07ac5eb912ee35c2d92ddb7eaa349301b60c188a5f496c7c87449d; /home/jacobt/src/goose-to-wasm/.venv/lib/python3.14/site-packages/wasmtime/linux-x86_64/_libwasmtime.so sha256:3127ca42fe7cdd3f0a43a358e79177dcfedd46c1746329826403b9d854de6178; /usr/bin/gcc sha256:b0b49531b313e70aee0254fb5e69b050a781506184e16ebee6ebe68eee94a145; /home/jacobt/.local/share/fnm/node-versions/v24.22.1/installation/bin/node sha256:e32e2d16081cf644f88392934288086e7662529d0d43277c34f7aad2207cfafb; compiler sha256:659a76c4c8064ae0989fb66600ae161b680a17c81b935e51fae9fcd4f905c2c0</dc:source>
     <dc:creator>
      <cc:Agent>
       <dc:title>Matplotlib v3.11.2, https://matplotlib.org/</dc:title>
@@ -116,46 +116,46 @@ L 987.84 408.24
     </g>
     <g id="ytick_2">
      <g id="line2d_13">
-      <path d="M 75.6 345.343233
-L 987.84 345.343233
+      <path d="M 75.6 346.66374
+L 987.84 346.66374
 " clip-path="url(#p27fe2b42cb)" style="fill: none; stroke: #e2e8f0; stroke-width: 0.8; stroke-linecap: square"/>
      </g>
      <g id="line2d_14"/>
      <g id="text_12">
-      <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #475569" x="67.6" y="349.142061" transform="rotate(-0 67.6 349.142061)">1,000</text>
+      <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #475569" x="67.6" y="350.462568" transform="rotate(-0 67.6 350.462568)">800</text>
      </g>
     </g>
     <g id="ytick_3">
      <g id="line2d_15">
-      <path d="M 75.6 282.446465
-L 987.84 282.446465
+      <path d="M 75.6 285.08748
+L 987.84 285.08748
 " clip-path="url(#p27fe2b42cb)" style="fill: none; stroke: #e2e8f0; stroke-width: 0.8; stroke-linecap: square"/>
      </g>
      <g id="line2d_16"/>
      <g id="text_13">
-      <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #475569" x="67.6" y="286.245294" transform="rotate(-0 67.6 286.245294)">2,000</text>
+      <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #475569" x="67.6" y="288.886308" transform="rotate(-0 67.6 288.886308)">1,600</text>
      </g>
     </g>
     <g id="ytick_4">
      <g id="line2d_17">
-      <path d="M 75.6 219.549698
-L 987.84 219.549698
+      <path d="M 75.6 223.51122
+L 987.84 223.51122
 " clip-path="url(#p27fe2b42cb)" style="fill: none; stroke: #e2e8f0; stroke-width: 0.8; stroke-linecap: square"/>
      </g>
      <g id="line2d_18"/>
      <g id="text_14">
-      <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #475569" x="67.6" y="223.348526" transform="rotate(-0 67.6 223.348526)">3,000</text>
+      <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #475569" x="67.6" y="227.310048" transform="rotate(-0 67.6 227.310048)">2,400</text>
      </g>
     </g>
     <g id="ytick_5">
      <g id="line2d_19">
-      <path d="M 75.6 156.652931
-L 987.84 156.652931
+      <path d="M 75.6 161.93496
+L 987.84 161.93496
 " clip-path="url(#p27fe2b42cb)" style="fill: none; stroke: #e2e8f0; stroke-width: 0.8; stroke-linecap: square"/>
      </g>
      <g id="line2d_20"/>
      <g id="text_15">
-      <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #475569" x="67.6" y="160.451759" transform="rotate(-0 67.6 160.451759)">4,000</text>
+      <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #475569" x="67.6" y="165.733789" transform="rotate(-0 67.6 165.733789)">3,200</text>
      </g>
     </g>
     <g id="text_16">
@@ -165,193 +165,193 @@ L 987.84 156.652931
    <g id="patch_3">
     <path d="M 95.037034 408.24
 L 123.000352 408.24
-L 123.000352 402.488261
-L 95.037034 402.488261
+L 123.000352 401.77977
+L 95.037034 401.77977
 z
 " clip-path="url(#p27fe2b42cb)" style="fill: #087f8c"/>
    </g>
    <g id="patch_4">
     <path d="M 185.357827 408.24
 L 213.321144 408.24
-L 213.321144 401.943922
-L 185.357827 401.943922
+L 213.321144 401.267802
+L 185.357827 401.267802
 z
 " clip-path="url(#p27fe2b42cb)" style="fill: #087f8c"/>
    </g>
    <g id="patch_5">
     <path d="M 275.678619 408.24
 L 303.641936 408.24
-L 303.641936 400.997921
-L 275.678619 400.997921
+L 303.641936 400.47432
+L 275.678619 400.47432
 z
 " clip-path="url(#p27fe2b42cb)" style="fill: #087f8c"/>
    </g>
    <g id="patch_6">
     <path d="M 365.999411 408.24
 L 393.962728 408.24
-L 393.962728 401.676036
-L 365.999411 401.676036
+L 393.962728 401.412323
+L 365.999411 401.412323
 z
 " clip-path="url(#p27fe2b42cb)" style="fill: #087f8c"/>
    </g>
    <g id="patch_7">
     <path d="M 456.320203 408.24
 L 484.28352 408.24
-L 484.28352 402.24113
-L 456.320203 402.24113
+L 484.28352 401.681337
+L 456.320203 401.681337
 z
 " clip-path="url(#p27fe2b42cb)" style="fill: #087f8c"/>
    </g>
    <g id="patch_8">
     <path d="M 546.640995 408.24
 L 574.604312 408.24
-L 574.604312 400.253877
-L 546.640995 400.253877
+L 574.604312 400.139021
+L 546.640995 400.139021
 z
 " clip-path="url(#p27fe2b42cb)" style="fill: #087f8c"/>
    </g>
    <g id="patch_9">
     <path d="M 636.961787 408.24
 L 664.925104 408.24
-L 664.925104 402.220062
-L 636.961787 402.220062
+L 664.925104 401.641417
+L 636.961787 401.641417
 z
 " clip-path="url(#p27fe2b42cb)" style="fill: #087f8c"/>
    </g>
    <g id="patch_10">
     <path d="M 727.282579 408.24
 L 755.245896 408.24
-L 755.245896 402.024966
-L 727.282579 402.024966
+L 755.245896 401.287207
+L 727.282579 401.287207
 z
 " clip-path="url(#p27fe2b42cb)" style="fill: #087f8c"/>
    </g>
    <g id="patch_11">
     <path d="M 817.603371 408.24
 L 845.566688 408.24
-L 845.566688 401.818023
-L 817.603371 401.818023
+L 845.566688 401.221928
+L 817.603371 401.221928
 z
 " clip-path="url(#p27fe2b42cb)" style="fill: #087f8c"/>
    </g>
    <g id="patch_12">
     <path d="M 907.924163 408.24
 L 935.88748 408.24
-L 935.88748 401.688695
-L 907.924163 401.688695
+L 935.88748 401.553099
+L 907.924163 401.553099
 z
 " clip-path="url(#p27fe2b42cb)" style="fill: #087f8c"/>
    </g>
    <g id="patch_13">
     <path d="M 127.55252 408.24
 L 155.515837 408.24
-L 155.515837 381.864065
-L 127.55252 381.864065
+L 155.515837 378.890957
+L 127.55252 378.890957
 z
 " clip-path="url(#p27fe2b42cb)" style="fill: #727b8e"/>
    </g>
    <g id="patch_14">
     <path d="M 217.873312 408.24
 L 245.836629 408.24
-L 245.836629 308.924648
-L 217.873312 308.924648
+L 245.836629 306.360947
+L 217.873312 306.360947
 z
 " clip-path="url(#p27fe2b42cb)" style="fill: #727b8e"/>
    </g>
    <g id="patch_15">
     <path d="M 308.194104 408.24
 L 336.157421 408.24
-L 336.157421 225.639595
-L 308.194104 225.639595
+L 336.157421 210.336129
+L 308.194104 210.336129
 z
 " clip-path="url(#p27fe2b42cb)" style="fill: #727b8e"/>
    </g>
    <g id="patch_16">
     <path d="M 398.514896 408.24
 L 426.478213 408.24
-L 426.478213 329.243742
-L 398.514896 329.243742
+L 426.478213 324.230053
+L 398.514896 324.230053
 z
 " clip-path="url(#p27fe2b42cb)" style="fill: #727b8e"/>
    </g>
    <g id="patch_17">
     <path d="M 488.835688 408.24
 L 516.799005 408.24
-L 516.799005 367.145729
-L 488.835688 367.145729
+L 516.799005 361.902085
+L 488.835688 361.902085
 z
 " clip-path="url(#p27fe2b42cb)" style="fill: #727b8e"/>
    </g>
    <g id="patch_18">
     <path d="M 579.15648 408.24
 L 607.119797 408.24
-L 607.119797 199.619603
-L 579.15648 199.619603
+L 607.119797 188.668418
+L 579.15648 188.668418
 z
 " clip-path="url(#p27fe2b42cb)" style="fill: #727b8e"/>
    </g>
    <g id="patch_19">
     <path d="M 669.477272 408.24
 L 697.440589 408.24
-L 697.440589 360.315087
-L 669.477272 360.315087
+L 697.440589 353.542139
+L 669.477272 353.542139
 z
 " clip-path="url(#p27fe2b42cb)" style="fill: #727b8e"/>
    </g>
    <g id="patch_20">
     <path d="M 759.798064 408.24
 L 787.761381 408.24
-L 787.761381 328.503852
-L 759.798064 328.503852
+L 787.761381 317.271014
+L 759.798064 317.271014
 z
 " clip-path="url(#p27fe2b42cb)" style="fill: #727b8e"/>
    </g>
    <g id="patch_21">
     <path d="M 850.118856 408.24
 L 878.082173 408.24
-L 878.082173 318.949437
-L 850.118856 318.949437
+L 878.082173 309.128446
+L 850.118856 309.128446
 z
 " clip-path="url(#p27fe2b42cb)" style="fill: #727b8e"/>
    </g>
    <g id="patch_22">
     <path d="M 940.439648 408.24
 L 968.402966 408.24
-L 968.402966 354.928988
-L 940.439648 354.928988
+L 968.402966 348.912924
+L 940.439648 348.912924
 z
 " clip-path="url(#p27fe2b42cb)" style="fill: #727b8e"/>
    </g>
    <g id="LineCollection_1">
-    <path d="M 109.018693 402.614357
-L 109.018693 402.362165
+    <path d="M 109.018693 401.978818
+L 109.018693 401.580722
 " clip-path="url(#p27fe2b42cb)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
-    <path d="M 199.339485 402.055763
-L 199.339485 401.832081
+    <path d="M 199.339485 401.465903
+L 199.339485 401.069701
 " clip-path="url(#p27fe2b42cb)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
-    <path d="M 289.660277 401.058828
-L 289.660277 400.937015
+    <path d="M 289.660277 400.549118
+L 289.660277 400.399522
 " clip-path="url(#p27fe2b42cb)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
-    <path d="M 379.981069 401.730009
-L 379.981069 401.622062
+    <path d="M 379.981069 401.506833
+L 379.981069 401.317812
 " clip-path="url(#p27fe2b42cb)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
-    <path d="M 470.301861 402.512774
-L 470.301861 401.969487
+    <path d="M 470.301861 401.835289
+L 470.301861 401.527385
 " clip-path="url(#p27fe2b42cb)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
-    <path d="M 560.622653 400.559647
-L 560.622653 399.948107
+    <path d="M 560.622653 400.26848
+L 560.622653 400.009563
 " clip-path="url(#p27fe2b42cb)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
-    <path d="M 650.943446 402.361824
-L 650.943446 402.078301
+    <path d="M 650.943446 401.726841
+L 650.943446 401.555993
 " clip-path="url(#p27fe2b42cb)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
-    <path d="M 741.264238 402.239568
-L 741.264238 401.810363
+    <path d="M 741.264238 401.327949
+L 741.264238 401.246464
 " clip-path="url(#p27fe2b42cb)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
-    <path d="M 831.58503 402.037564
-L 831.58503 401.598482
+    <path d="M 831.58503 401.371957
+L 831.58503 401.071899
 " clip-path="url(#p27fe2b42cb)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
-    <path d="M 921.905822 402.069431
-L 921.905822 401.307958
+    <path d="M 921.905822 401.628534
+L 921.905822 401.477664
 " clip-path="url(#p27fe2b42cb)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
    </g>
    <g id="line2d_21">
@@ -361,90 +361,90 @@ L -2 -0
 " style="stroke: #334155"/>
     </defs>
     <g clip-path="url(#p27fe2b42cb)">
-     <use xlink:href="#m630ef24590" x="109.018693" y="402.614357" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m630ef24590" x="199.339485" y="402.055763" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m630ef24590" x="289.660277" y="401.058828" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m630ef24590" x="379.981069" y="401.730009" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m630ef24590" x="470.301861" y="402.512774" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m630ef24590" x="560.622653" y="400.559647" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m630ef24590" x="650.943446" y="402.361824" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m630ef24590" x="741.264238" y="402.239568" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m630ef24590" x="831.58503" y="402.037564" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m630ef24590" x="921.905822" y="402.069431" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="109.018693" y="401.978818" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="199.339485" y="401.465903" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="289.660277" y="400.549118" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="379.981069" y="401.506833" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="470.301861" y="401.835289" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="560.622653" y="400.26848" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="650.943446" y="401.726841" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="741.264238" y="401.327949" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="831.58503" y="401.371957" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="921.905822" y="401.628534" style="fill: #1f77b4; stroke: #334155"/>
     </g>
    </g>
    <g id="line2d_22">
     <g clip-path="url(#p27fe2b42cb)">
-     <use xlink:href="#m630ef24590" x="109.018693" y="402.362165" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m630ef24590" x="199.339485" y="401.832081" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m630ef24590" x="289.660277" y="400.937015" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m630ef24590" x="379.981069" y="401.622062" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m630ef24590" x="470.301861" y="401.969487" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m630ef24590" x="560.622653" y="399.948107" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m630ef24590" x="650.943446" y="402.078301" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m630ef24590" x="741.264238" y="401.810363" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m630ef24590" x="831.58503" y="401.598482" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m630ef24590" x="921.905822" y="401.307958" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="109.018693" y="401.580722" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="199.339485" y="401.069701" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="289.660277" y="400.399522" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="379.981069" y="401.317812" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="470.301861" y="401.527385" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="560.622653" y="400.009563" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="650.943446" y="401.555993" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="741.264238" y="401.246464" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="831.58503" y="401.071899" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="921.905822" y="401.477664" style="fill: #1f77b4; stroke: #334155"/>
     </g>
    </g>
    <g id="LineCollection_2">
-    <path d="M 141.534178 382.940727
-L 141.534178 380.787402
+    <path d="M 141.534178 379.523351
+L 141.534178 378.258563
 " clip-path="url(#p27fe2b42cb)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
-    <path d="M 231.85497 311.524432
-L 231.85497 306.324865
+    <path d="M 231.85497 308.66705
+L 231.85497 304.054844
 " clip-path="url(#p27fe2b42cb)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
-    <path d="M 322.175762 230.441385
-L 322.175762 220.837806
+    <path d="M 322.175762 215.382591
+L 322.175762 205.289668
 " clip-path="url(#p27fe2b42cb)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
-    <path d="M 412.496554 329.972367
-L 412.496554 328.515117
+    <path d="M 412.496554 325.246124
+L 412.496554 323.213982
 " clip-path="url(#p27fe2b42cb)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
-    <path d="M 502.817347 368.880696
-L 502.817347 365.410761
+    <path d="M 502.817347 362.965404
+L 502.817347 360.838766
 " clip-path="url(#p27fe2b42cb)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
-    <path d="M 593.138139 213.781815
+    <path d="M 593.138139 191.879446
 L 593.138139 185.457391
 " clip-path="url(#p27fe2b42cb)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
-    <path d="M 683.458931 361.5906
-L 683.458931 359.039574
+    <path d="M 683.458931 355.765539
+L 683.458931 351.31874
 " clip-path="url(#p27fe2b42cb)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
-    <path d="M 773.779723 329.709648
-L 773.779723 327.298056
+    <path d="M 773.779723 319.955388
+L 773.779723 314.586639
 " clip-path="url(#p27fe2b42cb)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
-    <path d="M 864.100515 321.111432
-L 864.100515 316.787442
+    <path d="M 864.100515 314.000294
+L 864.100515 304.256598
 " clip-path="url(#p27fe2b42cb)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
-    <path d="M 954.421307 355.648633
-L 954.421307 354.209344
+    <path d="M 954.421307 350.691319
+L 954.421307 347.13453
 " clip-path="url(#p27fe2b42cb)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
    </g>
    <g id="line2d_23">
     <g clip-path="url(#p27fe2b42cb)">
-     <use xlink:href="#m630ef24590" x="141.534178" y="382.940727" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m630ef24590" x="231.85497" y="311.524432" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m630ef24590" x="322.175762" y="230.441385" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m630ef24590" x="412.496554" y="329.972367" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m630ef24590" x="502.817347" y="368.880696" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m630ef24590" x="593.138139" y="213.781815" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m630ef24590" x="683.458931" y="361.5906" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m630ef24590" x="773.779723" y="329.709648" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m630ef24590" x="864.100515" y="321.111432" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m630ef24590" x="954.421307" y="355.648633" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="141.534178" y="379.523351" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="231.85497" y="308.66705" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="322.175762" y="215.382591" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="412.496554" y="325.246124" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="502.817347" y="362.965404" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="593.138139" y="191.879446" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="683.458931" y="355.765539" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="773.779723" y="319.955388" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="864.100515" y="314.000294" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="954.421307" y="350.691319" style="fill: #1f77b4; stroke: #334155"/>
     </g>
    </g>
    <g id="line2d_24">
     <g clip-path="url(#p27fe2b42cb)">
-     <use xlink:href="#m630ef24590" x="141.534178" y="380.787402" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m630ef24590" x="231.85497" y="306.324865" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m630ef24590" x="322.175762" y="220.837806" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m630ef24590" x="412.496554" y="328.515117" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m630ef24590" x="502.817347" y="365.410761" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="141.534178" y="378.258563" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="231.85497" y="304.054844" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="322.175762" y="205.289668" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="412.496554" y="323.213982" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="502.817347" y="360.838766" style="fill: #1f77b4; stroke: #334155"/>
      <use xlink:href="#m630ef24590" x="593.138139" y="185.457391" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m630ef24590" x="683.458931" y="359.039574" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m630ef24590" x="773.779723" y="327.298056" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m630ef24590" x="864.100515" y="316.787442" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m630ef24590" x="954.421307" y="354.209344" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="683.458931" y="351.31874" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="773.779723" y="314.586639" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="864.100515" y="304.256598" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="954.421307" y="347.13453" style="fill: #1f77b4; stroke: #334155"/>
     </g>
    </g>
    <g id="patch_23">
@@ -453,64 +453,64 @@ L 987.84 408.24
 " style="fill: none; stroke: #94a3b8; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square"/>
    </g>
    <g id="text_17">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(111.096818 399.688774) rotate(-90)">91.4 ±2</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(111.096818 398.907331) rotate(-90)">83.9 ±2.6</text>
    </g>
    <g id="text_18">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(201.41761 399.158689) rotate(-90)">100 ±1.8</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(201.41761 398.396309) rotate(-90)">90.6 ±2.6</text>
    </g>
    <g id="text_19">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(291.738402 398.263624) rotate(-90)">115 ±0.97</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(291.738402 397.726131) rotate(-90)">101 ±0.97</text>
    </g>
    <g id="text_20">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(382.059194 398.948671) rotate(-90)">104 ±0.86</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(382.059194 398.644421) rotate(-90)">88.7 ±1.2</text>
    </g>
    <g id="text_21">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(472.379986 399.296096) rotate(-90)">95.4 ±4.3</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(472.379986 398.853993) rotate(-90)">85.2 ±2</text>
    </g>
    <g id="text_22">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(562.700778 397.274716) rotate(-90)">127 ±4.9</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(562.700778 397.336171) rotate(-90)">105 ±1.7</text>
    </g>
    <g id="text_23">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(653.021571 399.404909) rotate(-90)">95.7 ±2.3</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(653.021571 398.882602) rotate(-90)">85.7 ±1.1</text>
    </g>
    <g id="text_24">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(743.342363 399.136972) rotate(-90)">98.8 ±3.4</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(743.342363 398.573073) rotate(-90)">90.3 ±0.53</text>
    </g>
    <g id="text_25">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(833.663155 398.925091) rotate(-90)">102 ±3.5</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(833.663155 398.398508) rotate(-90)">91.2 ±1.9</text>
    </g>
    <g id="text_26">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(923.983947 398.634567) rotate(-90)">104 ±6.1</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(923.983947 398.804273) rotate(-90)">86.9 ±0.98</text>
    </g>
    <g id="text_27">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(143.612303 378.114011) rotate(-90)">419 ±17</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(143.612303 375.585172) rotate(-90)">381 ±8.2</text>
    </g>
    <g id="text_28">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(233.933095 303.651473) rotate(-90)">1.58e+03 ±41</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(233.933095 301.381453) rotate(-90)">1.32e+03 ±30</text>
    </g>
    <g id="text_29">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(324.253887 218.164415) rotate(-90)">2.9e+03 ±76</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(324.253887 202.616277) rotate(-90)">2.57e+03 ±66</text>
    </g>
    <g id="text_30">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(414.574679 325.841726) rotate(-90)">1.26e+03 ±12</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(414.574679 320.540591) rotate(-90)">1.09e+03 ±13</text>
    </g>
    <g id="text_31">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(504.895472 362.737369) rotate(-90)">653 ±28</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(504.895472 358.165374) rotate(-90)">602 ±14</text>
    </g>
    <g id="text_32">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(595.216264 182.784) rotate(-90)">3.32e+03 ±2.3e+02</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(595.216264 182.784) rotate(-90)">2.85e+03 ±42</text>
    </g>
    <g id="text_33">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(685.537056 356.366183) rotate(-90)">762 ±20</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(685.537056 348.645349) rotate(-90)">711 ±29</text>
    </g>
    <g id="text_34">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(775.857848 324.624665) rotate(-90)">1.27e+03 ±19</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(775.857848 311.913248) rotate(-90)">1.18e+03 ±35</text>
    </g>
    <g id="text_35">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(866.17864 314.114051) rotate(-90)">1.42e+03 ±34</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(866.17864 301.583206) rotate(-90)">1.29e+03 ±63</text>
    </g>
    <g id="text_36">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(956.499432 351.535953) rotate(-90)">848 ±11</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(956.499432 344.461138) rotate(-90)">771 ±23</text>
    </g>
   </g>
   <g id="text_37">

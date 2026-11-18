@@ -40,7 +40,12 @@ def timings(report):
 
     cells = {(workload, engine): [] for workload in WORKLOADS for engine in ENGINES}
     proofs = {}
-    for group in report["execution"]["samples"]:
+    groups = report["execution"]["samples"]
+    if not isinstance(groups, list) or not groups:
+        raise ValueError("missing execution rounds")
+    for group in groups:
+        if not isinstance(group, list):
+            raise ValueError("expected execution samples grouped by round")
         if len(group) != len(cells) or {(row["workload"], row["engine"]) for row in group} != cells.keys():
             raise ValueError("incomplete execution round")
         for row in group:
