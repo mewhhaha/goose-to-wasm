@@ -1,0 +1,385 @@
+{
+  "pins": {
+    "native_emitter_source": "d0fce255de749618f192d39dc657c4299c14a860",
+    "compiler_source_archive_sha256": "125c5702f0aba4651b3f940eb6b3e853d445eeea6edfbead8e943ee77f3b9afb",
+    "native_emitter_sha256": "516e36a8fcbd51d0969f71376844cdf32cfca54a814e80bef9bad0a0ebf912c0",
+    "baseline_writer_commit": "d0fce255de749618f192d39dc657c4299c14a860",
+    "baseline_writer_sha256": "a9559dc657c7bf13b15af40d5b5052ae325d49efaadffc21ac13ab423d652df2",
+    "release_writer_commit": "4e7e1b3277448da923540c95b19040a71fe86a30",
+    "release_writer_sha256": "5e89f0b60e17454d2db43703912449182333d1c5414be1b4248cc241ff980877",
+    "harness": "bench/results/2026-11-17/wasm-slot-prefix/replay.goose",
+    "harness_sha256": "243021acba9f6ce0698bae7852171a13853cfb46d5904af55243ca88e023de8d",
+    "clang": {
+      "sha256": "ca0d2f7fbe94836762f36c7e73292289bc4d5e4b9b5defc320ef0856259a2855",
+      "bytes": 124768,
+      "version": "clang version 23.1.5\nTarget: x86_64-pc-linux-gnu\nThread model: posix\nInstalledDir: /usr/bin"
+    },
+    "wasmtime": "50.0.1",
+    "engine_sha256": "3127ca42fe7cdd3f0a43a358e79177dcfedd46c1746329826403b9d854de6178",
+    "cpu": 6,
+    "hardware": "AMD Ryzen 7 3800X, x86_64",
+    "kernel": "Linux 7.3.4-1-cachyos"
+  },
+  "clock": "Elapsed nanoseconds summed across wb_reuse_locals calls inside the replay; excludes input decode, expected-output verification and startup. High shared-host load can affect elapsed samples.",
+  "order": "Three rounds in baseline/release, release/baseline, baseline/release order for each input and target.",
+  "compiler_argv": [
+    "main.goose",
+    "--stdlib",
+    "stdlib",
+    "--target",
+    "TARGET",
+    "-O2"
+  ],
+  "target_flags": {
+    "native": [
+      "clang-23",
+      "-w",
+      "-std=gnu11",
+      "-O2",
+      "replay.c",
+      "-lm",
+      "-ldl",
+      "-pthread"
+    ],
+    "memory32": [
+      "--wasm-max-pages",
+      "65535"
+    ],
+    "memory64": [
+      "--wasm-memory64",
+      "--wasm-max-pages",
+      "262144"
+    ]
+  },
+  "controls": {
+    "controls": [
+      "reverse 180 simultaneous spans across indexes 127 and 128",
+      "nested loop, if/else, br_table, padded indexes and float payload with local opcodes",
+      "implicit zero read in instruction zero precedes a disjoint write",
+      "single local bypass",
+      "two- and three-byte local indexes and 130 br_table arms"
+    ],
+    "validated_modules": 10,
+    "input": "1f71b2a23d098667d2df990dca55257fbf53dd9dfbb89b9dd5a5dde79fc7c73e",
+    "output": "59aaa4dfddbf50b31f796ca3df6a1931f61dd231e47938da1db585a2970459af"
+  },
+  "corpus": {
+    "self-opt": {
+      "input_sha256": "05b3da8bb5b16b1e938897bc8c70bed582d82e604c10283639d32ab2c5d6088c",
+      "output_sha256": "5af607b5038c1caf97573c00686bd6188e03d457dbd5c1241c9b0a83054584c5",
+      "bodies": 1539
+    },
+    "default-complete": {
+      "input_sha256": "577ef0e90e9930a00224bb9a4af1b21f6439d7130e7654f2abaf2bd1d20d0502",
+      "output_sha256": "ae927cb40ec5f98837f21ea709ae5341107a51bb2db9b821b64c0f3bfe6923db",
+      "bodies": 1491
+    },
+    "synthetic": {
+      "input_sha256": "c022a231260640789770e4475c0c8412f4fc91845fbd00853b3f753da5062673",
+      "output_sha256": "b9e7be1537c687b67c68d1f205e686570f87638370ca63521428a876d2e04248",
+      "bodies": 253
+    },
+    "tiny": {
+      "input_sha256": "8f96b6a81f54f9c61bbdb6ef7fc79849112a88a7ccde7d086b31ba704b17063d",
+      "output_sha256": "99c881dda909353dfdee21351c21641f9ba18b774c108c195f0230eb7d61dc16",
+      "bodies": 60000
+    },
+    "controls": {
+      "input_sha256": "1f71b2a23d098667d2df990dca55257fbf53dd9dfbb89b9dd5a5dde79fc7c73e",
+      "output_sha256": "59aaa4dfddbf50b31f796ca3df6a1931f61dd231e47938da1db585a2970459af",
+      "bodies": 5
+    }
+  },
+  "targets": {
+    "native": {
+      "artifact_sha256": {
+        "base": "6e9968064450edd60d692706268d11150ddec715cebea32ffe73a297510780e8",
+        "release": "e03eed17e67f8aefa3c59b551867382b0086ae8eadd7649eae549e6a224fe890"
+      },
+      "median": {
+        "self-opt": {
+          "base_ms": 427.21,
+          "release_ms": 337.399,
+          "change_percent": -21.02
+        },
+        "default-complete": {
+          "base_ms": 161.677,
+          "release_ms": 168.491,
+          "change_percent": 4.21
+        },
+        "synthetic": {
+          "base_ms": 31.114,
+          "release_ms": 24.41,
+          "change_percent": -21.55
+        },
+        "tiny": {
+          "base_ms": 71.942,
+          "release_ms": 56.373,
+          "change_percent": -21.64
+        },
+        "controls": {
+          "base_ms": 0.872,
+          "release_ms": 0.896,
+          "change_percent": 2.82
+        }
+      },
+      "elapsed_ns": {
+        "self-opt": {
+          "base": [
+            427209582,
+            398051320,
+            471474273
+          ],
+          "release": [
+            337399113,
+            429031055,
+            333985138
+          ]
+        },
+        "default-complete": {
+          "base": [
+            216291007,
+            151761338,
+            161677432
+          ],
+          "release": [
+            173139872,
+            129113270,
+            168490876
+          ]
+        },
+        "synthetic": {
+          "base": [
+            31476189,
+            26542272,
+            31114410
+          ],
+          "release": [
+            37867878,
+            24410274,
+            23248552
+          ]
+        },
+        "tiny": {
+          "base": [
+            76834832,
+            69871354,
+            71941550
+          ],
+          "release": [
+            61664805,
+            56372974,
+            56272970
+          ]
+        },
+        "controls": {
+          "base": [
+            937922,
+            871619,
+            855816
+          ],
+          "release": [
+            896235,
+            831480,
+            962231
+          ]
+        }
+      }
+    },
+    "memory32": {
+      "artifact_sha256": {
+        "base": "58de99ffef53073072343877ab6b708f377222bfbb4702135274b357093d5f2d",
+        "release": "8ce40d90c626a95d1f0c8322c96d3e346ddc292ec984cc752d9f687796d62b39"
+      },
+      "median": {
+        "self-opt": {
+          "base_ms": 2323.194,
+          "release_ms": 1974.885,
+          "change_percent": -14.99
+        },
+        "default-complete": {
+          "base_ms": 906.01,
+          "release_ms": 752.212,
+          "change_percent": -16.98
+        },
+        "synthetic": {
+          "base_ms": 151.678,
+          "release_ms": 129.109,
+          "change_percent": -14.88
+        },
+        "tiny": {
+          "base_ms": 5383.97,
+          "release_ms": 4165.197,
+          "change_percent": -22.64
+        },
+        "controls": {
+          "base_ms": 2.902,
+          "release_ms": 1.273,
+          "change_percent": -56.12
+        }
+      },
+      "elapsed_ns": {
+        "self-opt": {
+          "base": [
+            2336095087,
+            2085114435,
+            2323193540
+          ],
+          "release": [
+            1715128045,
+            1974885130,
+            2163753840
+          ]
+        },
+        "default-complete": {
+          "base": [
+            848406283,
+            1213416760,
+            906009655
+          ],
+          "release": [
+            701057389,
+            752212021,
+            898082508
+          ]
+        },
+        "synthetic": {
+          "base": [
+            180029630,
+            151678336,
+            138153772
+          ],
+          "release": [
+            129109157,
+            136012504,
+            100612848
+          ]
+        },
+        "tiny": {
+          "base": [
+            2110585309,
+            5383969941,
+            5784260031
+          ],
+          "release": [
+            2720227610,
+            4165197260,
+            5695154229
+          ]
+        },
+        "controls": {
+          "base": [
+            1201924,
+            2901997,
+            3021705
+          ],
+          "release": [
+            1137963,
+            1273280,
+            1950509
+          ]
+        }
+      }
+    },
+    "memory64": {
+      "artifact_sha256": {
+        "base": "0835e8ec2c9ffa4f6f719139552606bbdc872201b433fcfb455e30b5acfe1388",
+        "release": "49ebc46dba115b6b01f8b486229357549c214bef90f6a84bc4b7e06de5575367"
+      },
+      "median": {
+        "self-opt": {
+          "base_ms": 1430.938,
+          "release_ms": 1288.589,
+          "change_percent": -9.95
+        },
+        "default-complete": {
+          "base_ms": 525.549,
+          "release_ms": 396.24,
+          "change_percent": -24.6
+        },
+        "synthetic": {
+          "base_ms": 85.55,
+          "release_ms": 91.485,
+          "change_percent": 6.94
+        },
+        "tiny": {
+          "base_ms": 2208.188,
+          "release_ms": 2210.384,
+          "change_percent": 0.1
+        },
+        "controls": {
+          "base_ms": 1.621,
+          "release_ms": 1.537,
+          "change_percent": -5.2
+        }
+      },
+      "elapsed_ns": {
+        "self-opt": {
+          "base": [
+            1430938479,
+            1483304084,
+            1369504448
+          ],
+          "release": [
+            1288588923,
+            1201160275,
+            1344399628
+          ]
+        },
+        "default-complete": {
+          "base": [
+            594595389,
+            521499840,
+            525549445
+          ],
+          "release": [
+            393702303,
+            396240447,
+            433655868
+          ]
+        },
+        "synthetic": {
+          "base": [
+            89643066,
+            84923246,
+            85549685
+          ],
+          "release": [
+            110235796,
+            91485205,
+            71620452
+          ]
+        },
+        "tiny": {
+          "base": [
+            1272119561,
+            2322402061,
+            2208187765
+          ],
+          "release": [
+            1801454977,
+            2429096146,
+            2210384195
+          ]
+        },
+        "controls": {
+          "base": [
+            1486024,
+            1655567,
+            1621432
+          ],
+          "release": [
+            1537172,
+            4849852,
+            1111021
+          ]
+        }
+      }
+    }
+  },
+  "assertions": {
+    "timed_outputs_matched": 90,
+    "unique_output_comparisons": 15,
+    "control_functions_validated": 10
+  }
+}

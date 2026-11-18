@@ -1,0 +1,89 @@
+{
+  "pins": {
+    "native_emitter_source": "d0fce255de749618f192d39dc657c4299c14a860",
+    "compiler_source_archive_sha256": "125c5702f0aba4651b3f940eb6b3e853d445eeea6edfbead8e943ee77f3b9afb",
+    "native_emitter_sha256": "516e36a8fcbd51d0969f71376844cdf32cfca54a814e80bef9bad0a0ebf912c0",
+    "baseline_writer_commit": "d0fce255de749618f192d39dc657c4299c14a860",
+    "baseline_writer_sha256": "a9559dc657c7bf13b15af40d5b5052ae325d49efaadffc21ac13ab423d652df2",
+    "release_writer_commit": "4e7e1b3277448da923540c95b19040a71fe86a30",
+    "release_writer_sha256": "5e89f0b60e17454d2db43703912449182333d1c5414be1b4248cc241ff980877",
+    "harness": "bench/results/2026-11-17/wasm-slot-prefix/replay.goose",
+    "harness_sha256": "243021acba9f6ce0698bae7852171a13853cfb46d5904af55243ca88e023de8d",
+    "clang": {
+      "sha256": "ca0d2f7fbe94836762f36c7e73292289bc4d5e4b9b5defc320ef0856259a2855",
+      "bytes": 124768,
+      "version": "clang version 23.1.5\nTarget: x86_64-pc-linux-gnu\nThread model: posix\nInstalledDir: /usr/bin"
+    },
+    "wasmtime": "50.0.1",
+    "engine_sha256": "3127ca42fe7cdd3f0a43a358e79177dcfedd46c1746329826403b9d854de6178",
+    "cpu": 6,
+    "hardware": "AMD Ryzen 7 3800X, x86_64",
+    "kernel": "Linux 7.3.4-1-cachyos"
+  },
+  "workload_commit": "90e086fe61f9ce019d6a6ef543212be63f6e1f57",
+  "workload_archive_sha256": "c9474661210aed23044b05faa4aa19bacee7063aa64cd6bf3092b9af9a1fdf1d",
+  "flags": [
+    "--target",
+    "wasm-direct",
+    "-O2",
+    "--wasm-memory64",
+    "--wasm-max-pages",
+    "262144"
+  ],
+  "note": "One screen per compiler on a shared host. Compare retired instructions; the separate groups experienced different load. The release added one explanatory source comment after screening clean.",
+  "selected_screen_writer_sha256": "ca0ed5d8baa3b0e927969096a9f6e55e0f300909cfcd6bbea375b61693384459",
+  "versions": {
+    "base": "published native stage recompiles its frozen source",
+    "decoderef": "reuse a byte slice and checked instruction references and skip decoding numeric immediates",
+    "streamwrite": "fuse decode and liveness, save local records and patch same-width one-byte indexes",
+    "clean": "save only local byte offsets; rewrite one-byte remaps in place; selected",
+    "cleanrecord": "also combine seven parallel local-state arrays into records; rejected for 0.24% additional whole-emission instructions"
+  },
+  "samples": [
+    {
+      "group": "pilot",
+      "label": "base",
+      "compiler_sha256": "10b3d12c19ba596095105c8b9412b637691b1b731554d29a335799c7acbca6e1",
+      "emission_sha256": "d60c88511dec7c07af9cb9ca070ce03c951a63eb8f2e2bca269dcbcce19bd793",
+      "cpu_ns": 9652614319,
+      "wall_ns": 9748297547,
+      "retired_instructions": 88263647397
+    },
+    {
+      "group": "pilot",
+      "label": "decoderef",
+      "compiler_sha256": "4798fb1a9394c981e60574c19844833b373950098e318e9d1224f46809c48d4c",
+      "emission_sha256": "d60c88511dec7c07af9cb9ca070ce03c951a63eb8f2e2bca269dcbcce19bd793",
+      "cpu_ns": 9532013786,
+      "wall_ns": 9593173824,
+      "retired_instructions": 87327927939
+    },
+    {
+      "group": "pilot",
+      "label": "streamwrite",
+      "compiler_sha256": "49fd5f16e4ddf700b47fc33a624a4012be6b35d966868191ad56eaa5f4851075",
+      "emission_sha256": "d60c88511dec7c07af9cb9ca070ce03c951a63eb8f2e2bca269dcbcce19bd793",
+      "cpu_ns": 11041268543,
+      "wall_ns": 19725573756,
+      "retired_instructions": 86476483139
+    },
+    {
+      "group": "shortlist",
+      "label": "clean",
+      "compiler_sha256": "94b1edf77268f9373237838592e75fbc1900ba2e3fb31c73774d3669185a45a7",
+      "emission_sha256": "d60c88511dec7c07af9cb9ca070ce03c951a63eb8f2e2bca269dcbcce19bd793",
+      "cpu_ns": 11879413808,
+      "wall_ns": 12602931534,
+      "retired_instructions": 86453574051
+    },
+    {
+      "group": "shortlist",
+      "label": "cleanrecord",
+      "compiler_sha256": "0851c40ca84f3ad309f4c6941f46c0b6018858fb971df613d79f2f62c5bd42b8",
+      "emission_sha256": "d60c88511dec7c07af9cb9ca070ce03c951a63eb8f2e2bca269dcbcce19bd793",
+      "cpu_ns": 11983829792,
+      "wall_ns": 12815478687,
+      "retired_instructions": 86241826393
+    }
+  ]
+}

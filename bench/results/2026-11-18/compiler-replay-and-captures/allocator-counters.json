@@ -1,0 +1,171 @@
+{
+  "scope": "One complete prepared replay on each input. Retired x86 instructions include harness file IO, input conversion, two clock reads per body, and building and writing the output stream. SHA-256 comparison is outside the counter. The native count includes launch. Each emitted stream matched the archived SHA-256.",
+  "cpu": 6,
+  "samples": [
+    {
+      "target": "native",
+      "input": "self-opt",
+      "version": "base",
+      "instructions": 5824674662
+    },
+    {
+      "target": "native",
+      "input": "self-opt",
+      "version": "release",
+      "instructions": 4913707717
+    },
+    {
+      "target": "native",
+      "input": "default-complete",
+      "version": "base",
+      "instructions": 2227411532
+    },
+    {
+      "target": "native",
+      "input": "default-complete",
+      "version": "release",
+      "instructions": 1776642860
+    },
+    {
+      "target": "native",
+      "input": "synthetic",
+      "version": "base",
+      "instructions": 446045971
+    },
+    {
+      "target": "native",
+      "input": "synthetic",
+      "version": "release",
+      "instructions": 392142419
+    },
+    {
+      "target": "native",
+      "input": "tiny",
+      "version": "base",
+      "instructions": 809812898
+    },
+    {
+      "target": "native",
+      "input": "tiny",
+      "version": "release",
+      "instructions": 664567698
+    },
+    {
+      "target": "memory64",
+      "input": "self-opt",
+      "version": "base",
+      "instructions": 14269492449
+    },
+    {
+      "target": "memory64",
+      "input": "self-opt",
+      "version": "release",
+      "instructions": 11283183803
+    },
+    {
+      "target": "memory64",
+      "input": "default-complete",
+      "version": "base",
+      "instructions": 5676888840
+    },
+    {
+      "target": "memory64",
+      "input": "default-complete",
+      "version": "release",
+      "instructions": 4291406833
+    },
+    {
+      "target": "memory64",
+      "input": "synthetic",
+      "version": "base",
+      "instructions": 1075971581
+    },
+    {
+      "target": "memory64",
+      "input": "synthetic",
+      "version": "release",
+      "instructions": 905923784
+    },
+    {
+      "target": "memory64",
+      "input": "tiny",
+      "version": "base",
+      "instructions": 14086710288
+    },
+    {
+      "target": "memory64",
+      "input": "tiny",
+      "version": "release",
+      "instructions": 13725403642
+    },
+    {
+      "target": "memory32",
+      "input": "self-opt",
+      "version": "base",
+      "instructions": 12764613346
+    },
+    {
+      "target": "memory32",
+      "input": "self-opt",
+      "version": "release",
+      "instructions": 10252252656
+    },
+    {
+      "target": "memory32",
+      "input": "default-complete",
+      "version": "base",
+      "instructions": 5111252599
+    },
+    {
+      "target": "memory32",
+      "input": "default-complete",
+      "version": "release",
+      "instructions": 3908262860
+    },
+    {
+      "target": "memory32",
+      "input": "synthetic",
+      "version": "base",
+      "instructions": 956455991
+    },
+    {
+      "target": "memory32",
+      "input": "synthetic",
+      "version": "release",
+      "instructions": 816640230
+    },
+    {
+      "target": "memory32",
+      "input": "tiny",
+      "version": "base",
+      "instructions": 13794674603
+    },
+    {
+      "target": "memory32",
+      "input": "tiny",
+      "version": "release",
+      "instructions": 13495705709
+    }
+  ],
+  "artifact_pins": "See target binary, frozen input/output and engine hashes in allocator-replay.json. Counters use the same baseline and release binaries.",
+  "retired_instruction_change_percent": {
+    "native": {
+      "self-opt": -15.64,
+      "default-complete": -20.24,
+      "synthetic": -12.08,
+      "tiny": -17.94
+    },
+    "memory32": {
+      "self-opt": -19.68,
+      "default-complete": -23.54,
+      "synthetic": -14.62,
+      "tiny": -2.17
+    },
+    "memory64": {
+      "self-opt": -20.93,
+      "default-complete": -24.41,
+      "synthetic": -15.8,
+      "tiny": -2.56
+    }
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "compiler_source": "d0fce255de749618f192d39dc657c4299c14a860",
+  "workload": "90e086f",
+  "native_emitter_sha256": "516e36a8fcbd51d0969f71376844cdf32cfca54a814e80bef9bad0a0ebf912c0",
+  "source_call_probe_sha256": "e4c6238ce4f38c0d158d1286771dfdbb6c71c493f2be56d629a89c58dd727d72",
+  "before": {
+    "calls": 168090,
+    "argument_depth_visits": 451542,
+    "new_concrete_frames": 2835,
+    "lexical_capture_search_cell_visits": 0,
+    "validation_cell_visits": 8568715,
+    "validation_inputs": 42,
+    "parameter_bindings": 391200,
+    "frame_lookup_visits": 246337,
+    "class_validation_visits": 0,
+    "class_inputs": 0,
+    "mixed_frame_visits": 0
+  },
+  "after": {
+    "validation_cell_visits": 372540,
+    "validation_inputs": 42
+  },
+  "effect_owner_cache": {
+    "miss": 6647,
+    "mixed": 49438,
+    "empty": 474,
+    "global": 343,
+    "one_frame": 3549871
+  }
+}

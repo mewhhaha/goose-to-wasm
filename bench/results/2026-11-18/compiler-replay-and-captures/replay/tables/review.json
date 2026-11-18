@@ -1,0 +1,105 @@
+{
+  "compiler": "4e7e1b3277448da923540c95b19040a71fe86a30",
+  "source": {
+    "bytes": 387357,
+    "sha256": "06cf7c730cd047be89555c40bc119c451837f133bcd27936eaf05025ae82e4fc"
+  },
+  "emitter": {
+    "bytes": 6939640,
+    "sha256": "4cf22567ceae046881276d5dcd8bc45d3938d1502eea78693656ff7e4f9a1aeb"
+  },
+  "workload": "90e086fe61f9ce019d6a6ef543212be63f6e1f57",
+  "archive": "c9474661210aed23044b05faa4aa19bacee7063aa64cd6bf3092b9af9a1fdf1d",
+  "engine": {
+    "sha256": "3127ca42fe7cdd3f0a43a358e79177dcfedd46c1746329826403b9d854de6178",
+    "bytes": 29673400
+  },
+  "cpu": 2,
+  "algorithm": "Each local table indexes places modulo its power-of-two size. A zero tag means no entry. A hit requires equality with places + 1. The eight-slot hybrid checks the one-entry local cache first.",
+  "lookup_counts": {
+    "eight": {
+      "total": 1954090,
+      "hits": 1607269,
+      "misses": 346821
+    },
+    "thirtytwo": {
+      "total": 1954090,
+      "hits": 1769341,
+      "misses": 184749
+    }
+  },
+  "screen": {
+    "one": {
+      "cpu_ns": 10273286210,
+      "instructions": 53214692512
+    },
+    "eight": {
+      "cpu_ns": 9887755401,
+      "instructions": 52938957831
+    },
+    "thirtytwo": {
+      "cpu_ns": 10363745054,
+      "instructions": 52840554384
+    },
+    "adjacent-eight": {
+      "cpu_ns": 10193605045,
+      "instructions": 52914836207
+    }
+  },
+  "comparison": {
+    "check": {
+      "one": {
+        "cpu_ns": 8302412159.5,
+        "instructions": 53210727591.0
+      },
+      "thirtytwo": {
+        "cpu_ns": 8216506882.5,
+        "instructions": 52847213595.0
+      }
+    },
+    "emit": {
+      "one": {
+        "cpu_ns": 12627026244.5,
+        "instructions": 80977924655.5
+      },
+      "thirtytwo": {
+        "cpu_ns": 10867008517.0,
+        "instructions": 80611521993.0
+      }
+    }
+  },
+  "output": {
+    "sha256": "d60c88511dec7c07af9cb9ca070ce03c951a63eb8f2e2bca269dcbcce19bd793",
+    "bytes": 17322012
+  },
+  "decision": "Isolated follow-up only. Thirty-two slots lowered the check instruction count by less than 1%. Two shared-load pairs do not establish a durable latency improvement.",
+  "corpus_summary": {
+    "distinct_sources": 4357,
+    "with_final_counts": 2874,
+    "with_compact_entries": 342,
+    "with_direct_offers": 240,
+    "status_ok": 1979,
+    "probe_sha256": "59290c0c86d93c28756ae5c8545aafdf2a604be0e32667cacf8544f01d647e78",
+    "manifest_sha256": "114d9ecbf070ee26eae6e6fb5fe75b202fda471bb36880d105480dd3dd402961",
+    "upstream_archive_sha256": "8b4d0f59a808aea60a7a40416c391795a4bdb05bc9de7d074eb7d4f858db7353",
+    "counts": {
+      "calls": 27069,
+      "compact_entries": 7513,
+      "already_stamped": 3096,
+      "repeated_leaf": 0,
+      "direct_place_offers": 3889,
+      "adjacent_equal_places": 2471,
+      "places_seen_in_same_replay": 2609
+    }
+  },
+  "corpus_rows": {
+    "bytes": 210105,
+    "sha256": "c8d8c634dee96a451257e3ec86cd3f2e2b50c5b8c821b745de410337be67b6d5"
+  },
+  "corpus_validation": {
+    "native_process_stack_bytes": 268435456,
+    "known_exit_status_comparisons": 4357,
+    "exit_status_mismatches": 0,
+    "raw_sha256": "8ed26906ea5a1c59ad93e397f0818f60e0f9b2cd72ef34e4b0cdb5e3b8f75acf"
+  }
+}

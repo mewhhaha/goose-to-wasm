@@ -1,0 +1,68 @@
+{
+  "check": {
+    "wasmtime_samples": 9917,
+    "native_samples": 3203,
+    "extra_samples": 6714,
+    "lifetime_excess": 5437,
+    "lifetime_share": 0.809800417039023,
+    "largest_named_excess": [
+      [
+        "life_replay",
+        534
+      ],
+      [
+        "life_eval_body",
+        310
+      ],
+      [
+        "life_eval",
+        299
+      ],
+      [
+        "life_effect",
+        295
+      ],
+      [
+        "life_effect_far",
+        286
+      ],
+      [
+        "life_readback",
+        242
+      ]
+    ]
+  },
+  "emit": {
+    "wasmtime_samples": 12624,
+    "native_samples": 4783,
+    "extra_samples": 7841,
+    "lifetime_excess": 4280,
+    "lifetime_share": 0.5458487437826808,
+    "largest_named_excess": [
+      [
+        "life_replay",
+        370
+      ],
+      [
+        "wb_reuse_locals",
+        361
+      ],
+      [
+        "life_eval_body",
+        240
+      ],
+      [
+        "life_effect",
+        234
+      ],
+      [
+        "life_effect_far",
+        213
+      ],
+      [
+        "region_component",
+        199
+      ]
+    ]
+  }
+}

@@ -1,0 +1,85 @@
+{
+  "source_commit": "4e7e1b3277448da923540c95b19040a71fe86a30",
+  "source_archive_sha256": "996362f0732dae29279895fe61a44d4d61849eddb516ac425e37b4ad44553aa3",
+  "emitter": {
+    "sha256": "4cf22567ceae046881276d5dcd8bc45d3938d1502eea78693656ff7e4f9a1aeb",
+    "bytes": 6939640
+  },
+  "clang": {
+    "sha256": "ca0d2f7fbe94836762f36c7e73292289bc4d5e4b9b5defc320ef0856259a2855",
+    "bytes": 124768,
+    "version": "clang version 23.1.5\nTarget: x86_64-pc-linux-gnu\nThread model: posix\nInstalledDir: /usr/bin"
+  },
+  "cpu_sets": {
+    "native": "0,2,3,4,5,6",
+    "wasm": "7"
+  },
+  "samples": [
+    {
+      "native": {
+        "wall_ns": 161937577503,
+        "argv": [
+          "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+          "/home/jacobt/src/goose-to-wasm/scripts/goose_wasm.py",
+          "build",
+          "selfhost/main.goose",
+          "--stdlib",
+          "stdlib",
+          "--goose",
+          "/home/jacobt/src/goose-to-wasm/build/replay-next/stage/emitter",
+          "--backend",
+          "native",
+          "--cc",
+          "/usr/bin/clang-23",
+          "--jobs",
+          "8",
+          "--no-cache",
+          "-O2",
+          "--emit-c",
+          "/home/jacobt/src/goose-to-wasm/build/replay-next/stage/build-1/compiler.c",
+          "--stats",
+          "/home/jacobt/src/goose-to-wasm/build/replay-next/stage/build-1/build.json",
+          "-o",
+          "/home/jacobt/src/goose-to-wasm/build/replay-next/stage/build-1/compiler-native"
+        ],
+        "frontend_ms": 10776.041465000162,
+        "cc_compile_ms": 150542.79071500423,
+        "cc_link_ms": 187.71158299932722,
+        "total_ms": 161813.39627799753,
+        "native_units": 8,
+        "runtime_unit": "compiled"
+      },
+      "wasm": {
+        "wall_ns": 7150391824,
+        "argv": [
+          "/home/jacobt/src/goose-to-wasm/build/replay-next/stage/emitter",
+          "selfhost/main.goose",
+          "--stdlib",
+          "stdlib",
+          "--target",
+          "wasm-direct",
+          "-O2",
+          "--wasm-memory64",
+          "--wasm-max-pages",
+          "262144",
+          "-o",
+          "/home/jacobt/src/goose-to-wasm/build/replay-next/stage/build-1/compiler.wasm"
+        ]
+      },
+      "artifacts": {
+        "compiler-native": {
+          "sha256": "97556951ca942e8de84a4fd91139c9257c350138e1ce39c28cccacdc3593829a",
+          "bytes": 7042368
+        },
+        "compiler.wasm": {
+          "sha256": "ef6d0757ddda507fdad7b2ce7096b762c82bd5d217ee8404468f37ababe60919",
+          "bytes": 17364282
+        },
+        "compiler.c": {
+          "sha256": "b7efea96cc152015892052cd50fbe419d7c57c413739847ce45f4e5fa3a8eb8a",
+          "bytes": 49624947
+        }
+      }
+    }
+  ]
+}
