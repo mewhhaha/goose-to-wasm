@@ -1,0 +1,56 @@
+{
+  "report": "bench/results/2026-11-18/compiler-record-access/selfhost.json",
+  "report_sha256": "99fb0952e53ffffa74687a43681b8de9b28c2f252fff1167215deab28b4e6a78",
+  "chart": "compiler-selfhost-execution.svg",
+  "chart_sha256": "53059dd532f5aaf11fcba75dee7718c902d9b0af1f73b4cfb14abafb1a8f16ee",
+  "seconds": {
+    "build": {
+      "native": {
+        "median": 29.10802546,
+        "min": 29.068359508,
+        "max": 29.266965923
+      },
+      "wasm": {
+        "median": 3.121844777,
+        "min": 3.096922177,
+        "max": 3.200173199
+      }
+    },
+    "execution": {
+      "check": {
+        "native": {
+          "median": 2.335322294,
+          "min": 2.222340337,
+          "max": 2.379705866
+        },
+        "wasmtime": {
+          "median": 6.964006843,
+          "min": 6.622137484,
+          "max": 7.021823807
+        },
+        "v8": {
+          "median": 6.924432302,
+          "min": 6.784348306,
+          "max": 7.174309262
+        }
+      },
+      "emit": {
+        "native": {
+          "median": 3.188106989,
+          "min": 3.18189547,
+          "max": 3.354966765
+        },
+        "wasmtime": {
+          "median": 9.590551045,
+          "min": 9.448418881,
+          "max": 10.15140636
+        },
+        "v8": {
+          "median": 10.158528905,
+          "min": 10.037449539,
+          "max": 10.572622058
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,104 @@
+{
+  "source_commit": "d0fce255de749618f192d39dc657c4299c14a860",
+  "compiler_sha256": "bb06a3005ef7b29917cf3489167edae8ddbf191b6a0f6c7a8481a889a93f8595",
+  "compiler_wrapper": "#!/bin/sh\nexec \"/home/jacobt/src/goose-to-wasm/build/checked-record-trial/qualification/bootstrap/bin/goose\" \"$@\" --wasm-bundled-host\n",
+  "target": "wasm-direct",
+  "levels": [
+    0,
+    2
+  ],
+  "engine": "wasmtime",
+  "manifest_sha256": "114d9ecbf070ee26eae6e6fb5fe75b202fda471bb36880d105480dd3dd402961",
+  "memory_widths": {
+    "32": {
+      "selected": 4777,
+      "passed": 4769,
+      "failed": 8,
+      "gaps_matched": true,
+      "failed_rows": [
+        [
+          "corpus/contracts/upstream-differential/harvest/packed_layout_boundaries/5e21f78e5a/wasm-direct",
+          0
+        ],
+        [
+          "corpus/contracts/upstream-differential/harvest/packed_layout_boundaries/5e21f78e5a/wasm-direct",
+          2
+        ],
+        [
+          "corpus/contracts/upstream-differential/harvest/regions/b37ae9dfb7/wasm-direct",
+          0
+        ],
+        [
+          "corpus/contracts/upstream-differential/harvest/regions/b37ae9dfb7/wasm-direct",
+          2
+        ],
+        [
+          "corpus/contracts/upstream-differential/harvest/regions/d8577df2d9/wasm-direct",
+          0
+        ],
+        [
+          "corpus/contracts/upstream-differential/harvest/regions/d8577df2d9/wasm-direct",
+          2
+        ],
+        [
+          "corpus/contracts/upstream-differential/harvest/uleb_length_boundaries/5347625ed2/wasm-direct",
+          0
+        ],
+        [
+          "corpus/contracts/upstream-differential/harvest/uleb_length_boundaries/5347625ed2/wasm-direct",
+          2
+        ]
+      ],
+      "report_sha256": "ac8c75c6cd2dfadea41d6e2ec6a74c6cabed2f73428333d82dd3a896d94ec139",
+      "known_gaps": "tests/conformance/known-gaps.json",
+      "known_gaps_sha256": "f369a67cc5543b9324d9e24b21b73a28ad615d39bc062ff89054d3e41ef1c77f",
+      "host": "build/bin/goose-wasmtime",
+      "host_sha256": "b1b3bddd9ef78d349e59284507fed9097b5c700c6e1e40b8d4d8e9b8c1e0efed"
+    },
+    "64": {
+      "selected": 4777,
+      "passed": 4769,
+      "failed": 8,
+      "gaps_matched": true,
+      "failed_rows": [
+        [
+          "corpus/contracts/upstream-differential/harvest/regions/b37ae9dfb7/wasm-direct",
+          0
+        ],
+        [
+          "corpus/contracts/upstream-differential/harvest/regions/b37ae9dfb7/wasm-direct",
+          2
+        ],
+        [
+          "corpus/owned-struct/capacity-error/4294967296",
+          0
+        ],
+        [
+          "corpus/owned-struct/capacity-error/4294967296",
+          2
+        ],
+        [
+          "corpus/runtime-limited/errors/1",
+          0
+        ],
+        [
+          "corpus/runtime-limited/errors/1",
+          2
+        ],
+        [
+          "corpus/variable-enum-tail/capacity-error/4294967296",
+          0
+        ],
+        [
+          "corpus/variable-enum-tail/capacity-error/4294967296",
+          2
+        ]
+      ],
+      "report_sha256": "8678ea2cc4e2f65f12b911ca63463e25cd13839bdcda475bc518fbd7ce7cfae1",
+      "known_gaps": "tests/conformance/known-gaps-memory64.json",
+      "known_gaps_sha256": "5617b268ffbaec8bdfc232724efb716ca99ecdbe32131c48194d710130331e1a",
+      "host": "host/rust/target/release/goose-wasmtime",
+      "host_sha256": "b247393d8fbe3115246f20703f726e90eeaaed762a75932c7bb131a4433ad026"
+    }
+  }
+}
