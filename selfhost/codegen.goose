@@ -3292,6 +3292,10 @@ recursive fn cg_expr_body(p: Program&, m: CgModule&, f: CgBody&, node: i64) {
     cg_fail(p, node, "wasm: checked AST node has no binary lowering");
 }
 fn cg_ensure_memory(p: Program&, m: CgModule&, f: CgBody&, top: i64, node: i64) {
+    if p.initial_pages == p.maximum_pages {
+        cg_get(f, top); wa_const(f.code, p.maximum_pages * 65536); wa_op(f.code, 0x4b);
+        cg_trap_if(p, m, f, node, "linear memory exhausted"); return;
+    }
     // top is an address local. Page counts are address-sized: memory.size
     // gives and memory.grow takes and gives an i64 with cg_wide.
     cg_get(f, top); wb_op(f.code, 0x3f, 0); wa_const(f.code, 16); wa_op(f.code, 0x74); wa_op(f.code, 0x4b); cg_begin(f, 0x04, 0x40);
@@ -3409,10 +3413,18 @@ fn cg_prepare_function(p: Program&, m: CgModule&, f: CgBody&, function: i64) {
 fn cg_emit_prelude(p: Program&, m: CgModule&, f: CgBody&) {
     if m.scalar { if !f.frame_free { wb_op(f.code, 0x23, 0); cg_set(f, f.frame); } return; }
     wb_op(f.code, 0x23, 0); cg_set(f, f.frame);
-    cg_get(f, f.frame); wa_const(f.code, cg_align(f.frame_bytes, 8)); wa_op(f.code, 0x6a); let top = cg_save(f, wa());
-    cg_get(f, top); cg_get(f, f.frame); wa_op(f.code, 0x49); cg_get(f, top);
-    if m.regions_enabled { wb_op(f.code, 0x23, 10); } else { wa_const(f.code, m.stack_limit); } wa_op(f.code, 0x4b); wb_byte(f.code, 0x72);
-    cg_trap_if(p, m, f, f.function, "activation stack exhausted"); cg_ensure_memory(p, m, f, top, f.function);
+    let bytes = cg_align(f.frame_bytes, 8);
+    cg_get(f, f.frame); wa_const(f.code, bytes); wa_op(f.code, 0x6a); let top = cg_save(f, wa());
+    // With fixed memory, every valid frame is already committed. A frame
+    // that fits the remaining address bits also cannot wrap the addition.
+    let fixed = p.initial_pages == p.maximum_pages;
+    let check_wrap = !fixed || !cg_wide && bytes > 4294967295 - p.maximum_pages * 65536;
+    if check_wrap { cg_get(f, top); cg_get(f, f.frame); wa_op(f.code, 0x49); }
+    cg_get(f, top);
+    if m.regions_enabled { wb_op(f.code, 0x23, 10); } else { wa_const(f.code, m.stack_limit); }
+    wa_op(f.code, 0x4b); if check_wrap { wb_byte(f.code, 0x72); }
+    cg_trap_if(p, m, f, f.function, "activation stack exhausted");
+    if !fixed { cg_ensure_memory(p, m, f, top, f.function); }
     cg_get(f, top); wb_op(f.code, 0x24, 0);
     if f.region_mark >= 0 { wb_op(f.code, 0x23, 3); cg_set(f, f.region_mark); }
     if f.publication_mark >= 0 { wb_op(f.code, 0x23, 11); cg_set(f, f.publication_mark); }
