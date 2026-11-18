@@ -103,6 +103,8 @@ def guest(arguments):
 p = argparse.ArgumentParser(description=__doc__)
 for field in ("compiler_stage", "workload_stage", "named_wasm", "output"):
     p.add_argument(field, type=lambda x: Path(x).resolve())
+p.add_argument("--expected-emission", type=lambda x: Path(x).resolve(),
+               help="output from the frozen native compiler when the backend changes module bytes")
 p.add_argument("--cpu", type=int, default=7)
 p.add_argument("--rounds", type=int, default=2)
 p.add_argument("--pc-check", action="store_true", help="sample only checks and retain per-function instruction offsets")
@@ -156,6 +158,8 @@ os.sched_setaffinity(0, {a.cpu})
 threading.stack_size(HOSTED_STACK_BYTES + (64 << 20))
 out = a.output.with_suffix(".wasm")
 expected = input_build["samples"][0]["artifacts"]["compiler.wasm"]
+if a.expected_emission:
+    expected = identity(a.expected_emission)
 report = dict(compiler=built["source_commit"], workload=input_build["source_commit"], workload_archive_sha256=input_build["source_archive_sha256"],
               native=identity(binary), wasm=identity(wasm), named=identity(a.named_wasm), wasmtime=version("wasmtime"),
               engine=identity(Path(_ffi.dll._name)), expected_emission=expected, cpu=a.cpu, interval_ns=2_000_000, runs=[])

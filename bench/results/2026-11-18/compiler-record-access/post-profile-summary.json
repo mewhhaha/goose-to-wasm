@@ -1,0 +1,52 @@
+{
+  "check": {
+    "guest_samples": 6911,
+    "native_samples": 2314,
+    "extra": 4597,
+    "lifetime_excess": 3732,
+    "wasmtime_unmapped": 325,
+    "largest_named_excess": [
+      [
+        "life_replay",
+        302
+      ],
+      [
+        "life_function",
+        291
+      ],
+      [
+        "life_effect",
+        239
+      ],
+      [
+        "life_effect_far",
+        219
+      ]
+    ]
+  },
+  "emit": {
+    "guest_samples": 9966,
+    "native_samples": 3282,
+    "extra": 6684,
+    "lifetime_excess": 3778,
+    "wasmtime_unmapped": 639,
+    "largest_named_excess": [
+      [
+        "wb_reuse_locals",
+        348
+      ],
+      [
+        "life_replay",
+        345
+      ],
+      [
+        "life_function",
+        277
+      ],
+      [
+        "life_effect_far",
+        223
+      ]
+    ]
+  }
+}
