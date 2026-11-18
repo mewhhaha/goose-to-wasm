@@ -1,0 +1,21 @@
+{
+  "upstream": "goose ee261a4 (runtime f6587ff7f52c)",
+  "upstream_sha256": "90704b06e25b03093cd1f9c29f1a6bf47540ba330df1cf0fd63c3dc37593f1e2",
+  "frame_fixture": {
+    "source_sha256": "9eaf1b835909746a7b49f5543e6b5df20e6e14e7630b55f4a96003ae413802c4",
+    "release_wasm_sha256": "2bee9e36a8e838f6426048fa87d4c93f0f5684bbca3a0629d5788a7b32f1e0b8",
+    "matched_stdout": "2577255\n"
+  },
+  "full_compiler": {
+    "upstream_base_errors": 33,
+    "upstream_frame_candidate_errors": 33,
+    "identical_sorted_messages_without_line_numbers": true
+  },
+  "rejected": {
+    "append_only_tables": {
+      "errors": 65,
+      "first": "selfhost/checker_lifetimes.goose:1003:22: error: array shrink invalidates a reference or holder that is used afterward",
+      "source_sha256": "37a22e48f7eb4c3d978da8997d7427b04986dca90eef2b0cb9a1c9c6b658375e"
+    }
+  }
+}

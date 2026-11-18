@@ -1,0 +1,89 @@
+{
+  "classification": "Capacity control trained on both evaluation projects",
+  "policy": "Per-region maximum of the two measured memory64 high-water profiles, with the release layout floor",
+  "compiler_commit": "4e9b78e6fc3d1294f31582600b62f7eea9f0e946",
+  "self_project_commit": "90e086fe61f9ce019d6a6ef543212be63f6e1f57",
+  "blot2_archive_sha256": "09b5189cc5f61756e3c851870606149c2fd826658b74bca73c8cc34165919d27",
+  "cpu": 3,
+  "native": {
+    "sha256": "b5861b426b583652f32b75f850c521672cea4a9cab62c34087efa55d2fbdd7c9",
+    "bytes": 7066976
+  },
+  "host": {
+    "sha256": "b247393d8fbe3115246f20703f726e90eeaaed762a75932c7bb131a4433ad026",
+    "bytes": 17245208
+  },
+  "profiles": {
+    "self-emit": {
+      "sha256": "b68fc00f96f410f846078e4f82e4c83ac8b369a1c72b47fd656fb493ecdf4600",
+      "bytes": 1014
+    },
+    "blot-parse": {
+      "sha256": "78846d1cba64efa1cd166d59169ba3a22f32f6e6192f94e6c29983ce482e954c",
+      "bytes": 224
+    }
+  },
+  "combined_profile": {
+    "sha256": "9c6565032203760ecbf8b143982d3568ab8ee3877b2dbafa5482508710a65efb",
+    "bytes": 1017
+  },
+  "module": {
+    "sha256": "0db64807fa3b4516ce591848a8ecb546a61dc0eb74f18684a1951f494256c663",
+    "bytes": 8614702
+  },
+  "regions": 135,
+  "usable_bytes": {
+    "6": 806370252,
+    "7": 847430124,
+    "53": 77304068
+  },
+  "results": {
+    "self-check": {
+      "matches_native": true,
+      "native": {
+        "status": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      "wasm": {
+        "status": 0,
+        "stdout": "",
+        "stderr": ""
+      }
+    },
+    "self-emit": {
+      "matches_native": true,
+      "native": {
+        "status": 0,
+        "stdout": "",
+        "stderr": "",
+        "emission": {
+          "sha256": "66798403ae7eb64fcd6da5490114b2d6ae82072d3f8c7fab2519713ee2f7190f",
+          "bytes": 8821388
+        }
+      },
+      "wasm": {
+        "status": 0,
+        "stdout": "",
+        "stderr": "",
+        "emission": {
+          "sha256": "66798403ae7eb64fcd6da5490114b2d6ae82072d3f8c7fab2519713ee2f7190f",
+          "bytes": 8821388
+        }
+      }
+    },
+    "blot-parse": {
+      "matches_native": true,
+      "native": {
+        "status": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      "wasm": {
+        "status": 0,
+        "stdout": "",
+        "stderr": ""
+      }
+    }
+  }
+}

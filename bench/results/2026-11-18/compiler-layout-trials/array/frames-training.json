@@ -1,0 +1,38 @@
+{
+  "training": [
+    {
+      "name": "squares",
+      "source_sha256": "420d9e6b4a2496865eb9f66603c4cbb0fdbb2add30e8ccc709a15102f4748b14",
+      "emitted_sha256": "fc8ae2dbef752d8e8eaaafec21e1c7500c3b27677f9030c502bf8c196ca7d845",
+      "profile_sha256": "193e28c49d6c36a69af5dff577eb5be679f8c05f77c26ce3a5b5fa4a3ae02909",
+      "used_regions": 79,
+      "peak_bytes": 24576
+    },
+    {
+      "name": "sorting",
+      "source_sha256": "00d2c7ed328100d018a3adc4ef3f2c5abd83d8219e8c6c0a56d00b0b1df8a27e",
+      "emitted_sha256": "b9ce93a5ef630da6e37912991cac3c3f052b8a5cf7290752ad4068e378e0aede",
+      "profile_sha256": "e968c7aa36438f6ff21c7891ca84e141b9541e9a89d9fe2d7ff3e8cb6fd27f59",
+      "used_regions": 98,
+      "peak_bytes": 1988000
+    },
+    {
+      "name": "tour",
+      "source_sha256": "a46393946390a6fc888d013ae0a07383812a57667d2474071eb938f853b8b834",
+      "emitted_sha256": "24e6ffb411721ea6ab95389127ca6d23e2db2ece47e0060e32383ba1e611e8b0",
+      "profile_sha256": "02a2b165d2801f1ebff65f78f0a04ee6f57c1f2d185533cb6ae569f6e2ca424c",
+      "used_regions": 95,
+      "peak_bytes": 250400
+    }
+  ],
+  "policy": "elementwise maximum of 3 training emission peaks, release layout code and floor",
+  "cpu": 2,
+  "compiler_sha256": "b5861b426b583652f32b75f850c521672cea4a9cab62c34087efa55d2fbdd7c9",
+  "host_sha256": "b247393d8fbe3115246f20703f726e90eeaaed762a75932c7bb131a4433ad026",
+  "collector_sha256": "af61bd2c5ab99fbc79c8fe7ab05e31357cb1eb7dc49be7f404734d7287770e17",
+  "profile_sha256": "ab665d3c9da6c6137f9d7d0e682b8a249c645f7fa0e8de85d74a95d3b8fa3a41",
+  "compiler_module_sha256": {
+    "uniform32": "af30f5ea5c8e76186fe57531dfd45a93400a5c85941f20a95949fb07e7fe28a5",
+    "trained32": "012d6f443ba081376485fd3b3c2b3d38826dc5618c14e6b0d6c7d16a5f27610e"
+  }
+}

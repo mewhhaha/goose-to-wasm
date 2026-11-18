@@ -8,6 +8,10 @@ A [Goose](https://github.com/aardappel/goose) compiler written in Goose. It emit
 
 ![Wasmtime compiler CPU time relative to native on the frozen project](bench/results/2026-11-18/compiler-array-views/comparison.svg)
 
+**Sizing memory32 from three examples.** An experimental layout cut frozen compiler check time from **5.19 to 3.81 s** and emission from **6.98 to 5.26 s** in the general Wasmtime host. It exhausted the token region parsing the 450-module Blot2 project. One 32-bit layout sized from both projects handled both. [Trials and capacity measurements](bench/results/2026-11-18/compiler-layout-trials/README.md)
+
+![Compiler execution using default memory64 and two ways of sizing memory32](bench/results/2026-11-18/compiler-layout-trials/memory.svg)
+
 **Compiler speed.** Across eleven programs, compiler `4e9b78e` used 0.974× the CPU time of `ac55de2` to emit Wasm and 0.984× to emit C. These are geometric means of medians over 31 measurements per cell. The chart shows wall time. In the earlier snapshot 59 comparison, Wasm emission took 0.58× the C++ compiler’s time and C emission took 0.53×. [Measurements](bench/results/2026-11-18/compiler-array-views/catalog-summary.json) · [Snapshot 59](bench/results/2026-11-11/compiler-throughput-59/README.md)
 
 ![Compiler execution time for eleven programs](bench/charts/compiler-comparison.svg)

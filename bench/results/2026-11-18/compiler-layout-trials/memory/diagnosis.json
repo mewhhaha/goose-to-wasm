@@ -1,0 +1,235 @@
+{
+  "reserve_failures": {
+    "uniform32": {
+      "module": {
+        "sha256": "b1f98ea3b550ee5a1ae29b300d530c629776ca0912de12ae043996a52607e51f",
+        "bytes": 8614702
+      },
+      "diagnostic": {
+        "sha256": "7e70812cc7d37d23448e898a55ca1a224f56f56ca0e8eb49999004f31f37c758",
+        "bytes": 8985690
+      },
+      "failed": {
+        "self-check": {
+          "error": "goose runtime error: data region exhausted (line 277)",
+          "region": 6,
+          "usable_bytes": 31577972,
+          "cursor_bytes": 31577920,
+          "requested_bytes": 88,
+          "needed_bytes_at_trap": 31578008
+        },
+        "blot-parse": {
+          "error": "goose runtime error: data region exhausted (line 277)",
+          "region": 6,
+          "usable_bytes": 31577972,
+          "cursor_bytes": 31577920,
+          "requested_bytes": 88,
+          "needed_bytes_at_trap": 31578008
+        },
+        "tree-emit": {
+          "error": "goose runtime error: data region exhausted (line 586)",
+          "region": 7,
+          "usable_bytes": 31577972,
+          "cursor_bytes": 31577920,
+          "requested_bytes": 160,
+          "needed_bytes_at_trap": 31578080
+        }
+      }
+    },
+    "trained32": {
+      "module": {
+        "sha256": "7c157e823a64fbedcfc7f54f329112ef1c805c181fb527a8acd04262e2082f32",
+        "bytes": 8614702
+      },
+      "diagnostic": {
+        "sha256": "5cdc54553fda8e1536856df4986052077f88bf5c0b7ae44e894bfc063d402a64",
+        "bytes": 8985690
+      },
+      "failed": {
+        "self-check": {
+          "error": "goose runtime error: data region exhausted (line 762)",
+          "region": 53,
+          "usable_bytes": 28993892,
+          "cursor_bytes": 28993888,
+          "requested_bytes": 32,
+          "needed_bytes_at_trap": 28993920
+        },
+        "blot-parse": {
+          "error": "goose runtime error: data region exhausted (line 277)",
+          "region": 6,
+          "usable_bytes": 210180364,
+          "cursor_bytes": 210180344,
+          "requested_bytes": 88,
+          "needed_bytes_at_trap": 210180432
+        }
+      }
+    },
+    "root32": {
+      "module": {
+        "sha256": "7eb18697c0bd5c1737e48c7a190d7f6321c74a291b26e49113eab0ae7a7acb68",
+        "bytes": 8614702
+      },
+      "diagnostic": {
+        "sha256": "a73e723b3aeb4025bc1a42002637fbfa423390469d7d8e9b8edcf5cd4533d996",
+        "bytes": 8985690
+      },
+      "failed": {
+        "blot-parse": {
+          "error": "goose runtime error: data region exhausted (line 277)",
+          "region": 6,
+          "usable_bytes": 123463076,
+          "cursor_bytes": 123463032,
+          "requested_bytes": 88,
+          "needed_bytes_at_trap": 123463120
+        }
+      }
+    },
+    "calibrated32": {
+      "module": {
+        "sha256": "6e4bef725aa3a66154c5db3d5c01bc3a47563c49d2d0fc18de665652bea5b6bf",
+        "bytes": 8614702
+      },
+      "diagnostic": {
+        "sha256": "2949b2b8a6f7018244255402dc776c3ce92231fc7d558dc458a15fbafe8b9084",
+        "bytes": 8985690
+      },
+      "failed": {
+        "blot-parse": {
+          "error": "goose runtime error: data region exhausted (line 277)",
+          "region": 6,
+          "usable_bytes": 250790380,
+          "cursor_bytes": 250790320,
+          "requested_bytes": 88,
+          "needed_bytes_at_trap": 250790408
+        }
+      }
+    },
+    "general64": {
+      "module": {
+        "sha256": "4a5a91997c4a8614484f23f44c07284c3d249d9d7274199d8be6a009ce7dde13",
+        "bytes": 8873765
+      },
+      "diagnostic": {
+        "sha256": "7c8e33197c5b63391e7d9d91b3a5f54e31b7827d27d396f1b5f4e5abad7c7ed5",
+        "bytes": 9206458
+      },
+      "failed": {
+        "blot-parse": {
+          "error": "goose runtime error: data region exhausted (line 586)",
+          "region": 7,
+          "usable_bytes": 126320360,
+          "cursor_bytes": 126320320,
+          "requested_bytes": 160,
+          "needed_bytes_at_trap": 126320480
+        }
+      }
+    }
+  },
+  "blot_256gib": {
+    "module": {
+      "sha256": "c580cbf6695520a26e6a1aa4fd55eab16e697d53b3e503ce1a21337af5bf0c1d",
+      "bytes": 9112140
+    },
+    "status": 0,
+    "stderr": "",
+    "profile": {
+      "sha256": "78846d1cba64efa1cd166d59169ba3a22f32f6e6192f94e6c29983ce482e954c",
+      "bytes": 224
+    },
+    "stdout": "",
+    "top_peaks": [
+      [
+        7,
+        430085760
+      ],
+      [
+        6,
+        408840784
+      ],
+      [
+        3,
+        19595607
+      ],
+      [
+        9,
+        4305840
+      ],
+      [
+        23,
+        1564934
+      ],
+      [
+        8,
+        499086
+      ],
+      [
+        24,
+        312984
+      ],
+      [
+        38,
+        307560
+      ],
+      [
+        39,
+        307560
+      ],
+      [
+        40,
+        307560
+      ]
+    ],
+    "blot_trained_32": {
+      "module": {
+        "sha256": "35dc3cad11a2779460b9f809482bbed8ed7fe0d1c5c76ccc8a18ab778640fdbd",
+        "bytes": 8614702
+      },
+      "status": 0,
+      "stderr": "",
+      "stdout": ""
+    }
+  },
+  "self_check_peaks": {
+    "module": {
+      "sha256": "5386ca844af315610970b72b4ae80df00b1f6390f0dadcdcc5a6b33c22c8c656",
+      "bytes": 8853718
+    },
+    "profile": {
+      "sha256": "26f6adbc28705aa38fe70d657933d0b2f6fd3ecef851faf0803bb4e49a3f779e",
+      "bytes": 984
+    },
+    "undersized": {
+      "uniform32": [
+        {
+          "region": 6,
+          "usable_bytes": 31577972,
+          "peak_bytes": 44483384
+        },
+        {
+          "region": 7,
+          "usable_bytes": 31577972,
+          "peak_bytes": 59679840
+        },
+        {
+          "region": 28,
+          "usable_bytes": 31577972,
+          "peak_bytes": 43688400
+        },
+        {
+          "region": 53,
+          "usable_bytes": 31577972,
+          "peak_bytes": 31810784
+        }
+      ],
+      "trained32": [
+        {
+          "region": 53,
+          "usable_bytes": 28993892,
+          "peak_bytes": 31810784
+        }
+      ],
+      "root32": [],
+      "calibrated32": []
+    }
+  }
+}

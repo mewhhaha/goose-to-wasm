@@ -1,0 +1,52 @@
+--- a/selfhost/checker_lifetimes.goose
++++ b/selfhost/checker_lifetimes.goose
+@@ -223,7 +223,7 @@
+ struct Lifetimes {
+     parents: const i64[:], depths: const i64[:], functions: const i64[:],
+     roots: LifeRoot[>..]&, sets: LifeSet[>..]&, alts: LifeAlt[>..]&, cells: LifeCell[>..]&,
+-    frames: LifeFrame[>..]&, items: LifeItem[>..]&, pairs: LifePair[>..]&, pair_heads: i64[>..]&, exits: LifeExit[>..]&,
++    frames: LifeFrame[:], empty_frames: LifeFrame[:], frame_storage: LifeFrame[>..]&, items: LifeItem[>..]&, pairs: LifePair[>..]&, pair_heads: i64[>..]&, exits: LifeExit[>..]&,
+     futures: LifeFuture[>..]&, holds: LifeHold[>..]&, temps: LifeTemp[>..]&, reads: LifeRead[>..]&,
+     kills: LifeKill[>..]&,
+     size_classes: i64[>..]&, types_frozen: bool = false,
+@@ -4636,8 +4636,10 @@
+         let kind = l.class_keys[cursor]; cursor += 1; place = 0; result_class = -1;
+         if kind != 0 { let record = life_key_set(l, cursor, classes); cursor = record.next; place = record.set; life_class_points(p, l, place, classes, n, -1); }
+     }
+-    l.frames.push(LifeFrame { function_node: function_node, parent: l.frame, lexical: 0, call: call, inputs: inputs, base: base, selected_result: selected_result, next_function: newest, home: l.frame,
++    l.frames = l.empty_frames;
++    l.frame_storage.push(LifeFrame { function_node: function_node, parent: l.frame, lexical: 0, call: call, inputs: inputs, base: base, selected_result: selected_result, next_function: newest, home: l.frame,
+         island: target, classes: classes, class_count: 3 * n, class_base: n, key: key, key_len: c.key_len, key_hash: c.hash, class_destination: place, result_class: result_class });
++    l.frames = l.frame_storage[..];
+     if newest >= 0 { l.frames[target].function_active = l.frames[newest].function_active; l.frames[target].inputs_kinds = l.frames[newest].inputs_kinds; l.frames[target].mixed_kinds = l.frames[newest].mixed_kinds; }
+     else { l.frames[target].mixed_kinds = true; }
+     l.function_frames[function_node] = target; l.class_frames += 1; l.class_list.push(target);
+@@ -5072,7 +5074,9 @@
+             input = l.items[input].next;
+         }
+         target = l.frames.len;
+-        l.frames.push(LifeFrame { function_node: function_node, parent: l.frame, lexical: lexical, call: call, inputs: arguments, base: base, destination: destination, selected_result: selected_result, next_function: newest, home: l.frame, inputs_hash: key.hash, inputs_kinds: key.kinds, mixed_kinds: mixed, island: l.island });
++        l.frames = l.empty_frames;
++        l.frame_storage.push(LifeFrame { function_node: function_node, parent: l.frame, lexical: lexical, call: call, inputs: arguments, base: base, destination: destination, selected_result: selected_result, next_function: newest, home: l.frame, inputs_hash: key.hash, inputs_kinds: key.kinds, mixed_kinds: mixed, island: l.island });
++        l.frames = l.frame_storage[..];
+         if newest >= 0 { l.frames[target].function_active = l.frames[newest].function_active; }
+         l.function_frames[function_node] = target; life_index_frame(l, target);
+     }
+@@ -6206,7 +6210,7 @@
+ fn check_lifetimes(p: Program&, scope_parent: const i64[:], scope_depth: const i64[:], scope_functions: const i64[:], pool_references: const i64[:]) {
+     if p.diagnostics.len > 0 { return; }
+     var roots: LifeRoot[>..] = [LifeRoot {}]; var sets: LifeSet[>..] = [LifeSet {}];
+-    var alts: LifeAlt[>..] = []; var cells: LifeCell[>..] = []; var frames: LifeFrame[>..] = [LifeFrame {}];
++    var empty_frames: LifeFrame[>..] = []; var alts: LifeAlt[>..] = []; var cells: LifeCell[>..] = []; var frames: LifeFrame[>..] = [LifeFrame {}];
+     var items: LifeItem[>..] = []; var pairs: LifePair[>..] = []; var pair_heads: i64[>..] = []; var exits: LifeExit[>..] = [];
+     var futures: LifeFuture[>..] = []; var holds: LifeHold[>..] = []; var temps: LifeTemp[>..] = []; var reads: LifeRead[>..] = []; var kills: LifeKill[>..] = []; var atoms: LifeAtom[>..] = []; var failures: LifeFailure[>..] = []; var effects: LifeEffect[>..] = [];
+     var symbol_cells: i64[>..] = []; symbol_cells.resize(p.symbols.len, -1);
+@@ -6244,7 +6248,7 @@
+     var assumes: LifeAssume[>..] = []; var assume_slots: i64[>..] = []; var map_memo: LifeMapped[>..] = []; var body_owners: i64[>..] = []; var body_captures: i64[>..] = []; var contained: i64[>..] = []; var typed_slots: i64[>..] = []; var global_types: i8[>..] = []; var refers: LifeRefers[>..] = []; var referable: LifeLoaded[>..] = []; var type_canon: i64[>..] = [];
+     var class_slots: i64[>..] = []; var joins: LifeJoin[>..] = []; var global_cells: i64[>..] = []; var global_candidates: LifeGlobalCandidates[>..] = []; var candidate_alts: LifeAlt[>..] = [];
+     var l = Lifetimes { parents: scope_parent, depths: scope_depth, functions: scope_functions,
+-        roots: roots, sets: sets, alts: alts, cells: cells, frames: frames, items: items, pairs: pairs, pair_heads: pair_heads, exits: exits,
++        roots: roots, sets: sets, alts: alts, cells: cells, frames: frames, empty_frames: empty_frames, frame_storage: frames, items: items, pairs: pairs, pair_heads: pair_heads, exits: exits,
+         futures: futures, holds: holds, temps: temps, reads: reads, kills: kills, size_classes: size_classes, holder_starts: holder_starts, holder_counts: holder_counts, holder_refs: holder_refs, index_types: index_types, asked: asked, atoms: atoms, failures: failures, effects: effects, symbol_cells: symbol_cells, node_roots: node_roots, function_frames: function_frames, read_heads: read_heads, visited: visited, summary_heads: summary_heads, effect_heads: effect_heads, summaries: summaries, leaves: leaves, leaf_heads: leaf_heads, leaf_stamps: leaf_stamps, leaf_floors: leaf_floors, summary_reads: summary_reads, read_slots: read_slots, contexts: contexts, context_heads: context_heads, chain_replays: chain_replays, chain_versions: chain_versions, capture_reads: capture_reads, offers: offers, global_read_spans: global_read_spans, global_read_list: global_read_list,
+         bodies: bodies, body_slots: body_slots, body_globals: body_globals, body_calls: body_calls,
+         build_alts: build_alts, build_slots: build_slots, set_index: set_index, scratch: scratch,

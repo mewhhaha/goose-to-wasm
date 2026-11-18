@@ -1,0 +1,507 @@
+{
+  "compiler_commit": "4e9b78e6fc3d1294f31582600b62f7eea9f0e946",
+  "workload": "90e086fe61f9ce019d6a6ef543212be63f6e1f57",
+  "compiler_archive_sha256": "91059b1407c847532aea432c401953819e3650cae1f9267c4c7f15bbfe205c85",
+  "workload_archive_sha256": "c9474661210aed23044b05faa4aa19bacee7063aa64cd6bf3092b9af9a1fdf1d",
+  "fixture_sha256": "09b5189cc5f61756e3c851870606149c2fd826658b74bca73c8cc34165919d27",
+  "generated": {
+    "sha256": "ff60688b8ace75b06694f1d9491be97e27d188f4914d30c9015f084cd68a5ffe",
+    "bytes": 975369
+  },
+  "borrow_tree": {
+    "sha256": "86c6166d4374dd51687a18caad7cd5ea5265a887213a4489e8d461f70ff9728a",
+    "bytes": 839496
+  },
+  "examples": {
+    "vm": {
+      "sha256": "1ee3c3f94e0fcb15964e44ec8bde1f3fa3d64e62c144073f1803a87cca852498",
+      "bytes": 5768
+    },
+    "sudoku": {
+      "sha256": "06ff5516f6a37769f4d373127e58214480a38a1e5c84c1331abfed7cdf7ec555",
+      "bytes": 3824
+    },
+    "functions": {
+      "sha256": "b11be17ac9ebd0d471c85eb8454cd40edde0924e5094a8baf3ab69bc639b3565",
+      "bytes": 4509
+    },
+    "errors": {
+      "sha256": "1b4d87ea59ca79ec0085e17d4b495972c6b468ca6f0b83401a16c677e6df39ca",
+      "bytes": 4888
+    },
+    "sieve": {
+      "sha256": "9b8d2b0066d8219e4dfce97b45a5e8b39dc20779e49d5b15b6aa31c8d561440a",
+      "bytes": 1927
+    },
+    "life": {
+      "sha256": "9d1613869a3c086454dfdd24104d09e48499a8b1a4c653ebe5125e02d98aea97",
+      "bytes": 2832
+    },
+    "maze": {
+      "sha256": "217864f76018759196a101ad900315f5343683ccdc6a6e70eaecb3bec0343781",
+      "bytes": 4892
+    }
+  },
+  "cpu": 3,
+  "rust_host": {
+    "sha256": "b247393d8fbe3115246f20703f726e90eeaaed762a75932c7bb131a4433ad026",
+    "bytes": 17245208
+  },
+  "modules": {
+    "trained32": {
+      "sha256": "7c157e823a64fbedcfc7f54f329112ef1c805c181fb527a8acd04262e2082f32",
+      "bytes": 8614702
+    },
+    "uniform32": {
+      "sha256": "b1f98ea3b550ee5a1ae29b300d530c629776ca0912de12ae043996a52607e51f",
+      "bytes": 8614702
+    },
+    "calibrated32": {
+      "sha256": "6e4bef725aa3a66154c5db3d5c01bc3a47563c49d2d0fc18de665652bea5b6bf",
+      "bytes": 8614702
+    },
+    "general64": {
+      "sha256": "4a5a91997c4a8614484f23f44c07284c3d249d9d7274199d8be6a009ce7dde13",
+      "bytes": 8873765
+    },
+    "root32": {
+      "sha256": "7eb18697c0bd5c1737e48c7a190d7f6321c74a291b26e49113eab0ae7a7acb68",
+      "bytes": 8614702
+    }
+  },
+  "native": {
+    "sha256": "b5861b426b583652f32b75f850c521672cea4a9cab62c34087efa55d2fbdd7c9",
+    "bytes": 7066976
+  },
+  "calibrated_profile_sha256": "b68fc00f96f410f846078e4f82e4c83ac8b369a1c72b47fd656fb493ecdf4600",
+  "correctness": {
+    "self-check": {
+      "reference": {
+        "status": 0
+      },
+      "runs": {
+        "trained32": {
+          "matches_native": false,
+          "observed": {
+            "status": 1,
+            "stderr": "goose runtime error: data region exhausted (line 762)\n"
+          }
+        },
+        "uniform32": {
+          "matches_native": false,
+          "observed": {
+            "status": 1,
+            "stderr": "goose runtime error: data region exhausted (line 277)\n"
+          }
+        },
+        "calibrated32": {
+          "matches_native": true
+        },
+        "general64": {
+          "matches_native": true
+        },
+        "root32": {
+          "matches_native": true
+        }
+      }
+    },
+    "self-emit": {
+      "reference": {
+        "status": 0,
+        "emission": {
+          "sha256": "66798403ae7eb64fcd6da5490114b2d6ae82072d3f8c7fab2519713ee2f7190f",
+          "bytes": 8821388
+        }
+      },
+      "runs": {
+        "trained32": {
+          "matches_native": false,
+          "observed": {
+            "status": 1,
+            "stderr": "goose runtime error: data region exhausted (line 762)\n"
+          }
+        },
+        "uniform32": {
+          "matches_native": false,
+          "observed": {
+            "status": 1,
+            "stderr": "goose runtime error: data region exhausted (line 277)\n"
+          }
+        },
+        "calibrated32": {
+          "matches_native": true
+        },
+        "general64": {
+          "matches_native": true
+        },
+        "root32": {
+          "matches_native": true
+        }
+      }
+    },
+    "blot-parse": {
+      "reference": {
+        "status": 0
+      },
+      "runs": {
+        "trained32": {
+          "matches_native": false,
+          "observed": {
+            "status": 1,
+            "stderr": "goose runtime error: data region exhausted (line 277)\n"
+          }
+        },
+        "uniform32": {
+          "matches_native": false,
+          "observed": {
+            "status": 1,
+            "stderr": "goose runtime error: data region exhausted (line 277)\n"
+          }
+        },
+        "calibrated32": {
+          "matches_native": false,
+          "observed": {
+            "status": 1,
+            "stderr": "goose runtime error: data region exhausted (line 277)\n"
+          }
+        },
+        "general64": {
+          "matches_native": false,
+          "observed": {
+            "status": 1,
+            "stderr": "goose runtime error: data region exhausted (line 586)\n"
+          }
+        },
+        "root32": {
+          "matches_native": false,
+          "observed": {
+            "status": 1,
+            "stderr": "goose runtime error: data region exhausted (line 277)\n"
+          }
+        }
+      }
+    },
+    "tree-emit": {
+      "reference": {
+        "status": 0,
+        "emission": {
+          "sha256": "1512cebb75aab42c49c1d77d4070ec45f33eaedb7a7a49f5fe9ec417cc6f0daf",
+          "bytes": 4051723
+        }
+      },
+      "runs": {
+        "trained32": {
+          "matches_native": true
+        },
+        "uniform32": {
+          "matches_native": false,
+          "observed": {
+            "status": 1,
+            "stderr": "goose runtime error: data region exhausted (line 586)\n"
+          }
+        },
+        "calibrated32": {
+          "matches_native": true
+        },
+        "general64": {
+          "matches_native": true
+        },
+        "root32": {
+          "matches_native": true
+        }
+      }
+    },
+    "borrow-tree-emit": {
+      "reference": {
+        "status": 0,
+        "emission": {
+          "sha256": "34ab3cd0e48240cae8e0900bf12ad4f3853eace6d90ca41bfc4c0edbc05df62e",
+          "bytes": 2722741
+        }
+      },
+      "runs": {
+        "trained32": {
+          "matches_native": true
+        },
+        "uniform32": {
+          "matches_native": false,
+          "observed": {
+            "status": 1,
+            "stderr": "goose runtime error: data region exhausted (line 233)\n"
+          }
+        },
+        "calibrated32": {
+          "matches_native": true
+        },
+        "general64": {
+          "matches_native": true
+        },
+        "root32": {
+          "matches_native": true
+        }
+      }
+    },
+    "vm-emit": {
+      "reference": {
+        "status": 0,
+        "emission": {
+          "sha256": "4ea004414d09c36e65b68770cbbb0c0976945cb0d8c7036fc45934485e3ec788",
+          "bytes": 24773
+        }
+      },
+      "runs": {
+        "trained32": {
+          "matches_native": true
+        },
+        "uniform32": {
+          "matches_native": true
+        },
+        "calibrated32": {
+          "matches_native": true
+        },
+        "general64": {
+          "matches_native": true
+        },
+        "root32": {
+          "matches_native": true
+        }
+      }
+    },
+    "sudoku-emit": {
+      "reference": {
+        "status": 0,
+        "emission": {
+          "sha256": "187b74b72caa303b7b107c01855e0200388cba0d998585ee8e5bb1520f7488a4",
+          "bytes": 12568
+        }
+      },
+      "runs": {
+        "trained32": {
+          "matches_native": true
+        },
+        "uniform32": {
+          "matches_native": true
+        },
+        "calibrated32": {
+          "matches_native": true
+        },
+        "general64": {
+          "matches_native": true
+        },
+        "root32": {
+          "matches_native": true
+        }
+      }
+    },
+    "functions-emit": {
+      "reference": {
+        "status": 0,
+        "emission": {
+          "sha256": "aa4eafb72fea420dc7cd4aec5b7ee25c4da515dd128cfc53934bf72bf667a96d",
+          "bytes": 109181
+        }
+      },
+      "runs": {
+        "trained32": {
+          "matches_native": true
+        },
+        "uniform32": {
+          "matches_native": true
+        },
+        "calibrated32": {
+          "matches_native": true
+        },
+        "general64": {
+          "matches_native": true
+        },
+        "root32": {
+          "matches_native": true
+        }
+      }
+    },
+    "errors-emit": {
+      "reference": {
+        "status": 0,
+        "emission": {
+          "sha256": "d101f9bcd86aead2760ad6cb2a75a12a442e6ddbf98c33a8c1386c7f475e0ba3",
+          "bytes": 29507
+        }
+      },
+      "runs": {
+        "trained32": {
+          "matches_native": true
+        },
+        "uniform32": {
+          "matches_native": true
+        },
+        "calibrated32": {
+          "matches_native": true
+        },
+        "general64": {
+          "matches_native": true
+        },
+        "root32": {
+          "matches_native": true
+        }
+      }
+    },
+    "sieve-emit": {
+      "reference": {
+        "status": 0,
+        "emission": {
+          "sha256": "fe3abb456195045844db4354276c89fb0fcd7fbac386124a6677b6463c9c10b1",
+          "bytes": 9693
+        }
+      },
+      "runs": {
+        "trained32": {
+          "matches_native": true
+        },
+        "uniform32": {
+          "matches_native": true
+        },
+        "calibrated32": {
+          "matches_native": true
+        },
+        "general64": {
+          "matches_native": true
+        },
+        "root32": {
+          "matches_native": true
+        }
+      }
+    },
+    "life-emit": {
+      "reference": {
+        "status": 0,
+        "emission": {
+          "sha256": "6416eaa89a849c58e9e1ea60a29b3fc6c30f7d786c9cdfc46ad00d9e615702ee",
+          "bytes": 13995
+        }
+      },
+      "runs": {
+        "trained32": {
+          "matches_native": true
+        },
+        "uniform32": {
+          "matches_native": true
+        },
+        "calibrated32": {
+          "matches_native": true
+        },
+        "general64": {
+          "matches_native": true
+        },
+        "root32": {
+          "matches_native": true
+        }
+      }
+    },
+    "maze-emit": {
+      "reference": {
+        "status": 0,
+        "emission": {
+          "sha256": "8d48613bdaf87025e2a9dd1bfd29c2dd187296e75d0ba1060d05db69a2357a7d",
+          "bytes": 34056
+        }
+      },
+      "runs": {
+        "trained32": {
+          "matches_native": true
+        },
+        "uniform32": {
+          "matches_native": true
+        },
+        "calibrated32": {
+          "matches_native": true
+        },
+        "general64": {
+          "matches_native": true
+        },
+        "root32": {
+          "matches_native": true
+        }
+      }
+    }
+  },
+  "self_timing_s": {
+    "self-check": {
+      "calibrated32": [
+        3.767830183,
+        3.847175888,
+        3.839992442,
+        3.796501626
+      ],
+      "general64": [
+        5.163427003,
+        5.292976244,
+        5.145025766,
+        5.217157561
+      ],
+      "root32": [
+        3.828386854,
+        3.800363733,
+        3.810941977,
+        3.794253683
+      ]
+    },
+    "self-emit": {
+      "calibrated32": [
+        5.19697361,
+        5.166583192,
+        6.877613863,
+        5.332914807
+      ],
+      "general64": [
+        6.879096141,
+        6.914928299,
+        7.126696308,
+        7.04099471
+      ],
+      "root32": [
+        5.249179105,
+        5.141404322,
+        5.277622645,
+        5.286801281
+      ]
+    }
+  },
+  "training": {
+    "training": [
+      {
+        "name": "squares",
+        "source_sha256": "420d9e6b4a2496865eb9f66603c4cbb0fdbb2add30e8ccc709a15102f4748b14",
+        "emitted_sha256": "fc8ae2dbef752d8e8eaaafec21e1c7500c3b27677f9030c502bf8c196ca7d845",
+        "profile_sha256": "499bbc48b5c57b05fff2769c6e5489b1c7904d626ddd19ab4e9d7e2bcbc3f0c0",
+        "used_regions": 78,
+        "peak_bytes": 24576
+      },
+      {
+        "name": "sorting",
+        "source_sha256": "00d2c7ed328100d018a3adc4ef3f2c5abd83d8219e8c6c0a56d00b0b1df8a27e",
+        "emitted_sha256": "b9ce93a5ef630da6e37912991cac3c3f052b8a5cf7290752ad4068e378e0aede",
+        "profile_sha256": "65cccee8dade6b994ad0ecdcfb36e96d961c4d4804d3b11900c1c2fd72958c15",
+        "used_regions": 98,
+        "peak_bytes": 1988000
+      },
+      {
+        "name": "tour",
+        "source_sha256": "a46393946390a6fc888d013ae0a07383812a57667d2474071eb938f853b8b834",
+        "emitted_sha256": "24e6ffb411721ea6ab95389127ca6d23e2db2ece47e0060e32383ba1e611e8b0",
+        "profile_sha256": "5b3a87266de0fbfbf46672bdaa8c03059c068e78b17f7ca7d554dab38c850a51",
+        "used_regions": 95,
+        "peak_bytes": 250400
+      }
+    ],
+    "policy": "elementwise maximum of 3 training emission peaks, release layout code and floor",
+    "cpu": 3,
+    "compiler_sha256": "b5861b426b583652f32b75f850c521672cea4a9cab62c34087efa55d2fbdd7c9",
+    "host_sha256": "b247393d8fbe3115246f20703f726e90eeaaed762a75932c7bb131a4433ad026",
+    "collector_sha256": "c9e16ae564b30185b070fa2e90f06c59ad5705ec99d1a5125f9d19824bf124a7",
+    "profile_sha256": "594e464b7d32583d055020b5efcd7606558f78fc687d06dd6d7a32bdd85b1d11",
+    "compiler_module_sha256": {
+      "uniform32": "b1f98ea3b550ee5a1ae29b300d530c629776ca0912de12ae043996a52607e51f",
+      "trained32": "7c157e823a64fbedcfc7f54f329112ef1c805c181fb527a8acd04262e2082f32"
+    }
+  }
+}
