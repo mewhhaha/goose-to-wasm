@@ -34,7 +34,7 @@ A [Goose](https://github.com/aardappel/goose) compiler written in Goose. It emit
 
 **Native rows.** Stable scans and counted literal pushes reduced append time from 238.683 ms to 0.363 ms and traversal from 600.395 ms to 0.076 ms for 8,008 rows across seven pairs. [Measurements](bench/results/2026-11-17/native-row-scans/README.md)
 
-**Closing the gap to native.** On the same frozen compiler project, the new backend reduced Wasmtime checking from 2.83× to 2.40× native time and emission from 3.55× to 3.13× with profiled memory32. Default memory64 improved from 4.25× to 3.57× for checking and from 3.99× to 3.54× for emission. Each comparison uses three interleaved rounds with its own native control. [Measurements](bench/results/2026-11-18/wasm-lowering/README.md)
+**Closing the gap to native.** On the same frozen compiler project, the new backend reduced Wasmtime checking from 2.83× to 2.40× native time and emission from 3.55× to 3.13× with profiled memory32. Default memory64 improved from 4.25× to 3.57× for checking and from 3.99× to 3.54× for emission. In a separate memory32 CPU profile, lifetime analysis accounted for 80% of the extra sampled CPU time during checking and 54% during emission. [Measurements and CPU profile](bench/results/2026-11-18/wasm-lowering/README.md#where-the-gap-remains)
 
 ![Wasmtime compiler execution relative to native before and after the changes](bench/results/2026-11-18/wasm-lowering/runtime.svg)
 
