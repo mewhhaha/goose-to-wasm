@@ -55,7 +55,7 @@ struct LifeRoot { symbol: i64 = -1, frame: i64 = -1, node: i64 = -1, type_id: i6
 struct LifeValue { type_id: i64 = -1, place: i64 = 0, refs: i64 = 0, contents: i64 = 0, self_pools: i64 = 0, relative_roots: i64 = 0, tuple: i64 = -1, element_array: i64 = -1, reached: i64 = -1 }
 struct LifeItem { value: LifeValue, next: i64 = -1 }
 // live is set and cleared through life_set_live, which mirrors it in live_bits.
-struct LifeCell { symbol: i64, frame: i64, root: i64, parameter: bool = false, refs: i64 = 0, live_refs: i64 = 0, contents: i64 = 0, initial: i64 = 0, committed: bool = false, growshrink: bool = false, depth: i64 = 0, initialized: bool = false, live: bool = false, next_symbol: i64 = -1, next_frame: i64 = -1, next_capture_input: i64 = -1 }
+struct LifeCell { symbol: i64, frame: i64, root: i64, parameter: bool = false, refs: i64 = 0, live_refs: i64 = 0, contents: i64 = 0, initial: i64 = 0, committed: bool = false, growshrink: bool = false, depth: i64 = 0, initialized: bool = false, live: bool = false, next_symbol: i64 = -1, next_frame: i64 = -1, next_capture_input: i64 = -1, next_parameter: i64 = -1 }
 // first_other, last_other: the discovery summary's entries that are not
 // construct reads, in order (LifeSummary.other). reads_version: how many
 // times a construct read has been added to the summary or changed in it.
@@ -67,7 +67,7 @@ struct LifeCell { symbol: i64, frame: i64, root: i64, parameter: bool = false, r
 // next older frame in its input_heads and home_heads buckets.
 // function_active: on the newest frame of a function, how many of the
 // function's frames are active.
-struct LifeFrame { function_node: i64 = -1, parent: i64 = -1, lexical: i64 = 0, call: i64 = -1, inputs: i64 = -1, base: i64 = 0, active: bool = false, result: LifeValue = LifeValue {}, destination: i64 = 0, selected_result: i64 = -1, checked_revision: i64 = -1, next_function: i64 = -1, first_cell: i64 = -1, first_capture_input: i64 = -1, first_effect: i64 = -1, last_effect: i64 = -1, validated: bool = false, first_summary: i64 = -1, last_summary: i64 = -1, effect_epoch: i64 = 0, recursive_call: bool = false, home: i64 = -1, capture_inputs: i64 = -1, cycle: i64 = -1, activation: i64 = 0, context: i64 = 0, first_other: i64 = -1, last_other: i64 = -1, reads_version: i64 = 0, first_read: i64 = -1, last_read: i64 = -1, read_table: i64 = 0, read_cap: i64 = 0, read_count: i64 = 0, chain: i64 = 0, chain_epoch: i64 = -1, chain_recursive: i64 = 0, inputs_hash: i64 = 0, inputs_kinds: i64 = 0, mixed_kinds: bool = false, next_inputs: i64 = -1, next_home: i64 = -1, function_active: i64 = 0,
+struct LifeFrame { function_node: i64 = -1, parent: i64 = -1, lexical: i64 = 0, call: i64 = -1, inputs: i64 = -1, base: i64 = 0, active: bool = false, result: LifeValue = LifeValue {}, destination: i64 = 0, selected_result: i64 = -1, checked_revision: i64 = -1, next_function: i64 = -1, first_cell: i64 = -1, first_capture_input: i64 = -1, first_parameter: i64 = -1, first_effect: i64 = -1, last_effect: i64 = -1, validated: bool = false, first_summary: i64 = -1, last_summary: i64 = -1, effect_epoch: i64 = 0, recursive_call: bool = false, home: i64 = -1, capture_inputs: i64 = -1, cycle: i64 = -1, activation: i64 = 0, context: i64 = 0, first_other: i64 = -1, last_other: i64 = -1, reads_version: i64 = 0, first_read: i64 = -1, last_read: i64 = -1, read_table: i64 = 0, read_cap: i64 = 0, read_count: i64 = 0, chain: i64 = 0, chain_epoch: i64 = -1, chain_recursive: i64 = 0, inputs_hash: i64 = 0, inputs_kinds: i64 = 0, mixed_kinds: bool = false, next_inputs: i64 = -1, next_home: i64 = -1, function_active: i64 = 0,
     first_exit: i64 = -1,
     // island: the class-keyed frame this frame last ran under, itself for
     // such a frame, 0 for none. For a class-keyed frame: classes, class_count:
@@ -434,11 +434,11 @@ fn life_effect_recursive(l: Lifetimes&, places: i64, frame: i64) -> bool {
     while at >= 0 {
         let root = l.alts[at].root;
         if root != 0 && l.roots[root].frame == frame {
-            var ci = l.frames[frame].first_cell;
+            var ci = l.frames[frame].first_parameter;
             while ci >= 0 {
-                let cell = l.cells[ci];
-                if cell.parameter && life_find(l, cell.refs, root) >= 0 { return true; }
-                ci = cell.next_frame;
+                let cell: const LifeCell& = l.cells[ci];
+                if life_find(l, cell.refs, root) >= 0 { return true; }
+                ci = cell.next_parameter;
             }
         }
         at = l.alts[at].next;
@@ -1462,7 +1462,7 @@ fn life_depth(l: Lifetimes&, scope: i64) -> i64 {
         if scope >= 0 && scope < l.depths.len { return 2 * l.depths[scope]; }
         return 0;
     }
-    let frame = l.frames[l.frame]; var declaration = 0;
+    let frame: const LifeFrame& = l.frames[l.frame]; var declaration = 0;
     if frame.function_node >= 0 {
         var at = scope;
         while at > 0 && l.functions[at] == frame.function_node { declaration = l.depths[at]; at = l.parents[at]; }
@@ -1537,6 +1537,10 @@ fn life_cell(p: Program&, l: Lifetimes&, symbol: i64) -> i64 {
     l.roots.push(LifeRoot { symbol: symbol, frame: frame, type_id: p.symbols[symbol].type_id, depth: depth });
     l.frame = saved;
     let index = l.cells.len; l.cells.push(LifeCell { symbol: symbol, frame: frame, root: root, parameter: (p.symbols[symbol].flags & S_PARAMETER) != 0, next_symbol: l.symbol_cells[symbol], next_frame: l.frames[frame].first_cell });
+    if l.cells[index].parameter {
+        l.cells[index].next_parameter = l.frames[frame].first_parameter;
+        l.frames[frame].first_parameter = index;
+    }
     let type_id = p.symbols[symbol].type_id; let reference = life_is_ref(p, type_id);
     var element = -1; if reference { element = p.types[type_id].element; }
     if (index & 63) == 0 { l.holder_bits.push(0); }
@@ -3035,7 +3039,8 @@ fn life_held_into(p: Program&, l: Lifetimes&, owners: i64, holder_type: i64, tar
     var current = 0; var scanned: i64[>..] = [];
     while current < work.len {
         let held = work[current]; current += 1; if held.type_id < 0 { continue; }
-        let root = l.roots[held.root];
+        let root: const LifeRoot& = l.roots[held.root];
+        let live_contents = root.live_contents; let class_frame = root.class_frame;
         // The reference types the holder's type has in it are the same every
         // time (holder_refs), unless a field of this root has been killed.
         var first_kill: i64 = -1;
@@ -3068,16 +3073,16 @@ fn life_held_into(p: Program&, l: Lifetimes&, owners: i64, holder_type: i64, tar
             // a byte view.
             let reaches = life_contains(p, l, element, t.element); let leads = life_holds(p, t.element);
             if !reaches && !leads {
-                if bytes == 0 { bytes = 1; if life_has_bytes(l, root.live_contents) { bytes = 2; } }
+                if bytes == 0 { bytes = 1; if life_has_bytes(l, live_contents) { bytes = 2; } }
                 if bytes == 1 { continue; }
             }
-            var holding = root.live_contents;
-            if root.class_frame >= 0 && l.frames[root.class_frame].stored_first >= 0 { holding = life_join(l, holding, life_class_stores(l, held.root)); }
+            var holding = live_contents;
+            if class_frame >= 0 && l.frames[class_frame].stored_first >= 0 { holding = life_join(l, holding, life_class_stores(l, held.root)); }
             var ai = l.sets[holding].first;
             while ai >= 0 {
                 var alt = l.alts[ai]; ai = alt.next;
                 if l.class_frames > 0 { alt = life_class_narrow(l, alt, held.root, t.element); }
-                let storage = l.roots[alt.root];
+                let storage: const LifeRoot& = l.roots[alt.root];
                 if !alt.byteview && (storage.class_frame < 0 && !life_contains(p, l, storage.type_id, t.element) || alt.target_type >= 0 && !life_same(p, alt.target_type, t.element)) { continue; }
                 if (alt.byteview || reaches) &&
                    life_alt_overlaps(l, alt, target, slot_safe) { return true; }
@@ -3369,21 +3374,21 @@ fn life_global_candidates(p: Program&, l: Lifetimes&, pointee: i64, depth: i64) 
     l.global_candidates[pointee] = LifeGlobalCandidates { epoch: l.global_epoch, depth: depth, first: first, count: l.scratch.len - start };
 }
 fn life_class_candidates(p: Program&, l: Lifetimes&, owner: i64, pointee: i64) -> i64 {
-    var through_parameter = false; var ci = l.frames[l.frame].first_cell;
+    var through_parameter = false; var ci = l.frames[l.frame].first_parameter;
     while ci >= 0 {
-        let cell = l.cells[ci];
-        if cell.parameter && life_find(l, cell.refs, owner) >= 0 { through_parameter = true; break; }
-        ci = cell.next_frame;
+        let cell: const LifeCell& = l.cells[ci];
+        if life_find(l, cell.refs, owner) >= 0 { through_parameter = true; break; }
+        ci = cell.next_parameter;
     }
     if !through_parameter { return 0; }
-    var result = LifeBuild {}; ci = l.frames[l.frame].first_cell;
+    var result = LifeBuild {}; ci = l.frames[l.frame].first_parameter;
     while ci >= 0 {
-        let cell = l.cells[ci]; let ty = p.symbols[cell.symbol].type_id;
-        if cell.parameter && ty >= 0 && p.types[ty].kind == TY_REF && life_contains(p, l, p.types[ty].element, pointee) {
+        let cell: const LifeCell& = l.cells[ci]; let ty = p.symbols[cell.symbol].type_id;
+        if ty >= 0 && p.types[ty].kind == TY_REF && life_contains(p, l, p.types[ty].element, pointee) {
             var at = l.sets[cell.refs].first;
             while at >= 0 { let alt = l.alts[at]; if l.roots[alt.root].depth <= l.roots[owner].depth { life_build_add_alt(l, result, LifeAlt { root: alt.root, exact: alt.exact, bound: alt.bound, component: alt.component }); } at = alt.next; }
         }
-        ci = cell.next_frame;
+        ci = cell.next_parameter;
     }
     return life_build_end(l, result);
 }
