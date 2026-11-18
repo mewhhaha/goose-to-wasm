@@ -1,0 +1,1186 @@
+[
+  {
+    "variant": "import",
+    "width": 32,
+    "optimization": 0,
+    "runs": {
+      "release": {
+        "sha256": "776807ee5ce855963864b0613531a0cd175faded0bb7caef3f39f886ba6f76c9",
+        "bytes": 5410,
+        "cases": {
+          "0": {
+            "outputs": [
+              27778
+            ],
+            "errors": []
+          },
+          "1": {
+            "outputs": [
+              27778
+            ],
+            "errors": []
+          },
+          "2": {
+            "outputs": [
+              27778
+            ],
+            "errors": []
+          },
+          "3": {
+            "outputs": [
+              27778
+            ],
+            "errors": []
+          },
+          "4": {
+            "outputs": [
+              27778
+            ],
+            "errors": []
+          },
+          "5": {
+            "outputs": [
+              27778
+            ],
+            "errors": []
+          },
+          "6": {
+            "outputs": [
+              27778
+            ],
+            "errors": []
+          },
+          "truncated": {
+            "outputs": [],
+            "errors": [
+              [
+                "truncated varint image",
+                5
+              ]
+            ]
+          },
+          "overlong": {
+            "outputs": [],
+            "errors": [
+              [
+                "varint image exceeds 64 bits",
+                5
+              ]
+            ]
+          },
+          "wide32": {
+            "outputs": [],
+            "errors": [
+              [
+                "array image length exceeds wasm32 range",
+                5
+              ]
+            ]
+          }
+        }
+      },
+      "combined": {
+        "sha256": "78c89be73c84ac7b5cc3a76d182c27c76c3ced4f9effa881f81b381f3cf54e45",
+        "bytes": 4230,
+        "cases": {
+          "0": {
+            "outputs": [
+              27778
+            ],
+            "errors": []
+          },
+          "1": {
+            "outputs": [
+              27778
+            ],
+            "errors": []
+          },
+          "2": {
+            "outputs": [
+              27778
+            ],
+            "errors": []
+          },
+          "3": {
+            "outputs": [
+              27778
+            ],
+            "errors": []
+          },
+          "4": {
+            "outputs": [
+              27778
+            ],
+            "errors": []
+          },
+          "5": {
+            "outputs": [
+              27778
+            ],
+            "errors": []
+          },
+          "6": {
+            "outputs": [
+              27778
+            ],
+            "errors": []
+          },
+          "truncated": {
+            "outputs": [],
+            "errors": [
+              [
+                "truncated varint image",
+                5
+              ]
+            ]
+          },
+          "overlong": {
+            "outputs": [],
+            "errors": [
+              [
+                "varint image exceeds 64 bits",
+                5
+              ]
+            ]
+          },
+          "wide32": {
+            "outputs": [],
+            "errors": [
+              [
+                "array image length exceeds wasm32 range",
+                5
+              ]
+            ]
+          }
+        }
+      }
+    }
+  },
+  {
+    "variant": "import",
+    "width": 32,
+    "optimization": 2,
+    "runs": {
+      "release": {
+        "sha256": "776807ee5ce855963864b0613531a0cd175faded0bb7caef3f39f886ba6f76c9",
+        "bytes": 5410,
+        "cases": {
+          "0": {
+            "outputs": [
+              27778
+            ],
+            "errors": []
+          },
+          "1": {
+            "outputs": [
+              27778
+            ],
+            "errors": []
+          },
+          "2": {
+            "outputs": [
+              27778
+            ],
+            "errors": []
+          },
+          "3": {
+            "outputs": [
+              27778
+            ],
+            "errors": []
+          },
+          "4": {
+            "outputs": [
+              27778
+            ],
+            "errors": []
+          },
+          "5": {
+            "outputs": [
+              27778
+            ],
+            "errors": []
+          },
+          "6": {
+            "outputs": [
+              27778
+            ],
+            "errors": []
+          },
+          "truncated": {
+            "outputs": [],
+            "errors": [
+              [
+                "truncated varint image",
+                5
+              ]
+            ]
+          },
+          "overlong": {
+            "outputs": [],
+            "errors": [
+              [
+                "varint image exceeds 64 bits",
+                5
+              ]
+            ]
+          },
+          "wide32": {
+            "outputs": [],
+            "errors": [
+              [
+                "array image length exceeds wasm32 range",
+                5
+              ]
+            ]
+          }
+        }
+      },
+      "combined": {
+        "sha256": "78c89be73c84ac7b5cc3a76d182c27c76c3ced4f9effa881f81b381f3cf54e45",
+        "bytes": 4230,
+        "cases": {
+          "0": {
+            "outputs": [
+              27778
+            ],
+            "errors": []
+          },
+          "1": {
+            "outputs": [
+              27778
+            ],
+            "errors": []
+          },
+          "2": {
+            "outputs": [
+              27778
+            ],
+            "errors": []
+          },
+          "3": {
+            "outputs": [
+              27778
+            ],
+            "errors": []
+          },
+          "4": {
+            "outputs": [
+              27778
+            ],
+            "errors": []
+          },
+          "5": {
+            "outputs": [
+              27778
+            ],
+            "errors": []
+          },
+          "6": {
+            "outputs": [
+              27778
+            ],
+            "errors": []
+          },
+          "truncated": {
+            "outputs": [],
+            "errors": [
+              [
+                "truncated varint image",
+                5
+              ]
+            ]
+          },
+          "overlong": {
+            "outputs": [],
+            "errors": [
+              [
+                "varint image exceeds 64 bits",
+                5
+              ]
+            ]
+          },
+          "wide32": {
+            "outputs": [],
+            "errors": [
+              [
+                "array image length exceeds wasm32 range",
+                5
+              ]
+            ]
+          }
+        }
+      }
+    }
+  },
+  {
+    "variant": "import",
+    "width": 64,
+    "optimization": 0,
+    "runs": {
+      "release": {
+        "sha256": "cf4eba68a66472a5a20bed2ef6dbca9a97c7e1cc41571bd31ef429328a5afecf",
+        "bytes": 5130,
+        "cases": {
+          "0": {
+            "outputs": [
+              27778
+            ],
+            "errors": []
+          },
+          "1": {
+            "outputs": [
+              27778
+            ],
+            "errors": []
+          },
+          "2": {
+            "outputs": [
+              27778
+            ],
+            "errors": []
+          },
+          "3": {
+            "outputs": [
+              27778
+            ],
+            "errors": []
+          },
+          "4": {
+            "outputs": [
+              27778
+            ],
+            "errors": []
+          },
+          "5": {
+            "outputs": [
+              27778
+            ],
+            "errors": []
+          },
+          "6": {
+            "outputs": [
+              27778
+            ],
+            "errors": []
+          },
+          "truncated": {
+            "outputs": [],
+            "errors": [
+              [
+                "truncated varint image",
+                5
+              ]
+            ]
+          },
+          "overlong": {
+            "outputs": [],
+            "errors": [
+              [
+                "varint image exceeds 64 bits",
+                5
+              ]
+            ]
+          }
+        }
+      },
+      "combined": {
+        "sha256": "e0316f0a2290c04e041d20c2afda101f4ca3293ef013eceda75815d07919a00c",
+        "bytes": 4051,
+        "cases": {
+          "0": {
+            "outputs": [
+              27778
+            ],
+            "errors": []
+          },
+          "1": {
+            "outputs": [
+              27778
+            ],
+            "errors": []
+          },
+          "2": {
+            "outputs": [
+              27778
+            ],
+            "errors": []
+          },
+          "3": {
+            "outputs": [
+              27778
+            ],
+            "errors": []
+          },
+          "4": {
+            "outputs": [
+              27778
+            ],
+            "errors": []
+          },
+          "5": {
+            "outputs": [
+              27778
+            ],
+            "errors": []
+          },
+          "6": {
+            "outputs": [
+              27778
+            ],
+            "errors": []
+          },
+          "truncated": {
+            "outputs": [],
+            "errors": [
+              [
+                "truncated varint image",
+                5
+              ]
+            ]
+          },
+          "overlong": {
+            "outputs": [],
+            "errors": [
+              [
+                "varint image exceeds 64 bits",
+                5
+              ]
+            ]
+          }
+        }
+      }
+    }
+  },
+  {
+    "variant": "import",
+    "width": 64,
+    "optimization": 2,
+    "runs": {
+      "release": {
+        "sha256": "cf4eba68a66472a5a20bed2ef6dbca9a97c7e1cc41571bd31ef429328a5afecf",
+        "bytes": 5130,
+        "cases": {
+          "0": {
+            "outputs": [
+              27778
+            ],
+            "errors": []
+          },
+          "1": {
+            "outputs": [
+              27778
+            ],
+            "errors": []
+          },
+          "2": {
+            "outputs": [
+              27778
+            ],
+            "errors": []
+          },
+          "3": {
+            "outputs": [
+              27778
+            ],
+            "errors": []
+          },
+          "4": {
+            "outputs": [
+              27778
+            ],
+            "errors": []
+          },
+          "5": {
+            "outputs": [
+              27778
+            ],
+            "errors": []
+          },
+          "6": {
+            "outputs": [
+              27778
+            ],
+            "errors": []
+          },
+          "truncated": {
+            "outputs": [],
+            "errors": [
+              [
+                "truncated varint image",
+                5
+              ]
+            ]
+          },
+          "overlong": {
+            "outputs": [],
+            "errors": [
+              [
+                "varint image exceeds 64 bits",
+                5
+              ]
+            ]
+          }
+        }
+      },
+      "combined": {
+        "sha256": "e0316f0a2290c04e041d20c2afda101f4ca3293ef013eceda75815d07919a00c",
+        "bytes": 4051,
+        "cases": {
+          "0": {
+            "outputs": [
+              27778
+            ],
+            "errors": []
+          },
+          "1": {
+            "outputs": [
+              27778
+            ],
+            "errors": []
+          },
+          "2": {
+            "outputs": [
+              27778
+            ],
+            "errors": []
+          },
+          "3": {
+            "outputs": [
+              27778
+            ],
+            "errors": []
+          },
+          "4": {
+            "outputs": [
+              27778
+            ],
+            "errors": []
+          },
+          "5": {
+            "outputs": [
+              27778
+            ],
+            "errors": []
+          },
+          "6": {
+            "outputs": [
+              27778
+            ],
+            "errors": []
+          },
+          "truncated": {
+            "outputs": [],
+            "errors": [
+              [
+                "truncated varint image",
+                5
+              ]
+            ]
+          },
+          "overlong": {
+            "outputs": [],
+            "errors": [
+              [
+                "varint image exceeds 64 bits",
+                5
+              ]
+            ]
+          }
+        }
+      }
+    }
+  },
+  {
+    "variant": "export",
+    "width": 32,
+    "optimization": 0,
+    "runs": {
+      "release": {
+        "sha256": "67f8dec393f831d79d46a94c732002519b910b69239054b4cd5f3124f0162e22",
+        "bytes": 4319,
+        "cases": {
+          "0": {
+            "outputs": [
+              27778
+            ],
+            "errors": []
+          },
+          "1": {
+            "outputs": [
+              27778
+            ],
+            "errors": []
+          },
+          "2": {
+            "outputs": [
+              27778
+            ],
+            "errors": []
+          },
+          "3": {
+            "outputs": [
+              27778
+            ],
+            "errors": []
+          },
+          "4": {
+            "outputs": [
+              27778
+            ],
+            "errors": []
+          },
+          "5": {
+            "outputs": [
+              27778
+            ],
+            "errors": []
+          },
+          "6": {
+            "outputs": [
+              27778
+            ],
+            "errors": []
+          },
+          "truncated": {
+            "outputs": [],
+            "errors": [
+              [
+                "truncated varint image",
+                3
+              ]
+            ]
+          },
+          "overlong": {
+            "outputs": [],
+            "errors": [
+              [
+                "varint image exceeds 64 bits",
+                3
+              ]
+            ]
+          },
+          "wide32": {
+            "outputs": [],
+            "errors": [
+              [
+                "array image length exceeds wasm32 range",
+                3
+              ]
+            ]
+          }
+        }
+      },
+      "combined": {
+        "sha256": "2f03a0b4773292a3d687163a51e1d73522cbd6ffa7eae0074e81b006468ce18e",
+        "bytes": 3139,
+        "cases": {
+          "0": {
+            "outputs": [
+              27778
+            ],
+            "errors": []
+          },
+          "1": {
+            "outputs": [
+              27778
+            ],
+            "errors": []
+          },
+          "2": {
+            "outputs": [
+              27778
+            ],
+            "errors": []
+          },
+          "3": {
+            "outputs": [
+              27778
+            ],
+            "errors": []
+          },
+          "4": {
+            "outputs": [
+              27778
+            ],
+            "errors": []
+          },
+          "5": {
+            "outputs": [
+              27778
+            ],
+            "errors": []
+          },
+          "6": {
+            "outputs": [
+              27778
+            ],
+            "errors": []
+          },
+          "truncated": {
+            "outputs": [],
+            "errors": [
+              [
+                "truncated varint image",
+                3
+              ]
+            ]
+          },
+          "overlong": {
+            "outputs": [],
+            "errors": [
+              [
+                "varint image exceeds 64 bits",
+                3
+              ]
+            ]
+          },
+          "wide32": {
+            "outputs": [],
+            "errors": [
+              [
+                "array image length exceeds wasm32 range",
+                3
+              ]
+            ]
+          }
+        }
+      }
+    }
+  },
+  {
+    "variant": "export",
+    "width": 32,
+    "optimization": 2,
+    "runs": {
+      "release": {
+        "sha256": "67f8dec393f831d79d46a94c732002519b910b69239054b4cd5f3124f0162e22",
+        "bytes": 4319,
+        "cases": {
+          "0": {
+            "outputs": [
+              27778
+            ],
+            "errors": []
+          },
+          "1": {
+            "outputs": [
+              27778
+            ],
+            "errors": []
+          },
+          "2": {
+            "outputs": [
+              27778
+            ],
+            "errors": []
+          },
+          "3": {
+            "outputs": [
+              27778
+            ],
+            "errors": []
+          },
+          "4": {
+            "outputs": [
+              27778
+            ],
+            "errors": []
+          },
+          "5": {
+            "outputs": [
+              27778
+            ],
+            "errors": []
+          },
+          "6": {
+            "outputs": [
+              27778
+            ],
+            "errors": []
+          },
+          "truncated": {
+            "outputs": [],
+            "errors": [
+              [
+                "truncated varint image",
+                3
+              ]
+            ]
+          },
+          "overlong": {
+            "outputs": [],
+            "errors": [
+              [
+                "varint image exceeds 64 bits",
+                3
+              ]
+            ]
+          },
+          "wide32": {
+            "outputs": [],
+            "errors": [
+              [
+                "array image length exceeds wasm32 range",
+                3
+              ]
+            ]
+          }
+        }
+      },
+      "combined": {
+        "sha256": "2f03a0b4773292a3d687163a51e1d73522cbd6ffa7eae0074e81b006468ce18e",
+        "bytes": 3139,
+        "cases": {
+          "0": {
+            "outputs": [
+              27778
+            ],
+            "errors": []
+          },
+          "1": {
+            "outputs": [
+              27778
+            ],
+            "errors": []
+          },
+          "2": {
+            "outputs": [
+              27778
+            ],
+            "errors": []
+          },
+          "3": {
+            "outputs": [
+              27778
+            ],
+            "errors": []
+          },
+          "4": {
+            "outputs": [
+              27778
+            ],
+            "errors": []
+          },
+          "5": {
+            "outputs": [
+              27778
+            ],
+            "errors": []
+          },
+          "6": {
+            "outputs": [
+              27778
+            ],
+            "errors": []
+          },
+          "truncated": {
+            "outputs": [],
+            "errors": [
+              [
+                "truncated varint image",
+                3
+              ]
+            ]
+          },
+          "overlong": {
+            "outputs": [],
+            "errors": [
+              [
+                "varint image exceeds 64 bits",
+                3
+              ]
+            ]
+          },
+          "wide32": {
+            "outputs": [],
+            "errors": [
+              [
+                "array image length exceeds wasm32 range",
+                3
+              ]
+            ]
+          }
+        }
+      }
+    }
+  },
+  {
+    "variant": "export",
+    "width": 64,
+    "optimization": 0,
+    "runs": {
+      "release": {
+        "sha256": "9a30e6f745984d2850b0f4b53db123f7a1d3e96d8d462f44affb5461e81c4f3d",
+        "bytes": 4130,
+        "cases": {
+          "0": {
+            "outputs": [
+              27778
+            ],
+            "errors": []
+          },
+          "1": {
+            "outputs": [
+              27778
+            ],
+            "errors": []
+          },
+          "2": {
+            "outputs": [
+              27778
+            ],
+            "errors": []
+          },
+          "3": {
+            "outputs": [
+              27778
+            ],
+            "errors": []
+          },
+          "4": {
+            "outputs": [
+              27778
+            ],
+            "errors": []
+          },
+          "5": {
+            "outputs": [
+              27778
+            ],
+            "errors": []
+          },
+          "6": {
+            "outputs": [
+              27778
+            ],
+            "errors": []
+          },
+          "truncated": {
+            "outputs": [],
+            "errors": [
+              [
+                "truncated varint image",
+                3
+              ]
+            ]
+          },
+          "overlong": {
+            "outputs": [],
+            "errors": [
+              [
+                "varint image exceeds 64 bits",
+                3
+              ]
+            ]
+          }
+        }
+      },
+      "combined": {
+        "sha256": "d9589f93295373348c14d42a85b451e766793ac1dcdbc1c9790e805d29463d94",
+        "bytes": 3051,
+        "cases": {
+          "0": {
+            "outputs": [
+              27778
+            ],
+            "errors": []
+          },
+          "1": {
+            "outputs": [
+              27778
+            ],
+            "errors": []
+          },
+          "2": {
+            "outputs": [
+              27778
+            ],
+            "errors": []
+          },
+          "3": {
+            "outputs": [
+              27778
+            ],
+            "errors": []
+          },
+          "4": {
+            "outputs": [
+              27778
+            ],
+            "errors": []
+          },
+          "5": {
+            "outputs": [
+              27778
+            ],
+            "errors": []
+          },
+          "6": {
+            "outputs": [
+              27778
+            ],
+            "errors": []
+          },
+          "truncated": {
+            "outputs": [],
+            "errors": [
+              [
+                "truncated varint image",
+                3
+              ]
+            ]
+          },
+          "overlong": {
+            "outputs": [],
+            "errors": [
+              [
+                "varint image exceeds 64 bits",
+                3
+              ]
+            ]
+          }
+        }
+      }
+    }
+  },
+  {
+    "variant": "export",
+    "width": 64,
+    "optimization": 2,
+    "runs": {
+      "release": {
+        "sha256": "9a30e6f745984d2850b0f4b53db123f7a1d3e96d8d462f44affb5461e81c4f3d",
+        "bytes": 4130,
+        "cases": {
+          "0": {
+            "outputs": [
+              27778
+            ],
+            "errors": []
+          },
+          "1": {
+            "outputs": [
+              27778
+            ],
+            "errors": []
+          },
+          "2": {
+            "outputs": [
+              27778
+            ],
+            "errors": []
+          },
+          "3": {
+            "outputs": [
+              27778
+            ],
+            "errors": []
+          },
+          "4": {
+            "outputs": [
+              27778
+            ],
+            "errors": []
+          },
+          "5": {
+            "outputs": [
+              27778
+            ],
+            "errors": []
+          },
+          "6": {
+            "outputs": [
+              27778
+            ],
+            "errors": []
+          },
+          "truncated": {
+            "outputs": [],
+            "errors": [
+              [
+                "truncated varint image",
+                3
+              ]
+            ]
+          },
+          "overlong": {
+            "outputs": [],
+            "errors": [
+              [
+                "varint image exceeds 64 bits",
+                3
+              ]
+            ]
+          }
+        }
+      },
+      "combined": {
+        "sha256": "d9589f93295373348c14d42a85b451e766793ac1dcdbc1c9790e805d29463d94",
+        "bytes": 3051,
+        "cases": {
+          "0": {
+            "outputs": [
+              27778
+            ],
+            "errors": []
+          },
+          "1": {
+            "outputs": [
+              27778
+            ],
+            "errors": []
+          },
+          "2": {
+            "outputs": [
+              27778
+            ],
+            "errors": []
+          },
+          "3": {
+            "outputs": [
+              27778
+            ],
+            "errors": []
+          },
+          "4": {
+            "outputs": [
+              27778
+            ],
+            "errors": []
+          },
+          "5": {
+            "outputs": [
+              27778
+            ],
+            "errors": []
+          },
+          "6": {
+            "outputs": [
+              27778
+            ],
+            "errors": []
+          },
+          "truncated": {
+            "outputs": [],
+            "errors": [
+              [
+                "truncated varint image",
+                3
+              ]
+            ]
+          },
+          "overlong": {
+            "outputs": [],
+            "errors": [
+              [
+                "varint image exceeds 64 bits",
+                3
+              ]
+            ]
+          }
+        }
+      }
+    }
+  }
+]

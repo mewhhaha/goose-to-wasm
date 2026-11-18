@@ -1,0 +1,362 @@
+{
+  "baseline": "2e42394d3b9638e2d8f2a8900d62e70d0ee5dfaf",
+  "workload": "90e086fe61f9ce019d6a6ef543212be63f6e1f57",
+  "workload_archive_sha256": "c9474661210aed23044b05faa4aa19bacee7063aa64cd6bf3092b9af9a1fdf1d",
+  "emitter": {
+    "sha256": "659a76c4c8064ae0989fb66600ae161b680a17c81b935e51fae9fcd4f905c2c0",
+    "bytes": 6911016
+  },
+  "candidate": "final-live-scope-kill-kspan-bits",
+  "candidate_lifetime_source": {
+    "bytes": 385561,
+    "sha256": "5bf5a964c76aa271aded08c73b5375a0efd5378850e26bc6872193fbe2acd1b4"
+  },
+  "candidate_patch": {
+    "bytes": 17204,
+    "sha256": "20b93bc00742952e29eb9023eaa9a51416d644897f26408abbdef6a495777a4b"
+  },
+  "engine": "Wasmtime 50.0.1, prepared direct -O2 default memory64, speed",
+  "candidate_count_probe": {
+    "bytes": 24514804,
+    "sha256": "a59271101ac4d8332db30810564f7ec4ae51be78e9a4b1833d6cdaadc3b24c3d"
+  },
+  "baseline_counts": {
+    "holder_scans": 48608,
+    "holder_scans_with_active_kill": 48598,
+    "visited_type_comparisons": 18475030,
+    "kill_comparisons_inside_type_scan": 39546858,
+    "types_visited": 680507,
+    "live_cell_visits_for_shrink": 10349589,
+    "visits_with_reference_or_holder_type": 803065,
+    "visible_reference_or_holder_visits": 803065,
+    "eligible_visits_after_balanced_check": 803065,
+    "memo_entries_compared": 3547625
+  },
+  "runs": [
+    {
+      "label": "base",
+      "mode": "check",
+      "wall_ns": 8475071747,
+      "counters": {
+        "cycles": {
+          "value": 33069080132,
+          "time_enabled_ns": 8496341294,
+          "time_running_ns": 8496341294
+        },
+        "instructions": {
+          "value": 74085146726,
+          "time_enabled_ns": 8496342235,
+          "time_running_ns": 8496342235
+        },
+        "branches": {
+          "value": 9024117567,
+          "time_enabled_ns": 8496340983,
+          "time_running_ns": 8496340983
+        },
+        "branch_misses": {
+          "value": 40900626,
+          "time_enabled_ns": 8496338619,
+          "time_running_ns": 8496338619
+        }
+      },
+      "cpu": 4,
+      "module": {
+        "sha256": "a3616562b88af337cb5baa89a29a087077794e729c21118a4353fd2ecc2c2b06",
+        "bytes": 24510688
+      }
+    },
+    {
+      "label": "empty",
+      "mode": "check",
+      "wall_ns": 8454883713,
+      "counters": {
+        "cycles": {
+          "value": 33108745812,
+          "time_enabled_ns": 8451595735,
+          "time_running_ns": 8451595735
+        },
+        "instructions": {
+          "value": 74032894487,
+          "time_enabled_ns": 8451596717,
+          "time_running_ns": 8451596717
+        },
+        "branches": {
+          "value": 9018545178,
+          "time_enabled_ns": 8451595634,
+          "time_running_ns": 8451595634
+        },
+        "branch_misses": {
+          "value": 41851278,
+          "time_enabled_ns": 8451593681,
+          "time_running_ns": 8451593681
+        }
+      },
+      "cpu": 4,
+      "module": {
+        "bytes": 24511418,
+        "sha256": "870c6f631367e7fffea05a924a29f4238be90baa0c12f3e9e729abc50f6b56d3"
+      }
+    },
+    {
+      "label": "live-scope",
+      "mode": "check",
+      "wall_ns": 10082524058,
+      "counters": {
+        "cycles": {
+          "value": 34525303784,
+          "time_enabled_ns": 9434016967,
+          "time_running_ns": 9434016967
+        },
+        "instructions": {
+          "value": 73012451636,
+          "time_enabled_ns": 9434018149,
+          "time_running_ns": 9434018149
+        },
+        "branches": {
+          "value": 8796035691,
+          "time_enabled_ns": 9434017217,
+          "time_running_ns": 9434017217
+        },
+        "branch_misses": {
+          "value": 40241067,
+          "time_enabled_ns": 9434015223,
+          "time_running_ns": 9434015223
+        }
+      },
+      "cpu": 4,
+      "module": {
+        "bytes": 24510698,
+        "sha256": "25414d88a8c1c225bb0c38e5d952af61ee946c4f04e56809dfa109e21e943362"
+      }
+    },
+    {
+      "label": "visit",
+      "mode": "check",
+      "wall_ns": 14937671452,
+      "counters": {
+        "cycles": {
+          "value": 38135944332,
+          "time_enabled_ns": 10525015436,
+          "time_running_ns": 10525015436
+        },
+        "instructions": {
+          "value": 73451917580,
+          "time_enabled_ns": 10525015766,
+          "time_running_ns": 10525015766
+        },
+        "branches": {
+          "value": 8900959972,
+          "time_enabled_ns": 10525014284,
+          "time_running_ns": 10525014284
+        },
+        "branch_misses": {
+          "value": 45417962,
+          "time_enabled_ns": 10525011829,
+          "time_running_ns": 10525011829
+        }
+      },
+      "cpu": 4,
+      "module": {
+        "bytes": 24514981,
+        "sha256": "ced034a52ffe2f19008553f2578a1c6a649633d0a8b8c062fd79915e0d7ab608"
+      }
+    },
+    {
+      "label": "hash",
+      "mode": "check",
+      "wall_ns": 8835542089,
+      "counters": {
+        "cycles": {
+          "value": 32824287650,
+          "time_enabled_ns": 8848868878,
+          "time_running_ns": 8848868878
+        },
+        "instructions": {
+          "value": 73566587056,
+          "time_enabled_ns": 8848868398,
+          "time_running_ns": 8848868398
+        },
+        "branches": {
+          "value": 8966598390,
+          "time_enabled_ns": 8848866534,
+          "time_running_ns": 8848866534
+        },
+        "branch_misses": {
+          "value": 39698329,
+          "time_enabled_ns": 8848863248,
+          "time_running_ns": 8848863248
+        }
+      },
+      "cpu": 6,
+      "module": {
+        "bytes": 24511016,
+        "sha256": "5c50fe10a87b26858b7cfd22e130e4f03bd72ef0f61983bcae57546eb1a136f3"
+      }
+    },
+    {
+      "label": "kill-kspan",
+      "mode": "check",
+      "wall_ns": 8683193910,
+      "counters": {
+        "cycles": {
+          "value": 32212384459,
+          "time_enabled_ns": 8673244695,
+          "time_running_ns": 8673244695
+        },
+        "instructions": {
+          "value": 69073468527,
+          "time_enabled_ns": 8673243504,
+          "time_running_ns": 8673243504
+        },
+        "branches": {
+          "value": 8265051667,
+          "time_enabled_ns": 8673242161,
+          "time_running_ns": 8673242161
+        },
+        "branch_misses": {
+          "value": 38458096,
+          "time_enabled_ns": 8673239916,
+          "time_running_ns": 8673239916
+        }
+      },
+      "cpu": 4,
+      "module": {
+        "bytes": 24514207,
+        "sha256": "3eb1c5f34bb55c1fe0d1abf7e487feda53945f5d36235e76fca3c410437f02f3"
+      }
+    },
+    {
+      "label": "bits",
+      "mode": "check",
+      "wall_ns": 8311023969,
+      "counters": {
+        "cycles": {
+          "value": 31779493935,
+          "time_enabled_ns": 8318934287,
+          "time_running_ns": 8318934287
+        },
+        "instructions": {
+          "value": 69739645271,
+          "time_enabled_ns": 8318935539,
+          "time_running_ns": 8318935539
+        },
+        "branches": {
+          "value": 8489177728,
+          "time_enabled_ns": 8318934266,
+          "time_running_ns": 8318934266
+        },
+        "branch_misses": {
+          "value": 41583415,
+          "time_enabled_ns": 8318932102,
+          "time_running_ns": 8318932102
+        }
+      },
+      "cpu": 4,
+      "module": {
+        "bytes": 24516919,
+        "sha256": "b22fa35d7ece83bb712808c8b1a61a5613943ff6860c2e9946448134573a87d9"
+      }
+    },
+    {
+      "label": "kill",
+      "mode": "check",
+      "wall_ns": 8925582469,
+      "counters": {
+        "cycles": {
+          "value": 32360700240,
+          "time_enabled_ns": 8944630846,
+          "time_running_ns": 8944630846
+        },
+        "instructions": {
+          "value": 71407485539,
+          "time_enabled_ns": 8944632048,
+          "time_running_ns": 8944632048
+        },
+        "branches": {
+          "value": 8558726728,
+          "time_enabled_ns": 8944630676,
+          "time_running_ns": 8944630676
+        },
+        "branch_misses": {
+          "value": 40498194,
+          "time_enabled_ns": 8944628101,
+          "time_running_ns": 8944628101
+        }
+      },
+      "cpu": 6,
+      "module": {
+        "bytes": 24509646,
+        "sha256": "0f7e4aee52a3a08033bdf4a982bc662aa6581ccd1721ff283b535230964c0bd2"
+      }
+    },
+    {
+      "label": "final-live-scope-kill-kspan-bits",
+      "mode": "check",
+      "wall_ns": 8377203769,
+      "counters": {
+        "cycles": {
+          "value": 30095178031,
+          "time_enabled_ns": 8387334756,
+          "time_running_ns": 8387334756
+        },
+        "instructions": {
+          "value": 63670406632,
+          "time_enabled_ns": 8387334585,
+          "time_running_ns": 8387334585
+        },
+        "branches": {
+          "value": 7498168361,
+          "time_enabled_ns": 8387332852,
+          "time_running_ns": 8387332852
+        },
+        "branch_misses": {
+          "value": 37164766,
+          "time_enabled_ns": 8387330217,
+          "time_running_ns": 8387330217
+        }
+      },
+      "cpu": 4,
+      "module": {
+        "bytes": 24516956,
+        "sha256": "0d0400bd34305db4f7862784e9918d486f098f5d24568489f0ab62866f86f829"
+      }
+    },
+    {
+      "label": "final-live-scope-kill-kspan-bits",
+      "mode": "emit",
+      "wall_ns": 12914671178,
+      "counters": {
+        "cycles": {
+          "value": 46128557778,
+          "time_enabled_ns": 12922416452,
+          "time_running_ns": 12922416452
+        },
+        "instructions": {
+          "value": 105194880753,
+          "time_enabled_ns": 12922418485,
+          "time_running_ns": 12922418485
+        },
+        "branches": {
+          "value": 13378873440,
+          "time_enabled_ns": 12922417694,
+          "time_running_ns": 12922417694
+        },
+        "branch_misses": {
+          "value": 66791942,
+          "time_enabled_ns": 12922415339,
+          "time_running_ns": 12922415339
+        }
+      },
+      "cpu": 4,
+      "module": {
+        "bytes": 24516956,
+        "sha256": "0d0400bd34305db4f7862784e9918d486f098f5d24568489f0ab62866f86f829"
+      },
+      "emitted": {
+        "bytes": 24508740,
+        "sha256": "b9fd3e3718009ca54c7ce640adf9f1323a7e7dfaf1406c01d27791cfacc35787"
+      }
+    }
+  ],
+  "timing_note": "Single screens on a shared machine. Some concurrent compiler builds used CPUs 4/6. Use paired aggregate timing for wall-time claims."
+}

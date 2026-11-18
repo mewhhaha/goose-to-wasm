@@ -1,0 +1,322 @@
+[
+  {
+    "case": "raw",
+    "width": 32,
+    "bundled_host": false,
+    "output": "4 17\n",
+    "changed": true,
+    "sha256": "81583f7eca16761099ed52b49a94f6f42395bd121f430307b735fcce2ff09c81"
+  },
+  {
+    "case": "raw",
+    "width": 32,
+    "bundled_host": true,
+    "output": "4 17\n",
+    "changed": true,
+    "sha256": "81583f7eca16761099ed52b49a94f6f42395bd121f430307b735fcce2ff09c81"
+  },
+  {
+    "case": "raw",
+    "width": 64,
+    "bundled_host": false,
+    "output": "4 17\n",
+    "changed": true,
+    "sha256": "7c97417d826d7837e178934c1b200941e12cb3d35002b7d9c88c9e42fcc2b292"
+  },
+  {
+    "case": "raw",
+    "width": 64,
+    "bundled_host": true,
+    "output": "4 17\n",
+    "changed": true,
+    "sha256": "7c97417d826d7837e178934c1b200941e12cb3d35002b7d9c88c9e42fcc2b292"
+  },
+  {
+    "case": "bundled",
+    "width": 32,
+    "bundled_host": false,
+    "output": "3 17\n",
+    "changed": false,
+    "sha256": "499c144084a76bbbaab8010a8b3bafa55cb2540a659cd7e5af5081dcc88a2bd7"
+  },
+  {
+    "case": "bundled",
+    "width": 32,
+    "bundled_host": true,
+    "output": "3 17\n",
+    "changed": true,
+    "sha256": "71ad0f605bfde3c99b02512f966f1d8f8ed666ece48896f6360cbfa9c6ba3fe7"
+  },
+  {
+    "case": "bundled",
+    "width": 64,
+    "bundled_host": false,
+    "output": "3 17\n",
+    "changed": false,
+    "sha256": "13727c349980491f12f4c775bb69cbb5622e99c10dafadb4e0144a0350d5f045"
+  },
+  {
+    "case": "bundled",
+    "width": 64,
+    "bundled_host": true,
+    "output": "3 17\n",
+    "changed": true,
+    "sha256": "c69f71d1b0bb5684ab3e003450ec734ae3d008613591246bb73c377d9fb855d8"
+  },
+  {
+    "case": "unknown",
+    "width": 32,
+    "bundled_host": false,
+    "output": "1 77\n",
+    "changed": false,
+    "sha256": "8da4f42f9f68a600a2e627de7e21cc7c134bf21ae3569d3f6c6d5dfb73a6fa3d"
+  },
+  {
+    "case": "unknown",
+    "width": 32,
+    "bundled_host": true,
+    "output": "1 77\n",
+    "changed": false,
+    "sha256": "8da4f42f9f68a600a2e627de7e21cc7c134bf21ae3569d3f6c6d5dfb73a6fa3d"
+  },
+  {
+    "case": "unknown",
+    "width": 64,
+    "bundled_host": false,
+    "output": "1 77\n",
+    "changed": false,
+    "sha256": "0013c85b02a7e2ac4a535f030dbb95dce1f9ac722f94e74f7f9f2e1d2a77d176"
+  },
+  {
+    "case": "unknown",
+    "width": 64,
+    "bundled_host": true,
+    "output": "1 77\n",
+    "changed": false,
+    "sha256": "0013c85b02a7e2ac4a535f030dbb95dce1f9ac722f94e74f7f9f2e1d2a77d176"
+  },
+  {
+    "case": "spoof",
+    "width": 32,
+    "bundled_host": false,
+    "output": "1 77\n",
+    "changed": false,
+    "sha256": "3be18e5e2879bcaba85c0a492e2060de4a6250064c9371b3b8463d974c3eb242"
+  },
+  {
+    "case": "spoof",
+    "width": 32,
+    "bundled_host": true,
+    "output": "1 77\n",
+    "changed": false,
+    "sha256": "3be18e5e2879bcaba85c0a492e2060de4a6250064c9371b3b8463d974c3eb242"
+  },
+  {
+    "case": "spoof",
+    "width": 64,
+    "bundled_host": false,
+    "output": "1 77\n",
+    "changed": false,
+    "sha256": "c3bb046e2942015755bbfdb04adeafa14299016d17ef7606b34cb54c1adfffcf"
+  },
+  {
+    "case": "spoof",
+    "width": 64,
+    "bundled_host": true,
+    "output": "1 77\n",
+    "changed": false,
+    "sha256": "c3bb046e2942015755bbfdb04adeafa14299016d17ef7606b34cb54c1adfffcf"
+  },
+  {
+    "case": "spoof_os",
+    "width": 32,
+    "bundled_host": false,
+    "output": "1 77\n",
+    "changed": false,
+    "sha256": "7b4f3dd18ead844a8ce83edb7e165bf5f5982aea72d797f7ff647dd541b6348f"
+  },
+  {
+    "case": "spoof_os",
+    "width": 32,
+    "bundled_host": true,
+    "output": "1 77\n",
+    "changed": false,
+    "sha256": "7b4f3dd18ead844a8ce83edb7e165bf5f5982aea72d797f7ff647dd541b6348f"
+  },
+  {
+    "case": "spoof_os",
+    "width": 64,
+    "bundled_host": false,
+    "output": "1 77\n",
+    "changed": false,
+    "sha256": "3b0ceb5fbabaa5761f682d6dec46ba6f03136566fa41bdcd7d64b72075fdc747"
+  },
+  {
+    "case": "spoof_os",
+    "width": 64,
+    "bundled_host": true,
+    "output": "1 77\n",
+    "changed": false,
+    "sha256": "3b0ceb5fbabaa5761f682d6dec46ba6f03136566fa41bdcd7d64b72075fdc747"
+  },
+  {
+    "case": "export",
+    "width": 32,
+    "bundled_host": false,
+    "output": "3 17\n",
+    "changed": false,
+    "sha256": "2e1a7788b494d779795742c61a43f1b0397e366fe8f2d603a370d6ad153e79e1"
+  },
+  {
+    "case": "export",
+    "width": 32,
+    "bundled_host": true,
+    "output": "3 17\n",
+    "changed": false,
+    "sha256": "2e1a7788b494d779795742c61a43f1b0397e366fe8f2d603a370d6ad153e79e1"
+  },
+  {
+    "case": "export",
+    "width": 64,
+    "bundled_host": false,
+    "output": "3 17\n",
+    "changed": false,
+    "sha256": "4faf07c50455f214a83e4bcd38ae1bea59faca1a98780d1251bdec51f2ea47d5"
+  },
+  {
+    "case": "export",
+    "width": 64,
+    "bundled_host": true,
+    "output": "3 17\n",
+    "changed": false,
+    "sha256": "4faf07c50455f214a83e4bcd38ae1bea59faca1a98780d1251bdec51f2ea47d5"
+  },
+  {
+    "case": "cast",
+    "width": 32,
+    "bundled_host": false,
+    "output": "1 77\n",
+    "changed": false,
+    "sha256": "12b9f4f76168375ff42ba7df4227ebd4bc37a8956507240586aead2fa0271193"
+  },
+  {
+    "case": "cast",
+    "width": 32,
+    "bundled_host": true,
+    "output": "1 77\n",
+    "changed": false,
+    "sha256": "12b9f4f76168375ff42ba7df4227ebd4bc37a8956507240586aead2fa0271193"
+  },
+  {
+    "case": "cast",
+    "width": 64,
+    "bundled_host": false,
+    "output": "1 77\n",
+    "changed": false,
+    "sha256": "734c2f9b5ef40dd09e1a6a3bab3c45c73777af9dfc53cd9a76eb40194cb413e6"
+  },
+  {
+    "case": "cast",
+    "width": 64,
+    "bundled_host": true,
+    "output": "1 77\n",
+    "changed": false,
+    "sha256": "734c2f9b5ef40dd09e1a6a3bab3c45c73777af9dfc53cd9a76eb40194cb413e6"
+  },
+  {
+    "case": "capacity",
+    "width": 32,
+    "bundled_host": false,
+    "output": "1 5 3\n",
+    "changed": false,
+    "sha256": "3024b51e51850356e8a24eb91892d04aa3cbfcead7a2fa47dcbf6cacbec1dbc7"
+  },
+  {
+    "case": "capacity",
+    "width": 32,
+    "bundled_host": true,
+    "output": "1 5 3\n",
+    "changed": false,
+    "sha256": "3024b51e51850356e8a24eb91892d04aa3cbfcead7a2fa47dcbf6cacbec1dbc7"
+  },
+  {
+    "case": "capacity",
+    "width": 64,
+    "bundled_host": false,
+    "output": "1 5 3\n",
+    "changed": false,
+    "sha256": "2d9b7b794ccd794358225afb73c23418eb4113f100688e632aed96c4306c89ca"
+  },
+  {
+    "case": "capacity",
+    "width": 64,
+    "bundled_host": true,
+    "output": "1 5 3\n",
+    "changed": false,
+    "sha256": "2d9b7b794ccd794358225afb73c23418eb4113f100688e632aed96c4306c89ca"
+  },
+  {
+    "case": "image_alias",
+    "width": 32,
+    "bundled_host": false,
+    "output": "3 2\n",
+    "changed": false,
+    "sha256": "3b89c4f8b8e2bf486ffbb2a00ac45775640dd4f7c555d16546e507a467f5fb17"
+  },
+  {
+    "case": "image_alias",
+    "width": 32,
+    "bundled_host": true,
+    "output": "3 2\n",
+    "changed": false,
+    "sha256": "3b89c4f8b8e2bf486ffbb2a00ac45775640dd4f7c555d16546e507a467f5fb17"
+  },
+  {
+    "case": "image_alias",
+    "width": 64,
+    "bundled_host": false,
+    "output": "3 2\n",
+    "changed": false,
+    "sha256": "bb43eb72a6f0d1638a8ef1086b0bf9cf54f3edb31f8f2c44ee6c1550300f0700"
+  },
+  {
+    "case": "image_alias",
+    "width": 64,
+    "bundled_host": true,
+    "output": "3 2\n",
+    "changed": false,
+    "sha256": "bb43eb72a6f0d1638a8ef1086b0bf9cf54f3edb31f8f2c44ee6c1550300f0700"
+  },
+  {
+    "case": "nested",
+    "width": 32,
+    "bundled_host": false,
+    "output": "2 8\n",
+    "changed": false,
+    "sha256": "92965c34d2397c3c07db67a61cfaea1ae23a669580d60d5822bc37f0aff87656"
+  },
+  {
+    "case": "nested",
+    "width": 32,
+    "bundled_host": true,
+    "output": "2 8\n",
+    "changed": false,
+    "sha256": "92965c34d2397c3c07db67a61cfaea1ae23a669580d60d5822bc37f0aff87656"
+  },
+  {
+    "case": "nested",
+    "width": 64,
+    "bundled_host": false,
+    "output": "2 8\n",
+    "changed": false,
+    "sha256": "a479db458bd445d301148c8428d99b99a54975bd8808b0919ef599c93ca8c7c9"
+  },
+  {
+    "case": "nested",
+    "width": 64,
+    "bundled_host": true,
+    "output": "2 8\n",
+    "changed": false,
+    "sha256": "a479db458bd445d301148c8428d99b99a54975bd8808b0919ef599c93ca8c7c9"
+  }
+]
