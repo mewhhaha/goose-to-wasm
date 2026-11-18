@@ -22,6 +22,8 @@ Direct output uses memory32. Historical C-to-Wasm measurements used the earlier
 C++ compiler and memory64; they remain in dated evidence. The current compiler
 supports direct Wasm and native C.
 
+Large retained compiler-comparison, example, Wasmtime-host and resident Langbench reports can use `.json.gz`. Their chart commands accept the compressed files directly. Receipts hash the file as stored. Use `gzip -dc report.json.gz` to inspect the measurements.
+
 ## What is measured
 
 **Complete cold build:** a fresh driver process with `--no-cache`, including the

@@ -5,6 +5,8 @@ import hashlib
 import json
 from pathlib import Path
 
+from report_io import decode_report
+
 import matplotlib
 
 matplotlib.use("Agg")
@@ -51,7 +53,7 @@ def checked_rows(report):
 
 def render(report_path, output):
     raw = report_path.read_bytes()
-    report = json.loads(raw)
+    report = decode_report(raw)
     rows = checked_rows(report)
     output.mkdir(parents=True, exist_ok=True)
     plt.rcParams.update({"font.family": "DejaVu Sans", "font.size": 10,

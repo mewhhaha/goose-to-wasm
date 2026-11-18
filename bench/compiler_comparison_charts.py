@@ -7,6 +7,8 @@ import math
 from pathlib import Path
 import sys
 
+from report_io import decode_report
+
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
@@ -192,7 +194,7 @@ def panel(ax, names, target, rows, compilers=DEFAULT_COMPILERS):
 
 def render(report_path, output):
     raw = report_path.read_bytes()
-    report = json.loads(raw)
+    report = decode_report(raw)
     rows = checked_rows(report)
     names = [case["name"] for case in report["workloads"]]
     compilers = compiler_specs(report)

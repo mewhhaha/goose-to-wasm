@@ -8,6 +8,8 @@ import math
 from pathlib import Path
 import textwrap
 
+from report_io import decode_report
+
 import matplotlib
 
 matplotlib.use("Agg")
@@ -176,7 +178,7 @@ def save(fig, output, name, title, note, report_path, report_bytes, report):
 
 def render(report_path, output):
     report_bytes = report_path.read_bytes()
-    report = json.loads(report_bytes)
+    report = decode_report(report_bytes)
     if report["status"] != "passed":
         raise ValueError("Only a passed measurement report can produce charts")
     for source, expected in report["environment"]["input_sha256"].items():
