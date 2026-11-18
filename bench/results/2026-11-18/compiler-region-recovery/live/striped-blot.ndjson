@@ -1,0 +1,140 @@
+{"event": "acquire", "slot": 0, "base": 31876080, "limit": 31941616, "depth": 1, "stride": 1, "planned": 31876080}
+{"event": "acquire", "slot": 1, "base": 50424168, "limit": 50489704, "depth": 2, "stride": 1, "planned": 50424168}
+{"event": "acquire", "slot": 2, "base": 68204696, "limit": 68270232, "depth": 3, "stride": 8, "planned": 68204696}
+{"event": "acquire", "slot": 3, "base": 86139168, "limit": 86204704, "depth": 4, "stride": 1, "planned": 86139168}
+{"event": "acquire", "slot": 4, "base": 136093992, "limit": 136159528, "depth": 5, "stride": 1, "planned": 136093992}
+{"event": "acquire", "slot": 5, "base": 151873248, "limit": 151938784, "depth": 6, "stride": 65, "planned": 151873248}
+{"event": "acquire", "slot": 6, "base": 169422864, "limit": 169488400, "depth": 7, "stride": 88, "planned": 169422864}
+{"event": "acquire", "slot": 7, "base": 595627704, "limit": 595693240, "depth": 8, "stride": 160, "planned": 595627704}
+{"event": "acquire", "slot": 8, "base": 1120499712, "limit": 1120565248, "depth": 9, "stride": 153, "planned": 1120499712}
+{"event": "acquire", "slot": 9, "base": 1170377568, "limit": 1170443104, "depth": 10, "stride": 112, "planned": 1170377568}
+{"event": "acquire", "slot": 10, "base": 1617507864, "limit": 1617573400, "depth": 11, "stride": 64, "planned": 1617507864}
+{"event": "acquire", "slot": 11, "base": 1633287120, "limit": 1633352656, "depth": 12, "stride": 8, "planned": 1633287120}
+{"event": "acquire", "slot": 12, "base": 1670926424, "limit": 1670991960, "depth": 13, "stride": 8, "planned": 1670926424}
+{"event": "acquire", "slot": 13, "base": 1689014840, "limit": 1689080376, "depth": 14, "stride": 16, "planned": 1689014840}
+{"event": "acquire", "slot": 14, "base": 1724498928, "limit": 1724564464, "depth": 15, "stride": 16, "planned": 1724498928}
+{"event": "acquire", "slot": 15, "base": 1751285184, "limit": 1751350720, "depth": 16, "stride": 8, "planned": 1751285184}
+{"event": "acquire", "slot": 16, "base": 1774838616, "limit": 1774904152, "depth": 17, "stride": 8, "planned": 1774838616}
+{"event": "acquire", "slot": 17, "base": 1798392048, "limit": 1798457584, "depth": 18, "stride": 24, "planned": 1798392048}
+{"event": "acquire", "slot": 18, "base": 1815479832, "limit": 1815545368, "depth": 19, "stride": 8, "planned": 1815479832}
+{"event": "acquire", "slot": 19, "base": 1831259088, "limit": 1831324624, "depth": 20, "stride": 49, "planned": 1831259088}
+{"event": "acquire", "slot": 20, "base": 1896993176, "limit": 1897058712, "depth": 21, "stride": 49, "planned": 1896993176}
+{"event": "acquire", "slot": 21, "base": 1924857040, "limit": 1924922576, "depth": 22, "stride": 24, "planned": 1924857040}
+{"event": "acquire", "slot": 22, "base": 1952489984, "limit": 1952555520, "depth": 23, "stride": 1, "planned": 1952489984}
+{"event": "acquire", "slot": 23, "base": 1987281328, "limit": 1987346864, "depth": 24, "stride": 8, "planned": 1987281328}
+{"event": "acquire", "slot": 24, "base": 2057556760, "limit": 2057622296, "depth": 25, "stride": 8, "planned": 2057556760}
+{"event": "acquire", "slot": 25, "base": 2108820112, "limit": 2108885648, "depth": 26, "stride": 1, "planned": 2108820112}
+{"event": "acquire", "slot": 26, "base": 2145843640, "limit": 2145909176, "depth": 27, "stride": 1, "planned": 2145843640}
+{"event": "acquire", "slot": 27, "base": 2192642616, "limit": 2192708152, "depth": 28, "stride": 1, "planned": 2192642616}
+{"event": "acquire", "slot": 28, "base": 2246215128, "limit": 2246280664, "depth": 29, "stride": 8, "planned": 2246215128}
+{"event": "acquire", "slot": 29, "base": 2324187760, "limit": 2324253296, "depth": 30, "stride": 8, "planned": 2324187760}
+{"event": "grow", "source": -2, "slot": 6, "base": 169422864, "old": 169488400, "limit": 169553936, "needed": 169488424, "depth": 24}
+{"event": "grow", "source": -2, "slot": 6, "base": 169422864, "old": 169553936, "limit": 169685008, "needed": 169553984, "depth": 24}
+{"event": "grow", "source": -2, "slot": 6, "base": 169422864, "old": 169685008, "limit": 169947152, "needed": 169685016, "depth": 24}
+{"event": "grow", "source": -2, "slot": 7, "base": 595627704, "old": 595693240, "limit": 595758776, "needed": 595693304, "depth": 24}
+{"event": "grow", "source": -2, "slot": 7, "base": 595627704, "old": 595758776, "limit": 595889848, "needed": 595758904, "depth": 24}
+{"event": "grow", "source": -2, "slot": 7, "base": 595627704, "old": 595889848, "limit": 596151992, "needed": 595889944, "depth": 24}
+{"event": "grow", "source": -2, "slot": 6, "base": 169422864, "old": 169947152, "limit": 170471440, "needed": 169947168, "depth": 24}
+{"event": "grow", "source": -2, "slot": 7, "base": 595627704, "old": 596151992, "limit": 596676280, "needed": 596152024, "depth": 24}
+{"event": "grow", "source": -2, "slot": 23, "base": 1987281328, "old": 1987346864, "limit": 1987444736, "needed": 1987387637, "depth": 24}
+{"event": "grow", "source": -2, "slot": 3, "base": 86139168, "old": 86204704, "limit": 86310912, "needed": 86281565, "depth": 24}
+{"event": "grow", "source": -2, "slot": 6, "base": 169422864, "old": 170471440, "limit": 171520016, "needed": 170471472, "depth": 24}
+{"event": "grow", "source": -2, "slot": 7, "base": 595627704, "old": 596676280, "limit": 597724856, "needed": 596676344, "depth": 24}
+{"event": "grow", "source": -2, "slot": 3, "base": 86139168, "old": 86310912, "limit": 86482656, "needed": 86310913, "depth": 24}
+{"event": "grow", "source": -2, "slot": 6, "base": 169422864, "old": 171520016, "limit": 173617168, "needed": 171520080, "depth": 24}
+{"event": "grow", "source": -2, "slot": 7, "base": 595627704, "old": 597724856, "limit": 599822008, "needed": 597724984, "depth": 24}
+{"event": "grow", "source": -2, "slot": 3, "base": 86139168, "old": 86482656, "limit": 86826144, "needed": 86543351, "depth": 24}
+{"event": "grow", "source": -2, "slot": 6, "base": 169422864, "old": 173617168, "limit": 177811472, "needed": 173617208, "depth": 24}
+{"event": "grow", "source": -2, "slot": 7, "base": 595627704, "old": 599822008, "limit": 604016312, "needed": 599822104, "depth": 24}
+{"event": "grow", "source": -2, "slot": 6, "base": 169422864, "old": 177811472, "limit": 186200080, "needed": 177811552, "depth": 24}
+{"event": "grow", "source": -2, "slot": 7, "base": 595627704, "old": 604016312, "limit": 612404920, "needed": 604016344, "depth": 24}
+{"event": "grow", "source": -2, "slot": 3, "base": 86139168, "old": 86826144, "limit": 87513120, "needed": 86889143, "depth": 24}
+{"event": "grow", "source": -2, "slot": 7, "base": 595627704, "old": 612404920, "limit": 629182136, "needed": 612404984, "depth": 24}
+{"event": "grow", "source": -2, "slot": 6, "base": 169422864, "old": 186200080, "limit": 202977296, "needed": 186200152, "depth": 24}
+{"event": "grow", "source": -2, "slot": 23, "base": 1987281328, "old": 1987444736, "limit": 1987608144, "needed": 1987510575, "depth": 24}
+{"event": "grow", "source": -2, "slot": 3, "base": 86139168, "old": 87513120, "limit": 88887072, "needed": 87535079, "depth": 24}
+{"event": "grow", "source": -2, "slot": 23, "base": 1987281328, "old": 1987608144, "limit": 1988231168, "needed": 1988205053, "depth": 24}
+{"event": "grow", "source": -2, "slot": 6, "base": 169422864, "old": 202977296, "limit": 236531728, "needed": 202977352, "depth": 24}
+{"event": "grow", "source": -2, "slot": 7, "base": 595627704, "old": 629182136, "limit": 662736568, "needed": 629182264, "depth": 24}
+{"event": "grow", "source": -2, "slot": 3, "base": 86139168, "old": 88887072, "limit": 91634976, "needed": 88907192, "depth": 24}
+{"event": "grow", "source": -2, "slot": 23, "base": 1987281328, "old": 1988231168, "limit": 1989181008, "needed": 1988484133, "depth": 24}
+{"event": "grow", "source": -2, "slot": 6, "base": 169422864, "old": 236531728, "limit": 303640592, "needed": 236531752, "depth": 24}
+{"event": "grow", "source": -2, "slot": 7, "base": 595627704, "old": 662736568, "limit": 729845432, "needed": 662736664, "depth": 24}
+{"event": "grow", "source": -2, "slot": 3, "base": 86139168, "old": 91634976, "limit": 97130784, "needed": 91651750, "depth": 24}
+{"event": "grow", "source": -2, "slot": 7, "base": 595627704, "old": 729845432, "limit": 864063160, "needed": 729845464, "depth": 24}
+{"event": "grow", "source": -2, "slot": 6, "base": 169422864, "old": 303640592, "limit": 437858320, "needed": 303640640, "depth": 24}
+{"event": "grow", "source": -2, "slot": 3, "base": 86139168, "old": 97130784, "limit": 108122400, "needed": 97895136, "depth": 24}
+{"event": "grow", "source": -2, "slot": 7, "base": 595627704, "old": 864063160, "limit": 1120499712, "needed": 864063224, "depth": 24}
+{"event": "grow", "source": -2, "slot": 6, "base": 169422864, "old": 437858320, "limit": 595627704, "needed": 437858328, "depth": 24}
+{"event": "acquire", "slot": 30, "base": 2351204928, "limit": 2351270464, "depth": 31, "stride": 8, "planned": 2351204928}
+{"event": "acquire", "slot": 31, "base": 2376836600, "limit": 2376902136, "depth": 32, "stride": 32, "planned": 2376836600}
+{"event": "acquire", "slot": 32, "base": 2441108216, "limit": 2441173752, "depth": 33, "stride": 8, "planned": 2441108216}
+{"event": "acquire", "slot": 33, "base": 2505379832, "limit": 2505445368, "depth": 34, "stride": 160, "planned": 2505379832}
+{"event": "acquire", "slot": 34, "base": 2983991680, "limit": 2984057216, "depth": 35, "stride": 8, "planned": 2983991680}
+{"event": "acquire", "slot": 35, "base": 3037564192, "limit": 3037629728, "depth": 36, "stride": 32, "planned": 3037564192}
+{"event": "acquire", "slot": 36, "base": 3081669144, "limit": 3081734680, "depth": 37, "stride": 16, "planned": 3081669144}
+{"event": "acquire", "slot": 37, "base": 3150790000, "limit": 3150855536, "depth": 38, "stride": 8, "planned": 3150790000}
+{"event": "acquire", "slot": 38, "base": 3188660224, "limit": 3188725760, "depth": 39, "stride": 8, "planned": 3188660224}
+{"event": "acquire", "slot": 39, "base": 3228377776, "limit": 3228443312, "depth": 40, "stride": 8, "planned": 3228377776}
+{"event": "acquire", "slot": 40, "base": 3269480824, "limit": 3269546360, "depth": 41, "stride": 8, "planned": 3269480824}
+{"event": "acquire", "slot": 41, "base": 3298499264, "limit": 3298564800, "depth": 42, "stride": 24, "planned": 3298499264}
+{"event": "acquire", "slot": 42, "base": 3352071776, "limit": 3352137312, "depth": 43, "stride": 8, "planned": 3352071776}
+{"event": "acquire", "slot": 43, "base": 3417805864, "limit": 3417871400, "depth": 44, "stride": 40, "planned": 3417805864}
+{"event": "acquire", "slot": 44, "base": 3438742248, "limit": 3438807784, "depth": 45, "stride": 16, "planned": 3438742248}
+{"event": "acquire", "slot": 45, "base": 3492314760, "limit": 3492380296, "depth": 46, "stride": 32, "planned": 3492314760}
+{"event": "acquire", "slot": 46, "base": 3561589560, "limit": 3561655096, "depth": 47, "stride": 16, "planned": 3561589560}
+{"event": "acquire", "slot": 47, "base": 3591300752, "limit": 3591366288, "depth": 48, "stride": 16, "planned": 3591300752}
+{"event": "acquire", "slot": 48, "base": 3629632808, "limit": 3629698344, "depth": 49, "stride": 24, "planned": 3629632808}
+{"event": "acquire", "slot": 49, "base": 3683205320, "limit": 3683270856, "depth": 50, "stride": 40, "planned": 3683205320}
+{"event": "acquire", "slot": 50, "base": 3724000480, "limit": 3724066016, "depth": 51, "stride": 8, "planned": 3724000480}
+{"event": "acquire", "slot": 51, "base": 3753711672, "limit": 3753777208, "depth": 52, "stride": 25, "planned": 3753711672}
+{"event": "acquire", "slot": 52, "base": 3779035456, "limit": 3779100992, "depth": 53, "stride": 56, "planned": 3779035456}
+{"event": "acquire", "slot": 53, "base": 3818522088, "limit": 3818587624, "depth": 54, "stride": 114, "planned": 3818522088}
+{"event": "acquire", "slot": 54, "base": 3862396128, "limit": 3862461664, "depth": 55, "stride": 16, "planned": 3862396128}
+{"event": "acquire", "slot": 55, "base": 3900574240, "limit": 3900639776, "depth": 56, "stride": 25, "planned": 3900574240}
+{"event": "acquire", "slot": 56, "base": 3932517616, "limit": 3932583152, "depth": 57, "stride": 28, "planned": 3932517616}
+{"event": "acquire", "slot": 57, "base": 3964460992, "limit": 3964526528, "depth": 58, "stride": 18, "planned": 3964460992}
+{"event": "acquire", "slot": 58, "base": 3996404368, "limit": 3996469904, "depth": 59, "stride": 37, "planned": 3996404368}
+{"event": "acquire", "slot": 59, "base": 4028347744, "limit": 4028413280, "depth": 60, "stride": 8, "planned": 4028347744}
+{"event": "acquire", "slot": 60, "base": 4092388448, "limit": 4092453984, "depth": 61, "stride": 28, "planned": 4092388448}
+{"event": "acquire", "slot": 61, "base": 4110630808, "limit": 4110696344, "depth": 62, "stride": 8, "planned": 4110630808}
+{"event": "acquire", "slot": 62, "base": 4141034744, "limit": 4141100280, "depth": 63, "stride": 8, "planned": 4141034744}
+{"event": "acquire", "slot": 63, "base": 4170130160, "limit": 4170195696, "depth": 64, "stride": 8, "planned": 4170130160}
+{"event": "acquire", "slot": 64, "base": 4192836896, "limit": 4192902432, "depth": 65, "stride": 25, "planned": 4192836896}
+{"event": "acquire", "slot": 65, "base": 4239404952, "limit": 4239470488, "depth": 66, "stride": 41, "planned": 4239404952}
+{"event": "acquire", "slot": 66, "base": 4271348328, "limit": 4271413864, "depth": 67, "stride": 26, "planned": 4271348328}
+{"event": "acquire", "slot": 67, "base": 2960438248, "limit": 2960503784, "depth": 68, "stride": 8, "planned": 2960438248}
+{"event": "acquire", "slot": 68, "base": 1585564488, "limit": 1585630024, "depth": 69, "stride": 24, "planned": 1585564488}
+{"event": "acquire", "slot": 69, "base": 2732909040, "limit": 2732974576, "depth": 70, "stride": 16, "planned": 1103719816}
+{"event": "acquire", "slot": 70, "base": 1377971024, "limit": 1378036560, "depth": 71, "stride": 16, "planned": 574229488}
+{"event": "grow", "source": -2, "slot": 9, "base": 1170377568, "old": 1170443104, "limit": 1170508640, "needed": 1170443200, "depth": 71}
+{"event": "grow", "source": -2, "slot": 9, "base": 1170377568, "old": 1170508640, "limit": 1170639712, "needed": 1170508720, "depth": 71}
+{"event": "grow", "source": -2, "slot": 9, "base": 1170377568, "old": 1170639712, "limit": 1170901856, "needed": 1170639760, "depth": 71}
+{"event": "grow", "source": -2, "slot": 24, "base": 2057556760, "old": 2057622296, "limit": 2057687832, "needed": 2057622364, "depth": 71}
+{"event": "grow", "source": -2, "slot": 8, "base": 1120499712, "old": 1120565248, "limit": 1120630784, "needed": 1120565349, "depth": 71}
+{"event": "grow", "source": -2, "slot": 9, "base": 1170377568, "old": 1170901856, "limit": 1171426144, "needed": 1170901952, "depth": 71}
+{"event": "grow", "source": -2, "slot": 8, "base": 1120499712, "old": 1120630784, "limit": 1120761856, "needed": 1120630833, "depth": 71}
+{"event": "grow", "source": -2, "slot": 24, "base": 2057556760, "old": 2057687832, "limit": 2057818904, "needed": 2057687884, "depth": 71}
+{"event": "grow", "source": -2, "slot": 38, "base": 3188660224, "old": 3188725760, "limit": 3188791296, "needed": 3188725768, "depth": 71}
+{"event": "grow", "source": -2, "slot": 39, "base": 3228377776, "old": 3228443312, "limit": 3228508848, "needed": 3228443320, "depth": 71}
+{"event": "grow", "source": -2, "slot": 40, "base": 3269480824, "old": 3269546360, "limit": 3269611896, "needed": 3269546368, "depth": 71}
+{"event": "grow", "source": -2, "slot": 25, "base": 2108820112, "old": 2108885648, "limit": 2108951184, "needed": 2108885656, "depth": 71}
+{"event": "grow", "source": -2, "slot": 9, "base": 1170377568, "old": 1171426144, "limit": 1172474720, "needed": 1171426224, "depth": 71}
+{"event": "grow", "source": -2, "slot": 8, "base": 1120499712, "old": 1120761856, "limit": 1121024000, "needed": 1120761954, "depth": 71}
+{"event": "grow", "source": -2, "slot": 37, "base": 3150790000, "old": 3150855536, "limit": 3150921072, "needed": 3150855544, "depth": 71}
+{"event": "grow", "source": -2, "slot": 38, "base": 3188660224, "old": 3188791296, "limit": 3188922368, "needed": 3188791304, "depth": 71}
+{"event": "grow", "source": -2, "slot": 39, "base": 3228377776, "old": 3228508848, "limit": 3228639920, "needed": 3228508856, "depth": 71}
+{"event": "grow", "source": -2, "slot": 40, "base": 3269480824, "old": 3269611896, "limit": 3269742968, "needed": 3269611904, "depth": 71}
+{"event": "grow", "source": -2, "slot": 25, "base": 2108820112, "old": 2108951184, "limit": 2109082256, "needed": 2108951192, "depth": 71}
+{"event": "grow", "source": -2, "slot": 9, "base": 1170377568, "old": 1172474720, "limit": 1174571872, "needed": 1172474768, "depth": 71}
+{"event": "grow", "source": -2, "slot": 24, "base": 2057556760, "old": 2057818904, "limit": 2058081048, "needed": 2057818924, "depth": 71}
+{"event": "grow", "source": -2, "slot": 37, "base": 3150790000, "old": 3150921072, "limit": 3151052144, "needed": 3150921080, "depth": 71}
+{"event": "grow", "source": -2, "slot": 38, "base": 3188660224, "old": 3188922368, "limit": 3189184512, "needed": 3188922376, "depth": 71}
+{"event": "grow", "source": -2, "slot": 39, "base": 3228377776, "old": 3228639920, "limit": 3228902064, "needed": 3228639928, "depth": 71}
+{"event": "grow", "source": -2, "slot": 40, "base": 3269480824, "old": 3269742968, "limit": 3270005112, "needed": 3269742976, "depth": 71}
+{"event": "grow", "source": -2, "slot": 25, "base": 2108820112, "old": 2109082256, "limit": 2109344400, "needed": 2109082264, "depth": 71}
+{"event": "grow", "source": -2, "slot": 9, "base": 1170377568, "old": 1174571872, "limit": 1178766176, "needed": 1174571968, "depth": 71}
+{"event": "acquire", "slot": 71, "base": 2929418536, "limit": 2929484072, "depth": 72, "stride": 8, "planned": 2929418536}
+{"event": "acquire", "slot": 72, "base": 1547694264, "limit": 1547759800, "depth": 73, "stride": 8, "planned": 1547694264}
+{"event": "acquire", "slot": 73, "base": 2619144432, "limit": 2619209968, "depth": 74, "stride": 8, "planned": 1087940560}
+{"event": "hooks", "acquires": 74, "grows": 65, "image_grows": 0, "acquire_ns": 10656839, "grow_ns": 12135663}

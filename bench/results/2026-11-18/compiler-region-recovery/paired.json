@@ -1,0 +1,1087 @@
+{
+  "cpu": 7,
+  "rounds": 4,
+  "cases": [
+    "initial",
+    "recover",
+    "warm",
+    "fit"
+  ],
+  "datasets": [
+    "blot-parse",
+    "compact",
+    "self-check",
+    "self-emit"
+  ],
+  "modules": {
+    "adapter": "891e970032802a7b9b972ca1dcfd4aed3967b2903615ea94ba6005f2b3de324d",
+    "initial": "7eb18697c0bd5c1737e48c7a190d7f6321c74a291b26e49113eab0ae7a7acb68",
+    "fit": "0db64807fa3b4516ce591848a8ecb546a61dc0eb74f18684a1951f494256c663"
+  },
+  "native": "b5861b426b583652f32b75f850c521672cea4a9cab62c34087efa55d2fbdd7c9",
+  "projects": {
+    "compiler": "91059b1407c847532aea432c401953819e3650cae1f9267c4c7f15bbfe205c85",
+    "frozen": "c9474661210aed23044b05faa4aa19bacee7063aa64cd6bf3092b9af9a1fdf1d"
+  },
+  "native_emissions": {
+    "blot-parse": null,
+    "compact": null,
+    "self-check": null,
+    "self-emit": "66798403ae7eb64fcd6da5490114b2d6ae82072d3f8c7fab2519713ee2f7190f"
+  },
+  "host_sha256": "5f00e3b88c4a6271a5ca3f9040ffc3c96f95601df7d0e3ee7fe8a575ac2eda1e",
+  "samples": [
+    {
+      "cpu_ns": 407511061,
+      "wall_ns": 410889682,
+      "guest_attempt_ns": [
+        396544020
+      ],
+      "matches": false,
+      "status": 1,
+      "error": "goose runtime error: data region exhausted (line 277)",
+      "output_sha256": null,
+      "failures": [],
+      "round": 1,
+      "dataset": "blot-parse",
+      "case": "initial"
+    },
+    {
+      "cpu_ns": 2033434123,
+      "wall_ns": 2051186273,
+      "guest_attempt_ns": [
+        416932754,
+        1618959614
+      ],
+      "matches": true,
+      "status": 0,
+      "error": "",
+      "output_sha256": null,
+      "failures": [
+        {
+          "region": 6,
+          "used": 123463032,
+          "request": 88,
+          "capacity": 123463076
+        }
+      ],
+      "round": 1,
+      "dataset": "blot-parse",
+      "case": "recover"
+    },
+    {
+      "cpu_ns": 1622796555,
+      "wall_ns": 1633871079,
+      "guest_attempt_ns": [
+        1625723074
+      ],
+      "matches": true,
+      "status": 0,
+      "error": "",
+      "output_sha256": null,
+      "failures": [],
+      "round": 1,
+      "dataset": "blot-parse",
+      "case": "warm"
+    },
+    {
+      "cpu_ns": 1668773023,
+      "wall_ns": 1681382108,
+      "guest_attempt_ns": [
+        1673372725
+      ],
+      "matches": true,
+      "status": 0,
+      "error": "",
+      "output_sha256": null,
+      "failures": [],
+      "round": 1,
+      "dataset": "blot-parse",
+      "case": "fit"
+    },
+    {
+      "cpu_ns": 150274642,
+      "wall_ns": 151700595,
+      "guest_attempt_ns": [
+        145207738
+      ],
+      "matches": false,
+      "status": 1,
+      "error": "goose runtime error: data region exhausted (line 277)",
+      "output_sha256": null,
+      "failures": [],
+      "round": 1,
+      "dataset": "compact",
+      "case": "initial"
+    },
+    {
+      "cpu_ns": 1290064378,
+      "wall_ns": 1300704939,
+      "guest_attempt_ns": [
+        141874139,
+        456150190,
+        681910443
+      ],
+      "matches": true,
+      "status": 0,
+      "error": "",
+      "output_sha256": null,
+      "failures": [
+        {
+          "region": 6,
+          "used": 123463032,
+          "request": 88,
+          "capacity": 123463076
+        },
+        {
+          "region": 7,
+          "used": 211334880,
+          "request": 160,
+          "capacity": 211334996
+        }
+      ],
+      "round": 1,
+      "dataset": "compact",
+      "case": "recover"
+    },
+    {
+      "cpu_ns": 671373503,
+      "wall_ns": 677416917,
+      "guest_attempt_ns": [
+        669897197
+      ],
+      "matches": true,
+      "status": 0,
+      "error": "",
+      "output_sha256": null,
+      "failures": [],
+      "round": 1,
+      "dataset": "compact",
+      "case": "warm"
+    },
+    {
+      "cpu_ns": 689732636,
+      "wall_ns": 695522538,
+      "guest_attempt_ns": [
+        687541560
+      ],
+      "matches": true,
+      "status": 0,
+      "error": "",
+      "output_sha256": null,
+      "failures": [],
+      "round": 1,
+      "dataset": "compact",
+      "case": "fit"
+    },
+    {
+      "cpu_ns": 3612370596,
+      "wall_ns": 3642639810,
+      "guest_attempt_ns": [
+        3633431399
+      ],
+      "matches": true,
+      "status": 0,
+      "error": "",
+      "output_sha256": null,
+      "failures": [],
+      "round": 1,
+      "dataset": "self-check",
+      "case": "initial"
+    },
+    {
+      "cpu_ns": 3595393618,
+      "wall_ns": 3622570051,
+      "guest_attempt_ns": [
+        3613563485
+      ],
+      "matches": true,
+      "status": 0,
+      "error": "",
+      "output_sha256": null,
+      "failures": [],
+      "round": 1,
+      "dataset": "self-check",
+      "case": "recover"
+    },
+    {
+      "cpu_ns": 3585728677,
+      "wall_ns": 3611797705,
+      "guest_attempt_ns": [
+        3602909031
+      ],
+      "matches": true,
+      "status": 0,
+      "error": "",
+      "output_sha256": null,
+      "failures": [],
+      "round": 1,
+      "dataset": "self-check",
+      "case": "warm"
+    },
+    {
+      "cpu_ns": 3621607435,
+      "wall_ns": 3653428662,
+      "guest_attempt_ns": [
+        3644463573
+      ],
+      "matches": true,
+      "status": 0,
+      "error": "",
+      "output_sha256": null,
+      "failures": [],
+      "round": 1,
+      "dataset": "self-check",
+      "case": "fit"
+    },
+    {
+      "cpu_ns": 4936941396,
+      "wall_ns": 4971925910,
+      "guest_attempt_ns": [
+        4962663045
+      ],
+      "matches": true,
+      "status": 0,
+      "error": "",
+      "output_sha256": "66798403ae7eb64fcd6da5490114b2d6ae82072d3f8c7fab2519713ee2f7190f",
+      "failures": [],
+      "round": 1,
+      "dataset": "self-emit",
+      "case": "initial"
+    },
+    {
+      "cpu_ns": 4964992883,
+      "wall_ns": 5005648507,
+      "guest_attempt_ns": [
+        4995913615
+      ],
+      "matches": true,
+      "status": 0,
+      "error": "",
+      "output_sha256": "66798403ae7eb64fcd6da5490114b2d6ae82072d3f8c7fab2519713ee2f7190f",
+      "failures": [],
+      "round": 1,
+      "dataset": "self-emit",
+      "case": "recover"
+    },
+    {
+      "cpu_ns": 5103493560,
+      "wall_ns": 5143926853,
+      "guest_attempt_ns": [
+        5133257904
+      ],
+      "matches": true,
+      "status": 0,
+      "error": "",
+      "output_sha256": "66798403ae7eb64fcd6da5490114b2d6ae82072d3f8c7fab2519713ee2f7190f",
+      "failures": [],
+      "round": 1,
+      "dataset": "self-emit",
+      "case": "warm"
+    },
+    {
+      "cpu_ns": 5124721296,
+      "wall_ns": 5165200184,
+      "guest_attempt_ns": [
+        5155316289
+      ],
+      "matches": true,
+      "status": 0,
+      "error": "",
+      "output_sha256": "66798403ae7eb64fcd6da5490114b2d6ae82072d3f8c7fab2519713ee2f7190f",
+      "failures": [],
+      "round": 1,
+      "dataset": "self-emit",
+      "case": "fit"
+    },
+    {
+      "cpu_ns": 1710777933,
+      "wall_ns": 1725913332,
+      "guest_attempt_ns": [
+        1717855428
+      ],
+      "matches": true,
+      "status": 0,
+      "error": "",
+      "output_sha256": null,
+      "failures": [],
+      "round": 2,
+      "dataset": "blot-parse",
+      "case": "fit"
+    },
+    {
+      "cpu_ns": 1672580326,
+      "wall_ns": 1686535266,
+      "guest_attempt_ns": [
+        1678251233
+      ],
+      "matches": true,
+      "status": 0,
+      "error": "",
+      "output_sha256": null,
+      "failures": [],
+      "round": 2,
+      "dataset": "blot-parse",
+      "case": "warm"
+    },
+    {
+      "cpu_ns": 2090665383,
+      "wall_ns": 2108896032,
+      "guest_attempt_ns": [
+        405709224,
+        1687498195
+      ],
+      "matches": true,
+      "status": 0,
+      "error": "",
+      "output_sha256": null,
+      "failures": [
+        {
+          "region": 6,
+          "used": 123463032,
+          "request": 88,
+          "capacity": 123463076
+        }
+      ],
+      "round": 2,
+      "dataset": "blot-parse",
+      "case": "recover"
+    },
+    {
+      "cpu_ns": 411057863,
+      "wall_ns": 415274332,
+      "guest_attempt_ns": [
+        407870322
+      ],
+      "matches": false,
+      "status": 1,
+      "error": "goose runtime error: data region exhausted (line 277)",
+      "output_sha256": null,
+      "failures": [],
+      "round": 2,
+      "dataset": "blot-parse",
+      "case": "initial"
+    },
+    {
+      "cpu_ns": 698323305,
+      "wall_ns": 705630745,
+      "guest_attempt_ns": [
+        698242505
+      ],
+      "matches": true,
+      "status": 0,
+      "error": "",
+      "output_sha256": null,
+      "failures": [],
+      "round": 2,
+      "dataset": "compact",
+      "case": "fit"
+    },
+    {
+      "cpu_ns": 688298275,
+      "wall_ns": 695167757,
+      "guest_attempt_ns": [
+        687608623
+      ],
+      "matches": true,
+      "status": 0,
+      "error": "",
+      "output_sha256": null,
+      "failures": [],
+      "round": 2,
+      "dataset": "compact",
+      "case": "warm"
+    },
+    {
+      "cpu_ns": 1297281530,
+      "wall_ns": 1308589983,
+      "guest_attempt_ns": [
+        144135294,
+        456939242,
+        685847483
+      ],
+      "matches": true,
+      "status": 0,
+      "error": "",
+      "output_sha256": null,
+      "failures": [
+        {
+          "region": 6,
+          "used": 123463032,
+          "request": 88,
+          "capacity": 123463076
+        },
+        {
+          "region": 7,
+          "used": 211334880,
+          "request": 160,
+          "capacity": 211334996
+        }
+      ],
+      "round": 2,
+      "dataset": "compact",
+      "case": "recover"
+    },
+    {
+      "cpu_ns": 148965545,
+      "wall_ns": 150158717,
+      "guest_attempt_ns": [
+        143951123
+      ],
+      "matches": false,
+      "status": 1,
+      "error": "goose runtime error: data region exhausted (line 277)",
+      "output_sha256": null,
+      "failures": [],
+      "round": 2,
+      "dataset": "compact",
+      "case": "initial"
+    },
+    {
+      "cpu_ns": 3746711951,
+      "wall_ns": 3778180251,
+      "guest_attempt_ns": [
+        3769177500
+      ],
+      "matches": true,
+      "status": 0,
+      "error": "",
+      "output_sha256": null,
+      "failures": [],
+      "round": 2,
+      "dataset": "self-check",
+      "case": "fit"
+    },
+    {
+      "cpu_ns": 3670346945,
+      "wall_ns": 3696378723,
+      "guest_attempt_ns": [
+        3686965663
+      ],
+      "matches": true,
+      "status": 0,
+      "error": "",
+      "output_sha256": null,
+      "failures": [],
+      "round": 2,
+      "dataset": "self-check",
+      "case": "warm"
+    },
+    {
+      "cpu_ns": 3705148038,
+      "wall_ns": 3733654887,
+      "guest_attempt_ns": [
+        3724461134
+      ],
+      "matches": true,
+      "status": 0,
+      "error": "",
+      "output_sha256": null,
+      "failures": [],
+      "round": 2,
+      "dataset": "self-check",
+      "case": "recover"
+    },
+    {
+      "cpu_ns": 3684235081,
+      "wall_ns": 3712259500,
+      "guest_attempt_ns": [
+        3703536492
+      ],
+      "matches": true,
+      "status": 0,
+      "error": "",
+      "output_sha256": null,
+      "failures": [],
+      "round": 2,
+      "dataset": "self-check",
+      "case": "initial"
+    },
+    {
+      "cpu_ns": 5128472549,
+      "wall_ns": 5167192731,
+      "guest_attempt_ns": [
+        5156551204
+      ],
+      "matches": true,
+      "status": 0,
+      "error": "",
+      "output_sha256": "66798403ae7eb64fcd6da5490114b2d6ae82072d3f8c7fab2519713ee2f7190f",
+      "failures": [],
+      "round": 2,
+      "dataset": "self-emit",
+      "case": "fit"
+    },
+    {
+      "cpu_ns": 5307328551,
+      "wall_ns": 5394778590,
+      "guest_attempt_ns": [
+        5384743677
+      ],
+      "matches": true,
+      "status": 0,
+      "error": "",
+      "output_sha256": "66798403ae7eb64fcd6da5490114b2d6ae82072d3f8c7fab2519713ee2f7190f",
+      "failures": [],
+      "round": 2,
+      "dataset": "self-emit",
+      "case": "warm"
+    },
+    {
+      "cpu_ns": 5303879794,
+      "wall_ns": 5384011212,
+      "guest_attempt_ns": [
+        5373753035
+      ],
+      "matches": true,
+      "status": 0,
+      "error": "",
+      "output_sha256": "66798403ae7eb64fcd6da5490114b2d6ae82072d3f8c7fab2519713ee2f7190f",
+      "failures": [],
+      "round": 2,
+      "dataset": "self-emit",
+      "case": "recover"
+    },
+    {
+      "cpu_ns": 5431874802,
+      "wall_ns": 5514600539,
+      "guest_attempt_ns": [
+        5502643490
+      ],
+      "matches": true,
+      "status": 0,
+      "error": "",
+      "output_sha256": "66798403ae7eb64fcd6da5490114b2d6ae82072d3f8c7fab2519713ee2f7190f",
+      "failures": [],
+      "round": 2,
+      "dataset": "self-emit",
+      "case": "initial"
+    },
+    {
+      "cpu_ns": 434592580,
+      "wall_ns": 439845163,
+      "guest_attempt_ns": [
+        431516605
+      ],
+      "matches": false,
+      "status": 1,
+      "error": "goose runtime error: data region exhausted (line 277)",
+      "output_sha256": null,
+      "failures": [],
+      "round": 3,
+      "dataset": "blot-parse",
+      "case": "initial"
+    },
+    {
+      "cpu_ns": 2258777503,
+      "wall_ns": 2302634804,
+      "guest_attempt_ns": [
+        439998193,
+        1828906831
+      ],
+      "matches": true,
+      "status": 0,
+      "error": "",
+      "output_sha256": null,
+      "failures": [
+        {
+          "region": 6,
+          "used": 123463032,
+          "request": 88,
+          "capacity": 123463076
+        }
+      ],
+      "round": 3,
+      "dataset": "blot-parse",
+      "case": "recover"
+    },
+    {
+      "cpu_ns": 1840839443,
+      "wall_ns": 1875736299,
+      "guest_attempt_ns": [
+        1866086939
+      ],
+      "matches": true,
+      "status": 0,
+      "error": "",
+      "output_sha256": null,
+      "failures": [],
+      "round": 3,
+      "dataset": "blot-parse",
+      "case": "warm"
+    },
+    {
+      "cpu_ns": 1866298019,
+      "wall_ns": 1892542686,
+      "guest_attempt_ns": [
+        1882775703
+      ],
+      "matches": true,
+      "status": 0,
+      "error": "",
+      "output_sha256": null,
+      "failures": [],
+      "round": 3,
+      "dataset": "blot-parse",
+      "case": "fit"
+    },
+    {
+      "cpu_ns": 164270786,
+      "wall_ns": 166093664,
+      "guest_attempt_ns": [
+        157417665
+      ],
+      "matches": false,
+      "status": 1,
+      "error": "goose runtime error: data region exhausted (line 277)",
+      "output_sha256": null,
+      "failures": [],
+      "round": 3,
+      "dataset": "compact",
+      "case": "initial"
+    },
+    {
+      "cpu_ns": 1403610730,
+      "wall_ns": 1424796696,
+      "guest_attempt_ns": [
+        155286564,
+        500358854,
+        746719033
+      ],
+      "matches": true,
+      "status": 0,
+      "error": "",
+      "output_sha256": null,
+      "failures": [
+        {
+          "region": 6,
+          "used": 123463032,
+          "request": 88,
+          "capacity": 123463076
+        },
+        {
+          "region": 7,
+          "used": 211334880,
+          "request": 160,
+          "capacity": 211334996
+        }
+      ],
+      "round": 3,
+      "dataset": "compact",
+      "case": "recover"
+    },
+    {
+      "cpu_ns": 749987094,
+      "wall_ns": 760914175,
+      "guest_attempt_ns": [
+        752684005
+      ],
+      "matches": true,
+      "status": 0,
+      "error": "",
+      "output_sha256": null,
+      "failures": [],
+      "round": 3,
+      "dataset": "compact",
+      "case": "warm"
+    },
+    {
+      "cpu_ns": 769382510,
+      "wall_ns": 779640846,
+      "guest_attempt_ns": [
+        771679456
+      ],
+      "matches": true,
+      "status": 0,
+      "error": "",
+      "output_sha256": null,
+      "failures": [],
+      "round": 3,
+      "dataset": "compact",
+      "case": "fit"
+    },
+    {
+      "cpu_ns": 4278956232,
+      "wall_ns": 4342897207,
+      "guest_attempt_ns": [
+        4332960993
+      ],
+      "matches": true,
+      "status": 0,
+      "error": "",
+      "output_sha256": null,
+      "failures": [],
+      "round": 3,
+      "dataset": "self-check",
+      "case": "initial"
+    },
+    {
+      "cpu_ns": 4324918597,
+      "wall_ns": 4416735273,
+      "guest_attempt_ns": [
+        4404887784
+      ],
+      "matches": true,
+      "status": 0,
+      "error": "",
+      "output_sha256": null,
+      "failures": [],
+      "round": 3,
+      "dataset": "self-check",
+      "case": "recover"
+    },
+    {
+      "cpu_ns": 4697245794,
+      "wall_ns": 4819079803,
+      "guest_attempt_ns": [
+        4806210982
+      ],
+      "matches": true,
+      "status": 0,
+      "error": "",
+      "output_sha256": null,
+      "failures": [],
+      "round": 3,
+      "dataset": "self-check",
+      "case": "warm"
+    },
+    {
+      "cpu_ns": 4811956002,
+      "wall_ns": 5004354953,
+      "guest_attempt_ns": [
+        4991936418
+      ],
+      "matches": true,
+      "status": 0,
+      "error": "",
+      "output_sha256": null,
+      "failures": [],
+      "round": 3,
+      "dataset": "self-check",
+      "case": "fit"
+    },
+    {
+      "cpu_ns": 6350592616,
+      "wall_ns": 6533604468,
+      "guest_attempt_ns": [
+        6518801910
+      ],
+      "matches": true,
+      "status": 0,
+      "error": "",
+      "output_sha256": "66798403ae7eb64fcd6da5490114b2d6ae82072d3f8c7fab2519713ee2f7190f",
+      "failures": [],
+      "round": 3,
+      "dataset": "self-emit",
+      "case": "initial"
+    },
+    {
+      "cpu_ns": 6408803372,
+      "wall_ns": 6590484709,
+      "guest_attempt_ns": [
+        6573060357
+      ],
+      "matches": true,
+      "status": 0,
+      "error": "",
+      "output_sha256": "66798403ae7eb64fcd6da5490114b2d6ae82072d3f8c7fab2519713ee2f7190f",
+      "failures": [],
+      "round": 3,
+      "dataset": "self-emit",
+      "case": "recover"
+    },
+    {
+      "cpu_ns": 8032558826,
+      "wall_ns": 8303594761,
+      "guest_attempt_ns": [
+        8281725415
+      ],
+      "matches": true,
+      "status": 0,
+      "error": "",
+      "output_sha256": "66798403ae7eb64fcd6da5490114b2d6ae82072d3f8c7fab2519713ee2f7190f",
+      "failures": [],
+      "round": 3,
+      "dataset": "self-emit",
+      "case": "warm"
+    },
+    {
+      "cpu_ns": 7640377627,
+      "wall_ns": 7903463607,
+      "guest_attempt_ns": [
+        7880199598
+      ],
+      "matches": true,
+      "status": 0,
+      "error": "",
+      "output_sha256": "66798403ae7eb64fcd6da5490114b2d6ae82072d3f8c7fab2519713ee2f7190f",
+      "failures": [],
+      "round": 3,
+      "dataset": "self-emit",
+      "case": "fit"
+    },
+    {
+      "cpu_ns": 2360316930,
+      "wall_ns": 2439227880,
+      "guest_attempt_ns": [
+        2398857433
+      ],
+      "matches": true,
+      "status": 0,
+      "error": "",
+      "output_sha256": null,
+      "failures": [],
+      "round": 4,
+      "dataset": "blot-parse",
+      "case": "fit"
+    },
+    {
+      "cpu_ns": 2584217933,
+      "wall_ns": 2637104280,
+      "guest_attempt_ns": [
+        2589338090
+      ],
+      "matches": true,
+      "status": 0,
+      "error": "",
+      "output_sha256": null,
+      "failures": [],
+      "round": 4,
+      "dataset": "blot-parse",
+      "case": "warm"
+    },
+    {
+      "cpu_ns": 2771980070,
+      "wall_ns": 2833094072,
+      "guest_attempt_ns": [
+        589100932,
+        2199374475
+      ],
+      "matches": true,
+      "status": 0,
+      "error": "",
+      "output_sha256": null,
+      "failures": [
+        {
+          "region": 6,
+          "used": 123463032,
+          "request": 88,
+          "capacity": 123463076
+        }
+      ],
+      "round": 4,
+      "dataset": "blot-parse",
+      "case": "recover"
+    },
+    {
+      "cpu_ns": 499588973,
+      "wall_ns": 507278440,
+      "guest_attempt_ns": [
+        468106823
+      ],
+      "matches": false,
+      "status": 1,
+      "error": "goose runtime error: data region exhausted (line 277)",
+      "output_sha256": null,
+      "failures": [],
+      "round": 4,
+      "dataset": "blot-parse",
+      "case": "initial"
+    },
+    {
+      "cpu_ns": 863845660,
+      "wall_ns": 891828926,
+      "guest_attempt_ns": [
+        875995377
+      ],
+      "matches": true,
+      "status": 0,
+      "error": "",
+      "output_sha256": null,
+      "failures": [],
+      "round": 4,
+      "dataset": "compact",
+      "case": "fit"
+    },
+    {
+      "cpu_ns": 890535197,
+      "wall_ns": 948991383,
+      "guest_attempt_ns": [
+        924473371
+      ],
+      "matches": true,
+      "status": 0,
+      "error": "",
+      "output_sha256": null,
+      "failures": [],
+      "round": 4,
+      "dataset": "compact",
+      "case": "warm"
+    },
+    {
+      "cpu_ns": 1584603903,
+      "wall_ns": 1618793090,
+      "guest_attempt_ns": [
+        177146364,
+        578652191,
+        827235366
+      ],
+      "matches": true,
+      "status": 0,
+      "error": "",
+      "output_sha256": null,
+      "failures": [
+        {
+          "region": 6,
+          "used": 123463032,
+          "request": 88,
+          "capacity": 123463076
+        },
+        {
+          "region": 7,
+          "used": 211334880,
+          "request": 160,
+          "capacity": 211334996
+        }
+      ],
+      "round": 4,
+      "dataset": "compact",
+      "case": "recover"
+    },
+    {
+      "cpu_ns": 173497629,
+      "wall_ns": 179615269,
+      "guest_attempt_ns": [
+        172448651
+      ],
+      "matches": false,
+      "status": 1,
+      "error": "goose runtime error: data region exhausted (line 277)",
+      "output_sha256": null,
+      "failures": [],
+      "round": 4,
+      "dataset": "compact",
+      "case": "initial"
+    },
+    {
+      "cpu_ns": 4731555788,
+      "wall_ns": 4898724377,
+      "guest_attempt_ns": [
+        4886141730
+      ],
+      "matches": true,
+      "status": 0,
+      "error": "",
+      "output_sha256": null,
+      "failures": [],
+      "round": 4,
+      "dataset": "self-check",
+      "case": "fit"
+    },
+    {
+      "cpu_ns": 4750070903,
+      "wall_ns": 4888612483,
+      "guest_attempt_ns": [
+        4870074392
+      ],
+      "matches": true,
+      "status": 0,
+      "error": "",
+      "output_sha256": null,
+      "failures": [],
+      "round": 4,
+      "dataset": "self-check",
+      "case": "warm"
+    },
+    {
+      "cpu_ns": 4603475559,
+      "wall_ns": 4728763496,
+      "guest_attempt_ns": [
+        4717732851
+      ],
+      "matches": true,
+      "status": 0,
+      "error": "",
+      "output_sha256": null,
+      "failures": [],
+      "round": 4,
+      "dataset": "self-check",
+      "case": "recover"
+    },
+    {
+      "cpu_ns": 4632829234,
+      "wall_ns": 4763039259,
+      "guest_attempt_ns": [
+        4752485962
+      ],
+      "matches": true,
+      "status": 0,
+      "error": "",
+      "output_sha256": null,
+      "failures": [],
+      "round": 4,
+      "dataset": "self-check",
+      "case": "initial"
+    },
+    {
+      "cpu_ns": 6105631045,
+      "wall_ns": 6226442946,
+      "guest_attempt_ns": [
+        6213998032
+      ],
+      "matches": true,
+      "status": 0,
+      "error": "",
+      "output_sha256": "66798403ae7eb64fcd6da5490114b2d6ae82072d3f8c7fab2519713ee2f7190f",
+      "failures": [],
+      "round": 4,
+      "dataset": "self-emit",
+      "case": "fit"
+    },
+    {
+      "cpu_ns": 5972532614,
+      "wall_ns": 6069921982,
+      "guest_attempt_ns": [
+        6058211985
+      ],
+      "matches": true,
+      "status": 0,
+      "error": "",
+      "output_sha256": "66798403ae7eb64fcd6da5490114b2d6ae82072d3f8c7fab2519713ee2f7190f",
+      "failures": [],
+      "round": 4,
+      "dataset": "self-emit",
+      "case": "warm"
+    },
+    {
+      "cpu_ns": 6139860769,
+      "wall_ns": 6317210005,
+      "guest_attempt_ns": [
+        6305758098
+      ],
+      "matches": true,
+      "status": 0,
+      "error": "",
+      "output_sha256": "66798403ae7eb64fcd6da5490114b2d6ae82072d3f8c7fab2519713ee2f7190f",
+      "failures": [],
+      "round": 4,
+      "dataset": "self-emit",
+      "case": "recover"
+    },
+    {
+      "cpu_ns": 6279027090,
+      "wall_ns": 6497705507,
+      "guest_attempt_ns": [
+        6479909227
+      ],
+      "matches": true,
+      "status": 0,
+      "error": "",
+      "output_sha256": "66798403ae7eb64fcd6da5490114b2d6ae82072d3f8c7fab2519713ee2f7190f",
+      "failures": [],
+      "round": 4,
+      "dataset": "self-emit",
+      "case": "initial"
+    }
+  ]
+}

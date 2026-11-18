@@ -1,0 +1,9 @@
+{"event": "acquire", "slot": 0, "base": 1431634800, "limit": 1431700336, "depth": 1, "stride": 8, "planned": 1431634800}
+{"event": "grow", "source": -2, "slot": 0, "base": 1431634800, "old": 1431700336, "limit": 1431765872, "needed": 1431700344, "depth": 1}
+{"event": "grow", "source": -2, "slot": 0, "base": 1431634800, "old": 1431765872, "limit": 1431896944, "needed": 1431765880, "depth": 1}
+{"event": "grow", "source": -2, "slot": 0, "base": 1431634800, "old": 1431896944, "limit": 1432159088, "needed": 1431896952, "depth": 1}
+{"event": "grow", "source": -2, "slot": 0, "base": 1431634800, "old": 1432159088, "limit": 1432683376, "needed": 1432159096, "depth": 1}
+{"event": "grow", "source": -2, "slot": 0, "base": 1431634800, "old": 1432683376, "limit": 1433731952, "needed": 1432683384, "depth": 1}
+{"event": "acquire", "slot": 1, "base": 2864284088, "limit": 2864349624, "depth": 2, "stride": 8, "planned": 1431700336}
+{"event": "grow", "source": -2, "slot": 1, "base": 2864284088, "old": 2864349624, "limit": 2864415160, "needed": 2864349632, "depth": 2}
+{"event": "hooks", "acquires": 2, "grows": 6, "image_grows": 0, "acquire_ns": 336289, "grow_ns": 592515}

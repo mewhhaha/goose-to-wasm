@@ -20,6 +20,22 @@ spec.loader.exec_module(host)
 
 
 class PythonHostTiming(unittest.TestCase):
+    def test_start_hook_configures_only_the_current_instance(self):
+        module = wasmtime.wat2wasm("""
+            (module
+              (global $input (export "input") (mut i32) (i32.const 0))
+              (func (export "_start")
+                (if (i32.eqz (global.get $input)) (then unreachable))))
+        """)
+
+        def configure(store, exports):
+            self.assertEqual(exports["input"].value(store), 0)
+            exports["input"].set_value(store, 1)
+            exports["_start"](store)
+
+        self.assertEqual(host.run_module(module, "", invoke_start=configure)["exit_code"], 0)
+        self.assertEqual(host.run_module(module, "")["exit_code"], 1)
+
     def test_import_does_not_load_distribution_metadata(self):
         code = ("import runpy, sys; runpy.run_path(sys.argv[1]); "
                 "assert 'importlib.metadata' not in sys.modules")

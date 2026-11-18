@@ -1,0 +1,401 @@
+{
+  "pins": {
+    "compiler": {
+      "sha256": "b5861b426b583652f32b75f850c521672cea4a9cab62c34087efa55d2fbdd7c9",
+      "size": 7066976
+    },
+    "candidate": {
+      "sha256": "86de4fd36c3357738e8ab36cfbef88093f100ed4429f0947869b104fea57dba2",
+      "size": 8578466
+    },
+    "emitter": {
+      "sha256": "86a7d027e1f826bf2ccac0f34f3d4706d8c2b0940aed00884eca80e531c7cb1d",
+      "size": 8883741
+    },
+    "pinned_host": {
+      "sha256": "8df97fa8039771fd5675f148919bb61e43eaf562a29ee3e762235257d2bbe3af",
+      "size": 26610
+    },
+    "experimental_host": {
+      "sha256": "41a611ede04eea660737a935c253d5e16e19c7035ffffcf10e62a85d323f434a",
+      "size": 30518
+    },
+    "blot_fixed": {
+      "sha256": "35dc3cad11a2779460b9f809482bbed8ed7fe0d1c5c76ccc8a18ab778640fdbd",
+      "size": 8614702
+    },
+    "combined_fixed": {
+      "sha256": "0db64807fa3b4516ce591848a8ecb546a61dc0eb74f18684a1951f494256c663",
+      "size": 8614702
+    },
+    "self_fixed": {
+      "sha256": "7eb18697c0bd5c1737e48c7a190d7f6321c74a291b26e49113eab0ae7a7acb68",
+      "size": 8614702
+    },
+    "tiny_profile": {
+      "sha256": "584f2567b6519312d32e3afc53703af34cf1d07e5e37209457b633b093523893",
+      "size": 870
+    },
+    "compact": {
+      "sha256": "01abd1b2afccb1c9cb90140274c88c175fb41405b2a5099515fcae11e34559a9",
+      "size": 5969222
+    },
+    "padded": {
+      "sha256": "63c53c052852cdc28409f9c10ae71f3eb601a5c34b936e844a147fbc1406505f",
+      "size": 5969222
+    },
+    "compiler_source": [
+      "4e9b78e6fc3d1294f31582600b62f7eea9f0e946",
+      "91059b1407c847532aea432c401953819e3650cae1f9267c4c7f15bbfe205c85"
+    ],
+    "self_source": [
+      "90e086fe61f9ce019d6a6ef543212be63f6e1f57",
+      "c9474661210aed23044b05faa4aa19bacee7063aa64cd6bf3092b9af9a1fdf1d"
+    ],
+    "blot_archive_sha256": "09b5189cc5f61756e3c851870606149c2fd826658b74bca73c8cc34165919d27"
+  },
+  "runs": {
+    "blot": {
+      "acquisitions": 74,
+      "unchanged_bases": true,
+      "disjoint_at_every_event": true,
+      "extensions": 65,
+      "extension_paths": {
+        "-2": 65
+      },
+      "displaced_before_first_use": [
+        69,
+        70,
+        73
+      ],
+      "physical_capacity_bytes": {
+        "0": 65536,
+        "1": 65536,
+        "6": 426204840,
+        "7": 524872008,
+        "53": 65536
+      }
+    },
+    "self": {
+      "acquisitions": 134,
+      "unchanged_bases": true,
+      "disjoint_at_every_event": true,
+      "extensions": 229,
+      "extension_paths": {
+        "-2": 229
+      },
+      "displaced_before_first_use": [],
+      "physical_capacity_bytes": {
+        "0": 65536,
+        "1": 65536,
+        "6": 67108864,
+        "7": 67108864,
+        "53": 33554432
+      }
+    },
+    "emit": {
+      "acquisitions": 134,
+      "unchanged_bases": true,
+      "disjoint_at_every_event": true,
+      "extensions": 267,
+      "extension_paths": {
+        "-2": 267
+      },
+      "displaced_before_first_use": [],
+      "physical_capacity_bytes": {
+        "0": 65536,
+        "1": 65536,
+        "6": 67108864,
+        "7": 134217728,
+        "53": 33554432
+      },
+      "output_sha256": "66798403ae7eb64fcd6da5490114b2d6ae82072d3f8c7fab2519713ee2f7190f"
+    },
+    "alias_and_retirement": {
+      "acquisitions": 2,
+      "unchanged_bases": true,
+      "disjoint_at_every_event": true,
+      "extensions": 6,
+      "extension_paths": {
+        "-2": 6
+      },
+      "displaced_before_first_use": [
+        1
+      ],
+      "physical_capacity_bytes": {
+        "0": 2097152,
+        "1": 131072
+      }
+    }
+  },
+  "timing": {
+    "blot_exact": {
+      "fixed": {
+        "n": 3,
+        "median_ns": 1823388756,
+        "outcomes": [
+          0,
+          0,
+          0
+        ],
+        "observed_ns": [
+          1927696536,
+          1780217729,
+          1823388756
+        ]
+      },
+      "live": {
+        "n": 3,
+        "median_ns": 1918017321,
+        "outcomes": [
+          0,
+          0,
+          0
+        ],
+        "observed_ns": [
+          1864927478,
+          2016428567,
+          1918017321
+        ],
+        "callbacks": {
+          "acquires": 74,
+          "grows": 65,
+          "acquire_ns": 6178155,
+          "grow_ns": 5441314
+        }
+      },
+      "pct_change": 5.189708705212626
+    },
+    "blot_combined": {
+      "fixed": {
+        "n": 3,
+        "median_ns": 2294407407,
+        "outcomes": [
+          0,
+          0,
+          0
+        ],
+        "observed_ns": [
+          2294407407,
+          2311285169,
+          2185907591
+        ]
+      },
+      "live": {
+        "n": 3,
+        "median_ns": 2192492428,
+        "outcomes": [
+          0,
+          0,
+          0
+        ],
+        "observed_ns": [
+          2169119488,
+          2298232642,
+          2192492428
+        ],
+        "callbacks": {
+          "acquires": 74,
+          "grows": 65,
+          "acquire_ns": 7387037,
+          "grow_ns": 6628614
+        }
+      },
+      "pct_change": -4.441886767322489
+    },
+    "self": {
+      "fixed": {
+        "n": 3,
+        "median_ns": 4797518452,
+        "outcomes": [
+          0,
+          0,
+          0
+        ],
+        "observed_ns": [
+          5056288374,
+          4797518452,
+          4711585990
+        ]
+      },
+      "live": {
+        "n": 3,
+        "median_ns": 4946036083,
+        "outcomes": [
+          0,
+          0,
+          0
+        ],
+        "observed_ns": [
+          5918748808,
+          4946036083,
+          4910679822
+        ],
+        "callbacks": {
+          "acquires": 134,
+          "grows": 229,
+          "acquire_ns": 15079088,
+          "grow_ns": 26759204
+        }
+      },
+      "pct_change": 3.0957177650475787
+    },
+    "emit": {
+      "fixed": {
+        "n": 3,
+        "median_ns": 6763679641,
+        "outcomes": [
+          0,
+          0,
+          0
+        ],
+        "observed_ns": [
+          6397446979,
+          7418271809,
+          6763679641
+        ]
+      },
+      "live": {
+        "n": 3,
+        "median_ns": 7282895902,
+        "outcomes": [
+          0,
+          0,
+          0
+        ],
+        "observed_ns": [
+          7635990822,
+          7282895902,
+          6856697497
+        ],
+        "callbacks": {
+          "acquires": 134,
+          "grows": 267,
+          "acquire_ns": 14830909,
+          "grow_ns": 30702767
+        }
+      },
+      "pct_change": 7.676535385452321
+    },
+    "compact": {
+      "fixed": {
+        "n": 1,
+        "median_ns": 175820999,
+        "outcomes": [
+          1
+        ],
+        "observed_ns": [
+          175820999
+        ]
+      },
+      "live": {
+        "n": 1,
+        "median_ns": 905904833,
+        "outcomes": [
+          0
+        ],
+        "observed_ns": [
+          905904833
+        ],
+        "callbacks": {
+          "acquires": 71,
+          "grows": 50,
+          "acquire_ns": 6601552,
+          "grow_ns": 5925850
+        }
+      },
+      "pct_change": 415.2426832701593
+    },
+    "padded": {
+      "fixed": {
+        "n": 1,
+        "median_ns": 71398931,
+        "outcomes": [
+          0
+        ],
+        "observed_ns": [
+          71398931
+        ]
+      },
+      "live": {
+        "n": 1,
+        "median_ns": 92673557,
+        "outcomes": [
+          0
+        ],
+        "observed_ns": [
+          92673557
+        ],
+        "callbacks": {
+          "acquires": 71,
+          "grows": 22,
+          "acquire_ns": 6094141,
+          "grow_ns": 2228364
+        }
+      },
+      "pct_change": 29.796841075953928
+    }
+  },
+  "focused_fixtures": {
+    "total": 59,
+    "matched": 55,
+    "mismatches": {
+      "nonlocal_image_sparse_extent": {
+        "control": {
+          "region": true,
+          "status": 0,
+          "stdout": "9\n300000 0\n9\n300000 300000 0\n9\n100000 0 0\n",
+          "stderr": ""
+        },
+        "live": {
+          "region": true,
+          "status": 1,
+          "stdout": "9\n",
+          "stderr": "goose runtime error: array image exceeds data region (line 4)\n"
+        }
+      },
+      "nonlocal_enum_limited_sparse": {
+        "control": {
+          "region": true,
+          "status": 0,
+          "stdout": "9\n17 70000 70000 1 0\n",
+          "stderr": ""
+        },
+        "live": {
+          "region": true,
+          "status": 1,
+          "stdout": "9\n",
+          "stderr": "goose runtime error: enum image exceeds data region (line 4)\n"
+        }
+      },
+      "nonlocal_enum_sparse": {
+        "control": {
+          "region": true,
+          "status": 0,
+          "stdout": "9\n17 70000 1 0\n",
+          "stderr": ""
+        },
+        "live": {
+          "region": true,
+          "status": 1,
+          "stdout": "9\n",
+          "stderr": "goose runtime error: enum image exceeds data region (line 4)\n"
+        }
+      },
+      "finish-boundary": {
+        "control": {
+          "region": true,
+          "status": 0,
+          "stdout": "65532\n",
+          "stderr": ""
+        },
+        "live": {
+          "region": true,
+          "status": 1,
+          "stdout": "",
+          "stderr": "goose runtime error: data region exhausted (line 10)\n"
+        }
+      }
+    }
+  }
+}
