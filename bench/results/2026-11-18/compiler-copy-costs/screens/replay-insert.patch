@@ -1,0 +1,22 @@
+--- a/selfhost/checker_lifetimes.goose
++++ b/selfhost/checker_lifetimes.goose
+@@ -920,7 +920,10 @@
+             }
+             if external && !l.discovery && ordered && life_effect_repeated(l, effect, last) { external = false; }
+             if external {
+-                let index = l.effects.len; var entry = effect; entry.next = -1; entry.previous = last; entry.owner = frame;
++                let index = l.effects.len;
++                l.effects.push(effect);
++                let entry: LifeEffect& = l.effects[index];
++                entry.next = -1; entry.previous = last; entry.owner = frame;
+                 l.summaries.push(LifeSummary { key: summary_key, owner: frame, kind: entry.kind, node: site, type_id: entry.value.type_id, cell: entry.cell, field: entry.field });
+                 if l.discovery {
+                     life_summary_seen(l, index, entry); l.summaries[index].next = l.summary_heads[bucket]; l.summary_heads[bucket] = index;
+@@ -932,7 +935,6 @@
+                     entry.walked = 1; if outside { entry.walked = 2; }
+                     l.effect_heads[slot] = index; l.indexed_effects += 1;
+                 }
+-                l.effects.push(entry);
+                 if last >= 0 { l.effects[last].next = index; l.summaries[last].after = index; }
+                 if l.discovery {
+                     if last < 0 { l.frames[frame].first_summary = index; }

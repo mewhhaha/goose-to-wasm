@@ -1,0 +1,178 @@
+--- a/selfhost/checker_lifetimes.goose
++++ b/selfhost/checker_lifetimes.goose
+@@ -780,7 +780,7 @@
+     }
+     let seen = l.summary_reads[index].seen as i64; var same = seen == leaf;
+     if !same {
+-        let a = l.leaves[seen].value; let b = l.leaves[leaf].value;
++        let a: const LifeValue& = l.leaves[seen].value; let b: const LifeValue& = l.leaves[leaf].value;
+         same = a.place == b.place && a.refs == b.refs && a.contents == b.contents ||
+             life_same_list(l, a.place, b.place) && life_same_list(l, a.refs, b.refs) && life_same_list(l, a.contents, b.contents);
+         if same { l.summary_reads[index].seen = leaf as i32; l.summary_reads[index].sent = -1; }
+@@ -790,7 +790,7 @@
+         l.summary_reads[index].walked = walked;
+         return 1;
+     }
+-    let held = l.summary_reads[index].leaf as i64; var value = l.leaves[held].value; let offered = l.leaves[leaf].value;
++    let held = l.summary_reads[index].leaf as i64; var value = l.leaves[held].value; let offered: const LifeValue& = l.leaves[leaf].value;
+     let refs = life_join(l, value.refs, offered.refs); let contents = life_join(l, value.contents, offered.contents);
+     let place = life_join(l, value.place, offered.place);
+     if !life_equal(l, refs, value.refs) || !life_equal(l, contents, value.contents) || !life_equal(l, place, value.place) { l.revision += 1; }
+@@ -807,7 +807,7 @@
+     l.offer_count += 1;
+     let reach = life_effect_far(l, places); return life_read_reach(l, leaf, places, key, reach);
+ }
+-fn life_read_reach(l: Lifetimes&, leaf: i64, places: i64, key: i64, reach: LifeFar) -> i64 {
++fn life_read_reach(l: Lifetimes&, leaf: i64, places: i64, key: i64, reach: const LifeFar&) -> i64 {
+     let far = reach.far; let outside = far == 9223372036854775807;
+     if reach.cyclic { l.offer_recursive = true; }
+     // The same frames in the same order are the same chain in every pass
+@@ -854,7 +854,7 @@
+ }
+ // Returns the reach of the effect for the leaf's stamp, or -1 if the
+ // effect was handled without examining its places.
+-fn life_effect(l: Lifetimes&, effect: LifeEffect) -> i64 {
++fn life_effect(l: Lifetimes&, effect: const LifeEffect&) -> i64 {
+     // With class-keyed frames in use, a discovery summary is kept only where
+     // it is read: by an island's root frame, which every call maps it from,
+     // and by a recursive frame, whose back edges replay it. A frame outside
+@@ -3156,7 +3156,7 @@
+     let array: const Type& = p.types[receiver.type_id];
+     if array.kind != TY_ARRAY || array.array_kind == A_LIMITED { return; }
+     life_index_shrink(p, l, node, receiver);
+-    if !balanced { life_effect(l, LifeEffect { kind: 1, node: node, value: receiver, places: receiver.place }); }
++    if !balanced { let offer = LifeEffect { kind: 1, node: node, value: receiver, places: receiver.place }; life_effect(l, offer); }
+     if l.discovery { return; }
+     var pool = l.sets[receiver.place].first;
+     while pool >= 0 {
+@@ -3212,7 +3212,7 @@
+         }
+     }
+ }
+-fn life_shrink(p: Program&, l: Lifetimes&, node: i64, given: LifeValue, balanced: bool = false) {
++fn life_shrink(p: Program&, l: Lifetimes&, node: i64, given: const LifeValue&, balanced: bool = false) {
+     var receiver = given; receiver.place = life_place_candidates(l, given.place);
+     if receiver.type_id < 0 { return; }
+     let kind = p.types[receiver.type_id].kind;
+@@ -3229,8 +3229,8 @@
+     }
+ }
+ 
+-fn life_replace(p: Program&, l: Lifetimes&, node: i64, receiver: LifeValue) {
+-    life_effect(l, LifeEffect { kind: 8, node: node, value: receiver, places: receiver.place });
++fn life_replace(p: Program&, l: Lifetimes&, node: i64, receiver: const LifeValue&) {
++    let offer = LifeEffect { kind: 8, node: node, value: receiver, places: receiver.place }; life_effect(l, offer);
+     if l.discovery { return; }
+     for index in l.hold_floor..l.hold_count {
+         let hold = l.holds[index]; if hold.kind != 7 { continue; }
+@@ -3244,8 +3244,8 @@
+     }
+ }
+ 
+-fn life_grow(p: Program&, l: Lifetimes&, node: i64, receiver: LifeValue) {
+-    life_effect(l, LifeEffect { kind: 2, node: node, value: receiver, places: receiver.place });
++fn life_grow(p: Program&, l: Lifetimes&, node: i64, receiver: const LifeValue&) {
++    let offer = LifeEffect { kind: 2, node: node, value: receiver, places: receiver.place }; life_effect(l, offer);
+     if l.discovery { return; }
+     for index in l.hold_floor..l.hold_count {
+         let hold = l.holds[index];
+@@ -3258,7 +3258,7 @@
+ // LIFE_ONCE_ALL a growth or a replacement too), unless the current
+ // activation has been offered it (life_leaf_offered). known: its leaf, where
+ // the caller has looked it up and found it not offered (life_replay).
+-fn life_offer_once(l: Lifetimes&, offer: LifeEffect, known: i64) {
++fn life_offer_once(l: Lifetimes&, offer: const LifeEffect&, known: i64) {
+     // In validation this is the recording of the effect in the frames'
+     // effect lists, which have it from then on; what it is checked against
+     // is looked at every time, by the caller.
+@@ -3280,11 +3280,11 @@
+         if cyclic { l.offer_recursive = true; }
+     }
+ }
+-fn life_construct_read(p: Program&, l: Lifetimes&, node: i64, value: LifeValue, known: i64 = -1) {
++fn life_construct_read(p: Program&, l: Lifetimes&, node: i64, value: const LifeValue&, known: i64 = -1) {
+     if l.reading_place > 0 { return; }
+     var effect_places = value.place; if life_is_ref(p, value.type_id) { effect_places = value.refs; }
+     var effect_type = value.type_id; if effect_type >= 0 && p.types[effect_type].kind == TY_REF { effect_type = p.types[effect_type].element; }
+-    if value.element_array != -1 || life_cached_size_class(p, l, effect_type) == 2 { life_offer_once(l, LifeEffect { kind: 3, node: node, value: value, places: effect_places }, known); }
++    if value.element_array != -1 || life_cached_size_class(p, l, effect_type) == 2 { let offer = LifeEffect { kind: 3, node: node, value: value, places: effect_places }; life_offer_once(l, offer, known); }
+     if l.discovery { return; }
+     var places = value.place;
+     if value.type_id >= 0 && p.types[value.type_id].kind == TY_REF { places = value.refs; }
+@@ -3702,7 +3702,7 @@
+         var code = -2; if !x.slotread { code -= 1; } if x.byteview { code -= 2; }
+         var ty = x.target_type as i64; if l.roots[x.root].class_parent >= 0 { ty = l.roots[x.root].class_type; }
+         if code == -2 { ty = -1; }
+-        life_effect(l, LifeEffect { kind: 4, node: -1, value: LifeValue { type_id: ty, refs: places }, places: places, field: code });
++        let offer = LifeEffect { kind: 4, node: -1, value: LifeValue { type_id: ty, refs: places }, places: places, field: code }; life_effect(l, offer);
+     }
+ }
+ // A store of a storage's own back into it (life_own_reads), as one call
+@@ -3741,7 +3741,7 @@
+         if !life_equal(l, next, l.roots[root].contents) { life_set_contents(l, root, next); l.revision += 1; }
+         if !l.discovery { l.roots[root].live_contents = life_join(l, l.roots[root].live_contents, landing); }
+     }
+-    life_effect(l, LifeEffect { kind: 4, node: -1, value: LifeValue { type_id: ty, refs: places }, places: places, field: code });
++    let offer = LifeEffect { kind: 4, node: -1, value: LifeValue { type_id: ty, refs: places }, places: places, field: code }; life_effect(l, offer);
+     if !l.discovery { l.roots[root].first_kill = -1; }
+ }
+ // A class summary must distinguish rebinding a slice variable from storing
+@@ -3772,7 +3772,7 @@
+     if sources != 0 {
+         var field: i64 = -1;
+         if slice_slot { field = LIFE_STORE_SLICE_SLOT; }
+-        life_effect(l, LifeEffect { kind: 4, node: -1, value: LifeValue { type_id: as_type, contents: sources }, places: life_root_set(l, root), field: field });
++        let offer = LifeEffect { kind: 4, node: -1, value: LifeValue { type_id: as_type, contents: sources }, places: life_root_set(l, root), field: field }; life_effect(l, offer);
+     }
+     if owned != 0 { life_own_effects(l, root, owned); }
+     if !l.discovery {
+@@ -3819,7 +3819,7 @@
+     }
+ }
+ 
+-fn life_relative_store(p: Program&, l: Lifetimes&, node: i64, places: i64, value: LifeValue) {
++fn life_relative_store(p: Program&, l: Lifetimes&, node: i64, places: i64, value: const LifeValue&) {
+     if value.type_id >= 0 && p.types[value.type_id].kind == TY_REF && p.types[value.type_id].length_storage >= 0 && value.refs != 0 {
+         if p.types[value.type_id].pool < 0 && places == 0 { return; }
+         var target = places;
+@@ -3886,7 +3886,7 @@
+     }
+     let next = life_join(l, l.cells[cell].refs, kept);
+     if !life_equal(l, next, l.cells[cell].refs) { life_set_refs(l, cell, next); l.revision += 1; }
+-    life_effect(l, LifeEffect { kind: 5, node: node, value: LifeValue { refs: sources }, places: life_root_set(l, l.cells[cell].root), cell: cell });
++    let offer = LifeEffect { kind: 5, node: node, value: LifeValue { refs: sources }, places: life_root_set(l, l.cells[cell].root), cell: cell }; life_effect(l, offer);
+     if !l.discovery {
+         l.cells[cell].live_refs = life_join(l, l.cells[cell].live_refs, kept);
+     }
+@@ -3902,7 +3902,7 @@
+     if !binding {
+         life_relative_store(p, l, node, places, value);
+         if value.type_id >= 0 && p.types[value.type_id].kind == TY_REF && p.types[value.type_id].length_storage >= 0 {
+-            life_effect(l, LifeEffect { kind: 9, node: node, value: value, places: places });
++            let offer = LifeEffect { kind: 9, node: node, value: value, places: places }; life_effect(l, offer);
+         }
+     }
+     var destination = l.sets[places].first;
+@@ -5506,11 +5506,11 @@
+                 let alt = l.alts[at];
+                 if alt.exact {
+                     if p.nodes[n.left].kind == N_NAME {
+-                        life_effect(l, LifeEffect { kind: 6, node: node, value: LifeValue {}, places: life_root_set(l, alt.root) });
++                        let offer = LifeEffect { kind: 6, node: node, value: LifeValue {}, places: life_root_set(l, alt.root) }; life_effect(l, offer);
+                         l.roots[alt.root].live_contents = 0;
+                     }
+                     if p.nodes[n.left].kind == N_MEMBER && p.nodes[n.left].symbol >= 0 {
+-                        life_effect(l, LifeEffect { kind: 7, node: node, value: LifeValue {}, places: life_root_set(l, alt.root), field: p.nodes[n.left].symbol });
++                        let offer = LifeEffect { kind: 7, node: node, value: LifeValue {}, places: life_root_set(l, alt.root), field: p.nodes[n.left].symbol }; life_effect(l, offer);
+                         life_kill_field(l, alt.root, p.nodes[n.left].symbol);
+                     }
+                 }
+@@ -5520,7 +5520,7 @@
+         if n.right >= 0 {
+             if binding && ty >= 0 && p.types[ty].kind == TY_REF && p.types[ty].length_storage >= 0 && p.types[ty].pool >= 0 {
+                 life_relative_store(p, l, node, places, value);
+-                life_effect(l, LifeEffect { kind: 9, node: node, value: value, places: places });
++                let offer = LifeEffect { kind: 9, node: node, value: value, places: places }; life_effect(l, offer);
+             }
+             var path = life_reached(p, n.left, true); if through { path = ty; }
+             life_store(p, l, node, places, value, binding, through, path);

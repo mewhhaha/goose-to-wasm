@@ -1,0 +1,29 @@
+--- a/selfhost/codegen.goose
++++ b/selfhost/codegen.goose
+@@ -345,9 +345,16 @@
+ fn cg_trap_if(p: Program&, m: CgModule&, f: CgBody&, node: i64, text: u8[:]) {
+     cg_begin(f, 0x04, 0x40); cg_abort(p, m, f, node, text); cg_end(f);
+ }
++var cg_index_probe: i64[6];
+ fn cg_function(m: CgModule&, symbol: i64) -> i64 {
+-    if symbol < 0 || symbol >= m.function_by_symbol.len { return -1; }
+-    return m.function_by_symbol[symbol];
++    var indexed = -1; if symbol >= 0 && symbol < m.function_by_symbol.len { indexed = m.function_by_symbol[symbol]; }
++    var found = -1;
++    for item, index in m.functions { if item.symbol == symbol { found = index; break; } }
++    cg_index_probe[0]++;
++    if found < 0 { cg_index_probe[1]++; cg_index_probe[2] += m.functions.len; }
++    else { cg_index_probe[2] += found + 1; }
++    if indexed != found { cg_index_probe[3]++; }
++    return indexed;
+ }
+ fn cg_region_call(m: CgModule&, f: CgBody&, callee: i64, node: i64) {
+     if callee >= 0 { m.region_calls.push(RegionCall { caller: f.function_index, callee: callee, live: f.region_live, node: node }); }
+@@ -4347,6 +4354,7 @@
+         wb_byte(section, 1); wb_u(section, names.len); wb_raw(section, names); wb_section(module, 0, section);
+     }
+     if p.diagnostics.len == 0 { out.append(module); }
++    cg_index_probe[4] = m.functions.len; cg_index_probe[5] = m.function_by_symbol.len; print("CG_LOOKUP ", cg_index_probe);
+ }
+ 
+ struct CgDecoded { value: i64, cursor: i64 }

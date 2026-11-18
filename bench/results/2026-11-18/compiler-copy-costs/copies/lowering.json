@@ -1,0 +1,236 @@
+{
+  "native_sha256": "97556951ca942e8de84a4fd91139c9257c350138e1ce39c28cccacdc3593829a",
+  "named_sha256": "0ce90351e783c26c65f31d2e25f8466811b83dddfe8ea7ae30498cf241903050",
+  "cranelift_object_sha256": "ebd941e1ed84b8e28c031c30650bf63f3ba721b4caf9ad9b178c8b3ba26150ee",
+  "objdump": "LLVM (http://llvm.org/):",
+  "examples": {
+    "compact_read": {
+      "function": "life_replay",
+      "reading": "The compact-read slow path loads a 72-byte LifeValue from the leaf and stages a by-value call. Both targets copy twice. Wasmtime forwards the final eight bytes of the second copy from rcx and runs three overflow and memory bound check pairs.",
+      "wasmtime_50_0_1": [
+        [
+          "0x6426c7  mov\trsi, qword ptr [rsp + 0x10]",
+          "0x6426cc  mov\trax, qword ptr [rsi + 0x40]",
+          "0x6426d0  mov\trcx, qword ptr [rsp + 0x510]",
+          "0x6426d8  add\trcx, 0x100",
+          "0x6426df  add\trcx, 0x48",
+          "0x6426e3  jb\t0x64c7ad <wasm[0]::function[817]::life_replay+0xcfcd>",
+          "0x6426e9  cmp\trcx, rax",
+          "0x6426ec  ja\t0x64c7af <wasm[0]::function[817]::life_replay+0xcfcf>",
+          "0x6426f2  vpextrq\trdx, xmm0, 0x0",
+          "0x6426f8  lea\trcx, [rdx + r15]",
+          "0x6426fc  lea\trdx, [rdx + r15 + 0x10]",
+          "0x642701  add\trdx, 0x48",
+          "0x642705  jb\t0x64c7b1 <wasm[0]::function[817]::life_replay+0xcfd1>",
+          "0x64270b  cmp\trdx, rax",
+          "0x64270e  ja\t0x64c7b3 <wasm[0]::function[817]::life_replay+0xcfd3>",
+          "0x642714  vmovdqu\txmm0, xmmword ptr [r14 + rcx + 0x10]",
+          "0x64271b  vmovdqu\txmm1, xmmword ptr [r14 + rcx + 0x20]",
+          "0x642722  vmovdqu\txmm2, xmmword ptr [r14 + rcx + 0x30]",
+          "0x642729  vmovdqu\txmm3, xmmword ptr [r14 + rcx + 0x40]",
+          "0x642730  mov\trcx, qword ptr [r14 + rcx + 0x50]",
+          "0x642735  mov\trsi, qword ptr [rsp + 0x510]",
+          "0x64273d  vmovdqu\txmmword ptr [r14 + rsi + 0x100], xmm0",
+          "0x642747  vmovdqu\txmmword ptr [r14 + rsi + 0x110], xmm1",
+          "0x642751  mov\trdi, qword ptr [rsp + 0x510]",
+          "0x642759  vmovdqu\txmmword ptr [r14 + rdi + 0x120], xmm2",
+          "0x642763  mov\tr9, qword ptr [rsp + 0x510]",
+          "0x64276b  vmovdqu\txmmword ptr [r14 + r9 + 0x130], xmm3",
+          "0x642775  mov\tr11, qword ptr [rsp + 0x510]",
+          "0x64277d  mov\tqword ptr [r14 + r11 + 0x140], rcx",
+          "0x642785  mov\trdx, qword ptr [rsp + 0x10]",
+          "0x64278a  mov\trsi, qword ptr [rsp + 0x298]",
+          "0x642792  mov\tdword ptr [rdx + 0x370], esi",
+          "0x642798  mov\trsi, qword ptr [rsp + 0x500]",
+          "0x6427a0  mov\trdx, qword ptr [rsi]",
+          "0x6427a3  mov\trsi, qword ptr [rsp + 0x4f8]",
+          "0x6427ab  mov\trsi, qword ptr [rsi]",
+          "0x6427ae  lea\tr9, [rdi + 0x753]",
+          "0x6427b5  mov\trdi, r9",
+          "0x6427b8  add\trdi, 0x48",
+          "0x6427bc  jb\t0x64c7b5 <wasm[0]::function[817]::life_replay+0xcfd5>",
+          "0x6427c2  cmp\trdi, rax",
+          "0x6427c5  ja\t0x64c7b7 <wasm[0]::function[817]::life_replay+0xcfd7>",
+          "0x6427cb  mov\trax, qword ptr [rsp + 0x510]",
+          "0x6427d3  vmovdqu\txmm0, xmmword ptr [r14 + rax + 0x100]",
+          "0x6427dd  vmovdqu\txmm1, xmmword ptr [r14 + rax + 0x110]",
+          "0x6427e7  vmovdqu\txmm2, xmmword ptr [r14 + rax + 0x120]",
+          "0x6427f1  vmovdqu\txmm3, xmmword ptr [r14 + rax + 0x130]",
+          "0x6427fb  vmovdqu\txmmword ptr [r14 + rax + 0x753], xmm0",
+          "0x642805  vmovdqu\txmmword ptr [r14 + rax + 0x763], xmm1",
+          "0x64280f  vmovdqu\txmmword ptr [r14 + rax + 0x773], xmm2",
+          "0x642819  vmovdqu\txmmword ptr [r14 + rax + 0x783], xmm3",
+          "0x642823  mov\tqword ptr [r14 + rax + 0x793], rcx",
+          "0x64282b  mov\tqword ptr [rsp], rbx",
+          "0x64282f  mov\trcx, rsi",
+          "0x642832  mov\tr8, qword ptr [rsp + 0x290]",
+          "0x64283a  mov\trsi, qword ptr [rsp + 0x10]",
+          "0x64283f  mov\trdi, qword ptr [rsp + 0x10]",
+          "0x642844  call\t0x55e8a0 <wasm[0]::function[735]::life_construct_read>"
+        ]
+      ],
+      "clang_23_1_5": [
+        [
+          "0x1ca8f8  mov\trdx, qword ptr [rax + 0x50]",
+          "0x1ca8fc  mov\tqword ptr [rsp + 0x370], rdx",
+          "0x1ca904  movups\txmm0, xmmword ptr [rax + 0x10]",
+          "0x1ca908  movups\txmm1, xmmword ptr [rax + 0x20]",
+          "0x1ca90c  movups\txmm2, xmmword ptr [rax + 0x30]",
+          "0x1ca910  movups\txmm3, xmmword ptr [rax + 0x40]",
+          "0x1ca914  movaps\txmmword ptr [rsp + 0x360], xmm3",
+          "0x1ca91c  movaps\txmmword ptr [rsp + 0x350], xmm2",
+          "0x1ca924  movaps\txmmword ptr [rsp + 0x340], xmm1",
+          "0x1ca92c  movaps\txmmword ptr [rsp + 0x330], xmm0",
+          "0x1ca934  mov\trax, qword ptr [rsp + 0x370]",
+          "0x1ca93c  mov\tqword ptr [rsp + 0x40], rax",
+          "0x1ca941  movapd\txmm0, xmmword ptr [rsp + 0x330]",
+          "0x1ca94a  movdqa\txmm1, xmmword ptr [rsp + 0x340]",
+          "0x1ca953  movaps\txmm2, xmmword ptr [rsp + 0x350]",
+          "0x1ca95b  movaps\txmm3, xmmword ptr [rsp + 0x360]",
+          "0x1ca963  movups\txmmword ptr [rsp + 0x30], xmm3",
+          "0x1ca968  movups\txmmword ptr [rsp + 0x20], xmm2",
+          "0x1ca96d  movdqu\txmmword ptr [rsp + 0x10], xmm1",
+          "0x1ca973  movupd\txmmword ptr [rsp], xmm0",
+          "0x1ca978  mov\tebx, r10d",
+          "0x1ca97b  mov\tr12, r9",
+          "0x1ca97e  mov\trdi, qword ptr [rsp + 0xb8]",
+          "0x1ca986  mov\trsi, r14",
+          "0x1ca989  mov\trdx, rbp",
+          "0x1ca98c  call\t0x1945e0 <g_fn144814>"
+        ]
+      ]
+    },
+    "scope_depth": {
+      "function": "life_depth",
+      "reading": "Wasmtime calls its memory_copy builtin for the 565-byte frame. Native reads its two used fields, function_node at byte zero and base at byte 40.",
+      "wasmtime_50_0_1": [
+        [
+          "0x4a0107  mov\trdx, qword ptr [r15 + 0x40]",
+          "0x4a010b  mov\tr8, qword ptr [rsp + 0x20]",
+          "0x4a0110  lea\trbx, [r8 + 0x10]",
+          "0x4a0114  mov\tecx, 0x235",
+          "0x4a0119  mov\trsi, rbx",
+          "0x4a011c  add\trsi, 0x235",
+          "0x4a0123  jb\t0x4a0599 <wasm[0]::function[628]::life_depth+0x679>",
+          "0x4a0129  cmp\trsi, rdx",
+          "0x4a012c  ja\t0x4a059b <wasm[0]::function[628]::life_depth+0x67b>",
+          "0x4a0132  vpextrq\trsi, xmm0, 0x0",
+          "0x4a0138  imul\trax, rax, 0x235",
+          "0x4a013f  add\trax, rsi",
+          "0x4a0142  mov\trsi, rax",
+          "0x4a0145  add\trsi, 0x235",
+          "0x4a014c  jb\t0x4a059d <wasm[0]::function[628]::life_depth+0x67d>",
+          "0x4a0152  cmp\trsi, rdx",
+          "0x4a0155  ja\t0x4a059f <wasm[0]::function[628]::life_depth+0x67f>",
+          "0x4a015b  lea\tr12, [r13 + r8 + 0x10]",
+          "0x4a0160  lea\trdx, [r13 + rax]",
+          "0x4a0165  mov\trsi, r12",
+          "0x4a0168  mov\trdi, r15",
+          "0x4a016b  call\t0x2809af4 <wasmtime_builtin_memory_copy>"
+        ]
+      ],
+      "clang_23_1_5": [
+        [
+          "0xe65b2  imul\trsi, rdi, 0x235",
+          "0xe65b9  mov\trax, qword ptr [rax]",
+          "0xe65bc  mov\tr9, qword ptr [rax + rsi]",
+          "0xe65c0  mov\trax, qword ptr [rax + rsi + 0x28]"
+        ]
+      ]
+    },
+    "held_root": {
+      "function": "life_held_into",
+      "reading": "Wasmtime copies the 210-byte root. Native loads type_id, live_contents, class_frame, and first_kill.",
+      "wasmtime_50_0_1": [
+        [
+          "0x545719  mov\tecx, 0xd2",
+          "0x54571e  add\tr9, 0xd2",
+          "0x545725  jb\t0x54ba8d <wasm[0]::function[726]::life_held_into+0x7c2d>",
+          "0x54572b  cmp\tr9, r10",
+          "0x54572e  ja\t0x54ba8f <wasm[0]::function[726]::life_held_into+0x7c2f>",
+          "0x545734  vpextrq\trax, xmm0, 0x0",
+          "0x54573a  imul\trdx, r8, 0xd2",
+          "0x545741  add\trax, rdx",
+          "0x545744  mov\trdx, rax",
+          "0x545747  add\trdx, 0xd2",
+          "0x54574e  jb\t0x54ba91 <wasm[0]::function[726]::life_held_into+0x7c31>",
+          "0x545754  cmp\trdx, r10",
+          "0x545757  ja\t0x54ba93 <wasm[0]::function[726]::life_held_into+0x7c33>",
+          "0x54575d  mov\trdx, qword ptr [rsp + 0x290]",
+          "0x545765  add\trdx, rax",
+          "0x545768  mov\trsi, qword ptr [rsp + 0x1d8]",
+          "0x545770  mov\trdi, qword ptr [rsp + 0x10]",
+          "0x545775  call\t0x2809af4 <wasmtime_builtin_memory_copy>"
+        ]
+      ],
+      "clang_23_1_5": [
+        [
+          "0x1be0f5  imul\trcx, rdi, 0xd2",
+          "0x1be0fc  mov\trax, qword ptr [rax]",
+          "0x1be0ff  add\trcx, rax",
+          "0x1be102  or\trax, rdi",
+          "0x1be105  cmove\trcx, r11",
+          "0x1be109  test\trcx, rcx",
+          "0x1be10c  je\t0x1bf865 <g_fn142248+0x2235>",
+          "0x1be112  mov\tqword ptr [rsp + 0xa8], rdi",
+          "0x1be11a  mov\tr15, qword ptr [rcx + 0x18]",
+          "0x1be11e  mov\trax, qword ptr [rcx + 0x31]",
+          "0x1be122  mov\tqword ptr [rsp + 0x98], rax",
+          "0x1be12a  mov\trax, qword ptr [rcx + 0x49]",
+          "0x1be12e  mov\tqword ptr [rsp + 0xa0], rax",
+          "0x1be136  mov\tr14, qword ptr [rcx + 0xca]",
+          "0x1be13d  test\tr14, r14"
+        ]
+      ]
+    },
+    "storage_root": {
+      "function": "life_held_into",
+      "reading": "Wasmtime copies the 210-byte storage root. Native tests byteview before reading class_frame and conditionally reading type_id.",
+      "wasmtime_50_0_1": [
+        [
+          "0x549bd8  mov\tecx, 0xd2",
+          "0x549bdd  add\tr8, 0xd2",
+          "0x549be4  jb\t0x54badb <wasm[0]::function[726]::life_held_into+0x7c7b>",
+          "0x549bea  cmp\tr8, rdi",
+          "0x549bed  ja\t0x54badd <wasm[0]::function[726]::life_held_into+0x7c7d>",
+          "0x549bf3  vpextrq\tr9, xmm0, 0x0",
+          "0x549bf9  imul\tr10, rsi, 0xd2",
+          "0x549c00  add\tr9, r10",
+          "0x549c03  mov\tr10, r9",
+          "0x549c06  add\tr10, 0xd2",
+          "0x549c0d  jb\t0x54badf <wasm[0]::function[726]::life_held_into+0x7c7f>",
+          "0x549c13  cmp\tr10, rdi",
+          "0x549c16  ja\t0x54bae1 <wasm[0]::function[726]::life_held_into+0x7c81>",
+          "0x549c1c  mov\trax, qword ptr [rsp + 0x290]",
+          "0x549c24  lea\trdx, [rax + r9]",
+          "0x549c28  mov\trsi, qword ptr [rsp + 0xe0]",
+          "0x549c30  mov\trdi, qword ptr [rsp + 0x10]",
+          "0x549c35  call\t0x2809af4 <wasmtime_builtin_memory_copy>"
+        ]
+      ],
+      "clang_23_1_5": [
+        [
+          "0x1bea24  imul\trcx, rbx, 0xd2",
+          "0x1bea2b  mov\trax, qword ptr [rax]",
+          "0x1bea2e  add\trcx, rax",
+          "0x1bea31  test\trax, rax",
+          "0x1bea34  mov\trax, r11",
+          "0x1bea37  cmovne\trax, rcx",
+          "0x1bea3b  test\tebx, ebx",
+          "0x1bea3d  cmovne\trax, rcx",
+          "0x1bea41  test\trax, rax",
+          "0x1bea44  je\t0x1bf865 <g_fn142248+0x2235>",
+          "0x1bea4a  test\tr14b, r14b",
+          "0x1bea4d  je\t0x1beb40 <g_fn142248+0x1510>"
+        ],
+        [
+          "0x1beb40  cmp\tqword ptr [rax + 0x49], 0x0",
+          "0x1beb45  movdqa\txmmword ptr [rsp + 0xd0], xmm0",
+          "0x1beb4e  jns\t0x1beb89 <g_fn142248+0x1559>",
+          "0x1beb50  mov\tr8, qword ptr [rax + 0x18]",
+          "0x1beb54  mov\tr9, qword ptr [r15 + 0x8]"
+        ]
+      ]
+    }
+  }
+}

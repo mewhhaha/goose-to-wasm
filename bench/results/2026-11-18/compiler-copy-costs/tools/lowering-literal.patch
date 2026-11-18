@@ -1,0 +1,11 @@
+--- a/selfhost/codegen.goose
++++ b/selfhost/codegen.goose
+@@ -968,7 +968,7 @@
+             let receiving = cg_temporary_destination(p, m, f, id, arg); cg_construct_region(p, m, f, arg, receiving); if cg_diverges(p, arg) { return; } cg_get(f, f.construction_destinations[receiving].header);
+         } else {
+             cg_to(p, m, f, arg, id); if cg_diverges(p, arg) { return; }
+-            if cg_aggregate(p, id) {
++            if cg_aggregate(p, id) && !(p.nodes[arg].kind == N_RECORD && p.nodes[arg].type_id == id && cg_type_kind(p, id) == TY_STRUCT && cg_snapshot_field(p, id)) {
+                 let source = cg_save(f, wa()); let snapshot = cg_temporary(p, f, id);
+                 cg_copy(p, m, f, id, snapshot, source, arg); cg_get(f, snapshot);
+             } else if split && cg_type_kind(p, id) == TY_SLICE {

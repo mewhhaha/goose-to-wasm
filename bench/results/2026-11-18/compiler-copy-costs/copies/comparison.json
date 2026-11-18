@@ -1,0 +1,404 @@
+{
+  "check": {
+    "revisions": [
+      "4e7e1b3277448da923540c95b19040a71fe86a30",
+      "ac55de270cf6eff86125e94a0027813b5b902a5d"
+    ],
+    "workload": "90e086fe61f9ce019d6a6ef543212be63f6e1f57",
+    "arguments": [
+      "selfhost/main.goose",
+      "--stdlib",
+      "stdlib",
+      "--check"
+    ],
+    "expected_emission": null,
+    "memory_copy": {
+      "bytes": {
+        "before": 10088698284,
+        "after": 8510233634,
+        "difference": -1578464650
+      },
+      "calls": {
+        "before": 164986983,
+        "after": 154269725,
+        "difference": -10717258
+      }
+    },
+    "lifetime_bytes": {
+      "before": 8292658707,
+      "after": 6714003377,
+      "difference": -1578655330
+    },
+    "largest_changes": [
+      {
+        "function": "life_held_into",
+        "before": 876611349,
+        "after": 108007989,
+        "difference": -768603360
+      },
+      {
+        "function": "life_class_candidates",
+        "before": 536789622,
+        "after": 5812632,
+        "difference": -530976990
+      },
+      {
+        "function": "life_depth",
+        "before": 206438005,
+        "after": 0,
+        "difference": -206438005
+      },
+      {
+        "function": "life_effect_recursive",
+        "before": 91366455,
+        "after": 0,
+        "difference": -91366455
+      },
+      {
+        "function": "life_eval_body",
+        "before": 921351882,
+        "after": 932860818,
+        "difference": 11508936
+      },
+      {
+        "function": "life_shrink_array",
+        "before": 329118263,
+        "after": 335542791,
+        "difference": 6424528
+      },
+      {
+        "function": "life_cycle_call",
+        "before": 5709921,
+        "after": 6201097,
+        "difference": 491176
+      },
+      {
+        "function": "life_cell",
+        "before": 9029088,
+        "after": 9307200,
+        "difference": 278112
+      },
+      {
+        "function": "check_lifetimes",
+        "before": 90348416,
+        "after": 90539096,
+        "difference": 190680
+      },
+      {
+        "function": "life_function",
+        "before": 126067103,
+        "after": 126089783,
+        "difference": 22680
+      },
+      {
+        "function": "life_export_provenance",
+        "before": 2146293,
+        "after": 2150341,
+        "difference": 4048
+      },
+      {
+        "function": "_start",
+        "before": 184,
+        "after": 184,
+        "difference": 0
+      },
+      {
+        "function": "add_type",
+        "before": 265914,
+        "after": 265914,
+        "difference": 0
+      },
+      {
+        "function": "check_add_root",
+        "before": 12312448,
+        "after": 12312448,
+        "difference": 0
+      }
+    ],
+    "largest_remaining": [
+      {
+        "function": "life_eval_body",
+        "before": 921351882,
+        "after": 932860818,
+        "difference": 11508936
+      },
+      {
+        "function": "life_eval",
+        "before": 679994712,
+        "after": 679994712,
+        "difference": 0
+      },
+      {
+        "function": "life_alt_overlaps",
+        "before": 431860977,
+        "after": 431860977,
+        "difference": 0
+      },
+      {
+        "function": "life_readback",
+        "before": 401720769,
+        "after": 401720769,
+        "difference": 0
+      },
+      {
+        "function": "life_shrink_array",
+        "before": 329118263,
+        "after": 335542791,
+        "difference": 6424528
+      },
+      {
+        "function": "life_call",
+        "before": 314770140,
+        "after": 314770140,
+        "difference": 0
+      },
+      {
+        "function": "life_replay",
+        "before": 305426693,
+        "after": 305426693,
+        "difference": 0
+      },
+      {
+        "function": "life_contains",
+        "before": 277100075,
+        "after": 277100075,
+        "difference": 0
+      },
+      {
+        "function": "life_coerce",
+        "before": 276078672,
+        "after": 276078672,
+        "difference": 0
+      },
+      {
+        "function": "life_hold",
+        "before": 258485568,
+        "after": 258485568,
+        "difference": 0
+      },
+      {
+        "function": "life_grow",
+        "before": 216343660,
+        "after": 216343660,
+        "difference": 0
+      },
+      {
+        "function": "life_list_set",
+        "before": 203114620,
+        "after": 203114620,
+        "difference": 0
+      }
+    ],
+    "replay_bytes": {
+      "before": 305426693,
+      "after": 305426693,
+      "difference": 0
+    }
+  },
+  "emit": {
+    "revisions": [
+      "4e7e1b3277448da923540c95b19040a71fe86a30",
+      "ac55de270cf6eff86125e94a0027813b5b902a5d"
+    ],
+    "workload": "90e086fe61f9ce019d6a6ef543212be63f6e1f57",
+    "arguments": [
+      "selfhost/main.goose",
+      "--stdlib",
+      "stdlib",
+      "--target",
+      "wasm-direct",
+      "-O2",
+      "--wasm-memory64",
+      "--wasm-max-pages",
+      "262144",
+      "-o",
+      "emitted.wasm"
+    ],
+    "expected_emission": {
+      "sha256": "d60c88511dec7c07af9cb9ca070ce03c951a63eb8f2e2bca269dcbcce19bd793",
+      "bytes": 17322012
+    },
+    "memory_copy": {
+      "bytes": {
+        "before": 16260045560,
+        "after": 13550547758,
+        "difference": -2709497802
+      },
+      "calls": {
+        "before": 252229409,
+        "after": 206163343,
+        "difference": -46066066
+      }
+    },
+    "lifetime_bytes": {
+      "before": 8466309139,
+      "after": 6887653809,
+      "difference": -1578655330
+    },
+    "largest_changes": [
+      {
+        "function": "region_component",
+        "before": 1131161856,
+        "after": 0,
+        "difference": -1131161856
+      },
+      {
+        "function": "life_held_into",
+        "before": 876611349,
+        "after": 108007989,
+        "difference": -768603360
+      },
+      {
+        "function": "life_class_candidates",
+        "before": 536789622,
+        "after": 5812632,
+        "difference": -530976990
+      },
+      {
+        "function": "life_depth",
+        "before": 206438005,
+        "after": 0,
+        "difference": -206438005
+      },
+      {
+        "function": "life_effect_recursive",
+        "before": 91366455,
+        "after": 0,
+        "difference": -91366455
+      },
+      {
+        "function": "life_eval_body",
+        "before": 921351882,
+        "after": 932860818,
+        "difference": 11508936
+      },
+      {
+        "function": "life_shrink_array",
+        "before": 329118263,
+        "after": 335542791,
+        "difference": 6424528
+      },
+      {
+        "function": "life_cycle_call",
+        "before": 5709921,
+        "after": 6201097,
+        "difference": 491176
+      },
+      {
+        "function": "life_cell",
+        "before": 9029088,
+        "after": 9307200,
+        "difference": 278112
+      },
+      {
+        "function": "check_lifetimes",
+        "before": 90348416,
+        "after": 90539096,
+        "difference": 190680
+      },
+      {
+        "function": "cg_region_call",
+        "before": 366784,
+        "after": 458480,
+        "difference": 91696
+      },
+      {
+        "function": "region_bound",
+        "before": 151116,
+        "after": 175788,
+        "difference": 24672
+      },
+      {
+        "function": "life_function",
+        "before": 126067103,
+        "after": 126089783,
+        "difference": 22680
+      },
+      {
+        "function": "cg_collect",
+        "before": 491196570,
+        "after": 491208906,
+        "difference": 12336
+      }
+    ],
+    "largest_remaining": [
+      {
+        "function": "life_eval_body",
+        "before": 921351882,
+        "after": 932860818,
+        "difference": 11508936
+      },
+      {
+        "function": "cg_function",
+        "before": 914847450,
+        "after": 914847450,
+        "difference": 0
+      },
+      {
+        "function": "life_eval",
+        "before": 679994712,
+        "after": 679994712,
+        "difference": 0
+      },
+      {
+        "function": "cg_collect",
+        "before": 491196570,
+        "after": 491208906,
+        "difference": 12336
+      },
+      {
+        "function": "opt_node",
+        "before": 466937680,
+        "after": 466937680,
+        "difference": 0
+      },
+      {
+        "function": "mark_located_functions",
+        "before": 434381696,
+        "after": 434381696,
+        "difference": 0
+      },
+      {
+        "function": "life_alt_overlaps",
+        "before": 431860977,
+        "after": 431860977,
+        "difference": 0
+      },
+      {
+        "function": "life_readback",
+        "before": 401720769,
+        "after": 401720769,
+        "difference": 0
+      },
+      {
+        "function": "life_shrink_array",
+        "before": 329118263,
+        "after": 335542791,
+        "difference": 6424528
+      },
+      {
+        "function": "life_call",
+        "before": 314770140,
+        "after": 314770140,
+        "difference": 0
+      },
+      {
+        "function": "life_replay",
+        "before": 305426693,
+        "after": 305426693,
+        "difference": 0
+      },
+      {
+        "function": "life_contains",
+        "before": 277100075,
+        "after": 277100075,
+        "difference": 0
+      }
+    ],
+    "replay_bytes": {
+      "before": 305426693,
+      "after": 305426693,
+      "difference": 0
+    }
+  }
+}

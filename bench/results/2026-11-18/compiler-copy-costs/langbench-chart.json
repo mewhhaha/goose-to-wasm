@@ -1,0 +1,118 @@
+{
+  "schema": "goose-langbench-chart-v1",
+  "report": "bench/results/2026-11-18/compiler-copy-costs/langbench-build.json",
+  "report_sha256": "6a028edaa13b6f05beca86387d06e56967f6b0e55dce9173f29cb62aa9b8b472",
+  "charts": {
+    "langbench-runtime.svg": {
+      "values": [
+        {
+          "profile": "small",
+          "cells": [
+            "c-gcc",
+            "c-clang",
+            "upstream-goose-native",
+            "goose-native",
+            "goose-wasm-wasmtime",
+            "goose-wasm-v8"
+          ],
+          "median_ms": [
+            88.796427,
+            94.709227,
+            89.377972,
+            90.163576,
+            96.122684,
+            175.036585
+          ],
+          "mad_ms": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "profile": "medium",
+          "cells": [
+            "c-gcc",
+            "c-clang",
+            "upstream-goose-native",
+            "goose-native",
+            "goose-wasm-wasmtime",
+            "goose-wasm-v8"
+          ],
+          "median_ms": [
+            696.060703,
+            733.489263,
+            691.842305,
+            690.362482,
+            743.541804,
+            1370.904116
+          ],
+          "mad_ms": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "profile": "official",
+          "cells": [
+            "c-gcc",
+            "c-clang",
+            "upstream-goose-native",
+            "goose-native",
+            "goose-wasm-wasmtime",
+            "goose-wasm-v8"
+          ],
+          "median_ms": [
+            2809.406169,
+            2976.716358,
+            2889.15631,
+            2783.076518,
+            2945.980381,
+            5529.172528
+          ],
+          "mad_ms": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      ],
+      "sha256": "725441085a5c62e501c8508d0f80ee78953c99688a6688a4feba39754c84bb52"
+    },
+    "langbench-compilation.svg": {
+      "cells": [
+        "c-gcc",
+        "c-clang",
+        "upstream-goose-native",
+        "goose-native",
+        "goose-wasm-wasmtime"
+      ],
+      "median_ms": [
+        80.67818500421708,
+        90.81473299738718,
+        299.11619299673475,
+        453.60519800306065,
+        5.856964002305176
+      ],
+      "mad_ms": [
+        0.44339300075080246,
+        0.7702829971094616,
+        6.311969002126716,
+        5.936264002230018,
+        0.1814439965528436
+      ],
+      "wasm_sha256": "df3d9ce3c4e4a39e6b1245c446540ccafd126cfd2e9f17840992465edd730675",
+      "sha256": "a1a58bf226c5ecfba039968110df2138a55e2c2bc4b9e11b9cda49f5a40b2051"
+    }
+  }
+}

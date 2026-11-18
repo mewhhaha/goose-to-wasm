@@ -1,0 +1,34 @@
+{
+  "corpus": {
+    "compared": 4357,
+    "differing": 0,
+    "with_lifetime_fingerprints": 3130,
+    "fingerprint_lines": 11596,
+    "with_exits": 205,
+    "fingerprint_lines_with_exits": 567,
+    "max_exits": 180,
+    "invalid_index": 0
+  },
+  "frozen_selfcheck": {
+    "inputs": 1,
+    "fingerprints": 7,
+    "matching_state_sha256": "8585d7afe60f146f25857ffd352979b1a9ea0113523caccd77c321bd787e65d7"
+  },
+  "early_class": {
+    "threshold": 64,
+    "fixture_sha256": "ce2086a9013f5071c1cc8b3fd73e770634dfc98934a0b541934435ee875b8def",
+    "matching_state_sha256": "7ca491219824373a88a5f6c2a35e5a39e595b67b024693d1566ccbe148e6036b",
+    "fingerprints": 3
+  },
+  "output_equivalence": {
+    "summary": {
+      "compared": 10057,
+      "differing": 0,
+      "seconds": {
+        "baseline": 152.984,
+        "candidate": 154.593
+      }
+    },
+    "differing": []
+  }
+}

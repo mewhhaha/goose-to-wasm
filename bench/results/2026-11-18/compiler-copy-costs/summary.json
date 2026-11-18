@@ -1,0 +1,182 @@
+{
+  "medians": {
+    "check": {
+      "native-before": {
+        "median_cpu_s": 2.0649435,
+        "range_s": [
+          2.022693,
+          2.21375
+        ],
+        "median_billion_instructions": 19.6488012845,
+        "native_ratio": 1.0
+      },
+      "native-after": {
+        "median_cpu_s": 2.024954,
+        "range_s": [
+          2.008437,
+          2.22003
+        ],
+        "median_billion_instructions": 19.50762192,
+        "native_ratio": 1.0
+      },
+      "wasm-before": {
+        "median_cpu_s": 5.9869690925,
+        "range_s": [
+          5.8016101,
+          6.334344328
+        ],
+        "median_billion_instructions": 53.2106547085,
+        "native_ratio": 2.8993379685691156
+      },
+      "wasm-after": {
+        "median_cpu_s": 5.8614866665,
+        "range_s": [
+          5.716544089,
+          6.010537753
+        ],
+        "median_billion_instructions": 52.410419126,
+        "native_ratio": 2.894627071281619
+      },
+      "bundled32-before": {
+        "median_cpu_s": 3.6275728029999996,
+        "range_s": [
+          3.541575108,
+          3.742596807
+        ],
+        "median_billion_instructions": 34.149239492,
+        "native_ratio": 1.7567419171517282
+      },
+      "bundled32": {
+        "median_cpu_s": 3.5862097785,
+        "range_s": [
+          3.455103546,
+          3.681004095
+        ],
+        "median_billion_instructions": 33.4361363575,
+        "native_ratio": 1.7710080221575402
+      }
+    },
+    "emit": {
+      "native-before": {
+        "median_cpu_s": 2.9506025,
+        "range_s": [
+          2.898896,
+          3.424376
+        ],
+        "median_billion_instructions": 30.3132793635,
+        "native_ratio": 1.0
+      },
+      "native-after": {
+        "median_cpu_s": 2.9119260000000002,
+        "range_s": [
+          2.836262,
+          3.295367
+        ],
+        "median_billion_instructions": 29.37795874,
+        "native_ratio": 1.0
+      },
+      "wasm-before": {
+        "median_cpu_s": 8.611946838,
+        "range_s": [
+          8.543354893,
+          9.206713191
+        ],
+        "median_billion_instructions": 80.977992524,
+        "native_ratio": 2.9187079038942048
+      },
+      "wasm-after": {
+        "median_cpu_s": 8.3462785925,
+        "range_s": [
+          8.104360035,
+          8.627757957
+        ],
+        "median_billion_instructions": 77.4307467655,
+        "native_ratio": 2.866239936214038
+      },
+      "bundled32-before": {
+        "median_cpu_s": 5.374387822,
+        "range_s": [
+          5.248797034,
+          5.495038243
+        ],
+        "median_billion_instructions": 53.397270106,
+        "native_ratio": 1.8214543714376978
+      },
+      "bundled32": {
+        "median_cpu_s": 5.0911524515,
+        "range_s": [
+          5.04668073,
+          5.248263837
+        ],
+        "median_billion_instructions": 50.932010487,
+        "native_ratio": 1.7483797498631488
+      }
+    }
+  },
+  "paired": {
+    "check": {
+      "native-after": {
+        "cpu_change_pct": -1.9365905168833852,
+        "instruction_change_pct": -0.7185138800877899,
+        "cpu_change_pct_by_round": [
+          0.2836815358554512,
+          -1.5852482159214865,
+          0.10139947090339607,
+          -3.0724838835153867
+        ]
+      },
+      "wasm-after": {
+        "cpu_change_pct": -2.0959257357315297,
+        "instruction_change_pct": -1.5039010267471342,
+        "cpu_change_pct_by_round": [
+          -6.313045507051884,
+          -0.4059410119475748,
+          -2.5321634450667596,
+          -1.466248326477504
+        ]
+      },
+      "bundled32": {
+        "cpu_change_pct": -1.1402396794295222,
+        "instruction_change_pct": -2.088196238358564,
+        "cpu_change_pct_by_round": [
+          0.7989404401775424,
+          -3.4311380472462405,
+          -1.2510979316456505,
+          -2.4416131061196777
+        ]
+      }
+    },
+    "emit": {
+      "native-after": {
+        "cpu_change_pct": -1.3108000823560562,
+        "instruction_change_pct": -3.0855144779426746,
+        "cpu_change_pct_by_round": [
+          -3.7673725081591503,
+          -0.5257478250608405,
+          -2.0816373137736988,
+          -2.1606156274664556
+        ]
+      },
+      "wasm-after": {
+        "cpu_change_pct": -3.0848802308874657,
+        "instruction_change_pct": -4.3805059225797365,
+        "cpu_change_pct_by_round": [
+          -6.288403059692971,
+          -2.7549489082519085,
+          -5.138436404645796,
+          -3.4133206262450533
+        ]
+      },
+      "bundled32": {
+        "cpu_change_pct": -5.270095495166515,
+        "instruction_change_pct": -4.616827066451457,
+        "cpu_change_pct_by_round": [
+          -3.655051082168348,
+          -4.465571055670658,
+          -3.850716701193746,
+          -6.868067542218926
+        ]
+      }
+    }
+  }
+}
