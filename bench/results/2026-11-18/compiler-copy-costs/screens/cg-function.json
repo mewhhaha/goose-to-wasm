@@ -1,0 +1,99 @@
+{
+  "source": "ac55de270cf6eff86125e94a0027813b5b902a5d",
+  "source_tree": "20360387b4da89d4594dcb385aa61a13b76fe6dc",
+  "source_inputs": {
+    "selfhost": "ddac59f1b3b59b9915a069b982ed266310c7cdbd",
+    "native": "b631e3b3e62480cca13012fcf20ad1c007f1bc4b",
+    "stdlib": "b0e2e4e749d991ca48ff7303ec0b883ec6f91608"
+  },
+  "baseline_wasm": {
+    "bytes": 17365494,
+    "sha256": "819e64d183a08430d1d9a491c65e6a3e2f68464f5b0fb373b2179070bc3ca9f4"
+  },
+  "module_emitter": {
+    "bytes": 7042368,
+    "sha256": "97556951ca942e8de84a4fd91139c9257c350138e1ce39c28cccacdc3593829a"
+  },
+  "candidate_wasm": {
+    "bytes": 17367640,
+    "sha256": "0df64a777f2344172cd9b3bfe49d9b1031e55c8f9310b8ac8652187f75b2ed62"
+  },
+  "candidate_patch": {
+    "bytes": 3846,
+    "sha256": "29ba13a5eb83b142e099558c931bcf89a51b3c6d3b014ecefd2aafeb39d1bd45"
+  },
+  "changed_inputs": {
+    "selfhost/codegen.goose": "b2e83228ccf38f1c72d5cd442984560048bedd50ec78a9cfc743d4431f3fc984"
+  },
+  "flags": [
+    "--target",
+    "wasm-direct",
+    "-O2",
+    "--wasm-memory64",
+    "--wasm-max-pages",
+    "262144"
+  ],
+  "workload": "90e086fe61f9ce019d6a6ef543212be63f6e1f57",
+  "workload_archive": "c9474661210aed23044b05faa4aa19bacee7063aa64cd6bf3092b9af9a1fdf1d",
+  "runtime": "50.0.1",
+  "engine": {
+    "sha256": "3127ca42fe7cdd3f0a43a358e79177dcfedd46c1746329826403b9d854de6178",
+    "bytes": 29673400
+  },
+  "cpu": 4,
+  "expected": {
+    "bytes": 17322012,
+    "sha256": "d60c88511dec7c07af9cb9ca070ce03c951a63eb8f2e2bca269dcbcce19bd793"
+  },
+  "samples": "cg-function-pairs.json",
+  "summary": {
+    "check": {
+      "base": {
+        "cpu_ns": 9703890656.0,
+        "instructions": 52413793383.5
+      },
+      "index": {
+        "cpu_ns": 9652806269.5,
+        "instructions": 52416663938.5
+      },
+      "change_percent": {
+        "cpu_ns": -0.5264320086749374,
+        "instructions": 0.005476716747043753
+      }
+    },
+    "emit": {
+      "base": {
+        "cpu_ns": 13143521842.0,
+        "instructions": 77431414823.0
+      },
+      "index": {
+        "cpu_ns": 10531410413.5,
+        "instructions": 76671138374.5
+      },
+      "change_percent": {
+        "cpu_ns": -19.873755755120538,
+        "instructions": -0.9818707952552685
+      }
+    }
+  },
+  "caveat": "Two alternating pairs on a shared host while qualification and native builds ran.",
+  "shadow": {
+    "lookups": 17042,
+    "misses": 109,
+    "old_entries_examined": 13861325,
+    "index_mismatches": 0,
+    "functions": 1541,
+    "symbols": 68218
+  },
+  "shadow_patch": {
+    "bytes": 1465,
+    "sha256": "af9355d2af5c78543fad3eb0b0c82e58b317e0ae43f1392f2d0a87db5eacbdee"
+  },
+  "shadow_compiler_wasm": {
+    "bytes": 17370761,
+    "sha256": "f8d7990b59f06b09a4b65a272b23290d47f3b32aefdf0f10b8de52483cd349d2"
+  },
+  "candidate_patch_file": "cg-function.patch",
+  "shadow_patch_file": "cg-function-shadow.patch",
+  "status": "Unqualified follow-up. Frozen emission equivalence and lookup shadow only."
+}

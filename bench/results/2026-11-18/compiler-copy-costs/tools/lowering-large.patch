@@ -1,0 +1,29 @@
+--- a/selfhost/codegen.goose
++++ b/selfhost/codegen.goose
+@@ -675,7 +675,25 @@
+     }
+     // Without forwarding, this value's complete image needs no field repairs.
+     if m.resolver < 0 && cg_aggregate(p, id) && !cg_has_owner(p, id) {
+-        cg_get(f, into); cg_canonical_address(m, f, cg_size(p, id)); cg_get(f, from); cg_canonical_address(m, f, cg_size(p, id)); wa_const(f.code, cg_size(p, id)); wb_copy(f.code); return;
++        let count = cg_size(p, id);
++        cg_get(f, into); cg_canonical_address(m, f, count);
++        cg_get(f, from); cg_canonical_address(m, f, count);
++        if count >= 1 && count <= 192 && (count & 7) == 0 {
++            let src = cg_save(f, wa()); let dst = cg_save(f, wa()); var offset = 0; let start = f.work.len;
++            while offset < count {
++                cg_get(f, src);
++                if cg_wide && count - offset >= 16 { wb_byte(f.code, 0xfd); wb_u(f.code, 0); wb_u(f.code, 0); wb_u(f.code, offset); f.work.push(cg_save(f, 0x7b)); offset += 16; }
++                else { wb_mem(f.code, 0x29, 0, offset); f.work.push(cg_save(f, 0x7e)); offset += 8; }
++            }
++            var at = f.work.len;
++            while at > start {
++                at--; cg_get(f, dst); cg_get(f, f.work[at]);
++                if cg_wide && (offset & 15) == 0 { offset -= 16; wb_byte(f.code, 0xfd); wb_u(f.code, 11); wb_u(f.code, 0); wb_u(f.code, offset); }
++                else { offset -= 8; wb_mem(f.code, 0x37, 0, offset); }
++            }
++            f.work.resize(start); return;
++        }
++        wa_const(f.code, count); wb_copy(f.code); return;
+     }
+     if !cg_aggregate(p, id) {
+         cg_get(f, from); cg_load(p, m, f, id, 0); cg_write_value(p, m, f, id, into, node); return;

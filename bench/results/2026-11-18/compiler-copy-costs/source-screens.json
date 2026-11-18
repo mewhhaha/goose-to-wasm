@@ -1,0 +1,366 @@
+{
+  "workload": "90e086fe61f9ce019d6a6ef543212be63f6e1f57",
+  "archive_sha256": "c9474661210aed23044b05faa4aa19bacee7063aa64cd6bf3092b9af9a1fdf1d",
+  "wasmtime": "50.0.1",
+  "engine": {
+    "sha256": "3127ca42fe7cdd3f0a43a358e79177dcfedd46c1746329826403b9d854de6178",
+    "bytes": 29673400
+  },
+  "artifacts": {
+    "base": {
+      "sha256": "ef6d0757ddda507fdad7b2ce7096b762c82bd5d217ee8404468f37ababe60919",
+      "bytes": 17364282
+    },
+    "reads": {
+      "sha256": "90eee1345e2801703fbbdd8f25c53d9238014202fc28e554a7f3a9ab72405f30",
+      "bytes": 17364289
+    },
+    "params": {
+      "sha256": "11433a9cc3cfabf72200eb8a9939bbe46ab5570fd6b856d0fdef17841b42036a",
+      "bytes": 17364711
+    },
+    "graph": {
+      "sha256": "94d89a7d7c2e30257f85a5ceee068205e44156410aadd5ba8ca51971b1f26d04",
+      "bytes": 17365082
+    },
+    "all": {
+      "sha256": "26c2774dff574c13d0156772813ffb7abbe6f82e2903f8d398ae1e70e206ae51",
+      "bytes": 17365511
+    }
+  },
+  "expected": {
+    "base": {
+      "sha256": "d60c88511dec7c07af9cb9ca070ce03c951a63eb8f2e2bca269dcbcce19bd793",
+      "bytes": 17322012
+    },
+    "reads": {
+      "sha256": "d60c88511dec7c07af9cb9ca070ce03c951a63eb8f2e2bca269dcbcce19bd793",
+      "bytes": 17322012
+    },
+    "params": {
+      "sha256": "d60c88511dec7c07af9cb9ca070ce03c951a63eb8f2e2bca269dcbcce19bd793",
+      "bytes": 17322012
+    },
+    "graph": {
+      "sha256": "d60c88511dec7c07af9cb9ca070ce03c951a63eb8f2e2bca269dcbcce19bd793",
+      "bytes": 17322012
+    },
+    "all": {
+      "sha256": "d60c88511dec7c07af9cb9ca070ce03c951a63eb8f2e2bca269dcbcce19bd793",
+      "bytes": 17322012
+    }
+  },
+  "cpu": 7,
+  "samples": [
+    {
+      "label": "base",
+      "mode": "check",
+      "round": 1,
+      "cpu_ns": 6099859891,
+      "wall_ns": 6140255493,
+      "counters": {
+        "cycles": {
+          "value": 23148524234,
+          "time_enabled_ns": 6144540312,
+          "time_running_ns": 6144540312
+        },
+        "instructions": {
+          "value": 53214595943,
+          "time_enabled_ns": 6144541203,
+          "time_running_ns": 6144541203
+        },
+        "branches": {
+          "value": 5670833057,
+          "time_enabled_ns": 6144539941,
+          "time_running_ns": 6144539941
+        },
+        "branch_misses": {
+          "value": 27690550,
+          "time_enabled_ns": 6144538277,
+          "time_running_ns": 6144538277
+        }
+      }
+    },
+    {
+      "label": "reads",
+      "mode": "check",
+      "round": 1,
+      "cpu_ns": 5938999053,
+      "wall_ns": 5973955383,
+      "counters": {
+        "cycles": {
+          "value": 22678132426,
+          "time_enabled_ns": 5980517159,
+          "time_running_ns": 5980517159
+        },
+        "instructions": {
+          "value": 53065313919,
+          "time_enabled_ns": 5980518420,
+          "time_running_ns": 5980518420
+        },
+        "branches": {
+          "value": 5636952823,
+          "time_enabled_ns": 5980517819,
+          "time_running_ns": 5980517819
+        },
+        "branch_misses": {
+          "value": 27014511,
+          "time_enabled_ns": 5980515625,
+          "time_running_ns": 5980515625
+        }
+      }
+    },
+    {
+      "label": "params",
+      "mode": "check",
+      "round": 1,
+      "cpu_ns": 5863134714,
+      "wall_ns": 5895286684,
+      "counters": {
+        "cycles": {
+          "value": 22440604222,
+          "time_enabled_ns": 5905012210,
+          "time_running_ns": 5905012210
+        },
+        "instructions": {
+          "value": 52602135906,
+          "time_enabled_ns": 5905013493,
+          "time_running_ns": 5905013493
+        },
+        "branches": {
+          "value": 5577921189,
+          "time_enabled_ns": 5905012241,
+          "time_running_ns": 5905012241
+        },
+        "branch_misses": {
+          "value": 27137473,
+          "time_enabled_ns": 5905010218,
+          "time_running_ns": 5905010218
+        }
+      }
+    },
+    {
+      "label": "graph",
+      "mode": "check",
+      "round": 1,
+      "cpu_ns": 5921185701,
+      "wall_ns": 5956411039,
+      "counters": {
+        "cycles": {
+          "value": 22754958643,
+          "time_enabled_ns": 5963167460,
+          "time_running_ns": 5963167460
+        },
+        "instructions": {
+          "value": 53206751466,
+          "time_enabled_ns": 5963167801,
+          "time_running_ns": 5963167801
+        },
+        "branches": {
+          "value": 5669016512,
+          "time_enabled_ns": 5963166368,
+          "time_running_ns": 5963166368
+        },
+        "branch_misses": {
+          "value": 27791492,
+          "time_enabled_ns": 5963163883,
+          "time_running_ns": 5963163883
+        }
+      }
+    },
+    {
+      "label": "all",
+      "mode": "check",
+      "round": 1,
+      "cpu_ns": 5910858243,
+      "wall_ns": 5944531780,
+      "counters": {
+        "cycles": {
+          "value": 22556649922,
+          "time_enabled_ns": 5954055665,
+          "time_running_ns": 5954055665
+        },
+        "instructions": {
+          "value": 52614338495,
+          "time_enabled_ns": 5954057288,
+          "time_running_ns": 5954057288
+        },
+        "branches": {
+          "value": 5580936856,
+          "time_enabled_ns": 5954056648,
+          "time_running_ns": 5954056648
+        },
+        "branch_misses": {
+          "value": 27114556,
+          "time_enabled_ns": 5954054694,
+          "time_running_ns": 5954054694
+        }
+      }
+    },
+    {
+      "label": "base",
+      "mode": "emit",
+      "round": 1,
+      "cpu_ns": 9059194862,
+      "wall_ns": 9122787758,
+      "counters": {
+        "cycles": {
+          "value": 33988564791,
+          "time_enabled_ns": 9128670783,
+          "time_running_ns": 9128670783
+        },
+        "instructions": {
+          "value": 80978580010,
+          "time_enabled_ns": 9128671445,
+          "time_running_ns": 9128671445
+        },
+        "branches": {
+          "value": 9235830991,
+          "time_enabled_ns": 9128669953,
+          "time_running_ns": 9128669953
+        },
+        "branch_misses": {
+          "value": 45779797,
+          "time_enabled_ns": 9128667267,
+          "time_running_ns": 9128667267
+        }
+      },
+      "emitted": {
+        "sha256": "d60c88511dec7c07af9cb9ca070ce03c951a63eb8f2e2bca269dcbcce19bd793",
+        "bytes": 17322012
+      }
+    },
+    {
+      "label": "reads",
+      "mode": "emit",
+      "round": 1,
+      "cpu_ns": 9989159849,
+      "wall_ns": 10412188494,
+      "counters": {
+        "cycles": {
+          "value": 37216129709,
+          "time_enabled_ns": 10087244417,
+          "time_running_ns": 10087244417
+        },
+        "instructions": {
+          "value": 80835645901,
+          "time_enabled_ns": 10087246061,
+          "time_running_ns": 10087246061
+        },
+        "branches": {
+          "value": 9203425241,
+          "time_enabled_ns": 10087245299,
+          "time_running_ns": 10087245299
+        },
+        "branch_misses": {
+          "value": 50118360,
+          "time_enabled_ns": 10087243126,
+          "time_running_ns": 10087243126
+        }
+      },
+      "emitted": {
+        "sha256": "d60c88511dec7c07af9cb9ca070ce03c951a63eb8f2e2bca269dcbcce19bd793",
+        "bytes": 17322012
+      }
+    },
+    {
+      "label": "params",
+      "mode": "emit",
+      "round": 1,
+      "cpu_ns": 8936172212,
+      "wall_ns": 9013869887,
+      "counters": {
+        "cycles": {
+          "value": 33016066262,
+          "time_enabled_ns": 9006479242,
+          "time_running_ns": 9006479242
+        },
+        "instructions": {
+          "value": 80373660950,
+          "time_enabled_ns": 9006480454,
+          "time_running_ns": 9006480454
+        },
+        "branches": {
+          "value": 9144666442,
+          "time_enabled_ns": 9006479513,
+          "time_running_ns": 9006479513
+        },
+        "branch_misses": {
+          "value": 44867824,
+          "time_enabled_ns": 9006477539,
+          "time_running_ns": 9006477539
+        }
+      },
+      "emitted": {
+        "sha256": "d60c88511dec7c07af9cb9ca070ce03c951a63eb8f2e2bca269dcbcce19bd793",
+        "bytes": 17322012
+      }
+    },
+    {
+      "label": "graph",
+      "mode": "emit",
+      "round": 1,
+      "cpu_ns": 8804089334,
+      "wall_ns": 8925549313,
+      "counters": {
+        "cycles": {
+          "value": 32470869000,
+          "time_enabled_ns": 8868201166,
+          "time_running_ns": 8868201166
+        },
+        "instructions": {
+          "value": 78228078961,
+          "time_enabled_ns": 8868202278,
+          "time_running_ns": 8868202278
+        },
+        "branches": {
+          "value": 8900189355,
+          "time_enabled_ns": 8868201406,
+          "time_running_ns": 8868201406
+        },
+        "branch_misses": {
+          "value": 44727089,
+          "time_enabled_ns": 8868199282,
+          "time_running_ns": 8868199282
+        }
+      },
+      "emitted": {
+        "sha256": "d60c88511dec7c07af9cb9ca070ce03c951a63eb8f2e2bca269dcbcce19bd793",
+        "bytes": 17322012
+      }
+    },
+    {
+      "label": "all",
+      "mode": "emit",
+      "round": 1,
+      "cpu_ns": 12861123164,
+      "wall_ns": 15338430751,
+      "counters": {
+        "cycles": {
+          "value": 45446678302,
+          "time_enabled_ns": 13042208341,
+          "time_running_ns": 13042208341
+        },
+        "instructions": {
+          "value": 77623488835,
+          "time_enabled_ns": 13042210775,
+          "time_running_ns": 13042210775
+        },
+        "branches": {
+          "value": 8809133687,
+          "time_enabled_ns": 13042211096,
+          "time_running_ns": 13042211096
+        },
+        "branch_misses": {
+          "value": 56249255,
+          "time_enabled_ns": 13042209854,
+          "time_running_ns": 13042209854
+        }
+      },
+      "emitted": {
+        "sha256": "d60c88511dec7c07af9cb9ca070ce03c951a63eb8f2e2bca269dcbcce19bd793",
+        "bytes": 17322012
+      }
+    }
+  ]
+}

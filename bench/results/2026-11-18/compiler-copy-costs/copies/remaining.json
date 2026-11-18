@@ -1,0 +1,223 @@
+{
+  "compiler_commit": "ac55de270cf6eff86125e94a0027813b5b902a5d",
+  "native_sha256": "e12d47df3509c7e22732fed018bfd87c222a3d747013569b279adab9aa4a6622",
+  "named_sha256": "bd037403824ce15fde2e82fac943e9fe994cbf420e0caf637559e3ba25f0078c",
+  "wasmtime_machine_code_sha256": "2701f6835ab3e92f4084c41110d6128d0a116737100b18315975648880f01fe6",
+  "remaining": [
+    {
+      "function": "cg_function",
+      "mode": "emit",
+      "bytes_at_site": 914847450,
+      "calls_at_site": 13861325,
+      "source": "selfhost/codegen.goose:349",
+      "wasm_offset": "0x118",
+      "observation": "The function table scan snapshots 66 bytes before comparing one eight-byte symbol. The native loop reads the symbol directly.",
+      "wasmtime": [
+        [
+          "0x76161c  add\trcx, 0x42",
+          "0x761620  jb\t0x761788 <wasm[0]::function[919]::cg_function+0x388>",
+          "0x761626  cmp\trcx, rax",
+          "0x761629  ja\t0x76178a <wasm[0]::function[919]::cg_function+0x38a>",
+          "0x76162f  vpextrq\trcx, xmm0, 0x0",
+          "0x761635  imul\trdx, r13, 0x42",
+          "0x761639  add\trcx, rdx",
+          "0x76163c  mov\trdx, rcx",
+          "0x76163f  add\trdx, 0x42",
+          "0x761643  jb\t0x76178c <wasm[0]::function[919]::cg_function+0x38c>",
+          "0x761649  cmp\trdx, rax",
+          "0x76164c  ja\t0x76178e <wasm[0]::function[919]::cg_function+0x38e>",
+          "0x761652  vmovdqu\txmm0, xmmword ptr [r15 + rcx]",
+          "0x761658  vmovdqu\txmm1, xmmword ptr [r15 + rcx + 0x10]",
+          "0x76165f  vmovdqu\txmm2, xmmword ptr [r15 + rcx + 0x20]",
+          "0x761666  vmovdqu\txmm3, xmmword ptr [r15 + rcx + 0x30]",
+          "0x76166d  movzx\trax, word ptr [r15 + rcx + 0x40]",
+          "0x761673  vmovdqu\txmmword ptr [r15 + rbx + 0x10], xmm0",
+          "0x76167a  vmovdqu\txmmword ptr [r15 + rbx + 0x20], xmm1",
+          "0x761681  vmovdqu\txmmword ptr [r15 + rbx + 0x30], xmm2",
+          "0x761688  vmovdqu\txmmword ptr [r15 + rbx + 0x40], xmm3",
+          "0x76168f  mov\tword ptr [r15 + rbx + 0x50], ax",
+          "0x761695  mov\trax, qword ptr [rsp + 0x8]",
+          "0x76169a  mov\trcx, qword ptr [rsp + 0x18]",
+          "0x76169f  mov\tqword ptr [rcx], rax",
+          "0x7616a2  mov\trdx, qword ptr [rsp + 0x10]",
+          "0x7616a7  mov\trdi, qword ptr [rdx]",
+          "0x7616aa  mov\trsi, qword ptr [rsp]",
+          "0x7616ae  cmp\trdi, rsi",
+          "0x7616b1  je\t0x7616e2 <wasm[0]::function[919]::cg_function+0x2e2>"
+        ]
+      ],
+      "native": [
+        [
+          "0x175555  cmp\tqword ptr [rsi], rcx",
+          "0x175558  je\t0x175568 <g_fn184366+0xc8>",
+          "0x17555a  inc\trdi",
+          "0x17555d  add\trsi, 0x42",
+          "0x175561  cmp\trdi, rdx",
+          "0x175564  jl\t0x175550 <g_fn184366+0xb0>"
+        ]
+      ]
+    },
+    {
+      "function": "life_alt_overlaps",
+      "mode": "check",
+      "bytes_at_sites": 431860977,
+      "calls_per_site": 5331617,
+      "wasm_offsets": [
+        "0x195",
+        "0x1c5",
+        "0x1d7"
+      ],
+      "source": "selfhost/checker_lifetimes.goose:2948",
+      "observation": "The ordinary path snapshots the alternative and two arguments to the inlined alias test. Clang reads next, root, exact and component directly on its ordinary path. The two later Wasm argument copies for the class-alias call were never executed.",
+      "wasmtime": [
+        [
+          "0x53a170  add\trcx, 0x1b",
+          "0x53a174  jb\t0x53ad8c <wasm[0]::function[718]::life_alt_overlaps+0xfec>",
+          "0x53a17a  cmp\trcx, rax",
+          "0x53a17d  ja\t0x53ad8e <wasm[0]::function[718]::life_alt_overlaps+0xfee>",
+          "0x53a183  vpextrq\trcx, xmm0, 0x0",
+          "0x53a189  imul\trdx, r14, 0x1b",
+          "0x53a18d  add\trcx, rdx",
+          "0x53a190  mov\trdx, rcx",
+          "0x53a193  add\trdx, 0x1b",
+          "0x53a197  jb\t0x53ad90 <wasm[0]::function[718]::life_alt_overlaps+0xff0>",
+          "0x53a19d  cmp\trdx, rax",
+          "0x53a1a0  ja\t0x53ad92 <wasm[0]::function[718]::life_alt_overlaps+0xff2>",
+          "0x53a1a6  vmovdqu\txmm3, xmmword ptr [r13 + rcx]",
+          "0x53a1ad  mov\trsi, qword ptr [r13 + rcx + 0x10]",
+          "0x53a1b2  movzx\trdi, word ptr [r13 + rcx + 0x18]",
+          "0x53a1b8  movzx\tr8, byte ptr [r13 + rcx + 0x1a]",
+          "0x53a1be  vmovdqu\txmmword ptr [r13 + r12 + 0x20], xmm3",
+          "0x53a1c5  mov\tqword ptr [r13 + r12 + 0x30], rsi",
+          "0x53a1ca  mov\tword ptr [r13 + r12 + 0x38], di",
+          "0x53a1d0  mov\tbyte ptr [r13 + r12 + 0x3a], r8b",
+          "0x53a1d5  mov\trcx, qword ptr [rsp + 0x38]",
+          "0x53a1da  mov\tdword ptr [r15 + 0x370], ecx",
+          "0x53a1e1  mov\trcx, qword ptr [rsp + 0x88]",
+          "0x53a1e9  mov\tr8, qword ptr [rcx]",
+          "0x53a1ec  mov\trcx, qword ptr [rsp + 0x78]",
+          "0x53a1f1  mov\tqword ptr [rcx], r8",
+          "0x53a1f4  lea\tr8, [r12 + 0x48]",
+          "0x53a1f9  add\tr8, 0x1b",
+          "0x53a1fd  jb\t0x53ad94 <wasm[0]::function[718]::life_alt_overlaps+0xff4>",
+          "0x53a203  cmp\tr8, rax",
+          "0x53a206  mov\tqword ptr [rsp + 0x30], r8",
+          "0x53a20b  ja\t0x53ad96 <wasm[0]::function[718]::life_alt_overlaps+0xff6>",
+          "0x53a211  mov\trcx, qword ptr [rsp + 0x10]",
+          "0x53a216  add\trcx, 0x1b",
+          "0x53a21a  jb\t0x53ad98 <wasm[0]::function[718]::life_alt_overlaps+0xff8>",
+          "0x53a220  cmp\trcx, rax",
+          "0x53a223  ja\t0x53ad9a <wasm[0]::function[718]::life_alt_overlaps+0xffa>",
+          "0x53a229  mov\trcx, qword ptr [rsp + 0x10]",
+          "0x53a22e  vmovdqu\txmm0, xmmword ptr [r13 + rcx]",
+          "0x53a235  mov\trcx, qword ptr [r13 + rcx + 0x10]",
+          "0x53a23a  mov\trdx, qword ptr [rsp + 0x10]",
+          "0x53a23f  movzx\trdx, word ptr [r13 + rdx + 0x18]",
+          "0x53a245  mov\trsi, qword ptr [rsp + 0x10]",
+          "0x53a24a  movzx\trsi, byte ptr [r13 + rsi + 0x1a]",
+          "0x53a250  vmovdqu\txmmword ptr [r13 + r12 + 0x48], xmm0",
+          "0x53a257  mov\tqword ptr [r13 + r12 + 0x58], rcx",
+          "0x53a25c  mov\tword ptr [r13 + r12 + 0x60], dx",
+          "0x53a262  mov\tbyte ptr [r13 + r12 + 0x62], sil",
+          "0x53a267  lea\trcx, [r12 + 0x63]",
+          "0x53a26c  add\trcx, 0x1b",
+          "0x53a270  jb\t0x53ad9c <wasm[0]::function[718]::life_alt_overlaps+0xffc>",
+          "0x53a276  cmp\trcx, rax",
+          "0x53a279  mov\tqword ptr [rsp + 0x28], rcx",
+          "0x53a27e  ja\t0x53ad9e <wasm[0]::function[718]::life_alt_overlaps+0xffe>",
+          "0x53a284  vmovdqu\txmm0, xmmword ptr [r13 + r12 + 0x20]",
+          "0x53a28b  mov\trax, qword ptr [r13 + r12 + 0x30]",
+          "0x53a290  movzx\trcx, word ptr [r13 + r12 + 0x38]",
+          "0x53a296  movzx\trdx, byte ptr [r13 + r12 + 0x3a]",
+          "0x53a29c  vmovdqu\txmmword ptr [r13 + r12 + 0x63], xmm0",
+          "0x53a2a3  mov\tqword ptr [r13 + r12 + 0x73], rax",
+          "0x53a2a8  mov\tword ptr [r13 + r12 + 0x7b], cx",
+          "0x53a2ae  mov\tbyte ptr [r13 + r12 + 0x7d], dl"
+        ]
+      ],
+      "native": [
+        [
+          "0x1398b3  mov\tr12d, dword ptr [rax + 0x13]",
+          "0x1398b7  test\tr10d, r10d",
+          "0x1398ba  je\t0x139860 <g_fn141503+0x220>",
+          "0x1398bc  mov\tr8d, dword ptr [rax]",
+          "0x1398bf  test\tr8d, r8d",
+          "0x1398c2  je\t0x139860 <g_fn141503+0x220>",
+          "0x1398c4  movzx\tedx, byte ptr [rax + 0x4]",
+          "0x1398c8  mov\tecx, dword ptr [rax + 0x17]",
+          "0x1398cb  cmp\tr10d, r8d",
+          "0x1398ce  jne\t0x139910 <g_fn141503+0x2d0>"
+        ]
+      ]
+    },
+    {
+      "function": "life_contains",
+      "mode": "check",
+      "bytes_at_site": 277046300,
+      "calls_at_site": 11081852,
+      "source": "selfhost/checker_lifetimes.goose:1010",
+      "wasm_offset": "0xd30",
+      "observation": "The type-pair cache loop snapshots 25 bytes before comparing owner and pointee. Native reads fields directly, selecting next on a miss or answer after a match.",
+      "wasmtime": [
+        [
+          "0x45fe41  add\trcx, 0x19",
+          "0x45fe45  jb\t0x463439 <wasm[0]::function[589]::life_contains+0x5419>",
+          "0x45fe4b  cmp\trcx, rax",
+          "0x45fe4e  ja\t0x46343b <wasm[0]::function[589]::life_contains+0x541b>",
+          "0x45fe54  vpextrq\trcx, xmm0, 0x0",
+          "0x45fe5a  imul\trdx, rbx, 0x19",
+          "0x45fe5e  add\trcx, rdx",
+          "0x45fe61  mov\trdx, rcx",
+          "0x45fe64  add\trdx, 0x19",
+          "0x45fe68  jb\t0x46343d <wasm[0]::function[589]::life_contains+0x541d>",
+          "0x45fe6e  cmp\trdx, rax",
+          "0x45fe71  ja\t0x46343f <wasm[0]::function[589]::life_contains+0x541f>",
+          "0x45fe77  mov\trdx, qword ptr [rsp + 0xe0]",
+          "0x45fe7f  vmovdqu\txmm0, xmmword ptr [rdx + rcx]",
+          "0x45fe84  mov\trax, qword ptr [rdx + rcx + 0x10]",
+          "0x45fe89  movzx\trcx, byte ptr [rdx + rcx + 0x18]",
+          "0x45fe8f  mov\trdx, qword ptr [rsp + 0xe0]",
+          "0x45fe97  mov\trbx, qword ptr [rsp + 0xf8]",
+          "0x45fe9f  vmovdqu\txmmword ptr [rdx + rbx + 0x48], xmm0",
+          "0x45fea5  mov\tqword ptr [rdx + rbx + 0x58], rax",
+          "0x45feaa  mov\tbyte ptr [rdx + rbx + 0x60], cl",
+          "0x45feae  mov\tdword ptr [rsi + 0x370], r12d",
+          "0x45feb5  mov\tr12, r13",
+          "0x45feb8  mov\trax, qword ptr [r12]",
+          "0x45febc  mov\tr8, qword ptr [rsp + 0x8]",
+          "0x45fec1  cmp\trax, r8",
+          "0x45fec4  je\t0x45fedf <wasm[0]::function[589]::life_contains+0x1ebf>"
+        ]
+      ],
+      "native": [
+        [
+          "0xdadb0  mov\trdi, qword ptr [rcx + 0x11]",
+          "0xdadb4  test\trdi, rdi",
+          "0xdadb7  js\t0xdae09 <g_fn124006+0x809>",
+          "0xdadb9  cmp\trdi, rsi",
+          "0xdadbc  jge\t0xdbbed <g_fn124006+0x15ed>",
+          "0xdadc2  cmp\trdi, r12",
+          "0xdadc5  ja\t0xdbb69 <g_fn124006+0x1569>"
+        ],
+        [
+          "0xdadf0  cmp\tqword ptr [rcx], r14",
+          "0xdadf3  jne\t0xdadb0 <g_fn124006+0x7b0>",
+          "0xdadf5  mov\trdx, qword ptr [rsp + 0x38]",
+          "0xdadfa  cmp\tqword ptr [rcx + 0x8], rdx",
+          "0xdadfe  jne\t0xdadb0 <g_fn124006+0x7b0>",
+          "0xdae00  movzx\teax, byte ptr [rcx + 0x10]",
+          "0xdae04  jmp\t0xdba69 <g_fn124006+0x1469>"
+        ]
+      ]
+    },
+    {
+      "function": "life_eval_body and life_eval",
+      "mode": "check",
+      "observation": "Largest combined volume. Value initialization, argument staging, and returning 72-byte LifeValue records all contribute. The compact-read example in lowering.json demonstrates that native can stage the same value twice; aggregate bytes alone cannot assign the time difference.",
+      "bytes_by_function": {
+        "life_eval_body": 932860818,
+        "life_eval": 679994712
+      }
+    }
+  ]
+}

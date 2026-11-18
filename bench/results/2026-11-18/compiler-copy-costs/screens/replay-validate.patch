@@ -1,0 +1,18 @@
+--- a/selfhost/checker_lifetimes.goose
++++ b/selfhost/checker_lifetimes.goose
+@@ -5812,6 +5812,15 @@
+         if quick && effect.kind == 3 && l.reading_place == 0 {
+             leaf = l.summaries[at].leaf as i64; if leaf < 0 { leaf = life_leaf(l, effect.kind, effect.node, effect.value); l.summaries[at].leaf = leaf as i32; }
+             if life_leaf_offered_in(l, leaf, activation, replay_epoch, stamp_chain) { at = next; continue; }
++            if !summary && l.types_frozen {
++                // A validation entry already holds the complete, unmerged read offer.
++                // With no construction hold, recording it is the only work left.
++                let offers = l.offer_count; let cyclic = l.offer_recursive; l.offer_recursive = false;
++                let far = life_effect(l, effect);
++                if l.offer_count > offers && !l.offer_recursive { life_leaf_stamp(l, leaf, far); }
++                if cyclic { l.offer_recursive = true; }
++                at = next; continue;
++            }
+         }
+         if m.count > 0 && effect.kind == 4 && effect.field == -1 {
+             // A store into a class root of what came out of the same

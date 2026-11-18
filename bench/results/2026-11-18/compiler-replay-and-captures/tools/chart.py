@@ -1,4 +1,5 @@
 """Plot elapsed CPU time relative to the paired native compiler."""
+import argparse
 import json
 from pathlib import Path
 from statistics import median
@@ -7,7 +8,10 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
-folder = Path(__file__).resolve().parents[1]
+parser = argparse.ArgumentParser(description=__doc__)
+parser.add_argument("folder", nargs="?", type=Path, default=Path(__file__).resolve().parents[1],
+                    help="directory containing adjacent.json")
+folder = parser.parse_args().folder
 report = json.loads((folder / "adjacent.json").read_text())
 rows = report["samples"]
 

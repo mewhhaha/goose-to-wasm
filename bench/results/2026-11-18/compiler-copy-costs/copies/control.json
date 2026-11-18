@@ -1,0 +1,55 @@
+{
+  "control": "memory64, two calls, overlapping source/destination, zero dynamic length, untaken copy, equal-width adjacent scalar load/store, memory compared",
+  "expected_equals_observed": true,
+  "source_and_instrumented_memory_equal": true,
+  "counters": [
+    {
+      "kind": "fill",
+      "size": 16,
+      "metric": "calls",
+      "value": 2
+    },
+    {
+      "kind": "copy",
+      "size": 10,
+      "metric": "calls",
+      "value": 2
+    },
+    {
+      "kind": "copy",
+      "size": -1,
+      "metric": "calls",
+      "value": 2
+    },
+    {
+      "kind": "copy",
+      "size": -1,
+      "metric": "bytes",
+      "value": 8
+    },
+    {
+      "kind": "adjacent",
+      "size": 8,
+      "metric": "calls",
+      "value": 2
+    },
+    {
+      "kind": "fill",
+      "size": -1,
+      "metric": "calls",
+      "value": 2
+    },
+    {
+      "kind": "fill",
+      "size": -1,
+      "metric": "bytes",
+      "value": 8
+    },
+    {
+      "kind": "copy",
+      "size": 7,
+      "metric": "calls",
+      "value": 0
+    }
+  ]
+}

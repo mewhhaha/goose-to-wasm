@@ -1,0 +1,926 @@
+{
+  "check": {
+    "memory_operations": [
+      {
+        "kind": "copy",
+        "calls": 154269725,
+        "bytes": 8510233634
+      },
+      {
+        "kind": "fill",
+        "calls": 26066350,
+        "bytes": 1546142147
+      },
+      {
+        "kind": "adjacent",
+        "calls": 1,
+        "bytes": 8
+      }
+    ],
+    "copy_widths": [
+      {
+        "size": 72,
+        "calls": 44141818,
+        "bytes": 3178210896
+      },
+      {
+        "size": 27,
+        "calls": 49717723,
+        "bytes": 1342378521
+      },
+      {
+        "size": 160,
+        "calls": 7568010,
+        "bytes": 1210881600
+      },
+      {
+        "size": 161,
+        "calls": 3238469,
+        "bytes": 521393509
+      },
+      {
+        "size": 25,
+        "calls": 14920072,
+        "bytes": 373001800
+      },
+      {
+        "size": 153,
+        "calls": 2297954,
+        "bytes": 351586962
+      },
+      {
+        "size": 96,
+        "calls": 2804667,
+        "bytes": 269248032
+      },
+      {
+        "size": 101,
+        "calls": 2362184,
+        "bytes": 238580584
+      },
+      {
+        "size": 17,
+        "calls": 11790643,
+        "bytes": 200440931
+      },
+      {
+        "size": 210,
+        "calls": 941818,
+        "bytes": 197781780
+      },
+      {
+        "size": 88,
+        "calls": 1516538,
+        "bytes": 133455344
+      },
+      {
+        "size": 32,
+        "calls": 2685397,
+        "bytes": 85932704
+      },
+      {
+        "size": 112,
+        "calls": 718862,
+        "bytes": 80512544
+      },
+      {
+        "size": 42,
+        "calls": 1909251,
+        "bytes": 80188542
+      },
+      {
+        "size": 24,
+        "calls": 2491665,
+        "bytes": 59799960
+      },
+      {
+        "size": 80,
+        "calls": 598312,
+        "bytes": 47864960
+      },
+      {
+        "size": 16,
+        "calls": 2579283,
+        "bytes": 41268528
+      },
+      {
+        "size": 81,
+        "calls": 304644,
+        "bytes": 24676164
+      },
+      {
+        "size": 19,
+        "calls": 948907,
+        "bytes": 18029233
+      },
+      {
+        "size": 128,
+        "calls": 108999,
+        "bytes": 13951872
+      },
+      {
+        "size": 84,
+        "calls": 124366,
+        "bytes": 10446744
+      },
+      {
+        "size": 64,
+        "calls": 151103,
+        "bytes": 9670592
+      },
+      {
+        "size": 48,
+        "calls": 117916,
+        "bytes": 5659968
+      },
+      {
+        "size": 35,
+        "calls": 136043,
+        "bytes": 4761505
+      },
+      {
+        "size": 56,
+        "calls": 54182,
+        "bytes": 3034192
+      },
+      {
+        "size": -1,
+        "calls": 644,
+        "bytes": 2647483
+      },
+      {
+        "size": 573,
+        "calls": 2836,
+        "bytes": 1625028
+      },
+      {
+        "size": 1153,
+        "calls": 1140,
+        "bytes": 1314420
+      },
+      {
+        "size": 33,
+        "calls": 23852,
+        "bytes": 787116
+      },
+      {
+        "size": 114,
+        "calls": 6694,
+        "bytes": 763116
+      },
+      {
+        "size": 59,
+        "calls": 3593,
+        "bytes": 211987
+      },
+      {
+        "size": 104,
+        "calls": 406,
+        "bytes": 42224
+      },
+      {
+        "size": 49,
+        "calls": 743,
+        "bytes": 36407
+      },
+      {
+        "size": 65,
+        "calls": 447,
+        "bytes": 29055
+      },
+      {
+        "size": 40,
+        "calls": 386,
+        "bytes": 15440
+      },
+      {
+        "size": 9,
+        "calls": 153,
+        "bytes": 1377
+      },
+      {
+        "size": 1221,
+        "calls": 1,
+        "bytes": 1221
+      },
+      {
+        "size": 749,
+        "calls": 1,
+        "bytes": 749
+      },
+      {
+        "size": 241,
+        "calls": 1,
+        "bytes": 241
+      },
+      {
+        "size": 184,
+        "calls": 1,
+        "bytes": 184
+      },
+      {
+        "size": 119,
+        "calls": 1,
+        "bytes": 119
+      }
+    ],
+    "copy_top_functions": [
+      {
+        "function": "life_eval_body",
+        "calls": 12376939,
+        "bytes": 932860818
+      },
+      {
+        "function": "life_eval",
+        "calls": 9444371,
+        "bytes": 679994712
+      },
+      {
+        "function": "life_alt_overlaps",
+        "calls": 15994851,
+        "bytes": 431860977
+      },
+      {
+        "function": "life_readback",
+        "calls": 13859111,
+        "bytes": 401720769
+      },
+      {
+        "function": "life_shrink_array",
+        "calls": 6312049,
+        "bytes": 335542791
+      },
+      {
+        "function": "life_call",
+        "calls": 4478665,
+        "bytes": 314770140
+      },
+      {
+        "function": "life_replay",
+        "calls": 5419824,
+        "bytes": 305426693
+      },
+      {
+        "function": "life_contains",
+        "calls": 11084003,
+        "bytes": 277100075
+      },
+      {
+        "function": "life_coerce",
+        "calls": 3834426,
+        "bytes": 276078672
+      },
+      {
+        "function": "life_hold",
+        "calls": 2937336,
+        "bytes": 258485568
+      },
+      {
+        "function": "life_grow",
+        "calls": 1963363,
+        "bytes": 216343660
+      },
+      {
+        "function": "life_list_set",
+        "calls": 7512572,
+        "bytes": 203114620
+      },
+      {
+        "function": "life_load",
+        "calls": 2703395,
+        "bytes": 194634108
+      },
+      {
+        "function": "life_construct_read",
+        "calls": 1317794,
+        "bytes": 153523001
+      },
+      {
+        "function": "life_store",
+        "calls": 1623220,
+        "bytes": 147899322
+      },
+      {
+        "function": "lex_tokens",
+        "calls": 1516405,
+        "bytes": 133443640
+      },
+      {
+        "function": "life_function",
+        "calls": 1879046,
+        "bytes": 126089783
+      },
+      {
+        "function": "life_effect_far",
+        "calls": 7178376,
+        "bytes": 122032392
+      },
+      {
+        "function": "check_unreached",
+        "calls": 749001,
+        "bytes": 119731408
+      },
+      {
+        "function": "life_held_into",
+        "calls": 4133948,
+        "bytes": 108007989
+      }
+    ],
+    "lifetime_copy": {
+      "calls": 139193571,
+      "bytes": 6714003377
+    },
+    "replay_copy": {
+      "calls": 5419824,
+      "bytes": 305426693
+    },
+    "replay_by_width": [
+      {
+        "size": 161,
+        "calls": 814370,
+        "bytes": 131113570
+      },
+      {
+        "size": 72,
+        "calls": 1744119,
+        "bytes": 125576568
+      },
+      {
+        "size": 17,
+        "calls": 2851949,
+        "bytes": 48483133
+      },
+      {
+        "size": 27,
+        "calls": 9386,
+        "bytes": 253422
+      }
+    ],
+    "replay_sites": [
+      {
+        "offset": "0x1b33",
+        "width": 161,
+        "calls": 814368,
+        "bytes": 131113248
+      },
+      {
+        "offset": "0x2c70",
+        "width": 72,
+        "calls": 660594,
+        "bytes": 47562768
+      },
+      {
+        "offset": "0x1242",
+        "width": 72,
+        "calls": 477654,
+        "bytes": 34391088
+      },
+      {
+        "offset": "0x1269",
+        "width": 72,
+        "calls": 477654,
+        "bytes": 34391088
+      },
+      {
+        "offset": "0x1134",
+        "width": 17,
+        "calls": 1954090,
+        "bytes": 33219530
+      },
+      {
+        "offset": "0x10a4",
+        "width": 17,
+        "calls": 746756,
+        "bytes": 12694852
+      },
+      {
+        "offset": "0x2c2e",
+        "width": 72,
+        "calls": 107446,
+        "bytes": 7736112
+      },
+      {
+        "offset": "0xb40",
+        "width": 17,
+        "calls": 151103,
+        "bytes": 2568751
+      },
+      {
+        "offset": "0x2cb0",
+        "width": 72,
+        "calls": 20771,
+        "bytes": 1495512
+      },
+      {
+        "offset": "0x2f98",
+        "width": 27,
+        "calls": 9384,
+        "bytes": 253368
+      },
+      {
+        "offset": "0x3e0e",
+        "width": 161,
+        "calls": 2,
+        "bytes": 322
+      },
+      {
+        "offset": "0x4332",
+        "width": 27,
+        "calls": 2,
+        "bytes": 54
+      }
+    ],
+    "selected_record_sites": {
+      "life_held_into": [],
+      "life_depth": [],
+      "life_class_candidates": []
+    },
+    "expected_emission": null
+  },
+  "emit": {
+    "memory_operations": [
+      {
+        "kind": "copy",
+        "calls": 206163343,
+        "bytes": 13550547758
+      },
+      {
+        "kind": "fill",
+        "calls": 30304626,
+        "bytes": 1679999730
+      },
+      {
+        "kind": "adjacent",
+        "calls": 1,
+        "bytes": 8
+      }
+    ],
+    "copy_widths": [
+      {
+        "size": 160,
+        "calls": 29884848,
+        "bytes": 4781575680
+      },
+      {
+        "size": 72,
+        "calls": 44248372,
+        "bytes": 3185882784
+      },
+      {
+        "size": 27,
+        "calls": 49717723,
+        "bytes": 1342378521
+      },
+      {
+        "size": 66,
+        "calls": 13902932,
+        "bytes": 917593512
+      },
+      {
+        "size": 161,
+        "calls": 3238469,
+        "bytes": 521393509
+      },
+      {
+        "size": 25,
+        "calls": 14920072,
+        "bytes": 373001800
+      },
+      {
+        "size": 153,
+        "calls": 2325494,
+        "bytes": 355800582
+      },
+      {
+        "size": 96,
+        "calls": 2804667,
+        "bytes": 269248032
+      },
+      {
+        "size": 24,
+        "calls": 10694019,
+        "bytes": 256656456
+      },
+      {
+        "size": 101,
+        "calls": 2362184,
+        "bytes": 238580584
+      },
+      {
+        "size": 112,
+        "calls": 1916303,
+        "bytes": 214625936
+      },
+      {
+        "size": 17,
+        "calls": 11790643,
+        "bytes": 200440931
+      },
+      {
+        "size": 210,
+        "calls": 941818,
+        "bytes": 197781780
+      },
+      {
+        "size": -1,
+        "calls": 2874271,
+        "bytes": 139817546
+      },
+      {
+        "size": 88,
+        "calls": 1522559,
+        "bytes": 133985192
+      },
+      {
+        "size": 32,
+        "calls": 3337895,
+        "bytes": 106812640
+      },
+      {
+        "size": 42,
+        "calls": 1909251,
+        "bytes": 80188542
+      },
+      {
+        "size": 16,
+        "calls": 3455213,
+        "bytes": 55283408
+      },
+      {
+        "size": 80,
+        "calls": 598312,
+        "bytes": 47864960
+      },
+      {
+        "size": 20,
+        "calls": 1505079,
+        "bytes": 30101580
+      },
+      {
+        "size": 81,
+        "calls": 304644,
+        "bytes": 24676164
+      },
+      {
+        "size": 19,
+        "calls": 948907,
+        "bytes": 18029233
+      },
+      {
+        "size": 128,
+        "calls": 108999,
+        "bytes": 13951872
+      },
+      {
+        "size": 84,
+        "calls": 124366,
+        "bytes": 10446744
+      },
+      {
+        "size": 64,
+        "calls": 151103,
+        "bytes": 9670592
+      },
+      {
+        "size": 48,
+        "calls": 117917,
+        "bytes": 5660016
+      },
+      {
+        "size": 35,
+        "calls": 136043,
+        "bytes": 4761505
+      },
+      {
+        "size": 1024,
+        "calls": 3084,
+        "bytes": 3158016
+      },
+      {
+        "size": 56,
+        "calls": 54182,
+        "bytes": 3034192
+      },
+      {
+        "size": 9,
+        "calls": 199775,
+        "bytes": 1797975
+      },
+      {
+        "size": 573,
+        "calls": 2836,
+        "bytes": 1625028
+      },
+      {
+        "size": 1153,
+        "calls": 1140,
+        "bytes": 1314420
+      },
+      {
+        "size": 33,
+        "calls": 23852,
+        "bytes": 787116
+      },
+      {
+        "size": 114,
+        "calls": 6694,
+        "bytes": 763116
+      },
+      {
+        "size": 308,
+        "calls": 1545,
+        "bytes": 475860
+      },
+      {
+        "size": 40,
+        "calls": 11870,
+        "bytes": 474800
+      },
+      {
+        "size": 57,
+        "calls": 4626,
+        "bytes": 263682
+      },
+      {
+        "size": 49,
+        "calls": 4784,
+        "bytes": 234416
+      },
+      {
+        "size": 59,
+        "calls": 3593,
+        "bytes": 211987
+      },
+      {
+        "size": 67,
+        "calls": 1723,
+        "bytes": 115441
+      },
+      {
+        "size": 104,
+        "calls": 406,
+        "bytes": 42224
+      },
+      {
+        "size": 65,
+        "calls": 482,
+        "bytes": 31330
+      },
+      {
+        "size": 8,
+        "calls": 641,
+        "bytes": 5128
+      },
+      {
+        "size": 1221,
+        "calls": 1,
+        "bytes": 1221
+      },
+      {
+        "size": 749,
+        "calls": 1,
+        "bytes": 749
+      },
+      {
+        "size": 276,
+        "calls": 1,
+        "bytes": 276
+      },
+      {
+        "size": 241,
+        "calls": 1,
+        "bytes": 241
+      },
+      {
+        "size": 184,
+        "calls": 1,
+        "bytes": 184
+      },
+      {
+        "size": 136,
+        "calls": 1,
+        "bytes": 136
+      },
+      {
+        "size": 119,
+        "calls": 1,
+        "bytes": 119
+      }
+    ],
+    "copy_top_functions": [
+      {
+        "function": "life_eval_body",
+        "calls": 12376939,
+        "bytes": 932860818
+      },
+      {
+        "function": "cg_function",
+        "calls": 13861325,
+        "bytes": 914847450
+      },
+      {
+        "function": "life_eval",
+        "calls": 9444371,
+        "bytes": 679994712
+      },
+      {
+        "function": "cg_collect",
+        "calls": 3208453,
+        "bytes": 491208906
+      },
+      {
+        "function": "opt_node",
+        "calls": 3369576,
+        "bytes": 466937680
+      },
+      {
+        "function": "mark_located_functions",
+        "calls": 2735351,
+        "bytes": 434381696
+      },
+      {
+        "function": "life_alt_overlaps",
+        "calls": 15994851,
+        "bytes": 431860977
+      },
+      {
+        "function": "life_readback",
+        "calls": 13859111,
+        "bytes": 401720769
+      },
+      {
+        "function": "life_shrink_array",
+        "calls": 6312049,
+        "bytes": 335542791
+      },
+      {
+        "function": "life_call",
+        "calls": 4478665,
+        "bytes": 314770140
+      },
+      {
+        "function": "life_replay",
+        "calls": 5419824,
+        "bytes": 305426693
+      },
+      {
+        "function": "life_contains",
+        "calls": 11084003,
+        "bytes": 277100075
+      },
+      {
+        "function": "life_coerce",
+        "calls": 3834426,
+        "bytes": 276078672
+      },
+      {
+        "function": "cg_diverges",
+        "calls": 1629093,
+        "bytes": 260654880
+      },
+      {
+        "function": "life_hold",
+        "calls": 2937336,
+        "bytes": 258485568
+      },
+      {
+        "function": "life_grow",
+        "calls": 1963363,
+        "bytes": 216343660
+      },
+      {
+        "function": "life_list_set",
+        "calls": 7512572,
+        "bytes": 203114620
+      },
+      {
+        "function": "cg_data",
+        "calls": 8178562,
+        "bytes": 196511963
+      },
+      {
+        "function": "life_load",
+        "calls": 2703395,
+        "bytes": 194634108
+      },
+      {
+        "function": "life_refresh_named_results",
+        "calls": 1065672,
+        "bytes": 170507520
+      }
+    ],
+    "lifetime_copy": {
+      "calls": 140279044,
+      "bytes": 6887653809
+    },
+    "replay_copy": {
+      "calls": 5419824,
+      "bytes": 305426693
+    },
+    "replay_by_width": [
+      {
+        "size": 161,
+        "calls": 814370,
+        "bytes": 131113570
+      },
+      {
+        "size": 72,
+        "calls": 1744119,
+        "bytes": 125576568
+      },
+      {
+        "size": 17,
+        "calls": 2851949,
+        "bytes": 48483133
+      },
+      {
+        "size": 27,
+        "calls": 9386,
+        "bytes": 253422
+      }
+    ],
+    "replay_sites": [
+      {
+        "offset": "0x1b33",
+        "width": 161,
+        "calls": 814368,
+        "bytes": 131113248
+      },
+      {
+        "offset": "0x2c70",
+        "width": 72,
+        "calls": 660594,
+        "bytes": 47562768
+      },
+      {
+        "offset": "0x1242",
+        "width": 72,
+        "calls": 477654,
+        "bytes": 34391088
+      },
+      {
+        "offset": "0x1269",
+        "width": 72,
+        "calls": 477654,
+        "bytes": 34391088
+      },
+      {
+        "offset": "0x1134",
+        "width": 17,
+        "calls": 1954090,
+        "bytes": 33219530
+      },
+      {
+        "offset": "0x10a4",
+        "width": 17,
+        "calls": 746756,
+        "bytes": 12694852
+      },
+      {
+        "offset": "0x2c2e",
+        "width": 72,
+        "calls": 107446,
+        "bytes": 7736112
+      },
+      {
+        "offset": "0xb40",
+        "width": 17,
+        "calls": 151103,
+        "bytes": 2568751
+      },
+      {
+        "offset": "0x2cb0",
+        "width": 72,
+        "calls": 20771,
+        "bytes": 1495512
+      },
+      {
+        "offset": "0x2f98",
+        "width": 27,
+        "calls": 9384,
+        "bytes": 253368
+      },
+      {
+        "offset": "0x3e0e",
+        "width": 161,
+        "calls": 2,
+        "bytes": 322
+      },
+      {
+        "offset": "0x4332",
+        "width": 27,
+        "calls": 2,
+        "bytes": 54
+      }
+    ],
+    "selected_record_sites": {
+      "life_held_into": [],
+      "life_depth": [],
+      "life_class_candidates": []
+    },
+    "expected_emission": {
+      "sha256": "d60c88511dec7c07af9cb9ca070ce03c951a63eb8f2e2bca269dcbcce19bd793",
+      "bytes": 17322012
+    }
+  }
+}
