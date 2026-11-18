@@ -16,6 +16,8 @@ for key in ("repo", "compiler_stage", "output"):
 parser.add_argument("--cpu", type=int, default=7)
 parser.add_argument("--parallel-cpus", default="0,1,2,3,4,5,6,7")
 parser.add_argument("--rounds", type=int, default=3)
+parser.add_argument("--layout-profile", type=Path, help="profile trained on the compiler under test")
+parser.add_argument("--fixed-bundled32", action="store_true", help="set bundled memory32 minimum and maximum to 65535 pages")
 a = parser.parse_args()
 repo, stage, out = [p.resolve() for p in (a.repo, a.compiler_stage, a.output)]
 sys.path.insert(0, str(repo / "bench"))
@@ -36,6 +38,8 @@ profile = (
     repo
     / "bench/results/2026-11-18/compiler-layout-trials/memory/training-root.profile"
 )
+if a.layout_profile:
+    profile = a.layout_profile.resolve()
 bundled64, bundled32 = out / "bundled64.wasm", out / "bundled32.wasm"
 resource.setrlimit(
     resource.RLIMIT_STACK, (256 << 20, resource.getrlimit(resource.RLIMIT_STACK)[1])
@@ -47,10 +51,14 @@ subprocess.run(
     cwd=source,
     check=True,
 )
+narrow_flags = []
+if a.fixed_bundled32:
+    narrow_flags = ["--wasm-initial-pages", "65535"]
 subprocess.run(
     [
         native,
         *emit,
+        *narrow_flags,
         "--wasm-max-pages",
         "65535",
         "--wasm-region-profile",
@@ -80,6 +88,7 @@ result = dict(
     native=identity(native),
     host=identity(host),
     profile=identity(profile),
+    fixed_bundled32=a.fixed_bundled32,
     modules={k: identity(v) for k, v in modules.items()},
     cpu=a.cpu,
     parallel_cpus=sorted(parallel_cpus),
@@ -195,13 +204,14 @@ for i in range(a.rounds):
 driver = project / "selfhost/driver.goose"
 original = driver.read_bytes()
 assert original.count(b"Usage: goose-selfhost") == 1
-recorded_edit = json.loads(
-    (
-        repo / "bench/results/2026-11-18/compiler-request-latency/self-emit.json"
-    ).read_bytes()
-)["outputs"]["edited"]
 driver.write_bytes(original.replace(b"Usage: goose-selfhost", b"Usage: goose-compiler"))
 try:
+    reference = out / "edited-reference.wasm"
+    invoke([native, *SOURCE, *WASM_FLAGS, "-o", reference], {a.cpu}, 1)
+    recorded_edit = identity(reference)
+    if recorded_edit == expected:
+        raise RuntimeError("The help-text edit produced the unedited compiler module")
+    result["edited_reference"] = recorded_edit
     for i in range(a.rounds):
         order = ["native", "cached_bundled32"]
         if i % 2:

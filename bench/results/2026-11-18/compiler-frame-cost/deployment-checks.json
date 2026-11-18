@@ -1,0 +1,119 @@
+{
+  "cases": {
+    "final-fixed": {
+      "changed.goose": {
+        "status": 1,
+        "stdout": "",
+        "stderr": "changed.goose:9:8: error: array shrink invalidates a reference or holder that is used afterward\n\n"
+      },
+      "killed.goose": {
+        "status": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      "nested.goose": {
+        "status": 1,
+        "stdout": "",
+        "stderr": "nested.goose:11:8: error: array shrink invalidates a reference or holder that is used afterward\n\n"
+      },
+      "retained.goose": {
+        "status": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      "self": "46debdfb49ece29e08f54b4492fd4c965a668cde0872089891ab69460d3501fd"
+    },
+    "final-o3": {
+      "changed.goose": {
+        "status": 1,
+        "stdout": "",
+        "stderr": "changed.goose:9:8: error: array shrink invalidates a reference or holder that is used afterward\n\n"
+      },
+      "killed.goose": {
+        "status": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      "nested.goose": {
+        "status": 1,
+        "stdout": "",
+        "stderr": "nested.goose:11:8: error: array shrink invalidates a reference or holder that is used afterward\n\n"
+      },
+      "retained.goose": {
+        "status": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      "self": "46debdfb49ece29e08f54b4492fd4c965a668cde0872089891ab69460d3501fd"
+    },
+    "final-o4": {
+      "changed.goose": {
+        "status": 1,
+        "stdout": "",
+        "stderr": "changed.goose:9:8: error: array shrink invalidates a reference or holder that is used afterward\n\n"
+      },
+      "killed.goose": {
+        "status": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      "nested.goose": {
+        "status": 1,
+        "stdout": "",
+        "stderr": "nested.goose:11:8: error: array shrink invalidates a reference or holder that is used afterward\n\n"
+      },
+      "retained.goose": {
+        "status": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      "self": "46debdfb49ece29e08f54b4492fd4c965a668cde0872089891ab69460d3501fd"
+    }
+  },
+  "optimizer": "wasm-opt version 133 (version_133)",
+  "tool_sha256": "8f25e9fd5db0fc5f210003aaa432922feb2e52d309e430def2f929e34da9466b",
+  "preparation": {
+    "o3": {
+      "seconds": 177.6180252080012,
+      "cpu_seconds": 221.226455,
+      "command": [
+        "taskset",
+        "-c",
+        "0,4,6",
+        "wasm-opt",
+        "--enable-bulk-memory",
+        "--enable-bulk-memory-opt",
+        "--enable-sign-ext",
+        "--enable-multivalue",
+        "--enable-nontrapping-float-to-int",
+        "--enable-simd",
+        "--enable-tail-call",
+        "-O3",
+        "build/life-parity/final-fixed/compiler.wasm",
+        "-o",
+        "build/life-parity/final-o3/compiler.wasm"
+      ]
+    },
+    "o4": {
+      "seconds": 133.45909278900217,
+      "cpu_seconds": 230.927094,
+      "command": [
+        "taskset",
+        "-c",
+        "0,4,6",
+        "wasm-opt",
+        "--enable-bulk-memory",
+        "--enable-bulk-memory-opt",
+        "--enable-sign-ext",
+        "--enable-multivalue",
+        "--enable-nontrapping-float-to-int",
+        "--enable-simd",
+        "--enable-tail-call",
+        "-O4",
+        "build/life-parity/final-fixed/compiler.wasm",
+        "-o",
+        "build/life-parity/final-o4/compiler.wasm"
+      ]
+    }
+  }
+}

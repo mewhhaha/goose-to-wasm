@@ -1,0 +1,721 @@
+{
+  "source_commit": "4a9d35ea568647368c59185ef52383fb530e58da",
+  "source_archive_sha256": "2439e13fc0d5d0453d65b7fea9c5ba77891b088f04b98f44f90e09c466f4ca39",
+  "native": {
+    "sha256": "b839c409844b0497f436268abcf94a5bc24ad10953883735d5289028ebfc9172",
+    "bytes": 7071104
+  },
+  "host": {
+    "sha256": "b247393d8fbe3115246f20703f726e90eeaaed762a75932c7bb131a4433ad026",
+    "bytes": 17245208
+  },
+  "profile": {
+    "sha256": "9b730069fc8b9c6e1be1842080bd1cafde13ebf38fb308313219e54309b3e49b",
+    "bytes": 871
+  },
+  "fixed_bundled32": true,
+  "modules": {
+    "general64": {
+      "sha256": "58d73f6abf07825c1a76ee1696611f6ea7fec46817f609a584a9fb66c5a1287b",
+      "bytes": 8882272
+    },
+    "bundled64": {
+      "sha256": "da7c1dd7981a506e8ea5680d6b6401ac37fb5b127240b5e0cb06d6f953de0926",
+      "bytes": 8149566
+    },
+    "bundled32": {
+      "sha256": "46debdfb49ece29e08f54b4492fd4c965a668cde0872089891ab69460d3501fd",
+      "bytes": 7446418
+    }
+  },
+  "cpu": 7,
+  "parallel_cpus": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+  ],
+  "cases": {
+    "cold1": [
+      "general64",
+      "uncached",
+      1
+    ],
+    "cold8": [
+      "general64",
+      "uncached",
+      8
+    ],
+    "cached64": [
+      "general64",
+      "cached",
+      1
+    ],
+    "cached_bundled64": [
+      "bundled64",
+      "cached",
+      1
+    ],
+    "cached_bundled32": [
+      "bundled32",
+      "cached",
+      1
+    ],
+    "cold8_bundled32": [
+      "bundled32",
+      "uncached",
+      8
+    ],
+    "native": [
+      "native",
+      "direct",
+      1
+    ]
+  },
+  "expected": {
+    "sha256": "58d73f6abf07825c1a76ee1696611f6ea7fec46817f609a584a9fb66c5a1287b",
+    "bytes": 8882272
+  },
+  "preparations": [
+    {
+      "module": "general64",
+      "wall_ns": 2282789423,
+      "engine": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 2246756122,
+        "start_function_ns": 210580,
+        "engine_total_ns": 2246966702
+      },
+      "cache": {
+        "sha256": "58dc858ef7907ebd492028ca56a028e3c8cfedd20dcbe0129c9a1068269cd988",
+        "bytes": 23834280
+      }
+    },
+    {
+      "module": "bundled64",
+      "wall_ns": 2119845679,
+      "engine": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 2088446843,
+        "start_function_ns": 208766,
+        "engine_total_ns": 2088655609
+      },
+      "cache": {
+        "sha256": "82354ec1044caf1fce1ac960e94a2465cd106f47d2d9045fd53a3c8e24a46d8e",
+        "bytes": 20151584
+      }
+    },
+    {
+      "module": "bundled32",
+      "wall_ns": 1417638525,
+      "engine": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 1387586497,
+        "start_function_ns": 611361,
+        "engine_total_ns": 1388197858
+      },
+      "cache": {
+        "sha256": "32359ef96ff3f9be9ac882c884b4cb9efdafea901886c35a49f193db528eb74b",
+        "bytes": 13716480
+      }
+    }
+  ],
+  "samples": [
+    {
+      "case": "cold1",
+      "kind": "emit",
+      "round": 1,
+      "wall_ns": 18127056907,
+      "output": {
+        "sha256": "58d73f6abf07825c1a76ee1696611f6ea7fec46817f609a584a9fb66c5a1287b",
+        "bytes": 8882272
+      },
+      "engine": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 10641019209,
+        "start_function_ns": 7463943758,
+        "engine_total_ns": 18104962967
+      }
+    },
+    {
+      "case": "cold8",
+      "kind": "emit",
+      "round": 1,
+      "wall_ns": 10203435407,
+      "output": {
+        "sha256": "58d73f6abf07825c1a76ee1696611f6ea7fec46817f609a584a9fb66c5a1287b",
+        "bytes": 8882272
+      },
+      "engine": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 2465018505,
+        "start_function_ns": 7699844557,
+        "engine_total_ns": 10164863062
+      }
+    },
+    {
+      "case": "cached64",
+      "kind": "emit",
+      "round": 1,
+      "wall_ns": 7544858355,
+      "output": {
+        "sha256": "58d73f6abf07825c1a76ee1696611f6ea7fec46817f609a584a9fb66c5a1287b",
+        "bytes": 8882272
+      },
+      "engine": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 5632339,
+        "start_function_ns": 7528907996,
+        "engine_total_ns": 7534540335
+      }
+    },
+    {
+      "case": "cached_bundled64",
+      "kind": "emit",
+      "round": 1,
+      "wall_ns": 6407335205,
+      "output": {
+        "sha256": "58d73f6abf07825c1a76ee1696611f6ea7fec46817f609a584a9fb66c5a1287b",
+        "bytes": 8882272
+      },
+      "engine": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 5777837,
+        "start_function_ns": 6391637583,
+        "engine_total_ns": 6397415420
+      }
+    },
+    {
+      "case": "cached_bundled32",
+      "kind": "emit",
+      "round": 1,
+      "wall_ns": 4661766876,
+      "output": {
+        "sha256": "58d73f6abf07825c1a76ee1696611f6ea7fec46817f609a584a9fb66c5a1287b",
+        "bytes": 8882272
+      },
+      "engine": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 5134033,
+        "start_function_ns": 4650084744,
+        "engine_total_ns": 4655218777
+      }
+    },
+    {
+      "case": "cold8_bundled32",
+      "kind": "emit",
+      "round": 1,
+      "wall_ns": 5949351368,
+      "output": {
+        "sha256": "58d73f6abf07825c1a76ee1696611f6ea7fec46817f609a584a9fb66c5a1287b",
+        "bytes": 8882272
+      },
+      "engine": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 1423850129,
+        "start_function_ns": 4500472683,
+        "engine_total_ns": 5924322812
+      }
+    },
+    {
+      "case": "native",
+      "kind": "emit",
+      "round": 1,
+      "wall_ns": 2965974682,
+      "output": {
+        "sha256": "58d73f6abf07825c1a76ee1696611f6ea7fec46817f609a584a9fb66c5a1287b",
+        "bytes": 8882272
+      }
+    },
+    {
+      "case": "native",
+      "kind": "emit",
+      "round": 2,
+      "wall_ns": 3312207977,
+      "output": {
+        "sha256": "58d73f6abf07825c1a76ee1696611f6ea7fec46817f609a584a9fb66c5a1287b",
+        "bytes": 8882272
+      }
+    },
+    {
+      "case": "cold8_bundled32",
+      "kind": "emit",
+      "round": 2,
+      "wall_ns": 6569974088,
+      "output": {
+        "sha256": "58d73f6abf07825c1a76ee1696611f6ea7fec46817f609a584a9fb66c5a1287b",
+        "bytes": 8882272
+      },
+      "engine": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 1549858954,
+        "start_function_ns": 4991774195,
+        "engine_total_ns": 6541633149
+      }
+    },
+    {
+      "case": "cached_bundled32",
+      "kind": "emit",
+      "round": 2,
+      "wall_ns": 4800349350,
+      "output": {
+        "sha256": "58d73f6abf07825c1a76ee1696611f6ea7fec46817f609a584a9fb66c5a1287b",
+        "bytes": 8882272
+      },
+      "engine": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 5076353,
+        "start_function_ns": 4787580133,
+        "engine_total_ns": 4792656486
+      }
+    },
+    {
+      "case": "cached_bundled64",
+      "kind": "emit",
+      "round": 2,
+      "wall_ns": 6787116886,
+      "output": {
+        "sha256": "58d73f6abf07825c1a76ee1696611f6ea7fec46817f609a584a9fb66c5a1287b",
+        "bytes": 8882272
+      },
+      "engine": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 5475061,
+        "start_function_ns": 6771319997,
+        "engine_total_ns": 6776795058
+      }
+    },
+    {
+      "case": "cached64",
+      "kind": "emit",
+      "round": 2,
+      "wall_ns": 7882021836,
+      "output": {
+        "sha256": "58d73f6abf07825c1a76ee1696611f6ea7fec46817f609a584a9fb66c5a1287b",
+        "bytes": 8882272
+      },
+      "engine": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 6075352,
+        "start_function_ns": 7866513075,
+        "engine_total_ns": 7872588427
+      }
+    },
+    {
+      "case": "cold8",
+      "kind": "emit",
+      "round": 2,
+      "wall_ns": 9517980306,
+      "output": {
+        "sha256": "58d73f6abf07825c1a76ee1696611f6ea7fec46817f609a584a9fb66c5a1287b",
+        "bytes": 8882272
+      },
+      "engine": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 1889724702,
+        "start_function_ns": 7587559644,
+        "engine_total_ns": 9477284346
+      }
+    },
+    {
+      "case": "cold1",
+      "kind": "emit",
+      "round": 2,
+      "wall_ns": 18314828624,
+      "output": {
+        "sha256": "58d73f6abf07825c1a76ee1696611f6ea7fec46817f609a584a9fb66c5a1287b",
+        "bytes": 8882272
+      },
+      "engine": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 10784035980,
+        "start_function_ns": 7510343717,
+        "engine_total_ns": 18294379697
+      }
+    },
+    {
+      "case": "cold1",
+      "kind": "emit",
+      "round": 3,
+      "wall_ns": 17716071491,
+      "output": {
+        "sha256": "58d73f6abf07825c1a76ee1696611f6ea7fec46817f609a584a9fb66c5a1287b",
+        "bytes": 8882272
+      },
+      "engine": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 10501261326,
+        "start_function_ns": 7196400593,
+        "engine_total_ns": 17697661919
+      }
+    },
+    {
+      "case": "cold8",
+      "kind": "emit",
+      "round": 3,
+      "wall_ns": 9048208278,
+      "output": {
+        "sha256": "58d73f6abf07825c1a76ee1696611f6ea7fec46817f609a584a9fb66c5a1287b",
+        "bytes": 8882272
+      },
+      "engine": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 1757942952,
+        "start_function_ns": 7252388511,
+        "engine_total_ns": 9010331463
+      }
+    },
+    {
+      "case": "cached64",
+      "kind": "emit",
+      "round": 3,
+      "wall_ns": 7252334238,
+      "output": {
+        "sha256": "58d73f6abf07825c1a76ee1696611f6ea7fec46817f609a584a9fb66c5a1287b",
+        "bytes": 8882272
+      },
+      "engine": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 5452067,
+        "start_function_ns": 7237553960,
+        "engine_total_ns": 7243006027
+      }
+    },
+    {
+      "case": "cached_bundled64",
+      "kind": "emit",
+      "round": 3,
+      "wall_ns": 6037739481,
+      "output": {
+        "sha256": "58d73f6abf07825c1a76ee1696611f6ea7fec46817f609a584a9fb66c5a1287b",
+        "bytes": 8882272
+      },
+      "engine": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 5073909,
+        "start_function_ns": 6023632331,
+        "engine_total_ns": 6028706240
+      }
+    },
+    {
+      "case": "cached_bundled32",
+      "kind": "emit",
+      "round": 3,
+      "wall_ns": 4218613312,
+      "output": {
+        "sha256": "58d73f6abf07825c1a76ee1696611f6ea7fec46817f609a584a9fb66c5a1287b",
+        "bytes": 8882272
+      },
+      "engine": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 4697664,
+        "start_function_ns": 4208818435,
+        "engine_total_ns": 4213516099
+      }
+    },
+    {
+      "case": "cold8_bundled32",
+      "kind": "emit",
+      "round": 3,
+      "wall_ns": 5160262843,
+      "output": {
+        "sha256": "58d73f6abf07825c1a76ee1696611f6ea7fec46817f609a584a9fb66c5a1287b",
+        "bytes": 8882272
+      },
+      "engine": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 916496277,
+        "start_function_ns": 4218974978,
+        "engine_total_ns": 5135471255
+      }
+    },
+    {
+      "case": "native",
+      "kind": "emit",
+      "round": 3,
+      "wall_ns": 2665285214,
+      "output": {
+        "sha256": "58d73f6abf07825c1a76ee1696611f6ea7fec46817f609a584a9fb66c5a1287b",
+        "bytes": 8882272
+      }
+    },
+    {
+      "case": "native",
+      "kind": "profile",
+      "round": 1,
+      "wall_ns": 2657053929,
+      "output": {
+        "sha256": "58d73f6abf07825c1a76ee1696611f6ea7fec46817f609a584a9fb66c5a1287b",
+        "bytes": 8882272
+      },
+      "phase": {
+        "parse_ns": 55028650,
+        "typecheck_ns": 1848932611,
+        "lifetime_ns": 1617003731,
+        "optimize_ns": 147133744,
+        "backend_ns": 594272644,
+        "functions": 1568,
+        "nodes": 698971,
+        "source_files": 35
+      }
+    },
+    {
+      "case": "cached_bundled32",
+      "kind": "profile",
+      "round": 1,
+      "wall_ns": 4209734019,
+      "output": {
+        "sha256": "58d73f6abf07825c1a76ee1696611f6ea7fec46817f609a584a9fb66c5a1287b",
+        "bytes": 8882272
+      },
+      "engine": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 4764541,
+        "start_function_ns": 4199281683,
+        "engine_total_ns": 4204046224
+      },
+      "phase": {
+        "parse_ns": 95810413,
+        "typecheck_ns": 2905940909,
+        "lifetime_ns": 2516271996,
+        "optimize_ns": 255277317,
+        "backend_ns": 936154407,
+        "functions": 1568,
+        "nodes": 698971,
+        "source_files": 35
+      }
+    },
+    {
+      "case": "cached_bundled32",
+      "kind": "profile",
+      "round": 2,
+      "wall_ns": 4192847425,
+      "output": {
+        "sha256": "58d73f6abf07825c1a76ee1696611f6ea7fec46817f609a584a9fb66c5a1287b",
+        "bytes": 8882272
+      },
+      "engine": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 4798036,
+        "start_function_ns": 4182103855,
+        "engine_total_ns": 4186901891
+      },
+      "phase": {
+        "parse_ns": 95740881,
+        "typecheck_ns": 2888195442,
+        "lifetime_ns": 2495823292,
+        "optimize_ns": 253392777,
+        "backend_ns": 938809643,
+        "functions": 1568,
+        "nodes": 698971,
+        "source_files": 35
+      }
+    },
+    {
+      "case": "native",
+      "kind": "profile",
+      "round": 2,
+      "wall_ns": 2634348617,
+      "output": {
+        "sha256": "58d73f6abf07825c1a76ee1696611f6ea7fec46817f609a584a9fb66c5a1287b",
+        "bytes": 8882272
+      },
+      "phase": {
+        "parse_ns": 55960599,
+        "typecheck_ns": 1829586748,
+        "lifetime_ns": 1597885718,
+        "optimize_ns": 146113757,
+        "backend_ns": 590753541,
+        "functions": 1568,
+        "nodes": 698971,
+        "source_files": 35
+      }
+    },
+    {
+      "case": "native",
+      "kind": "profile",
+      "round": 3,
+      "wall_ns": 2629359391,
+      "output": {
+        "sha256": "58d73f6abf07825c1a76ee1696611f6ea7fec46817f609a584a9fb66c5a1287b",
+        "bytes": 8882272
+      },
+      "phase": {
+        "parse_ns": 54939180,
+        "typecheck_ns": 1824503433,
+        "lifetime_ns": 1594727961,
+        "optimize_ns": 145991945,
+        "backend_ns": 592545546,
+        "functions": 1568,
+        "nodes": 698971,
+        "source_files": 35
+      }
+    },
+    {
+      "case": "cached_bundled32",
+      "kind": "profile",
+      "round": 3,
+      "wall_ns": 4274564962,
+      "output": {
+        "sha256": "58d73f6abf07825c1a76ee1696611f6ea7fec46817f609a584a9fb66c5a1287b",
+        "bytes": 8882272
+      },
+      "engine": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 4769460,
+        "start_function_ns": 4263017525,
+        "engine_total_ns": 4267786985
+      },
+      "phase": {
+        "parse_ns": 95331634,
+        "typecheck_ns": 2958940169,
+        "lifetime_ns": 2557069392,
+        "optimize_ns": 256058672,
+        "backend_ns": 946679457,
+        "functions": 1568,
+        "nodes": 698971,
+        "source_files": 35
+      }
+    },
+    {
+      "case": "native",
+      "kind": "edit",
+      "round": 1,
+      "wall_ns": 2669230935,
+      "output": {
+        "sha256": "a14155b8fc671d39a505086549a1ad6cda0d82acd16823245b9241fbc4f2ac81",
+        "bytes": 8882272
+      }
+    },
+    {
+      "case": "cached_bundled32",
+      "kind": "edit",
+      "round": 1,
+      "wall_ns": 4317955537,
+      "output": {
+        "sha256": "a14155b8fc671d39a505086549a1ad6cda0d82acd16823245b9241fbc4f2ac81",
+        "bytes": 8882272
+      },
+      "engine": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 4877947,
+        "start_function_ns": 4306468785,
+        "engine_total_ns": 4311346732
+      }
+    },
+    {
+      "case": "cached_bundled32",
+      "kind": "edit",
+      "round": 2,
+      "wall_ns": 4289843238,
+      "output": {
+        "sha256": "a14155b8fc671d39a505086549a1ad6cda0d82acd16823245b9241fbc4f2ac81",
+        "bytes": 8882272
+      },
+      "engine": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 4905660,
+        "start_function_ns": 4278465643,
+        "engine_total_ns": 4283371303
+      }
+    },
+    {
+      "case": "native",
+      "kind": "edit",
+      "round": 2,
+      "wall_ns": 2703451126,
+      "output": {
+        "sha256": "a14155b8fc671d39a505086549a1ad6cda0d82acd16823245b9241fbc4f2ac81",
+        "bytes": 8882272
+      }
+    },
+    {
+      "case": "native",
+      "kind": "edit",
+      "round": 3,
+      "wall_ns": 2666252701,
+      "output": {
+        "sha256": "a14155b8fc671d39a505086549a1ad6cda0d82acd16823245b9241fbc4f2ac81",
+        "bytes": 8882272
+      }
+    },
+    {
+      "case": "cached_bundled32",
+      "kind": "edit",
+      "round": 3,
+      "wall_ns": 4332331299,
+      "output": {
+        "sha256": "a14155b8fc671d39a505086549a1ad6cda0d82acd16823245b9241fbc4f2ac81",
+        "bytes": 8882272
+      },
+      "engine": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 5116059,
+        "start_function_ns": 4320440039,
+        "engine_total_ns": 4325556098
+      }
+    }
+  ],
+  "edited_reference": {
+    "sha256": "a14155b8fc671d39a505086549a1ad6cda0d82acd16823245b9241fbc4f2ac81",
+    "bytes": 8882272
+  }
+}
