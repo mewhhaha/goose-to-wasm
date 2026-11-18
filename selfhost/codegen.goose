@@ -3418,7 +3418,7 @@ fn cg_emit_prelude(p: Program&, m: CgModule&, f: CgBody&) {
     // With fixed memory, every valid frame is already committed. A frame
     // that fits the remaining address bits also cannot wrap the addition.
     let fixed = p.initial_pages == p.maximum_pages;
-    let check_wrap = !fixed || !cg_wide && bytes > 4294967295 - p.maximum_pages * 65536;
+    let check_wrap = !fixed || bytes < 0 || !cg_wide && bytes > 4294967295 - p.maximum_pages * 65536;
     if check_wrap { cg_get(f, top); cg_get(f, f.frame); wa_op(f.code, 0x49); }
     cg_get(f, top);
     if m.regions_enabled { wb_op(f.code, 0x23, 10); } else { wa_const(f.code, m.stack_limit); }
