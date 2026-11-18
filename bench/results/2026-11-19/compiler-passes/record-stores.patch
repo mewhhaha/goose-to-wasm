@@ -1,0 +1,54 @@
+--- a/selfhost/codegen.goose
++++ b/selfhost/codegen.goose
+@@ -1124,6 +1124,35 @@
+     }
+     cg_get(f, destination);
+ }
++// Initialize a plain scalar record in its final storage. Capture every
++// expression before writing, so re-entrant calls can still read the previous
++// value. Consecutive fields cover every byte, including the zero defaults.
++recursive fn cg_scalar_record_into(p: Program&, m: CgModule&, f: CgBody&, node: i64, id: i64, address: i64) -> bool {
++    if m.prefix_helper >= 0 || m.resolver >= 0 || node < 0 || p.nodes[node].kind != N_RECORD ||
++       p.nodes[node].type_id != id || cg_type_kind(p, id) != TY_STRUCT { return false; }
++    var next_byte = 0; var binding = p.nodes[node].first;
++    while binding >= 0 {
++        let b: const Node& = p.nodes[binding];
++        if b.symbol < 0 || b.right < 0 { return false; }
++        let field: const Node& = p.nodes[b.symbol]; let t: const Type& = p.types[field.type_id];
++        if field.integer != next_byte || t.kind != TY_BOOL && t.kind != TY_FLOAT && !(t.kind == TY_INT && t.storage == 0) { return false; }
++        next_byte += t.size; binding = b.next;
++    }
++    if next_byte != cg_size(p, id) { return false; }
++    let mark = f.work.len; binding = p.nodes[node].first;
++    while binding >= 0 {
++        let b: const Node& = p.nodes[binding]; let field = p.nodes[b.symbol].type_id;
++        cg_to(p, m, f, b.right, field); if cg_diverges(p, b.right) { f.work.resize(mark); return true; }
++        f.work.push(cg_save(f, cg_wasm_type(p, field))); binding = b.next;
++    }
++    var at = mark; binding = p.nodes[node].first;
++    while binding >= 0 {
++        let b: const Node& = p.nodes[binding]; let field: const Node& = p.nodes[b.symbol];
++        cg_get(f, address); cg_get(f, f.work[at]); cg_store(p, f.code, field.type_id, field.integer);
++        at++; binding = b.next;
++    }
++    f.work.resize(mark); return true;
++}
+ recursive fn cg_record_fields(p: Program&, m: CgModule&, f: CgBody&, id: i64, destination: i64, node: i64, captured: i64 = -1, in_place: bool = false) {
+     let n = p.nodes[node];
+     if cg_byte_record(p, id) { cg_construct_byte_record(p, m, f, id, destination, node); return; }
+@@ -1293,6 +1322,7 @@
+         cg_construct_region(p, m, f, node, receiving); cg_get(f, f.construction_destinations[receiving].header); return;
+     }
+     let destination = cg_temporary(p, f, id);
++    if cg_scalar_record_into(p, m, f, node, id, destination) { cg_get(f, destination); return; }
+     if cg_enum_image(p, id) {
+         var variant = n.symbol; if variant < 0 { variant = p.types[id].first; }
+         if variant < 0 { cg_fail(p, node, "wasm: enum construction has no variant"); return; }
+@@ -1919,6 +1949,7 @@
+     }
+     cg_symbol_address(p, m, f, symbol, node); let address = cg_save(f, wa());
+     if n.right < 0 { cg_default_storage(p, m, f, n.type_id, address, node); return; }
++    if cg_scalar_record_into(p, m, f, n.right, n.type_id, address) { return; }
+     cg_to(p, m, f, n.right, n.type_id); cg_write_value(p, m, f, n.type_id, address, node);
+ }
+ recursive fn cg_break(p: Program&, m: CgModule&, f: CgBody&, node: i64, continuing: bool) {
