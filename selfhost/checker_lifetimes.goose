@@ -169,7 +169,7 @@ struct LifeReadBack { type_id: i64 = -1, places: i64 = -1, epoch: i64 = -1, set:
 // chain; as LifeSummary.walked, for the frame's current list.
 struct LifeEffect { kind: i64, node: i64, value: LifeValue, places: i64 = 0, cell: i64 = -1, field: i64 = -1, next: i64 = -1, previous: i64 = -1, owner: i64 = -1, index_key: i64 = -1, index_next: i64 = -1, epoch: i64 = 0, walked: i8 = 0 }
 struct LifeFailure { node: i64, message: const u8[:] }
-// Per effect, for discovery merges: its summary key and the next effect in its
+// Per effect, for discovery merges: the next effect in its
 // summary_heads bucket, the fields a merge compares exactly (copies of the
 // effect's own, which never change), and the sets last merged into it. Merging
 // those same sets again changes nothing: an entry only grows, and a join with
@@ -189,7 +189,7 @@ struct LifeFailure { node: i64, message: const u8[:] }
 // (Lifetimes.offer_recursive); -1 once the entry's sets change. The same
 // sets replayed into that activation again change nothing.
 struct LifeSummary {
-    key: i64 = -1, next: i64 = -1, owner: i64 = -1, kind: i64 = 0, node: i64 = -1, type_id: i64 = -1, cell: i64 = -1, field: i64 = -1,
+    next: i64 = -1, owner: i64 = -1, kind: i64 = 0, node: i64 = -1, type_id: i64 = -1, cell: i64 = -1, field: i64 = -1,
     places: i64 = -1, refs: i64 = -1, contents: i64 = -1, place: i64 = -1, walked: i32 = -1,
     replayed: i32 = -1, replayed_epoch: i32 = -1,
     // leaf: for a construct read (kind 3), what life_leaf names its node and
@@ -455,17 +455,6 @@ fn life_effect_recursive(l: Lifetimes&, places: i64, frame: i64) -> bool {
     }
     return false;
 }
-// The fields a discovery merge compares exactly: frame, kind, site, type,
-// cell and field. The site is the effect's node, or -2 where class-keyed
-// frames are in use and the kind is one a validation pass compares without
-// its node as well (life_same_effect): a shrink, a growth, a read or a
-// replacement. A frame's summary then has one entry for each kind and type
-// rather than one for every node of everything it calls.
-fn life_summary_key(effect: const LifeEffect&, frame: i64, site: i64) -> i64 {
-    var h: u64 = 1469598103934665603;
-    for part in [frame, effect.kind, site, effect.value.type_id, effect.cell, effect.field] { h = (h ^ (part as! u64)) * 1099511628211; h ^= h >> 31; }
-    return (h >> 1) as i64;
-}
 inline fn life_mix(a: i64, b: i64) -> i64 {
     var h: u64 = 1469598103934665603;
     for part in [a, b] { h = (h ^ (part as! u64)) * 1099511628211; h ^= h >> 29; }
@@ -601,12 +590,12 @@ inline fn life_walked(l: Lifetimes&, frame: i64, outside: bool) -> i32 {
 // one did, 2 if one did that already sent these sets up the chain in this
 // activation (LifeSummary.walked). outside: a place of the effect is outside
 // every frame of the chain.
-fn life_effect_merge(l: Lifetimes&, effect: const LifeEffect&, frame: i64, bucket: i64, key: i64, outside: bool, site: i64) -> i64 {
+fn life_effect_merge(l: Lifetimes&, effect: const LifeEffect&, frame: i64, bucket: i64, outside: bool, site: i64) -> i64 {
     let walked = life_walked(l, frame, outside);
     var previous = l.summary_heads[bucket];
     while previous >= 0 {
         let summary: const LifeSummary& = l.summaries[previous]; let next = summary.next;
-        if summary.key != key || summary.owner != frame || summary.kind != effect.kind || summary.node != site || summary.type_id != effect.value.type_id || summary.cell != effect.cell || summary.field != effect.field {
+        if summary.owner != frame || summary.kind != effect.kind || summary.node != site || summary.type_id != effect.value.type_id || summary.cell != effect.cell || summary.field != effect.field {
             previous = next; continue;
         }
         if summary.places == effect.places && summary.refs == effect.value.refs && summary.contents == effect.value.contents && summary.place == effect.value.place {
@@ -872,6 +861,7 @@ fn life_effect(l: Lifetimes&, effect: LifeEffect) -> i64 {
     // and its effects have landed where they land; were it called again
     // where a summary is wanted, it is evaluated again (life_function).
     if l.discovery && l.class_frames > 0 && l.island == 0 && life_nearest_recursive(l, l.frame) == 0 { return -1; }
+    // A class frame merges shrink, grow, read and replace effects across source sites.
     var site = effect.node;
     if l.class_frames > 0 && (effect.kind == 1 || effect.kind == 2 || effect.kind == 3 || effect.kind == 8) { site = -2; }
     l.offer_count += 1;
@@ -907,12 +897,12 @@ fn life_effect(l: Lifetimes&, effect: LifeEffect) -> i64 {
             var external = far > depth;
             if !external && l.frames[frame].recursive_call { external = life_effect_recursive(l, effect.places, frame); }
             var last = l.frames[frame].last_effect; if l.discovery { last = l.frames[frame].last_summary; }
-            var bucket = 0; var summary_key = -1; var indexed = -1;
+            var bucket = 0; var indexed = -1;
             if external && l.discovery {
                 var key = frame * 1000003 + (site + 1) * 97 + effect.kind * 17 + effect.cell + 1; if site < -1 { key += 194; }
                 if effect.kind == 4 && effect.places != 0 { key += (l.alts[l.sets[effect.places].first].root as i64) * 31; }
-                bucket = key % l.summary_heads.len; summary_key = life_summary_key(effect, frame, site);
-                let merged = life_effect_merge(l, effect, frame, bucket, summary_key, outside, site);
+                bucket = key % l.summary_heads.len;
+                let merged = life_effect_merge(l, effect, frame, bucket, outside, site);
                 if merged == 2 { if outside { return far; } settled = true; }
                 if merged != 0 { external = false; }
             }
@@ -931,7 +921,7 @@ fn life_effect(l: Lifetimes&, effect: LifeEffect) -> i64 {
             if external && !l.discovery && ordered && life_effect_repeated(l, effect, last) { external = false; }
             if external {
                 let index = l.effects.len; var entry = effect; entry.next = -1; entry.previous = last; entry.owner = frame;
-                l.summaries.push(LifeSummary { key: summary_key, owner: frame, kind: entry.kind, node: site, type_id: entry.value.type_id, cell: entry.cell, field: entry.field });
+                l.summaries.push(LifeSummary { owner: frame, kind: entry.kind, node: site, type_id: entry.value.type_id, cell: entry.cell, field: entry.field });
                 if l.discovery {
                     life_summary_seen(l, index, entry); l.summaries[index].next = l.summary_heads[bucket]; l.summary_heads[bucket] = index;
                     l.summaries[index].walked = life_walked(l, frame, outside);
@@ -4611,7 +4601,7 @@ fn life_reads_materialize(p: Program&, l: Lifetimes&) {
                 let index = l.effects.len;
                 var effect = LifeEffect { kind: 3, node: leaf.node, value: leaf.value, places: places }; effect.previous = last; effect.owner = frame;
                 let bucket = (frame * 1000003 + (leaf.node + 1) * 97 + 3 * 17 + effect.cell + 1) % l.summary_heads.len;
-                l.summaries.push(LifeSummary { key: life_summary_key(effect, frame, leaf.node), next: l.summary_heads[bucket], owner: frame, kind: 3, node: leaf.node,
+                l.summaries.push(LifeSummary { next: l.summary_heads[bucket], owner: frame, kind: 3, node: leaf.node,
                     type_id: leaf.value.type_id, cell: effect.cell, field: effect.field, places: seen_places, refs: seen.refs, contents: seen.contents, place: seen.place,
                     walked: entry.walked, leaf: entry.leaf });
                 l.summary_heads[bucket] = index; l.effects.push(effect);

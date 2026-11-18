@@ -317,11 +317,6 @@ fn check_plain_value_type(p: Program&, ty: i64) -> i64 {
     if ty < 0 || p.types[ty].kind == TY_REF || p.types[ty].kind == TY_SLICE { return ty; }
     return check_type_const(p, ty, false);
 }
-fn check_name_hash(p: Program&, token: i64) -> i64 {
-    var hash: u32 = 2166136261;
-    for byte in token_text(p, token) { hash = (hash ^ (byte as u32)) * 16777619; }
-    return hash as i64;
-}
 // Every scope's names share one table, bucketed by scope and name. A chain
 // holds a scope's same-named symbols in reverse link order, as a lookup expects.
 fn check_name_bucket(c: Checker&, hash: i64, scope: i64) -> i64 {
@@ -331,7 +326,7 @@ fn check_name_bucket(c: Checker&, hash: i64, scope: i64) -> i64 {
 fn check_link_symbol(p: Program&, c: Checker&, symbol: i64, scope: i64) {
     if scope < 0 { return; }
     while c.link_scopes.len < p.symbols.len { c.link_scopes.push(-1); c.name_hashes.push(0); }
-    c.link_scopes[symbol] = scope; c.name_hashes[symbol] = check_name_hash(p, p.symbols[symbol].name_token);
+    c.link_scopes[symbol] = scope; c.name_hashes[symbol] = bytes_hash(token_text(p, p.symbols[symbol].name_token));
     // Two names per bucket at most, on average; rebuilt in link order.
     if 2 * c.name_table.len <= c.linked.len + 1 {
         var count: i64 = 1024; while 2 * count <= c.linked.len + 1 { count <<= 1; }
@@ -350,7 +345,7 @@ fn check_link_symbol(p: Program&, c: Checker&, symbol: i64, scope: i64) {
 fn check_lookup_scope(p: Program&, c: Checker&, token: i64, scope: i64, role: i64 = 0) -> i64 {
     if scope < 0 || scope >= c.scopes.len { return -1; }
     if c.name_table.len == 0 { return -1; }
-    let bucket = check_name_bucket(c, check_name_hash(p, token), scope);
+    let bucket = check_name_bucket(c, bytes_hash(token_text(p, token)), scope);
     var id = c.name_table[bucket];
     while id >= 0 {
         let symbol: const Symbol& = p.symbols[id];
