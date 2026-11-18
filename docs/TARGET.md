@@ -277,9 +277,19 @@ C symbol names. Exact standard numeric signatures for `sqrt`/`gs_sqrt`, `floor`,
 loops. Ordinary Goose function bodies are not recognized by name; for example,
 Goose's `abs` retains its existing negative-zero semantics.
 
-Raw-only array-image specialization excludes modules with explicit public
-exports or nonintrinsic user imports, preserving host edits to image headers.
-Pure math intrinsics do not prevent it.
+The direct backend can load an ordinary growable array’s pointer and length together.
+When the module could receive an encoded array header, the generated code checks its
+storage mode and uses the image decoder as needed. In a closed program the backend
+can omit this check when the checked types and casts rule out encoded controls.
+Public exports, library builds and nonintrinsic user imports preserve host access
+to image headers.
+
+Use `--wasm-bundled-host` to compile a program specifically for the bundled
+Wasmtime or Node host. It allows this specialization for a recognized subset of
+their standard imports with matching signatures. They read values, return scalars
+or fill byte arrays using `goose.reserve`. Other imports and public exports still
+use the general representation. Use the default for custom host implementations
+that can edit array headers.
 
 An import takes numbers and booleans, and what the module holds a slice or a
 reference as: a slice is the i64 of pointer and count, a reference an i32

@@ -35,9 +35,10 @@ struct CgModule {
     region_memo: i64[>..]&,
     next_data: i64 = 1024, stack_limit: i64 = 0,
     region_count: i64 = 0, global_region_count: i64 = 0, regions_enabled: bool = false,
-    nonlocal_returns: bool = false,
+    nonlocal_returns: bool = false, ordinary_owners: bool = false,
     region_table_address: i64 = 0, host_reserve: i64 = -1, host_reserve_type: i64 = -1,
     start: i64 = -1, allocator: i64 = -1, float_wrap: i64 = -1, scalar: bool = false, resolver: i64 = -1, header_helper: i64 = -1, prefix_helper: i64 = -1, pool_global: i64 = -1,
+    owner_index_sites: i64 = 0, owner_view: i64 = -1,
     format_f32: i64 = -1, format_f64: i64 = -1, raw_append: i64 = -1, raw_append_type: i64 = -1,
 }
 // defers: the height of the defer stack the exit runs back down to (§6.6).
@@ -334,9 +335,11 @@ fn cg_line(p: Program&, f: CgBody&, node: i64) {
     var line = 0; if token >= 0 && token < p.tokens.len { line = p.tokens[token].line; }
     wb_i32(f.code, line);
 }
-fn cg_abort(p: Program&, m: CgModule&, f: CgBody&, node: i64, text: u8[:]) {
-    wa_const(f.code, cg_data(m, text)); wb_i32(f.code, text.len);
+fn cg_diagnostic_line(p: Program&, f: CgBody&, node: i64) {
     if f.diagnostic_line >= 0 { cg_get(f, f.diagnostic_line); } else { cg_line(p, f, node); }
+}
+fn cg_abort(p: Program&, m: CgModule&, f: CgBody&, node: i64, text: u8[:]) {
+    wa_const(f.code, cg_data(m, text)); wb_i32(f.code, text.len); cg_diagnostic_line(p, f, node);
     wb_op(f.code, 0x10, CG_ABORT); wb_byte(f.code, 0);
 }
 fn cg_trap_if(p: Program&, m: CgModule&, f: CgBody&, node: i64, text: u8[:]) {
@@ -582,6 +585,14 @@ recursive fn cg_pack_view(p: Program&, m: CgModule&, f: CgBody&, id: i64, node: 
     if cg_type_kind(p, id) != TY_ARRAY { cg_fail(p, node, "wasm: expected an array or slice"); return; }
     let base = cg_save(f, wa());
     if cg_owner(p, id) {
+        if m.ordinary_owners { cg_get(f, base); ws_load(f.code, 0); return; }
+        // An ordinary control starts with the slice itself. Keep image decoding
+        // and its caller's diagnostic line in one shared fallback.
+        if m.owner_view >= 0 {
+            cg_get(f, base); wc_load(f.code, 5); wa_op(f.code, 0x45); cg_begin(f, 0x04, ws());
+            cg_get(f, base); ws_load(f.code, 0); wb_byte(f.code, 0x05);
+            cg_get(f, base); cg_diagnostic_line(p, f, node); wb_op(f.code, 0x10, m.owner_view); cg_end(f); return;
+        }
         cg_owner_read_base(p, m, f, base, node); wa_extend(f.code);
         cg_owner_read_length(p, m, f, base, node); wa_extend(f.code);
     } else {
@@ -3526,11 +3537,16 @@ fn cg_emit_function(p: Program&, m: CgModule&, function: i64, function_index: i6
     while binding >= 0 { slots[binding] = CgSlot {}; binding = m.symbol_owners.next[binding]; }
     for capture in m.captures { if capture.function == function { slots[capture.symbol] = CgSlot {}; } }
 }
-fn cg_emit_raw_append(p: Program&, m: CgModule&, out: u8[>..]&) {
+fn cg_emit_array_helper(p: Program&, m: CgModule&, out: u8[>..]&, view: bool) {
     var code: u8[>..] = []; var locals: i64[>..] = []; var slots: CgSlot[>..] = []; var addresses: CgFrameAddress[>..] = [];
     var labels: i64[>..] = []; var exits: CgExit[>..] = []; var results: i64[>..] = []; var destinations: i64[>..] = []; var work: i64[>..] = []; var raw_slots: i64[>..] = []; var sequences: CgSequence[>..] = []; var constructions: CgConstruction[>..] = []; var construction_destinations: CgDestination[>..] = []; var receiving: CgReceiving[>..] = []; var defers: i64[>..] = [];
     var f = CgBody { code: code, locals: locals, slots: slots, addresses: addresses, labels: labels, exits: exits, results: results, destinations: destinations, work: work, raw_slots: raw_slots, sequences: sequences, constructions: constructions, construction_destinations: construction_destinations, receiving: receiving, params: 4, diagnostic_line: 3, defers: defers };
-    cg_format_bytes_inline(p, m, f, m.raw_append_type, 0, 1, 2, -1); wb_byte(code, 0x0b); wb_body(out, locals, code);
+    if view {
+        f.params = 2; f.diagnostic_line = 1;
+        cg_owner_read_base(p, m, f, 0, -1); wa_extend(code);
+        cg_owner_read_length(p, m, f, 0, -1); wa_extend(code); ws_pack(f);
+    } else { cg_format_bytes_inline(p, m, f, m.raw_append_type, 0, 1, 2, -1); }
+    wb_byte(code, 0x0b); wb_body(out, locals, code);
 }
 // goose.reserve(control, count) -> address, exported for a host: makes room
 // for count more bytes at the end of the growable byte array whose control is
@@ -3883,9 +3899,13 @@ recursive fn cg_float_format_demand(p: Program&, node: i64) -> i64 {
     demand |= cg_float_format_demand(p, n.left) | cg_float_format_demand(p, n.right) | cg_float_format_demand(p, n.third);
     var child = n.first; while child >= 0 { demand |= cg_float_format_demand(p, child); child = p.nodes[child].next; } return demand;
 }
-recursive fn cg_raw_append_demand(p: Program&, m: CgModule&, node: i64) -> i64 {
+recursive fn cg_array_helper_demand(p: Program&, m: CgModule&, node: i64) -> i64 {
     if node < 0 { return 0; } let n = p.nodes[node];
     if n.kind == N_FUNCTION || n.kind == N_FUNCTION_VALUE || n.kind == N_STRUCT || n.kind == N_ENUM || n.kind == N_ALIAS || n.kind == N_IMPORT || n.kind == N_PATTERN { return 0; }
+    if !m.ordinary_owners && m.owner_index_sites < 2 && m.resolver < 0 && n.kind == N_INDEX {
+        var id = p.nodes[n.left].type_id; while cg_type_kind(p, id) == TY_REF { id = p.types[id].element; }
+        if cg_owner(p, id) { m.owner_index_sites++; }
+    }
     var count = 0;
     if n.kind == N_CALL && n.symbol >= 0 && (p.symbols[n.symbol].flags & S_BUILTIN) != 0 {
         let builtin = p.symbols[n.symbol].index; var output = -1; var arg = n.first;
@@ -3894,8 +3914,8 @@ recursive fn cg_raw_append_demand(p: Program&, m: CgModule&, node: i64) -> i64 {
         while cg_type_kind(p, output) == TY_REF { output = p.types[output].element; }
         if arg >= 0 && cg_raw_append_type(p, output) { count = 1; if m.raw_append_type < 0 { m.raw_append_type = output; } }
     }
-    count += cg_raw_append_demand(p, m, n.left) + cg_raw_append_demand(p, m, n.right) + cg_raw_append_demand(p, m, n.third);
-    var child = n.first; while child >= 0 { count += cg_raw_append_demand(p, m, child); child = p.nodes[child].next; } return count;
+    count += cg_array_helper_demand(p, m, n.left) + cg_array_helper_demand(p, m, n.right) + cg_array_helper_demand(p, m, n.third);
+    var child = n.first; while child >= 0 { count += cg_array_helper_demand(p, m, child); child = p.nodes[child].next; } return count;
 }
 // A root owner's frame places its components' own storage side by side, as
 // native C's does: each field takes the slot its type takes as a variable, so
@@ -4014,10 +4034,12 @@ fn cg_collect(p: Program&, m: CgModule&) {
         var frames = false; for type_id in 0..p.types.len { if cg_frame_owner(p, type_id) { frames = true; } }
         if frames { m.prefix_helper = thunk_base; thunk_base += 1; }
     }
+    m.ordinary_owners = cg_ordinary_owner_module(p, m);
     var raw_appends = 0;
-    for item in m.functions { raw_appends += cg_raw_append_demand(p, m, p.nodes[item.node].right); }
-    for symbol in p.symbols { if (symbol.flags & S_GLOBAL) != 0 && symbol.node >= 0 && symbol.component_owner < 0 { raw_appends += cg_raw_append_demand(p, m, p.nodes[symbol.node].right); } }
+    for item in m.functions { raw_appends += cg_array_helper_demand(p, m, p.nodes[item.node].right); }
+    for symbol in p.symbols { if (symbol.flags & S_GLOBAL) != 0 && symbol.node >= 0 && symbol.component_owner < 0 { raw_appends += cg_array_helper_demand(p, m, p.nodes[symbol.node].right); } }
     if raw_appends > 1 { m.raw_append = thunk_base; thunk_base += 1; }
+    if m.owner_index_sites > 1 { m.owner_view = thunk_base; thunk_base += 1; }
     for item, i in m.functions { m.functions[i].thunk = thunk_base + i; }
     if m.regions_enabled {
         m.host_reserve_type = cg_host_reserve_type(p, m);
@@ -4139,6 +4161,62 @@ fn cg_exportable(p: Program&, function: i64) -> bool {
     for id in results { let kind = cg_type_kind(p, id); if kind != TY_INT && kind != TY_FLOAT && kind != TY_BOOL { cg_fail(p, function, "wasm: public exports return numeric and bool values only"); return false; } }
     return true;
 }
+// The bundled hosts take byte builders through goose.reserve. Other approved
+// imports only read their arguments or return scalars. Check the language ABI
+// as well as the symbol before relying on that contract.
+fn cg_bundled_host_param(p: Program&, id: i64, form: u8) -> bool {
+    if id < 0 { return false; }
+    let t = p.types[id];
+    if form == 'i' { return id == TYPE_I64; }
+    if form == 's' { return t.kind == TY_SLICE && t.element == TYPE_U8 && t.flags == TF_CONST; }
+    if t.kind != TY_REF || t.length_storage >= 0 || t.element < 0 { return false; }
+    let target = p.types[t.element];
+    if form == 'o' { return t.flags == 0 && target.kind == TY_ARRAY && target.array_kind == A_GROW && target.element == TYPE_U8 && target.flags == 0; }
+    if t.flags != TF_CONST { return false; }
+    if form == 'p' { return t.element == TYPE_U8; }
+    return form == 'b' && target.kind == TY_STRUCT && target.declaration >= 0 && library_node(p, target.declaration) &&
+        token_is(p, p.nodes[target.declaration].token, "ByteSet") && target.size == 293;
+}
+fn cg_bundled_host_import(p: Program&, function: i64) -> bool {
+    let name = cg_external_name(p, function);
+    var params: const u8[:] = ""; var result = TYPE_VOID;
+    if same_bytes(name, "system") { params = "p"; result = TYPE_I32; }
+    else if !library_node(p, function) { return false; }
+    else if same_bytes(name, "gs_find_pair") { params = "sbib"; result = TYPE_I64; }
+    else if same_bytes(name, "gs_os_read_file") || same_bytes(name, "gs_os_getenv") { params = "so"; result = TYPE_BOOL; }
+    else if same_bytes(name, "gs_os_write_file") { params = "ss"; result = TYPE_BOOL; }
+    else if same_bytes(name, "gs_os_file_exists") || same_bytes(name, "gs_os_is_dir") { params = "s"; result = TYPE_BOOL; }
+    else if same_bytes(name, "gs_os_write_stdout") || same_bytes(name, "gs_os_write_stderr") { params = "s"; }
+    else if same_bytes(name, "gs_os_arg_count") || same_bytes(name, "gs_os_clock_ns") { result = TYPE_I64; }
+    else if same_bytes(name, "gs_os_arg") { params = "io"; }
+    else if same_bytes(name, "gs_os_resource_dir") { params = "o"; result = TYPE_BOOL; }
+    else { return false; }
+    var param = p.nodes[function].first;
+    for form in params {
+        if param < 0 || !cg_bundled_host_param(p, p.nodes[param].type_id, form) { return false; }
+        param = p.nodes[param].next;
+    }
+    return param < 0 && cg_result_type(p, function) == result;
+}
+// Every nonzero control mode originates in a variable or runtime-limited
+// array, including named result channels and packed record/enum tails. Scan
+// the complete type table so those channels and aliases participate.
+fn cg_ordinary_owner_module(p: Program&, m: CgModule&) -> bool {
+    if !m.regions_enabled || p.library { return false; }
+    for item in m.functions { if (p.nodes[item.node].flags & F_EXPORT) != 0 { return false; } }
+    for imp in m.imports {
+        if imp.symbol >= 0 && (!p.bundled_host || !cg_bundled_host_import(p, p.symbols[imp.symbol].node)) { return false; }
+    }
+    for t in p.types {
+        if t.kind == TY_ARRAY && (t.array_kind == A_VAR || t.array_kind == A_LIMITED && t.count < 0) { return false; }
+        if t.kind == TY_REF && t.length_storage >= 0 { return false; }
+    }
+    for n in p.nodes {
+        if n.kind == N_CAST && (n.flags & F_UNSIGNED) != 0 && (cg_type_kind(p, n.type_id) == TY_REF ||
+            n.right >= 0 && cg_type_kind(p, p.nodes[n.right].type_id) == TY_REF) { return false; }
+    }
+    return true;
+}
 fn generate_wasm(p: Program&, out: u8[>..]&) {
     // The checked layout decides the memory: 8-byte pointers are 64-bit
     // memory. Set before anything is collected, laid out or emitted.
@@ -4164,7 +4242,7 @@ fn generate_wasm(p: Program&, out: u8[>..]&) {
     cg_collect(p, m); if p.diagnostics.len > 0 { return; }
     if m.scalar { m.resolver = -1; m.host_reserve = -1; }
     var slots: CgSlot[>..] = []; slots.resize(p.symbols.len, CgSlot {});
-    var body_count = m.functions.len * 2 + 3; if m.resolver >= 0 { body_count++; } if m.header_helper >= 0 { body_count++; } if m.prefix_helper >= 0 { body_count++; } if m.raw_append >= 0 { body_count++; } if m.host_reserve >= 0 { body_count++; } if m.scalar { body_count = m.functions.len + 1; }
+    var body_count = m.functions.len * 2 + 3; if m.resolver >= 0 { body_count++; } if m.header_helper >= 0 { body_count++; } if m.prefix_helper >= 0 { body_count++; } if m.raw_append >= 0 { body_count++; } if m.owner_view >= 0 { body_count++; } if m.host_reserve >= 0 { body_count++; } if m.scalar { body_count = m.functions.len + 1; }
     var code: u8[>..] = []; wb_u(code, body_count);
     var body: u8[>..] = [];
     for item, index in m.functions { body.clear(); cg_emit_function(p, m, item.node, index, item.elements, body, slots); wb_u(code, body.len); wb_raw(code, body); }
@@ -4175,9 +4253,15 @@ fn generate_wasm(p: Program&, out: u8[>..]&) {
         if m.resolver >= 0 { body.clear(); cg_resolver_body(body); wb_u(code, body.len); wb_raw(code, body); }
         if m.header_helper >= 0 { body.clear(); cg_header_publish_body(body); wb_u(code, body.len); wb_raw(code, body); }
         if m.prefix_helper >= 0 { body.clear(); cg_prefix_mapping_body(body); wb_u(code, body.len); wb_raw(code, body); }
-        if m.raw_append >= 0 { body.clear(); cg_emit_raw_append(p, m, body); wb_u(code, body.len); wb_raw(code, body); }
+        if m.raw_append >= 0 { body.clear(); cg_emit_array_helper(p, m, body, false); wb_u(code, body.len); wb_raw(code, body); }
+        if m.owner_view >= 0 { body.clear(); cg_emit_array_helper(p, m, body, true); wb_u(code, body.len); wb_raw(code, body); }
         for item, i in m.functions { body.clear(); cg_emit_thunk(p, m, i, body); wb_u(code, body.len); wb_raw(code, body); }
-        if m.host_reserve >= 0 { body.clear(); cg_emit_host_reserve(p, m, body); wb_u(code, body.len); wb_raw(code, body); }
+        if m.host_reserve >= 0 {
+            // This exported helper accepts a control address from the host.
+            let ordinary = m.ordinary_owners; m.ordinary_owners = false;
+            body.clear(); cg_emit_host_reserve(p, m, body); wb_u(code, body.len); wb_raw(code, body);
+            m.ordinary_owners = ordinary;
+        }
     }
     cg_bound_regions(p, m); cg_layout_regions(p, m);
     if m.next_data >= m.stack_limit { cg_fail(p, -1, "wasm: static storage overlaps the activation arena"); }
@@ -4193,6 +4277,11 @@ fn generate_wasm(p: Program&, out: u8[>..]&) {
     if m.header_helper >= 0 { var pair_address: u8[>..] = []; pair_address.push(wa() as u8); pair_address.push(wa() as u8); header_signature = cg_signature(m, pair_address, empty); }
     if m.prefix_helper >= 0 { var pair_address: u8[>..] = []; pair_address.push(wa() as u8); pair_address.push(wa() as u8); prefix_signature = cg_signature(m, pair_address, one_address); }
     if m.raw_append >= 0 { var append_args: u8[>..] = []; for part in 0..3 { append_args.push(wa() as u8); } append_args.push(0x7f); append_signature = cg_signature(m, append_args, empty); }
+    var view_signature = -1;
+    if m.owner_view >= 0 {
+        var view_args: u8[>..] = []; view_args.push(wa() as u8); view_args.push(0x7f);
+        var view_result: u8[>..] = []; view_result.push(ws() as u8); view_signature = cg_signature(m, view_args, view_result);
+    }
     var reserve_signature = -1;
     if m.host_reserve >= 0 { var pair_address: u8[>..] = []; pair_address.push(wa() as u8); pair_address.push(wa() as u8); reserve_signature = cg_signature(m, pair_address, one_address); }
     var module: u8[>..] = [0, 97, 115, 109, 1, 0, 0, 0]; var section: u8[>..] = [];
@@ -4206,7 +4295,7 @@ fn generate_wasm(p: Program&, out: u8[>..]&) {
     wb_section(module, 2, section); section.clear();
     wb_u(section, body_count); for item in m.functions { wb_u(section, item.signature); }
     wb_u(section, start_signature);
-    if !m.scalar { wb_u(section, allocator_signature); wb_u(section, wrap_signature); if m.resolver >= 0 { wb_u(section, allocator_signature); } if m.header_helper >= 0 { wb_u(section, header_signature); } if m.prefix_helper >= 0 { wb_u(section, prefix_signature); } if m.raw_append >= 0 { wb_u(section, append_signature); } for item in m.functions { wb_u(section, item.closure_signature); } if m.host_reserve >= 0 { wb_u(section, reserve_signature); } }
+    if !m.scalar { wb_u(section, allocator_signature); wb_u(section, wrap_signature); if m.resolver >= 0 { wb_u(section, allocator_signature); } if m.header_helper >= 0 { wb_u(section, header_signature); } if m.prefix_helper >= 0 { wb_u(section, prefix_signature); } if m.raw_append >= 0 { wb_u(section, append_signature); } if m.owner_view >= 0 { wb_u(section, view_signature); } for item in m.functions { wb_u(section, item.closure_signature); } if m.host_reserve >= 0 { wb_u(section, reserve_signature); } }
     wb_section(module, 3, section); section.clear();
     if !m.scalar { wb_u(section, 1); wb_byte(section, 0x70); wb_byte(section, 0); wb_u(section, m.functions.len); wb_section(module, 4, section); section.clear(); }
     var initial_pages = p.initial_pages; let static_pages = (m.next_data + 65535) / 65536;
@@ -4433,6 +4522,7 @@ fn cg_uleb_width(p: Program&, f: CgBody&, value: i64) -> i64 {
 // or 8 bytes (modes 1 to 4), as a ULEB128 (6), or, for a runtime-limited
 // array (5), with two address-sized words, the capacity and the length.
 fn cg_owner_read_length(p: Program&, m: CgModule&, f: CgBody&, header: i64, node: i64) {
+    if m.ordinary_owners { cg_get(f, header); wc_load(f.code, 1); return; }
     cg_get(f, header); wc_load(f.code, 5); let mode = cg_save(f, wa());
     cg_get(f, header); wc_load(f.code, 1); let result = cg_save(f, wa());
     let done = cg_begin(f, 0x02, 0x40);
@@ -4466,6 +4556,7 @@ fn cg_owner_read_length(p: Program&, m: CgModule&, f: CgBody&, header: i64, node
 }
 // The address of the first element: past the image's prefix.
 fn cg_owner_read_base(p: Program&, m: CgModule&, f: CgBody&, header: i64, node: i64) {
+    if m.ordinary_owners { cg_get(f, header); wc_load(f.code, 0); return; }
     cg_get(f, header); wc_load(f.code, 5); let mode = cg_save(f, wa());
     cg_get(f, header); wc_load(f.code, 0); let result = cg_save(f, wa());
     let done = cg_begin(f, 0x02, 0x40);
@@ -4480,6 +4571,7 @@ fn cg_owner_read_base(p: Program&, m: CgModule&, f: CgBody&, header: i64, node: 
     cg_end(f); cg_get(f, result); cg_resolve_pointer(m, f);
 }
 fn cg_owner_read_capacity(p: Program&, m: CgModule&, f: CgBody&, header: i64) {
+    if m.ordinary_owners { cg_get(f, header); wc_load(f.code, 3); return; }
     // Address-sized: a runtime-limited image's first word, or the control's capacity word.
     cg_get(f, header); wc_load(f.code, 5); wa_const(f.code, 5); wa_op(f.code, 0x46); cg_begin(f, 0x04, wa());
     cg_get(f, header); wc_load(f.code, 4); if cg_wide { wb_mem(f.code, 0x29, 0, 0); } else { wb_mem(f.code, 0x28, 0, 0); }
@@ -5329,6 +5421,7 @@ fn cg_patch_uleb_length(p: Program&, m: CgModule&, f: CgBody&, header: i64, coun
 }
 fn cg_owner_set_length(p: Program&, m: CgModule&, f: CgBody&, header: i64, count: i64, node: i64) {
     cg_get(f, header); cg_get(f, count); wc_store(f.code, 1); cg_publish_header(m, f, header, ww(1));
+    if m.ordinary_owners { return; }
     cg_get(f, header); wc_load(f.code, 5); let mode = cg_save(f, wa()); let done = cg_begin(f, 0x02, 0x40);
     for selected in 1..7 {
         cg_get(f, mode); wa_const(f.code, selected); wa_op(f.code, 0x46); cg_begin(f, 0x04, 0x40);

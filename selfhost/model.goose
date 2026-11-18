@@ -382,7 +382,7 @@ struct Program {
     // Direct Wasm data regions: region_profile[i] is the bytes region i was
     // seen to need (--wasm-region-profile), the weight of its share of memory;
     // region_stats makes the module keep each region's high-water mark.
-    region_profile: i64[>..]&, region_stats: bool = false,
+    region_profile: i64[>..]&, region_stats: bool = false, bundled_host: bool = false,
 }
 fn index_symbol_owners(p: Program&, owners: SymbolOwners&) {
     // Owner -1 names the initializer. Keep every list in symbol order

@@ -123,33 +123,37 @@ fn wb_read_unsigned(bytes: u8[:], at: i64&) -> i64 {
 fn wb_skip_leb(bytes: u8[:], at: i64&) {
     loop { let byte = bytes[at]; at++; if (byte & 128) == 0 { return; } }
 }
-fn wb_instruction(bytes: u8[:], at: i64&) -> WbInstruction {
-    let start = at; let opcode = bytes[at] as i64; at++; var index = -1;
-    if opcode == 0x02 || opcode == 0x03 || opcode == 0x04 { wb_skip_leb(bytes, at); }
-    else if opcode == 0x0c || opcode == 0x0d || opcode == 0x10 || opcode >= 0x20 && opcode <= 0x24 || opcode == 0x3f || opcode == 0x40 { index = wb_read_unsigned(bytes, at); }
-    else if opcode == 0x0e { let count = wb_read_unsigned(bytes, at); for i in 0..count + 1 { wb_read_unsigned(bytes, at); } }
-    else if opcode == 0x11 { wb_read_unsigned(bytes, at); wb_read_unsigned(bytes, at); }
-    else if opcode >= 0x28 && opcode <= 0x3e { wb_read_unsigned(bytes, at); wb_read_unsigned(bytes, at); }
+fn wb_read_operands(bytes: u8[:], at: i64&, opcode: i64) -> i64 {
+    // Only branch depths and local indexes participate in local allocation.
+    if opcode == 0x0c || opcode == 0x0d || opcode >= 0x20 && opcode <= 0x22 { return wb_read_unsigned(bytes, at); }
+    if opcode >= 0x02 && opcode <= 0x04 || opcode == 0x10 || opcode == 0x23 || opcode == 0x24 || opcode == 0x3f || opcode == 0x40 { wb_skip_leb(bytes, at); }
+    else if opcode == 0x0e { let count = wb_read_unsigned(bytes, at); for i in 0..count + 1 { wb_skip_leb(bytes, at); } }
+    else if opcode == 0x11 { wb_skip_leb(bytes, at); wb_skip_leb(bytes, at); }
+    else if opcode >= 0x28 && opcode <= 0x3e { wb_skip_leb(bytes, at); wb_skip_leb(bytes, at); }
     else if opcode == 0x41 || opcode == 0x42 { wb_skip_leb(bytes, at); }
     else if opcode == 0x43 { at += 4; } else if opcode == 0x44 { at += 8; }
     else if opcode == 0x1c { let count = wb_read_unsigned(bytes, at); at += count; }
     else if opcode == 0xfc {
         let sub = wb_read_unsigned(bytes, at);
-        if sub == 8 || sub == 10 { wb_read_unsigned(bytes, at); wb_read_unsigned(bytes, at); }
-        else if sub == 9 || sub == 11 { wb_read_unsigned(bytes, at); }
+        if sub == 8 || sub == 10 { wb_skip_leb(bytes, at); wb_skip_leb(bytes, at); }
+        else if sub == 9 || sub == 11 { wb_skip_leb(bytes, at); }
     } else if opcode == 0xfd {
         // SIMD: a memory operand, sixteen bytes, a lane, or nothing.
         let sub = wb_read_unsigned(bytes, at);
-        if sub <= 0x0b || sub == 0x5c || sub == 0x5d { wb_read_unsigned(bytes, at); wb_read_unsigned(bytes, at); }
+        if sub <= 0x0b || sub == 0x5c || sub == 0x5d { wb_skip_leb(bytes, at); wb_skip_leb(bytes, at); }
         else if sub == 0x0c || sub == 0x0d { at += 16; }
         else if sub >= 0x15 && sub <= 0x22 { at += 1; }
-        else if sub >= 0x54 && sub <= 0x5b { wb_read_unsigned(bytes, at); wb_read_unsigned(bytes, at); at += 1; }
+        else if sub >= 0x54 && sub <= 0x5b { wb_skip_leb(bytes, at); wb_skip_leb(bytes, at); at += 1; }
     }
-    return WbInstruction { start: start, end: at, opcode: opcode, index: index };
+    return -1;
 }
 fn wb_compact_body(out: u8[>..]&, locals: i64[:], code: u8[:], params: i64) {
     var instructions: WbInstruction[>..] = []; var at = 0;
-    while at < code.len { let instruction = wb_instruction(code, at); instructions.push(instruction); }
+    while at < code.len {
+        let start = at; let op = code[at] as i64; at++;
+        let index = wb_read_operands(code, at, op);
+        instructions.push(WbInstruction { start: start, end: at, opcode: op, index: index });
+    }
     // Complete instruction boundaries are mandatory: immediates can contain
     // the same bytes as local.set/get. This is the pinned writer's peephole.
     at = 0;
@@ -196,7 +200,16 @@ struct WbFrame { at: i64, looping: bool = false, conditional: bool = false, alte
 fn wb_reuse_locals(locals: i64[>..]&, code: u8[>..]&, params: i64) {
     if locals.len < 2 { return; }
     var instructions: WbInstruction[>..] = []; var at = 0;
-    while at < code.len { let instruction = wb_instruction(code, at); instructions.push(instruction); }
+    // Only control flow and non-parameter locals can change a live span.
+    // Keep instruction zero so implicit zero reads still start before any
+    // later span, even when the function opens with unrelated instructions.
+    while at < code.len {
+        let start = at; let op = code[at] as i64; at++;
+        let index = wb_read_operands(code, at, op);
+        if start == 0 || op >= 0x02 && op <= 0x05 || op >= 0x0b && op <= 0x0e || op >= 0x20 && op <= 0x22 && index >= params {
+            instructions.push(WbInstruction { start: start, end: at, opcode: op, index: index });
+        }
+    }
     let total = params + locals.len;
     var first: i64[>..] = []; var last: i64[>..] = []; var written: i64[>..] = []; var arm: i64[>..] = []; var stamp: i64[>..] = [];
     first.resize(total, -1); last.resize(total, -1); written.resize(total, 0); arm.resize(total, -1); stamp.resize(total, -1);
@@ -283,10 +296,13 @@ fn wb_reuse_locals(locals: i64[>..]&, code: u8[>..]&, params: i64) {
     var kinds: i64[>..] = []; var index_of: i64[>..] = []; index_of.resize(slot_type.len, -1); var kept: i64[>..] = [];
     for kind in slot_type { var known = false; for seen in kinds { if seen == kind { known = true; } } if !known { kinds.push(kind); } }
     for kind in kinds { for candidate, slot in slot_type { if candidate == kind { index_of[slot] = params + kept.len; kept.push(kind); } } }
-    var encoded: u8[>..] = [];
+    var encoded: u8[>..] = []; var copied = 0;
     for instruction in instructions {
-        if instruction.opcode >= 0x20 && instruction.opcode <= 0x22 && instruction.index >= params { wb_op(encoded, instruction.opcode, index_of[slot_of[instruction.index]]); }
-        else { wb_raw(encoded, code[instruction.start..instruction.end]); }
+        if instruction.opcode >= 0x20 && instruction.opcode <= 0x22 && instruction.index >= params {
+            if copied < instruction.start { wb_raw(encoded, code[copied..instruction.start]); }
+            wb_op(encoded, instruction.opcode, index_of[slot_of[instruction.index]]); copied = instruction.end;
+        }
     }
+    if copied < code.len { wb_raw(encoded, code[copied..code.len]); }
     locals.clear(); locals.append(kept); code.clear(); code.append(encoded);
 }

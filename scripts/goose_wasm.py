@@ -148,6 +148,8 @@ def build(args):
             raise RuntimeError('direct output must end in .wasm')
         if args.c_source or args.include or args.c_include_dir or args.emit_c:
             raise RuntimeError('C inputs require the native backend')
+    if args.wasm_bundled_host and args.backend != 'direct':
+        raise RuntimeError('--wasm-bundled-host requires the direct backend')
     if not 1 <= args.initial_pages <= args.maximum_pages <= 32768:
         raise RuntimeError('memory pages require 1 <= initial <= maximum <= 32768')
     output.parent.mkdir(parents=True, exist_ok=True)
@@ -167,6 +169,8 @@ def build(args):
         command = [compiler, source, '--target', target, '--stdlib', library, args.optimization,
                    '-o', artifact, '--wasm-deps', deps, '--wasm-stats', stats,
                    '--wasm-initial-pages', str(args.initial_pages), '--wasm-max-pages', str(args.maximum_pages)]
+        if args.wasm_bundled_host:
+            command.append('--wasm-bundled-host')
         if args.debug:
             command.append('--debug')
         report['frontend_ms'] = invoke(command, args.verbose)
@@ -220,6 +224,8 @@ def main():
     command.add_argument('--stdlib', type=Path)
     command.add_argument('--cc')
     command.add_argument('--debug', action='store_true')
+    command.add_argument('--wasm-bundled-host', action='store_true',
+                         help='build for the bundled Wasm host contracts')
     command.add_argument('--no-cache', action='store_true', help='all current builds compile from source')
     command.add_argument('--jobs', type=jobs_value, default=None, metavar='N|auto',
                          help='native C compiles as N program units in parallel with the runtime unit; '
