@@ -1,0 +1,56 @@
+{
+  "source": "f89ecf30aea76003e4536bcf6fa8f280efb287cc",
+  "cpu": 0,
+  "runs": [
+    {
+      "commit": "d92c4315eb6be2ba12fc8052ed5a44cc0cf27826",
+      "compiler_sha256": "fe5031bfd91f65174195321280ab2e15b3de1ed708ef89c886d01db483a79c78",
+      "argv": [
+        "/home/jacobt/src/goose-to-wasm/build/continue-2026-11-17/upstream-build/goose",
+        "build",
+        "selfhost/main.goose",
+        "--stdlib",
+        "stdlib",
+        "--cc",
+        "clang-23",
+        "--offline",
+        "-O2",
+        "-o",
+        "/home/jacobt/src/goose-to-wasm/build/wasm-copy-2026-11-18/upstream-d92c431.bin"
+      ],
+      "cwd": "/home/jacobt/src/goose-to-wasm/build/wasm-copy-2026-11-18/selfhost-chart/source",
+      "seconds": 2.876195521999989,
+      "exit_code": 1,
+      "executable_written": false,
+      "errors": 31,
+      "first_error": "selfhost/checker.goose:1195: error: cannot call check_type, which may shrink p: p.nodes[param].type_id, which the assignment writes after it, may be in p (\u00a75.1)",
+      "output_sha256": "7a75f5c09ad78b4534c2c02044a821baf8f495f0491ff25a7937f0dfdbf4eff5"
+    },
+    {
+      "commit": "ee261a4c7baf025dcb254d24103b48a6b15279e9",
+      "compiler_sha256": "90704b06e25b03093cd1f9c29f1a6bf47540ba330df1cf0fd63c3dc37593f1e2",
+      "argv": [
+        "/home/jacobt/src/goose-to-wasm/build/native-selfhost-chart-upstream/latest-build/goose",
+        "build",
+        "selfhost/main.goose",
+        "--stdlib",
+        "stdlib",
+        "--cc",
+        "clang-23",
+        "--offline",
+        "-O2",
+        "-o",
+        "/home/jacobt/src/goose-to-wasm/build/wasm-copy-2026-11-18/upstream-ee261a4.bin"
+      ],
+      "cwd": "/home/jacobt/src/goose-to-wasm/build/wasm-copy-2026-11-18/selfhost-chart/source",
+      "seconds": 2.768580619999966,
+      "exit_code": 1,
+      "executable_written": false,
+      "errors": 31,
+      "first_error": "selfhost/checker.goose:1195: error: cannot call check_type, which may shrink p: p.nodes[param].type_id, which the assignment writes after it, may be in p (\u00a75.1)",
+      "output_sha256": "7a75f5c09ad78b4534c2c02044a821baf8f495f0491ff25a7937f0dfdbf4eff5"
+    }
+  ],
+  "source_archive_sha256": "de09be9f50eca77992a4cf3eb6b9c980a6ca3ffea60f175dd49b6c5943320952",
+  "shared_log": "upstream-native.log"
+}
