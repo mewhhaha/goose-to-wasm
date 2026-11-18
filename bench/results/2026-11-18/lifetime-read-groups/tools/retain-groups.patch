@@ -1,0 +1,56 @@
+diff --git a/selfhost/checker_lifetimes.goose b/selfhost/checker_lifetimes.goose
+index 6739ef3..376c1ad 100644
+--- a/selfhost/checker_lifetimes.goose
++++ b/selfhost/checker_lifetimes.goose
+@@ -266,7 +266,7 @@ struct Lifetimes {
+     // The construct reads of the frames' summaries while `compact`, and the
+     // frames' tables of them (LifeFrame.read_table, read_cap of read_slots:
+     // an index into summary_reads or -1, by life_read_hash of the key).
+-    summary_reads: LifeReadEntry[>..]&, read_slots: i32[>..]&, read_groups: LifeReadGroup[>..]&,
++    summary_reads: LifeReadEntry[>..]&, read_slots: i32[>..]&, read_groups: LifeReadGroup[>..]&, read_group_count: i64 = 0,
+     // Chains of frames by number (life_context: a frame and its parent's chain).
+     contexts: LifeContext[>..]&, context_heads: i64[>..]&,
+     // For a chain of frames and a frame whose summary was replayed in it with
+@@ -5660,12 +5660,32 @@ recursive fn life_eval_body(p: Program&, l: Lifetimes&, node: i64, n: const Node
+     return out;
+ }
+
++// Find the exact (first read, destination chain and recursion epoch) pair.
++fn life_group_slot(l: Lifetimes&, first: i64, chain: i64) -> i64 {
++    let mask = l.read_groups.len - 1; var slot = life_mix(first, chain) & mask;
++    while l.read_groups[slot].first >= 0 {
++        if l.read_groups[slot].first as i64 == first && l.read_groups[slot].chain == chain { break; }
++        slot = (slot + 1) & mask;
++    }
++    return slot;
++}
++fn life_group_grow(l: Lifetimes&) {
++    var held: LifeReadGroup[>..] = []; held.append(l.read_groups);
++    l.read_groups.clear(); var size = 256;
++    if held.len > 0 { size = held.len * 2; }
++    l.read_groups.resize(size, LifeReadGroup {});
++    for group in held {
++        if group.first < 0 { continue; }
++        let slot = life_group_slot(l, group.first as i64, group.chain);
++        l.read_groups[slot] = group;
++    }
++}
+ // A partially replayed summary may already have offered eight consecutive
+ // reads in this chain. Appends never splice entries between existing reads.
+ // Follow the last read's current successor, including later appends.
+ fn life_replay_group(p: Program&, l: Lifetimes&, frame: i64, chain: i64, first: i64, at: i64, complete: bool&) -> i64 {
+-    if l.read_groups.len == 0 { l.read_groups.resize(4096, LifeReadGroup {}); }
+-    let slot = first & 4095; let group = l.read_groups[slot];
++    if 2 * (l.read_group_count + 1) > l.read_groups.len { life_group_grow(l); }
++    let slot = life_group_slot(l, first, chain); let group = l.read_groups[slot];
+     let version = l.frames[frame].reads_version;
+     if group.first as i64 == first && group.chain == chain && group.version == version {
+         let last = group.last as i64;
+@@ -5681,6 +5701,7 @@ fn life_replay_group(p: Program&, l: Lifetimes&, frame: i64, chain: i64, first:
+         if !life_leaf_offered(l, leaf) { offered = false; complete = false; }
+     }
+     if count == 8 && offered && l.frames[frame].reads_version == version {
++        if l.read_groups[slot].first < 0 { l.read_group_count++; }
+         l.read_groups[slot] = LifeReadGroup { first: first as i32, last: last as i32, chain: chain, version: version };
+     }
+     return read;

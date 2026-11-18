@@ -1,0 +1,87 @@
+{
+  "cpu": 3,
+  "samples": [
+    {
+      "round": 1,
+      "label": "baseline",
+      "host": "wasmtime",
+      "max_rss_kib": 483276,
+      "preparation_ns": 132964186
+    },
+    {
+      "round": 1,
+      "label": "baseline",
+      "host": "native",
+      "max_rss_kib": 336716
+    },
+    {
+      "round": 1,
+      "label": "candidate",
+      "host": "wasmtime",
+      "max_rss_kib": 528220,
+      "preparation_ns": 134196929
+    },
+    {
+      "round": 1,
+      "label": "candidate",
+      "host": "native",
+      "max_rss_kib": 376260
+    },
+    {
+      "round": 2,
+      "label": "candidate",
+      "host": "wasmtime",
+      "max_rss_kib": 528108,
+      "preparation_ns": 140071413
+    },
+    {
+      "round": 2,
+      "label": "candidate",
+      "host": "native",
+      "max_rss_kib": 376132
+    },
+    {
+      "round": 2,
+      "label": "baseline",
+      "host": "wasmtime",
+      "max_rss_kib": 483272,
+      "preparation_ns": 134551419
+    },
+    {
+      "round": 2,
+      "label": "baseline",
+      "host": "native",
+      "max_rss_kib": 336752
+    }
+  ],
+  "digest": {
+    "baseline": {
+      "compiler-native": {
+        "sha256": "5974068bf4c6e23059d1ff9714308f8b7cf75f6a285ddaa013182606b5bb6795",
+        "bytes": 7013800
+      },
+      "compiler.wasm": {
+        "sha256": "b9fd3e3718009ca54c7ce640adf9f1323a7e7dfaf1406c01d27791cfacc35787",
+        "bytes": 24508740
+      },
+      "compiler.c": {
+        "sha256": "d8931181bd54757b178182cbd874a7c79877615920b381f23b8ac303a68465e7",
+        "bytes": 49928825
+      }
+    },
+    "candidate": {
+      "compiler-native": {
+        "sha256": "c9436e5a0459c0d9cf8c930426c4953ee70059a7be58c39e06607f45cb075ef1",
+        "bytes": 7022064
+      },
+      "compiler.wasm": {
+        "sha256": "e8a7dd616af5bd6ff0af35af285a26eb2436586c0c5275299743ff1415d7cb6f",
+        "bytes": 24542854
+      },
+      "compiler.c": {
+        "sha256": "261dc82ab87ce90dcb7a25e08e6c8590c757d0dbc3a4f811c5e32b3f143c0c0a",
+        "bytes": 50488637
+      }
+    }
+  }
+}

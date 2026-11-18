@@ -1,0 +1,85 @@
+diff --git a/selfhost/checker_lifetimes.goose b/selfhost/checker_lifetimes.goose
+index 74a827c..6739ef3 100644
+--- a/selfhost/checker_lifetimes.goose
++++ b/selfhost/checker_lifetimes.goose
+@@ -207,6 +207,8 @@ struct LifeLeaf { kind: i64, node: i64, value: LifeValue, next: i64 = -1 }
+ // entries (first_summary) with each read after that one, and a replay goes
+ // through both in that order.
+ struct LifeReadEntry { key: i64, leaf: i32, seen: i32, walked: i32 = -1, sent: i32 = -1, next: i32 = -1, before: i32 = -1 }
++// Eight consecutive compact reads already offered to this chain at this version.
++struct LifeReadGroup { first: i32 = -1, last: i32 = -1, chain: i64 = -1, version: i64 = -1 }
+ // A chain of active frames: a frame, and the chain its caller was in.
+ struct LifeContext { frame: i64, parent: i64, next: i64 = -1 }
+ // A discovery effect offered up the frame chain, remembered by what the
+@@ -264,7 +266,7 @@ struct Lifetimes {
+     // The construct reads of the frames' summaries while `compact`, and the
+     // frames' tables of them (LifeFrame.read_table, read_cap of read_slots:
+     // an index into summary_reads or -1, by life_read_hash of the key).
+-    summary_reads: LifeReadEntry[>..]&, read_slots: i32[>..]&,
++    summary_reads: LifeReadEntry[>..]&, read_slots: i32[>..]&, read_groups: LifeReadGroup[>..]&,
+     // Chains of frames by number (life_context: a frame and its parent's chain).
+     contexts: LifeContext[>..]&, context_heads: i64[>..]&,
+     // For a chain of frames and a frame whose summary was replayed in it with
+@@ -5658,6 +5660,32 @@ recursive fn life_eval_body(p: Program&, l: Lifetimes&, node: i64, n: const Node
+     return out;
+ }
+
++// A partially replayed summary may already have offered eight consecutive
++// reads in this chain. Appends never splice entries between existing reads.
++// Follow the last read's current successor, including later appends.
++fn life_replay_group(p: Program&, l: Lifetimes&, frame: i64, chain: i64, first: i64, at: i64, complete: bool&) -> i64 {
++    if l.read_groups.len == 0 { l.read_groups.resize(4096, LifeReadGroup {}); }
++    let slot = first & 4095; let group = l.read_groups[slot];
++    let version = l.frames[frame].reads_version;
++    if group.first as i64 == first && group.chain == chain && group.version == version {
++        let last = group.last as i64;
++        if at < 0 || (l.summary_reads[last].before as i64) < at { return l.summary_reads[last].next as i64; }
++    }
++    var read = first; var count: i64 = 0; var last = first; var offered = true;
++    while count < 8 && read >= 0 && (at < 0 || (l.summary_reads[read].before as i64) < at) {
++        last = read; let leaf = l.summary_reads[read].leaf as i64; read = l.summary_reads[read].next as i64;
++        count++;
++        if life_leaf_offered(l, leaf) { continue; }
++        l.offer_count = 0; l.offer_recursive = false;
++        life_construct_read(p, l, l.leaves[leaf].node, l.leaves[leaf].value, leaf);
++        if !life_leaf_offered(l, leaf) { offered = false; complete = false; }
++    }
++    if count == 8 && offered && l.frames[frame].reads_version == version {
++        l.read_groups[slot] = LifeReadGroup { first: first as i32, last: last as i32, chain: chain, version: version };
++    }
++    return read;
++}
++
+ // m: for a class-keyed frame, how the call reads its class roots; an effect
+ // that names one is replayed as the call's own (life_map_set). call: the
+ // call's node, where a store that the arguments' depths forbid is reported.
+@@ -5690,9 +5718,11 @@ fn life_replay(p: Program&, l: Lifetimes&, frame: i64, summary: bool = false, m:
+     // (LifeReadEntry.before): entries are numbered as they are added, so a
+     // read comes before the first other entry with a larger number.
+     var read: i64 = -1; if summary && l.compact && !others { read = l.frames[frame].first_read; }
++    let grouped = chain >= 0 && l.compact && l.frames[frame].read_count >= 8;
+     var passed: i64 = -1; var open = false;
+     loop {
+         while read >= 0 && (at < 0 || (l.summary_reads[read].before as i64) < at) {
++            if grouped { read = life_replay_group(p, l, frame, chain, read, at, complete); continue; }
+             let leaf = l.summary_reads[read].leaf as i64; read = l.summary_reads[read].next as i64;
+             if (memo || quick) && life_leaf_offered(l, leaf) { continue; }
+             if memo { l.offer_count = 0; l.offer_recursive = false; }
+@@ -6096,7 +6126,7 @@ fn check_lifetimes(p: Program&, scope_parent: const i64[:], scope_depth: const i
+     summary_heads.resize(2 * p.nodes.len + 1, -1);
+     var summaries: LifeSummary[>..] = []; var capture_reads: i64[>..] = [];
+     var leaves: LifeLeaf[>..] = []; var leaf_heads: i64[>..] = []; var leaf_stamps: i64[>..] = []; var leaf_floors: i32[>..] = [];
+-    var summary_reads: LifeReadEntry[>..] = []; var read_slots: i32[>..] = [];
++    var read_groups: LifeReadGroup[>..] = []; var summary_reads: LifeReadEntry[>..] = []; var read_slots: i32[>..] = [];
+     // (Chain 0 is frame 0's, the globals'.)
+     var contexts: LifeContext[>..] = [LifeContext { frame: 0, parent: -1 }]; var context_heads: i64[>..] = [];
+     var chain_replays: i64[>..] = []; var chain_versions: i64[>..] = [];
+@@ -6124,7 +6154,7 @@ fn check_lifetimes(p: Program&, scope_parent: const i64[:], scope_depth: const i
+     var class_slots: i64[>..] = []; var joins: LifeJoin[>..] = []; var global_cells: i64[>..] = []; var global_candidates: LifeGlobalCandidates[>..] = []; var candidate_alts: LifeAlt[>..] = [];
+     var l = Lifetimes { parents: scope_parent, depths: scope_depth, functions: scope_functions,
+         roots: roots, sets: sets, alts: alts, cells: cells, frames: frames, items: items, pairs: pairs, pair_heads: pair_heads, exits: exits,
+-        futures: futures, holds: holds, temps: temps, reads: reads, kills: kills, size_classes: size_classes, holder_starts: holder_starts, holder_counts: holder_counts, holder_refs: holder_refs, index_types: index_types, asked: asked, atoms: atoms, failures: failures, effects: effects, symbol_cells: symbol_cells, node_roots: node_roots, function_frames: function_frames, read_heads: read_heads, visited: visited, summary_heads: summary_heads, effect_heads: effect_heads, summaries: summaries, leaves: leaves, leaf_heads: leaf_heads, leaf_stamps: leaf_stamps, leaf_floors: leaf_floors, summary_reads: summary_reads, read_slots: read_slots, contexts: contexts, context_heads: context_heads, chain_replays: chain_replays, chain_versions: chain_versions, capture_reads: capture_reads, offers: offers, global_read_spans: global_read_spans, global_read_list: global_read_list,
++        futures: futures, holds: holds, temps: temps, reads: reads, kills: kills, size_classes: size_classes, holder_starts: holder_starts, holder_counts: holder_counts, holder_refs: holder_refs, index_types: index_types, asked: asked, atoms: atoms, failures: failures, effects: effects, symbol_cells: symbol_cells, node_roots: node_roots, function_frames: function_frames, read_heads: read_heads, visited: visited, summary_heads: summary_heads, effect_heads: effect_heads, summaries: summaries, leaves: leaves, leaf_heads: leaf_heads, leaf_stamps: leaf_stamps, leaf_floors: leaf_floors, summary_reads: summary_reads, read_slots: read_slots, read_groups: read_groups, contexts: contexts, context_heads: context_heads, chain_replays: chain_replays, chain_versions: chain_versions, capture_reads: capture_reads, offers: offers, global_read_spans: global_read_spans, global_read_list: global_read_list,
+         bodies: bodies, body_slots: body_slots, body_globals: body_globals, body_calls: body_calls,
+         build_alts: build_alts, build_slots: build_slots, set_index: set_index, scratch: scratch,
+         list_slots: list_slots, list_sets: list_sets, list_keys: list_keys, atom_slots: atom_slots, cell_keys: cell_keys, contains_pointee: contains_pointee, contains_answer: contains_answer,
