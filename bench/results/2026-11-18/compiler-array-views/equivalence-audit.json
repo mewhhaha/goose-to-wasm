@@ -1,0 +1,2260 @@
+{
+  "compared": 10057,
+  "changed_wasm": 450,
+  "total_changed_module_bytes": {
+    "baseline": 8728818,
+    "candidate": 7403181
+  },
+  "matching_interfaces": [
+    {
+      "source": "tests/fixtures/packed_copy_empty.goose",
+      "baseline": "f717eb98099884737c721d64ac3ca3b51d406a8c043a2aa7610f6c01ddf1ba96",
+      "candidate": "cac501d8fc921513d6b897aab7bf9efb584b58768fc5eb7230f9b38548a98f5a"
+    },
+    {
+      "source": "tests/fixtures/codegen_strip.goose",
+      "baseline": "c630e79b2b5e69522fd551e5aa3deeddc4d4c94d2f4b592dcb49e7cd20de1651",
+      "candidate": "8eef7704142011eb1c57fdf3edaa849ec15417a2a7efa3f075f6c7526dfeea68"
+    },
+    {
+      "source": "tests/fixtures/codegen_bit_fold.goose",
+      "baseline": "951c440e267cbc9d6bf128e281468be253cf1f0a5cffc7020f32e2fb4fc7c5fb",
+      "candidate": "861a88e10fe3f1bb1897eef1c107b0121c8f03dff0666b89641ddca6d40ca6c4"
+    },
+    {
+      "source": "tests/fixtures/codegen_fill.goose",
+      "baseline": "465c571aeaa6ef9871f8087cbd96b6bcc8e77753a471970c0fc7a7bd8b8440ee",
+      "candidate": "d8f9cdee0b7562be2056c8e91b2d43df8601a1f60140932f66a1ada774f1649d"
+    },
+    {
+      "source": "tests/fixtures/while_slice_unroll.goose",
+      "baseline": "e3e890130fd2a7c05e6f6f6a9319c2a1b0616dab3655866c41fdbefc3dbdac3e",
+      "candidate": "3bc0f366b853492d2f3b156f8a5a5db5831d1259bb85c57b1b7bafd5b7a1ba91"
+    },
+    {
+      "source": "tests/fixtures/codegen_aliases.goose",
+      "baseline": "81bb6be53de4c3e46344c15f0c97d7ebf6aebd1b7450c705f573760bda3026d7",
+      "candidate": "fbeaec135d2e9956f4ec3efe04675b905caeffa16fc6949317e160be49955468"
+    },
+    {
+      "source": "tests/fixtures/codegen_loops.goose",
+      "baseline": "4bf0e80ed3b370919c174dff8db80b9a829d8617b6fb8032870a49065d214d27",
+      "candidate": "edd49f2d6a066de02c1f6b1fb29fe923b8fb82f13bc6d39951833bfd244330f8"
+    },
+    {
+      "source": "tests/fixtures/codegen_kernel_calls.goose",
+      "baseline": "e7ac79562ceddd918d3bc149fe1401a8300d59cb5005d939bc4eddc20f03a23f",
+      "candidate": "89e81baca9ebc897201619a172c894fe71d891c333795a1a1619da440d57336c"
+    },
+    {
+      "source": "tests/fixtures/aggregate_print_array_snapshot.goose",
+      "baseline": "3c717af31ec86c65fc21ee906ca896b8af7045d34c5c19c5adbba06c78bb3b9c",
+      "candidate": "d13ce8b35dc0a297022539178b551948f4b93aea0477b6cc8a7eb7bc69521914"
+    },
+    {
+      "source": "tests/fixtures/aggregate_print_arrays.goose",
+      "baseline": "e5b1c6fbe80bc14c1dce2158464e8aaf44cf1f8eb7cfa691483d0acf0f0716f4",
+      "candidate": "311d5166788db203df4de083eaea3e9c975490daaeee2eb1c71df09f7607751e"
+    },
+    {
+      "source": "tests/fixtures/aggregate_print_enum_arrays.goose",
+      "baseline": "dda0310a51e60eb9dc0afe93d3f8ed9f487059c947e8897d959db4c9e4e506b3",
+      "candidate": "09b1da5a540cbbb931ba5b0ed22ff17b5638b28f1cd02a21c23180f1ac4a96e3"
+    },
+    {
+      "source": "tests/fixtures/aggregate_print_enum_snapshot.goose",
+      "baseline": "b2178cbee88bf0792d0c5712b0a08f88d8a4d9b38956ffdc5b1ea0fe64a90296",
+      "candidate": "0c2aaa79576c5a57c6210f835f4b86c0bb1baae5266db71401dbfa4b0f482da3"
+    },
+    {
+      "source": "tests/fixtures/aggregate_print_nested.goose",
+      "baseline": "18806ffaeaf7fa3e7949fb88409dc62e52d624920adefa19b2bd59ed7d58b836",
+      "candidate": "6e8697f94b77c11f65aec2cf904b5facea75fbefd1496e8f99e012800bfde9d6"
+    },
+    {
+      "source": "tests/fixtures/aggregate_print_padding.goose",
+      "baseline": "bcb74680be80b5bf96348e0bb4aae2978c7010bfd54afe9e4b5b7127abd8d19f",
+      "candidate": "8c1a7880c9b976f86e3a3efdc2668cd4e7bf95384601b90d0ca85994e7f3ab8a"
+    },
+    {
+      "source": "tests/fixtures/aggregate_print_parameters.goose",
+      "baseline": "f73bd731a17781caf22927f8db4f614f698d67e06a4ab426171d9baa9bbb5ebf",
+      "candidate": "015d3a7dc8ec2cd14c53f05758e46eb15431f48d626ced2e18b97eab9ced34cc"
+    },
+    {
+      "source": "tests/fixtures/aggregate_print_quoted_bytes.goose",
+      "baseline": "1bef0a02f4eaf0161d9b03c8c54f3a7ec7dceb07d3c0e950c5bb2351c15c6e5b",
+      "candidate": "6493e6995f22227d81826840660138bae4902132b673e49ea6ab10d63e93c8ce"
+    },
+    {
+      "source": "tests/fixtures/aggregate_print_records.goose",
+      "baseline": "c5c08eeed6057d93db4c13643c4bb7bf712b26335ed26d8ee1ede47ef3e24efb",
+      "candidate": "a480961c45c21f62e84facb3acb1d1f7afb8afdb034cc94a0034d90c98ea511b"
+    },
+    {
+      "source": "tests/fixtures/aggregate_print_snapshots.goose",
+      "baseline": "8aa9a51cd2c622c09fe2b315954fd237d29dc643313b213a67cd776f5155d586",
+      "candidate": "c97b22ef6606e6ae4e5e03e02766951c38fb576155600a6588048ec7f17e0eb4"
+    },
+    {
+      "source": "tests/fixtures/aggregate_print_static_limited.goose",
+      "baseline": "41f9fe3db6fac22d099e4ccdb48f498d67e06548dec221087f1e727ea5f2fc99",
+      "candidate": "dcd72bc114fc279588b95044a4761a1f7d72a3cd0dc6b6a0dde8385edd69ca7d"
+    },
+    {
+      "source": "tests/fixtures/aggregate_print_variants.goose",
+      "baseline": "ab8251d0d56e9d00be56121315875fa92c3b84a6df20a8bfbd41622bf731e851",
+      "candidate": "ab8250a2ca9886e35f169f97757941487aba09d51ded0bc0c23d9db13c8fbac7"
+    },
+    {
+      "source": "tests/fixtures/aggregate_print_wide_enum.goose",
+      "baseline": "f175a7b8749334d0753b3fcabb01ac8fa7acfb5851c8ede198aac693e10a9e74",
+      "candidate": "d6a04eff38e8b77974c1385b6a0c84ce71b47fa1bd7dcfc0b8153e94317f3984"
+    },
+    {
+      "source": "tests/fixtures/encoded_record_tail_aliases.goose",
+      "baseline": "05f91b1e7b93d7bba49232a0835606533c293878fc94d94acc19a1ac7a80ce80",
+      "candidate": "b98f64d68e33a9c3274d98fefe14c982f4559e620033f23d2723013c8551b53d"
+    },
+    {
+      "source": "tests/fixtures/combined_varint_cancellation.goose",
+      "baseline": "941f92054e54664c3296fb7ca1d51675abec84bb6ee7dabc0b2445a50b9f9e6a",
+      "candidate": "7eae51b7c5e497a3be71ce5734988eb73f3f0106990b10bff9d52aec7d0de48e"
+    },
+    {
+      "source": "tests/fixtures/combined_varint_channels.goose",
+      "baseline": "57812677c01e9d358a6c107272e7b2eed5790beabc19635f6057d6048ad77f97",
+      "candidate": "e39d08685cbb5404d570a2930b982d4d1f663cab171649a59972c17d472b28ce"
+    },
+    {
+      "source": "tests/fixtures/combined_varint_fv_append_cancel.goose",
+      "baseline": "99526dd9f54c22b8d5d2d64cf52d3bf42434904779c1a10bbcccb4e7cddc1db5",
+      "candidate": "9b9da0b2268cf364d50806816c6fefb7e85c6129de1323f35c9c031600afdcc5"
+    },
+    {
+      "source": "tests/fixtures/combined_varint_fv_owned.goose",
+      "baseline": "381faa8b812501d5d41198d561dd2fc113716cef2f2d2bc3bec72a99d11760e9",
+      "candidate": "927934abf7c04e86177235d358238bc33f5f63bbdf14fb430db96e2a94ec0908"
+    },
+    {
+      "source": "tests/fixtures/combined_varint_grow_roundtrip.goose",
+      "baseline": "641b465f9dde36d489887b078a58fe5a7b7bbcb155cb265c1a0132d63c5a0909",
+      "candidate": "730d122f9ccc65d8d9e6d12ff6c9319de88484619fa1dffcffe4e14a350198d2"
+    },
+    {
+      "source": "tests/fixtures/combined_varint_literal_fill.goose",
+      "baseline": "e8136eaee8b394c588853cbc26b40bea6c2d3a3eaebfea383051fc785487f6bb",
+      "candidate": "78d8cc13fb563242dac0d6d7c896b45ec5ec431f1f11d2b23e78f2e201e39e6f"
+    },
+    {
+      "source": "tests/fixtures/combined_varint_named_replacement.goose",
+      "baseline": "5b87d558643a67355f46788111d445b8c02fc63759bc80a2477fa454c984136b",
+      "candidate": "477de5e1e3eb2e65e423837f4c2651a0ed17aacafa26f8f3f3a6af400c6486f8"
+    },
+    {
+      "source": "tests/fixtures/combined_varint_nrvo.goose",
+      "baseline": "5fa32bcbbc832fa9ee7cc3f598333f4c867958a92d156e27caf760286d290712",
+      "candidate": "e541b34709905ba4129b54b9c161df6184c84672a655053f56c170b1cb1e0540"
+    },
+    {
+      "source": "tests/fixtures/combined_varint_slice_constructor.goose",
+      "baseline": "c91247f3711c5c89ffa04dcf29323b73f074b9a3ab7236ef7330b13bf7fe54b3",
+      "candidate": "1ae1d9e2e43b6a27e8daf80e7cc6321e672fbe265c376ff94cd5d8401744bbca"
+    },
+    {
+      "source": "tests/fixtures/combined_varint_views.goose",
+      "baseline": "c1c92116a26a99a4060a348255886e6f22c692f2bd4d51bdebd113b7484247fd",
+      "candidate": "bb01b10f0fd11bc4fe23809884c65846b27b9983a722fadd0a1e841d893f7d17"
+    },
+    {
+      "source": "tests/fixtures/uleb_length_er_channels.goose",
+      "baseline": "60e00cf86178828ba12a86df5278e9a3ea711bdb86d8346d5c2a808fe6937dfe",
+      "candidate": "dec399abd63d87d2145c07467e9ddb50f3ee16da7f452691321006b8eae2831f"
+    },
+    {
+      "source": "tests/fixtures/uleb_length_nrvo.goose",
+      "baseline": "2c70092bee85089d095494340fae1d3b3c0ea6e79fe7a70a61c4fc090c03b964",
+      "candidate": "e7fc9f5f5b712e2f302b8c340db14cec307c7f8f2a70ec12b786cd01908c8420"
+    },
+    {
+      "source": "tests/fixtures/uleb_length_tuple.goose",
+      "baseline": "c6e29ed1b033cd6c338ceb47373cd9cad122c849b105875075c8ed4288603f6f",
+      "candidate": "0a7a7dcff0f140b8a1f60ebb7392bcaf7533c507bbb17acc80d16ec57c99482c"
+    },
+    {
+      "source": "tests/fixtures/uleb_length_value_dispatch.goose",
+      "baseline": "0f11a51a1396d26d1972a235481e8edeed435282a247fabc6bb5ace8e94fbe2d",
+      "candidate": "11938ea5258fff5e1718602d4a0875cf4b637b3a773295d0321d4f2aebee0c76"
+    },
+    {
+      "source": "tests/fixtures/uleb_length_forward_strings.goose",
+      "baseline": "5d19624ace65069cf511a5304d967c28de616ffda7c2fc0c19fc51d2f622e03f",
+      "candidate": "43517f1155e3f9f4fbd8868a37d9caf7980b48a365b4ad94a301de2e94cda5d4"
+    },
+    {
+      "source": "tests/fixtures/uleb_length_packed_elements.goose",
+      "baseline": "8d0f18c2ed7dc4d1c6ce31ec6e4f83201d6a2e12acccfb245cce479a62aacf49",
+      "candidate": "f765d5778cec62d99efc32c2a82754a38c37f0c9c51cdb0b2bf177e48135df2f"
+    },
+    {
+      "source": "tests/fixtures/varint_grow_basics.goose",
+      "baseline": "1eafccc3ea8cb35535d640dd256e6ec5a472f06bb7aab6dcbb0b0cd390c3e05a",
+      "candidate": "55d52bfe53ee1f86b3e58da0659a9afa97124c0ec824d7aa5b74a5e1799e8900"
+    },
+    {
+      "source": "tests/fixtures/varint_grow_selfappend.goose",
+      "baseline": "7aa35169d3cb89e738008fbb7d4bc002c88a467aaf72188dd590e741377407ca",
+      "candidate": "b53110b884f2a516ddfe5208bc757113624cb7bea814a66b0c07b3a34321f0d8"
+    },
+    {
+      "source": "tests/fixtures/varint_grow_clear_assign.goose",
+      "baseline": "5c6446e5721098ce62f6540f1d099df6ef442eaefda354cd5165da02c5df161a",
+      "candidate": "0be53a227f6dabeed7656e2e0edbd9e463eae512061d80b9fec80c81d154f136"
+    },
+    {
+      "source": "tests/fixtures/varint_grow_channels.goose",
+      "baseline": "8fc5e40ccddd346b0418cc3bb0f27dead01f3504bf37485418c593a86c2d439a",
+      "candidate": "4bec5102a2db914e1fa165aa8f2453457d9fcc6e8f527100f0979d8b47ed1252"
+    },
+    {
+      "source": "tests/fixtures/varint_grow_loops.goose",
+      "baseline": "0ba3d88050486a74a46ecbedb888d86895bf7ce5a9c76eb10fd0859a83d81be5",
+      "candidate": "dbae152baeb91b3442c633ae86edd3ba7a458ad8a3df65217c8bee5ebf8948a2"
+    },
+    {
+      "source": "tests/fixtures/varint_grow_append_cancel.goose",
+      "baseline": "c5b03f446aea9b79fdcf6efe9a56aceb6e77a345bfac4dc6804e71be5b568289",
+      "candidate": "fe72747b095e5ee8057cccf81c369bac679b70b2af0e2e67a7d133c38311a902"
+    },
+    {
+      "source": "tests/fixtures/varint_grow_append_call_cancel.goose",
+      "baseline": "0240768d3618df2434b9feee49316eed273e2c0f6999b460ab2b70691128a453",
+      "candidate": "691ce542d5e7f3aa04babdc31760c7281285592d8d29b0f2c810bd461b7c61e8"
+    },
+    {
+      "source": "tests/fixtures/varint_grow_assignment_cancel.goose",
+      "baseline": "1903b399a1881d87178e9345c5b4c17c5681cca6a74fc420e310dbb8825080e6",
+      "candidate": "74d4fe68a1b6f006ca63bcb5cd286c1faa30d16fea934a3f4d64800765039cbc"
+    },
+    {
+      "source": "tests/fixtures/varint_grow_push_effects.goose",
+      "baseline": "373dff812b7e4da6936c4c4fd6350a24f01c3be5fd6e7e8e91481574fa093b40",
+      "candidate": "6cf827c9ffae50e7c785f4431d635dbe3cc57c06a22653f45d4a66766b7172e9"
+    },
+    {
+      "source": "tests/fixtures/varint_grow_append_fill_once.goose",
+      "baseline": "71719952f40ce4779022e29c6c4717877d6ecf23963aab80de72f83425c68538",
+      "candidate": "686149532d90eb30501ea5bebd4d7295bc8bd9f30b06c2edec19be95462a9cf3"
+    },
+    {
+      "source": "tests/fixtures/varint_grow_parameters.goose",
+      "baseline": "99bb78fd07fde0f008051fd10b992654a79d3beba7bbc597d6c241bd65863c0f",
+      "candidate": "c389387b40d58a3744437c72b8ba9a5ea31384988422d2d4eb2cd78daf267c45"
+    },
+    {
+      "source": "tests/fixtures/varint_grow_dispatch.goose",
+      "baseline": "a412a3c8e86ead017e897310f8ec65ad13275014e668fb6c94c38248d57b598a",
+      "candidate": "a367b2479756a962a1eaa0c1e7a369646d3a3bc6d94dddd45f2d4a4dacc0872a"
+    },
+    {
+      "source": "tests/fixtures/varint_grow_cleanup.goose",
+      "baseline": "e497ebfc761ead72f564971516f5da73cc41196874532822475f18701f81466c",
+      "candidate": "aab2807b077696528fa76cf8e28dc5f3c6c2c08ce956e7b25a69d69cf53fde60"
+    },
+    {
+      "source": "tests/fixtures/varint_grow_recursive_append.goose",
+      "baseline": "e70f2f42eb2eca4a2329d40c38fbc30a11a3f957c6fd5050795785da84392929",
+      "candidate": "3b1ad6b3d455b3702ad0cf7264e013c5cd1ca0f3b8a2d9e29da748f9e11161af"
+    },
+    {
+      "source": "tests/fixtures/varint_grow_fv_append_cancel.goose",
+      "baseline": "abbcc06c33dcfb79d7332e9ad49c560f1fe3c75827ffade5388dd4556a877bab",
+      "candidate": "1a04a84a1073862b21dc2282af06301e7d612add21f3011becdc43865f005b34"
+    },
+    {
+      "source": "tests/fixtures/varint_array_literal_fill.goose",
+      "baseline": "adbb27f0f186680b3082f3a8e5c4621c7667c07bdd516dd3d51520fee004f52f",
+      "candidate": "0741bc1821ee3ccf32fa9c1fd238c130cc349d17bc1463e929ca507b1c28e003"
+    },
+    {
+      "source": "tests/fixtures/varint_array_channels.goose",
+      "baseline": "fea6090e48edea80cf206683ee17568bdb4250563eeedb2700a2a0b0d17e7ec9",
+      "candidate": "e51ee7e5599da87cfa7aefd2d15495192acc5233a6ae5fc2b97f859616ecc362"
+    },
+    {
+      "source": "tests/fixtures/varint_array_views.goose",
+      "baseline": "7c1217709f2ae654e2514efe28dd458428ca874d24d6a2da1af996ce39258888",
+      "candidate": "48a7c94aeda5f8b8904e305a5bc9afe131884e9092700134f6d109cba09eaf5e"
+    },
+    {
+      "source": "tests/fixtures/varint_array_cancellation.goose",
+      "baseline": "93f2a863b8030c7c224a305737797e4bee1f2bcee5a44bf25dac35e56023c607",
+      "candidate": "a196215ea721a97061656491aa170e747c1bccccb5261f7f672b6036ecf70ea6"
+    },
+    {
+      "source": "tests/fixtures/varint_array_slice_constructor.goose",
+      "baseline": "0d3b0457f30d305e5e162b7cb750e62e24e9cd643ff2d4444c6d9c9ab168b4ce",
+      "candidate": "7ba8754a16a4e4deb4c69f853144662090625a16ad24e57c8d36840dd8a26060"
+    },
+    {
+      "source": "tests/fixtures/varint_array_fv_owned.goose",
+      "baseline": "193003b1b65f815fbb13576ee5501b756e17557720d580ed26fe8ea7e48729a0",
+      "candidate": "7c733454165f8adfb8ee301581523e9a063f7d137f1a1e833ffb1cd9a293dafc"
+    },
+    {
+      "source": "tests/fixtures/varint_array_named_replacement.goose",
+      "baseline": "0034dd10b37bbabeeed3d4090a82cd562900f05b4396cf44cf1e978442a2690c",
+      "candidate": "1accde19643b907050791a6140e8d9a1294d07bc2600bb798827cef12908e6cb"
+    },
+    {
+      "source": "tests/fixtures/compact_limited_values.goose",
+      "baseline": "2c450da7f93eeafc723dd03d8d4553d9f2263ececa05b7e1471a2d842bea1a54",
+      "candidate": "f93df6575ee081b4ac9f28bdba9058b4092910540bbc23118f979fdd3e35441d"
+    },
+    {
+      "source": "tests/fixtures/nonlocal_enum_sparse.goose",
+      "baseline": "98c843654d513c75a24c2b4aff95758a421e860a77eb88f8e524abe253c83c34",
+      "candidate": "2862fa5f85ccc8f4a666c4e92fab245a7b424eefef1208b7fa9d0d0bda1787e8"
+    },
+    {
+      "source": "tests/fixtures/enum_image_views.goose",
+      "baseline": "594617acb380d5a30eda2ab3a2ed08623f19ae5498c9df25d5a6b2629aee20ac",
+      "candidate": "dff3d706baa99f6fc1e4ec420f01611f002f38b96c631cb9eb7a560f923e1da7"
+    },
+    {
+      "source": "tests/fixtures/enum_image_forwarding.goose",
+      "baseline": "0760f1caf46ac08798cca4d47e5da745e16faca7d32ffd42b0e804bab03c8ca7",
+      "candidate": "e1de7cc8021c14f3c5c2180484a3ab42d53ed4292677d5a9aabbd3dcd04be1aa"
+    },
+    {
+      "source": "tests/fixtures/enum_image_inline_variable.goose",
+      "baseline": "bd5bd25e4cf7c5399781cfff0adea05f4484b03ec247e002b812c2dcfa733d9d",
+      "candidate": "607cc25c3fed7e919a2eb0707dca3ba81f6bab248861d0ed672ce59e5722d2e8"
+    },
+    {
+      "source": "tests/fixtures/nonlocal_record_tails.goose",
+      "baseline": "7e361201296718439ed4ba16e88dfca2128043dc1fa5e05686b644d76b666f84",
+      "candidate": "a2b080326852c5297f0949d3cfebe2ff870da58a7e205df2ceea77689b40a667"
+    },
+    {
+      "source": "tests/fixtures/nonlocal_record_multiple.goose",
+      "baseline": "86cdfa1724be486e59b4d6d22907bc643e5977501d85ccfe19b4afe1c8bd3a16",
+      "candidate": "9015d01e39c6025228376ac2578da99a5782c8de7fe0e3104d556dc2a585c6aa"
+    },
+    {
+      "source": "tests/fixtures/nonlocal_record_sparse.goose",
+      "baseline": "b022a097729ab3c090c599108a79be9d85cb136ed578fb3416545383ad36af16",
+      "candidate": "da250d7215ae57add5af0e7c76704dc8fb20b9b51357360e9f284a6af6b4560d"
+    },
+    {
+      "source": "tests/fixtures/nonlocal_record_forwarding_pair.goose",
+      "baseline": "e434d9cb7fef3df0ebe6bd9f0db511b99d89b971d227726301f1da91364a8d17",
+      "candidate": "05571f1e9534511e745341a6f5404077a6fdf5c71ccb3b4e720b10cf3124ca68"
+    },
+    {
+      "source": "tests/fixtures/nonlocal_record_forwarding_limited.goose",
+      "baseline": "33e9d88918eb224d6c646157e3cbe83fdc358c6947a0c1aaf70435a1153eb9ee",
+      "candidate": "2b27d48315f0336fee06df2081f82979abeb8279e2a4945d9654bb767bdfe118"
+    },
+    {
+      "source": "tests/fixtures/record_image_aliases.goose",
+      "baseline": "c31ecbe1dec05f65299525c77e919db31f59160b3a523003acb653fbe64eb650",
+      "candidate": "75f68813650f3534f231699864f51b97a01a0585a786d971348b3f0a9d9d92a4"
+    },
+    {
+      "source": "tests/fixtures/record_image_sparse.goose",
+      "baseline": "a0cfcbb3d3379dac5b549f77c4bc2d46c827e14bd96c1eb781afd4e42c6016a2",
+      "candidate": "ba0a343b46a9567b17fb19067fac84042157fced882e0823c4b697a963e21ec0"
+    },
+    {
+      "source": "tests/fixtures/nonlocal_image_sparse_extent.goose",
+      "baseline": "93b72af7e09e969ce41f861bcf2faddd72ab904dc4405dd7e864e40ddb3c521e",
+      "candidate": "9aa1a00dda31158819b5ca4a1d5b16bb8b618dcc7735340bc1ad80b55bff61dc"
+    },
+    {
+      "source": "tests/fixtures/nonlocal_packed_images.goose",
+      "baseline": "3351c8dfef80f507c1f0694c87b748b23e4be33458807413b84e8e1427b43440",
+      "candidate": "40c6ae796be15e24dc5a246b897360d4703a094807d64aec22f42c90409a5b20"
+    },
+    {
+      "source": "tests/fixtures/nonlocal_packed_canceled.goose",
+      "baseline": "5821f5121d3af4cb21d70c379bcd6740d3597e2644db9c64587b091b978bfbcc",
+      "candidate": "eeb9d75cbc77283e8e8973cdb083f6e34297cf6e3e79808fe916183e2f91a476"
+    },
+    {
+      "source": "tests/fixtures/nonlocal_packed_multiple.goose",
+      "baseline": "96415b0a183f25cd7a990a271bff914a5a7a2ad401393bca8c87c521ba6db63b",
+      "candidate": "16a7cd2bce644149d9c336164f810d9a809297255b0d4aba3bbf1603f688d1d6"
+    },
+    {
+      "source": "tests/fixtures/nonlocal_packed_arguments.goose",
+      "baseline": "b284efd72df0ae3f07370266ff6063c7d8eab90ed48d5653f04b257dedb05b1d",
+      "candidate": "065a4a29b45aae272959f477d8ca2ad316ccf5b32f646d1aae4def06c87c85a1"
+    },
+    {
+      "source": "tests/fixtures/nonlocal_image_forwarded.goose",
+      "baseline": "2d0837589c90dcec36905860f4ce3653e70ef4997f1eca56ccba636f8ddac03b",
+      "candidate": "a7582add4de44124852073ee1c5919f16ca752eeb09fbfa04f69a57bf0e1d6b2"
+    },
+    {
+      "source": "tests/fixtures/nonlocal_image_forwarding_limited.goose",
+      "baseline": "5af1eab42c4435289289a58e94a3a8f627cb2c0a5fd243a2d3ad8740065ddeee",
+      "candidate": "0634022c993af438398a6dbb26dbecc0f96915c2380da15e0c2d92f0275b60a0"
+    },
+    {
+      "source": "tests/fixtures/nonlocal_image_scalars.goose",
+      "baseline": "b2d441be80ee71d6cef284c6b1a3447ac28eb822453bdb3af09ed1fbf40b1864",
+      "candidate": "c560b52f5148852dfa6403358f35cf48f7795d707a173099db9c10c496a8abab"
+    },
+    {
+      "source": "tests/fixtures/nonlocal_image_all_starts.goose",
+      "baseline": "43aeb3dc9acdbd2a38e412ba511d4654ee0a1d04755c0d69c2a725e10230bbe0",
+      "candidate": "26fc6dea150abd03f0689c78e5afcedae0dd089c474fc721cd9c0e70cafaeec6"
+    },
+    {
+      "source": "tests/fixtures/nonlocal_image_arrays.goose",
+      "baseline": "7c35e2513ff0c0e57180bd85c226afeae77ae4a492f8a9c87a8c9a6def456709",
+      "candidate": "319688fd513c4eeadb097621095f8ed535513f21acd33fd890834e74346e496d"
+    },
+    {
+      "source": "tests/fixtures/nonlocal_image_canceled.goose",
+      "baseline": "6c756889101292264ae747cd28502a327c16190b3e23fcf4ee45ca4e4d7419d9",
+      "candidate": "931ce25421626e01f583e6da151d074d85820bb9b326b05347413e3763baa5ed"
+    },
+    {
+      "source": "tests/fixtures/nonlocal_image_multiple.goose",
+      "baseline": "71b807b3e0425bfd11b0762a74124c10938536b90a194116ccbf719c1603812f",
+      "candidate": "c7f806c0784c7abc8fe5e54ffec1a6b9788f16e910f0c1e7e3d45af45d13faba"
+    },
+    {
+      "source": "tests/fixtures/nonlocal_image_argument_order.goose",
+      "baseline": "0caa8c994add2fbc2675d06e7407974516a662cd4ebf7ad2514fa0a89bb5b0f0",
+      "candidate": "176e86c657976052264fcf68cefd838a80bccbfd7a1b51eb394f579a76408f44"
+    },
+    {
+      "source": "tests/fixtures/array_image_construction.goose",
+      "baseline": "124ab4021ef3217e6a9cc9b48fb429012a1741d0bc4da95c6a4ce22ca13d5934",
+      "candidate": "367955bb96da9a509ba27b45fe9e13aef623a947c3df0426449af5b7187ee6c6"
+    },
+    {
+      "source": "tests/fixtures/nonlocal_fixed_paths.goose",
+      "baseline": "95764486f95fd7954b58784640fc7fe978a5c8c7cb46e38515c727540658d2fb",
+      "candidate": "363a4b50de91b1e202df1a1e16b24d01ce81d3e69cba221e1d8dbef72dc70cb8"
+    },
+    {
+      "source": "tests/fixtures/nonlocal_owned_nested_break.goose",
+      "baseline": "ae3633284d74dc1ec38df21c1086cf0daf13e2eeac4f85d9cb1c5b99259f9616",
+      "candidate": "06b24ec5d50589838e268c4af68d7997db44672d0028a16e77b45619c7bbe912"
+    },
+    {
+      "source": "tests/fixtures/nonlocal_owned_inline_outer.goose",
+      "baseline": "417333c738571caf20215e21b8accc7486a074b6b5b19575f8db2158cb161fca",
+      "candidate": "a61dfcc4e7f6a0ecba82838ae4e22e8e65f69c959a636f96d4a0e4ef1ea38ad4"
+    },
+    {
+      "source": "tests/fixtures/nonlocal_owned_canceled_copy.goose",
+      "baseline": "0f5a5ba3e04ff51a39c1dfcf2f5445fa535ee3640f8b4d6618c0ed34490e1412",
+      "candidate": "c495bda82d203d5d8c4e9314d2a6e53de3782b2b27b2195c3de0774f3bdb4cd8"
+    },
+    {
+      "source": "tests/fixtures/nonlocal_owned_canceled_forward.goose",
+      "baseline": "a13f5c5539888c6916309f138f0dd2ad07b968041835b2f7f1c8731e536b7c9b",
+      "candidate": "c5acd01eb9ce19e7889bec9e7a60f945886264c2910bfa66beb2039e64efc041"
+    },
+    {
+      "source": "tests/fixtures/nonlocal_owned_canceled_named.goose",
+      "baseline": "ebcd4c5a537fe8661f28561447a3b406dfec2f4143db760af16a37d6da83d6d5",
+      "candidate": "3af2bd00c7e12a3d5ec64b5a3a106d909c86e03cae59b4f75f7d9da0964a2297"
+    },
+    {
+      "source": "tests/fixtures/nonlocal_owned_canceled_normal.goose",
+      "baseline": "7a33e87b98dd6c642d12b0d8eca5c8c8885b9c57b8eada0b878d93a60089e132",
+      "candidate": "c1c08d180c9c34388303bf5a7852c8f41f790ff179b8c5a93063de7c090fbbbd"
+    },
+    {
+      "source": "tests/fixtures/nonlocal_owned_publish_grow.goose",
+      "baseline": "b31ebdafea97d359bea39d65446c14a72c091cf97e59645bd675e9c7871ce8d6",
+      "candidate": "5839755904e390af37f4eabd607e885a51d74ed01361f08eed0e142261a2f387"
+    },
+    {
+      "source": "tests/fixtures/nonlocal_owned_publish_er.goose",
+      "baseline": "883fcf35808c0d0f185a07cc685596b5c2005c3660021aad6120ab77cab9fe01",
+      "candidate": "04f5d0851c0459ca0431b1e906dccfd8f7a13beae65b1bc1686fd5830e67fa30"
+    },
+    {
+      "source": "tests/fixtures/nonlocal_owned_publish_er_u8.goose",
+      "baseline": "0dcb7af792b0e529adfbb67a666f8a2013889ce6d3ccd2fe2ab92d2f12aa9ead",
+      "candidate": "551f71f2b387bda340cacae16e4621051f7fe1fde5b1009d1443d247104b8029"
+    },
+    {
+      "source": "tests/fixtures/nonlocal_owned_frame_forward.goose",
+      "baseline": "da1216c1a2ac8cf3da31e762661c9b8eb083aa261875e8797428c4560890111c",
+      "candidate": "639afe06ecd2e9859b196dc2221dea37a7538c1a0913aed4908b29f4bf0ee1e3"
+    },
+    {
+      "source": "tests/fixtures/nonlocal_owned_var_record_forward.goose",
+      "baseline": "4c450d90e2c0674193d856a37c4caaf6ba344bc25ebe5355e1fa15d656db1a4d",
+      "candidate": "0eaef92bee679ca4327455cb2517ba72f6d1154c8e1a4404daad01be1df59742"
+    },
+    {
+      "source": "tests/fixtures/nonlocal_owned_ordinary.goose",
+      "baseline": "2727b870923cc6d4e93c53b95db02830b3ba8ebf42b36528fbecaadd5261bacf",
+      "candidate": "d8c64ad383b4c26aed3932eef79a6586abf131fe09a821f2587b1c932905d1b1"
+    },
+    {
+      "source": "tests/fixtures/nonlocal_owned_inline.goose",
+      "baseline": "439607490ea4160776275fa1d83e64049216206fa448a401c88d78dd4a8dd213",
+      "candidate": "e69ff86c1ba9732aba4a6f1bbd6b29e649fd1cd4a634d360e99e18db47fedb36"
+    },
+    {
+      "source": "tests/fixtures/nonlocal_owned_enum.goose",
+      "baseline": "c787020acb659b3d2dbfb457647e42b626423b7a8eefcd299f222212ab1d906a",
+      "candidate": "6756bf52eea22ddf9e8b96f01d4dabefed103aa78179faa7c1ac175304a1c2a1"
+    },
+    {
+      "source": "tests/fixtures/nonlocal_owned_forward_order.goose",
+      "baseline": "0ec1d62b44243fa10e9038bfd1cf8a3caec7b0c24c2325b8597f2b38f47e940c",
+      "candidate": "3b102682b7f02fd753f78cab7ad76ae6575d3edb839e1b0a9b1a70cd3e478a05"
+    },
+    {
+      "source": "tests/fixtures/nonlocal_owned_frame_tail_initialization.goose",
+      "baseline": "bf9965d234e7c1172b939bc1d5186507bc72f36f41d05061ac56556eb82a20f7",
+      "candidate": "a3b4ec02b4cf242475e1d29a77467aa321543128d8b17d9cc9361dd975ea8644"
+    },
+    {
+      "source": "tests/fixtures/nonlocal_owned_early_block.goose",
+      "baseline": "fd1d70e26e02d28b4e4fa8448218877ead76c5ba2ceaaa1fc24441e3676fe745",
+      "candidate": "2158fbe4d4012bdf48cbc6cf3116cb8db12a90f6fbfe4f690c6d80167f56fc86"
+    },
+    {
+      "source": "tests/fixtures/nonlocal_owned_paths.goose",
+      "baseline": "03cb38a584c59c689438cc75296162e72e08a3a88ed09a052c5f6fb8ec2346cd",
+      "candidate": "4f2daf081fef18a55b570c071f80d41745b615a027ab8e3177b5ceba4400236b"
+    },
+    {
+      "source": "tests/fixtures/nonlocal_frame_values.goose",
+      "baseline": "bb569f5330d0204190248d1c7e4391b05aed5394b1f61bb9b0d4c2eb6daff721",
+      "candidate": "e1e1097fe6373825aaf66d8aed8587e5b0ccda4501795364512ceed1e70a26c5"
+    },
+    {
+      "source": "tests/fixtures/nonlocal_mixed_order_grow.goose",
+      "baseline": "22980743aaa9f2e1d54e9282ef2844878557f1b6c3e87fcd0ce97e6c6e49169c",
+      "candidate": "023e9e28863ebb3196764d9bc71940548bdf300b85da8810128fd3697b97039f"
+    },
+    {
+      "source": "tests/fixtures/nonlocal_mixed_forward.goose",
+      "baseline": "8fa0391759fb05a7104c41c2978103762af83e85d7fb9cc48d61cdb0e732d4c9",
+      "candidate": "5071b26b4a2b91866ad170dca2a48e81746dddeb00301ba3aa48924289982abf"
+    },
+    {
+      "source": "tests/fixtures/nonlocal_mixed_snapshot.goose",
+      "baseline": "354385b7d2ce39215c4105f460f108f853cc30e246b423734b19b4c204d6fefe",
+      "candidate": "df1906aa81e27c8aeb868bb1f8dc758ea5760981696667916efd73cb31b48ab1"
+    },
+    {
+      "source": "tests/fixtures/nonlocal_mixed_replace.goose",
+      "baseline": "fc705af0f413486f33d98c1fe074d5f32633e55c79d91cc2e73f246cc63128d7",
+      "candidate": "61d9a16b628d261efcf36e0040f5882da6ce9c58637180fe9730c8aeb4941b10"
+    },
+    {
+      "source": "tests/fixtures/nonlocal_mixed_borrows.goose",
+      "baseline": "753fb6d599a5a82d76d06cc236c27a22d4d40b9ec72eeb3986a12109fe6bd6c5",
+      "candidate": "0d43e3bf0d6af9b6462ba0939ddb338fa6546d1317ce2e195f28fbed3d72b758"
+    },
+    {
+      "source": "tests/fixtures/nonlocal_mixed_positions.goose",
+      "baseline": "291c332068e71a0c74aa2c4ba72126597901e665e051e82f1c5f67a976fef0d9",
+      "candidate": "802cc086841d6d5418c6f4c03d53f7ff36bde65aea6093b4cc9565532285eebb"
+    },
+    {
+      "source": "tests/fixtures/nonlocal_mixed_var_producer.goose",
+      "baseline": "1101ddecefc8c7fb9dad9866de597e66398b3974b6f0eb95ecb127276fb83914",
+      "candidate": "1be819efc93622d4929d3c7e6a34ff8b74e02f305600373a4e358663b9b8b4b1"
+    },
+    {
+      "source": "tests/fixtures/nonlocal_mixed_canceled.goose",
+      "baseline": "4c0f8083e7bd4b620733dd103e0f043244c7040aae1414a9a880ee0fac5ab96f",
+      "candidate": "c1f22fd5401ea59eba80a8cfaccc6ef1a1c30ef1f9b1d8150d9be18eba32a40b"
+    },
+    {
+      "source": "tests/fixtures/nonlocal_multiple_order.goose",
+      "baseline": "61475374039b64220dad5ffa1070de79f0ee1f411de0d355bd9c7684ab6ad565",
+      "candidate": "cac4f3e3dc8c64bb309f9b59ae472ac6b3fe8e6fbceb34780c612cfd50c51baa"
+    },
+    {
+      "source": "tests/fixtures/nonlocal_multiple_forward.goose",
+      "baseline": "9f35701117385f1c2ce476175eb26ad07ecabd30c45fc1557e93e0b39845a3f7",
+      "candidate": "bcd41b6190c61f5a3ebcb5398824996606ef1027718e96b49f4f0d2cf4d08712"
+    },
+    {
+      "source": "tests/fixtures/nonlocal_multiple_copies.goose",
+      "baseline": "512acdce29bfb6b6dd306d5b27518398c92d0233c27838b4b76e611ec0819c4d",
+      "candidate": "4c2938a0ae343eee29b5b75c77b3b8a41bdff28f4b74e48562ee948a663803cf"
+    },
+    {
+      "source": "tests/fixtures/nonlocal_multiple_canceled.goose",
+      "baseline": "537bbf99e28b9bafd114bade7687b59a3a1b45655bb01af78d368da2dc8a1cd6",
+      "candidate": "0d26402a1a9781ed9b3f49817ae24d14ab902f4ae08c1b6f9e4afe279e6a779d"
+    },
+    {
+      "source": "tests/fixtures/nonlocal_multiple_replace.goose",
+      "baseline": "3f6fd3eb46d7b8a922d65584877aab73294fb39987350af68a25f16d936c442f",
+      "candidate": "91d2febc343a3426628757bd9f23bec2546f2f0b893b09aa85551e9aadcd3b05"
+    },
+    {
+      "source": "tests/fixtures/nonlocal_multiple_recursive.goose",
+      "baseline": "863255e0564b0b87fa787c5a7d839051089a46f8ff6a9cb505864f210ccb5dad",
+      "candidate": "1aefd91bbb338b595c68b3844a55ba6270a03298335e55cfe095ed33f2799439"
+    },
+    {
+      "source": "tests/fixtures/packed_record_storage.goose",
+      "baseline": "724cf584a58f4e34e9d28d05450f0f85d3b606d7c346925498895f10fac729b3",
+      "candidate": "cf2d2bd1f45378a4f1d78f827f7abe0d1c8ccf4d1d4616ee752f0c906b6896bb"
+    },
+    {
+      "source": "tests/fixtures/upstream_dispatch_copied_reference.goose",
+      "baseline": "62ab02c8f872f4aebff2594dcb8474e8b64756917bead90c9bce838566315ec3",
+      "candidate": "75acaa94616cebdb1d20e3d0b8cc8b9846df9120b86c3f5f1e74d855222628d9"
+    },
+    {
+      "source": "tests/fixtures/upstream_nested_overloads.goose",
+      "baseline": "5dd3c958d12c36bcf14bdf10b287c53b5d01900dda3730a54d32653306cf9d2b",
+      "candidate": "f443421fb84e5910be1612a9ad6e16f64bdfe7da844542fa0e1b6deccb3f3bfe"
+    },
+    {
+      "source": "tests/fixtures/upstream_dispatch_result_no_reference.goose",
+      "baseline": "dbb93d9ab67ec2ceb56f3f27af1030c3e148ebd1828136e0bfbc35f1837f4203",
+      "candidate": "e92290bdb12bd36180476c3d54632dd94a8dfd09116d9ee06e3460a998ba16a5"
+    },
+    {
+      "source": "tests/fixtures/dispatch_recursive_reference.goose",
+      "baseline": "052569ca74017ca14811b833729c0a73b38497633032467c8fa65bd4df91e8c9",
+      "candidate": "8904556b4e6336e722e09b54481afe04a1ce966d29f3d041ad0830dac5d29797"
+    },
+    {
+      "source": "tests/fixtures/dispatch_captured_cases.goose",
+      "baseline": "d57495e3622a93c9ad1369c5febb4785fd56f1ae36c1548ad11d266e70b6295c",
+      "candidate": "52832995a75d727bad1bc90248c42c4adbcacff448919c4f1be5f1f517fe0f15"
+    },
+    {
+      "source": "tests/fixtures/dispatch_narrow_results.goose",
+      "baseline": "3947b08824eaab58558e31a7183973eb57ba9039a28f7db0a5a8a3842790b39a",
+      "candidate": "a6518d8b9f51aa5f615ea993dd6d90127bf00629b846bc4c641d00fb0cbc0587"
+    },
+    {
+      "source": "tests/fixtures/owned_function_values.goose",
+      "baseline": "803e9ec81676da94f376008722ec02c3c81e70b56d80c8aaa39ca50635688998",
+      "candidate": "e434b34ed2e492278c5536ac2fd2e63cf4ed61f939923b03eb3876956eb3bb8b"
+    },
+    {
+      "source": "tests/fixtures/owned_function_value_recursion.goose",
+      "baseline": "04bdb22826d1baf097ec41a0b9764425b307b449cc4494dbe1b4b6dc58386532",
+      "candidate": "e5edd7b2dc92a2009b0ce04639c07f290e632fef64e7393bceaf45bfcdce1a32"
+    },
+    {
+      "source": "tests/fixtures/owned_function_value_narrow.goose",
+      "baseline": "265f4886b67c2399986750d9bb0f0a26757839f34c4a0f2bdb241ad2afbd3fc7",
+      "candidate": "adb890fd8b2c6ae75ec7881ce2d21e063a090ca5f57e5e66de89d1496357b44d"
+    },
+    {
+      "source": "tests/fixtures/narrow_variable_arrays.goose",
+      "baseline": "42cdf3f894dc5d28879efc334c7eb7e004a78dc44dfb6af0c458577734092be1",
+      "candidate": "9b9f2c3415ddb6cdbb37d8d496c9bb18780f47409a6bc5c456265a4a7d8e76ff"
+    },
+    {
+      "source": "tests/fixtures/wide_variable_arrays.goose",
+      "baseline": "d5efd68e40c8c79a526becd38a1e29879aa354d71b61a32d226bd2f25d83d374",
+      "candidate": "38262677c208ba6c07439792ae25a4d6431be1a356b0704a81c2314e62c7d3d6"
+    },
+    {
+      "source": "tests/fixtures/variable_structs.goose",
+      "baseline": "97c051844e37d5e35b0029c6f183095aa28f6e71748df78cf4ee074431be99d6",
+      "candidate": "ac2d192056178ccb44570c58a1d22935ddb6493867916e3de9400a72cb78ee28"
+    },
+    {
+      "source": "tests/fixtures/variable_struct_paths.goose",
+      "baseline": "09f5a1e9393b7c57a5bf60456b006fbe262acd3e7b793cf76fa61abc3ede70f3",
+      "candidate": "be4803f379953620b0a484884016805882f56fed4fc3c08cf226e054d1beb090"
+    },
+    {
+      "source": "tests/fixtures/variable_struct_narrow.goose",
+      "baseline": "b13c356854a9bbee9ae9688e0eedb8125fe765cff102392ac08d798106ed6063",
+      "candidate": "48e8eba75cc9bd0eba958b794df002aee2c9be776c1a00665237f2716c57a363"
+    },
+    {
+      "source": "tests/fixtures/limited_structs.goose",
+      "baseline": "7660f9f73ab0fee75c7219645a34e171d13f419e86ff1c835c3646e3bd20d175",
+      "candidate": "87cab345ac0ddc5e2c81b6d06e75cf2977de7e57a72ac6370b5bbc78cdf18cf2"
+    },
+    {
+      "source": "tests/fixtures/frame_structs.goose",
+      "baseline": "b94ec825d1f50e9e2223c8b11baa9b7d4d30cafc085be80fa2b158e20993594d",
+      "candidate": "607b743339e483920286078cdc62ad8bae23f2ad8d8f67ec1dcdb43b87b05b2f"
+    },
+    {
+      "source": "tests/fixtures/frame_struct_paths.goose",
+      "baseline": "01cc60872fe040a21eb0fde802700e915ca96107a73417ca2c3ad43c85ccc5c1",
+      "candidate": "33de0bee93ab80275751dc8e12e52bac4fa6e1d59224e883327ba7b0ef3bb722"
+    },
+    {
+      "source": "tests/fixtures/nested_owned_structs.goose",
+      "baseline": "b5eea55bba94c9782168840bebc1a331d87e7ae7472fec2e150dcf9e38b24407",
+      "candidate": "04783ad7220996c1e1cb77afa936f639f5f20a9d11bf2afebad4ea18e059edbb"
+    },
+    {
+      "source": "tests/fixtures/nested_struct_narrow.goose",
+      "baseline": "07a7f31f675605d49c6c7373af962f07e1f7b8568b195df79e48d7edc1288fe9",
+      "candidate": "c9e0bb37bbc17d037df1bf72e251f9fef7d0f977fe57a5e43f4575fd4d555d75"
+    },
+    {
+      "source": "tests/fixtures/variable_mode_enums.goose",
+      "baseline": "be74c6ac19f4d3bc037572d0bcb8706125c8ec6bb578acbf0aff8dea378415e0",
+      "candidate": "36cb55fcd6d7240228b0b5a11fd4b8daa7024f2b8e3e336e01392d7310884aa1"
+    },
+    {
+      "source": "tests/fixtures/variable_variants.goose",
+      "baseline": "195b6192e1f93748ad765464b595aee609e149c37ca177d96b0fb200f6161844",
+      "candidate": "13e11a50e5b4e4abf7a27df016a227ca70558f9ae08fc96596e263f1ff146aff"
+    },
+    {
+      "source": "tests/fixtures/variable_variant_narrow.goose",
+      "baseline": "4a000e5e6e6345dc91ae753df9768a7811c95774366c1fed633dd977cfca6db6",
+      "candidate": "543d81c553646c85fcbb3b1e00f56603acdf0bd6b5bc7ea40fb9e6add3909d04"
+    },
+    {
+      "source": "tests/fixtures/variable_enum_tails.goose",
+      "baseline": "471a54f79de6b8606b76c372b1b35b953ee7b0551156b16135a596b53fc5edfe",
+      "candidate": "dde2ad65dc396a8b1ad1a5e0fdd8216c15ab3c2f9923911c4d81d5cdf7ccf444"
+    },
+    {
+      "source": "tests/fixtures/variable_enum_nested_narrow.goose",
+      "baseline": "dd7e384e8a34c05a05cac4262571bd8158abe77d5fbc50b3a6cf9c324a7d6e2f",
+      "candidate": "730ff1e887f8b1eddaf41ec012dc64d1e22342e60dc2d2990e8f00b8a420e241"
+    },
+    {
+      "source": "tests/fixtures/packed_variant_storage.goose",
+      "baseline": "845077a9114a8865855e328ed04d77b9322c500f88c52cc402df38a5d633c01e",
+      "candidate": "ba9f9c8ccb2c05e4f4bfc13bd9044c0a032fd0d9544ea8e6be5f8c9d74425488"
+    },
+    {
+      "source": "tests/fixtures/upstream_funval_captures_subset.goose",
+      "baseline": "3482d457e6f8321e43131d780b2860e716905a8ee6a8152f8f7a4a0dfb0c61f3",
+      "candidate": "ea64542a7a7ff004ea334755ad22db0c31788225844f6e3bbf9b866dd977c17a"
+    },
+    {
+      "source": "tests/fixtures/static_capture_bindings.goose",
+      "baseline": "b61ea4cda7188d7a32fef6d8637968424b69073669ef0efb828886ee71f6e7ee",
+      "candidate": "69125690474cb27eebe6778f5ac14f6c455e04dbb8714377166f74ce2f97ba4b"
+    },
+    {
+      "source": "tests/fixtures/upstream_funval_captures_o2.goose",
+      "baseline": "6a911629ff3bab5061a1adcb3d46643667c49ece202d258c3b4b05d28be55f23",
+      "candidate": "8d163f50895ae99527dd31c2ec98f7da19802703768a0c9ddb968045aee62f1c"
+    },
+    {
+      "source": "tests/fixtures/runtime_limited.goose",
+      "baseline": "b21212d9517e4f519cd3cc455831f13438d8b496522f2176d8e3234640abb98d",
+      "candidate": "b7d7a20256de27f1be2bbe98c0c608208726f44de139df94c1d8331fa3a804e7"
+    },
+    {
+      "source": "tests/fixtures/runtime_limited_aggregate.goose",
+      "baseline": "0b7758f1c1bb7adf1b25b119331b8ffceab5f3eeea0067c119529218a46c58ae",
+      "candidate": "cec1847426db31cf22f1a916408d16b76bf1efc79baaf5952891ad338769503b"
+    },
+    {
+      "source": "tests/fixtures/runtime_limited_errors.goose",
+      "baseline": "a1d654e769e75b2653ab92d050d91774c8c98ec3038619fdc3c6eb4b879236b4",
+      "candidate": "173f425f18abd5f914d60c74ca07ef19d5604e0568b765e154bd4845e95bde43"
+    },
+    {
+      "source": "tests/fixtures/variable_arrays.goose",
+      "baseline": "4204d39ed41bdf610a842a4e6d15384338901571ccc4e1372c194254eda8eace",
+      "candidate": "aaecde5b333a0774361bd9536de77cbdf1b17b134c3dd5b8d175f86c90272edf"
+    },
+    {
+      "source": "tests/fixtures/anonymous_values.goose",
+      "baseline": "009a7bedde505160d2b90d6460e0e36d09b8b2708c49ba2ec9291f88842256f8",
+      "candidate": "3f5858c2d6936be610e4a1ed5f5fbdb3e9c74e588d2cb7c183fa35cbc9c3ba95"
+    },
+    {
+      "source": "tests/fixtures/dynamic_result_adaptation.goose",
+      "baseline": "d6329dc791b9df12e90f478706fe97d189b57e0d60571b95f475dea968ee685d",
+      "candidate": "0b210d4d3277acb05612251f4f36222b6335ad2de901f724cd554dc210da8815"
+    },
+    {
+      "source": "tests/fixtures/dynamic_adapted_channels.goose",
+      "baseline": "206e8f7a289039c9f9d2ac91b821eed4a321976d93b1e1437a142291105b0b9d",
+      "candidate": "5a17e0dcc9ffc9ecad5434bcb1a53d3e62551345dfd614aec2f9ec893651e14b"
+    },
+    {
+      "source": "tests/fixtures/dynamic_assignments.goose",
+      "baseline": "6e7dfb073beaa706d5f0330379b418fa1ca1f95379617a49fcdec1fff194f396",
+      "candidate": "32fbeccf01c914ee34503d01ab710bf6aedbfea65fc2cb253d6dd2b6cb1f0633"
+    },
+    {
+      "source": "tests/fixtures/dynamic_control.goose",
+      "baseline": "88d7ed7bcc7d4620a08a774eae092454b85a595c07b146600b25e7fa1601d7c4",
+      "candidate": "7a800cd8cc410e6426fc6b46a6d7b664be6a7d806d438280d4cbf60b1c64b638"
+    },
+    {
+      "source": "tests/fixtures/dynamic_result_channels.goose",
+      "baseline": "edff26ceb95b59a47aba9b95f7ac56fd87c0abac5447cb1ad29fa1c352e08d22",
+      "candidate": "f642b11fa06793d9ecc502b829d326544cb35b524584b1317233956cff946ccf"
+    },
+    {
+      "source": "tests/fixtures/dynamic_parameters.goose",
+      "baseline": "29192d85336404e4a06b52530643b180d78c9c78110e1f70738d0f7d8250b3a7",
+      "candidate": "97e3ee81c5311566abc2bf1c8b8ff817e7f901a91cd9ce14de5dfaa3bc2fadb0"
+    },
+    {
+      "source": "tests/fixtures/dynamic_parameter_inline.goose",
+      "baseline": "67f11efcefa7610b6306b0cf7ed7287d7e9e35b7bced67822aa5e114ac8599a0",
+      "candidate": "98301b80f602062f184f2a80c15b86f3a8342409d6c4aa986edad7a15a49912c"
+    },
+    {
+      "source": "tests/fixtures/dynamic_returns.goose",
+      "baseline": "393d27f3c3e00de1703435872319a0c29d35ec5d6100e0861950c38e42b8a093",
+      "candidate": "08e926b9169b217f26e2fceee163ca901a45108c37259c77f3189abf8b324e62"
+    },
+    {
+      "source": "tests/fixtures/growable_arrays.goose",
+      "baseline": "f66ffc99eefebd5e35d24eee0eb5e1dfd82279d2f09d11abec025cfed320403d",
+      "candidate": "0664e0054c8ba93b9eaff7aee5f2b082b31217afded90913efc466265501b5f8"
+    },
+    {
+      "source": "tests/fixtures/growable_errors.goose",
+      "baseline": "c4e33d236b26858ab630add6b015bb325e71985c529da314df6befbe0ed64219",
+      "candidate": "2625b1896e99fc272c56bc1c5ff9129f2e99ac643dcc82e33dc1adc89cef98bc"
+    },
+    {
+      "source": "tests/fixtures/limited_arrays.goose",
+      "baseline": "d264c25dcddb682b72bf374396067e2a0183300eb087444eba64122eba02559d",
+      "candidate": "d489ffc19bc68da9af2129447907527145a609260c681071a81984e7eee98f91"
+    },
+    {
+      "source": "tests/fixtures/limited_array_paths.goose",
+      "baseline": "56c36445e53c8bd7378f711c1fa6f19017e367bc758b1a63fab5b8b3a734a127",
+      "candidate": "250bcf96cfa7982619b22892acdaa8ed970fe9974b52ff98a84f7952b0fcb6b4"
+    },
+    {
+      "source": "tests/fixtures/limited_array_errors.goose",
+      "baseline": "4d93d0681c0ca3b4186c3740445294917a59b5119be5d4859e681f42c2db9a8c",
+      "candidate": "558099320fccbaf06156a10b45e600c5e173619e9b522e2da82c3452525ba8a8"
+    },
+    {
+      "source": "tests/fixtures/fixed_enums.goose",
+      "baseline": "d1716855eaf9c9a669131c669583724f2d5f2f0b97955140e1e11f63eafa80e4",
+      "candidate": "46c5b4b3bcfb761b51e2734c92ba8b718d414936fcd05511a335a008030cd27c"
+    },
+    {
+      "source": "tests/fixtures/enum_returns.goose",
+      "baseline": "eb1001bc6595d6799825ca57d180873de6de02104e519f9379970b2bba23678c",
+      "candidate": "c6b1d230a1cbb23d6e5fc8d8a34b6c97791a716b9ad50f7fcd7e45d82017d445"
+    },
+    {
+      "source": "tests/fixtures/value_forms.goose",
+      "baseline": "e15b8a10c289766cda63e2a3d20424d5896d43f6ad1a652c055f2ca033421c33",
+      "candidate": "2abc3f5facdf1fce7583a011c5ee908a835c6d6e849fcc79192db856d8fc2e9e"
+    },
+    {
+      "source": "tests/fixtures/nullable_and_copy.goose",
+      "baseline": "b8ea5b0b864af13c7378a6f08bef41e93e4d2bd7f0dbde0699740d10ae91983b",
+      "candidate": "dde6f0cd36f69fe9dd2f2dc2abef4ad23af28346dcf715b5959e1f48b60ecab9"
+    },
+    {
+      "source": "tests/fixtures/implicit_references.goose",
+      "baseline": "1450734ee45e57e62ceb598d64fdb71f1341e09e42f391f9f3f04abfeaf443d6",
+      "candidate": "ee0977039157b31801ed9a87a6bbcca121326622a821b35fc7ce48221826ff19"
+    },
+    {
+      "source": "tests/fixtures/nonlocal_owned_coexist_frame_structs.goose",
+      "baseline": "3f3710656c3231de1f861c97d309f2122f5a795f021ba60aaa668a37c4e96bf2",
+      "candidate": "a9e0267bb65794ff1bf51e34743e9d5f972d3df6ccb915a430293bce319214eb"
+    },
+    {
+      "source": "tests/fixtures/nonlocal_owned_coexist_nested_owned_structs.goose",
+      "baseline": "8885f13b1380787c8f2bbb23e59dff2c8ec2bc369edbc70eb00378ef99bc14a9",
+      "candidate": "d47a8b8dd219624c2e555258028287c25a79d51f954d119f1b3c73fcfe218323"
+    },
+    {
+      "source": "tests/fixtures/nonlocal_owned_coexist_variable_enum_tails.goose",
+      "baseline": "e50d264bed38c9567f6852d079e73b414833a01b09e3182059a6811b15955c00",
+      "candidate": "2f8694063b0f6f14043b20fbd331a75e7817418c516529ba94fc3f939213331e"
+    },
+    {
+      "source": "examples/tour.goose",
+      "baseline": "4276000ddcdd7d79b603c03a96e34e0681cb808cf685a7be373ccd468e092629",
+      "candidate": "134c2dbbe0f6f9b5ac49552ceaa7e7efce7130a08fd21bc1ebde0a1a2a6423bc"
+    },
+    {
+      "source": "examples/functions.goose",
+      "baseline": "713e87722625e5cee2dac881fe5c3a42a4ca535d0a4fc48349ea01bd375cffb6",
+      "candidate": "9e74aae457e0073fb50f86dbc4f921a983d8330c94ad4e99ae6701be3464271a"
+    },
+    {
+      "source": "examples/errors.goose",
+      "baseline": "96c3e84ff0c2ddd49795b485fe6fb2361c9e49b8e4b87f41c2180870eee79a44",
+      "candidate": "fd20822cbc47dac250000a92d694bebfdb1cf8940eeab838057997f105db487f"
+    },
+    {
+      "source": "examples/sieve.goose",
+      "baseline": "d77b1c5b98bb256db2eba6820110252c289bbe6c28b11016c3478b3a13024d51",
+      "candidate": "ab00bdcaa4df990dfbe056d3d57bba18f4bec9b68432378f9e5645e3914f8fbe"
+    },
+    {
+      "source": "examples/sorting.goose",
+      "baseline": "8b58c0cfe9281a20f4e77372b7ebf5b473a4d21a6ec61e314ae0dd9d4dd6b694",
+      "candidate": "de47e4997d15ed2f4b582cdf8aec30bb3e8e53a510b2c1dd5c4efb72ed8dfe42"
+    },
+    {
+      "source": "examples/sudoku.goose",
+      "baseline": "fcd5e83ca0d324d5f5acee6896328b59ef68bfaba0fb69116296623221e8104c",
+      "candidate": "b970322da56bdf974a983285201c4b593484866568f2b573673b6995f626a578"
+    },
+    {
+      "source": "examples/maze.goose",
+      "baseline": "2baffb3777d6a6e2af18a41fff8e6e5e4c27b2dae00cdce6539a899cc4601717",
+      "candidate": "1aab9c96efb95c8bfdcd08af95606fc49918aa6aa8051cb5e3644caf4980568e"
+    },
+    {
+      "source": "examples/life.goose",
+      "baseline": "c506f73881290c8802c1542d7a0f362b30c51d71a1bae266539486180d430b08",
+      "candidate": "42e41440021d56740da10cc51fc639645ccf5fd9e2d7e0a9b29035d8d9430e1d"
+    },
+    {
+      "source": "tests/fixtures/native_formatter_limited.goose",
+      "baseline": "bba649a33a4e8eca176daae93a45dd2bef719dde5836c8df07832fdbdb328350",
+      "candidate": "c6bb10ae0917a68d34f3d5ad942822aa2c690954161ede1db9acc30ab27eab57"
+    },
+    {
+      "source": "tests/fixtures/native_formatter_prefix_overflow.goose",
+      "baseline": "58f6fa51a08ae7b4171e51bde950dc25e3ca70ab3cb14383a52dbde1eeae3e94",
+      "candidate": "8f99c30b7feb02a586e7599ff5069b2f91b48dddf4adf3b0fea3a3e7d8a3aec4"
+    },
+    {
+      "source": "tests/fixtures/native_formatter_nonlocal.goose",
+      "baseline": "1f607defe469ae884cc497f16fb667f985c2e18ded34b36acf0183916be22567",
+      "candidate": "f924d6807b2651beaff44a3dd80a18bca744c843c62a6efe2455f2327ffff120"
+    },
+    {
+      "source": "tests/fixtures/native_formatter_moving_parent.goose",
+      "baseline": "9af83d954508f4595734ef03cbac8503ac1595b49dfaaebe2bd4dee4a142bb8d",
+      "candidate": "7102c1bf4480411bfb960c20b4193c8371f1df485397efdb97edf37a65a29109"
+    },
+    {
+      "source": "tests/fixtures/aggregate_returns.goose",
+      "baseline": "023f3fc5d3300041eec3432f77e8701840fdd438bf21160a0d39b869c1c9c12d",
+      "candidate": "968049676def2a7ff4c0b90e5debda8f7ceb6533090c77153462cbddac663a11"
+    },
+    {
+      "source": "native/tests/results.goose",
+      "baseline": "08b6d5464febbc1d7bdbe3432938bc37de7a6291c29af891d41fcaa4c437b652",
+      "candidate": "9cb2f832ba62ffa31fd2b900e537f3224144260c976ac934458324ba984dc6a4"
+    },
+    {
+      "source": "tests/fixtures/captures_late_slice.goose",
+      "baseline": "fcc32c89cb2b3030bdb153debaa17e5928183505da2a15cfe0a282b4ba329bf2",
+      "candidate": "30b93dfd839047eeb8ab2e26d66e6bf02d3574a3211d39275a06e6bab282fff5"
+    },
+    {
+      "source": "tests/fixtures/captures_context_pruned_tail.goose",
+      "baseline": "f2847bdc781e86653b0204f135760805034a2670db6d9e15c50a08c9257044f2",
+      "candidate": "92eb77fc39bf0ca467899ae3f33ee18c5eb91f4a972b9bb1962994405191deb1"
+    },
+    {
+      "source": "tests/fixtures/captures_newly_unpruned_hof_capture.goose",
+      "baseline": "dd6b1f320a235db679984c178ad1e8345847ed531fcda1cafbcfd395dba13d70",
+      "candidate": "ee726b8b227618134e632af1a5929abd9e69133803683811de9e5d79bbc458f8"
+    },
+    {
+      "source": "tests/fixtures/captures_recursive_rechecked_raw_tail.goose",
+      "baseline": "faf77f45101dcbd54cb7b7cb6259685699ce6dd45946ab0800c7b7622a3bdbb1",
+      "candidate": "d6df4be601b8d870a808438c96d305642481b06c6c5d066c76ee26ca200e2e67"
+    },
+    {
+      "source": "tests/fixtures/contracts/views/initializations.goose",
+      "baseline": "d3258d36e6d117d59c8310fc7ab59f1eb55fff09a0773569b45ff918bdb43a39",
+      "candidate": "4458c605c51e4889078518fee65c6cb234aaee360a854c982572a39b7042425c"
+    },
+    {
+      "source": "tests/fixtures/contracts/views/slot.goose",
+      "baseline": "9b48f956b8effe6330bf48ce9b68ae477ebe39742e959f7c2ef1b397ca1c58e2",
+      "candidate": "d5b4a7e973ef9bfbf086a325ba440eade93c64a3f3f8e369e5d03201c09dfd1f"
+    },
+    {
+      "source": "tests/fixtures/contracts/views/private-holder-view.goose",
+      "baseline": "76da5f4f77735d6636b9a250b106f51bd909c6a4f324e69b6e538b70e515a2df",
+      "candidate": "09b98be2822b31fc1f7078ad07a83d15079e0d5e94802425090599202605b112"
+    },
+    {
+      "source": "tests/fixtures/contracts/composition/holder_conditional_return.goose",
+      "baseline": "5b1fc7884944ecd1e6a30dc730a044931ef4bf3df73146a99776722ca3bb28a5",
+      "candidate": "acd137a4b604e433824e7c78e6001559a2378a636a2a97992b1edd0a44693cce"
+    },
+    {
+      "source": "tests/fixtures/contracts/composition/nested_exit_targets.goose",
+      "baseline": "c397a4bce8abbb8c3134f0d7415d25dee175185978c00bfa4e241eb349ef7d9e",
+      "candidate": "260db6c19f073e7593c0d7e6792d2a752ea63ea78b1604c693b5deb69f3f51d0"
+    },
+    {
+      "source": "tests/fixtures/contracts/render/slice_hooks.goose",
+      "baseline": "1d8e06a6afba674697bb958b0e0f0cdc04f4bb49c46bec146647faa83d8645f7",
+      "candidate": "a6c4448781d87f704b5bf9bf1bbe2cdc412418a923d47487d50b3c0d2e767c79"
+    },
+    {
+      "source": "tests/fixtures/contracts/render/nominal_const_hook.goose",
+      "baseline": "cec7824956f4115af05ef0a33c1b711e4f3c4adc5147bf067c8c9aadc2c17ed7",
+      "candidate": "4aa85d331ad896856e2b76cedc86dc5c2653a579cdb56a8353bf047471a266f8"
+    },
+    {
+      "source": "tests/fixtures/contracts/render/outer_readonly_hook.goose",
+      "baseline": "b2cab7ef5e6b170eba7b063a175996a58da82931b0c52731745179b6d62e6dce",
+      "candidate": "93783980214f379481fb1be186da6b9eb253e01647a4924c8373b09667e72afc"
+    },
+    {
+      "source": "tests/fixtures/contracts/render/inner_readonly_hook.goose",
+      "baseline": "e97438a1eadf349fa59c7786f7cd6f43f3e78e55225959e4c653f03e6d33c189",
+      "candidate": "1e2126126daa1e17efe26634b1c578c39aca631844d3076943c364894ea1607e"
+    },
+    {
+      "source": "tests/fixtures/contracts/member/preserved.goose",
+      "baseline": "a0503b9863b238bba8c743206fab672011f1e3907da794d00f78c8bddf80f184",
+      "candidate": "0c6b3b7fbb7bc6a5a8d0e3eddaee38d70d4b01283b88615225638e37986b31f8"
+    },
+    {
+      "source": "tests/fixtures/contracts/nonnegative/readonly_reference.goose",
+      "baseline": "b8b254a981b719fd1df725b65acce761f81b97a50cd4deecf6ce8962f40d6224",
+      "candidate": "3ee0d685d20703e1454078c3a3c6e6abc7d6c4cc0135c665018ab2b8dbb1b001"
+    },
+    {
+      "source": "tests/fixtures/contracts/match-reliance/predicate_not_contributor.goose",
+      "baseline": "433cc551b8aac5983629558eab31cf1030f7b42bf019f8de09a1ae5ec99f8edc",
+      "candidate": "612ab534cd136e20e45b1e68b7f3ee534aa43e154c70fea9342c7d995986358a"
+    },
+    {
+      "source": "tests/fixtures/contracts/match-reliance/selector_not_contributor.goose",
+      "baseline": "63ed693b9365a08f6436013796f05ee70a0be28ea59ae61e168892ea0ef2ee57",
+      "candidate": "99bacc385aa38883658395cc91c4ec1b77f8dfd77e1c23f02d4dfdf5d797c68a"
+    },
+    {
+      "source": "tests/fixtures/contracts/match-reliance/return_arm_not_contributor.goose",
+      "baseline": "089d7b3956aa10a444063bd603c7ed4582c625f06b4851a5bf6658a92d148836",
+      "candidate": "905f760be5b2f618b60eb30ce5ba293ba62e46f65e9a45cd205414a2049d06c5"
+    },
+    {
+      "source": "tests/fixtures/contracts/match-reliance/prefix_not_contributor.goose",
+      "baseline": "13bf8644df2a49f2687d5b59060271b6a6d293660756bb19f089d12fb14a8332",
+      "candidate": "1030e1ba09f0e5f511f60b4f578351e93e562b19ffc5651dc4d8fabe5fbe0267"
+    },
+    {
+      "source": "tests/fixtures/contracts/count-refs/counts.goose",
+      "baseline": "1d2b7b48d7e22a37e947dda414975f10ddce29aa27eabf89ca7d1255737ee1e9",
+      "candidate": "441aa5c5ee19793e257436699e90492b55e8f2706f54e39f27ed2dbdce0dd7c4"
+    },
+    {
+      "source": "tests/fixtures/contracts/literal-construction/append.goose",
+      "baseline": "fdbdb5deb9bb6aa887e15c7b4d1dfca8c05760bacdcfa70033d47a9d2e00a156",
+      "candidate": "f922cd52cb29ce14a12acc7c83729f16fef5eb0929ceb7fc7f9f31c353a71761"
+    },
+    {
+      "source": "tests/fixtures/contracts/readonly-elements/const-descriptor-repoint.goose",
+      "baseline": "25a0014b0fc00398586a46cbf7399202c32b0334eacb8746d0573fd099c83b0d",
+      "candidate": "2d5a937914275bbb6ef38c29e421dc15cc59659c440e6b073471183811673c02"
+    },
+    {
+      "source": "tests/fixtures/contracts/relative-cells/scalar_abi.goose",
+      "baseline": "c34f9ca6ec1a991a1f96235e361309363a33a6ef28ee61cccda5d7410048e372",
+      "candidate": "c5aebfa940a76334508f7edfffcf857da45b3f2092baa1f18cdbb01f912a71d9"
+    },
+    {
+      "source": "tests/fixtures/contracts/frame-tail-reference/fixed-field.goose",
+      "baseline": "6d4c335895f76cdd6781bed67bbaa335211ace2b46b38c72e6cd1b43b2a6c648",
+      "candidate": "f9ac7e5d63097d30cdb63c8f490b9ac735d74c1ec179eadbc524783b0c113987"
+    },
+    {
+      "source": "tests/fixtures/contracts/frame-tail-reference/nonresizable-field.goose",
+      "baseline": "16776c51779bdae87c27ed4058c550755fd4e69fe8612f274da8f387267e53ca",
+      "candidate": "b96e0e5afa1a5f950fa284f9eedb5f7ada0d1c88be5c06d473b156cae454a418"
+    },
+    {
+      "source": "tests/fixtures/contracts/break-joins/typed_names.goose",
+      "baseline": "aa5a583ffd8e12241862e573741f2f83432c4964cff15a4a58cdb3bd54783eeb",
+      "candidate": "477d64aea081235b5abb42fc936972009ac1a10e63bff94c26cae8291f63a67a"
+    },
+    {
+      "source": "tests/fixtures/contracts/break-joins/readonly_named.goose",
+      "baseline": "10c87f0b2ce814e14c68f6e974b9c67f24174d1e2ab73dc5f10b7334895a0101",
+      "candidate": "1587a9ce3b1e2512cc3ab133e32415e286b1ca6d20a87107a993024747a475f9"
+    },
+    {
+      "source": "tests/fixtures/contracts/pool-rebind/same-kind.goose",
+      "baseline": "c0e0b412731fdbe5ab3d37508e386efc2a06e6b40e35a2fe1e85da553d2f61af",
+      "candidate": "c253e1205a02be4d58e10a3126cae71d5ef82f90a7d064c0c24b258ff0f9ea8c"
+    },
+    {
+      "source": "tests/fixtures/contracts/pool-rebind/branch-pool.goose",
+      "baseline": "c29fe158b31dc69b82078cf11cf4c69f4d2d2180e28989766fc58c3f25bb72bc",
+      "candidate": "28b2675a6069c0250032c78616f62e775e312dc5da02449219e4d634bb36bf72"
+    },
+    {
+      "source": "tests/fixtures/contracts/pool-rebind/contextual-generic.goose",
+      "baseline": "98c1e10756d15342825f2929a744895fb427dad02ed266fae702a5f706c9fa1b",
+      "candidate": "4e6ba05ad056b203ba332cb71a70bbf0d86f94ce4f887a9200a46d1b8783a9e7"
+    },
+    {
+      "source": "tests/fixtures/contracts/pool-rebind/generic-pool.goose",
+      "baseline": "9a2e59da108c5188bf5986aa884bb5f19c96e5adf6da81ab0623b3366e12408d",
+      "candidate": "b6c08577234e9347b09d1408cccc022005e617a87c33502dc88a68add343fb49"
+    },
+    {
+      "source": "tests/fixtures/contracts/float-width/mutation_and_borrows.goose",
+      "baseline": "62dbfb2091d9b4abb65a53adab2854e354593999fa08fabf0b189fae12c061c3",
+      "candidate": "702b71856834e9e672d854cdf0c759713a2bc1a4f48f9247e11a5c2061437f96"
+    },
+    {
+      "source": "tests/fixtures/contracts/reference-values/normal_reference_branch.goose",
+      "baseline": "90a67e0a728f7e08368d06a678d414b1c02f6338e50d76c6b6cac11ed7a083d3",
+      "candidate": "36a3d78451eb2b34a02763655d91ae5c972d9918498eac3e074e4ae04bf21d63"
+    },
+    {
+      "source": "tests/fixtures/contracts/reference-values/named_slice_slot.goose",
+      "baseline": "62000b0d61d9b1b3d069b70557ec3d696f7bf663c65e7b2ccee85a792a55d70a",
+      "candidate": "cd637ac52a694c906b769b3f49d0e437a389c4aacfe30b7ef41b7e0c4a614bb0"
+    },
+    {
+      "source": "tests/fixtures/contracts/reference-values/read_temporary_slice_slot.goose",
+      "baseline": "bf5b0ab6ac7c6347ebc4526115ce91d134af2c565ecd660632517bc0de24d30d",
+      "candidate": "5e82f462b15f51e27614195eda2fbaa49e97218d3981b56c8b1d7278c60ed59d"
+    },
+    {
+      "source": "tests/fixtures/contracts/reference-values/named_default_write.goose",
+      "baseline": "ecca302fcf77b0fcff21fddb4fb9f43f93303cf22a8e1f741eb3acc9d9940ce6",
+      "candidate": "1aa10af343204f09d61c4f9d3b887ce69afaebbac974838cd58e4a6151bc208f"
+    },
+    {
+      "source": "tests/fixtures/contracts/reference-values/const_reference_join_read.goose",
+      "baseline": "4ec1f82fe1a47be38f1751306a49403f06fa7eb1a7a9121de29b209497afb26c",
+      "candidate": "bf7318ed02e9c317e01bfcd35e1067dd90d101ad8a1259960fe797b17f80857f"
+    },
+    {
+      "source": "tests/fixtures/contracts/reference-values/mutable_reference_join_write.goose",
+      "baseline": "2bb3fd4946eb877342de84762d4d7e43587d2251a07d6ee08648becd245707f4",
+      "candidate": "c85551e9b13a10a652b6d60d76a028b12d3501ba6d37041bb0d0d6950c66d0fe"
+    },
+    {
+      "source": "tests/fixtures/contracts/reference-values/mutable_join_diverging.goose",
+      "baseline": "86bf473c9893000c275824aa79c4ffe1dad929e0e0b48f2668fd42982fd28c07",
+      "candidate": "12135fe76ddbf36c52fe8620f46046214fc8893ca08ce334f0e77ef653b0541c"
+    },
+    {
+      "source": "tests/fixtures/contracts/reference-values/mutable_join_reverse.goose",
+      "baseline": "eb6ab50a38f74de8f7b588f90f71c7091d0456dcdf4f0de8612587998da70057",
+      "candidate": "05f99698c2df468d1ddc6ffebd24eb65217291b21c5cc511df27721280776468"
+    },
+    {
+      "source": "tests/fixtures/contracts/reference-values/mutable_early_break.goose",
+      "baseline": "cbc1444201bcbd076d00f58187dced62bf2441195070b7d26f04c412b07b5d78",
+      "candidate": "3825bc03af765d59ae7783a47dda6b6368e31ebc71afaf69ea3c265445506462"
+    },
+    {
+      "source": "tests/fixtures/contracts/reference-values/mutable_loop_break.goose",
+      "baseline": "8e4bc0c098388a949d9f9efc68d29f70f0be0e227e2b76a6ec9484f83613f65b",
+      "candidate": "5162c4d31d30ca334d67c76612df7db94553d88fbeac0defe906a128c2f64685"
+    },
+    {
+      "source": "tests/fixtures/contracts/reference-values/index_nested_reference_call.goose",
+      "baseline": "e5395dd299f3030f14979f3aced91e579ade141d9723bcba05b2221936b69966",
+      "candidate": "dfde64d87371195e59b1e2a2ed5bde87e86d55eb23395c662e5350dd905b3d14"
+    },
+    {
+      "source": "tests/fixtures/contracts/reference-values/index_multi_reference_result.goose",
+      "baseline": "008d1c07a6e06eb61854442b3ac322cbca04e406a6f45828b959f16a9657de85",
+      "candidate": "9528e2d651e5d6e648a9410805cd85bb430b3d586f75e9783b13a5606f581c61"
+    },
+    {
+      "source": "tests/fixtures/contracts/reference-values/index_const_direct.goose",
+      "baseline": "951cd6d31c67221cb3b77dd8fe57d6f118df1a80913c45078d3105becc4b2f0c",
+      "candidate": "a329bb69a604093e0d29d23418aafe4e62b97df95deece83daae67a2b4b9bdb5"
+    },
+    {
+      "source": "tests/fixtures/contracts/reference-values/normal_match_reference_argument.goose",
+      "baseline": "7624d6d4c09744fafcd2887573616d638d42a6c735a47766fb5298d8f2883972",
+      "candidate": "c1a3cf0a3ae2bd0bb5fc912d666359c379a58c8b1bdc93a596f87eb8893780df"
+    },
+    {
+      "source": "tests/fixtures/contracts/early-results/reference_targets.goose",
+      "baseline": "a23aabe89b27050348c633afcf8675db3e64251908dab5316724bf6d521e1b72",
+      "candidate": "f707c5d8cf4314fafe78e2c8dbc03906e293d7873ccc6b600f53dcb77fa0f70f"
+    },
+    {
+      "source": "tests/fixtures/contracts/early-results/aggregate_rhs_diverging_tail.goose",
+      "baseline": "bac4b455222bdada71df595be429acf610ba756994ab4aff4c1c7bb8c3db797d",
+      "candidate": "e3ee299af8569077b1a4d91eaa5cb880f9bf70430780e321500abf856e01bc3c"
+    },
+    {
+      "source": "tests/fixtures/contracts/early-results/mutable_slice_exits.goose",
+      "baseline": "c82e29ac6f5894fdbc8d247c262fd0d3aa9a0b7483d3667cdbf7586927f29bb2",
+      "candidate": "b903507e2c45ad3a89cfca9c048d1bbc2c303a88c51fe377ffcedc7a72c03f90"
+    },
+    {
+      "source": "tests/fixtures/contracts/early-results/named_readonly_reference.goose",
+      "baseline": "a722c28d12a1fe910ca0cb405d99dd83e857ab77166db1864b659bbd1172da9c",
+      "candidate": "6fa79d5262239cbb0b51d3c591b655a07375b51c8b23bf620040049acc765200"
+    },
+    {
+      "source": "tests/fixtures/contracts/early-results/early_ref_parameter.goose",
+      "baseline": "03524ae2f1b054749e05447478e3e4b7bfff8302fbecc2d2513a8408ac8b1425",
+      "candidate": "eeb3e9f9a1ff6349a88331e82da2643650f4079ee239dd6edafaf8703406c4d8"
+    },
+    {
+      "source": "tests/fixtures/contracts/bounded-images/direct-fixed.goose",
+      "baseline": "56da20c4159a93bf1b8217793a55319539e08ad361c8ade96988eb808322990e",
+      "candidate": "395b9c49e8cb0274dff374fac676adb46fd97dc975e8984f626bf81957405ffd"
+    },
+    {
+      "source": "tests/fixtures/contracts/bounded-images/direct-varint.goose",
+      "baseline": "e04f90c77ef25b283baea21ff5e37aace3a9947fe34fc4d979b3dec747ce4b8a",
+      "candidate": "752856c4bff23f8ba4c486f085240493cdddae9b1e2d1ec3922655fe7c6a45bc"
+    },
+    {
+      "source": "tests/fixtures/contracts/bounded-images/initializer-pool-growth.goose",
+      "baseline": "53634c632c0cd612218c61035716841894ddf1dc3074f78a6063610f6817da95",
+      "candidate": "93c048ae3b3644e7a90c7243eda2f0106a82185a675153b0d3ecd10bbf777384"
+    },
+    {
+      "source": "tests/fixtures/contracts/bounded-images/owner-forward-growth.goose",
+      "baseline": "67a53993cf3c427cb695322eb09bd6d7bf66f01335f0684119d717b98279b54d",
+      "candidate": "0a18d3f8465738021f20c91969156fcbea090948d50b84e1c802ee96279139b3"
+    },
+    {
+      "source": "tests/fixtures/contracts/bounded-images/owner-initializer-nonlocal.goose",
+      "baseline": "82a947e105711a042b1e6e2d9e6ca60a38af55eaab3ed044735fb5c6f8b8350c",
+      "candidate": "56fc7edf5ca00d2201fe7c660c2a453ea952ad5495df00c7c83ba97b1a95ad96"
+    },
+    {
+      "source": "tests/fixtures/contracts/bounded-images/borrowed-view.goose",
+      "baseline": "269858c4ac8f0e5bd7aa1c073f7fbea489f2ccfd3dbbb720c347fe99f8813898",
+      "candidate": "b9b32fedf98ba95e106461ba92d27829e73a67f08dbfc20d602c26c86e79e881"
+    },
+    {
+      "source": "tests/fixtures/contracts/bounded-images/owner-copy-equality.goose",
+      "baseline": "2d630c907ed72ef69302da5da55cc93298f045ffc9deffdc7b32d1eb56296b77",
+      "candidate": "df03fc9b6d6be12492465648484cb974fc343cbaa88a3563c8d6449ad2e315b3"
+    },
+    {
+      "source": "tests/fixtures/contracts/bounded-images/pad-zero-varint-copy.goose",
+      "baseline": "be669aaef81a9b395d685bd1c1c3ce6cf043826eb7460a43df17485ad3b94cc1",
+      "candidate": "c19b800460bfe5e158ecce9e44218b57e6cb1c05973523f61d9fa9b2b0014720"
+    },
+    {
+      "source": "tests/fixtures/contracts/bounded-images/pad-zero-u16-copy.goose",
+      "baseline": "2c4b52951f5690a2cb715e5dca00732599d0d7d5de06d592f4117c7e868f69be",
+      "candidate": "db3fee50b1262004ec4187765047d7dc7d7657b88e301ea28d7e61e380c31290"
+    },
+    {
+      "source": "tests/fixtures/contracts/bounded-images/optional-null.goose",
+      "baseline": "7cd49f0c39d9a4be439d991f57eb9bf3513ac4925049ac8e45f64d50cd35009d",
+      "candidate": "4e8d8cc426f7eac6b269f06e3a486b9bb24c8f48e0ea1ad83a32788aaa6990e9"
+    },
+    {
+      "source": "tests/fixtures/contracts/bounded-images/render-known.goose",
+      "baseline": "440a28f11300d0858de8be28f38e557c9d0aee4d934aeff789bcf8b291e0e723",
+      "candidate": "319148d84acb6e31b9491aef6adc5f7e65e9b1ab1fb40858cab4a31f5251b880"
+    },
+    {
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/borrow_concrete_reference.goose",
+      "baseline": "cdb03798b31963640a1d256a65fa74d9a395676bd27626089f26aa88dc6c5812",
+      "candidate": "f7812dcbba85312b3948be4472f2e4dbd00db686c4d96eacd7ef56f0e9adae94"
+    },
+    {
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/borrow_numeric_fallback.goose",
+      "baseline": "cdb03798b31963640a1d256a65fa74d9a395676bd27626089f26aa88dc6c5812",
+      "candidate": "f7812dcbba85312b3948be4472f2e4dbd00db686c4d96eacd7ef56f0e9adae94"
+    },
+    {
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/borrow_typed_reference.goose",
+      "baseline": "ac0ee8385b0fedd1aff62c417ff821211e91958a00f2c0e36b89eb9ebe0e06e6",
+      "candidate": "e3ee9dc188ac6ae94ad453c3d7bb671f1c89fd2581b76416c6c6b34427b1ab4a"
+    },
+    {
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/funval_direct_reference.goose",
+      "baseline": "1ed6993b7acad6b33212ebb5ef0237a126ffe4b127041f4b3604a5dc20b8c84e",
+      "candidate": "b6838c6347620c4eb094cfb589333b30673bd6847213e42314ffe934f5cd6dbb"
+    },
+    {
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/funval_typed_reference.goose",
+      "baseline": "c994e88418b53f7d99e78c4a55bb951c8632b6ec53d7cf23c91ec390d9a66fd8",
+      "candidate": "a75bf56cd8092560cd681434186980822d7927bbd299047d8a535adf8a9fefcc"
+    },
+    {
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/funval_explicit_copy.goose",
+      "baseline": "15adc8e56100be1f559e49a9473a4754004b8eb7048c56e4e6ff7dbff707b03f",
+      "candidate": "706a3fd12eea29db9c29abc2987688f55dee6d2fd1c438aa5a6451dca7495cf9"
+    },
+    {
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/funval_fixed_copy.goose",
+      "baseline": "c2b161bcfce2b68d7ca110759c72654c40306ffe46906bcf20bf12c3fe05de49",
+      "candidate": "72db29dd46dada99f40be8f39f0f0a7f57a305c55a3bba4d0f38b4435043c829"
+    },
+    {
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/overload_null_optional.goose",
+      "baseline": "685cf10a8bef262b87f9dc3fd07074bcc32491ad8148c2ae713ac39e9ab71d75",
+      "candidate": "93ad229f27e80f07acc0ec50e75c691e364d3e07989fdcc75711f6eaf3335148"
+    },
+    {
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/overload_concrete_ref_generic_value.goose",
+      "baseline": "4e005300ce25305416eb74826abd39fa96a9e137ca9f38e64308baddf8dfbb72",
+      "candidate": "692e540d55f05f5e578ed22018397af4226acde21b14e3508eedda00ed57745b"
+    },
+    {
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/overload_concrete_ref_generic_ref.goose",
+      "baseline": "4e005300ce25305416eb74826abd39fa96a9e137ca9f38e64308baddf8dfbb72",
+      "candidate": "692e540d55f05f5e578ed22018397af4226acde21b14e3508eedda00ed57745b"
+    },
+    {
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/overload_integer_float_fallback.goose",
+      "baseline": "a69d1eaeb9288ef3056f4e96bd3cddf887d22c50f52dc1559ad6d6c20b8dc230",
+      "candidate": "cb9baed0e367fa200a06885dbc2d079dbfcfcc142c9ca347634e658b1d80f04d"
+    },
+    {
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/readonly_branch_read.goose",
+      "baseline": "c2b9b55efd13421d495ec2f5f6ce6b644c95101f35c3530d6445bdc9db32ec0c",
+      "candidate": "6e7ca45360c4978561a4cddc303fd9e30dc2d64118eb8a6efd548eacac362c4c"
+    },
+    {
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/readonly_branch_write.goose",
+      "baseline": "b7536fa699b84db2abb6553198a1328e45aa366c61569881f1ffd17cee2f116a",
+      "candidate": "53f2ca4a0f43f90e607f0165b2319fb191327925b3a9b438f87e81496aef24f3"
+    },
+    {
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/fv_direct_nonfixed_reference.goose",
+      "baseline": "9a0a935e30b29bbe26ef22c48ce72f46ed3e55bc655c312cee9e17c84274bf53",
+      "candidate": "58d816c6183040572063342f117ff1471b3bfe805c21848e29a946ffdf58a10f"
+    },
+    {
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/fv_typed_nonfixed_branch.goose",
+      "baseline": "fdbe12bc48717f7e7594ff7ff6eb02cd7d16e8f05e2495be5b460cd8197b7c7f",
+      "candidate": "152a50c29f2fb54c017b2eefc7e4c2c17233665c44eb559a651b6370b0070521"
+    },
+    {
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/fv_untyped_fixed_copy.goose",
+      "baseline": "ea8cbf9a3d8bf18a38f8ebbb1ee984bc75157ec03b935eeac30ca34e05c02288",
+      "candidate": "32ce7124d1c7ba5c5ede770d75b2fdf3a97ce6ea1346dd38876d35e76b4ce3df"
+    },
+    {
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/const_branch_read.goose",
+      "baseline": "c2b9b55efd13421d495ec2f5f6ce6b644c95101f35c3530d6445bdc9db32ec0c",
+      "candidate": "6e7ca45360c4978561a4cddc303fd9e30dc2d64118eb8a6efd548eacac362c4c"
+    },
+    {
+      "source": "tests/fixtures/contracts/multiassignment-results/multi_assign_plain_references.goose",
+      "baseline": "dfa7104e9ae8482a7009013b2291fa6c03753d107564d86fcf9ab71c9a4fbc94",
+      "candidate": "d77445a81635b741fb94a8f9a0fd3e8f702cb1b643ec93077439fdcf7157ad04"
+    },
+    {
+      "source": "tests/fixtures/contracts/multiassignment-results/multi_assign_call_before_indices.goose",
+      "baseline": "33d7b221588ee07984558da52ddfbeaf0e1dd2c57ee6d57d16b5e88ab9dc5b33",
+      "candidate": "979bcc6270d95c5f9aa2c2f961bc53490c3eb19d90238ffd32d486efcff01a2a"
+    },
+    {
+      "source": "tests/fixtures/contracts/multiassignment-results/multi_assign_narrowed_reference.goose",
+      "baseline": "d65355750f225ed8ad23dc5e42f6786791275946fc69aebfc3e1eb5aa8292afe",
+      "candidate": "e3d627c05b743b4a44e7bf551dbf0434b52906807b2b608b92d8c1110f69f302"
+    },
+    {
+      "source": "tests/fixtures/contracts/multiassignment-results/multi_assign_fixed_reference_result.goose",
+      "baseline": "333ba02a0d29f1defd03a692db253a547d0efa2d052548e9daf7133310e93947",
+      "candidate": "6c4800011b4a81d7f789e5df84457336f7d7732f238eff1fad444e2ebc5ea7a1"
+    },
+    {
+      "source": "tests/fixtures/contracts/multiassignment-results/multi_store_before_next_index.goose",
+      "baseline": "8150c74d1ad168d567c2e209f10151435b1ca6bd3e19c12e4b78c6f573e8aaca",
+      "candidate": "ee2f6a97a78bf4d77099265416485ce12aa15e336c391c5ca9313fa2a4ed2bfe"
+    },
+    {
+      "source": "tests/fixtures/contracts/multiassignment-results/multi_fixed_refs_before_first_store.goose",
+      "baseline": "f36954f73e3b94386c2de5a455e214ba26bc06fba66eb3c8a8aa02f2372f0233",
+      "candidate": "c0af77cdc34a4680fd59e07202e7eb404f839bb9e6dd6233e0e820e67e11aa7d"
+    },
+    {
+      "source": "tests/fixtures/contracts/multiassignment-results/multi_fixed_ref_before_target_effect.goose",
+      "baseline": "42b2d0edfd1d6bf134f6578d6c5623c396838e267c18cc3abfe20ce69106cd30",
+      "candidate": "88779555a4c0810a62dca6829cda259d3bafda0adc24475ddad8f18bca307224"
+    },
+    {
+      "source": "tests/fixtures/contracts/multiassignment-results/multi_fixed_aggregate_before_target_effect.goose",
+      "baseline": "ddc1aa336c6df2915f956df30ad05ccda00bf749a38fba5751efe8b0b3bb647a",
+      "candidate": "9e2ae1116302c527333ebe6479b86774b124f6cbaafa46f4a8ebaf9873a6430c"
+    },
+    {
+      "source": "tests/fixtures/contracts/multiassignment-results/multi_target_effect_trace.goose",
+      "baseline": "ca97aa62fb47e9524f344570024b3ef8564b4484218ec753e61bc28894471ef7",
+      "candidate": "03ca0340ad7bae9c531434cbfea69e43fd0089463e60a9b3cc7a6200df99aa37"
+    },
+    {
+      "source": "tests/fixtures/contracts/plain-values-and-views/const_owned_array_copy.goose",
+      "baseline": "59b9d56b4d19b23421f40fa9611e75a1ac324828e812fa2a5630c206ad62174b",
+      "candidate": "b852b1f75aebf23ca221af306fcb8eee0a75ec1c0119e118e52b058ea4833689"
+    },
+    {
+      "source": "tests/fixtures/contracts/plain-values-and-views/const_global_folding.goose",
+      "baseline": "4e13d238c8e882ae7bdc030b6bd41191e2fa8653039cd0c8cdea989a2213090d",
+      "candidate": "8e8902b93274cb32ba5cf46e03952a6ad812ebd43f77bb44c60c663b73efd8d7"
+    },
+    {
+      "source": "tests/fixtures/contracts/plain-values-and-views/const_varint_reference_storage.goose",
+      "baseline": "220edc27d176684cfce7e3d5f434b5d60dc9490cc2d4ce8b670f8287a8faad1f",
+      "candidate": "dc934f625c2f77a6a8e90cb5b3fd1dcf7dc610cba0adeaeb6849dcde5e7ed0dd"
+    },
+    {
+      "source": "tests/fixtures/contracts/plain-values-and-views/const_struct_slots.goose",
+      "baseline": "afdb53110838ce4b2d524a8254aa6dda6725b8b7f665d2560badeef22c8db420",
+      "candidate": "9ae3640c6ac01ae784af370ebdef66c9ba919ac10c74ba027715cf741370d2c9"
+    },
+    {
+      "source": "tests/fixtures/contracts/plain-values-and-views/const_var_assign.goose",
+      "baseline": "dc99b35743de5ed1598b7e0fa9975ad640b3658275ddc2678d40b983a337211e",
+      "candidate": "b0380dc6ea167f05ea5a69fd91ff3d76f86851483552fa0e1b8a90b0c78c5fed"
+    },
+    {
+      "source": "tests/fixtures/contracts/plain-values-and-views/const-owned-field-whole-assignment.goose",
+      "baseline": "3f06555e5b5a1528e0d8d23bf017f93e5d6acc5aa0fcbaf4e806bb18f501d06f",
+      "candidate": "fe29dbd29d96f87052ed1a4cc0b079326ee3819ad638ca4d401bcd2affd49c22"
+    },
+    {
+      "source": "tests/fixtures/contracts/plain-values-and-views/const-owned-field-format-readonly.goose",
+      "baseline": "05dc59396baea4d373459ad11777da0b228b8ab9875646314971697c59906058",
+      "candidate": "ef81abeaebd660e7287cac3972051a297c96a86d4a7518661c7c276563df3651"
+    },
+    {
+      "source": "tests/fixtures/contracts/plain-values-and-views/forward_narrowed_optional.goose",
+      "baseline": "bbcdca41b2372daae66b2beb336a9dd8e115a9ba2c40acf6acf1af147b094b32",
+      "candidate": "a042e2974229ca712b72710988c3a39084eb933ab304a6236259137fa0cdf377"
+    },
+    {
+      "source": "tests/fixtures/contracts/enum-control-dispatch/dispatch_modes.goose",
+      "baseline": "f63059d41a8b9ae323c304807464d22d02b1b3f1edf7eaee5dcad062f2b74692",
+      "candidate": "6dcaa0d3ac3a32e44a4b4e6058c28f31043ad4f68244170b2b7f11cfd1f89d12"
+    },
+    {
+      "source": "tests/fixtures/contracts/enum-control-dispatch/fixed_copy_independent.goose",
+      "baseline": "2a0a4cd70f0dd26a5c06924bad92a874bf1a9d8e58169db7218c557254dbd40e",
+      "candidate": "3cdd20058e52532c019bc4b4d592d1976987cc58a91ec39f4f42d6df68d46fa1"
+    },
+    {
+      "source": "tests/fixtures/contracts/enum-control-dispatch/const_read_dispatch.goose",
+      "baseline": "1b8d5ad24f87a4afd422ec961634e5c011b1c9f56f239000da1cfb06e5bde0cc",
+      "candidate": "9ae597fea4dae32fc9ab5a6efbda66148b5245ba447c325e9b746497e11b32b0"
+    },
+    {
+      "source": "tests/fixtures/contracts/enum-control-dispatch/branch_reference_arguments.goose",
+      "baseline": "a5b309db443d4d00d6702ed563886da77b268518472d15e922d75c7f94a9ae90",
+      "candidate": "3a0a5543eec24d97ff13b8f4d9b0f005a2794fcd988810c97dfe51adc0bd27f9"
+    },
+    {
+      "source": "tests/fixtures/contracts/enum-control-dispatch/warnings_once.goose",
+      "baseline": "d7c223df49f3c2723cbc353453385c38cd3593303bb6b367cc0af524f36bd1d8",
+      "candidate": "f0d2c5ea90a2fb51d529361278648ac047c1c5842511edead62cef8886f699b4"
+    },
+    {
+      "source": "tests/fixtures/contracts/enum-control-dispatch/direct_and_ranking.goose",
+      "baseline": "cabd8f204877ab7127ec73ff48b7640428cc1398216337b5a818dbeb261da4f9",
+      "candidate": "3bf944b00ee9e0dfa20744bc5c126b08bc63d8428b26de45fecebbdd8ea5fbb1"
+    },
+    {
+      "source": "tests/fixtures/contracts/enum-dispatch-review/mixed-case-modes.goose",
+      "baseline": "2d59852739c9aab5c20934442395ee8e1c21bb6a9e5f8b94fe3833b436117cf4",
+      "candidate": "ef23c68ef2ca386447f485cb8632f77badf4a5089ae31caaab01a0a01095e062"
+    },
+    {
+      "source": "tests/fixtures/contracts/enum-dispatch-review/readonly-source-value-copy.goose",
+      "baseline": "90448f8bded7c281bbdbf0482b67c14d9ef282df90f1fb465ebf38b689e3a761",
+      "candidate": "b74aa14229e8da2566d213979c813dabe206076b9416e9a25797ac1d2fa69f16"
+    },
+    {
+      "source": "tests/fixtures/contracts/temporary-values-and-copies/viewed_copies.goose",
+      "baseline": "c89111a0abffecdb84e3b66317b99f6d506b0145bcf5f0029c91604cc5968b5a",
+      "candidate": "bfd87e0bd57535ef396c74e0c8b7a98ea94a67f0e41b3d06852d4d752dc63c2e"
+    },
+    {
+      "source": "tests/fixtures/contracts/temporary-region-retirement/caller-and-global-receivers.goose",
+      "baseline": "33a6670518c28f665fabbd0d1d50c9b685ad5dc03180f9e7464b86942075016a",
+      "candidate": "c6965b021c09403863a2b06a32e641249e682521f9cb17eb22fa17b9e4b47492"
+    },
+    {
+      "source": "tests/fixtures/contracts/temporary-region-retirement/global-owner-view.goose",
+      "baseline": "c7fa6e1a964c73e0beed41f1977d470269935febe8649e18b51132fcefaed88f",
+      "candidate": "596c1185a75f266df577f5d3d5156ed1331f04807e1401083ba308e41bd37dba"
+    },
+    {
+      "source": "tests/fixtures/contracts/temporary-region-review/global-initializer-publication.goose",
+      "baseline": "6635d6e0f4a399bda818c0793f52614559f8b5eef3a242db374740675b8ab231",
+      "candidate": "625e1dd38f1e1a369a52f2effab6e0b18a865c8739b6352091fb9d1264462208"
+    },
+    {
+      "source": "tests/fixtures/contracts/temporary-tuple-retirement-review/discarded-tuple-argument-order-and-view.goose",
+      "baseline": "b39f2873461767b69023d9f406dad8710f5ba5d8d12d4ffdacc5e50857f63915",
+      "candidate": "d7059a53543611fde7ef4595dfee299b0480916db73d4798067719f8be52036d"
+    },
+    {
+      "source": "tests/fixtures/contracts/from-end-slice-review/slice-reference-mixed-bounds.goose",
+      "baseline": "825782594fa1bdb8593ee5f0711a16d83ef81cdf1753576cb20b9e1c98e20bab",
+      "candidate": "9fd1aef2289deb3617992e3ded26ce59d831bdc8663f615d9eff60e46a26d4e8"
+    },
+    {
+      "source": "tests/fixtures/contracts/from-end-slice-review/dynamic-mixed-inverted-range.goose",
+      "baseline": "242d6b3c38ad4402d19c5af9222cd4aae4d224c0238a666ea14f5d6b8e25a2da",
+      "candidate": "352e0f2b1c370dfe1edbdb7a5f932bbf69db86a1d93c493a0ffbff0eb4bc3685"
+    },
+    {
+      "source": "tests/fixtures/contracts/lifetime-containment-review/nested-nominal-pool-links.goose",
+      "baseline": "c64fb32746bcda149e27e66c8ef5325e831a09a63f4f7c3e4aff43c7d500b6bc",
+      "candidate": "095ee308c8c52a9ab3d93141bc38acac9fa77d7d39ab97d3e94986a19d27f6c6"
+    },
+    {
+      "source": "tests/fixtures/contracts/resolver-scalars-57/ref-fallback.goose",
+      "baseline": "af5bf4ddcab4727be5d68423957be22cc6c7b060fa7c4ed584908bc6f07633e5",
+      "candidate": "1ef29d1b36f9833bcbf77dd27f227915025a65257de603ff880407c02f1e5aea"
+    },
+    {
+      "source": "tests/fixtures/contracts/resolver-review-57/scalar-reference-fallback.goose",
+      "baseline": "cb754c0b25b158fdf229730d57d2bd715c7b8e654c4c16ffac52caf42a800a16",
+      "candidate": "d82f5a061e0d73e8b0a4e92a459d21d41ae7a3309fb9f0b9a918c73087cd470e"
+    },
+    {
+      "source": "tests/fixtures/recursive_owned_helper.goose",
+      "baseline": "1b31689e4ecf6fa793e9a4ebff492986c8fdf3affb9d7fce9928052d5aa387b1",
+      "candidate": "09b04e0db616e8c6b11154bee5bf226303f90bbf3f4dd245918614d64e345452"
+    },
+    {
+      "source": "tests/fixtures/recursive_callback_reentry_owned.goose",
+      "baseline": "824ca6530836b9bb594d0d0ee67469093879ba0788ff59e8e8546d9ade97e002",
+      "candidate": "567efa7e3904786e9e722dcd2067d8156121cc847cd76d6b71c1d090baf4c560"
+    },
+    {
+      "source": "tests/fixtures/activation_empty_effects.goose",
+      "baseline": "b9336723b9399704ae8cd52857c031539f9a56f0cc2670a93d7213dbbd275d21",
+      "candidate": "50142088208957d92d457ea1a89360262ed4e9c108d89cdb46477e830060c56c"
+    },
+    {
+      "source": "tests/fixtures/contracts/root-struct/declarations.goose",
+      "baseline": "5db165e4e3417bee21ed06fb7ee8bef2bb569f191ad9cb145384a0734acd0f35",
+      "candidate": "678224c704f1a366cb4452802db2c10ef903f82ae87b5265ccbbfa97d614ef6a"
+    },
+    {
+      "source": "tests/fixtures/contracts/root-struct/owner.goose",
+      "baseline": "8f65e0cc6a03be32c5c59eff1e364fba320cc63fe6fa0054306eb2327b8bb23f",
+      "candidate": "ba1811cadf0a34f67d0d841c23ba9f317aedcbf64b0585a0dd324241496a140c"
+    },
+    {
+      "source": "tests/fixtures/contracts/type-arguments/variant-constants.goose",
+      "baseline": "08f4476131c57340a99183bb4b403e66ad8cc0cd18b0a6907c74a3ccaf0ccd11",
+      "candidate": "5561ff5bdba1be478fdcf8e3b8474518425b50e35f68a082182611e728028613"
+    },
+    {
+      "source": "tests/fixtures/contracts/defer/forms.goose",
+      "baseline": "7068dfccb1312b0a1364161c13ba2bbd7242fd06e3a1dc4f3d3a7e7a18d96ddc",
+      "candidate": "ee1a57242522d11c74d3a9a54ec91a45b81bd826df184a70af9a08dfd6c193cf"
+    },
+    {
+      "source": "tests/fixtures/contracts/defer/exits.goose",
+      "baseline": "149ebfde126de90ad9fbc3e83521f76065fea705ec8a723053632318455c9229",
+      "candidate": "93fba419ec10644fdc3c1f7ba9e84e76c057584f5b3b26b5b7fd2071be094d1a"
+    },
+    {
+      "source": "tests/fixtures/contracts/defer/extra.goose",
+      "baseline": "fbb45429862beed60b3311d82c60992c73325f93230973d6451e26d7f76e2636",
+      "candidate": "aea7f5009a18687b2b19d30ebb1d11976c1ddb38d9c8f2524cd63cdbfdf9a60b"
+    },
+    {
+      "source": "tests/fixtures/contracts/const-if/constructors.goose",
+      "baseline": "6548ddd0e7e49d166ff9929d5dc90dfa377d5fc5a5a3213bb8a06827ee27444c",
+      "candidate": "ed12653daf3d7fc098bff17ecdeb54b19ba66ab2cdc687951db5387b29ffb0a2"
+    },
+    {
+      "source": "tests/fixtures/contracts/const-if/statements.goose",
+      "baseline": "3ba10536b8ef46f8e80eda09306de8b4e3cba88e7f71f25137f2f88c464bba94",
+      "candidate": "97d8938b18aafff9778cfeac6e63e04ddd8f73c08959c832060092497443392a"
+    },
+    {
+      "source": "tests/fixtures/contracts/overloads/slice-reference-binding.goose",
+      "baseline": "d2d12309770f9880fdaa46d21d856affc0a71379ab74b8a1e3babaca1be07477",
+      "candidate": "21bc21f30aedac7eb08e4b23382144b4863c79994006e40cea5c1db3150f0067"
+    },
+    {
+      "source": "tests/fixtures/contracts/overloads/const-reference-accepts.goose",
+      "baseline": "2f05d60a27c496e8e773a86c0eb525215e4185064bb2987f5eaf1508e0994de5",
+      "candidate": "05e89ed525093888d24c0e42c2a476d33f1c5dc5bac9f77f29ef4b428545fba1"
+    },
+    {
+      "source": "tests/fixtures/contracts/overloads/top-const-value.goose",
+      "baseline": "bb3e2c1d59cd294b9f1f56bd37f370274daa8f4bdb47f7c801cab86a19882a21",
+      "candidate": "4840b76cb6d1e4aec680f10101734e259544a68515a22636b32c4251f4d76800"
+    },
+    {
+      "source": "tests/fixtures/contracts/overloads/optional-argument.goose",
+      "baseline": "74029d7b42f9bf6f493790f72e4f905654f10b378e1b564bc41c4caa39a58984",
+      "candidate": "754d4eae272864253bd039ef119ff450d343c48dee55faec30afae6287f361c2"
+    },
+    {
+      "source": "tests/fixtures/contracts/overloads/typed-default-slice.goose",
+      "baseline": "a06fa866cdb7955f8ccb29acb426e232988f62fc02f1634a7641a642c5c9672b",
+      "candidate": "b8e2fdbb5efe01ee6fe4f05f6a10565a8174e50064c0a5548aad30941b3d01d7"
+    },
+    {
+      "source": "tests/fixtures/contracts/root-struct/components-check.goose",
+      "baseline": "78ab106f3b40b45ae9268bdd8db0ff522366e7d26cf33ca92298c19639b64345",
+      "candidate": "8df982ceb152c592adaa0d3c824398d2761c8ebc2ce9b22468fb9167275c9c2c"
+    },
+    {
+      "source": "tests/fixtures/contracts/root-struct/owner-references-check.goose",
+      "baseline": "0cb3039538ab000a8b5fc85ef34b86f2d870e8fb484b70c2b1814041170335f4",
+      "candidate": "9f9e56446fda5bc0d88b734346bed915b494e7d309c8434a1ff2982285f7bb79"
+    },
+    {
+      "source": "tests/fixtures/contracts/root-struct/relative-links-check.goose",
+      "baseline": "3c2deaf011f99dfdfd76a382ed532377ff27fe81d76e332269af95ea075c9c20",
+      "candidate": "0b8804e53963e1aa77097321436b3c95ff2937bd5266c82e3efae6b96a0e60d3"
+    },
+    {
+      "source": "tests/fixtures/contracts/root-struct/component-index-check.goose",
+      "baseline": "7ff6a9cb7fd0d00642ffa6f16f0e5c7be41798763f633891147028dc95ab8125",
+      "candidate": "9657878dac925ef13cb9bc5c81fb7c0b7e81b86101024ea5cb11fef056dfd956"
+    },
+    {
+      "source": "tests/fixtures/contracts/root-struct/component-pool-check.goose",
+      "baseline": "203a98983b21e3ffdd103a810fdaa184a6cf7326dd89bdd4415033da5ab8d149",
+      "candidate": "3cfcae6643924962f01abcea851e5aadd74fee9897158d8fdbcf07b6a5dba19e"
+    },
+    {
+      "source": "tests/fixtures/contracts/root-struct/component-names.goose",
+      "baseline": "b6e7799cf197ee07b3f17aefda95d0e30e248c836e6d0e0a9e7d93fe3bd25da9",
+      "candidate": "16647c25a6545ac4a9548818f6e6dd5023fcad5e817be0885f27ed237479859b"
+    },
+    {
+      "source": "tests/fixtures/contracts/root-struct/storage.goose",
+      "baseline": "abc5a0bc367d2c31d2a6579bc1dec459d98fdf17a108ec21e4b292106ff2c06c",
+      "candidate": "05fb190cde6c84766824c09d02e6eac538069891a47c36cdb0dcc39ec6e2c47f"
+    },
+    {
+      "source": "tests/fixtures/contracts/root-struct/storage-scopes.goose",
+      "baseline": "1eae18643779b2a633b8b6c99b71dba4093811d60511189ebd128164b891ba30",
+      "candidate": "c205991b2e393bac8b55eb2a0b799b06f1ef08f9b1a24b39aac7b0b2a7872a1b"
+    },
+    {
+      "source": "tests/fixtures/contracts/root-struct/component-kinds.goose",
+      "baseline": "268b757f48922253d188989de072a21d160cd2c16adc57123fad157b3755e06b",
+      "candidate": "790e92d44b8d949261276234fb16263db75d86ca73d241977afd1a24ea010e35"
+    },
+    {
+      "source": "tests/fixtures/contracts/root-struct/component-encoded.goose",
+      "baseline": "6a55311a44386bb7379256925ca36db7b61b25b9e6036f6f78cb77d2bdfd5139",
+      "candidate": "4cf295acc028eec0102d0db6df9c2b2b017c96d34b9be753b553334db8ffcb6b"
+    },
+    {
+      "source": "tests/fixtures/contracts/upstream-differential/backends/abandoned-destination.goose",
+      "baseline": "b9bd235b6aec214c057aa80859d64968d892f6220db38e8a96e1310461927b4e",
+      "candidate": "ef4428b5306c1b7ffa0b8b4f8e9719603a0c8e8c0265cc5951c85830b522e577"
+    },
+    {
+      "source": "tests/fixtures/contracts/upstream-differential/backends/varint-push.goose",
+      "baseline": "00ff9069fc70ff30dbb076cf8721ffc78523d49404b533dcc2cbcccf226a2d5c",
+      "candidate": "ea271943f4a177a60791b9f7c22c6ce2c6439fa7b997479ea91259fd802372aa"
+    },
+    {
+      "source": "tests/fixtures/contracts/upstream-differential/backends/diverging-return-value.goose",
+      "baseline": "2b97ba036e384d043d72b041d38a2af4aa0af5e68a9df2af46f57a54685630c7",
+      "candidate": "534298ad5504a1a26ab7c16c9aa61804214043453c6d72ac1e04e65e501dcbf5"
+    },
+    {
+      "source": "tests/fixtures/contracts/upstream-differential/block-branch-return.goose",
+      "baseline": "698c1b40066e90de8c3a3d21386e21aa7fb4e691c4067da96e87d1edfc962d6c",
+      "candidate": "cea6ae9decf6df697542f1fc987abaffb2c4fb73e6df863d930f0206142f85a6"
+    },
+    {
+      "source": "tests/fixtures/contracts/upstream-differential/block-parameter-reference.goose",
+      "baseline": "977be5f63eff31d22ac8c5850d6554d33873b45e05419a45af95773f3e3e2c7a",
+      "candidate": "2182d2a21f45f15890a335cfd15337d6260f6aa7733146663187dd3b4602bde2"
+    },
+    {
+      "source": "tests/fixtures/contracts/array-ranges/ranges.goose",
+      "baseline": "8a74b2279d8cf69145a4298df7965cea359b934f957a5bcb7b776f68a68b10c5",
+      "candidate": "2857cd081250cb3a67a72ba00f4377dac3b82492ca681174894ddfcafcdbc711"
+    },
+    {
+      "source": "tests/fixtures/contracts/array-ranges/range-foreign.goose",
+      "baseline": "1149c1b89492547201bba977225a1ab4c95f2feeaf6e25e18923733a656d2e42",
+      "candidate": "2e0606a70a087ecd048fa8f8f5a796f26472c579377c4c5c7c901d3fb18d88b3"
+    },
+    {
+      "source": "tests/fixtures/contracts/array-ranges/range-message.goose",
+      "baseline": "82f9a806d729ea8ffaeb2d8dfe8f0c4daf8923f56aeec8ba401a0ac40409ea7d",
+      "candidate": "7dadae6b647841c10d11383b7143fd55c5ade476cbeb8646724a50b15da00a82"
+    },
+    {
+      "source": "tests/fixtures/contracts/literal-parameters/adapt.goose",
+      "baseline": "4833e46c534bc834e53fb0d83f244785136f4aae7b76dccd01fa76cf70552ba5",
+      "candidate": "041e81f3787f23acff0b1f9be20578d6f4193ec08782432bc59a0c86df6605b9"
+    },
+    {
+      "source": "tests/fixtures/contracts/named-constants/above-i64.goose",
+      "baseline": "037fc74f08f3125bd828f2311a719f10ad6efd26fbe3b043380e6ac1427d2a98",
+      "candidate": "e8af36c3d4848d437e493ad5c4a34e14e6fba031b6582e78c735c8780e9fe0af"
+    },
+    {
+      "source": "tests/fixtures/contracts/abort-sites/library_chain.goose",
+      "baseline": "801f0f11466470365c558164b4f0e04c9374b421be310ec0bcfbbf6a4c7dd1b0",
+      "candidate": "17c80377ce4a97c5b4bbd49aa571f3574f0ae28bca3debd9092761f92084d586"
+    },
+    {
+      "source": "tests/fixtures/contracts/abort-sites/slot_pool_free.goose",
+      "baseline": "c3b2d861bff64f11f0a8146895a0d9419f34f2b1df517d7e90d3800e29d3de88",
+      "candidate": "b1c8b2a1c9bc96b5e5d9b83333b7b536433400c995b93e1464e214a96fe65983"
+    },
+    {
+      "source": "tests/fixtures/contracts/upstream-differential/harvest/aggregate_print/a0a8b0cdd7.goose",
+      "baseline": "dfd15bd338ef78a925092f138bf4687e9b7022a0dbba3e64e5d1f38e9d617aee",
+      "candidate": "915bfd8ea5ce3ee286d28c267f1ea62ec5f9b165c901edb20c5904d34c87c030"
+    },
+    {
+      "source": "tests/fixtures/contracts/upstream-differential/harvest/aggregate_print_boundaries/2cc428071e.goose",
+      "baseline": "8c23124484f12401a4e8ed5323d9477d536a6897f1cf5155ec7846817460a63e",
+      "candidate": "cba6b3247431ec1f477a16a85f47f2e98e459736cedb27d6d9cee052884f35dd"
+    },
+    {
+      "source": "tests/fixtures/contracts/upstream-differential/harvest/aggregate_print_boundaries/35e5648796.goose",
+      "baseline": "27518c990fb48aef2ad20b9b7c29229fa1f6da952ae26c038ffc1463aff0a5ba",
+      "candidate": "8e7b94ce9c716bf85f76c37a4f4968ef69159cb428e07801bd8283b37e857464"
+    },
+    {
+      "source": "tests/fixtures/contracts/upstream-differential/harvest/aggregate_print_boundaries/3c7a763894.goose",
+      "baseline": "3df669b4749e5e9edf76343d4796f03fba6ad59e175da6635a40280fd4590554",
+      "candidate": "a56ced5cf996a28371492752c9e06b403ca34b14531297e3541a5ed7fe0445c4"
+    },
+    {
+      "source": "tests/fixtures/contracts/upstream-differential/harvest/aggregate_print_boundaries/813d3ec199.goose",
+      "baseline": "8c3b2bf409a4e55ba0de6df82fc9c9ab0277320cab71b35c4882784cb3f4caa5",
+      "candidate": "a6bc801d28913acf1c15dfab9ecb25b1f6167b5a06b8ba201a7770b3ecdbc0b1"
+    },
+    {
+      "source": "tests/fixtures/contracts/upstream-differential/harvest/aggregate_print_boundaries/baa6d590d6.goose",
+      "baseline": "f9d653cc8c6535fdc98003cfe02997d40d7422b675f610ed0b110dea69436ce8",
+      "candidate": "027533556134b46c250f7da262da6b09c55eb7a2ef55f3b04f7f9b89f89f0323"
+    },
+    {
+      "source": "tests/fixtures/contracts/upstream-differential/harvest/aggregate_print_boundaries/c2e8cf8213.goose",
+      "baseline": "bc2ae2d4f455514a688a4815ea5dd6c19dabf6a5153eaa8f17c9fb71fef228f2",
+      "candidate": "633e2ecc66ed3b2dbb9d0064526bcd39e75cac450f1b6420b2fdd7e658827528"
+    },
+    {
+      "source": "tests/fixtures/contracts/upstream-differential/harvest/aggregate_print_boundaries/de062b0c0c.goose",
+      "baseline": "449c50cdb94385e36ae3d99814fc9668dac86258b402935008e784192dea2d45",
+      "candidate": "a3c782fb0348f877ca1a78bdd0bc9dbb8dba840189cb0517a41ed0d5e7032c2b"
+    },
+    {
+      "source": "tests/fixtures/contracts/upstream-differential/harvest/array_image_modes/0da64fb261.goose",
+      "baseline": "abaa256aa85dd9c7ae9a9977319b17ad6eb30eefcba90d6432e9987c685e4ed4",
+      "candidate": "e01ccf22cb18dc36ddd0cc64527ccd92317af316a88d382458a5d45d024dba63"
+    },
+    {
+      "source": "tests/fixtures/contracts/upstream-differential/harvest/array_image_modes/1f10c88a1c.goose",
+      "baseline": "b99863a0c9e620bfca66edd1fc4328782671fbbcf2f509ece813a729b9b85816",
+      "candidate": "efe6ec5d02a0a0de2d943e1d7c8fee53ed67e12bc2d99d584daf48a546717210"
+    },
+    {
+      "source": "tests/fixtures/contracts/upstream-differential/harvest/array_image_modes/34b26c2410.goose",
+      "baseline": "a1ac05b5350df40f7da2a5ecf03dabaac5ac0ad17f96081ff725368e6dd71d82",
+      "candidate": "4f62d2ce5315363dc9b8764a8bf9f6dcc09621b247d88a26fd9bf8b7295f16ac"
+    },
+    {
+      "source": "tests/fixtures/contracts/upstream-differential/harvest/array_image_modes/460a7e199a.goose",
+      "baseline": "23073d1c7f07735602580a49164f4e6c74420fdb31cb4b9c673e5ea3e5cbb539",
+      "candidate": "f5e56048629c3aad2d3f8f6625d72b9c94f745bf3f46205b236c9e40475236f7"
+    },
+    {
+      "source": "tests/fixtures/contracts/upstream-differential/harvest/array_image_modes/7e8b3b92b9.goose",
+      "baseline": "eafdc078952c7c7c0b4f0a8f9607600a798df7409551ae2ff787ada8548499b4",
+      "candidate": "ba2c684e3a28cc7176f5fbd50876377aad5eeccedc98455650efb86a992a1386"
+    },
+    {
+      "source": "tests/fixtures/contracts/upstream-differential/harvest/array_image_modes/97b2c73c32.goose",
+      "baseline": "5c7c5ab5b741d6fef87483d0ff946dc7bfec29bb3d17ca094d795d518d477a0a",
+      "candidate": "effea59f2dd3ebc5a7497476b72bb07a71e1ceb46f9383e61014f56e8239b628"
+    },
+    {
+      "source": "tests/fixtures/contracts/upstream-differential/harvest/array_image_modes/a33eaff95f.goose",
+      "baseline": "083410473dcf8a7414ecd3397271c386929ea877859484c946f9759d5c592a05",
+      "candidate": "c8bb82a256c2e48e3886999f14d5aa18ec2b21b99aef7ee6160fe93e6290e089"
+    },
+    {
+      "source": "tests/fixtures/contracts/upstream-differential/harvest/array_image_modes/bc739c28e8.goose",
+      "baseline": "ab33c59b417e033d7da351d03aad08d9f6d2df80dc161dc79206ea271401d302",
+      "candidate": "1ee185d162d1316bbf404c69b832edeca31e76dd840d706886fab1c18ab2a308"
+    },
+    {
+      "source": "tests/fixtures/contracts/upstream-differential/harvest/array_image_modes/ee6a0a21ef.goose",
+      "baseline": "71ed06cd55bfc31f7df2ac065e980757266f938f7e5ddf820ab8eacc3668e31d",
+      "candidate": "cde99fc2e6139d32a52e54437812bf1d5c0c81ab4aa35bc70918c02b9143f9dc"
+    },
+    {
+      "source": "tests/fixtures/contracts/upstream-differential/harvest/array_image_modes/fc5ed567fc.goose",
+      "baseline": "effb6f13ea4fadad7aeb2be088b6cbdbbe99fbbb5b7a189d2d358a0bacd6d0c3",
+      "candidate": "d21ace9e76f61da45989884695fb49c7f42ba2034ee0db3cb78a765ed8fa9686"
+    },
+    {
+      "source": "tests/fixtures/contracts/upstream-differential/harvest/array_images/421d04fea4.goose",
+      "baseline": "0f3ab36f64e2b9394e6cf20e32db853cab35ce9e40aa454616319738aee6ec8b",
+      "candidate": "6754cd1ee69ea49d73524dda79f6983927aaac8c2783e187cb43bfc5dde429d6"
+    },
+    {
+      "source": "tests/fixtures/contracts/upstream-differential/harvest/bulk_integer_loops/23bf6d3f1f.goose",
+      "baseline": "3a2ebd2c25fb6f5a27e9be77470fd6c6adfb777a3a642853637d7dd9c8c540de",
+      "candidate": "e33b229cb74f9ec28b01650af7466cd5c21b94bbbdf44fe2a2613a7550168854"
+    },
+    {
+      "source": "tests/fixtures/contracts/upstream-differential/harvest/byte_scans/1735eeffec.goose",
+      "baseline": "ed2dd0ea860a65119eac8ac71aae6fe85bf1f74d8f92eca756a417dee8e42680",
+      "candidate": "e92a37699ea3484efb580285ded99a5daad5b3fb5b3c88be7daf6e8443ff130e"
+    },
+    {
+      "source": "tests/fixtures/contracts/upstream-differential/harvest/byte_scans/23563842e8.goose",
+      "baseline": "1383f30efa3015ab37749c38c567991a665dba860cd8697244985677db427604",
+      "candidate": "95ddc5ffec738c504d1fdd89a2cea6eb1f8ba13c859ed2fae495bb13195fad27"
+    },
+    {
+      "source": "tests/fixtures/contracts/upstream-differential/harvest/byte_scans/5d1bcfaf85.goose",
+      "baseline": "48dde7fc50125c61ae1ed46cc15f98f21eb0c5ddd7cd6473c8f538302181e86a",
+      "candidate": "135d7c127ca8fa4d96a21df8be2e306c490efe61a9b4d1cd8940b8a43ad9944c"
+    },
+    {
+      "source": "tests/fixtures/contracts/upstream-differential/harvest/byte_scans/7a94f151cc.goose",
+      "baseline": "cfbb5c1d6a09d0e7b40d926831fb7f2fdf293c860244cee90ce9cea94891c2ff",
+      "candidate": "0f0e780407ac29b138e5212038d9dc150a8f4fb1f6cea6c3e5d49aa30b424917"
+    },
+    {
+      "source": "tests/fixtures/contracts/upstream-differential/harvest/byte_scans/e8b6146247.goose",
+      "baseline": "3f81bb0ba27bf1dc6e062c5ab3aa532186c3b3036fbb6f6ee3a8cd52b70fc382",
+      "candidate": "882ff50b8c711972b4c914c0192578aa3a6c675d7c5aadfe0e2df3646a3585bf"
+    },
+    {
+      "source": "tests/fixtures/contracts/upstream-differential/harvest/descending_simd/cda689bb18.goose",
+      "baseline": "15872c02549e2eb3ecd68a75b1dc7e9947c9da9c1718af406a4d4513327bf09b",
+      "candidate": "f30c643abd62a75ceb2c2c27851b568b00ffb652c35c029b645280937fa69436"
+    },
+    {
+      "source": "tests/fixtures/contracts/upstream-differential/harvest/descending_while/939a9fa87e.goose",
+      "baseline": "28990891399b2a1db025fd87f8a2225eba719afb4e733f878f5b06607a9ce7af",
+      "candidate": "83db39c937a20bcdb1dc6ee3cac0c31207752daeb3b08773260ad7bb8cc11d8e"
+    },
+    {
+      "source": "tests/fixtures/contracts/upstream-differential/harvest/enum_images/4e10dbd1c0.goose",
+      "baseline": "f1eb9f082b8cde4a818a96334a06db75d677571772622db8eca7babd12a63f4b",
+      "candidate": "d9c58898b02c73bb17fec03f51c2407561d183f884c60a42afecd6e68206d0c0"
+    },
+    {
+      "source": "tests/fixtures/contracts/upstream-differential/harvest/function_value_forwarding/1613176dba.goose",
+      "baseline": "713e87722625e5cee2dac881fe5c3a42a4ca535d0a4fc48349ea01bd375cffb6",
+      "candidate": "9e74aae457e0073fb50f86dbc4f921a983d8330c94ad4e99ae6701be3464271a"
+    },
+    {
+      "source": "tests/fixtures/contracts/upstream-differential/harvest/function_value_forwarding/8bb0214a29.goose",
+      "baseline": "5ced2819773fb7036bce727c41d4cbd086b47cf44ce0b8dd697784441d6c90bd",
+      "candidate": "cde36cde6924be35248a605cf52561236132004ab15f52c28ef8f061c40ded32"
+    },
+    {
+      "source": "tests/fixtures/contracts/upstream-differential/harvest/function_value_forwarding/94fb81a454.goose",
+      "baseline": "b10559a66696e4fa2893eb043bde7561dce71d1095a1a37f4381f8af73c4983b",
+      "candidate": "af640e0c629024dbdc19282f4e32b45a56d25dc6882d4ef88c4a0c4d0097d8e7"
+    },
+    {
+      "source": "tests/fixtures/contracts/upstream-differential/harvest/function_value_forwarding/f77a6b6eb2.goose",
+      "baseline": "4292a643481ca9e5d269f5238ce8e3e1d2b81b177993e4144613530499ac7ffa",
+      "candidate": "fc66486865ef9aeaf2453115988009a3107466ef436ecf9ad7fac64c0479bf78"
+    },
+    {
+      "source": "tests/fixtures/contracts/upstream-differential/harvest/leaf_frames/15369f975a.goose",
+      "baseline": "4bad9c340f8a8fd4dfaadacca7e33b717cb866b3bd101f880be5b2a960759a1d",
+      "candidate": "259436905043b6ba87e04ae89f5c524d5a392bcec242b6b78fc74c091c9e677d"
+    },
+    {
+      "source": "tests/fixtures/contracts/upstream-differential/harvest/leaf_frames/5a16537486.goose",
+      "baseline": "0dbf0bb88ef11ccea2a9e5bae3bf82ae1c3a335592bc832da9c8b4dfbdedc2ef",
+      "candidate": "b6566525dbab69fcbae7823ba34a93bac4f1d0415c6194e79712c3a74e050e4f"
+    },
+    {
+      "source": "tests/fixtures/contracts/upstream-differential/harvest/leaf_frames/92f101a58b.goose",
+      "baseline": "4a16def41c803c8b096934c7372476339563dd659d50dd8f6155b1b4f69f0171",
+      "candidate": "bbf2b6e0a92c663b479261d3b2636a8e6d0daeb177c3d1d7191ff27e9173171e"
+    },
+    {
+      "source": "tests/fixtures/contracts/upstream-differential/harvest/leaf_frames/dde5b8a715.goose",
+      "baseline": "24ae0d8a16463e41ebd5c881b08cf18d33cca5ab6b5ab37e200ab4fe76637298",
+      "candidate": "581da51759598bb7c197ed9c947cf5eb67bb1323395b0d7f00a01e14a9dc9ca4"
+    },
+    {
+      "source": "tests/fixtures/contracts/upstream-differential/harvest/literal_ranges/a1e1c0d2b1.goose",
+      "baseline": "bd6ad82a92590560a1796917b632c21039f8ba6b5675ee1ebec8ff77907ed035",
+      "candidate": "7997997f3db36476a2b75247cd15d3e5b1d79b15bffc3778493f82c2ffb09d3c"
+    },
+    {
+      "source": "tests/fixtures/contracts/upstream-differential/harvest/literal_ranges/edde62d971.goose",
+      "baseline": "158f6e916a60668c8b1b414462e81d23b9fbcd6a0225ada9f266abf0b2c7b990",
+      "candidate": "871abfeecc6f75249f51e486022ad0743470c1076901d8b949a89900c581f1d5"
+    },
+    {
+      "source": "tests/fixtures/contracts/upstream-differential/harvest/merge_bounds/df05dae884.goose",
+      "baseline": "516fc39941d7db0599d59649815698f29dd9a6b2e71b52c9707ff45dc4a98763",
+      "candidate": "ee9fc50f3c619f8e0af6d2c643e6d52ffc0f64f67404816baa31e57a3092c639"
+    },
+    {
+      "source": "tests/fixtures/contracts/upstream-differential/harvest/named_callback_forwarding/29b3be1b6a.goose",
+      "baseline": "45be99723bec6f3882bbdb4b2c91e9812eefe288d0534bf7ee3f5deacd3e7a2d",
+      "candidate": "7ada48df474fa636a401255f9674a9500a250b939f28e42e22630cd820d984b0"
+    },
+    {
+      "source": "tests/fixtures/contracts/upstream-differential/harvest/owned_struct_boundaries/8364240681.goose",
+      "baseline": "896171efa992e8cf956575cf326bba90e2279a60cbfeb98329f1da3317b51fda",
+      "candidate": "4a016c2cc2727caea83f56929bccc6fac19a8f236e8cd7b38c17d4cf88455888"
+    },
+    {
+      "source": "tests/fixtures/contracts/upstream-differential/harvest/prefix_resolution/a42eb0276e.goose",
+      "baseline": "44dd29ccd89b3fe6b7b1d23280e35658977846891830a562a44996ce3903d932",
+      "candidate": "286e60a9dce930e1a42e04d8108b49adb081188169c2c544581d7138237771b3"
+    },
+    {
+      "source": "tests/fixtures/contracts/upstream-differential/harvest/private_snapshot_parameters/89ac5277c9.goose",
+      "baseline": "638724bfa733c332a7336f94af4b05b575150d21df7855150c73301f76d74fea",
+      "candidate": "32337bd936c260ac1bdf7a8391c97847ecc8f9af42a8a52e9a790768d7c09ba5"
+    },
+    {
+      "source": "tests/fixtures/contracts/upstream-differential/harvest/record_images/c20047b87e.goose",
+      "baseline": "48be677f676a05c4e1c74ecc736720a5314cd29572b413cc1399d1857ef7e7cd",
+      "candidate": "19bd820d2f623a2119c5e2a704254ead57508d30e6a6f0b5127780b0f5fc7d43"
+    },
+    {
+      "source": "tests/fixtures/contracts/upstream-differential/harvest/regions/03032a8d7a.goose",
+      "baseline": "016007ca2909fced321c1ec4826a112a6dde7f2b14801f3ed6f6678b99a16352",
+      "candidate": "3743ec9e5027b4e373d924e9103c31c2de7a7af6b2f037786c92a6062536eb5b"
+    },
+    {
+      "source": "tests/fixtures/contracts/upstream-differential/harvest/regions/0e12185ea3.goose",
+      "baseline": "8c0a094d99b797880bcf66a236fcd5bea65b71e3e634a66227ac303fa456073a",
+      "candidate": "97b3e28ab9103ade038b616bf0bc469567a24beb096cdd414fffb5286443e090"
+    },
+    {
+      "source": "tests/fixtures/contracts/upstream-differential/harvest/regions/1d07d52567.goose",
+      "baseline": "28f3046d1da763ce3d65d99effa638f0a9349af0fded909355eb17ba5ab23add",
+      "candidate": "fa01c229c56cd7ab8694cf42a6d37261e726b9c2b73619747159db68bde79004"
+    },
+    {
+      "source": "tests/fixtures/contracts/upstream-differential/harvest/regions/226a4b1941.goose",
+      "baseline": "f6c6abb4bc02e9de21b3aedca8866c70ff62a6567158c2c61310d226c882d4a7",
+      "candidate": "661572752fc1008b9db66b6d5bd408cafde9684e108bab1d2753149f8bb09a25"
+    },
+    {
+      "source": "tests/fixtures/contracts/upstream-differential/harvest/regions/2378b2f4fd.goose",
+      "baseline": "5d73db1d5dea9e22a956c757a3f9bfe315ff9f9f49a462de7440be470e37ff74",
+      "candidate": "5c78915815f3de31dbfb59acce714e20768ae10eb50f5d296e48cb76a5113da7"
+    },
+    {
+      "source": "tests/fixtures/contracts/upstream-differential/harvest/regions/2a58711cd7.goose",
+      "baseline": "eab0473177d8778f34f4cded44b662d37fb4b658b59544dc11c0c1b8fd097268",
+      "candidate": "51bbe1b4ed38ed78390503f1ab79ae2f3ae4228216805e2c39cd9e5d00c47002"
+    },
+    {
+      "source": "tests/fixtures/contracts/upstream-differential/harvest/regions/327f770cb0.goose",
+      "baseline": "8a32006fae2db9263a6d5fc7d6ab348c053417b10d43abe008bd2b6a8383d138",
+      "candidate": "4fdda250bfb715b24dd37b1a72d10e7d55f225e335d4c018b3824299cc96d7a2"
+    },
+    {
+      "source": "tests/fixtures/contracts/upstream-differential/harvest/regions/3691d39b25.goose",
+      "baseline": "82ebaf6c5bc4ad5bb470d8685649ea456e9ad5de7dccd8921655068b519364e6",
+      "candidate": "8726c517860937c2dbe870237f5cd6d303ba7cd360698bdad870cba7a10ab492"
+    },
+    {
+      "source": "tests/fixtures/contracts/upstream-differential/harvest/regions/446862a5b7.goose",
+      "baseline": "3771e789d865aeaf70c69cdd4ae6a02f157affe1d3460d758a6e50afeed37d5c",
+      "candidate": "dfa85554f4c5bd482866c9eb30236d3ba693276d704956a8458e2ef735b089db"
+    },
+    {
+      "source": "tests/fixtures/contracts/upstream-differential/harvest/regions/4eec3056a4.goose",
+      "baseline": "5682e50688952a54131fcf45b4e5072e8c6c7f347be250b33e3097f5b5716388",
+      "candidate": "a1c7e25bdd661a64465c886febda1d969ff26afd80506d299ca8d2842f665f62"
+    },
+    {
+      "source": "tests/fixtures/contracts/upstream-differential/harvest/regions/5e522c7b21.goose",
+      "baseline": "66a5c6ff4eaeefe4a612577bb76f143c7e0526f39c20a35311957bb980da9456",
+      "candidate": "2c872477813646c3f7a83f51a8070f1791bed79b2c2745bfdac7037b57b012c3"
+    },
+    {
+      "source": "tests/fixtures/contracts/upstream-differential/harvest/regions/6647fd3af2.goose",
+      "baseline": "6ee129e848ecaaf92ffd822d4ac5bfb0c80e9752a2538c2ab8e393f0a8c089f9",
+      "candidate": "5d9417713824b014997fb7081376e5033c35c747bfb67aa33c00fb7e7d5f3438"
+    },
+    {
+      "source": "tests/fixtures/contracts/upstream-differential/harvest/regions/6861c4962c.goose",
+      "baseline": "b133428e9e52b960006c4674941374e9e45c77c298f28b86232fb90689bc06c9",
+      "candidate": "f696fb9b92316fced36c961695098bd0ae65eddd5038bb1b48c9581817722981"
+    },
+    {
+      "source": "tests/fixtures/contracts/upstream-differential/harvest/regions/6f0265d6c0.goose",
+      "baseline": "ea2f0de5067b985aa9972ea3c24b281f8b71a89e8ae7f1a9b520006b6454f3a4",
+      "candidate": "cc3b781cb340204cb719e7d26fd9f776b6f43b43b3caeb641abffa3e449327ac"
+    },
+    {
+      "source": "tests/fixtures/contracts/upstream-differential/harvest/regions/8bac2609fb.goose",
+      "baseline": "69ce4ab75ab48b646da39dcefa2174e4aa52674b12d8a7e968257409ef0a2fd5",
+      "candidate": "fdef689fb71a0e78c4f5eba169bb2916b57a1abf407386418e11c76e1abccc13"
+    },
+    {
+      "source": "tests/fixtures/contracts/upstream-differential/harvest/regions/8d22b7f959.goose",
+      "baseline": "264e6e46c70bb391ca1bc6c821f11c23279ee3ef21da7acdcda27c4fd87de4b4",
+      "candidate": "a84582658a53b4efbe0f3abc512dbc80f207b7d390db7b080d547f9eb2f6d86c"
+    },
+    {
+      "source": "tests/fixtures/contracts/upstream-differential/harvest/regions/9132118185.goose",
+      "baseline": "d2a04e9528d16141c99ed4bbe1410cca1d756c0623fdff23a1ad6a9fea897d25",
+      "candidate": "2cb17564a44a9de4fb3af700e66baa4376937fae2e4e87b3e221a0665a3766aa"
+    },
+    {
+      "source": "tests/fixtures/contracts/upstream-differential/harvest/regions/91ea059209.goose",
+      "baseline": "417dd42ddfc79837d6955dd68664db0120aa8bcbad6af02507bd84b9dcaf6c08",
+      "candidate": "23932f289a747f1cbfe032db1f018d193f4bfb9fd1e0954fab7d4c4edab440ea"
+    },
+    {
+      "source": "tests/fixtures/contracts/upstream-differential/harvest/regions/932a8371ab.goose",
+      "baseline": "be9bf6d0af68f263e4405c6c87bb080d4c5ac06d453f9b6e3ec877b60a9c287e",
+      "candidate": "ce330c274fcc03ed7ebcf29edf8032baa23288f2e3ae5476a087adeb87e013a9"
+    },
+    {
+      "source": "tests/fixtures/contracts/upstream-differential/harvest/regions/a2eae29768.goose",
+      "baseline": "9a63948d8f4d189ad0af726b4b38d685fce6b93e8d0eddbce5d032c1c7f66c8e",
+      "candidate": "c957f22002f5ed8e965494f8203f2164fea786905bec2ed18be4cd4134d5013a"
+    },
+    {
+      "source": "tests/fixtures/contracts/upstream-differential/harvest/regions/a3fa5f9a8f.goose",
+      "baseline": "162e28bb2d9ba986d3b6cc80618800f2574947f6ec9d1ebc4c16ef13fe57cfd5",
+      "candidate": "500d6625b843ad06a05c1f4cfcdd9ca50bf41bbb8c6d86140511c364b0de41c7"
+    },
+    {
+      "source": "tests/fixtures/contracts/upstream-differential/harvest/regions/a7e56b08d1.goose",
+      "baseline": "30018232397396eaf952495c77a19be4bf2c51fc740cc5fe1dcb7346d460c80a",
+      "candidate": "894059a2c1954a7f9b5d40ae503f7f382e72e7a2c8b7bc427e52a191852e25d5"
+    },
+    {
+      "source": "tests/fixtures/contracts/upstream-differential/harvest/regions/b064f1a228.goose",
+      "baseline": "77879c31345d2f8e580f5eb3d57f0218de3efb4ce6bca5677e13c4eb7307c6f4",
+      "candidate": "33df6b13d581b54f4b145a8d8e3108e9b27ecb08f90289f87394a0597bafaf2f"
+    },
+    {
+      "source": "tests/fixtures/contracts/upstream-differential/harvest/regions/b82c8937e1.goose",
+      "baseline": "e5e94fdbf23814212e8d18db13eb274e6ae3b84d2d8d65f78ea532da80ea17d0",
+      "candidate": "fcabc2a29ef95a04350b891b72024f6af59a4330e7d12ca38aaef306e1e4cbe0"
+    },
+    {
+      "source": "tests/fixtures/contracts/upstream-differential/harvest/regions/bc7e7ae677.goose",
+      "baseline": "551773df99ed0b521a4b109f7afef2aca94ef06de12e6c2adb216b5b0a288c3a",
+      "candidate": "cecf773c7488236a3ae78cc485c8a98b9912bb1b1f4a9ca0b7487718039b0b3e"
+    },
+    {
+      "source": "tests/fixtures/contracts/upstream-differential/harvest/regions/bcd40f752e.goose",
+      "baseline": "741908005023608366e939a738a16975bb033835ba8213d94e2301fdd16ec5af",
+      "candidate": "a3df99becd82bf19e9b8346c02ae98f09ab5b9be0cac632efb30e02f7b829017"
+    },
+    {
+      "source": "tests/fixtures/contracts/upstream-differential/harvest/regions/be419fb83b.goose",
+      "baseline": "fc2c7fc4ca960c1c337105eca17af8b770031f6fd639ebc7ae08175393cfaa63",
+      "candidate": "cab7f3d332776deb24a8db01e3a7555484890c7df64c8b505d2d7ebb37ba8342"
+    },
+    {
+      "source": "tests/fixtures/contracts/upstream-differential/harvest/regions/bedee9a958.goose",
+      "baseline": "c6e5eb120bded09969e4eb4efa93710c686a988103e4b1558698963d7619addf",
+      "candidate": "0644f11a17530ef72899defaaeb29691af8f6f22e2a59d9dfcfa9b4bb07c4f7e"
+    },
+    {
+      "source": "tests/fixtures/contracts/upstream-differential/harvest/regions/c7296ef967.goose",
+      "baseline": "560fd809a388ee8aa4c883aa402ef084756a69232ce809b0145fac460c433ad3",
+      "candidate": "9208191aa84f04568b01d06c6099aac774dc6e987078f0d1990f9b72b8360afb"
+    },
+    {
+      "source": "tests/fixtures/contracts/upstream-differential/harvest/regions/c86c773819.goose",
+      "baseline": "4834f7613a570f1a44a2f532e8371dc0c96816fc6acd8f96b7c5957c3bdc4971",
+      "candidate": "0857313d7230e05e68c8b4eac66814fe5bb767c1fc53cd707e146d9722c03608"
+    },
+    {
+      "source": "tests/fixtures/contracts/upstream-differential/harvest/regions/c8db32a1f8.goose",
+      "baseline": "6611aa6676bdcf8d32cc50612fa97b4375355c0e399d43d3673e3d19c08e2800",
+      "candidate": "e742af2841859c5d71da060cf4a635d0d8e9b3a9c49dd9778e66284e7c902784"
+    },
+    {
+      "source": "tests/fixtures/contracts/upstream-differential/harvest/regions/d8577df2d9.goose",
+      "baseline": "cea82129e1df3e84952733482f36866cd3273aff56c47fd56dbe9c9f92904892",
+      "candidate": "cb34727bde73e03b9baf8b5397edb81bb10b0e9b7de0c38f86cbcc802f29f27d"
+    },
+    {
+      "source": "tests/fixtures/contracts/upstream-differential/harvest/regions/dd1dab1da4.goose",
+      "baseline": "bb36d3caae0441ebcad2d0574b48f45a73ee773310c8e06dff709644b51aa967",
+      "candidate": "19c6cc3286af3706bbb53c48242351bdc814e17bc85b5877d9a940e514a4c284"
+    },
+    {
+      "source": "tests/fixtures/contracts/upstream-differential/harvest/regions/e39e143a4b.goose",
+      "baseline": "c16e9d609918923ec53befafe4f7aacaf9e39e362bd3eb81d93004f39dcbf63a",
+      "candidate": "6780aa9b21f2b152caa14f55a1f6c1b65b7e49f51b85b9502816806fe63e15bc"
+    },
+    {
+      "source": "tests/fixtures/contracts/upstream-differential/harvest/regions/e45fc8b997.goose",
+      "baseline": "12b3df1871a69b7f03a5b2cb6860901da05eaaabe6b8dccf1aab01c1f7cc97b3",
+      "candidate": "7fe6fa7b192c736a9391ea16abcdeb6746b5b14a421affc21cf15942ec51f397"
+    },
+    {
+      "source": "tests/fixtures/contracts/upstream-differential/harvest/regions/e88b4bbd25.goose",
+      "baseline": "4d3bff1073d11714f458cff03ecedf8139e627c68e8db4e0a81f0184fe43167d",
+      "candidate": "ee0fc33503bce9c54c0707f039fa03ad4424186311ab369bb420621009559264"
+    },
+    {
+      "source": "tests/fixtures/contracts/upstream-differential/harvest/regions/ec94484ce9.goose",
+      "baseline": "a3df85e14bddba0603d4434f0b988600b2660b94d46a4bd2dc906b10205c1444",
+      "candidate": "74bd521539abd644de18454433a97af863c28845f2e89198f3dedb3272d8263c"
+    },
+    {
+      "source": "tests/fixtures/contracts/upstream-differential/harvest/regions/eff3ef591a.goose",
+      "baseline": "23bf33696ab4e984e8f77b9015322e0453f526d98db5d1a82c05753d2fe5c517",
+      "candidate": "e8f6e1b14230932aded8aef1204d02267094ba33105a93171b850520f2692081"
+    },
+    {
+      "source": "tests/fixtures/contracts/upstream-differential/harvest/regions/f15477c50c.goose",
+      "baseline": "2ffe18150eb79e7995df59a6553fbad5f18cb514c95cf47c61fa37f2040e8129",
+      "candidate": "f57520a6f3bb5e600710f925b453035a9d8e5b11d8d2c0898b80e4c6260faba7"
+    },
+    {
+      "source": "tests/fixtures/contracts/upstream-differential/harvest/regions/fd1747eb63.goose",
+      "baseline": "9845fcf3367da725a0f7b372212d2b095afd09b3938e30361eef9e7a58f885cd",
+      "candidate": "aa242dd875e761573b2e9a8ab5cabbcd1322db082323751262445e10dad4a5bb"
+    },
+    {
+      "source": "tests/fixtures/contracts/upstream-differential/harvest/regions/fd52c3403e.goose",
+      "baseline": "01136ae24b1c880ea449c5393f8bfa7ba21b8a71122db94efb7c3d53b906820c",
+      "candidate": "318e15bf5426e0fe582508dcc45398a201f2e900283121ac0f3e7037c7c834b1"
+    },
+    {
+      "source": "tests/fixtures/contracts/upstream-differential/harvest/regions/ff55662ca5.goose",
+      "baseline": "666026720947e9e0dbbf58b38985b4a85c9a25049a8a8ff21800b48f6a8afe4b",
+      "candidate": "1d03cb6df17bf7cad44273a923efb8ed6da4d9e9af9f4c06cddde722a24f325e"
+    },
+    {
+      "source": "tests/fixtures/contracts/upstream-differential/harvest/static_capture_boundaries/42438d751b.goose",
+      "baseline": "974eaf6e7b4a9d06f403c045f372d9cbc54e359885dbd52ee651d72275e21a2d",
+      "candidate": "685819c47468f83b895511f25717952bc3336113707214e349b6677eb0b74688"
+    },
+    {
+      "source": "tests/fixtures/contracts/upstream-differential/harvest/strided_stores/11a892d71a.goose",
+      "baseline": "771f851aaf8945587ae71cd229cf099c9fc1df07911c6114af5a32a2708559be",
+      "candidate": "ab8511549c586bf2449ff22e19ffb57bd272aa2738bce3b6f05927d059eb91ba"
+    },
+    {
+      "source": "tests/fixtures/contracts/upstream-differential/harvest/strided_stores/20bd26df0d.goose",
+      "baseline": "d77b1c5b98bb256db2eba6820110252c289bbe6c28b11016c3478b3a13024d51",
+      "candidate": "ab00bdcaa4df990dfbe056d3d57bba18f4bec9b68432378f9e5645e3914f8fbe"
+    },
+    {
+      "source": "tests/fixtures/contracts/upstream-differential/harvest/strided_stores/49c69deb4a.goose",
+      "baseline": "6fd8e97cb74d213019cdb3370327509e110a27ba75c7022db0f67e638cf4059d",
+      "candidate": "7e5f577c7f0051b3f0a8515820ffe8ded8a23a70f673644221801d5584950a87"
+    },
+    {
+      "source": "tests/fixtures/contracts/upstream-differential/harvest/strided_stores/9df1d1ee9d.goose",
+      "baseline": "653918ed49bc3bb06e81cee03bd5b3584de7a4a1546ae290406022057a735202",
+      "candidate": "0917139c2f92486c3b9cef3b356fbf861c496b1433e93b4a759bc66ce44aa630"
+    },
+    {
+      "source": "tests/fixtures/contracts/upstream-differential/harvest/tiny_leaf_calls/00c33b4b36.goose",
+      "baseline": "923db62d009489743bba502336900191df098cfe94f39da58f3f7fcd48cc3af1",
+      "candidate": "1215db0b75fbd5dd9697c7e55b5c4d53f462e33ff48f4bf2c26ea6a5b49b76f2"
+    },
+    {
+      "source": "tests/fixtures/contracts/upstream-differential/harvest/tiny_leaf_calls/06f31b373c.goose",
+      "baseline": "058a6727ebe2c9b801c7dff3c9a8c116f6ae0122b514fdcf687339cbbfd2c5f9",
+      "candidate": "5d6465b4fdfd2e76c222fb3f363e88666a57be9353ebafa99d1fd9daf57d7048"
+    },
+    {
+      "source": "tests/fixtures/contracts/upstream-differential/harvest/tiny_leaf_calls/14aea3e553.goose",
+      "baseline": "c8130784460530c466893bc9e7a304d7e8cbb87221619f9226fa27e63218a721",
+      "candidate": "82753f3da12b86c921cb663a9105a91e5df5cf2a67daa4fdfccd9551f8468eae"
+    },
+    {
+      "source": "tests/fixtures/contracts/upstream-differential/harvest/tiny_leaf_calls/35fcef3119.goose",
+      "baseline": "f77192ae761bee77fe3b430ab0a3a36c30d671caa405a26e981cdf85928793cc",
+      "candidate": "bcbb02c37f9acbc21798c58025a727b91ec0683847eb60304e68cd1de76afbaa"
+    },
+    {
+      "source": "tests/fixtures/contracts/upstream-differential/harvest/tiny_leaf_calls/44597b4f1c.goose",
+      "baseline": "d1ede3b52f07168f26b1f50425abeb99e19491f0b7451dfdefdeb21628762cf2",
+      "candidate": "145ed438e3bec33b7ac338a424e7a02037bd7f24b70d8dc901b88c734726a99a"
+    },
+    {
+      "source": "tests/fixtures/contracts/upstream-differential/harvest/tiny_leaf_calls/62782751c3.goose",
+      "baseline": "c0cb8314f6a7ef3008b2a561f9b500e66cfada683e46390b0332be81eb38c07c",
+      "candidate": "c0690ac1ff29196bc552285946b469c0cc64ab78aaaacea8634962e306267078"
+    },
+    {
+      "source": "tests/fixtures/contracts/upstream-differential/harvest/tiny_leaf_calls/62dce702fe.goose",
+      "baseline": "69374a46279f36546185edc4e3ea563a761d6630cdca82079e500f9eaf729cce",
+      "candidate": "1c8191ed3513925cb60b6218c952a29801c42600ceb5c187bec26d104f82e188"
+    },
+    {
+      "source": "tests/fixtures/contracts/upstream-differential/harvest/tiny_leaf_calls/903d216f26.goose",
+      "baseline": "0051b4bf92924763c5ab8eca523dad7d731abbca1345d874e3fab81b0ff85cb1",
+      "candidate": "dffa05adc76a06da99019cbb8f7dbd3e08e807b76ed7d8f23626a8fe03e6fa47"
+    },
+    {
+      "source": "tests/fixtures/contracts/upstream-differential/harvest/tiny_leaf_calls/cac4926434.goose",
+      "baseline": "2d335666db9af0ec9e1d74c96e4b0ac4e0ab59f16b257731db6f1e483bdec2eb",
+      "candidate": "d1f8178067c30245e3ac749d179af39b7451892d95cb22946d9ef701f357c0da"
+    },
+    {
+      "source": "tests/fixtures/contracts/upstream-differential/harvest/tiny_leaf_calls/dec26a29b5.goose",
+      "baseline": "071d5a383a100d9e9370bebf800ee0f5994c9c3dd2548d95b894135956457b9b",
+      "candidate": "84c1eebde68d80b9b953a13692e3edcfabdc3b9ae9b4333f958eb02d6975f26f"
+    },
+    {
+      "source": "tests/fixtures/contracts/upstream-differential/harvest/tiny_leaf_calls/fa403fc8c1.goose",
+      "baseline": "b4c1d87866506e322d452da428b6a25f55d6ba2e20b5db0f5edde8e1387be550",
+      "candidate": "12d6afbefbb3b17bed98a838115df0f65e5061a6f1b887e6e32d5ebf46124219"
+    },
+    {
+      "source": "tests/fixtures/contracts/upstream-differential/harvest/uleb_accessor_helpers/f2295c6ef9.goose",
+      "baseline": "9ed09e469f49e058b3ea7f8c856f5c53861817b5128c97e1be8bdca7b25f1256",
+      "candidate": "77405b6684460cdd5a93abcc05a7ec71ed37c6f3305d4d106ad3b6c2a96314c4"
+    },
+    {
+      "source": "tests/fixtures/contracts/upstream-differential/harvest/variable_enum_boundaries/7c2ecb1c42.goose",
+      "baseline": "9b5b01bde8f220fb9ac468f4ca6da7b8dbecb2736c6205cbf9b8688e9cac937b",
+      "candidate": "cf943496dd2a3128d60810a40bca6632bc85e49515af82a9c8f9653dd717e1ba"
+    },
+    {
+      "source": "tests/fixtures/contracts/upstream-differential/harvest/variable_variant_boundaries/070e39fbdc.goose",
+      "baseline": "4432d72d0196cc972df3282dc625141d11871d87b237020ba2c2aaf745e04908",
+      "candidate": "2fec661a93ae22b4cc5d9eb14ce4a496d20a6ce217225681d57faf13852b9203"
+    },
+    {
+      "source": "tests/fixtures/contracts/upstream-differential/harvest/varint_grow/d549906961.goose",
+      "baseline": "a0474703ff445646418d85a89c32ee10ab1eec63402092c6077969a2723dce36",
+      "candidate": "0df4751decbb8bcea2fa8248538948dc29c57059ccc02d4d5fb60ed046a518eb"
+    },
+    {
+      "source": "tests/fixtures/contracts/upstream-differential/harvest/varint_grow/e5af07cbaf.goose",
+      "baseline": "9f28c25d4177ca62aecaeb848ad47b1ca25e6a35d88e8bcc43342dd66b00a1a9",
+      "candidate": "4d2615c525fb9f69f5aba6c6e8308c454f1d2dbdd122ec26b46a8e5424294b8e"
+    },
+    {
+      "source": "tests/fixtures/contracts/upstream-differential/harvest/varint_grow_boundaries/7eb7d66bd2.goose",
+      "baseline": "3ab2338c4fcb0255ea23540754008ab621e65704e1cf8d19e7b334cf90ccdb0a",
+      "candidate": "132b1018ed2dbd73c9889e4e33198b84f3ab48e585b9ab52bac9a32812fe81c4"
+    },
+    {
+      "source": "tests/fixtures/contracts/upstream-differential/harvest/zero_stores/2a9e0c7aec.goose",
+      "baseline": "bbb6361a1cdd19e9eb133ec9f84fb3218dc4202c8b0d301457aa28f4a1e3eecf",
+      "candidate": "b221b2dfc20bc2fd9688e96d98053c70ae5f93571511168145c7a6719b136dc4"
+    }
+  ]
+}

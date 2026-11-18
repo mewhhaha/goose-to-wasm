@@ -1,0 +1,41 @@
+{
+  "source_sha256": "bacea53533448651d03819be676c3fee2840549e57db706dc72d1e165e6371ab",
+  "modules": [
+    {
+      "width": 32,
+      "before": {
+        "bytes": 6170,
+        "sha256": "3fb2d6b15d6b8e9a15173a7abd817cfc0b9947aec860461d49445d624505126c",
+        "defined_functions": 8
+      },
+      "after": {
+        "bytes": 4358,
+        "sha256": "f34508f52c8cb85751c56f8a77424acbb17f7966623f6e7e19233195b55c1c9a",
+        "defined_functions": 9
+      }
+    },
+    {
+      "width": 64,
+      "before": {
+        "bytes": 5864,
+        "sha256": "cc8fe126e610505d85543208b762f72076c7317a5318f9cf841b8816b87de748",
+        "defined_functions": 8
+      },
+      "after": {
+        "bytes": 4227,
+        "sha256": "ffb02ec110cfdf3020c9184ed1c826c17b00df02f75dcb64f5ea84640616f606",
+        "defined_functions": 9
+      }
+    }
+  ],
+  "checked_modes": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6
+  ],
+  "initial_length": 128,
+  "length_after_two_pops": 126
+}

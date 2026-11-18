@@ -1,0 +1,37 @@
+{
+  "schema": "goose-build-v3",
+  "implementation": "goose",
+  "backend": "native",
+  "compiler_sha256": "e12d47df3509c7e22732fed018bfd87c222a3d747013569b279adab9aa4a6622",
+  "optimization": "-O2",
+  "cache": "disabled",
+  "native_units": 8,
+  "native_function_bytes": 46860015,
+  "runtime_unit": "compiled",
+  "frontend_ms": 9083.738467998046,
+  "cc_ms": 211644.22062499943,
+  "clang": {
+    "bytes": 124768,
+    "sha256": "ca0d2f7fbe94836762f36c7e73292289bc4d5e4b9b5defc320ef0856259a2855",
+    "version": "clang version 23.1.5"
+  },
+  "compiler_source": "ac55de270cf6eff86125e94a0027813b5b902a5d",
+  "adaptive_checker": {
+    "bytes": 389791,
+    "sha256": "9354ad40bd3be8c00c0e13e17963f6591dcd0194921ec271f582c87749ef8b19"
+  },
+  "base_checker": {
+    "bytes": 387712,
+    "sha256": "a365381471ea9d873b70551173e83a83226dea16029072a7934639613eca9a66"
+  },
+  "baseline_compiler_reemission": {
+    "compiler.wasm": {
+      "bytes": 17365494,
+      "sha256": "819e64d183a08430d1d9a491c65e6a3e2f68464f5b0fb373b2179070bc3ca9f4"
+    },
+    "compiler.c": {
+      "bytes": 49819743,
+      "sha256": "cd70e1bab3c873f426a9078ca1c690503c6e61422e55b661f95116451e26ccd8"
+    }
+  }
+}

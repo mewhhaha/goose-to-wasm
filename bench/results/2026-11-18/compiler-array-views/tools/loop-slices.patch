@@ -1,0 +1,49 @@
+--- a/selfhost/checker_lifetimes.goose
++++ b/selfhost/checker_lifetimes.goose
+@@ -411,8 +411,10 @@
+ struct LifeFar { far: i64, home: i64, cyclic: bool = false }
+ fn life_effect_far(l: Lifetimes&, places: i64) -> LifeFar {
+     var out = LifeFar { far: 0, home: l.frame }; var at = l.sets[places].first; let chain = l.frames[l.frame].chain;
++    if at < 0 { return out; }
++    let alts = l.alts[..];
+     while at >= 0 {
+-        let root = l.alts[at].root;
++        let root = alts[at].root;
+         if root != 0 {
+             let home = l.roots[root].frame;
+             if l.frame <= 0 || home <= 0 { return LifeFar { far: 9223372036854775807, home: 0 }; }
+@@ -423,7 +425,7 @@
+             }
+             if h.recursive_call { out.cyclic = true; }
+         }
+-        at = l.alts[at].next;
++        at = alts[at].next;
+     }
+     return out;
+ }
+@@ -1088,7 +1090,9 @@
+ }
+ fn life_find_linear(l: Lifetimes&, set: i64, root: i64) -> i64 {
+     var at = l.sets[set].first;
+-    while at >= 0 { if l.alts[at].root == root { return at; } at = l.alts[at].next; }
++    if at < 0 { return -1; }
++    let alts = l.alts[..];
++    while at >= 0 { if alts[at].root == root { return at; } at = alts[at].next; }
+     return -1;
+ }
+ // Only a set under construction changes, and life_insert builds sets of
+@@ -1294,9 +1298,12 @@
+ // Whether a set lists scratch[start..] read from its end.
+ fn life_list_same(l: Lifetimes&, set: i64, start: i64) -> bool {
+     var at = l.sets[set].first; var index = l.scratch.len - 1;
++    if at < 0 || index < start { return at < 0 && index < start; }
++    let alts = l.alts[..];
++    let scratch = l.scratch[..];
+     while at >= 0 && index >= start {
+-        if !life_alt_same(l.alts[at], l.scratch[index]) { return false; }
+-        at = l.alts[at].next; index -= 1;
++        if !life_alt_same(alts[at], scratch[index]) { return false; }
++        at = alts[at].next; index -= 1;
+     }
+     return at < 0 && index < start;
+ }

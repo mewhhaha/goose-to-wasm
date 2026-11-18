@@ -1,0 +1,90 @@
+{
+  "32": {
+    "summary": {
+      "selected": 4777,
+      "passed": 4769,
+      "failed": 8
+    },
+    "gaps": "{'open_gaps': 8, 'unexpected_failures': 0, 'fixed_gaps': 0}",
+    "compiler_sha256": "b848317121b35d81f146ae0637f8b7694c9cab5ec05396231f13070c022ff76f",
+    "manifest_sha256": "114d9ecbf070ee26eae6e6fb5fe75b202fda471bb36880d105480dd3dd402961",
+    "failed_rows": [
+      [
+        "corpus/contracts/upstream-differential/harvest/packed_layout_boundaries/5e21f78e5a/wasm-direct",
+        0
+      ],
+      [
+        "corpus/contracts/upstream-differential/harvest/packed_layout_boundaries/5e21f78e5a/wasm-direct",
+        2
+      ],
+      [
+        "corpus/contracts/upstream-differential/harvest/regions/b37ae9dfb7/wasm-direct",
+        0
+      ],
+      [
+        "corpus/contracts/upstream-differential/harvest/regions/b37ae9dfb7/wasm-direct",
+        2
+      ],
+      [
+        "corpus/contracts/upstream-differential/harvest/regions/d8577df2d9/wasm-direct",
+        0
+      ],
+      [
+        "corpus/contracts/upstream-differential/harvest/regions/d8577df2d9/wasm-direct",
+        2
+      ],
+      [
+        "corpus/contracts/upstream-differential/harvest/uleb_length_boundaries/5347625ed2/wasm-direct",
+        0
+      ],
+      [
+        "corpus/contracts/upstream-differential/harvest/uleb_length_boundaries/5347625ed2/wasm-direct",
+        2
+      ]
+    ]
+  },
+  "64": {
+    "summary": {
+      "selected": 4777,
+      "passed": 4769,
+      "failed": 8
+    },
+    "gaps": "{'open_gaps': 8, 'unexpected_failures': 0, 'fixed_gaps': 0}",
+    "compiler_sha256": "b848317121b35d81f146ae0637f8b7694c9cab5ec05396231f13070c022ff76f",
+    "manifest_sha256": "114d9ecbf070ee26eae6e6fb5fe75b202fda471bb36880d105480dd3dd402961",
+    "failed_rows": [
+      [
+        "corpus/owned-struct/capacity-error/4294967296",
+        0
+      ],
+      [
+        "corpus/owned-struct/capacity-error/4294967296",
+        2
+      ],
+      [
+        "corpus/variable-enum-tail/capacity-error/4294967296",
+        0
+      ],
+      [
+        "corpus/variable-enum-tail/capacity-error/4294967296",
+        2
+      ],
+      [
+        "corpus/runtime-limited/errors/1",
+        0
+      ],
+      [
+        "corpus/runtime-limited/errors/1",
+        2
+      ],
+      [
+        "corpus/contracts/upstream-differential/harvest/regions/b37ae9dfb7/wasm-direct",
+        0
+      ],
+      [
+        "corpus/contracts/upstream-differential/harvest/regions/b37ae9dfb7/wasm-direct",
+        2
+      ]
+    ]
+  }
+}

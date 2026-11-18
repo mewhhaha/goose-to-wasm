@@ -1,0 +1,71 @@
+{
+  "project_commit": "90e086fe61f9ce019d6a6ef543212be63f6e1f57",
+  "compiler_commit": "ac55de270cf6eff86125e94a0027813b5b902a5d",
+  "native_emitter": {
+    "sha256": "e12d47df3509c7e22732fed018bfd87c222a3d747013569b279adab9aa4a6622",
+    "bytes": 7042368
+  },
+  "engine": "v24.12.0",
+  "args": [
+    "selfhost/main.goose",
+    "--stdlib",
+    "stdlib",
+    "--check"
+  ],
+  "cases": {
+    "baseline": {
+      "module": {
+        "sha256": "4595a60c17779ed6f0896853c7c98c87231d2849688700ad21071c4c25275000",
+        "bytes": 17368205
+      },
+      "counts": {
+        "ordinary_readbacks_evaluated": 139014,
+        "eligible_calls": 0,
+        "hits": 0,
+        "shadow_differences": 0,
+        "source_places_visited": 139014,
+        "candidate_alternatives_examined": 4345925,
+        "list_intern_calls": 1019927,
+        "list_intern_alternatives": 2502231,
+        "singleton_list_intern_calls": 808538
+      },
+      "slots": 0
+    },
+    "adaptive": {
+      "module": {
+        "sha256": "ff3c3f36cefc0a59047f3da3aee012487b53a5b9d5d30aae60ced59368c0951f",
+        "bytes": 17373286
+      },
+      "counts": {
+        "ordinary_readbacks_evaluated": 24157,
+        "eligible_calls": 138954,
+        "hits": 114857,
+        "shadow_differences": 0,
+        "source_places_visited": 24157,
+        "candidate_alternatives_examined": 981237,
+        "list_intern_calls": 813624,
+        "list_intern_alternatives": 1642912,
+        "singleton_list_intern_calls": 693660
+      },
+      "slots": 8192
+    },
+    "shadow": {
+      "module": {
+        "sha256": "a1b6d2309fc2a1ad2b31fccd6119a8ed7e44415e8b7162ba682442f222c193d5",
+        "bytes": 17373368
+      },
+      "counts": {
+        "ordinary_readbacks_evaluated": 139014,
+        "eligible_calls": 138954,
+        "hits": 114857,
+        "shadow_differences": 0,
+        "source_places_visited": 139014,
+        "candidate_alternatives_examined": 4345925,
+        "list_intern_calls": 1019927,
+        "list_intern_alternatives": 2502231,
+        "singleton_list_intern_calls": 808538
+      },
+      "slots": 8192
+    }
+  }
+}

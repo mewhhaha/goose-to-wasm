@@ -1,0 +1,24 @@
+--- a/selfhost/checker_lifetimes.goose
++++ b/selfhost/checker_lifetimes.goose
+@@ -48,7 +48,7 @@
+ // been stored through, -1 at the last, -2 while this one has not. stores:
+ // what life_class_stores last found for it, as of the frame's stored_version.
+ // any_set: what life_class_any_set made of it for the call any_serial.
+-struct LifeRoot { symbol: i64 = -1, frame: i64 = -1, node: i64 = -1, type_id: i64 = -1, depth: i64 = 0, temporary: bool = false, contents: i64 = 0, live_contents: i64 = 0, atoms: i64 = -1, next_node: i64 = -1, class_frame: i64 = -1, class_index: i64 = -1, class_one: bool = false, map_serial: i64 = 0, map_class: i64 = -1, class_parent: i64 = -1, class_type: i64 = -1, class_next: i64 = -1, class_level: i64 = 0, stored: i64 = 0, stored_next: i64 = -2, stores: i64 = 0, stores_version: i64 = -1, any_set: i64 = 0, any_serial: i64 = 0, class_pointee: i64 = -1, class_mask: i64 = 0, first_kill: i64 = -1 }
++struct LifeRoot { symbol: i64 = -1, frame: i64 = -1, node: i64 = -1, type_id: i64 = -1, depth: i64 = 0, temporary: bool = false, list_atom: i32 = -1, contents: i64 = 0, live_contents: i64 = 0, atoms: i64 = -1, next_node: i64 = -1, class_frame: i64 = -1, class_index: i64 = -1, class_one: bool = false, map_serial: i64 = 0, map_class: i64 = -1, class_parent: i64 = -1, class_type: i64 = -1, class_next: i64 = -1, class_level: i64 = 0, stored: i64 = 0, stored_next: i64 = -2, stores: i64 = 0, stores_version: i64 = -1, any_set: i64 = 0, any_serial: i64 = 0, class_pointee: i64 = -1, class_mask: i64 = 0, first_kill: i64 = -1 }
+ // Element owner: -1 none, -2 inside elements with unknown owner, otherwise type ID.
+ // reached: of a reference argument, life_reached of its expression (the
+ // type of the storage it points into), for the stores a call makes through it.
+@@ -1256,8 +1256,12 @@
+ }
+ // A set of one alternative.
+ fn life_alt_set(l: Lifetimes&, alt: LifeAlt) -> i64 {
++    // The list interner always returns the same singleton for an equal alternative.
++    let old = l.roots[alt.root].list_atom;
++    if old >= 0 && life_alt_same(l.alts[l.sets[old].first], alt) { return old; }
+     let start = l.scratch.len; l.scratch.push(alt);
+     let set = life_list_set(l, start); l.scratch.resize(start);
++    l.roots[alt.root].list_atom = set as i32;
+     return set;
+ }
+ // The same for an open build.

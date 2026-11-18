@@ -1,0 +1,42 @@
+--- a/selfhost/codegen.goose
++++ b/selfhost/codegen.goose
+@@ -647,6 +647,27 @@
+         cg_field_place(p, m, f, object_type, node); cg_canonical_address(m, f, cg_size(p, p.nodes[n.symbol].type_id)); return;
+     }
+     if n.kind == N_INDEX {
++        var receiver = p.nodes[n.left].type_id;
++        var owner = receiver;
++        if cg_type_kind(p, owner) == TY_REF { owner = p.types[owner].element; }
++        if m.owner_view >= 0 && cg_owner(p, owner) && p.types[p.types[owner].element].storage != 1 {
++            cg_expr(p, m, f, n.left);
++            if receiver != owner { cg_load(p, m, f, owner, 0); }
++            let header = cg_save(f, wa()); let pointer = cg_local(f, wa()); let count = cg_local(f, wa());
++            cg_get(f, header); wc_load(f.code, 5); wa_op(f.code, 0x45); cg_begin(f, 0x04, 0x40);
++            cg_get(f, header); wc_load(f.code, 0); cg_set(f, pointer); cg_get(f, header); wc_load(f.code, 1); cg_set(f, count);
++            wb_byte(f.code, 0x05);
++            cg_get(f, header); cg_diagnostic_line(p, f, node); wb_op(f.code, 0x10, m.owner_view); let slow = cg_save(f, ws());
++            cg_get(f, slow); ws_ptr(f.code); cg_set(f, pointer); cg_get(f, slow); ws_len(f.code); cg_set(f, count);
++            cg_end(f);
++            cg_to(p, m, f, n.right, TYPE_U64); let index = cg_save(f, 0x7e);
++            if (n.flags & F_BOUNDS_PROVEN) == 0 {
++                cg_get(f, index); cg_get(f, count); wa_extend(f.code); wb_byte(f.code, 0x5a);
++                cg_trap_if(p, m, f, node, "array index out of bounds");
++            }
++            cg_get(f, pointer); cg_get(f, index); wa_wrap(f.code); wa_const(f.code, cg_size(p, p.types[owner].element));
++            wa_op(f.code, 0x6c); wa_op(f.code, 0x6a); return;
++        }
+         cg_expr(p, m, f, n.left); cg_pack_view(p, m, f, p.nodes[n.left].type_id, node);
+         let view = cg_save(f, ws());
+         cg_to(p, m, f, n.right, TYPE_U64); let index = cg_save(f, 0x7e);
+@@ -3190,6 +3211,11 @@
+             if token_is(p, n.token, "cap") && cg_type_kind(p, id) == TY_ARRAY {
+                 if cg_owner(p, id) { let header = cg_save(f, wa()); cg_owner_read_capacity(p, m, f, header); wa_extend(f.code); }
+                 else { wb_byte(f.code, 0x1a); wb_i64(f.code, p.types[id].count); }
++            } else if cg_owner(p, id) && m.owner_view >= 0 {
++                let header = cg_save(f, wa());
++                cg_get(f, header); wc_load(f.code, 5); wa_op(f.code, 0x45); cg_begin(f, 0x04, 0x7e);
++                cg_get(f, header); wc_load(f.code, 1); wa_extend(f.code); wb_byte(f.code, 0x05);
++                cg_get(f, header); cg_diagnostic_line(p, f, node); wb_op(f.code, 0x10, m.owner_view); ws_count(f.code); cg_end(f);
+             } else { cg_pack_view(p, m, f, id, node); ws_count(f.code); }
+             cg_convert(p, m, f, TYPE_U64, n.type_id, node); return;
+         }

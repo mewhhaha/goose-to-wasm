@@ -1,0 +1,617 @@
+{
+  "compiler_source": "ac55de270cf6eff86125e94a0027813b5b902a5d",
+  "baseline_native_sha256": "e12d47df3509c7e22732fed018bfd87c222a3d747013569b279adab9aa4a6622",
+  "candidate_emitter_sha256": "7880f550920575090e6abbf3447ec6b924d3269a9c0e4726b7bad26f811c0554",
+  "wasmtime": "50.0.1",
+  "maximum_pages": 256,
+  "cases": [
+    {
+      "source": "tests/fixtures/wasm_reference_parameters.goose",
+      "sha256": "67d61e62c701bcaf56889d0344e81e3661b423f745103614d39ca69100a17299",
+      "memory": 32,
+      "O": 0,
+      "runs": {
+        "release": {
+          "sha256": "712834082e7cf35e8dde3d8cb257cacc27da784f378c50cf7aada3430ee21934",
+          "bytes": 5604,
+          "exit_code": 0,
+          "stdout": "8 5 [3, 7, 8]\n",
+          "stderr": ""
+        },
+        "candidate": {
+          "sha256": "a86462beb5ab9f52d3b4e3e727a39f69f29b86d74fcce7192effd3dc1e9973f3",
+          "bytes": 5412,
+          "exit_code": 0,
+          "stdout": "8 5 [3, 7, 8]\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "source": "tests/fixtures/wasm_reference_parameters.goose",
+      "sha256": "67d61e62c701bcaf56889d0344e81e3661b423f745103614d39ca69100a17299",
+      "memory": 32,
+      "O": 2,
+      "runs": {
+        "release": {
+          "sha256": "87331aa477d0a1db340e9f9fa2cfe812ecf6bc4e16cf1d8693c8f2fd5f84df7b",
+          "bytes": 6641,
+          "exit_code": 0,
+          "stdout": "8 5 [3, 7, 8]\n",
+          "stderr": ""
+        },
+        "candidate": {
+          "sha256": "eb53756fc617e56a4b4181a86294ad01638b2e5326123de2dd240ff65df08a23",
+          "bytes": 6449,
+          "exit_code": 0,
+          "stdout": "8 5 [3, 7, 8]\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "source": "tests/fixtures/wasm_reference_parameters.goose",
+      "sha256": "67d61e62c701bcaf56889d0344e81e3661b423f745103614d39ca69100a17299",
+      "memory": 64,
+      "O": 0,
+      "runs": {
+        "release": {
+          "sha256": "f7903be3b31092d1a0e193ff9b1884ec27a5db0b419f68d3d25f9869bc24abd0",
+          "bytes": 6905,
+          "exit_code": 0,
+          "stdout": "8 5 [3, 7, 8]\n",
+          "stderr": ""
+        },
+        "candidate": {
+          "sha256": "3b19c2171ba26085ac9417e860ceac8fc70989af4214f00e5c104a42e51f199c",
+          "bytes": 6713,
+          "exit_code": 0,
+          "stdout": "8 5 [3, 7, 8]\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "source": "tests/fixtures/wasm_reference_parameters.goose",
+      "sha256": "67d61e62c701bcaf56889d0344e81e3661b423f745103614d39ca69100a17299",
+      "memory": 64,
+      "O": 2,
+      "runs": {
+        "release": {
+          "sha256": "ad76ecd2827997a536d894a14e52bc0c86ccea8ff7528f644099fae2aa4992e7",
+          "bytes": 7952,
+          "exit_code": 0,
+          "stdout": "8 5 [3, 7, 8]\n",
+          "stderr": ""
+        },
+        "candidate": {
+          "sha256": "5fc03bcebd5ff5fbfdc301c50b81f02ca734b35151b3b66de124fe79f37dc5e4",
+          "bytes": 7760,
+          "exit_code": 0,
+          "stdout": "8 5 [3, 7, 8]\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "source": "tests/fixtures/implicit_references.goose",
+      "sha256": "37b5ceb3169653a559019f18e89784a98cf5c2aa911811c227bcbe9ee970068a",
+      "memory": 32,
+      "O": 0,
+      "runs": {
+        "release": {
+          "sha256": "a4d0b0cffdb0dba950539dca92a0afb3f24178e5d6a99535bb31c2f3f4c8f674",
+          "bytes": 4472,
+          "exit_code": 0,
+          "stdout": "6 [1, 6, 3] 9\n",
+          "stderr": ""
+        },
+        "candidate": {
+          "sha256": "4b196eacf8e10f689449df595e97556a8959559670acb24db3143fb29a9c1042",
+          "bytes": 4337,
+          "exit_code": 0,
+          "stdout": "6 [1, 6, 3] 9\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "source": "tests/fixtures/implicit_references.goose",
+      "sha256": "37b5ceb3169653a559019f18e89784a98cf5c2aa911811c227bcbe9ee970068a",
+      "memory": 32,
+      "O": 2,
+      "runs": {
+        "release": {
+          "sha256": "1450734ee45e57e62ceb598d64fdb71f1341e09e42f391f9f3f04abfeaf443d6",
+          "bytes": 4785,
+          "exit_code": 0,
+          "stdout": "6 [1, 6, 3] 9\n",
+          "stderr": ""
+        },
+        "candidate": {
+          "sha256": "ee0977039157b31801ed9a87a6bbcca121326622a821b35fc7ce48221826ff19",
+          "bytes": 4650,
+          "exit_code": 0,
+          "stdout": "6 [1, 6, 3] 9\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "source": "tests/fixtures/implicit_references.goose",
+      "sha256": "37b5ceb3169653a559019f18e89784a98cf5c2aa911811c227bcbe9ee970068a",
+      "memory": 64,
+      "O": 0,
+      "runs": {
+        "release": {
+          "sha256": "d5a106f498eb0afc9532464e047386a967cdc2432430f8d2cac32ac592ac15f3",
+          "bytes": 5774,
+          "exit_code": 0,
+          "stdout": "6 [1, 6, 3] 9\n",
+          "stderr": ""
+        },
+        "candidate": {
+          "sha256": "9cf6128569d8bc1de265b748283712794f2c8f9e54213c730472b261140dd393",
+          "bytes": 5639,
+          "exit_code": 0,
+          "stdout": "6 [1, 6, 3] 9\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "source": "tests/fixtures/implicit_references.goose",
+      "sha256": "37b5ceb3169653a559019f18e89784a98cf5c2aa911811c227bcbe9ee970068a",
+      "memory": 64,
+      "O": 2,
+      "runs": {
+        "release": {
+          "sha256": "706521ebf6bf96a2c73ef0c7407190e1c5ef78852207fdd5a8b51d77377476b7",
+          "bytes": 6093,
+          "exit_code": 0,
+          "stdout": "6 [1, 6, 3] 9\n",
+          "stderr": ""
+        },
+        "candidate": {
+          "sha256": "c39e667f0755b49eccf7c2fc593196c3f9bb138cec2ae6a4414c285e3ebbe88c",
+          "bytes": 5958,
+          "exit_code": 0,
+          "stdout": "6 [1, 6, 3] 9\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "source": "tests/fixtures/codegen_aliases.goose",
+      "sha256": "4737936b4a6c5ba9a6f2d2f353de8681c0b8742ebf39024f758329e68893f339",
+      "memory": 32,
+      "O": 0,
+      "runs": {
+        "release": {
+          "sha256": "0ce7553c228d7b3c5c7c06c1760e1d6b7d8342f492585a660eb821b7b7d3b156",
+          "bytes": 5497,
+          "exit_code": 0,
+          "stdout": "8 1\n8 100 100 1\n[8, 100] 1 1\n",
+          "stderr": ""
+        },
+        "candidate": {
+          "sha256": "e1df9dab7c85b52c3b6e52f3f00c00277efb155c020c71453f513028e5dec082",
+          "bytes": 5376,
+          "exit_code": 0,
+          "stdout": "8 1\n8 100 100 1\n[8, 100] 1 1\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "source": "tests/fixtures/codegen_aliases.goose",
+      "sha256": "4737936b4a6c5ba9a6f2d2f353de8681c0b8742ebf39024f758329e68893f339",
+      "memory": 32,
+      "O": 2,
+      "runs": {
+        "release": {
+          "sha256": "81bb6be53de4c3e46344c15f0c97d7ebf6aebd1b7450c705f573760bda3026d7",
+          "bytes": 5746,
+          "exit_code": 0,
+          "stdout": "8 1\n8 100 100 1\n[8, 100] 1 1\n",
+          "stderr": ""
+        },
+        "candidate": {
+          "sha256": "fbeaec135d2e9956f4ec3efe04675b905caeffa16fc6949317e160be49955468",
+          "bytes": 5625,
+          "exit_code": 0,
+          "stdout": "8 1\n8 100 100 1\n[8, 100] 1 1\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "source": "tests/fixtures/codegen_aliases.goose",
+      "sha256": "4737936b4a6c5ba9a6f2d2f353de8681c0b8742ebf39024f758329e68893f339",
+      "memory": 64,
+      "O": 0,
+      "runs": {
+        "release": {
+          "sha256": "52e5816588b38b7ed8cbef9dc3768d3e136b806603a7db7aac061740052834ed",
+          "bytes": 6874,
+          "exit_code": 0,
+          "stdout": "8 1\n8 100 100 1\n[8, 100] 1 1\n",
+          "stderr": ""
+        },
+        "candidate": {
+          "sha256": "c08c9394ca67961d0dcf5cc519fe031ff9dee2e97f4dbba7c543ff454eaaa454",
+          "bytes": 6753,
+          "exit_code": 0,
+          "stdout": "8 1\n8 100 100 1\n[8, 100] 1 1\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "source": "tests/fixtures/codegen_aliases.goose",
+      "sha256": "4737936b4a6c5ba9a6f2d2f353de8681c0b8742ebf39024f758329e68893f339",
+      "memory": 64,
+      "O": 2,
+      "runs": {
+        "release": {
+          "sha256": "3df6c8dcedcc21a19f31017de4b1881a7a492807f0ccb85e0016f6409739a83f",
+          "bytes": 7124,
+          "exit_code": 0,
+          "stdout": "8 1\n8 100 100 1\n[8, 100] 1 1\n",
+          "stderr": ""
+        },
+        "candidate": {
+          "sha256": "0a16ce6d113fe8400f2ea8696d337c4856d85df769bd08f3c44cd755b9d737bc",
+          "bytes": 7003,
+          "exit_code": 0,
+          "stdout": "8 1\n8 100 100 1\n[8, 100] 1 1\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "source": "tests/fixtures/dynamic_assignments.goose",
+      "sha256": "c3d3be316e29dd0fcc950264ec1cb2865f738203f359bbc83bb9573c71a4b83b",
+      "memory": 32,
+      "O": 0,
+      "runs": {
+        "release": {
+          "sha256": "cd516c2f0474092606c9f71328953eeaed14d568bd0cb77ec4bcc8587d1329c0",
+          "bytes": 47341,
+          "exit_code": 0,
+          "stdout": "[1, 2]\n[3, 4]\n[7, 8]\n[33]\n[33] [34]\n[34] [35]\n[42, 44] [20]\n7 3 1\n8 4 10\n[5, 6]\n70 71 [72]\n3 1\n",
+          "stderr": ""
+        },
+        "candidate": {
+          "sha256": "99b293f3e438018121b32fd5c7bd2974479e588d7a1381155927ba2497858e8d",
+          "bytes": 47234,
+          "exit_code": 0,
+          "stdout": "[1, 2]\n[3, 4]\n[7, 8]\n[33]\n[33] [34]\n[34] [35]\n[42, 44] [20]\n7 3 1\n8 4 10\n[5, 6]\n70 71 [72]\n3 1\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "source": "tests/fixtures/dynamic_assignments.goose",
+      "sha256": "c3d3be316e29dd0fcc950264ec1cb2865f738203f359bbc83bb9573c71a4b83b",
+      "memory": 32,
+      "O": 2,
+      "runs": {
+        "release": {
+          "sha256": "6e7dfb073beaa706d5f0330379b418fa1ca1f95379617a49fcdec1fff194f396",
+          "bytes": 63908,
+          "exit_code": 0,
+          "stdout": "[1, 2]\n[3, 4]\n[7, 8]\n[33]\n[33] [34]\n[34] [35]\n[42, 44] [20]\n7 3 1\n8 4 10\n[5, 6]\n70 71 [72]\n3 1\n",
+          "stderr": ""
+        },
+        "candidate": {
+          "sha256": "a25f2fabe314c3b123191c0f49a176bc01766f232c24e97af45dab62a7415584",
+          "bytes": 63801,
+          "exit_code": 0,
+          "stdout": "[1, 2]\n[3, 4]\n[7, 8]\n[33]\n[33] [34]\n[34] [35]\n[42, 44] [20]\n7 3 1\n8 4 10\n[5, 6]\n70 71 [72]\n3 1\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "source": "tests/fixtures/dynamic_assignments.goose",
+      "sha256": "c3d3be316e29dd0fcc950264ec1cb2865f738203f359bbc83bb9573c71a4b83b",
+      "memory": 64,
+      "O": 0,
+      "runs": {
+        "release": {
+          "sha256": "c55aa74f6262e5f4444df065970f32af55574f977ee5dff32000f7467a500ddc",
+          "bytes": 51831,
+          "exit_code": 0,
+          "stdout": "[1, 2]\n[3, 4]\n[7, 8]\n[33]\n[33] [34]\n[34] [35]\n[42, 44] [20]\n7 3 1\n8 4 10\n[5, 6]\n70 71 [72]\n3 1\n",
+          "stderr": ""
+        },
+        "candidate": {
+          "sha256": "4b201d00a85753f074c02228575de5bdecfa316c5adbdab87af574545cc23899",
+          "bytes": 51724,
+          "exit_code": 0,
+          "stdout": "[1, 2]\n[3, 4]\n[7, 8]\n[33]\n[33] [34]\n[34] [35]\n[42, 44] [20]\n7 3 1\n8 4 10\n[5, 6]\n70 71 [72]\n3 1\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "source": "tests/fixtures/dynamic_assignments.goose",
+      "sha256": "c3d3be316e29dd0fcc950264ec1cb2865f738203f359bbc83bb9573c71a4b83b",
+      "memory": 64,
+      "O": 2,
+      "runs": {
+        "release": {
+          "sha256": "0d9a24df49f9ae6be6bb7959cf00963ee94cc55ce779537167a4377297a19a12",
+          "bytes": 67706,
+          "exit_code": 0,
+          "stdout": "[1, 2]\n[3, 4]\n[7, 8]\n[33]\n[33] [34]\n[34] [35]\n[42, 44] [20]\n7 3 1\n8 4 10\n[5, 6]\n70 71 [72]\n3 1\n",
+          "stderr": ""
+        },
+        "candidate": {
+          "sha256": "40739c82b9f3fd7230b9ca31d66938c64f936c10942e5fea13f617053eea4267",
+          "bytes": 67599,
+          "exit_code": 0,
+          "stdout": "[1, 2]\n[3, 4]\n[7, 8]\n[33]\n[33] [34]\n[34] [35]\n[42, 44] [20]\n7 3 1\n8 4 10\n[5, 6]\n70 71 [72]\n3 1\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "source": "tests/fixtures/contracts/native-relative-runs/optional-param.goose",
+      "sha256": "676844620678c1c957aa2b90021b454dd92ab3ff15b504388a518e59662c4cd4",
+      "memory": 32,
+      "O": 0,
+      "runs": {
+        "release": {
+          "sha256": "a12af82ff63d8a4ff3e88d48c79c86b15a3fad2f7329eb48118dc3c42f8a1904",
+          "bytes": 1120,
+          "exit_code": 0,
+          "stdout": "true\n",
+          "stderr": ""
+        },
+        "candidate": {
+          "sha256": "a12af82ff63d8a4ff3e88d48c79c86b15a3fad2f7329eb48118dc3c42f8a1904",
+          "bytes": 1120,
+          "exit_code": 0,
+          "stdout": "true\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "source": "tests/fixtures/contracts/native-relative-runs/optional-param.goose",
+      "sha256": "676844620678c1c957aa2b90021b454dd92ab3ff15b504388a518e59662c4cd4",
+      "memory": 32,
+      "O": 2,
+      "runs": {
+        "release": {
+          "sha256": "9be8a4a9cd5df6807fd410885a6d4ab9d4b515c5cc38c1434c068c4fcdbb8968",
+          "bytes": 1231,
+          "exit_code": 0,
+          "stdout": "true\n",
+          "stderr": ""
+        },
+        "candidate": {
+          "sha256": "9be8a4a9cd5df6807fd410885a6d4ab9d4b515c5cc38c1434c068c4fcdbb8968",
+          "bytes": 1231,
+          "exit_code": 0,
+          "stdout": "true\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "source": "tests/fixtures/contracts/native-relative-runs/optional-param.goose",
+      "sha256": "676844620678c1c957aa2b90021b454dd92ab3ff15b504388a518e59662c4cd4",
+      "memory": 64,
+      "O": 0,
+      "runs": {
+        "release": {
+          "sha256": "c8fffa37bdc2e16968798fae48fcc5c2f0200be71878c69308d2ddad550df051",
+          "bytes": 1133,
+          "exit_code": 0,
+          "stdout": "true\n",
+          "stderr": ""
+        },
+        "candidate": {
+          "sha256": "c8fffa37bdc2e16968798fae48fcc5c2f0200be71878c69308d2ddad550df051",
+          "bytes": 1133,
+          "exit_code": 0,
+          "stdout": "true\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "source": "tests/fixtures/contracts/native-relative-runs/optional-param.goose",
+      "sha256": "676844620678c1c957aa2b90021b454dd92ab3ff15b504388a518e59662c4cd4",
+      "memory": 64,
+      "O": 2,
+      "runs": {
+        "release": {
+          "sha256": "2a65c69bcf587502098702b750f9e14ed45724df0cf942dcb2f0bdfb1f7ea887",
+          "bytes": 1244,
+          "exit_code": 0,
+          "stdout": "true\n",
+          "stderr": ""
+        },
+        "candidate": {
+          "sha256": "2a65c69bcf587502098702b750f9e14ed45724df0cf942dcb2f0bdfb1f7ea887",
+          "bytes": 1244,
+          "exit_code": 0,
+          "stdout": "true\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "source": "tests/fixtures/contracts/native-relative-runs/run-param-alias-call.goose",
+      "sha256": "cf9ec9435420d460b701fc1b2ec1928653987d26f8120a4e494aac643390d87b",
+      "memory": 32,
+      "O": 0,
+      "runs": {
+        "release": {
+          "phase": "compile",
+          "exit_code": 1,
+          "stdout": "",
+          "stderr": "tests/fixtures/contracts/native-relative-runs/run-param-alias-call.goose:1:1: error: wasm: a relative reference to a variable image requires a borrowed image view\ntests/fixtures/contracts/native-relative-runs/run-param-alias-call.goose:1:1: error: wasm: a relative reference to a variable image requires a borrowed image view\n"
+        },
+        "candidate": {
+          "phase": "compile",
+          "exit_code": 1,
+          "stdout": "",
+          "stderr": "tests/fixtures/contracts/native-relative-runs/run-param-alias-call.goose:1:1: error: wasm: a relative reference to a variable image requires a borrowed image view\ntests/fixtures/contracts/native-relative-runs/run-param-alias-call.goose:1:1: error: wasm: a relative reference to a variable image requires a borrowed image view\n"
+        }
+      }
+    },
+    {
+      "source": "tests/fixtures/contracts/native-relative-runs/run-param-alias-call.goose",
+      "sha256": "cf9ec9435420d460b701fc1b2ec1928653987d26f8120a4e494aac643390d87b",
+      "memory": 32,
+      "O": 2,
+      "runs": {
+        "release": {
+          "phase": "compile",
+          "exit_code": 1,
+          "stdout": "",
+          "stderr": "tests/fixtures/contracts/native-relative-runs/run-param-alias-call.goose:1:1: error: wasm: a relative reference to a variable image requires a borrowed image view\ntests/fixtures/contracts/native-relative-runs/run-param-alias-call.goose:1:1: error: wasm: a relative reference to a variable image requires a borrowed image view\n"
+        },
+        "candidate": {
+          "phase": "compile",
+          "exit_code": 1,
+          "stdout": "",
+          "stderr": "tests/fixtures/contracts/native-relative-runs/run-param-alias-call.goose:1:1: error: wasm: a relative reference to a variable image requires a borrowed image view\ntests/fixtures/contracts/native-relative-runs/run-param-alias-call.goose:1:1: error: wasm: a relative reference to a variable image requires a borrowed image view\n"
+        }
+      }
+    },
+    {
+      "source": "tests/fixtures/contracts/native-relative-runs/run-param-alias-call.goose",
+      "sha256": "cf9ec9435420d460b701fc1b2ec1928653987d26f8120a4e494aac643390d87b",
+      "memory": 64,
+      "O": 0,
+      "runs": {
+        "release": {
+          "phase": "compile",
+          "exit_code": 1,
+          "stdout": "",
+          "stderr": "tests/fixtures/contracts/native-relative-runs/run-param-alias-call.goose:1:1: error: wasm: a relative reference to a variable image requires a borrowed image view\ntests/fixtures/contracts/native-relative-runs/run-param-alias-call.goose:1:1: error: wasm: a relative reference to a variable image requires a borrowed image view\n"
+        },
+        "candidate": {
+          "phase": "compile",
+          "exit_code": 1,
+          "stdout": "",
+          "stderr": "tests/fixtures/contracts/native-relative-runs/run-param-alias-call.goose:1:1: error: wasm: a relative reference to a variable image requires a borrowed image view\ntests/fixtures/contracts/native-relative-runs/run-param-alias-call.goose:1:1: error: wasm: a relative reference to a variable image requires a borrowed image view\n"
+        }
+      }
+    },
+    {
+      "source": "tests/fixtures/contracts/native-relative-runs/run-param-alias-call.goose",
+      "sha256": "cf9ec9435420d460b701fc1b2ec1928653987d26f8120a4e494aac643390d87b",
+      "memory": 64,
+      "O": 2,
+      "runs": {
+        "release": {
+          "phase": "compile",
+          "exit_code": 1,
+          "stdout": "",
+          "stderr": "tests/fixtures/contracts/native-relative-runs/run-param-alias-call.goose:1:1: error: wasm: a relative reference to a variable image requires a borrowed image view\ntests/fixtures/contracts/native-relative-runs/run-param-alias-call.goose:1:1: error: wasm: a relative reference to a variable image requires a borrowed image view\n"
+        },
+        "candidate": {
+          "phase": "compile",
+          "exit_code": 1,
+          "stdout": "",
+          "stderr": "tests/fixtures/contracts/native-relative-runs/run-param-alias-call.goose:1:1: error: wasm: a relative reference to a variable image requires a borrowed image view\ntests/fixtures/contracts/native-relative-runs/run-param-alias-call.goose:1:1: error: wasm: a relative reference to a variable image requires a borrowed image view\n"
+        }
+      }
+    },
+    {
+      "source": "tests/fixtures/frame_struct_paths.goose",
+      "sha256": "99523c515b8aa26d7d22cc1398d3ef8c4648fa2e174a5618019fcf5e9b37a296",
+      "memory": 32,
+      "O": 0,
+      "runs": {
+        "release": {
+          "sha256": "91f57eec81679e1d6ebb7542fd2a85d663ded5e14f96aa1d04f6a0378ee937da",
+          "bytes": 22835,
+          "exit_code": 0,
+          "stdout": "7 10 20 [30]\n1 2 [33] 11 11 22 [33, 40]\n1 2 102 3\ntrue [2]\n",
+          "stderr": ""
+        },
+        "candidate": {
+          "sha256": "91f57eec81679e1d6ebb7542fd2a85d663ded5e14f96aa1d04f6a0378ee937da",
+          "bytes": 22835,
+          "exit_code": 0,
+          "stdout": "7 10 20 [30]\n1 2 [33] 11 11 22 [33, 40]\n1 2 102 3\ntrue [2]\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "source": "tests/fixtures/frame_struct_paths.goose",
+      "sha256": "99523c515b8aa26d7d22cc1398d3ef8c4648fa2e174a5618019fcf5e9b37a296",
+      "memory": 32,
+      "O": 2,
+      "runs": {
+        "release": {
+          "sha256": "01cc60872fe040a21eb0fde802700e915ca96107a73417ca2c3ad43c85ccc5c1",
+          "bytes": 32499,
+          "exit_code": 0,
+          "stdout": "7 10 20 [30]\n1 2 [33] 11 11 22 [33, 40]\n1 2 102 3\ntrue [2]\n",
+          "stderr": ""
+        },
+        "candidate": {
+          "sha256": "01cc60872fe040a21eb0fde802700e915ca96107a73417ca2c3ad43c85ccc5c1",
+          "bytes": 32499,
+          "exit_code": 0,
+          "stdout": "7 10 20 [30]\n1 2 [33] 11 11 22 [33, 40]\n1 2 102 3\ntrue [2]\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "source": "tests/fixtures/frame_struct_paths.goose",
+      "sha256": "99523c515b8aa26d7d22cc1398d3ef8c4648fa2e174a5618019fcf5e9b37a296",
+      "memory": 64,
+      "O": 0,
+      "runs": {
+        "release": {
+          "sha256": "f1291c5c05d0ccad782de80b4ec47ef25769dd70eaba86ccf65954fa9ea794b0",
+          "bytes": 29497,
+          "exit_code": 0,
+          "stdout": "7 10 20 [30]\n1 2 [33] 11 11 22 [33, 40]\n1 2 102 3\ntrue [2]\n",
+          "stderr": ""
+        },
+        "candidate": {
+          "sha256": "f1291c5c05d0ccad782de80b4ec47ef25769dd70eaba86ccf65954fa9ea794b0",
+          "bytes": 29497,
+          "exit_code": 0,
+          "stdout": "7 10 20 [30]\n1 2 [33] 11 11 22 [33, 40]\n1 2 102 3\ntrue [2]\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "source": "tests/fixtures/frame_struct_paths.goose",
+      "sha256": "99523c515b8aa26d7d22cc1398d3ef8c4648fa2e174a5618019fcf5e9b37a296",
+      "memory": 64,
+      "O": 2,
+      "runs": {
+        "release": {
+          "sha256": "c1ade1f6a025f6031ebc1e28bd4eeae009d42c055a538dea38035e83a9d8298b",
+          "bytes": 38793,
+          "exit_code": 0,
+          "stdout": "7 10 20 [30]\n1 2 [33] 11 11 22 [33, 40]\n1 2 102 3\ntrue [2]\n",
+          "stderr": ""
+        },
+        "candidate": {
+          "sha256": "c1ade1f6a025f6031ebc1e28bd4eeae009d42c055a538dea38035e83a9d8298b",
+          "bytes": 38793,
+          "exit_code": 0,
+          "stdout": "7 10 20 [30]\n1 2 [33] 11 11 22 [33, 40]\n1 2 102 3\ntrue [2]\n",
+          "stderr": ""
+        }
+      }
+    }
+  ]
+}
