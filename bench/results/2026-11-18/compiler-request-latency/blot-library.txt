@@ -1,0 +1,25 @@
+check/parameter_patterns.goose:84:76: error: index_of requires a fixed-stride array owner
+check/parameter_patterns.goose:98:75: error: index_of requires a fixed-stride array owner
+check/numeric_proof_bodies.goose:48:48: error: array builtin requires an array or slice receiver
+check/ordered_membership.goose:21:26: error: no overload matches this call's argument types and count
+check/ordered_membership.goose:21:26: error: value cannot implicitly convert to the required type
+check/ordered_membership.goose:21:5: error: return values do not match the function result signature
+support/pooled_buffer.goose:10:23: error: allocation builtin requires the corresponding reusable slot or slice pool
+support/pooled_buffer.goose:10:96: error: allocation builtin requires the corresponding reusable slot or slice pool
+support/pooled_buffer.goose:12:31: error: allocation builtin requires the corresponding reusable slot or slice pool
+support/pooled_buffer.goose:14:209: error: allocation builtin requires the corresponding reusable slot or slice pool
+check/capability_flow.goose:366:4: error: recursive cycle requires recursive declarations
+check/effects.goose:474:80: error: index_of requires a fixed-stride array owner
+check/effects.goose:502:90: error: index_of requires a fixed-stride array owner
+check/effects.goose:516:88: error: index_of requires a fixed-stride array owner
+check/types.goose:2093:82: error: index_of requires a fixed-stride array owner
+check/types.goose:2107:80: error: index_of requires a fixed-stride array owner
+check/types.goose:2121:90: error: index_of requires a fixed-stride array owner
+check/types.goose:2135:88: error: index_of requires a fixed-stride array owner
+check/types.goose:2149:92: error: index_of requires a fixed-stride array owner
+check/types.goose:2163:101: error: index_of requires a fixed-stride array owner
+check/types.goose:2177:104: error: index_of requires a fixed-stride array owner
+check/types.goose:2191:105: error: index_of requires a fixed-stride array owner
+check/types.goose:2205:87: error: index_of requires a fixed-stride array owner
+check/types.goose:2219:103: error: index_of requires a fixed-stride array owner
+check/types.goose:2233:109: error: index_of requires a fixed-stride array owner
