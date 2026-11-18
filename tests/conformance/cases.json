@@ -13,6 +13,17 @@
   },
   "cases": [
     {
+      "id": "corpus/nested-initializer/nonlocal-and-capture",
+      "source": "tests/fixtures/nested_initializer.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [0, 2],
+      "stdin": "",
+      "expect": {"stdout": "relay\n77\nrelay\n17\n4\n", "exit": 0},
+      "debug": false,
+      "provenance": "Verified with plain upstream ee261a4. Later initializers can leave an enclosing function, run a pending defer, or capture a variable through a call."
+    },
+    {
       "id": "corpus/packed-copy/empty-field",
       "source": "tests/fixtures/packed_copy_empty.goose",
       "phase": "run",
