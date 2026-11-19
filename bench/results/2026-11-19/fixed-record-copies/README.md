@@ -25,6 +25,8 @@ Across ten example programs and the eleven-program compiler catalog, the refresh
 
 Across three fresh processes per configuration, the fixed bundled compiler took **10.21 s cold on eight cores**, **7.20 s cached on one core** and **5.40 s native**. The default memory64 compiler took 17.46 s cold on one core and 7.92 s cold on eight. Every measurement includes a full parse, check, optimization and write. The cold series also includes Wasmtime compiling the compiler module. [Launch and edit measurements](launch.json)
 
+The second three-process series ran after qualification and the reader suite finished. Bundled memory32 measured 8.20 s cold and 4.57 s cached, with native at 4.38 s. The same modules and project produced identical output across both series. Absolute launch times varied substantially on this host. [Independent launch series](repeat-launch.json)
+
 ![Cold and cached full-process rebuilds](launch.svg)
 
 ## What remains
