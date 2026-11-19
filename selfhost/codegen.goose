@@ -40,7 +40,7 @@ struct CgModule {
     region_memo: i64[>..]&,
     next_data: i64 = 1024, stack_limit: i64 = 0,
     region_count: i64 = 0, global_region_count: i64 = 0, regions_enabled: bool = false,
-    nonlocal_returns: bool = false, ordinary_owners: bool = false,
+    nonlocal_returns: bool = false, ordinary_owners: bool = false, maps_headers: bool = false,
     region_table_address: i64 = 0, host_reserve: i64 = -1, host_reserve_type: i64 = -1,
     start: i64 = -1, allocator: i64 = -1, float_wrap: i64 = -1, scalar: bool = false, resolver: i64 = -1, header_helper: i64 = -1, prefix_helper: i64 = -1, pool_global: i64 = -1,
     owner_view: i64 = -1, update_length: i64 = -1,
@@ -1608,7 +1608,7 @@ fn cg_canonical_address(m: CgModule&, f: CgBody&, bytes: i64) {
 fn cg_map_frame(p: Program&, m: CgModule&, f: CgBody&, source: i64, target: i64, prefix: i64) -> i64 {
     // A publication record is six address-sized words: the previous record,
     // the source, the target, the mapped prefix bytes twice, the mode.
-    f.publishes = true;
+    f.publishes = true; m.maps_headers = true;
     let previous = cg_mark_publications(m, f); let offset = cg_frame(f, ww(6), wa_bytes()); cg_frame_address(f, offset); let entry = cg_save(f, wa());
     cg_get(f, entry); cg_get(f, previous); wa_store(f.code, 0);
     cg_get(f, entry); cg_get(f, source); wa_store(f.code, ww(1));
@@ -4274,6 +4274,67 @@ fn cg_ordinary_owner_module(p: Program&, m: CgModule&) -> bool {
     }
     return true;
 }
+// With no mapping registrations, the publication head stays zero. A
+// user/start body only saves it into a private mark or restores such a mark.
+// All uses of that mark restore the head. Local allocation may reuse its slot
+// after the last restore. Decode instructions so immediates cannot look like calls.
+fn cg_without_publications(m: CgModule&, bytes: const u8[:], out: u8[>..]&, marks: bool) -> bool {
+    var at = 0; let groups = wb_read_unsigned(bytes, at);
+    for _ in 0..groups { wb_skip_leb(bytes, at); at++; }
+    var copied = 0; var before = at; var prior = at;
+    while at < bytes.len {
+        let start = at; let op = bytes[at] as i64; at++;
+        var omit = -1;
+        if op == 0x10 {
+            let target = wb_read_unsigned(bytes, at);
+            if target == m.header_helper || target == m.prefix_helper {
+                if before == start || (bytes[before] != 0x41 && bytes[before] != 0x42) { return false; }
+                omit = before;
+                if target == m.header_helper {
+                    if prior == before || bytes[prior] != 0x20 { return false; }
+                    omit = prior;
+                }
+            }
+        } else if op == 0x23 || op == 0x24 {
+            let index = wb_read_unsigned(bytes, at);
+            if index == 11 {
+                if !marks { return false; }
+                if op == 0x23 {
+                    // cg_mark_publications writes the head to a fresh local.
+                    if at == bytes.len || bytes[at] != 0x21 { return false; }
+                    at++; wb_skip_leb(bytes, at); omit = start;
+                } else {
+                    // cg_restore_publications reads only that saved mark.
+                    if before == start || bytes[before] != 0x20 { return false; }
+                    omit = before;
+                }
+            }
+        } else if op < 0x45 || op >= 0xfc { wb_read_operands(bytes, at, op); }
+        if omit >= 0 {
+            out.append(bytes[copied..omit]); copied = at;
+            before = at; prior = at;
+        } else { prior = before; before = start; }
+    }
+    if at != bytes.len { return false; }
+    out.append(bytes[copied..]); return true;
+}
+fn cg_strip_publications(m: CgModule&, code: u8[>..]&) {
+    let bytes: const u8[:] = code;
+    var rewritten: u8[>..] = []; var body: u8[>..] = []; var at = 0;
+    let count = wb_read_unsigned(bytes, at); wb_u(rewritten, count);
+    for ordinal in 0..count {
+        let header = at; let size = wb_read_unsigned(bytes, at); let end = at + size;
+        let user_body = ordinal <= m.functions.len; let function = m.imports.len + ordinal;
+        if user_body || function == m.raw_append || function == m.update_length || function == m.host_reserve {
+            body.clear();
+            if !cg_without_publications(m, bytes[at..end], body, user_body) { return; }
+            wb_u(rewritten, body.len); rewritten.append(body);
+        } else { rewritten.append(bytes[header..end]); }
+        at = end;
+    }
+    if at != bytes.len { return; }
+    code.clear(); code.append(rewritten);
+}
 fn generate_wasm(p: Program&, out: u8[>..]&) {
     // The checked layout decides the memory: 8-byte pointers are 64-bit
     // memory. Set before anything is collected, laid out or emitted.
@@ -4325,6 +4386,7 @@ fn generate_wasm(p: Program&, out: u8[>..]&) {
     cg_bound_regions(p, m); cg_layout_regions(p, m);
     if m.next_data >= m.stack_limit { cg_fail(p, -1, "wasm: static storage overlaps the activation arena"); }
     if p.diagnostics.len > 0 { return; }
+    if p.bundled_host && m.ordinary_owners && !m.scalar && !m.maps_headers { cg_strip_publications(m, code); }
     var empty: u8[>..] = []; var one_i64: u8[>..] = [0x7e]; var one_f64: u8[>..] = [0x7c];
     let start_signature = cg_signature(m, empty, empty); var allocator_signature = -1; var wrap_signature = -1; var header_signature = -1; var prefix_signature = -1; var append_signature = -1;
     // The helpers take and return addresses and address-sized numbers: the

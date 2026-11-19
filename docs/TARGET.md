@@ -291,6 +291,11 @@ or fill byte arrays using `goose.reserve`. Other imports and public exports stil
 use the general representation. Use the default for custom host implementations
 that can edit array headers.
 
+For bundled programs with ordinary array headers, the backend records whether
+any construction needs to forward updates to another header. Once all functions
+and global initializers have been emitted, it can remove the forwarding calls
+and saved list heads from modules that never register a destination.
+
 An import takes numbers and booleans, and what the module holds a slice or a
 reference as: a slice is the i64 of pointer and count, a reference an i32
 address. It returns numbers and booleans. Other parameter and result types are
