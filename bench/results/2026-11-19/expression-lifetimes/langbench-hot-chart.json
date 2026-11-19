@@ -1,0 +1,93 @@
+{
+  "schema": "goose-langbench-hot-chart-v1",
+  "report": "bench/results/2026-11-19/expression-lifetimes/langbench-hot.json.gz",
+  "report_sha256": "6d209284335e381a49aa9db1a1b7b810b9406b370f416639756380227a7eb2c1",
+  "charts": {
+    "langbench-hot-runtime.svg": {
+      "values": [
+        {
+          "profile": "small",
+          "cells": [
+            "c-gcc",
+            "c-clang",
+            "upstream-goose-native",
+            "goose-native",
+            "goose-wasm-wasmtime",
+            "goose-wasm-v8"
+          ],
+          "median_ms": [
+            93.060143,
+            99.8638,
+            94.135123,
+            94.550033,
+            97.058797,
+            98.228022
+          ],
+          "mad_ms": [
+            3.222382,
+            3.652613,
+            4.616803,
+            2.057913,
+            1.26815,
+            2.199922
+          ]
+        },
+        {
+          "profile": "medium",
+          "cells": [
+            "c-gcc",
+            "c-clang",
+            "upstream-goose-native",
+            "goose-native",
+            "goose-wasm-wasmtime",
+            "goose-wasm-v8"
+          ],
+          "median_ms": [
+            720.642573,
+            774.002627,
+            725.240019,
+            721.453106,
+            780.315933,
+            768.200582
+          ],
+          "mad_ms": [
+            16.41487,
+            41.256862,
+            26.561939,
+            19.34851,
+            18.802497,
+            38.462834
+          ]
+        },
+        {
+          "profile": "official",
+          "cells": [
+            "c-gcc",
+            "c-clang",
+            "upstream-goose-native",
+            "goose-native",
+            "goose-wasm-wasmtime",
+            "goose-wasm-v8"
+          ],
+          "median_ms": [
+            2948.85162,
+            3053.331836,
+            2923.830604,
+            2924.123046,
+            3159.762753,
+            3056.023844
+          ],
+          "mad_ms": [
+            102.263529,
+            169.278248,
+            70.089434,
+            116.759368,
+            98.667595,
+            55.626492
+          ]
+        }
+      ],
+      "sha256": "d4d559713bfd4b296df28ebaa274d6f1cfb2afaf46637eb4bdc1cba39fd983c4"
+    }
+  }
+}
