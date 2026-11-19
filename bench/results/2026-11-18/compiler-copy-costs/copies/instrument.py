@@ -1,4 +1,4 @@
-"""Add private i64 globals to a validated single-memory memory64 compiler.
+"""Add private i64 globals to a validated single-memory Wasm compiler.
 
 wasm-copy-sites (using wasmparser) supplies decoded instruction boundaries. Existing
 code and section bytes are kept, apart from appended globals/exports and counters.
@@ -56,7 +56,7 @@ def names_section(data):
     raise ValueError('missing function names')
 
 
-def instrument(module, site_file, output, detailed):
+def instrument(module, site_file, output, detailed, only=()):
     data = module.read_bytes()
     assert data[:8] == b'\0asm\1\0\0\0'
     p = 8
@@ -68,20 +68,25 @@ def instrument(module, site_file, output, detailed):
         p += n
     by_id = dict(sections)
     names = names_section(by_id[0])
+    missing = set(only).difference(names.values())
+    if missing:
+        raise ValueError(f"unknown function names: {sorted(missing)}")
     sites = defaultdict(list)
     for line in site_file.read_text().splitlines():
         ordinal, offset, kind, size = line.split()
         sites[int(ordinal)].append((int(offset), kind, int(size)))
-    imported, p = read(by_id[2], 0)
+    imports = by_id.get(2, b"\x00")
+    imported, p = read(imports, 0)
     for _ in range(imported):
         for _ in range(2):
-            n, p = read(by_id[2], p)
+            n, p = read(imports, p)
             p += n
-        assert by_id[2][p] == 0, 'only imported functions are supported'
-        _, p = read(by_id[2], p+1)
-    assert p == len(by_id[2])
-    count, _ = read(by_id[5], 0)
-    assert count == 1 and by_id[5][1] & 4, 'requires memory64'
+        assert imports[p] == 0, 'only imported functions are supported'
+        _, p = read(imports, p+1)
+    assert p == len(imports)
+    count, flags_offset = read(by_id[5], 0)
+    assert count == 1, 'requires a single defined memory'
+    memory64 = bool(by_id[5][flags_offset] & 4)
     base, gstart = read(by_id[6], 0)
     scratch = base  # reserved for a dynamic length during straight-line instrumentation
     keys = {}
@@ -96,12 +101,17 @@ def instrument(module, site_file, output, detailed):
     code = by_id[10]
     n, p = read(code, 0)
     changed = leb(n)
+    counted_sites = 0
     for ordinal in range(n):
         size, p = read(code, p)
         body, cursor = code[p:p+size], 0
         p += size
         func = ordinal + imported
         name = names.get(func, f'wasm-function[{func}]')
+        if only and name not in only:
+            changed.extend(chunk(body))
+            continue
+        counted_sites += len(sites[ordinal])
         new = bytearray()
         for offset, kind, width in sites[ordinal]:
             assert cursor <= offset < len(body)
@@ -118,8 +128,12 @@ def instrument(module, site_file, output, detailed):
             new.extend(b'\x23' + calls + b'\x42\x01\x7c\x24' + calls)
             if width == -1:
                 amount = leb(counter((func, name, kind, width, site, 'bytes')))
+                if not memory64:
+                    new.append(0xad)  # i64.extend_i32_u for the byte counter
                 new.extend(b'\x24' + leb(scratch) + b'\x23' + amount + b'\x23' + leb(scratch)
                            + b'\x7c\x24' + amount + b'\x23' + leb(scratch))
+                if not memory64:
+                    new.append(0xa7)  # restore the memory32 operand
         new.extend(body[cursor:])
         changed.extend(chunk(new))
     assert p == len(code)
@@ -136,7 +150,7 @@ def instrument(module, site_file, output, detailed):
     output.write_bytes(out)
     output.with_suffix('.map.json').write_text(json.dumps({
         'input_sha256': hashlib.sha256(data).hexdigest(), 'output_sha256': hashlib.sha256(out).hexdigest(),
-        'static_sites': sum(map(len, sites.values())), 'imported_functions': imported, 'counters': metadata,
+        'static_sites': counted_sites, 'imported_functions': imported, 'counters': metadata,
     }))
 
 
@@ -147,5 +161,6 @@ if __name__ == '__main__':
     p.add_argument('--detail', nargs='*', default=['life_replay', 'life_effect', 'life_effect_far',
                    'life_readback', 'life_read_reach', 'life_construct_read', 'life_eval', 'life_eval_body',
                    'life_held_into', 'life_class_candidates', 'life_depth'])
+    p.add_argument('--only', nargs='+', default=[], help='instrument just these named functions')
     a = p.parse_args()
-    instrument(a.module, a.sites, a.output, set(a.detail))
+    instrument(a.module, a.sites, a.output, set(a.detail), set(a.only))

@@ -17,6 +17,8 @@ from wasmtime import _ffi
 p = argparse.ArgumentParser(description=__doc__)
 for field in ('repo', 'stage', 'workload', 'named', 'module', 'expected', 'results'):
     p.add_argument(field, type=lambda x: Path(x).resolve())
+p.add_argument('--base-module', type=lambda path: Path(path).resolve(),
+               help='plain compiler module for an independently trained layout')
 p.add_argument('--mode', choices=['check', 'emit'], required=True)
 p.add_argument('--cpu', type=int, required=True)
 a = p.parse_args()
@@ -27,8 +29,10 @@ from selfhost_comparison import SOURCE, WASM_FLAGS, identity, verify_frozen_sour
 built, workload = (json.loads((d / 'builds.json').read_text()) for d in (a.stage, a.workload))
 for d, record in ((a.stage, built), (a.workload, workload)):
     verify_frozen_source(d/'source', record['source_commit'], record['source_archive_sha256'])
-base = a.stage / 'build-1/compiler.wasm'
-assert identity(base) == built['samples'][0]['artifacts']['compiler.wasm']
+base = a.base_module
+if base is None:
+    base = a.stage / 'build-1/compiler.wasm'
+    assert identity(base) == built['samples'][0]['artifacts']['compiler.wasm']
 assert identity(a.stage/'build-1/compiler-native') == built['samples'][0]['artifacts']['compiler-native']
 plain, named = base.read_bytes(), a.named.read_bytes()
 assert named.startswith(plain) and named[len(plain)] == 0
