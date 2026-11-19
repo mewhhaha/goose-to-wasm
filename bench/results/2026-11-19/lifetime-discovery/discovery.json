@@ -1,0 +1,578 @@
+{
+  "compiler": "7ff11b74a7c78c00f0213c7c01af86c1bb989454",
+  "project": "34ddff8db385b1e357e3b5048d7a301ead975fc5",
+  "passes": [
+    {
+      "phase": "discovery 1",
+      "frames_including_global": 2879,
+      "class_frames": 0,
+      "bodies_evaluated": 2878,
+      "node_visits": 462819,
+      "revisions": 50856,
+      "revision_sites": {
+        "619": 62,
+        "940": 38542,
+        "3832": 5880,
+        "3951": 209,
+        "4241": 524,
+        "4243": 365,
+        "5144": 5261,
+        "5642": 13
+      },
+      "items": 92032,
+      "reachable_items": 9359
+    },
+    {
+      "phase": "discovery 2",
+      "frames_including_global": 2880,
+      "class_frames": 0,
+      "bodies_evaluated": 2879,
+      "node_visits": 462895,
+      "revisions": 17011,
+      "revision_sites": {
+        "619": 350,
+        "940": 16621,
+        "3832": 33,
+        "5144": 6,
+        "5642": 1
+      },
+      "items": 184063,
+      "reachable_items": 9364
+    },
+    {
+      "phase": "discovery 3",
+      "frames_including_global": 2880,
+      "class_frames": 0,
+      "bodies_evaluated": 2878,
+      "node_visits": 462819,
+      "revisions": 552,
+      "revision_sites": {
+        "619": 65,
+        "940": 487
+      },
+      "items": 276087,
+      "reachable_items": 9364
+    },
+    {
+      "phase": "discovery 4",
+      "frames_including_global": 2880,
+      "class_frames": 0,
+      "bodies_evaluated": 2878,
+      "node_visits": 462819,
+      "revisions": 4,
+      "revision_sites": {
+        "619": 4
+      },
+      "items": 368111,
+      "reachable_items": 9364
+    },
+    {
+      "phase": "discovery 5",
+      "frames_including_global": 2880,
+      "class_frames": 0,
+      "bodies_evaluated": 2878,
+      "node_visits": 462819,
+      "revisions": 0,
+      "revision_sites": {},
+      "items": 460135,
+      "reachable_items": 9364
+    },
+    {
+      "phase": "validation",
+      "frames_including_global": 2883,
+      "class_frames": 0,
+      "bodies_evaluated": 2878,
+      "node_visits": 462819,
+      "revisions": 14,
+      "revision_sites": {
+        "3832": 7,
+        "5144": 7
+      },
+      "items": 552201,
+      "reachable_items": 9416
+    }
+  ],
+  "call_graph": {
+    "edges": 12273,
+    "frames": 2879,
+    "closure": {
+      "3": {
+        "changed_summary_owners": 122,
+        "direct_callers": 131,
+        "transitive_callers_including_owners": 327,
+        "effects_by_kind": {
+          "4": 66,
+          "2": 389,
+          "1": 97
+        }
+      },
+      "4": {
+        "changed_summary_owners": 2,
+        "direct_callers": 5,
+        "transitive_callers_including_owners": 169,
+        "effects_by_kind": {
+          "4": 4
+        }
+      }
+    },
+    "last_summary_growth": [
+      [
+        99,
+        4,
+        208,
+        18095,
+        208,
+        18095,
+        4,
+        -1,
+        55163
+      ],
+      [
+        99,
+        4,
+        208,
+        18095,
+        208,
+        18095,
+        4,
+        -1,
+        55164
+      ],
+      [
+        99,
+        4,
+        229,
+        18973,
+        229,
+        18973,
+        4,
+        -1,
+        55165
+      ],
+      [
+        99,
+        4,
+        229,
+        18973,
+        229,
+        18973,
+        4,
+        -1,
+        55166
+      ]
+    ]
+  },
+  "projections": {
+    "interior_requests": 441957,
+    "interior_hits": 438921,
+    "component_requests": 0,
+    "component_hits": 0
+  },
+  "swept_items": [
+    92032,
+    101390,
+    101390,
+    101390,
+    101390,
+    101430
+  ],
+  "examples": {
+    "errors": [
+      {
+        "pass": 1,
+        "frames": 23,
+        "class_frames": 0,
+        "bodies": 22,
+        "visits": 943,
+        "changes": 77,
+        "items": 220
+      },
+      {
+        "pass": 2,
+        "frames": 23,
+        "class_frames": 0,
+        "bodies": 22,
+        "visits": 943,
+        "changes": 0,
+        "items": 440
+      },
+      {
+        "pass": -1,
+        "frames": 23,
+        "class_frames": 0,
+        "bodies": 22,
+        "visits": 943,
+        "changes": 0,
+        "items": 660
+      }
+    ],
+    "functions": [
+      {
+        "pass": 1,
+        "frames": 106,
+        "class_frames": 0,
+        "bodies": 105,
+        "visits": 2712,
+        "changes": 178,
+        "items": 621
+      },
+      {
+        "pass": 2,
+        "frames": 106,
+        "class_frames": 0,
+        "bodies": 105,
+        "visits": 2712,
+        "changes": 0,
+        "items": 1242
+      },
+      {
+        "pass": -1,
+        "frames": 106,
+        "class_frames": 0,
+        "bodies": 105,
+        "visits": 2712,
+        "changes": 0,
+        "items": 1863
+      }
+    ],
+    "life": [
+      {
+        "pass": 1,
+        "frames": 18,
+        "class_frames": 0,
+        "bodies": 17,
+        "visits": 744,
+        "changes": 40,
+        "items": 105
+      },
+      {
+        "pass": 2,
+        "frames": 18,
+        "class_frames": 0,
+        "bodies": 17,
+        "visits": 744,
+        "changes": 0,
+        "items": 210
+      },
+      {
+        "pass": -1,
+        "frames": 18,
+        "class_frames": 0,
+        "bodies": 17,
+        "visits": 744,
+        "changes": 0,
+        "items": 315
+      }
+    ],
+    "maze": [
+      {
+        "pass": 1,
+        "frames": 26,
+        "class_frames": 0,
+        "bodies": 25,
+        "visits": 776,
+        "changes": 34,
+        "items": 127
+      },
+      {
+        "pass": 2,
+        "frames": 26,
+        "class_frames": 0,
+        "bodies": 25,
+        "visits": 776,
+        "changes": 0,
+        "items": 254
+      },
+      {
+        "pass": -1,
+        "frames": 26,
+        "class_frames": 0,
+        "bodies": 25,
+        "visits": 776,
+        "changes": 0,
+        "items": 382
+      }
+    ],
+    "production-error": [
+      {
+        "pass": 1,
+        "frames": 4104,
+        "class_frames": 6,
+        "bodies": 8205,
+        "visits": 32851,
+        "changes": 20,
+        "items": 4109
+      },
+      {
+        "pass": 2,
+        "frames": 4104,
+        "class_frames": 6,
+        "bodies": 4103,
+        "visits": 16429,
+        "changes": 0,
+        "items": 8215
+      },
+      {
+        "pass": -1,
+        "frames": 4104,
+        "class_frames": 6,
+        "bodies": 4103,
+        "visits": 16429,
+        "changes": 0,
+        "items": 12321
+      }
+    ],
+    "production-ok": [
+      {
+        "pass": 1,
+        "frames": 4104,
+        "class_frames": 6,
+        "bodies": 8205,
+        "visits": 32847,
+        "changes": 16,
+        "items": 4108
+      },
+      {
+        "pass": 2,
+        "frames": 4104,
+        "class_frames": 6,
+        "bodies": 4103,
+        "visits": 16427,
+        "changes": 0,
+        "items": 8213
+      },
+      {
+        "pass": -1,
+        "frames": 4104,
+        "class_frames": 6,
+        "bodies": 4103,
+        "visits": 16427,
+        "changes": 0,
+        "items": 12318
+      }
+    ],
+    "sieve": [
+      {
+        "pass": 1,
+        "frames": 8,
+        "class_frames": 0,
+        "bodies": 7,
+        "visits": 254,
+        "changes": 48,
+        "items": 48
+      },
+      {
+        "pass": 2,
+        "frames": 8,
+        "class_frames": 0,
+        "bodies": 7,
+        "visits": 254,
+        "changes": 0,
+        "items": 96
+      },
+      {
+        "pass": -1,
+        "frames": 8,
+        "class_frames": 0,
+        "bodies": 7,
+        "visits": 254,
+        "changes": 0,
+        "items": 144
+      }
+    ],
+    "small-error": [
+      {
+        "pass": 1,
+        "frames": 52,
+        "class_frames": 0,
+        "bodies": 51,
+        "visits": 221,
+        "changes": 9,
+        "items": 56
+      },
+      {
+        "pass": 2,
+        "frames": 52,
+        "class_frames": 0,
+        "bodies": 51,
+        "visits": 221,
+        "changes": 0,
+        "items": 110
+      },
+      {
+        "pass": -1,
+        "frames": 52,
+        "class_frames": 0,
+        "bodies": 51,
+        "visits": 221,
+        "changes": 0,
+        "items": 164
+      }
+    ],
+    "small-ok": [
+      {
+        "pass": 1,
+        "frames": 52,
+        "class_frames": 0,
+        "bodies": 51,
+        "visits": 219,
+        "changes": 8,
+        "items": 55
+      },
+      {
+        "pass": 2,
+        "frames": 52,
+        "class_frames": 0,
+        "bodies": 51,
+        "visits": 219,
+        "changes": 0,
+        "items": 108
+      },
+      {
+        "pass": -1,
+        "frames": 52,
+        "class_frames": 0,
+        "bodies": 51,
+        "visits": 219,
+        "changes": 0,
+        "items": 161
+      }
+    ],
+    "sorting": [
+      {
+        "pass": 1,
+        "frames": 103,
+        "class_frames": 0,
+        "bodies": 102,
+        "visits": 3628,
+        "changes": 183,
+        "items": 680
+      },
+      {
+        "pass": 2,
+        "frames": 103,
+        "class_frames": 0,
+        "bodies": 102,
+        "visits": 3628,
+        "changes": 0,
+        "items": 1360
+      },
+      {
+        "pass": -1,
+        "frames": 103,
+        "class_frames": 0,
+        "bodies": 102,
+        "visits": 3628,
+        "changes": 0,
+        "items": 2040
+      }
+    ],
+    "squares": [
+      {
+        "pass": 1,
+        "frames": 3,
+        "class_frames": 0,
+        "bodies": 2,
+        "visits": 18,
+        "changes": 0,
+        "items": 4
+      },
+      {
+        "pass": -1,
+        "frames": 3,
+        "class_frames": 0,
+        "bodies": 2,
+        "visits": 18,
+        "changes": 0,
+        "items": 8
+      }
+    ],
+    "sudoku": [
+      {
+        "pass": 1,
+        "frames": 13,
+        "class_frames": 0,
+        "bodies": 12,
+        "visits": 455,
+        "changes": 19,
+        "items": 64
+      },
+      {
+        "pass": 2,
+        "frames": 13,
+        "class_frames": 0,
+        "bodies": 12,
+        "visits": 455,
+        "changes": 0,
+        "items": 128
+      },
+      {
+        "pass": -1,
+        "frames": 13,
+        "class_frames": 0,
+        "bodies": 12,
+        "visits": 455,
+        "changes": 0,
+        "items": 192
+      }
+    ],
+    "tour": [
+      {
+        "pass": 1,
+        "frames": 43,
+        "class_frames": 0,
+        "bodies": 42,
+        "visits": 1073,
+        "changes": 288,
+        "items": 342
+      },
+      {
+        "pass": 2,
+        "frames": 43,
+        "class_frames": 0,
+        "bodies": 42,
+        "visits": 1073,
+        "changes": 0,
+        "items": 684
+      },
+      {
+        "pass": -1,
+        "frames": 43,
+        "class_frames": 0,
+        "bodies": 42,
+        "visits": 1073,
+        "changes": 0,
+        "items": 1026
+      }
+    ],
+    "vm": [
+      {
+        "pass": 1,
+        "frames": 9,
+        "class_frames": 0,
+        "bodies": 8,
+        "visits": 716,
+        "changes": 21,
+        "items": 224
+      },
+      {
+        "pass": 2,
+        "frames": 9,
+        "class_frames": 0,
+        "bodies": 8,
+        "visits": 716,
+        "changes": 0,
+        "items": 448
+      },
+      {
+        "pass": -1,
+        "frames": 9,
+        "class_frames": 0,
+        "bodies": 8,
+        "visits": 716,
+        "changes": 0,
+        "items": 672
+      }
+    ]
+  }
+}
