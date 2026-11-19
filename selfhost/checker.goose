@@ -3140,47 +3140,95 @@ recursive fn check_record(p: Program&, c: Checker&, node: i64, expected: i64) ->
 }
 
 fn check_builtin_kind(p: Program&, token: i64) -> i64 {
-    if token_is(p, token, "print") { return 0; }
-    if token_is(p, token, "str") { return 1; }
-    if token_is(p, token, "format") { return 2; }
-    if token_is(p, token, "assert") { return 3; }
-    if token_is(p, token, "abort") { return 4; }
-    if token_is(p, token, "exit") { return 5; }
-    if token_is(p, token, "hardware_threads") { return 6; }
-    if token_is(p, token, "thread_spawn") { return 7; }
-    if token_is(p, token, "thread_spawn_contained") { return 8; }
-    if token_is(p, token, "thread_wait") { return 9; }
-    if token_is(p, token, "qput") { return 10; }
-    if token_is(p, token, "qget") { return 11; }
-    if token_is(p, token, "qpoll") { return 12; }
-    if token_is(p, token, "qlimit") { return 13; }
-    if token_is(p, token, "default") { return 14; }
-    if token_is(p, token, "copy") { return 15; }
-    if token_is(p, token, "to_bytes") { return 16; }
-    if token_is(p, token, "bytes_of") { return 17; }
-    if token_is(p, token, "from_bytes") { return 18; }
-    if token_is(p, token, "embed_shader") { return 19; }
-    if token_is(p, token, "embed_file") { return 20; }
-    if token_is(p, token, "len") { return 21; }
-    if token_is(p, token, "cap") { return 22; }
-    if token_is(p, token, "index_of") { return 23; }
-    if token_is(p, token, "push") { return 24; }
-    if token_is(p, token, "append") { return 25; }
-    if token_is(p, token, "pop") { return 26; }
-    if token_is(p, token, "pop_n") { return 27; }
-    if token_is(p, token, "resize") { return 28; }
-    if token_is(p, token, "clear") { return 29; }
-    if token_is(p, token, "alloc_index") { return 30; }
-    if token_is(p, token, "alloc_ref") { return 31; }
-    if token_is(p, token, "free") { return 32; }
-    if token_is(p, token, "alloc_slice") { return 33; }
-    if token_is(p, token, "realloc_slice") { return 34; }
-    if token_is(p, token, "free_slice") { return 35; }
-    if token_is(p, token, "src_file") { return 36; }
-    if token_is(p, token, "src_line") { return 37; }
-    if token_is(p, token, "range_index") { return 38; }
-    if token_is(p, token, "check_length") { return 39; }
-    if token_is(p, token, "move_from") { return 40; }
+    let name = token_text(p, token);
+    if name.len < 3 || name.len > 22 { return -1; }
+    let first = name[0];
+    if first == 'a' {
+        if same_bytes(name, "assert") { return 3; }
+        if same_bytes(name, "abort") { return 4; }
+        if same_bytes(name, "append") { return 25; }
+        if same_bytes(name, "alloc_index") { return 30; }
+        if same_bytes(name, "alloc_ref") { return 31; }
+        if same_bytes(name, "alloc_slice") { return 33; }
+        return -1;
+    }
+    if first == 'b' {
+        if same_bytes(name, "bytes_of") { return 17; }
+        return -1;
+    }
+    if first == 'c' {
+        if same_bytes(name, "copy") { return 15; }
+        if same_bytes(name, "cap") { return 22; }
+        if same_bytes(name, "clear") { return 29; }
+        if same_bytes(name, "check_length") { return 39; }
+        return -1;
+    }
+    if first == 'd' {
+        if same_bytes(name, "default") { return 14; }
+        return -1;
+    }
+    if first == 'e' {
+        if same_bytes(name, "exit") { return 5; }
+        if same_bytes(name, "embed_shader") { return 19; }
+        if same_bytes(name, "embed_file") { return 20; }
+        return -1;
+    }
+    if first == 'f' {
+        if same_bytes(name, "format") { return 2; }
+        if same_bytes(name, "from_bytes") { return 18; }
+        if same_bytes(name, "free") { return 32; }
+        if same_bytes(name, "free_slice") { return 35; }
+        return -1;
+    }
+    if first == 'h' {
+        if same_bytes(name, "hardware_threads") { return 6; }
+        return -1;
+    }
+    if first == 'i' {
+        if same_bytes(name, "index_of") { return 23; }
+        return -1;
+    }
+    if first == 'l' {
+        if same_bytes(name, "len") { return 21; }
+        return -1;
+    }
+    if first == 'm' {
+        if same_bytes(name, "move_from") { return 40; }
+        return -1;
+    }
+    if first == 'p' {
+        if same_bytes(name, "print") { return 0; }
+        if same_bytes(name, "push") { return 24; }
+        if same_bytes(name, "pop") { return 26; }
+        if same_bytes(name, "pop_n") { return 27; }
+        return -1;
+    }
+    if first == 'q' {
+        if same_bytes(name, "qput") { return 10; }
+        if same_bytes(name, "qget") { return 11; }
+        if same_bytes(name, "qpoll") { return 12; }
+        if same_bytes(name, "qlimit") { return 13; }
+        return -1;
+    }
+    if first == 'r' {
+        if same_bytes(name, "resize") { return 28; }
+        if same_bytes(name, "realloc_slice") { return 34; }
+        if same_bytes(name, "range_index") { return 38; }
+        return -1;
+    }
+    if first == 's' {
+        if same_bytes(name, "str") { return 1; }
+        if same_bytes(name, "src_file") { return 36; }
+        if same_bytes(name, "src_line") { return 37; }
+        return -1;
+    }
+    if first == 't' {
+        if same_bytes(name, "thread_spawn") { return 7; }
+        if same_bytes(name, "thread_spawn_contained") { return 8; }
+        if same_bytes(name, "thread_wait") { return 9; }
+        if same_bytes(name, "to_bytes") { return 16; }
+        return -1;
+    }
     return -1;
 }
 fn check_builtin_symbol(p: Program&, token: i64, builtin: i64, result: i64) -> i64 {
