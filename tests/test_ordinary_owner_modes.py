@@ -21,11 +21,11 @@ class OrdinaryOwnerModes(unittest.TestCase):
         self.addCleanup(work.cleanup)
         self.work = Path(work.name)
 
-    def compile(self, source, bits, bundled):
+    def compile(self, source, bits, bundled, optimization="-O2"):
         entry = self.work / "main.goose"
         entry.write_text(source)
         out = self.work / f"owner-{bits}-{int(bundled)}.wasm"
-        args = [COMPILER, entry, "--stdlib", STDLIB, "--target", "wasm-direct", "-O2", "-o", out]
+        args = [COMPILER, entry, "--stdlib", STDLIB, "--target", "wasm-direct", optimization, "-o", out]
         if bits == 64:
             args.append("--wasm-memory64")
         if bundled:
@@ -49,6 +49,40 @@ class OrdinaryOwnerModes(unittest.TestCase):
                         self.assertLess(len(bundled), len(general))
                     else:
                         self.assertEqual(bundled, general)
+
+    def test_publication_retry_in_global_initializer(self):
+        source = """recursive fn pair() -> i64, i64 { return 2, 3; }
+recursive fn print_tuple() { let a, b = pair(); print(a + b); }
+var result: i64[>..] = if 1 < 2 { [1, 2] } else { [3, 4] };
+fn main() { print_tuple(); print(result); }
+"""
+        for bits in (32, 64):
+            for optimization in ("-O0", "-O2"):
+                with self.subTest(bits=bits, optimization=optimization):
+                    general = self.compile(source, bits, False, optimization)
+                    bundled = self.compile(source, bits, True, optimization)
+                    self.assertEqual(bundled.read_bytes(), general.read_bytes())
+                    result = subprocess.run(["node", ROOT / "scripts/run_wasm.mjs", bundled], check=True, capture_output=True)
+                    self.assertEqual(result.stdout, b"5\n[1, 2]\n")
+
+    def test_bundled_no_publication_omits_control_marks(self):
+        source = """var result: i64[>..] = [];
+fn main() {
+    for i in 0..8 {
+        if i == 4 { continue; }
+        result.push(i);
+        if i == 6 { break; }
+    }
+    print(result);
+}
+"""
+        for bits in (32, 64):
+            with self.subTest(bits=bits):
+                general = self.compile(source, bits, False)
+                bundled = self.compile(source, bits, True)
+                self.assertLess(bundled.stat().st_size, general.stat().st_size)
+                result = subprocess.run(["node", ROOT / "scripts/run_wasm.mjs", bundled], check=True, capture_output=True)
+                self.assertEqual(result.stdout, b"[0, 1, 2, 3, 5, 6]\n")
 
     def test_reinterpreted_control_reads_its_image_prefix(self):
         for bits in (32, 64):
