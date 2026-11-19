@@ -214,8 +214,9 @@ struct LifeLeaf { kind: i64, node: i64, value: LifeValue, next: i64 = -1 }
 // next: the frame's next read. before: the frame's last entry of another kind
 // when this one was added, -1 for none: the frame's list is its other
 // entries (first_summary) with each read after that one, and a replay goes
-// through both in that order.
-struct LifeReadEntry { key: i64, leaf: i32, seen: i32, walked: i32 = -1, sent: i32 = -1, next: i32 = -1, before: i32 = -1 }
+// through both in that order. changed: the summary version that installed
+// this leaf. A different last offer (seen) can leave the joined leaf intact.
+struct LifeReadEntry { changed: i64, key: i64, leaf: i32, seen: i32, walked: i32 = -1, sent: i32 = -1, next: i32 = -1, before: i32 = -1 }
 // A chain of active frames: a frame, and the chain its caller was in.
 struct LifeContext { frame: i64, parent: i64, next: i64 = -1 }
 // A discovery effect offered up the frame chain, remembered by what the
@@ -773,8 +774,9 @@ fn life_read_add(l: Lifetimes&, frame: i64, entry: LifeReadEntry) {
 fn life_read_merge(l: Lifetimes&, frame: i64, leaf: i64, key: i64, index: i64, outside: bool) -> i64 {
     let walked = life_walked(l, frame, outside);
     if index < 0 {
-        life_read_add(l, frame, LifeReadEntry { key: key, leaf: leaf as i32, seen: leaf as i32, walked: walked, before: l.frames[frame].last_summary as i32 });
-        l.revision += 1; l.frames[frame].reads_version += 1;
+        l.frames[frame].reads_version += 1;
+        life_read_add(l, frame, LifeReadEntry { changed: l.frames[frame].reads_version, key: key, leaf: leaf as i32, seen: leaf as i32, walked: walked, before: l.frames[frame].last_summary as i32 });
+        l.revision += 1;
         return 0;
     }
     let seen = l.summary_reads[index].seen as i64; var same = seen == leaf;
@@ -796,7 +798,9 @@ fn life_read_merge(l: Lifetimes&, frame: i64, leaf: i64, key: i64, index: i64, o
     value.refs = refs; value.contents = contents; value.place = place;
     let joined = life_leaf(l, 3, l.leaves[held].node, value);
     l.summary_reads[index].leaf = joined as i32; l.summary_reads[index].seen = leaf as i32; l.summary_reads[index].walked = walked; l.summary_reads[index].sent = -1;
-    l.frames[frame].reads_version += 1;
+    if joined != held {
+        l.frames[frame].reads_version += 1; l.summary_reads[index].changed = l.frames[frame].reads_version;
+    }
     return 1;
 }
 // life_effect for a construct read in discovery while summaries hold their
@@ -5803,7 +5807,8 @@ fn life_replay(p: Program&, l: Lifetimes&, frame: i64, summary: bool = false, m:
     // in that chain again has only the other entries to go through, in the
     // same order: each frame of the chain took the reads then.
     let version = l.frames[frame].reads_version; var chain: i64 = -1; if plain { chain = life_chain_key(l, frame, l.recursion_epoch); }
-    let others = chain >= 0 && life_chain_replayed(l, chain) == version;
+    var covered: i64 = -1; if chain >= 0 { covered = life_chain_replayed(l, chain); }
+    let others = covered == version;
     // In validation a construct read does two things: it is recorded up the
     // chain, which the activation's stamp on its leaf says has been done,
     // and it is checked against the values under construction, of which
@@ -5825,7 +5830,10 @@ fn life_replay(p: Program&, l: Lifetimes&, frame: i64, summary: bool = false, m:
     loop {
         while read >= 0 && (at < 0 || (l.summary_reads[read].before as i64) < at) {
             let entry = read; let item: const LifeReadEntry& = l.summary_reads[entry];
-            let leaf = item.leaf as i64; read = item.next as i64;
+            read = item.next as i64;
+            // This chain already received this leaf, even if another read changed.
+            if item.changed <= covered { continue; }
+            let leaf = item.leaf as i64;
             if (memo || quick) && life_leaf_offered_in(l, leaf, activation, replay_epoch, stamp_chain) { continue; }
             if memo { l.offer_count = 0; l.offer_recursive = false; }
             if direct {
