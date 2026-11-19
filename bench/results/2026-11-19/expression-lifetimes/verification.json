@@ -1,0 +1,150 @@
+{
+  "qualification": {
+    "head": "6e503fb3f000ab6e77869dc3ea5b54c39f74c963",
+    "since": "f622481",
+    "status": "passed",
+    "seconds": 745.6,
+    "bootstrap": {
+      "fixed_point": true,
+      "generated_c_sha256": "b46287df60ceaaa9b2ebf82fac9f423aea40187321bdd4d9c21f0419c1aca0cf",
+      "next_generation_c_sha256": "b46287df60ceaaa9b2ebf82fac9f423aea40187321bdd4d9c21f0419c1aca0cf",
+      "third_generation_c_sha256": null,
+      "executable_sha256": "81e41df3459ca7eb3414ba64e86f157ef4fad84dbd259e5cdc14ce2ed8424247",
+      "profile_used": false,
+      "cached": {
+        "build-seed": true,
+        "build-goose": false
+      }
+    }
+  },
+  "stages": [
+    {
+      "stage": "bootstrap",
+      "exit": 0,
+      "seconds": 540.3
+    },
+    {
+      "stage": "conformance",
+      "exit": 0,
+      "seconds": 160.5,
+      "summary": "{'selected': 10797, 'passed': 10693, 'failed': 104}",
+      "gaps": "{'open_gaps': 104, 'unexpected_failures': 0, 'fixed_gaps': 0}"
+    },
+    {
+      "stage": "native-checks",
+      "exit": 0,
+      "seconds": 56.6,
+      "summary": "54 steps ok"
+    },
+    {
+      "stage": "conformance-memory64",
+      "exit": 0,
+      "seconds": 158.9,
+      "summary": "{'selected': 4777, 'passed': 4769, 'failed': 8}",
+      "gaps": "{'open_gaps': 8, 'unexpected_failures': 0, 'fixed_gaps': 0}"
+    },
+    {
+      "stage": "equivalence",
+      "exit": 0,
+      "seconds": 153.2,
+      "summary": "{\"compared\": 10057, \"differing\": 0, \"seconds\": {\"baseline\": 141.35, \"candidate\": 143.899}}"
+    },
+    {
+      "stage": "unit-tests",
+      "exit": 0,
+      "seconds": 205.0
+    }
+  ],
+  "unit_tests": 90,
+  "compiler_output_equivalence": {
+    "compared": 10057,
+    "differing": 0,
+    "seconds": {
+      "baseline": 141.35,
+      "candidate": 143.899
+    }
+  },
+  "equivalence_compilers": {
+    "baseline": {
+      "path": "/home/jacobt/src/goose-to-wasm/build/lifetime-safe-19/own/build-1/compiler-native",
+      "sha256": "b26001dd22b60da8fd44ac10b893d61bddd8cc87acd5009654d556e03d9c7f04"
+    },
+    "candidate": {
+      "path": "/home/jacobt/src/goose-to-wasm/build/result-copies-19/shipping/qualify/bootstrap/bin/goose",
+      "sha256": "81e41df3459ca7eb3414ba64e86f157ef4fad84dbd259e5cdc14ce2ed8424247"
+    }
+  },
+  "compiler": {
+    "training": {
+      "squares": {
+        "source": "420d9e6b4a2496865eb9f66603c4cbb0fdbb2add30e8ccc709a15102f4748b14",
+        "output": "fc8ae2dbef752d8e8eaaafec21e1c7500c3b27677f9030c502bf8c196ca7d845",
+        "region_stats": "21a9e62aa747befd50c8a2f78e1d20e32f6c2bfb557bf83639f4fa03fac551aa"
+      },
+      "sorting": {
+        "source": "00d2c7ed328100d018a3adc4ef3f2c5abd83d8219e8c6c0a56d00b0b1df8a27e",
+        "output": "b9ce93a5ef630da6e37912991cac3c3f052b8a5cf7290752ad4068e378e0aede",
+        "region_stats": "97f46b4940596835e3babeeaed2914d5c20f980460f849f61b22cd84b8d29f0b"
+      },
+      "tour": {
+        "source": "a46393946390a6fc888d013ae0a07383812a57667d2474071eb938f853b8b834",
+        "output": "24e6ffb411721ea6ab95389127ca6d23e2db2ece47e0060e32383ba1e611e8b0",
+        "region_stats": "1c890b9abff93fb0a2b66764a0a972a5b50a5b1a779b78db65fa53a328788378"
+      }
+    },
+    "old_profile": "75a9a7647ed98112ad2e38cca4985a661c40b1d843b892c9fce75a03e0de9503",
+    "new_profile": "d30f145d38c5e29a5243c0cd47cad07f3f8d444bb46af5e00b72b1c4a98790a7",
+    "fixed_point": "0afdd72185ab33974ca3781298a4ba4eb345a0c1d05d4efd0df06523e75a3e15",
+    "native_fixed_emission": "0afdd72185ab33974ca3781298a4ba4eb345a0c1d05d4efd0df06523e75a3e15",
+    "native": "76194f2a28d07622abc64aba2f493da856c7a78a5017a330da6552f699299cf7",
+    "portable_native": "0e39a78d524be528a6f9084b7e6aaf30ca65077d576266880b377e2769b172c5",
+    "portable_guest": "0e39a78d524be528a6f9084b7e6aaf30ca65077d576266880b377e2769b172c5",
+    "host": "b247393d8fbe3115246f20703f726e90eeaaed762a75932c7bb131a4433ad026"
+  },
+  "logical_fingerprints": {
+    "compared": 4357,
+    "differing": 0,
+    "with_lifetime_fingerprints": 3130,
+    "fingerprint_lines": 11596,
+    "controls": {
+      "self0.err": {
+        "fp": 7,
+        "stderr_sha256": "29da7dac92f804a5493cefe3ee5d4c46b16fdbfbb1394504208ccc512e117696"
+      },
+      "class0.err": {
+        "fp": 3,
+        "stderr_sha256": "46b8480e8d9b05c60a28cd18bc0ae2b78c5e95b59967738ad9b5279008d58898"
+      },
+      "class1.err": {
+        "fp": 4,
+        "stderr_sha256": "90e17c23e7a3456fe654554e04f74cf60ecddccd9a40c314dee64794c7b512df"
+      }
+    },
+    "probes": {
+      "baseline": {
+        "probe": "745fedf7c7b7bad51cb7d9f352cc32309e3b1319fcb28442e961d04a286a5f76",
+        "self.wasm": "f952d9fbfc74df6b110b21dd483d460c4c111a442d3de095dfa656ae80071223",
+        "class.wasm": "783e2c1cd160e1f9fa3285a6b36307b37de9550f92115c40edee22ceb92a9e91"
+      },
+      "release": {
+        "probe": "a99c77ec23ed26ff91bfbdc57114c77ce81e39227c8cde053cbf2943ce1af177",
+        "self.wasm": "644bd8c0beeafc9a9db10d54300071756c48fefc9fc2adb8f33c0ccc079a9040",
+        "class.wasm": "6a7d16b9b7c5ba38186794424866a500fbe8895c830ad577f500e9ac5eab66b9"
+      }
+    }
+  },
+  "frozen_sources": {
+    "6e503fb3f000ab6e77869dc3ea5b54c39f74c963": "8da6280ac3dfbb82d5240e12cdd54e14d921d3d48aba4738ded0a801c8caaf69",
+    "06c84ace21db4e1d390a365d95cc8d974332f971": "0a8af932039e95ef622ceb580da04371567f24a5d476b33108d2d92ff22434d6",
+    "34ddff8db385b1e357e3b5048d7a301ead975fc5": "14283ec33483eb7c2468e968fa2d9866df9dc138f4cc0402f9b9f21806a7dfee"
+  },
+  "emitter": {
+    "sha256": "0b3a26ca21cc39ec7f53422e4521a692bf7b6af12e6546a00d6984da137adc5e",
+    "bytes": 7071040
+  },
+  "clang": {
+    "sha256": "ca0d2f7fbe94836762f36c7e73292289bc4d5e4b9b5defc320ef0856259a2855",
+    "bytes": 124768,
+    "version": "clang version 23.1.5\nTarget: x86_64-pc-linux-gnu\nThread model: posix\nInstalledDir: /usr/bin"
+  }
+}

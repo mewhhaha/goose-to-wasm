@@ -1,0 +1,61 @@
+{
+  "baseline_compiler": "06c84ace21db4e1d390a365d95cc8d974332f971",
+  "source": "34ddff8db385b1e357e3b5048d7a301ead975fc5",
+  "arguments": [
+    "selfhost/main.goose",
+    "--stdlib",
+    "stdlib",
+    "--check"
+  ],
+  "instrumented_activity_module": "0c54428f56b77055dcf1e4975f426fc0836b38067191796d5dc7966c96c1ce25",
+  "activity": {
+    "holds_discovery": 823506,
+    "holds_validation": 164696,
+    "future_discovery": 720840,
+    "future_validation": 144163,
+    "coercions": 1291077,
+    "equal_type_without_contents": 813106
+  },
+  "evaluators": {
+    "before": {
+      "total": {
+        "fill": 338441618,
+        "copy": 1627045193
+      },
+      "bytes_at_width_72": {
+        "fill": 338436144,
+        "copy": 1480762440
+      }
+    },
+    "after": {
+      "total": {
+        "fill": 20026874,
+        "copy": 1627045193
+      },
+      "bytes_at_width_72": {
+        "fill": 20021400,
+        "copy": 1480762440
+      }
+    },
+    "body-into": {
+      "total": {
+        "fill": 219970154,
+        "copy": 1303562153
+      },
+      "bytes_at_width_72": {
+        "fill": 219964680,
+        "copy": 1157279400
+      }
+    },
+    "flat": {
+      "total": {
+        "fill": 219970154,
+        "copy": 1271630801
+      },
+      "bytes_at_width_72": {
+        "fill": 219964680,
+        "copy": 1125348048
+      }
+    }
+  }
+}

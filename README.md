@@ -4,13 +4,13 @@ A [Goose](https://github.com/aardappel/goose) compiler written in Goose. It emit
 
 ## Benchmarks
 
-**The compiler rebuilding itself.** The bundled 32-bit compiler rebuilt its own sources in **4.27 s** in Wasmtime and **2.67 s** native, or **1.60× native time**. On the frozen project, the lifetime checker change cut Wasmtime rebuild time by **3.5%** across 16 paired rounds. Wasmtime went from **1.59× to 1.58× native time** when compared within the same round. [Paired rebuilds](bench/results/2026-11-19/lifetime-array-effects/README.md)
+**The compiler rebuilding itself.** Across 14 rounds, the bundled 32-bit compiler rebuilt its own sources in a median **3.76 s** in Wasmtime and **2.45 s** native, with a median same-round ratio of **1.53× native time**. On a frozen project, Wasmtime rebuild time fell by **1.7%** across 16 paired before-and-after rounds. The median same-round Wasmtime/native ratio went from **1.57× to 1.54×**. [Paired rebuilds](bench/results/2026-11-19/expression-lifetimes/README.md)
 
-![Native and Wasmtime process time to rebuild the frozen and current compiler](bench/results/2026-11-19/lifetime-array-effects/rebuild.svg)
+![Native and Wasmtime process time to rebuild the frozen and current compiler](bench/results/2026-11-19/expression-lifetimes/rebuild.svg)
 
-**Cold and cached self-compilation.** With an empty Wasmtime cache, the memory64 compiler took **16.11 s** on one core and **8.20 s** on eight cores. The bundled memory32 compiler took **5.26 s** cold with eight cores and **3.96 s** cached on one core, versus **2.55 s** native. Each median covers three fresh processes. Cold runs compile the module and cached runs load precompiled code. [Launch and edit times](bench/results/2026-11-19/lifetime-array-effects/README.md#cold-and-cached-self-compilation) · [Gdev status](bench/results/2026-11-18/compiler-request-latency/README.md#compiling-gdev)
+**Cold and cached self-compilation.** With an empty Wasmtime cache, the memory64 compiler took a median **18.17 s** on one core and **8.29 s** on eight cores. The bundled memory32 compiler took **5.39 s** cold with eight cores and **4.06 s** cached on one core, versus **2.58 s** native. Each median covers three fresh processes. Cold runs compile the module and cached runs load precompiled code. [Launch and edit times](bench/results/2026-11-19/expression-lifetimes/README.md#cold-and-cached-self-compilation) · [Gdev status](bench/results/2026-11-18/compiler-request-latency/README.md#compiling-gdev)
 
-![Seconds to rebuild the compiler in cold, cached and native processes](bench/results/2026-11-19/lifetime-array-effects/launch.svg)
+![Seconds to rebuild the compiler in cold, cached and native processes](bench/results/2026-11-19/expression-lifetimes/launch.svg)
 
 **Compiler speed.** Across eleven programs, compiler `6e503fb` used 0.4% more CPU time than `06c84ac` to emit Wasm and 1.7% less to emit C. These are geometric means of medians over 31 measurements per cell. The chart shows wall time. In the earlier snapshot 59 comparison, Wasm emission took 0.58× the C++ compiler’s time and C emission took 0.53×. [Measurements](bench/results/2026-11-19/expression-lifetimes/catalog-summary.json) · [Snapshot 59](bench/results/2026-11-11/compiler-throughput-59/README.md)
 
@@ -38,6 +38,7 @@ A [Goose](https://github.com/aardappel/goose) compiler written in Goose. It emit
 
 | Question | Measurements |
 | --- | --- |
+| What did skipping repeated array effects save? | [Rebuilds, array effects and validation controls](bench/results/2026-11-19/lifetime-array-effects/README.md) |
 | What did tracking changed reads save? | [Lifetime reads and memory cost](bench/results/2026-11-19/lifetime-read-replay/README.md) |
 | What improved string-heavy builds? | [8,192 literals and full compiler rebuilds](bench/results/2026-11-19/compiler-passes/README.md) |
 | How much memory does a 32-bit compiler need? | [Fixed layouts and Blot2 capacity](bench/results/2026-11-18/compiler-layout-trials/README.md) · [Growing regions during compilation](bench/results/2026-11-18/compiler-region-recovery/README.md) |
