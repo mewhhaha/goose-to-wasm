@@ -1669,8 +1669,9 @@ fn life_temporary(p: Program&, l: Lifetimes&, node: i64) -> i64 {
     return life_root_set(l, root);
 }
 
-// Use each source root's lexical depth when binding an ordinary parameter.
-let LIFE_PARAMETER_BOUND: i64 = -2;
+// Ordinary bound keys come from i32 alternatives. This distinct key adds
+// each root's immutable lexical depth when binding a parameter.
+let LIFE_PARAMETER_BOUND: i64 = 1 << 32;
 fn life_bound(l: Lifetimes&, sources: i64, depth: i64) -> i64 {
     // With class-keyed frames in use no bound is added: a class root's rank
     // is what a read through a parameter is held to there, and the same
