@@ -19,7 +19,7 @@ CATALOG = ROOT / "examples/manifest.json"
 BACKENDS = ("direct", "native")
 
 
-def input_paths(examples, goose):
+def input_paths(examples, stdlib):
     paths = [CATALOG, Path(__file__), ROOT / "bench/benchmark.py", Path(common.process.__file__), ROOT / "toolchain.json", ROOT / "scripts/goose_wasm.py", ROOT / "selfhost/bootstrap.py",
              ROOT / "bootstrap/seed.json", ROOT / "bootstrap/seed.c.gz", ROOT / "bootstrap/sources.tar.gz",
              ROOT / "scripts/run_wasm.mjs", ROOT / "scripts/run_wasmtime.py"]
@@ -27,11 +27,7 @@ def input_paths(examples, goose):
     paths += sorted((ROOT / "native").rglob("*.h"))
     for example in examples:
         paths += [ROOT / "examples" / example["file"], ROOT / "examples" / example["expected"]]
-    roots = [goose.parent / "stdlib", ROOT / "stdlib"]
-    if os.environ.get("GOOSE_STDLIB"):
-        roots.append(Path(os.environ["GOOSE_STDLIB"]).expanduser())
-    for directory in roots:
-        paths += sorted(directory.rglob("*.goose"))
+    paths += sorted(stdlib.rglob("*.goose"))
     return paths
 
 
@@ -155,6 +151,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("examples", nargs="*")
     parser.add_argument("--goose", type=Path, default=ROOT / "build/bin/goose")
+    parser.add_argument("--stdlib", type=Path, help="Goose library for every measured build")
     parser.add_argument("--cc", default=os.environ.get("CC", "gcc"))
     parser.add_argument("--node", default="node")
     parser.add_argument("--machine-label", default="")
@@ -180,6 +177,13 @@ def main():
     args.goose = args.goose.resolve()
     if not args.goose.is_file():
         parser.error("compiler not found; run scripts/bootstrap.py first")
+    if args.stdlib is None:
+        args.stdlib = args.goose.parent / "stdlib"
+        if not args.stdlib.is_dir():
+            args.stdlib = ROOT / "stdlib"
+    args.stdlib = args.stdlib.resolve()
+    if not args.stdlib.is_dir():
+        parser.error(f"standard library not found: {args.stdlib}")
     args.output_dir = args.output_dir.resolve()
     args.output_dir.mkdir(parents=True, exist_ok=True)
     (args.output_dir / "README.md").unlink(missing_ok=True)
@@ -190,7 +194,7 @@ def main():
             if common.digest(ROOT / "examples" / example["file"]) != origin["sha256"] or common.digest(ROOT / "examples" / example["expected"]) != origin["expected_sha256"]:
                 parser.error("unchanged upstream example was modified: " + example["name"])
     environment = common.metadata(args)
-    paths = input_paths(examples, args.goose)
+    paths = input_paths(examples, args.stdlib)
     environment["tool_paths"] = tool_paths(args)
     paths += [Path(p) for p in environment["tool_paths"].values()]
     environment["input_sha256"] = {str(p.resolve()): common.digest(p) for p in paths}
@@ -252,7 +256,7 @@ def main():
                 artifact = directory / "program.bin"
             stats = directory / "driver-stats.json"
             command = [sys.executable, ROOT / "scripts/goose_wasm.py", "build", ROOT / "examples" / example["file"],
-                       "--backend", backend, "--goose", args.goose, "--no-cache", "-O2", "-o", artifact, "--stats", stats]
+                       "--backend", backend, "--goose", args.goose, "--stdlib", args.stdlib, "--no-cache", "-O2", "-o", artifact, "--stats", stats]
             if backend == "native":
                 command += ["--cc", args.cc]
             row = {"kind": "build", "name": example["name"], "backend": backend, "sample": sample,
@@ -299,7 +303,7 @@ def main():
         if report["observations"]:
             report["observations"][-1].update(status="failed", error=str(error))
     report["source_hashes_still_match"] = hashes_match(environment["input_sha256"])
-    discovered = {str(p.resolve()) for p in input_paths(examples, args.goose)}
+    discovered = {str(p.resolve()) for p in input_paths(examples, args.stdlib)}
     discovered.update(environment["tool_paths"].values())
     report["input_paths_still_match"] = discovered == set(environment["input_sha256"])
     report["compiler_hash_still_matches"] = hashes_match({str(args.goose): environment["compiler_sha256"]})

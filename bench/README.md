@@ -95,6 +95,8 @@ Use `--compile-samples 0` to compare preserved artifacts when the original
 compiler executables are unavailable. See the
 [runtime work and reproduction commands](../docs/RUNTIME_PERFORMANCE.md).
 
+For compiler self-builds, `python3 bench/selfbuild_charts.py RESULTS_DIR` renders native and Wasmtime rebuild and launch charts from `frozen.json`, `current.json` and `launch.json`. It checks the output hash and paired rounds before plotting.
+
 ## Compiler throughput
 
 `compare_compilers.py` now measures only two Goose compilers, a parent and a
