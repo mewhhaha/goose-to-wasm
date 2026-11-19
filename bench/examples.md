@@ -2,7 +2,7 @@
 
 Use `--stdlib PATH` to pin the library for a compiler built outside its normal installation. The default uses the library beside the compiler when available, then the repository library. The report fingerprints the selected library.
 
-These measurements use the earlier C++ compiler. See the [current Goose compiler results](results/2026-11-05/threads-pools-and-access/README.md).
+These measurements use the earlier C++ compiler. See the [current Goose compiler results](../README.md#benchmarks).
 
 Ten [example programs](../examples/README.md) compare direct Wasm, C-to-Wasm and native C at O2. These are fresh-process timings, distinct from the warmed computational regions in the [LangArena benchmarks](langarena/README.md).
 

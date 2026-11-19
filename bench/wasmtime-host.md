@@ -1,6 +1,6 @@
 # Wasmtime host comparison
 
-The measurements below use the earlier C++ compiler. See the [current Goose compiler results](results/2026-11-05/threads-pools-and-access/README.md).
+The measurements below use the earlier C++ compiler. See the [current Goose compiler results](../README.md#benchmarks).
 
 The native C++ host uses the official static Wasmtime 50.0.1 SDK; Python uses its own bindings. The full host supports compilation, caching, precompiled modules and a resident worker. An optional minimal host loads trusted precompiled modules only. Host, callbacks and I/O differ, so timing differences are not Python startup alone. Direct Wasm uses memory32; C-to-Wasm uses memory64.
 
