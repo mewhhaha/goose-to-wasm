@@ -342,14 +342,17 @@ fn check_link_symbol(p: Program&, c: Checker&, symbol: i64, scope: i64) {
     p.symbols[symbol].name_next = c.name_table[bucket];
     c.name_table[bucket] = symbol;
 }
-fn check_lookup_scope(p: Program&, c: Checker&, token: i64, scope: i64, role: i64 = 0) -> i64 {
+inline fn check_lookup_scope(p: Program&, c: Checker&, token: i64, scope: i64, role: i64 = 0) -> i64 {
+    return check_lookup_scope_hashed(p, c, token, scope, bytes_hash(token_text(p, token)), role);
+}
+fn check_lookup_scope_hashed(p: Program&, c: Checker&, token: i64, scope: i64, hash: i64, role: i64 = 0) -> i64 {
     if scope < 0 || scope >= c.scopes.len { return -1; }
     if c.name_table.len == 0 { return -1; }
-    let bucket = check_name_bucket(c, bytes_hash(token_text(p, token)), scope);
+    let bucket = check_name_bucket(c, hash, scope);
     var id = c.name_table[bucket];
     while id >= 0 {
         let symbol: const Symbol& = p.symbols[id];
-        if c.link_scopes[id] == scope && same_name(p, symbol.name_token, token) {
+        if c.link_scopes[id] == scope && c.name_hashes[id] == hash && same_name(p, symbol.name_token, token) {
             if role == 0 || (symbol.flags & role) != 0 { return id; }
             if role == S_FUNCTION && symbol.node >= 0 {
                 let kind = p.nodes[symbol.node].kind;
@@ -373,14 +376,17 @@ fn check_global_value(p: Program&, symbol: i64) -> i64 {
     return symbol;
 }
 
-fn check_lookup(p: Program&, c: Checker&, token: i64, scope: i64, role: i64 = 0) -> i64 {
+inline fn check_lookup(p: Program&, c: Checker&, token: i64, scope: i64, role: i64 = 0) -> i64 {
+    return check_lookup_hashed(p, c, token, scope, bytes_hash(token_text(p, token)), role);
+}
+fn check_lookup_hashed(p: Program&, c: Checker&, token: i64, scope: i64, hash: i64, role: i64) -> i64 {
     var current = scope;
     while current > 0 && c.scopes[current].namespace_node < 0 {
         let function_node = c.scopes[current].function_node; var end = current;
         while end > 0 && c.scopes[end].namespace_node < 0 && c.scopes[end].function_node == function_node { end = c.scopes[end].parent; }
         var at = current; var parameter = -1; var function_symbol = -1; var type_symbol = -1;
         while at != end {
-            let found = check_lookup_scope(p, c, token, at, role);
+            let found = check_lookup_scope_hashed(p, c, token, at, hash, role);
             if found >= 0 {
                 let symbol = p.symbols[found];
                 if (symbol.flags & S_FUNCTION) != 0 { if function_symbol < 0 { function_symbol = found; } }
@@ -397,7 +403,7 @@ fn check_lookup(p: Program&, c: Checker&, token: i64, scope: i64, role: i64 = 0)
         current = end;
     }
     loop {
-        var found = check_lookup_scope(p, c, token, current, role);
+        var found = check_lookup_scope_hashed(p, c, token, current, hash, role);
         if role == 0 { found = check_global_value(p, found); }
         if found >= 0 { return found; }
         if current <= 0 { return -1; }
@@ -418,9 +424,9 @@ fn check_namespace_in(p: Program&, symbol: i64) -> i64 {
 }
 // A qualifier `ns::` names a namespace, which no variable hides.
 fn check_lookup_namespace(p: Program&, c: Checker&, token: i64, scope: i64) -> i64 {
-    var current = scope;
+    let hash = bytes_hash(token_text(p, token)); var current = scope;
     loop {
-        let found = check_namespace_in(p, check_lookup_scope(p, c, token, current));
+        let found = check_namespace_in(p, check_lookup_scope_hashed(p, c, token, current, hash));
         if found >= 0 { return found; }
         if current <= 0 || current >= c.scopes.len { return -1; }
         current = c.scopes[current].parent;
@@ -4799,13 +4805,13 @@ recursive fn check_member_function(p: Program&, c: Checker&, token: i64, receive
     }
     // Member syntax passes variables. Type parameters hide every function
     // set; local functions then precede the receiver and caller namespaces.
-    var scope = c.scope; var local = -1;
+    let hash = bytes_hash(token_text(p, token)); var scope = c.scope; var local = -1;
     while scope > 0 && c.scopes[scope].namespace_node < 0 {
-        let parameter = check_lookup_scope(p, c, token, scope, S_TYPE);
+        let parameter = check_lookup_scope_hashed(p, c, token, scope, hash, S_TYPE);
         if parameter >= 0 && p.nodes[p.symbols[parameter].node].kind == N_TYPE_PARAM {
             diagnose(p, token, "a type parameter cannot be called as a member"); return -2;
         }
-        if local < 0 { local = check_lookup_scope(p, c, token, scope, S_FUNCTION | S_BUILTIN); }
+        if local < 0 { local = check_lookup_scope_hashed(p, c, token, scope, hash, S_FUNCTION | S_BUILTIN); }
         scope = c.scopes[scope].parent;
     }
     if local >= 0 { return local; }
@@ -4814,11 +4820,11 @@ recursive fn check_member_function(p: Program&, c: Checker&, token: i64, receive
         var nominal_scope = p.nodes[p.types[ty].declaration].scope;
         while nominal_scope > 0 && c.scopes[nominal_scope].namespace_node < 0 { nominal_scope = c.scopes[nominal_scope].parent; }
         if nominal_scope > 0 {
-            let nominal = check_lookup_scope(p, c, token, nominal_scope, S_FUNCTION | S_BUILTIN);
+            let nominal = check_lookup_scope_hashed(p, c, token, nominal_scope, hash, S_FUNCTION | S_BUILTIN);
             if nominal >= 0 { return nominal; }
         }
     }
-    return check_lookup(p, c, token, scope, S_FUNCTION);
+    return check_lookup_hashed(p, c, token, scope, hash, S_FUNCTION);
 }
 
 // An untyped block parameter receives the construct's copied value. A

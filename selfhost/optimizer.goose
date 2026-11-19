@@ -39,9 +39,11 @@ fn opt_wrap(value: u64, kind: i64) -> i64 {
 struct OptFact { writes: i64 = 0, addresses: i64 = 0, calls: i64 = 0, literal: i64 = -1 }
 struct OptMap { from: i64, to: i64 }
 struct OptNodeMap { from: i64, to: i64 }
+let OPT_ACTIVE: u8 = 1;
+let OPT_DONE: u8 = 2;
 struct Optimizer {
     first_free_slots: const i64[:],
-    facts: OptFact[>..]&, visited: i64[>..]&, active: i64[>..]&, maps: OptMap[>..]&, node_maps: OptNodeMap[>..]&, dependency_work: i64[>..]&, proof_old: i64[>..]&, proof_new: i64[>..]&,
+    facts: OptFact[>..]&, function_states: u8[>..]&, maps: OptMap[>..]&, node_maps: OptNodeMap[>..]&, dependency_work: i64[>..]&, proof_old: i64[>..]&, proof_new: i64[>..]&,
     current_function: i64 = -1, next_slot: i64 = 0, folded: i64 = 0, propagated: i64 = 0,
     inlined: i64 = 0, tail_loops: i64 = 0,
     // While a library body is copied into the program's code, the call its
@@ -309,7 +311,7 @@ recursive fn opt_try_inline(p: Program&, o: Optimizer&, node: i64) -> bool {
     let symbol = p.symbols[call.symbol];
     if (symbol.flags & (S_BUILTIN | S_EXTERN)) != 0 || symbol.node < 0 { return false; }
     if strict && (p.nodes[symbol.node].flags & F_INLINE) == 0 { return false; }
-    for active in o.active { if active == symbol.node { return false; } }
+    if symbol.node < o.function_states.len && o.function_states[symbol.node] == OPT_ACTIVE { return false; }
     opt_function(p, o, symbol.node); let callee = p.nodes[symbol.node];
     if (callee.flags & F_RECURSIVE) != 0 || callee.right < 0 { return false; }
     if check_list_count(p, callee.first) != check_list_count(p, call.first) { return false; }
@@ -642,9 +644,9 @@ recursive fn opt_callees(p: Program&, o: Optimizer&, node: i64) {
 }
 recursive fn opt_function(p: Program&, o: Optimizer&, node: i64) {
     if node < 0 { return; }
-    for visited in o.visited { if visited == node { return; } }
-    for active in o.active { if active == node { return; } }
-    o.active.push(node);
+    if node >= o.function_states.len { o.function_states.resize(p.nodes.len, 0); }
+    if o.function_states[node] != 0 { return; }
+    o.function_states[node] = OPT_ACTIVE;
     let n = p.nodes[node];
     if n.right >= 0 {
         opt_callees(p, o, n.right);
@@ -654,13 +656,12 @@ recursive fn opt_function(p: Program&, o: Optimizer&, node: i64) {
         opt_node(p, o, n.right, 0); opt_tail_function(p, o, node);
         o.current_function = saved; o.next_slot = saved_slot;
     }
-    o.active.pop(); o.visited.push(node);
+    o.function_states[node] = OPT_DONE;
 }
 fn optimize_program(p: Program&) {
     if p.diagnostics.len > 0 { return; }
     var optimizer_facts: OptFact[>..] = [];
-    var optimizer_visited: i64[>..] = [];
-    var optimizer_active: i64[>..] = [];
+    var function_states: u8[>..] = []; function_states.resize(p.nodes.len, 0);
     var optimizer_maps: OptMap[>..] = []; var optimizer_node_maps: OptNodeMap[>..] = [];
     var optimizer_dependencies: i64[>..] = []; var optimizer_proof_old: i64[>..] = []; var optimizer_proof_new: i64[>..] = [];
     // Each function is optimized once. Inlining and tail calls allocate their
@@ -671,7 +672,7 @@ fn optimize_program(p: Program&) {
         if symbol.owner >= slots.len { slots.resize(symbol.owner + 1, 0); }
         if symbol.slot >= slots[symbol.owner] { slots[symbol.owner] = symbol.slot + 1; }
     }
-    var o = Optimizer { first_free_slots: slots[..], facts: optimizer_facts, visited: optimizer_visited, active: optimizer_active, maps: optimizer_maps, node_maps: optimizer_node_maps, dependency_work: optimizer_dependencies, proof_old: optimizer_proof_old, proof_new: optimizer_proof_new };
+    var o = Optimizer { first_free_slots: slots[..], facts: optimizer_facts, function_states: function_states, maps: optimizer_maps, node_maps: optimizer_node_maps, dependency_work: optimizer_dependencies, proof_old: optimizer_proof_old, proof_new: optimizer_proof_new };
     for symbol, id in p.symbols { opt_fact(o, id); }
     let count = p.symbols.len;
     for i in 0..count {

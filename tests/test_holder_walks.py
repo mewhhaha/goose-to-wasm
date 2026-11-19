@@ -28,6 +28,32 @@ fn main() { outer(true); }
         # The recursive call replays reset's read of target before its assignment.
         self.assertRegex(result.stderr, r"(?s)whole assignment reads storage.*array shrink invalidates")
 
+    def test_class_transition_preserves_standalone_arguments_and_errors(self):
+        source = self.work / "class_transition.goose"
+        # A call past the 4,096-frame concrete limit needs the full read history.
+        functions = [f"fn f{i}() -> i64 {{ {i} }}" for i in range(4100)]
+        calls = [f"    f{i}();" for i in range(len(functions))]
+        program = "\n".join([
+            "fn standalone(xs: const i64[:], tag: i64&) -> i64 { xs.len + tag }",
+            *functions,
+            "fn last(xs: i64[>..<]&) -> i64 {",
+            "    let view = xs[0..1];",
+            "    MUTATE",
+            "    return view[0];",
+            "}",
+            "fn main() {",
+            *calls,
+            "    var xs: i64[>..<] = [42, 7];",
+            "    print(last(xs));",
+            "}",
+        ])
+        for mutation, status in [("", 0), ("xs.pop();", 1)]:
+            with self.subTest(mutation=mutation):
+                source.write_text(program.replace("MUTATE", mutation))
+                result = subprocess.run([goose_stats.GOOSE, source, "--check"], capture_output=True, text=True)
+                self.assertEqual(result.returncode, status, result.stderr)
+                self.assertEqual(result.stderr.count("array shrink invalidates"), status, result.stderr)
+
     def test_repeated_shrinks(self):
         program = """struct Holder { view: const i64[:], tag: i64 = 0 }
 struct Outer { holder: Holder& }

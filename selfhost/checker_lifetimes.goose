@@ -353,7 +353,7 @@ struct Lifetimes {
     // making. assumes: LifeAssume entries.
     // compact: summaries hold their construct reads in summary_reads; until
     // the first class-keyed frame (life_reads_materialize).
-    compact: bool = true,
+    omit_construct_reads: bool = false, compact: bool = true,
     island: i64 = 0, hold_floor: i64 = 0, future_floor: i64 = 0, class_frames: i64 = 0, classify_serial: i64 = 0,
     // How deep in nested class questions the pass is, and the shallowest open
     // question one of them met again (life_assume_open).
@@ -3316,7 +3316,7 @@ fn life_offer_once(l: Lifetimes&, offer: LifeEffect, known: i64) {
     }
 }
 fn life_construct_read(p: Program&, l: Lifetimes&, node: i64, value: LifeValue, known: i64 = -1) {
-    if l.reading_place > 0 { return; }
+    if l.omit_construct_reads || l.reading_place > 0 { return; }
     var effect_places = value.place; if life_is_ref(p, value.type_id) { effect_places = value.refs; }
     var effect_type = value.type_id; if effect_type >= 0 && p.types[effect_type].kind == TY_REF { effect_type = p.types[effect_type].element; }
     if value.element_array != -1 || life_cached_size_class(p, l, effect_type) == 2 { life_offer_once(l, LifeEffect { kind: 3, node: node, value: value, places: effect_places }, known); }
@@ -4626,6 +4626,8 @@ fn life_reads_materialize(p: Program&, l: Lifetimes&) {
     l.summary_reads.clear(); l.read_slots.clear();
 }
 fn life_class_new(p: Program&, l: Lifetimes&, function_node: i64, call: i64, selected_result: i64, receiver_sensitive: bool, c: const LifeClasses&) -> i64 {
+    // Class mapping needs the full history, including earlier concrete reads.
+    l.omit_construct_reads = false;
     if l.compact { life_reads_materialize(p, l); }
     let target = l.frames.len; let newest = l.function_frames[function_node]; let key = l.class_keys.len;
     if l.type_canon.len < p.types.len { life_canon_types(p, l); }
@@ -5560,6 +5562,7 @@ recursive fn life_eval_body(p: Program&, l: Lifetimes&, node: i64, n: const Node
         var kind = 3; let future = l.future_count; life_push_future(l, n.right);
         if life_cached_size_class(p, l, ty) == 2 || ty >= 0 && p.types[ty].kind == TY_ENUM && (p.types[ty].flags & F_VARIABLE_MODE) != 0 { life_replace(p, l, node, receiver); }
         if life_cached_size_class(p, l, ty) == 2 {
+            l.omit_construct_reads = false;
             life_shrink(p, l, node, receiver); kind = 2;
         }
         life_hold(l, receiver, n.left, kind);
@@ -6246,8 +6249,50 @@ fn life_validate_pools(p: Program&, l: Lifetimes&, references: const i64[:]) {
     }
 }
 
+// Only assignment to size-class-2 storage can create a replacement hold.
+fn life_has_replacement(p: Program&, l: Lifetimes&) -> bool {
+    for index in 0..p.nodes.len {
+        let n: const Node& = p.nodes[index];
+        if n.kind != N_ASSIGN || n.left < 0 { continue; }
+        let target: const Node& = p.nodes[n.left];
+        if target.kind != N_NAME && target.kind != N_INDEX && target.kind != N_MEMBER && !(target.kind == N_UNARY && target.integer == T_MUL) { return true; }
+        var ty = target.type_id;
+        if ty >= 0 && p.types[ty].kind == TY_REF && n.integer != T_DOTASSIGN { ty = p.types[ty].element; }
+        if life_cached_size_class(p, l, ty) == 2 { return true; }
+    }
+    return false;
+}
+// Stop at an analysis root if a class frame or a dynamic replacement needs
+// the earlier read history. A full retry starts with fresh lifetime arenas.
+fn life_check_roots(p: Program&, l: Lifetimes&, standalone: const LifeStandalone[:], omit_reads: bool) -> bool {
+    for symbol in p.symbols {
+        if (symbol.flags & S_GLOBAL) != 0 && symbol.node >= 0 && p.nodes[symbol.node].kind == N_VARIABLE {
+            life_eval(p, l, symbol.node);
+            if omit_reads && !l.omit_construct_reads { return false; }
+        }
+    }
+    if p.entry >= 0 {
+        life_function(p, l, p.entry, -1, -1, 0);
+        if omit_reads && !l.omit_construct_reads { return false; }
+    }
+    for root in standalone {
+        life_function(p, l, root.function_node, -1, root.arguments, 0);
+        if omit_reads && !l.omit_construct_reads { return false; }
+    }
+    return true;
+}
 fn check_lifetimes(p: Program&, scope_parent: const i64[:], scope_depth: const i64[:], scope_functions: const i64[:], pool_references: const i64[:]) {
     if p.diagnostics.len > 0 { return; }
+    let nodes = p.nodes.len; let types = p.types.len; let holds = p.type_holds.len;
+    let messages = p.messages.len;
+    if life_check_attempt(p, scope_parent, scope_depth, scope_functions, pool_references, false) { return; }
+    // Standalone parameters append synthetic nodes and types. Discard them and
+    // any diagnostics from this attempt before rebuilding full class summaries.
+    p.nodes.resize(nodes); p.types.resize(types); p.type_holds.resize(holds);
+    p.diagnostics.clear(); p.messages.resize(messages);
+    life_check_attempt(p, scope_parent, scope_depth, scope_functions, pool_references, true);
+}
+fn life_check_attempt(p: Program&, scope_parent: const i64[:], scope_depth: const i64[:], scope_functions: const i64[:], pool_references: const i64[:], full: bool) -> bool {
     var roots: LifeRoot[>..] = [LifeRoot {}]; var sets: LifeSet[>..] = [LifeSet {}];
     var alts: LifeAlt[>..] = []; var cells: LifeCell[>..] = []; var frames: LifeFrame[>..] = [LifeFrame {}];
     var held_walks: LifeWalkMemo[>..] = [];
@@ -6300,7 +6345,7 @@ fn check_lifetimes(p: Program&, scope_parent: const i64[:], scope_depth: const i
         class_list: class_list, class_heads: class_heads, class_keys: class_keys,
         map_sets: map_sets, map_roots: map_roots, map_types: map_types, map_depths: map_depths, key_scratch: key_scratch, class_scratch: class_scratch, bound_scratch: bound_scratch, assumes: assumes, assume_slots: assume_slots, map_memo: map_memo, body_owners: body_owners, body_captures: body_captures, contained: contained, typed_slots: typed_slots, type_canon: type_canon, global_types: global_types, refers: refers, referable: referable };
     life_validate_pools(p, l, pool_references);
-    if p.diagnostics.len > 0 { return; }
+    if p.diagnostics.len > 0 { return true; }
     var standalone: LifeStandalone[>..] = []; let node_count = p.nodes.len;
     for id in 0..node_count {
         let n = p.nodes[id];
@@ -6317,35 +6362,28 @@ fn check_lifetimes(p: Program&, scope_parent: const i64[:], scope_depth: const i
     while size_classes.len < p.types.len { size_classes.push(-1); }
     // Standalone argument synthesis is complete; evaluation only reads types.
     l.types_frozen = true;
+    let omit_reads = !full && !life_has_replacement(p, l);
+    l.omit_construct_reads = omit_reads;
     for t, id in p.types { if t.kind == TY_INT && t.index_type >= 0 && t.pool >= 0 { l.index_types.push(id); } }
     // All equations only add alternatives or weaken exactness. A changed
     // invocation feeds its caller and loops on the following discovery pass.
     loop {
         l.pass += 1;
         let before = l.revision;
-        for symbol in p.symbols {
-            if (symbol.flags & S_GLOBAL) != 0 && symbol.node >= 0 && p.nodes[symbol.node].kind == N_VARIABLE {
-                life_eval(p, l, symbol.node);
-            }
-        }
-        if p.entry >= 0 { life_function(p, l, p.entry, -1, -1, 0); }
-        for root in standalone { life_function(p, l, root.function_node, -1, root.arguments, 0); }
+        if !life_check_roots(p, l, standalone, omit_reads) { return false; }
         if l.failures.len > 0 {
             l.discovery = false;
             for failure in l.failures { life_error(p, l, failure.node, failure.message); }
             l.types_frozen = false;
-            return;
+            return true;
         }
         if l.revision == before { break; }
     }
     l.discovery = false;
     for root, index in l.roots { l.roots[index].live_contents = root.contents; }
     for cell, index in l.cells { life_set_live(l, index, false); }
-    for symbol in p.symbols {
-        if (symbol.flags & S_GLOBAL) != 0 && symbol.node >= 0 && p.nodes[symbol.node].kind == N_VARIABLE { life_eval(p, l, symbol.node); }
-    }
-    if p.entry >= 0 { life_function(p, l, p.entry, -1, -1, 0); }
-    for root in standalone { life_function(p, l, root.function_node, -1, root.arguments, 0); }
+    if !life_check_roots(p, l, standalone, omit_reads) { return false; }
     l.types_frozen = false;
     if p.diagnostics.len == 0 { life_export_provenance(p, l); life_refresh_named_results(p); }
+    return true;
 }
