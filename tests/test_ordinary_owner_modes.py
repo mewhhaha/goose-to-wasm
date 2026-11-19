@@ -50,7 +50,7 @@ class OrdinaryOwnerModes(unittest.TestCase):
                     else:
                         self.assertEqual(bundled, general)
 
-    def test_publication_retry_in_global_initializer(self):
+    def test_publication_in_global_initializer_preserves_mapping(self):
         source = """recursive fn pair() -> i64, i64 { return 2, 3; }
 recursive fn print_tuple() { let a, b = pair(); print(a + b); }
 var result: i64[>..] = if 1 < 2 { [1, 2] } else { [3, 4] };
