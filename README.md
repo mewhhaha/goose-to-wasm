@@ -4,13 +4,13 @@ A [Goose](https://github.com/aardappel/goose) compiler written in Goose. It emit
 
 ## Benchmarks
 
-**The compiler rebuilding itself.** Across 14 paired rounds, the bundled 32-bit compiler rebuilt its own sources in a median **4.47 s** in Wasmtime and **3.39 s** native, with a median same-round ratio of **1.52× native time**. On a frozen project, Wasmtime rebuild time fell by **20.1%** over 16 paired rounds. The median same-round Wasmtime/native ratio went from **1.60× to 1.51×**. The checker skipped 1,003,113 read records on that build. [Paired rebuilds](bench/results/2026-11-19/construct-read-demand/README.md)
+**The compiler rebuilding itself.** Across 12 paired rounds, the bundled 32-bit compiler rebuilt its own sources in **3.99 s in Wasmtime** and **2.96 s native**, with a median same-round ratio of **1.43× native time**. On a frozen project it retired **5.0% fewer instructions** after removing array-header updates with no registered destination. Paired Wasmtime wall time fell by 4.0% across 14 rounds. [Paired rebuilds](bench/results/2026-11-19/bundled-publications/README.md)
 
-![Native and Wasmtime process time to rebuild the frozen and current compiler](bench/results/2026-11-19/construct-read-demand/rebuild.svg)
+![Native and Wasmtime process time to rebuild the frozen and current compiler](bench/results/2026-11-19/bundled-publications/rebuild.svg)
 
-**Cold and cached self-compilation.** With an empty Wasmtime cache, the memory64 compiler took a median **23.90 s** on one core and **15.28 s** on eight cores. The bundled memory32 compiler took **7.60 s** cold with eight cores and **5.18 s** cached on one core, versus **3.55 s** native. Each median covers three fresh processes. Cold runs compile the module and cached runs load precompiled code. [Launch and edit times](bench/results/2026-11-19/construct-read-demand/README.md#cold-and-cached-self-compilation) · [Gdev status](bench/results/2026-11-18/compiler-request-latency/README.md#compiling-gdev)
+**Cold and cached self-compilation.** The bundled memory32 compiler took **3.62 s** cold with eight cores and **2.77 s** cached on one core, versus **1.87 s** native. With an empty cache, the default memory64 compiler took **13.38 s** on one core and **6.19 s** on eight. Each figure is the median of three fresh processes. [Launch and edit times](bench/results/2026-11-19/bundled-publications/README.md#cold-and-cached-self-compilation) · [Gdev status](bench/results/2026-11-18/compiler-request-latency/README.md#compiling-gdev)
 
-![Seconds to rebuild the compiler in cold, cached and native processes](bench/results/2026-11-19/construct-read-demand/launch.svg)
+![Seconds to rebuild the compiler in cold, cached and native processes](bench/results/2026-11-19/bundled-publications/launch.svg)
 
 **Compiler speed.** Across eleven programs, compiler `fc34386` used 6.4% less CPU time than `6e503fb` to emit Wasm and 4.9% less to emit C. These are geometric means of medians over 31 measurements per cell. The chart shows wall time. In the earlier snapshot 59 comparison, Wasm emission took 0.58× the C++ compiler’s time and C emission took 0.53×. [Measurements](bench/results/2026-11-19/construct-read-demand/catalog-summary.json) · [Snapshot 59](bench/results/2026-11-11/compiler-throughput-59/README.md)
 
@@ -38,6 +38,7 @@ A [Goose](https://github.com/aardappel/goose) compiler written in Goose. It emit
 
 | Question | Measurements |
 | --- | --- |
+| What did the checker save by tracking reads on demand? | [Read tracking and paired compiler rebuilds](bench/results/2026-11-19/construct-read-demand/README.md) |
 | What did skipping temporary expression records save? | [Expression checking, rebuilds and grouping experiments](bench/results/2026-11-19/expression-lifetimes/README.md) |
 | What did skipping repeated array effects save? | [Rebuilds, array effects and validation controls](bench/results/2026-11-19/lifetime-array-effects/README.md) |
 | What did tracking changed reads save? | [Lifetime reads and memory cost](bench/results/2026-11-19/lifetime-read-replay/README.md) |
