@@ -1,4 +1,4 @@
-"""Exercise the fixed-size copy and zero-fill lowering at byte boundaries."""
+"""Exercise fixed-size memory operations and field-load displacements at byte boundaries."""
 import subprocess
 import unittest
 
@@ -54,6 +54,30 @@ def exported_body(wasm, name):
 
 
 class FixedMemoryOps(goose_stats.Compile, unittest.TestCase):
+    def test_field_load_displacement_fits_memory32(self):
+        source = """struct Large { pad 65536, field: i64 = 42 }
+fn read(record: const Large&) -> i64 { record.field }
+fn main() {
+    let record = Large {};
+    var enabled: u8[>..] = [];
+    enabled.push(1);
+    if enabled[0] == 1 { print(read(record)); }
+}
+"""
+        for pages, folded in ((256, True), (65535, False)):
+            with self.subTest(pages=pages):
+                module, _ = self.compile(2, text=source, flags=("--wasm-bundled-host", "--wasm-max-pages", str(pages)))
+                code = dict(goose_stats.sections(module.read_bytes()))[10]
+                count, offset = goose_stats.uleb(code, 0)
+                loads = []
+                for _ in range(count):
+                    size, start = goose_stats.uleb(code, offset)
+                    offset = start + size
+                    loads.extend(arg for op, arg in goose_stats.instruction_operands(code[start:offset]) if op == 0x29)
+                self.assertEqual(65536 in loads, folded)
+                output = subprocess.check_output([goose_stats.NODE, goose_stats.ROOT / "scripts/run_wasm.mjs", module], timeout=30)
+                self.assertEqual(output, b"42\n")
+
     def test_vector_copy_and_zero_fill(self):
         source = self.work / "images.goose"
         source.write_text(SOURCE)

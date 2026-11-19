@@ -49,7 +49,7 @@ def function_body(path, stats, name="clear"):
 
 
 def instruction_operands(body):
-    """Decode instruction boundaries and the leading immediate, if any."""
+    """Decode instruction boundaries and selected operands, including memory offsets."""
     groups, offset = uleb(body, 0)
     for _ in range(groups):
         _, offset = uleb(body, offset)
@@ -64,9 +64,12 @@ def instruction_operands(body):
             count, offset = uleb(body, offset)
             for _ in range(count+1):
                 _, offset = uleb(body, offset)
-        elif op == 0x11 or 0x28 <= op <= 0x3e:
+        elif op == 0x11:
             _, offset = uleb(body, offset)
             _, offset = uleb(body, offset)
+        elif 0x28 <= op <= 0x3e:
+            _, offset = uleb(body, offset)  # alignment
+            operand, offset = uleb(body, offset)
         elif op == 0x43:
             offset += 4
         elif op == 0x44:
@@ -110,13 +113,13 @@ class Compile:
         self.addCleanup(self.tmp.cleanup)
         self.work = Path(self.tmp.name)
 
-    def compile(self, level, debug=False, *, text):
+    def compile(self, level, debug=False, *, text, flags=()):
         source = self.work / "main.goose"
         source.write_text(text)
         output = self.work / "program.wasm"
         stats = self.work / "stats.json"
         command = [str(GOOSE), str(source), "--target", "wasm-direct", f"-O{level}",
-                   "--wasm-stats", str(stats), "-o", str(output)]
+                   "--wasm-stats", str(stats), "-o", str(output), *flags]
         if debug:
             command.append("--debug")
         result = subprocess.run(command, capture_output=True, text=True, timeout=60)
