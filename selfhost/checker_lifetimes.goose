@@ -1669,6 +1669,8 @@ fn life_temporary(p: Program&, l: Lifetimes&, node: i64) -> i64 {
     return life_root_set(l, root);
 }
 
+// Use each source root's lexical depth when binding an ordinary parameter.
+let LIFE_PARAMETER_BOUND: i64 = -2;
 fn life_bound(l: Lifetimes&, sources: i64, depth: i64) -> i64 {
     // With class-keyed frames in use no bound is added: a class root's rank
     // is what a read through a parameter is held to there, and the same
@@ -1678,7 +1680,9 @@ fn life_bound(l: Lifetimes&, sources: i64, depth: i64) -> i64 {
     if l.sets[sources].bound_depth == depth { return l.sets[sources].bound_result; }
     var build = LifeBuild {}; var at = l.sets[sources].first;
     while at >= 0 {
-        var alt = l.alts[at]; at = alt.next; if depth > alt.bound { alt.bound = depth as i32; }
+        var alt = l.alts[at]; at = alt.next; var bound = depth;
+        if bound == LIFE_PARAMETER_BOUND { bound = l.roots[alt.root].depth; }
+        if bound != 0 && bound > alt.bound { alt.bound = bound as i32; }
         life_build_add_alt(l, build, alt);
     }
     let result = life_build_end(l, build);
@@ -4362,6 +4366,7 @@ fn life_reach(l: Lifetimes&, frame: i64) -> i64 {
 // of the lexical frame.
 fn life_parameter_roots(p: Program&, l: Lifetimes&, sources: i64, type_id: i64, function_node: i64, reach: i64) -> i64 {
     if type_id >= 0 && p.types[type_id].kind == TY_REF && p.types[type_id].element >= 0 && p.types[p.types[type_id].element].kind == TY_SLICE { return sources; }
+    if sources == 0 { return 0; }
     var view = false;
     if type_id >= 0 && p.types[type_id].kind == TY_REF && p.types[type_id].length_storage < 0 &&
        (p.nodes[function_node].flags & F_RECURSIVE) == 0 && l.sets[sources].count == 1 {
@@ -4372,14 +4377,8 @@ fn life_parameter_roots(p: Program&, l: Lifetimes&, sources: i64, type_id: i64, 
             }
         }
     }
-    if view || l.class_frames > 0 { return sources; }
-    var result = LifeBuild {}; var at = l.sets[sources].first;
-    while at >= 0 {
-        var alt = l.alts[at]; at = alt.next; let depth = l.roots[alt.root].depth;
-        if depth != 0 && depth > alt.bound { alt.bound = depth as i32; }
-        life_build_add_alt(l, result, alt);
-    }
-    return life_build_end(l, result);
+    if view { return sources; }
+    return life_bound(l, sources, LIFE_PARAMETER_BOUND);
 }
 
 // What life_arguments_equal compares of a frame's inputs, with the frame's
