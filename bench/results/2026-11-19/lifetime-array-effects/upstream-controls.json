@@ -1,0 +1,137 @@
+{
+  "reference_sha256": "9e4d9ff8927c69c653031850f1b0911ce6827dc71648f1e11448ed06736b75e0",
+  "revision": "2e2bedef5b980bf013cac5aaa0095bfea64e5569",
+  "compiler_sha256": "b26001dd22b60da8fd44ac10b893d61bddd8cc87acd5009654d556e03d9c7f04",
+  "host_sha256": "b247393d8fbe3115246f20703f726e90eeaaed762a75932c7bb131a4433ad026",
+  "cases": [
+    {
+      "name": "test/lifetimes/shrink_in_expressions.goose",
+      "source_sha256": "5cbf4f03cd8a73a62907dc4c82429cb5d8c6602dfac6576c489b6af3d0cd30d2",
+      "group_skips": [
+        20,
+        19,
+        0
+      ],
+      "individual_skips": [
+        2,
+        2,
+        0
+      ],
+      "upstream_exit": 0,
+      "compiler_exit": 0,
+      "stdout_sha256": "da5fcfc9dce56fd7e7d1ffad6f7b05565103b18c9c2b86c63047611bf5170857",
+      "stdout_bytes": 152,
+      "module_sha256": "23cdbee04062ff6e1f8c635fc6d086591a3a14a7155ea5b44ac85c0c2aeeebd0"
+    },
+    {
+      "name": "test/lifetimes/emptied_holder_shrink.goose",
+      "source_sha256": "a48d02c918ea2e172e00a886b1c30ede98433384ad494e9ef0fbd698e561b46a",
+      "group_skips": [
+        10,
+        14,
+        10
+      ],
+      "individual_skips": [
+        4,
+        4,
+        4
+      ],
+      "upstream_exit": 0,
+      "compiler_exit": 0,
+      "stdout_sha256": "eff314cc8572593d3732dd45db66c400fa3db9970baa4030c77c4fed78fc5ce5",
+      "stdout_bytes": 29,
+      "module_sha256": "e08141d7e0cfc8831c30f91a75cba19565f5a803cfe5604e84148bfe2267d569"
+    },
+    {
+      "name": "test/codegen/render_walks_around_overloads.goose",
+      "source_sha256": "9ab2d69e7438c08c1b6b96de60eb89754300ccb29994586ad6165498face17d9",
+      "group_skips": [
+        14,
+        98,
+        12
+      ],
+      "individual_skips": [
+        0,
+        0,
+        0
+      ],
+      "upstream_exit": 0,
+      "compiler_exit": 0,
+      "stdout_sha256": "b6d268092d26ad731cc5af167921ba26f0f71c7d1eb6a6968ec4fc0b942ce899",
+      "stdout_bytes": 338,
+      "module_sha256": "7e9b0ab98682d8dc7cf960aa9a60d29e5fa3b38606ce090cdc654c6f40f73d31"
+    },
+    {
+      "name": "test/errors_tc/balanced_shrink_recursive_settled.goose",
+      "source_sha256": "a0ff49995e058c6f88d6a438a9b80f52fd8b6a311eed2ac9712456a721d1de67",
+      "group_skips": [
+        2,
+        0,
+        0
+      ],
+      "individual_skips": [
+        0,
+        0,
+        0
+      ],
+      "upstream_exit": 1,
+      "compiler_exit": 1,
+      "upstream_error": "/home/jacobt/src/goose-to-wasm/build/life-parity/fp-corpus/upstream/test/errors_tc/balanced_shrink_recursive_settled.goose:17: error: cannot call across, which shrinks s while v (bound at /home/jacobt/src/goose-to-wasm/build/life-parity/fp-corpus/upstream/test/errors_tc/balanced_shrink_recursive_settled.goose:16) is still used: it may refer into s (\u00a75.2)",
+      "compiler_error": "/home/jacobt/src/goose-to-wasm/build/life-parity/fp-corpus/upstream/test/errors_tc/balanced_shrink_recursive_settled.goose:8:19: error: array shrink invalidates a reference or holder that is used afterward"
+    },
+    {
+      "name": "test/errors_tc/emptied_callee_view_kept.goose",
+      "source_sha256": "1186d55aaaadcc4632059d40d9ade2d90b81ba96d4fb5bc15c9f2aed95fa55bc",
+      "group_skips": [
+        2,
+        2,
+        2
+      ],
+      "individual_skips": [
+        0,
+        0,
+        0
+      ],
+      "upstream_exit": 1,
+      "compiler_exit": 1,
+      "upstream_error": "/home/jacobt/src/goose-to-wasm/build/life-parity/fp-corpus/upstream/test/errors_tc/emptied_callee_view_kept.goose:15: error: cannot call run, which shrinks pool while r is still used: it may hold a reference or slice into it (\u00a75.1)",
+      "compiler_error": "/home/jacobt/src/goose-to-wasm/build/life-parity/fp-corpus/upstream/test/errors_tc/emptied_callee_view_kept.goose:7:12: error: array shrink invalidates a reference or holder that is used afterward"
+    },
+    {
+      "name": "test/errors_tc/construct_use_recursive.goose",
+      "source_sha256": "d55e022242a0264e0b3c174efffff4154a153ddf9306e67d699139adc493b5b0",
+      "group_skips": [
+        1,
+        0,
+        1
+      ],
+      "individual_skips": [
+        0,
+        0,
+        0
+      ],
+      "upstream_exit": 1,
+      "compiler_exit": 1,
+      "upstream_error": "/home/jacobt/src/goose-to-wasm/build/life-parity/fp-corpus/upstream/test/errors_tc/construct_use_recursive.goose:12: error: cannot call depth in the value assigned to G: depth, still being checked, may use G, and that value is built over the old contents of G (\u00a74.4); build it in a variable of its own, and assign copy() of that",
+      "compiler_error": "/home/jacobt/src/goose-to-wasm/build/life-parity/fp-corpus/upstream/test/errors_tc/construct_use_recursive.goose:8:24: error: whole assignment reads storage while its replacement is being constructed\n/home/jacobt/src/goose-to-wasm/build/life-parity/fp-corpus/upstream/test/errors_tc/construct_use_recursive.goose:12:7: error: array shrink invalidates a value still needed by the enclosing expression"
+    },
+    {
+      "name": "test/errors_tc/format_shrinks_rendered_adt_forwarded.goose",
+      "source_sha256": "8e7f3082ad570199580c3b6b664a0c41def34f35571297010a47a243c4125ead",
+      "group_skips": [
+        0,
+        10,
+        0
+      ],
+      "individual_skips": [
+        0,
+        0,
+        0
+      ],
+      "upstream_exit": 1,
+      "compiler_exit": 1,
+      "upstream_error": "/home/jacobt/src/goose-to-wasm/build/life-parity/fp-corpus/upstream/test/errors_tc/format_shrinks_rendered_adt_forwarded.goose:23: error: cannot call show2: it shrinks G while h is still used, and h may refer into G (\u00a75.2)",
+      "compiler_error": "/home/jacobt/src/goose-to-wasm/build/life-parity/fp-corpus/upstream/test/errors_tc/format_shrinks_rendered_adt_forwarded.goose:15:7: error: whole assignment replaces a variable-size value while its parts are being rendered"
+    }
+  ]
+}
