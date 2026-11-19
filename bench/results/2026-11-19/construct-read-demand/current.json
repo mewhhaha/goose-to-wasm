@@ -1,0 +1,1066 @@
+{
+  "source_commit": "fc34386679b120e6f822bd18f6cf7ab0319035ee",
+  "source_archive_sha256": "2220c2ff3a47d0d30ade05e940ca920d68847e6ef1c38e631a098a6cbc7793db",
+  "expected": {
+    "sha256": "710f7d88ab157c80fa2235c64ef617de6796c31670377722ba0322ab3c485639",
+    "bytes": 8897863
+  },
+  "host": {
+    "sha256": "b247393d8fbe3115246f20703f726e90eeaaed762a75932c7bb131a4433ad026",
+    "bytes": 17245208
+  },
+  "cpu": 7,
+  "arguments": [
+    "selfhost/main.goose",
+    "--stdlib",
+    "stdlib",
+    "--target",
+    "wasm-direct",
+    "-O2",
+    "--wasm-memory64",
+    "--wasm-max-pages",
+    "262144"
+  ],
+  "cases": {
+    "native": {
+      "compiler": {
+        "sha256": "f6df6a2c69903db3993616bb9bac4fe80cac495675a674b23acbd6a82ab889ac",
+        "bytes": 7079400
+      }
+    },
+    "wasm": {
+      "compiler": {
+        "sha256": "a15fc47c0ed47b87a740efbbd45b216ecb413a26b3c7845fc364512c468bb316",
+        "bytes": 7458550
+      },
+      "host": {
+        "sha256": "b247393d8fbe3115246f20703f726e90eeaaed762a75932c7bb131a4433ad026",
+        "bytes": 17245208
+      },
+      "cache": {
+        "sha256": "717de065ceeea279c41f8baf61328ab2d4430dd49f6528f82e40550312a5a98b",
+        "bytes": 13746152
+      }
+    }
+  },
+  "samples": [
+    {
+      "round": 1,
+      "case": "native",
+      "wall_ns": 5097919257,
+      "output": {
+        "sha256": "710f7d88ab157c80fa2235c64ef617de6796c31670377722ba0322ab3c485639",
+        "bytes": 8897863
+      },
+      "cpu_s": 3.927829000000001,
+      "counters": {
+        "cycles": {
+          "value": 12014006463,
+          "time_enabled_ns": 3969526205,
+          "time_running_ns": 3969526205
+        },
+        "instructions": {
+          "value": 17873501056,
+          "time_enabled_ns": 3969525493,
+          "time_running_ns": 3969525493
+        },
+        "branches": {
+          "value": 3886768137,
+          "time_enabled_ns": 3969523771,
+          "time_running_ns": 3969523771
+        },
+        "branch_misses": {
+          "value": 21127606,
+          "time_enabled_ns": 3969520163,
+          "time_running_ns": 3969520163
+        }
+      }
+    },
+    {
+      "round": 1,
+      "case": "wasm",
+      "wall_ns": 7529193849,
+      "output": {
+        "sha256": "710f7d88ab157c80fa2235c64ef617de6796c31670377722ba0322ab3c485639",
+        "bytes": 8897863
+      },
+      "cpu_s": 5.931412,
+      "counters": {
+        "cycles": {
+          "value": 18111722354,
+          "time_enabled_ns": 6013232725,
+          "time_running_ns": 6013232725
+        },
+        "instructions": {
+          "value": 27618511116,
+          "time_enabled_ns": 6013231043,
+          "time_running_ns": 6013231043
+        },
+        "branches": {
+          "value": 4200732528,
+          "time_enabled_ns": 6013228958,
+          "time_running_ns": 6013228958
+        },
+        "branch_misses": {
+          "value": 27722528,
+          "time_enabled_ns": 6013225231,
+          "time_running_ns": 6013225231
+        }
+      },
+      "engine": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 6623367,
+        "start_function_ns": 7510424199,
+        "engine_total_ns": 7517047566
+      }
+    },
+    {
+      "round": 2,
+      "case": "wasm",
+      "wall_ns": 7722800160,
+      "output": {
+        "sha256": "710f7d88ab157c80fa2235c64ef617de6796c31670377722ba0322ab3c485639",
+        "bytes": 8897863
+      },
+      "cpu_s": 5.986169,
+      "counters": {
+        "cycles": {
+          "value": 18061773678,
+          "time_enabled_ns": 6068657959,
+          "time_running_ns": 6068657959
+        },
+        "instructions": {
+          "value": 27618486598,
+          "time_enabled_ns": 6068657168,
+          "time_running_ns": 6068657168
+        },
+        "branches": {
+          "value": 4200727490,
+          "time_enabled_ns": 6068654724,
+          "time_running_ns": 6068654724
+        },
+        "branch_misses": {
+          "value": 27973655,
+          "time_enabled_ns": 6068651558,
+          "time_running_ns": 6068651558
+        }
+      },
+      "engine": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 6767401,
+        "start_function_ns": 7703739657,
+        "engine_total_ns": 7710507058
+      }
+    },
+    {
+      "round": 2,
+      "case": "native",
+      "wall_ns": 5036775332,
+      "output": {
+        "sha256": "710f7d88ab157c80fa2235c64ef617de6796c31670377722ba0322ab3c485639",
+        "bytes": 8897863
+      },
+      "cpu_s": 3.900595000000001,
+      "counters": {
+        "cycles": {
+          "value": 11775252694,
+          "time_enabled_ns": 3946834736,
+          "time_running_ns": 3946834736
+        },
+        "instructions": {
+          "value": 17873482762,
+          "time_enabled_ns": 3946835076,
+          "time_running_ns": 3946835076
+        },
+        "branches": {
+          "value": 3886762903,
+          "time_enabled_ns": 3946832892,
+          "time_running_ns": 3946832892
+        },
+        "branch_misses": {
+          "value": 21124112,
+          "time_enabled_ns": 3946828854,
+          "time_running_ns": 3946828854
+        }
+      }
+    },
+    {
+      "round": 3,
+      "case": "native",
+      "wall_ns": 4272675631,
+      "output": {
+        "sha256": "710f7d88ab157c80fa2235c64ef617de6796c31670377722ba0322ab3c485639",
+        "bytes": 8897863
+      },
+      "cpu_s": 3.6095570000000032,
+      "counters": {
+        "cycles": {
+          "value": 10825428208,
+          "time_enabled_ns": 3645932392,
+          "time_running_ns": 3645932392
+        },
+        "instructions": {
+          "value": 17873439301,
+          "time_enabled_ns": 3645930990,
+          "time_running_ns": 3645930990
+        },
+        "branches": {
+          "value": 3886756202,
+          "time_enabled_ns": 3645929036,
+          "time_running_ns": 3645929036
+        },
+        "branch_misses": {
+          "value": 20782297,
+          "time_enabled_ns": 3645924908,
+          "time_running_ns": 3645924908
+        }
+      }
+    },
+    {
+      "round": 3,
+      "case": "wasm",
+      "wall_ns": 6635011992,
+      "output": {
+        "sha256": "710f7d88ab157c80fa2235c64ef617de6796c31670377722ba0322ab3c485639",
+        "bytes": 8897863
+      },
+      "cpu_s": 5.606778999999996,
+      "counters": {
+        "cycles": {
+          "value": 16648348412,
+          "time_enabled_ns": 5676482613,
+          "time_running_ns": 5676482613
+        },
+        "instructions": {
+          "value": 27618485811,
+          "time_enabled_ns": 5676482582,
+          "time_running_ns": 5676482582
+        },
+        "branches": {
+          "value": 4200726565,
+          "time_enabled_ns": 5676481891,
+          "time_running_ns": 5676481891
+        },
+        "branch_misses": {
+          "value": 26244489,
+          "time_enabled_ns": 5676479367,
+          "time_running_ns": 5676479367
+        }
+      },
+      "engine": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 6614971,
+        "start_function_ns": 6617928337,
+        "engine_total_ns": 6624543308
+      }
+    },
+    {
+      "round": 4,
+      "case": "wasm",
+      "wall_ns": 5639134334,
+      "output": {
+        "sha256": "710f7d88ab157c80fa2235c64ef617de6796c31670377722ba0322ab3c485639",
+        "bytes": 8897863
+      },
+      "cpu_s": 5.150758999999998,
+      "counters": {
+        "cycles": {
+          "value": 15084066981,
+          "time_enabled_ns": 5209448702,
+          "time_running_ns": 5209448702
+        },
+        "instructions": {
+          "value": 27618483619,
+          "time_enabled_ns": 5209448622,
+          "time_running_ns": 5209448622
+        },
+        "branches": {
+          "value": 4200725374,
+          "time_enabled_ns": 5209447810,
+          "time_running_ns": 5209447810
+        },
+        "branch_misses": {
+          "value": 25366686,
+          "time_enabled_ns": 5209445867,
+          "time_running_ns": 5209445867
+        }
+      },
+      "engine": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 6250909,
+        "start_function_ns": 5619789943,
+        "engine_total_ns": 5626040852
+      }
+    },
+    {
+      "round": 4,
+      "case": "native",
+      "wall_ns": 3496475278,
+      "output": {
+        "sha256": "710f7d88ab157c80fa2235c64ef617de6796c31670377722ba0322ab3c485639",
+        "bytes": 8897863
+      },
+      "cpu_s": 3.2969430000000073,
+      "counters": {
+        "cycles": {
+          "value": 9567809262,
+          "time_enabled_ns": 3322272764,
+          "time_running_ns": 3322272764
+        },
+        "instructions": {
+          "value": 17873479442,
+          "time_enabled_ns": 3322270991,
+          "time_running_ns": 3322270991
+        },
+        "branches": {
+          "value": 3886760588,
+          "time_enabled_ns": 3322268416,
+          "time_running_ns": 3322268416
+        },
+        "branch_misses": {
+          "value": 19221444,
+          "time_enabled_ns": 3322263587,
+          "time_running_ns": 3322263587
+        }
+      }
+    },
+    {
+      "round": 5,
+      "case": "native",
+      "wall_ns": 3489546796,
+      "output": {
+        "sha256": "710f7d88ab157c80fa2235c64ef617de6796c31670377722ba0322ab3c485639",
+        "bytes": 8897863
+      },
+      "cpu_s": 3.2643339999999927,
+      "counters": {
+        "cycles": {
+          "value": 9614022373,
+          "time_enabled_ns": 3289311541,
+          "time_running_ns": 3289311541
+        },
+        "instructions": {
+          "value": 17873480400,
+          "time_enabled_ns": 3289311621,
+          "time_running_ns": 3289311621
+        },
+        "branches": {
+          "value": 3886760926,
+          "time_enabled_ns": 3289310660,
+          "time_running_ns": 3289310660
+        },
+        "branch_misses": {
+          "value": 20056664,
+          "time_enabled_ns": 3289308235,
+          "time_running_ns": 3289308235
+        }
+      }
+    },
+    {
+      "round": 5,
+      "case": "wasm",
+      "wall_ns": 5123083887,
+      "output": {
+        "sha256": "710f7d88ab157c80fa2235c64ef617de6796c31670377722ba0322ab3c485639",
+        "bytes": 8897863
+      },
+      "cpu_s": 4.819489000000003,
+      "counters": {
+        "cycles": {
+          "value": 14574558904,
+          "time_enabled_ns": 4867777424,
+          "time_running_ns": 4867777424
+        },
+        "instructions": {
+          "value": 27618481027,
+          "time_enabled_ns": 4867778676,
+          "time_running_ns": 4867778676
+        },
+        "branches": {
+          "value": 4200724089,
+          "time_enabled_ns": 4867778435,
+          "time_running_ns": 4867778435
+        },
+        "branch_misses": {
+          "value": 24604665,
+          "time_enabled_ns": 4867776672,
+          "time_running_ns": 4867776672
+        }
+      },
+      "engine": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 5871338,
+        "start_function_ns": 5107587408,
+        "engine_total_ns": 5113458746
+      }
+    },
+    {
+      "round": 6,
+      "case": "wasm",
+      "wall_ns": 5384192090,
+      "output": {
+        "sha256": "710f7d88ab157c80fa2235c64ef617de6796c31670377722ba0322ab3c485639",
+        "bytes": 8897863
+      },
+      "cpu_s": 5.001104999999995,
+      "counters": {
+        "cycles": {
+          "value": 14791924853,
+          "time_enabled_ns": 5054014348,
+          "time_running_ns": 5054014348
+        },
+        "instructions": {
+          "value": 27618480258,
+          "time_enabled_ns": 5054013607,
+          "time_running_ns": 5054013607
+        },
+        "branches": {
+          "value": 4200724419,
+          "time_enabled_ns": 5054011272,
+          "time_running_ns": 5054011272
+        },
+        "branch_misses": {
+          "value": 24834278,
+          "time_enabled_ns": 5054006935,
+          "time_running_ns": 5054006935
+        }
+      },
+      "engine": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 7336231,
+        "start_function_ns": 5365907932,
+        "engine_total_ns": 5373244163
+      }
+    },
+    {
+      "round": 6,
+      "case": "native",
+      "wall_ns": 3560785896,
+      "output": {
+        "sha256": "710f7d88ab157c80fa2235c64ef617de6796c31670377722ba0322ab3c485639",
+        "bytes": 8897863
+      },
+      "cpu_s": 3.2295569999999962,
+      "counters": {
+        "cycles": {
+          "value": 9544841495,
+          "time_enabled_ns": 3253539715,
+          "time_running_ns": 3253539715
+        },
+        "instructions": {
+          "value": 17873479617,
+          "time_enabled_ns": 3253537610,
+          "time_running_ns": 3253537610
+        },
+        "branches": {
+          "value": 3886760715,
+          "time_enabled_ns": 3253534775,
+          "time_running_ns": 3253534775
+        },
+        "branch_misses": {
+          "value": 19292338,
+          "time_enabled_ns": 3253530137,
+          "time_running_ns": 3253530137
+        }
+      }
+    },
+    {
+      "round": 7,
+      "case": "native",
+      "wall_ns": 3296640938,
+      "output": {
+        "sha256": "710f7d88ab157c80fa2235c64ef617de6796c31670377722ba0322ab3c485639",
+        "bytes": 8897863
+      },
+      "cpu_s": 3.191213999999998,
+      "counters": {
+        "cycles": {
+          "value": 9247309205,
+          "time_enabled_ns": 3212264152,
+          "time_running_ns": 3212264152
+        },
+        "instructions": {
+          "value": 17873479066,
+          "time_enabled_ns": 3212264753,
+          "time_running_ns": 3212264753
+        },
+        "branches": {
+          "value": 3886760111,
+          "time_enabled_ns": 3212263711,
+          "time_running_ns": 3212263711
+        },
+        "branch_misses": {
+          "value": 18802860,
+          "time_enabled_ns": 3212261377,
+          "time_running_ns": 3212261377
+        }
+      }
+    },
+    {
+      "round": 7,
+      "case": "wasm",
+      "wall_ns": 5093290231,
+      "output": {
+        "sha256": "710f7d88ab157c80fa2235c64ef617de6796c31670377722ba0322ab3c485639",
+        "bytes": 8897863
+      },
+      "cpu_s": 4.8388679999999855,
+      "counters": {
+        "cycles": {
+          "value": 14057178392,
+          "time_enabled_ns": 4883960095,
+          "time_running_ns": 4883960095
+        },
+        "instructions": {
+          "value": 27618478273,
+          "time_enabled_ns": 4883958993,
+          "time_running_ns": 4883958993
+        },
+        "branches": {
+          "value": 4200723582,
+          "time_enabled_ns": 4883957110,
+          "time_running_ns": 4883957110
+        },
+        "branch_misses": {
+          "value": 23896272,
+          "time_enabled_ns": 4883953032,
+          "time_running_ns": 4883953032
+        }
+      },
+      "engine": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 7147423,
+        "start_function_ns": 5072370865,
+        "engine_total_ns": 5079518288
+      }
+    },
+    {
+      "round": 8,
+      "case": "wasm",
+      "wall_ns": 3611455635,
+      "output": {
+        "sha256": "710f7d88ab157c80fa2235c64ef617de6796c31670377722ba0322ab3c485639",
+        "bytes": 8897863
+      },
+      "cpu_s": 3.5230970000000017,
+      "counters": {
+        "cycles": {
+          "value": 12080374163,
+          "time_enabled_ns": 3570972048,
+          "time_running_ns": 3570972048
+        },
+        "instructions": {
+          "value": 27618710650,
+          "time_enabled_ns": 3570969121,
+          "time_running_ns": 3570969121
+        },
+        "branches": {
+          "value": 4200898528,
+          "time_enabled_ns": 3570964914,
+          "time_running_ns": 3570964914
+        },
+        "branch_misses": {
+          "value": 22881473,
+          "time_enabled_ns": 3570958913,
+          "time_running_ns": 3570958913
+        }
+      },
+      "engine": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 5098539,
+        "start_function_ns": 3575192748,
+        "engine_total_ns": 3580291287
+      }
+    },
+    {
+      "round": 8,
+      "case": "native",
+      "wall_ns": 3487860718,
+      "output": {
+        "sha256": "710f7d88ab157c80fa2235c64ef617de6796c31670377722ba0322ab3c485639",
+        "bytes": 8897863
+      },
+      "cpu_s": 3.4053250000000013,
+      "counters": {
+        "cycles": {
+          "value": 7808174593,
+          "time_enabled_ns": 3431518106,
+          "time_running_ns": 3431518106
+        },
+        "instructions": {
+          "value": 17873590806,
+          "time_enabled_ns": 3431516593,
+          "time_running_ns": 3431516593
+        },
+        "branches": {
+          "value": 3886881520,
+          "time_enabled_ns": 3431515211,
+          "time_running_ns": 3431515211
+        },
+        "branch_misses": {
+          "value": 18318937,
+          "time_enabled_ns": 3431512976,
+          "time_running_ns": 3431512976
+        }
+      }
+    },
+    {
+      "round": 9,
+      "case": "native",
+      "wall_ns": 2352241391,
+      "output": {
+        "sha256": "710f7d88ab157c80fa2235c64ef617de6796c31670377722ba0322ab3c485639",
+        "bytes": 8897863
+      },
+      "cpu_s": 2.2983050000000005,
+      "counters": {
+        "cycles": {
+          "value": 7891573871,
+          "time_enabled_ns": 2300787395,
+          "time_running_ns": 2300787395
+        },
+        "instructions": {
+          "value": 17873500042,
+          "time_enabled_ns": 2300786774,
+          "time_running_ns": 2300786774
+        },
+        "branches": {
+          "value": 3886776131,
+          "time_enabled_ns": 2300785151,
+          "time_running_ns": 2300785151
+        },
+        "branch_misses": {
+          "value": 16773478,
+          "time_enabled_ns": 2300782316,
+          "time_running_ns": 2300782316
+        }
+      }
+    },
+    {
+      "round": 9,
+      "case": "wasm",
+      "wall_ns": 3490014595,
+      "output": {
+        "sha256": "710f7d88ab157c80fa2235c64ef617de6796c31670377722ba0322ab3c485639",
+        "bytes": 8897863
+      },
+      "cpu_s": 3.4301760000000003,
+      "counters": {
+        "cycles": {
+          "value": 12074284857,
+          "time_enabled_ns": 3452196528,
+          "time_running_ns": 3452196528
+        },
+        "instructions": {
+          "value": 27618497154,
+          "time_enabled_ns": 3452196137,
+          "time_running_ns": 3452196137
+        },
+        "branches": {
+          "value": 4200735373,
+          "time_enabled_ns": 3452194824,
+          "time_running_ns": 3452194824
+        },
+        "branch_misses": {
+          "value": 21812216,
+          "time_enabled_ns": 3452192360,
+          "time_running_ns": 3452192360
+        }
+      },
+      "engine": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 6664405,
+        "start_function_ns": 3468094346,
+        "engine_total_ns": 3474758751
+      }
+    },
+    {
+      "round": 10,
+      "case": "wasm",
+      "wall_ns": 3659802517,
+      "output": {
+        "sha256": "710f7d88ab157c80fa2235c64ef617de6796c31670377722ba0322ab3c485639",
+        "bytes": 8897863
+      },
+      "cpu_s": 3.589009000000002,
+      "counters": {
+        "cycles": {
+          "value": 12238713828,
+          "time_enabled_ns": 3618178004,
+          "time_running_ns": 3618178004
+        },
+        "instructions": {
+          "value": 27618580359,
+          "time_enabled_ns": 3618176341,
+          "time_running_ns": 3618176341
+        },
+        "branches": {
+          "value": 4200817572,
+          "time_enabled_ns": 3618175098,
+          "time_running_ns": 3618175098
+        },
+        "branch_misses": {
+          "value": 22474057,
+          "time_enabled_ns": 3618173095,
+          "time_running_ns": 3618173095
+        }
+      },
+      "engine": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 5261710,
+        "start_function_ns": 3617907827,
+        "engine_total_ns": 3623169537
+      }
+    },
+    {
+      "round": 10,
+      "case": "native",
+      "wall_ns": 2409838508,
+      "output": {
+        "sha256": "710f7d88ab157c80fa2235c64ef617de6796c31670377722ba0322ab3c485639",
+        "bytes": 8897863
+      },
+      "cpu_s": 2.358881000000001,
+      "counters": {
+        "cycles": {
+          "value": 7937403757,
+          "time_enabled_ns": 2346902539,
+          "time_running_ns": 2346902539
+        },
+        "instructions": {
+          "value": 17873546524,
+          "time_enabled_ns": 2346902429,
+          "time_running_ns": 2346902429
+        },
+        "branches": {
+          "value": 3886821354,
+          "time_enabled_ns": 2346901457,
+          "time_running_ns": 2346901457
+        },
+        "branch_misses": {
+          "value": 17191400,
+          "time_enabled_ns": 2346899303,
+          "time_running_ns": 2346899303
+        }
+      }
+    },
+    {
+      "round": 11,
+      "case": "native",
+      "wall_ns": 2386937647,
+      "output": {
+        "sha256": "710f7d88ab157c80fa2235c64ef617de6796c31670377722ba0322ab3c485639",
+        "bytes": 8897863
+      },
+      "cpu_s": 2.3442650000000005,
+      "counters": {
+        "cycles": {
+          "value": 7883834149,
+          "time_enabled_ns": 2334479497,
+          "time_running_ns": 2334479497
+        },
+        "instructions": {
+          "value": 17873505763,
+          "time_enabled_ns": 2334479056,
+          "time_running_ns": 2334479056
+        },
+        "branches": {
+          "value": 3886820677,
+          "time_enabled_ns": 2334477944,
+          "time_running_ns": 2334477944
+        },
+        "branch_misses": {
+          "value": 17231827,
+          "time_enabled_ns": 2334475539,
+          "time_running_ns": 2334475539
+        }
+      }
+    },
+    {
+      "round": 11,
+      "case": "wasm",
+      "wall_ns": 3644666247,
+      "output": {
+        "sha256": "710f7d88ab157c80fa2235c64ef617de6796c31670377722ba0322ab3c485639",
+        "bytes": 8897863
+      },
+      "cpu_s": 3.5525950000000015,
+      "counters": {
+        "cycles": {
+          "value": 12142776551,
+          "time_enabled_ns": 3574400789,
+          "time_running_ns": 3574400789
+        },
+        "instructions": {
+          "value": 27618577121,
+          "time_enabled_ns": 3574399637,
+          "time_running_ns": 3574399637
+        },
+        "branches": {
+          "value": 4200814505,
+          "time_enabled_ns": 3574398465,
+          "time_running_ns": 3574398465
+        },
+        "branch_misses": {
+          "value": 22292371,
+          "time_enabled_ns": 3574396120,
+          "time_running_ns": 3574396120
+        }
+      },
+      "engine": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 5568383,
+        "start_function_ns": 3591441384,
+        "engine_total_ns": 3597009767
+      }
+    },
+    {
+      "round": 12,
+      "case": "wasm",
+      "wall_ns": 3672490320,
+      "output": {
+        "sha256": "710f7d88ab157c80fa2235c64ef617de6796c31670377722ba0322ab3c485639",
+        "bytes": 8897863
+      },
+      "cpu_s": 3.6036840000000008,
+      "counters": {
+        "cycles": {
+          "value": 12379359002,
+          "time_enabled_ns": 3625301615,
+          "time_running_ns": 3625301615
+        },
+        "instructions": {
+          "value": 27618545602,
+          "time_enabled_ns": 3625296355,
+          "time_running_ns": 3625296355
+        },
+        "branches": {
+          "value": 4200783172,
+          "time_enabled_ns": 3625294432,
+          "time_running_ns": 3625294432
+        },
+        "branch_misses": {
+          "value": 22079986,
+          "time_enabled_ns": 3625291887,
+          "time_running_ns": 3625291887
+        }
+      },
+      "engine": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 5278171,
+        "start_function_ns": 3631888767,
+        "engine_total_ns": 3637166938
+      }
+    },
+    {
+      "round": 12,
+      "case": "native",
+      "wall_ns": 2449467960,
+      "output": {
+        "sha256": "710f7d88ab157c80fa2235c64ef617de6796c31670377722ba0322ab3c485639",
+        "bytes": 8897863
+      },
+      "cpu_s": 2.3828300000000007,
+      "counters": {
+        "cycles": {
+          "value": 8060785474,
+          "time_enabled_ns": 2374047673,
+          "time_running_ns": 2374047673
+        },
+        "instructions": {
+          "value": 17873488367,
+          "time_enabled_ns": 2374046130,
+          "time_running_ns": 2374046130
+        },
+        "branches": {
+          "value": 3886802574,
+          "time_enabled_ns": 2374043806,
+          "time_running_ns": 2374043806
+        },
+        "branch_misses": {
+          "value": 17215112,
+          "time_enabled_ns": 2374040540,
+          "time_running_ns": 2374040540
+        }
+      }
+    },
+    {
+      "round": 13,
+      "case": "native",
+      "wall_ns": 2397033269,
+      "output": {
+        "sha256": "710f7d88ab157c80fa2235c64ef617de6796c31670377722ba0322ab3c485639",
+        "bytes": 8897863
+      },
+      "cpu_s": 2.338196000000006,
+      "counters": {
+        "cycles": {
+          "value": 7891695725,
+          "time_enabled_ns": 2330979315,
+          "time_running_ns": 2330979315
+        },
+        "instructions": {
+          "value": 17873561368,
+          "time_enabled_ns": 2330979095,
+          "time_running_ns": 2330979095
+        },
+        "branches": {
+          "value": 3886840293,
+          "time_enabled_ns": 2330978073,
+          "time_running_ns": 2330978073
+        },
+        "branch_misses": {
+          "value": 17146569,
+          "time_enabled_ns": 2330975719,
+          "time_running_ns": 2330975719
+        }
+      }
+    },
+    {
+      "round": 13,
+      "case": "wasm",
+      "wall_ns": 3840478005,
+      "output": {
+        "sha256": "710f7d88ab157c80fa2235c64ef617de6796c31670377722ba0322ab3c485639",
+        "bytes": 8897863
+      },
+      "cpu_s": 3.727504999999997,
+      "counters": {
+        "cycles": {
+          "value": 12794498498,
+          "time_enabled_ns": 3755133234,
+          "time_running_ns": 3755133234
+        },
+        "instructions": {
+          "value": 27618572626,
+          "time_enabled_ns": 3755131822,
+          "time_running_ns": 3755131822
+        },
+        "branches": {
+          "value": 4200809955,
+          "time_enabled_ns": 3755130990,
+          "time_running_ns": 3755130990
+        },
+        "branch_misses": {
+          "value": 22976627,
+          "time_enabled_ns": 3755128615,
+          "time_running_ns": 3755128615
+        }
+      },
+      "engine": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 16391152,
+        "start_function_ns": 3786816080,
+        "engine_total_ns": 3803207232
+      }
+    },
+    {
+      "round": 14,
+      "case": "wasm",
+      "wall_ns": 3604719421,
+      "output": {
+        "sha256": "710f7d88ab157c80fa2235c64ef617de6796c31670377722ba0322ab3c485639",
+        "bytes": 8897863
+      },
+      "cpu_s": 3.557566,
+      "counters": {
+        "cycles": {
+          "value": 12290047704,
+          "time_enabled_ns": 3578739669,
+          "time_running_ns": 3578739669
+        },
+        "instructions": {
+          "value": 27618523632,
+          "time_enabled_ns": 3578739099,
+          "time_running_ns": 3578739099
+        },
+        "branches": {
+          "value": 4200762957,
+          "time_enabled_ns": 3578738288,
+          "time_running_ns": 3578738288
+        },
+        "branch_misses": {
+          "value": 21853800,
+          "time_enabled_ns": 3578736274,
+          "time_running_ns": 3578736274
+        }
+      },
+      "engine": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 5302948,
+        "start_function_ns": 3575219416,
+        "engine_total_ns": 3580522364
+      }
+    },
+    {
+      "round": 14,
+      "case": "native",
+      "wall_ns": 3128440589,
+      "output": {
+        "sha256": "710f7d88ab157c80fa2235c64ef617de6796c31670377722ba0322ab3c485639",
+        "bytes": 8897863
+      },
+      "cpu_s": 3.0672229999999976,
+      "counters": {
+        "cycles": {
+          "value": 10230050662,
+          "time_enabled_ns": 3059807275,
+          "time_running_ns": 3059807275
+        },
+        "instructions": {
+          "value": 17873477880,
+          "time_enabled_ns": 3059807476,
+          "time_running_ns": 3059807476
+        },
+        "branches": {
+          "value": 3886790395,
+          "time_enabled_ns": 3059806624,
+          "time_running_ns": 3059806624
+        },
+        "branch_misses": {
+          "value": 18405494,
+          "time_enabled_ns": 3059804790,
+          "time_running_ns": 3059804790
+        }
+      }
+    }
+  ],
+  "series_starting_orders": [
+    [
+      "native",
+      "wasm"
+    ],
+    [
+      "wasm",
+      "native"
+    ]
+  ]
+}
