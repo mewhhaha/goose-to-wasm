@@ -1,0 +1,836 @@
+{
+  "bypassed": {
+    "replay": 1102,
+    "empty": 646,
+    "leaf": 404,
+    "leaf-replay": 778
+  },
+  "differences": {
+    "replay": {
+      "31": {
+        "count": 131,
+        "fields": {
+          "function": 0,
+          "parent": 131,
+          "destination": 131,
+          "selected_result": 0,
+          "result": 0
+        },
+        "examples": [
+          [
+            13,
+            [
+              7443,
+              1021,
+              996093475907353142,
+              -1,
+              -3213148684424577805
+            ],
+            [
+              7443,
+              904,
+              131853770197893430,
+              -1,
+              -3213148684424577805
+            ]
+          ],
+          [
+            19,
+            [
+              327498,
+              2515,
+              7201568115548910115,
+              -1,
+              7110322757404957988
+            ],
+            [
+              327498,
+              172,
+              -2392208557608398086,
+              -1,
+              7110322757404957988
+            ]
+          ]
+        ]
+      },
+      "32": {
+        "count": 261,
+        "fields": {
+          "symbol": 0,
+          "frame": 0,
+          "depth": 0,
+          "initialized": 0,
+          "committed": 0,
+          "growshrink": 0,
+          "live": 261,
+          "initial": 0,
+          "live_refs": 0
+        },
+        "examples": [
+          [
+            743,
+            [
+              2265,
+              75,
+              0,
+              1,
+              0,
+              0,
+              1,
+              243836495204896812,
+              243836495204896812
+            ],
+            [
+              2265,
+              75,
+              0,
+              1,
+              0,
+              0,
+              0,
+              243836495204896812,
+              243836495204896812
+            ]
+          ],
+          [
+            744,
+            [
+              2266,
+              75,
+              0,
+              1,
+              0,
+              0,
+              1,
+              243836495204896812,
+              243836495204896812
+            ],
+            [
+              2266,
+              75,
+              0,
+              1,
+              0,
+              0,
+              0,
+              243836495204896812,
+              243836495204896812
+            ]
+          ]
+        ]
+      }
+    },
+    "empty": {
+      "31": {
+        "count": 33,
+        "fields": {
+          "function": 0,
+          "parent": 33,
+          "destination": 33,
+          "selected_result": 0,
+          "result": 0
+        },
+        "examples": [
+          [
+            17,
+            [
+              9330,
+              2857,
+              -8537700862328808229,
+              -1,
+              -3963440318533950155
+            ],
+            [
+              9330,
+              16,
+              -1924141545968988263,
+              -1,
+              -3963440318533950155
+            ]
+          ],
+          [
+            24,
+            [
+              12226,
+              50,
+              2422338602763988445,
+              -1,
+              7407385593332378030
+            ],
+            [
+              12226,
+              23,
+              3702635207040009397,
+              -1,
+              7407385593332378030
+            ]
+          ]
+        ]
+      },
+      "32": {
+        "count": 52,
+        "fields": {
+          "symbol": 0,
+          "frame": 0,
+          "depth": 0,
+          "initialized": 0,
+          "committed": 0,
+          "growshrink": 0,
+          "live": 52,
+          "initial": 0,
+          "live_refs": 0
+        },
+        "examples": [
+          [
+            421,
+            [
+              2577,
+              17,
+              0,
+              1,
+              0,
+              0,
+              1,
+              243836495204896812,
+              243836495204896812
+            ],
+            [
+              2577,
+              17,
+              0,
+              1,
+              0,
+              0,
+              0,
+              243836495204896812,
+              243836495204896812
+            ]
+          ],
+          [
+            737,
+            [
+              8739,
+              74,
+              0,
+              1,
+              0,
+              0,
+              1,
+              243836495204896812,
+              243836495204896812
+            ],
+            [
+              8739,
+              74,
+              0,
+              1,
+              0,
+              0,
+              0,
+              243836495204896812,
+              243836495204896812
+            ]
+          ]
+        ]
+      }
+    },
+    "leaf-replay": {
+      "31": {
+        "count": 0,
+        "fields": {
+          "function": 0,
+          "parent": 0,
+          "destination": 0,
+          "selected_result": 0,
+          "result": 0
+        },
+        "examples": []
+      },
+      "32": {
+        "count": 0,
+        "fields": {
+          "symbol": 0,
+          "frame": 0,
+          "depth": 0,
+          "initialized": 0,
+          "committed": 0,
+          "growshrink": 0,
+          "live": 0,
+          "initial": 0,
+          "live_refs": 0
+        },
+        "examples": []
+      }
+    },
+    "leaf": {
+      "31": {
+        "count": 0,
+        "fields": {
+          "function": 0,
+          "parent": 0,
+          "destination": 0,
+          "selected_result": 0,
+          "result": 0
+        },
+        "examples": []
+      },
+      "32": {
+        "count": 0,
+        "fields": {
+          "symbol": 0,
+          "frame": 0,
+          "depth": 0,
+          "initialized": 0,
+          "committed": 0,
+          "growshrink": 0,
+          "live": 0,
+          "initial": 0,
+          "live_refs": 0
+        },
+        "examples": []
+      }
+    }
+  },
+  "prior_state": {
+    "41": {
+      "missed": 131,
+      "baseline_changed_from_pass_2": 0,
+      "missed_that_changed_in_reference": 0
+    },
+    "42": {
+      "missed": 261,
+      "baseline_changed_from_pass_2": 5,
+      "missed_that_changed_in_reference": 5
+    }
+  },
+  "pass2_only_edges": [
+    [
+      1384,
+      3850,
+      327524,
+      1385
+    ]
+  ],
+  "pass3_only_edges": [
+    [
+      1384,
+      3850,
+      327524,
+      2879
+    ]
+  ],
+  "diagnose_at_calls": {
+    "2": [
+      [
+        1384,
+        3850,
+        327535,
+        2879,
+        0
+      ]
+    ],
+    "3": [
+      [
+        1384,
+        3850,
+        327524,
+        2879,
+        0
+      ],
+      [
+        1384,
+        3850,
+        327535,
+        2879,
+        1
+      ]
+    ]
+  },
+  "parameters": [
+    "24077 p diagnose_at",
+    "24078 source diagnose_at",
+    "24079 start diagnose_at",
+    "24080 end diagnose_at",
+    "24081 message diagnose_at"
+  ],
+  "pass_traces": {
+    "baseline": [
+      [
+        1,
+        50856,
+        462819,
+        2878
+      ],
+      [
+        2,
+        17011,
+        462895,
+        2879
+      ],
+      [
+        3,
+        552,
+        462819,
+        2878
+      ],
+      [
+        4,
+        4,
+        462819,
+        2878
+      ],
+      [
+        -1,
+        0,
+        462819,
+        2878
+      ]
+    ],
+    "replay": [
+      [
+        1,
+        50856,
+        462819,
+        2878
+      ],
+      [
+        2,
+        17011,
+        462895,
+        2879
+      ],
+      [
+        3,
+        552,
+        195136,
+        376
+      ],
+      [
+        4,
+        4,
+        462819,
+        2878
+      ],
+      [
+        5,
+        0,
+        462819,
+        2878
+      ],
+      [
+        -1,
+        0,
+        462819,
+        2878
+      ]
+    ],
+    "empty": [
+      [
+        1,
+        50856,
+        462819,
+        2878
+      ],
+      [
+        2,
+        17011,
+        462895,
+        2879
+      ],
+      [
+        3,
+        552,
+        393505,
+        2068
+      ],
+      [
+        4,
+        4,
+        462819,
+        2878
+      ],
+      [
+        5,
+        0,
+        462819,
+        2878
+      ],
+      [
+        -1,
+        0,
+        462819,
+        2878
+      ]
+    ],
+    "leaf": [
+      [
+        1,
+        50856,
+        462819,
+        2878
+      ],
+      [
+        2,
+        17011,
+        462895,
+        2879
+      ],
+      [
+        3,
+        552,
+        435390,
+        2474
+      ],
+      [
+        4,
+        4,
+        462819,
+        2878
+      ],
+      [
+        -1,
+        0,
+        462819,
+        2878
+      ]
+    ],
+    "leaf-replay": [
+      [
+        1,
+        50856,
+        462819,
+        2878
+      ],
+      [
+        2,
+        17011,
+        462895,
+        2879
+      ],
+      [
+        3,
+        552,
+        416030,
+        2100
+      ],
+      [
+        4,
+        4,
+        462819,
+        2878
+      ],
+      [
+        -1,
+        0,
+        462819,
+        2878
+      ]
+    ],
+    "repaired": [
+      [
+        1,
+        50856,
+        462819,
+        2878
+      ],
+      [
+        2,
+        17011,
+        462895,
+        2879
+      ],
+      [
+        3,
+        552,
+        195136,
+        376
+      ],
+      [
+        4,
+        4,
+        462819,
+        2878
+      ],
+      [
+        -1,
+        0,
+        462819,
+        2878
+      ]
+    ],
+    "any-leaf": [
+      [
+        1,
+        50856,
+        462819,
+        2878
+      ],
+      [
+        2,
+        17011,
+        462895,
+        2879
+      ],
+      [
+        3,
+        552,
+        416030,
+        2100
+      ],
+      [
+        4,
+        4,
+        462819,
+        2878
+      ],
+      [
+        -1,
+        0,
+        462819,
+        2878
+      ]
+    ],
+    "clean-leaf": [
+      [
+        1,
+        50856,
+        462819,
+        2878
+      ],
+      [
+        2,
+        17011,
+        462895,
+        2879
+      ],
+      [
+        3,
+        552,
+        435390,
+        2474
+      ],
+      [
+        4,
+        4,
+        462819,
+        2878
+      ],
+      [
+        -1,
+        0,
+        462819,
+        2878
+      ]
+    ]
+  },
+  "fingerprints": {
+    "baseline": [
+      "LIFEFP begin frames=1 summary=0 checked=0 rev=0 h=8977898596338007483 roots=8944904574347563334 cells=5 frames=7741167612470962177 effects=1161353661784754675 exits=0 exit_state=20 bad_exits=0",
+      "LIFEFP begin frames=2879 summary=38542 checked=0 rev=50856 h=509753821811538936 roots=3834134341720468908 cells=1300628408827109660 frames=6872820436082112573 effects=448235433603389577 exits=412 exit_state=3915085869786256050 bad_exits=0",
+      "LIFEFP begin frames=2880 summary=55163 checked=0 rev=67867 h=9209070475936271800 roots=3424597036076418289 cells=5554991201833381835 frames=1812826679254035200 effects=5998311927225473871 exits=412 exit_state=3915085869786256050 bad_exits=0",
+      "LIFEFP begin frames=2880 summary=55650 checked=0 rev=68419 h=3352866344740950443 roots=3424597036076418289 cells=6644591217890986135 frames=1812826679254035200 effects=2138395321343583803 exits=412 exit_state=3915085869786256050 bad_exits=0",
+      "LIFEFP discovered frames=2880 summary=55650 checked=0 rev=68423 h=4382499268372757150 roots=3424597036076418289 cells=6644591217890986135 frames=1812826679254035200 effects=3637813548599475814 exits=412 exit_state=3915085869786256050 bad_exits=0",
+      "LIFEFP validated frames=2883 summary=55650 checked=16746 rev=68437 h=7975855714068419426 roots=8902036975937898659 cells=4133030427226556384 frames=5903994217487985385 effects=6460864012341054541 exits=412 exit_state=3915085869786256050 bad_exits=0",
+      "LIFEFP proofs hash=584583755534565869",
+      ""
+    ],
+    "replay": [
+      "LIFEFP begin frames=1 summary=0 checked=0 rev=0 h=8977898596338007483 roots=8944904574347563334 cells=5 frames=7741167612470962177 effects=1161353661784754675 exits=0 exit_state=20 bad_exits=0",
+      "LIFEFP begin frames=2879 summary=38542 checked=0 rev=50856 h=509753821811538936 roots=3834134341720468908 cells=1300628408827109660 frames=6872820436082112573 effects=448235433603389577 exits=412 exit_state=3915085869786256050 bad_exits=0",
+      "LIFEFP begin frames=2880 summary=55163 checked=0 rev=67867 h=9209070475936271800 roots=3424597036076418289 cells=5554991201833381835 frames=1812826679254035200 effects=5998311927225473871 exits=412 exit_state=3915085869786256050 bad_exits=0",
+      "LIFEFP begin frames=2880 summary=55650 checked=0 rev=68419 h=3352866344740950443 roots=3424597036076418289 cells=2374388747627985630 frames=3971089230498372841 effects=2138395321343583803 exits=412 exit_state=3915085869786256050 bad_exits=0",
+      "LIFEFP begin frames=2880 summary=55650 checked=0 rev=68423 h=4382499268372757150 roots=3424597036076418289 cells=6644591217890986135 frames=1812826679254035200 effects=3637813548599475814 exits=412 exit_state=3915085869786256050 bad_exits=0",
+      "LIFEFP discovered frames=2880 summary=55650 checked=0 rev=68423 h=4382499268372757150 roots=3424597036076418289 cells=6644591217890986135 frames=1812826679254035200 effects=3637813548599475814 exits=412 exit_state=3915085869786256050 bad_exits=0",
+      "LIFEFP validated frames=2883 summary=55650 checked=16746 rev=68437 h=7975855714068419426 roots=8902036975937898659 cells=4133030427226556384 frames=5903994217487985385 effects=6460864012341054541 exits=412 exit_state=3915085869786256050 bad_exits=0",
+      "LIFEFP proofs hash=584583755534565869",
+      ""
+    ],
+    "empty": [
+      "LIFEFP begin frames=1 summary=0 checked=0 rev=0 h=8977898596338007483 roots=8944904574347563334 cells=5 frames=7741167612470962177 effects=1161353661784754675 exits=0 exit_state=20 bad_exits=0",
+      "LIFEFP begin frames=2879 summary=38542 checked=0 rev=50856 h=509753821811538936 roots=3834134341720468908 cells=1300628408827109660 frames=6872820436082112573 effects=448235433603389577 exits=412 exit_state=3915085869786256050 bad_exits=0",
+      "LIFEFP begin frames=2880 summary=55163 checked=0 rev=67867 h=9209070475936271800 roots=3424597036076418289 cells=5554991201833381835 frames=1812826679254035200 effects=5998311927225473871 exits=412 exit_state=3915085869786256050 bad_exits=0",
+      "LIFEFP begin frames=2880 summary=55650 checked=0 rev=68419 h=3352866344740950443 roots=3424597036076418289 cells=7337154467135032449 frames=1344331353561683051 effects=2138395321343583803 exits=412 exit_state=3915085869786256050 bad_exits=0",
+      "LIFEFP begin frames=2880 summary=55650 checked=0 rev=68423 h=4382499268372757150 roots=3424597036076418289 cells=6644591217890986135 frames=1812826679254035200 effects=3637813548599475814 exits=412 exit_state=3915085869786256050 bad_exits=0",
+      "LIFEFP discovered frames=2880 summary=55650 checked=0 rev=68423 h=4382499268372757150 roots=3424597036076418289 cells=6644591217890986135 frames=1812826679254035200 effects=3637813548599475814 exits=412 exit_state=3915085869786256050 bad_exits=0",
+      "LIFEFP validated frames=2883 summary=55650 checked=16746 rev=68437 h=7975855714068419426 roots=8902036975937898659 cells=4133030427226556384 frames=5903994217487985385 effects=6460864012341054541 exits=412 exit_state=3915085869786256050 bad_exits=0",
+      "LIFEFP proofs hash=584583755534565869",
+      ""
+    ],
+    "leaf": [
+      "LIFEFP begin frames=1 summary=0 checked=0 rev=0 h=8977898596338007483 roots=8944904574347563334 cells=5 frames=7741167612470962177 effects=1161353661784754675 exits=0 exit_state=20 bad_exits=0",
+      "LIFEFP begin frames=2879 summary=38542 checked=0 rev=50856 h=509753821811538936 roots=3834134341720468908 cells=1300628408827109660 frames=6872820436082112573 effects=448235433603389577 exits=412 exit_state=3915085869786256050 bad_exits=0",
+      "LIFEFP begin frames=2880 summary=55163 checked=0 rev=67867 h=9209070475936271800 roots=3424597036076418289 cells=5554991201833381835 frames=1812826679254035200 effects=5998311927225473871 exits=412 exit_state=3915085869786256050 bad_exits=0",
+      "LIFEFP begin frames=2880 summary=55650 checked=0 rev=68419 h=3352866344740950443 roots=3424597036076418289 cells=6644591217890986135 frames=1812826679254035200 effects=2138395321343583803 exits=412 exit_state=3915085869786256050 bad_exits=0",
+      "LIFEFP discovered frames=2880 summary=55650 checked=0 rev=68423 h=4382499268372757150 roots=3424597036076418289 cells=6644591217890986135 frames=1812826679254035200 effects=3637813548599475814 exits=412 exit_state=3915085869786256050 bad_exits=0",
+      "LIFEFP validated frames=2883 summary=55650 checked=16746 rev=68437 h=7975855714068419426 roots=8902036975937898659 cells=4133030427226556384 frames=5903994217487985385 effects=6460864012341054541 exits=412 exit_state=3915085869786256050 bad_exits=0",
+      "LIFEFP proofs hash=584583755534565869",
+      ""
+    ],
+    "leaf-replay": [
+      "LIFEFP begin frames=1 summary=0 checked=0 rev=0 h=8977898596338007483 roots=8944904574347563334 cells=5 frames=7741167612470962177 effects=1161353661784754675 exits=0 exit_state=20 bad_exits=0",
+      "LIFEFP begin frames=2879 summary=38542 checked=0 rev=50856 h=509753821811538936 roots=3834134341720468908 cells=1300628408827109660 frames=6872820436082112573 effects=448235433603389577 exits=412 exit_state=3915085869786256050 bad_exits=0",
+      "LIFEFP begin frames=2880 summary=55163 checked=0 rev=67867 h=9209070475936271800 roots=3424597036076418289 cells=5554991201833381835 frames=1812826679254035200 effects=5998311927225473871 exits=412 exit_state=3915085869786256050 bad_exits=0",
+      "LIFEFP begin frames=2880 summary=55650 checked=0 rev=68419 h=3352866344740950443 roots=3424597036076418289 cells=6644591217890986135 frames=1812826679254035200 effects=2138395321343583803 exits=412 exit_state=3915085869786256050 bad_exits=0",
+      "LIFEFP discovered frames=2880 summary=55650 checked=0 rev=68423 h=4382499268372757150 roots=3424597036076418289 cells=6644591217890986135 frames=1812826679254035200 effects=3637813548599475814 exits=412 exit_state=3915085869786256050 bad_exits=0",
+      "LIFEFP validated frames=2883 summary=55650 checked=16746 rev=68437 h=7975855714068419426 roots=8902036975937898659 cells=4133030427226556384 frames=5903994217487985385 effects=6460864012341054541 exits=412 exit_state=3915085869786256050 bad_exits=0",
+      "LIFEFP proofs hash=584583755534565869",
+      ""
+    ],
+    "repaired": [
+      "LIFEFP begin frames=1 summary=0 checked=0 rev=0 h=8977898596338007483 roots=8944904574347563334 cells=5 frames=7741167612470962177 effects=1161353661784754675 exits=0 exit_state=20 bad_exits=0",
+      "LIFEFP begin frames=2879 summary=38542 checked=0 rev=50856 h=509753821811538936 roots=3834134341720468908 cells=1300628408827109660 frames=6872820436082112573 effects=448235433603389577 exits=412 exit_state=3915085869786256050 bad_exits=0",
+      "LIFEFP begin frames=2880 summary=55163 checked=0 rev=67867 h=9209070475936271800 roots=3424597036076418289 cells=5554991201833381835 frames=1812826679254035200 effects=5998311927225473871 exits=412 exit_state=3915085869786256050 bad_exits=0",
+      "LIFEFP begin frames=2880 summary=55650 checked=0 rev=68419 h=3352866344740950443 roots=3424597036076418289 cells=6644591217890986135 frames=1812826679254035200 effects=2138395321343583803 exits=412 exit_state=3915085869786256050 bad_exits=0",
+      "LIFEFP discovered frames=2880 summary=55650 checked=0 rev=68423 h=4382499268372757150 roots=3424597036076418289 cells=6644591217890986135 frames=1812826679254035200 effects=3637813548599475814 exits=412 exit_state=3915085869786256050 bad_exits=0",
+      "LIFEFP validated frames=2883 summary=55650 checked=16746 rev=68437 h=7975855714068419426 roots=8902036975937898659 cells=4133030427226556384 frames=5903994217487985385 effects=6460864012341054541 exits=412 exit_state=3915085869786256050 bad_exits=0",
+      "LIFEFP proofs hash=584583755534565869",
+      ""
+    ]
+  },
+  "diagnose_at_observed_in_both": {
+    "baseline": [
+      [
+        8,
+        2,
+        1384,
+        327535,
+        -1
+      ],
+      [
+        9,
+        2,
+        1384,
+        327535,
+        0
+      ],
+      [
+        8,
+        3,
+        1384,
+        327524,
+        2
+      ],
+      [
+        9,
+        3,
+        1384,
+        327524,
+        0
+      ],
+      [
+        8,
+        3,
+        1384,
+        327535,
+        3
+      ],
+      [
+        9,
+        3,
+        1384,
+        327535,
+        1
+      ],
+      [
+        8,
+        4,
+        1384,
+        327524,
+        3
+      ],
+      [
+        9,
+        4,
+        1384,
+        327524,
+        0
+      ],
+      [
+        8,
+        4,
+        1384,
+        327535,
+        4
+      ],
+      [
+        9,
+        4,
+        1384,
+        327535,
+        1
+      ]
+    ],
+    "replay": [
+      [
+        8,
+        2,
+        1384,
+        327535,
+        -1
+      ],
+      [
+        9,
+        2,
+        1384,
+        327535,
+        0
+      ],
+      [
+        8,
+        4,
+        1384,
+        327524,
+        2
+      ],
+      [
+        9,
+        4,
+        1384,
+        327524,
+        0
+      ],
+      [
+        8,
+        4,
+        1384,
+        327535,
+        4
+      ],
+      [
+        9,
+        4,
+        1384,
+        327535,
+        1
+      ],
+      [
+        8,
+        5,
+        1384,
+        327524,
+        4
+      ],
+      [
+        9,
+        5,
+        1384,
+        327524,
+        0
+      ],
+      [
+        8,
+        5,
+        1384,
+        327535,
+        5
+      ],
+      [
+        9,
+        5,
+        1384,
+        327535,
+        1
+      ]
+    ]
+  }
+}

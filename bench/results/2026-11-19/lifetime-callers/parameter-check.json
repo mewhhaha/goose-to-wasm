@@ -1,0 +1,58 @@
+{
+  "source_sha256": "b0a5ec806848a7457b8eca7878a4c54007b04b794ff65bd611eb75d63141ed01",
+  "upstream": "3 2\n8 2\n8 7\n",
+  "checks": [
+    {
+      "compiler": "paths",
+      "sha256": "a1c3a8a1bcdc55eb5193aa5996d38fa1f7f4dcc56963f0e03ce99dc26577a759",
+      "output": "3 2\n8 2\n8 7\n"
+    },
+    {
+      "compiler": "old-native",
+      "sha256": "a1c3a8a1bcdc55eb5193aa5996d38fa1f7f4dcc56963f0e03ce99dc26577a759",
+      "output": "3 2\n8 2\n8 7\n"
+    },
+    {
+      "compiler": "new-native",
+      "sha256": "a1c3a8a1bcdc55eb5193aa5996d38fa1f7f4dcc56963f0e03ce99dc26577a759",
+      "output": "3 2\n8 2\n8 7\n"
+    },
+    {
+      "compiler": "old-wasm",
+      "sha256": "a1c3a8a1bcdc55eb5193aa5996d38fa1f7f4dcc56963f0e03ce99dc26577a759",
+      "output": "3 2\n8 2\n8 7\n"
+    },
+    {
+      "compiler": "new-wasm",
+      "sha256": "a1c3a8a1bcdc55eb5193aa5996d38fa1f7f4dcc56963f0e03ce99dc26577a759",
+      "output": "3 2\n8 2\n8 7\n"
+    },
+    {
+      "compiler": "shipping-wasm",
+      "sha256": "a1c3a8a1bcdc55eb5193aa5996d38fa1f7f4dcc56963f0e03ce99dc26577a759",
+      "output": "3 2\n8 2\n8 7\n"
+    },
+    {
+      "compiler": "qualified-native",
+      "sha256": "a1c3a8a1bcdc55eb5193aa5996d38fa1f7f4dcc56963f0e03ce99dc26577a759",
+      "output": "3 2\n8 2\n8 7\n"
+    }
+  ],
+  "trace": {
+    "private_view": 12,
+    "bounded": 42,
+    "identities_on_both_paths": [
+      3,
+      8
+    ]
+  },
+  "parameter_trace": [
+    319344,
+    136532,
+    147135,
+    0,
+    0,
+    182015,
+    797
+  ]
+}

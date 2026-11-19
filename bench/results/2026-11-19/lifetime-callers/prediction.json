@@ -1,0 +1,276 @@
+[
+  {
+    "p": 1,
+    "revisions": 50856,
+    "classes": 0,
+    "observed": {
+      "concrete_calls": 28371,
+      "structural_results": 2919,
+      "store_applications": 1129
+    },
+    "stale_edges": {
+      "summary": 717,
+      "result": 847,
+      "store": 80
+    },
+    "node_visits": 462819,
+    "body_frames": 2878,
+    "summary_mutating_frames": 1804,
+    "mutated_summary_owners": 2820,
+    "summary_writes": 38604
+  },
+  {
+    "p": 2,
+    "revisions": 17011,
+    "classes": 0,
+    "observed": {
+      "concrete_calls": 28371,
+      "structural_results": 1,
+      "store_applications": 1475
+    },
+    "stale_edges": {
+      "summary": 281,
+      "store": 92
+    },
+    "node_visits": 462895,
+    "body_frames": 2879,
+    "summary_mutating_frames": 274,
+    "mutated_summary_owners": 420,
+    "summary_writes": 16971,
+    "predictions_from_previous_pass": {
+      "stale_direct": {
+        "marked_bodies": 361,
+        "excluded_visits": 278367,
+        "missing_frames": 100,
+        "missed_summary_writes": 4833,
+        "missing_examples": [
+          {
+            "frame": 104,
+            "function_node": 327548,
+            "owner": 104,
+            "kind": 4,
+            "entry": 149,
+            "inserted": false
+          },
+          {
+            "frame": 104,
+            "function_node": 327548,
+            "owner": 103,
+            "kind": 4,
+            "entry": 150,
+            "inserted": false
+          },
+          {
+            "frame": 104,
+            "function_node": 327548,
+            "owner": 102,
+            "kind": 4,
+            "entry": 151,
+            "inserted": false
+          },
+          {
+            "frame": 104,
+            "function_node": 327548,
+            "owner": 98,
+            "kind": 4,
+            "entry": 152,
+            "inserted": false
+          }
+        ]
+      },
+      "stale_up": {
+        "marked_bodies": 739,
+        "excluded_visits": 182140,
+        "missing_frames": 33,
+        "missed_summary_writes": 112,
+        "missing_examples": [
+          {
+            "frame": 104,
+            "function_node": 327548,
+            "owner": 104,
+            "kind": 4,
+            "entry": 149,
+            "inserted": false
+          },
+          {
+            "frame": 104,
+            "function_node": 327548,
+            "owner": 103,
+            "kind": 4,
+            "entry": 150,
+            "inserted": false
+          },
+          {
+            "frame": 104,
+            "function_node": 327548,
+            "owner": 102,
+            "kind": 4,
+            "entry": 151,
+            "inserted": false
+          },
+          {
+            "frame": 104,
+            "function_node": 327548,
+            "owner": 98,
+            "kind": 4,
+            "entry": 152,
+            "inserted": false
+          }
+        ]
+      },
+      "stale_and_producers_up": {
+        "marked_bodies": 2833,
+        "excluded_visits": 1655,
+        "missing_frames": 1,
+        "missed_summary_writes": 2,
+        "missing_examples": [
+          {
+            "frame": 2879,
+            "function_node": 327548,
+            "owner": 2879,
+            "kind": 2,
+            "entry": 45323,
+            "inserted": true
+          },
+          {
+            "frame": 2879,
+            "function_node": 327548,
+            "owner": 2879,
+            "kind": 2,
+            "entry": 45324,
+            "inserted": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "p": 3,
+    "revisions": 552,
+    "classes": 0,
+    "observed": {
+      "concrete_calls": 28371,
+      "store_applications": 1443
+    },
+    "stale_edges": {
+      "summary": 24,
+      "store": 10
+    },
+    "node_visits": 462819,
+    "body_frames": 2878,
+    "summary_mutating_frames": 86,
+    "mutated_summary_owners": 122,
+    "summary_writes": 552,
+    "predictions_from_previous_pass": {
+      "stale_direct": {
+        "marked_bodies": 114,
+        "excluded_visits": 393688,
+        "missing_frames": 31,
+        "missed_summary_writes": 154,
+        "missing_examples": [
+          {
+            "frame": 124,
+            "function_node": 18973,
+            "owner": 124,
+            "kind": 4,
+            "entry": 38556,
+            "inserted": false
+          },
+          {
+            "frame": 124,
+            "function_node": 18973,
+            "owner": 124,
+            "kind": 4,
+            "entry": 38557,
+            "inserted": false
+          },
+          {
+            "frame": 214,
+            "function_node": 21622,
+            "owner": 214,
+            "kind": 4,
+            "entry": 38573,
+            "inserted": false
+          },
+          {
+            "frame": 214,
+            "function_node": 21622,
+            "owner": 214,
+            "kind": 4,
+            "entry": 38574,
+            "inserted": false
+          }
+        ]
+      },
+      "stale_up": {
+        "marked_bodies": 376,
+        "excluded_visits": 267683,
+        "missing_frames": 0,
+        "missed_summary_writes": 0,
+        "missing_examples": []
+      },
+      "stale_and_producers_up": {
+        "marked_bodies": 540,
+        "excluded_visits": 231453,
+        "missing_frames": 0,
+        "missed_summary_writes": 0,
+        "missing_examples": []
+      }
+    }
+  },
+  {
+    "p": 4,
+    "revisions": 4,
+    "classes": 0,
+    "observed": {
+      "concrete_calls": 28371,
+      "store_applications": 1441
+    },
+    "stale_edges": {},
+    "node_visits": 462819,
+    "body_frames": 2878,
+    "summary_mutating_frames": 2,
+    "mutated_summary_owners": 2,
+    "summary_writes": 4,
+    "predictions_from_previous_pass": {
+      "stale_direct": {
+        "marked_bodies": 11,
+        "excluded_visits": 455940,
+        "missing_frames": 1,
+        "missed_summary_writes": 2,
+        "missing_examples": [
+          {
+            "frame": 229,
+            "function_node": 18973,
+            "owner": 229,
+            "kind": 4,
+            "entry": 55165,
+            "inserted": false
+          },
+          {
+            "frame": 229,
+            "function_node": 18973,
+            "owner": 229,
+            "kind": 4,
+            "entry": 55166,
+            "inserted": false
+          }
+        ]
+      },
+      "stale_up": {
+        "marked_bodies": 279,
+        "excluded_visits": 321931,
+        "missing_frames": 0,
+        "missed_summary_writes": 0,
+        "missing_examples": []
+      },
+      "stale_and_producers_up": {
+        "marked_bodies": 326,
+        "excluded_visits": 296715,
+        "missing_frames": 0,
+        "missed_summary_writes": 0,
+        "missing_examples": []
+      }
+    }
+  }
+]
