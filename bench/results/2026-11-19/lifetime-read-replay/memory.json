@@ -1,0 +1,156 @@
+{
+  "original": {
+    "source": {
+      "source_commit": "3084b81450a55ed4ba2eafa6ba90d2a2d5e2bc17",
+      "source_archive_sha256": "a633af84522b467c00fc4563fa9b63a154f7e4a3f6000abe560095aa086a7ff7"
+    },
+    "output_sha256": "2f61226708403efb1860480fd05fbe0c274f8e34c5c5050886189273ad1e4762",
+    "engine_sha256": "b247393d8fbe3115246f20703f726e90eeaaed762a75932c7bb131a4433ad026",
+    "cpu": 6,
+    "compiler_sha256": {
+      "old-native": "2d8a96c9169cbb855d51fec8e2f51f226dbfde8494181e49d98f681aeab85b15",
+      "new-native": "0b3a26ca21cc39ec7f53422e4521a692bf7b6af12e6546a00d6984da137adc5e",
+      "new-wasm": "c7f91ef87e5fe5e7810a939da749b071b98b8a772ef7f3165a187960602ad1e2",
+      "old-wasm": "49f770eb0507905daa3db096c4fa066155165643dda7eb87638ddfa0cc567951"
+    },
+    "peak_rss_kib": [
+      {
+        "case": "old-native",
+        "round": 1,
+        "kib": 439116
+      },
+      {
+        "case": "new-native",
+        "round": 1,
+        "kib": 447920
+      },
+      {
+        "case": "new-wasm",
+        "round": 1,
+        "kib": 723996
+      },
+      {
+        "case": "old-wasm",
+        "round": 1,
+        "kib": 707952
+      },
+      {
+        "case": "old-wasm",
+        "round": 2,
+        "kib": 708144
+      },
+      {
+        "case": "new-wasm",
+        "round": 2,
+        "kib": 724168
+      },
+      {
+        "case": "new-native",
+        "round": 2,
+        "kib": 447692
+      },
+      {
+        "case": "old-native",
+        "round": 2,
+        "kib": 439164
+      },
+      {
+        "case": "old-native",
+        "round": 3,
+        "kib": 439336
+      },
+      {
+        "case": "new-native",
+        "round": 3,
+        "kib": 447764
+      },
+      {
+        "case": "new-wasm",
+        "round": 3,
+        "kib": 631812
+      },
+      {
+        "case": "old-wasm",
+        "round": 3,
+        "kib": 707948
+      }
+    ]
+  },
+  "layouts": {
+    "source": {
+      "source_commit": "3084b81450a55ed4ba2eafa6ba90d2a2d5e2bc17",
+      "source_archive_sha256": "a633af84522b467c00fc4563fa9b63a154f7e4a3f6000abe560095aa086a7ff7"
+    },
+    "output_sha256": "2f61226708403efb1860480fd05fbe0c274f8e34c5c5050886189273ad1e4762",
+    "engine_sha256": "b247393d8fbe3115246f20703f726e90eeaaed762a75932c7bb131a4433ad026",
+    "cpu": 4,
+    "compiler_sha256": {
+      "released-native": "0b3a26ca21cc39ec7f53422e4521a692bf7b6af12e6546a00d6984da137adc5e",
+      "smaller-native": "6e7286b05d74ebc73e96adb8faaff66a354d3bd34c6a11ea77883d309354c9e7",
+      "released-wasm": "89c0062b41cd58e9e92ac7fbca6f241fcba4337a41f43a164fdcb91bd832ad39",
+      "smaller-wasm": "d551e03fb80a27d7f508d6e616cf8e1a3e01598b6bf58cecc728f8d51ae27df3"
+    },
+    "peak_rss_kib": [
+      {
+        "case": "released-native",
+        "round": 1,
+        "kib": 447400
+      },
+      {
+        "case": "smaller-native",
+        "round": 1,
+        "kib": 439660
+      },
+      {
+        "case": "released-wasm",
+        "round": 1,
+        "kib": 717936
+      },
+      {
+        "case": "smaller-wasm",
+        "round": 1,
+        "kib": 709836
+      },
+      {
+        "case": "smaller-wasm",
+        "round": 2,
+        "kib": 709728
+      },
+      {
+        "case": "released-wasm",
+        "round": 2,
+        "kib": 717844
+      },
+      {
+        "case": "smaller-native",
+        "round": 2,
+        "kib": 439560
+      },
+      {
+        "case": "released-native",
+        "round": 2,
+        "kib": 447660
+      },
+      {
+        "case": "released-native",
+        "round": 3,
+        "kib": 447376
+      },
+      {
+        "case": "smaller-native",
+        "round": 3,
+        "kib": 439476
+      },
+      {
+        "case": "released-wasm",
+        "round": 3,
+        "kib": 718068
+      },
+      {
+        "case": "smaller-wasm",
+        "round": 3,
+        "kib": 709888
+      }
+    ]
+  }
+}
