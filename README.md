@@ -4,7 +4,7 @@ A [Goose](https://github.com/aardappel/goose) compiler written in Goose. It emit
 
 ## Benchmarks
 
-**The compiler rebuilding itself.** In eight paired rounds, the compiler rebuilt itself in a median **7.81 s in cached Wasmtime** and **4.93 s native**. The median Wasmtime/native ratio within pairs was **1.41×**. A second eight-round run on another core also measured 1.41×. Both produced identical output. [Measurement details](bench/results/2026-11-19/lifetime-evaluator-frames/README.md#rebuilding-the-compiler)
+**The compiler rebuilding itself.** Across eight paired rounds, rebuilding the project took **2.34 s in cached Wasmtime** and **1.69 s native**. Both produced identical output. On the same frozen project, the two compiler changes brought Wasmtime from **1.49× to 1.38× native time**. Two more heavily loaded runs measured 1.41× on the current sources. [Measurements](bench/results/2026-11-19/lifetime-evaluator-frames/README.md#rebuilding-the-compiler)
 
 ![Native and Wasmtime process time to rebuild the frozen and current compiler](bench/results/2026-11-19/lifetime-evaluator-frames/rebuild.svg)
 

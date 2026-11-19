@@ -2,22 +2,22 @@
 
 ## Rebuilding the compiler
 
-On its own sources, the compiler took **7.81 s in cached Wasmtime** and **4.93 s native**, or **1.41× native time** across eight matched rounds. The median ratio divides Wasmtime time by native time within each round. Under varying host load this can differ from dividing the two overall medians. A second eight-round run on CPU 2 measured 7.49 s and 5.52 s respectively, with a paired ratio of 1.41×. Both comparisons ran on a shared host. [Second run](current-repeat.json)
+On its own sources, the compiler took **2.34 s in cached Wasmtime** and **1.69 s native**. The median of eight within-round ratios was **1.38× native time**. Both produced the same 8,822,938-byte module. [Own-source runs](current.json)
 
-Both executables wrote the same 8,822,938-byte module. [Own-source runs](current.json)
+Under heavier host load, two other eight-round comparisons measured 7.81 s versus 4.93 s on CPU 7 and 7.49 s versus 5.52 s on CPU 2. Both gave a median within-round ratio of 1.41×. This ratio can differ from dividing the two overall medians as host load changes between rounds. [CPU 7](current-shared.json) · [CPU 2](current-repeat.json)
 
-The frozen comparison uses the previous compiler project as input to all four binaries. Wasmtime elapsed time changed by +2.52% and native by +2.37% within pairs. Instructions changed by -0.50% and -0.65% respectively. The smaller stack frames showed no consistent elapsed-time win on the frozen release workload. All 32 builds emitted the same 8,820,805 bytes. The ratio was 1.39× before and 1.35× after. Elapsed measurements were taken on a shared machine. [Frozen project runs](frozen.json)
+The frozen comparison uses the previous compiler project as input to all four binaries. Wasmtime took 1.3% less time and native took 0.5% less within pairs. Instructions fell by 0.50% and 0.65% respectively. All 32 builds emitted the same 8,820,805 bytes. During the higher-load comparison the change in elapsed time was inconsistent. [Frozen project runs](frozen.json) · [Higher-load comparison](frozen-shared.json)
 
 | Frozen project | Median wall | Median CPU | Retired instructions |
 | --- | ---: | ---: | ---: |
-| Previous native | 2.194 s | 2.167 s | 16.493 B |
-| New native | 3.368 s | 2.916 s | 16.385 B |
-| Previous Wasmtime | 3.672 s | 3.276 s | 21.275 B |
-| New Wasmtime | 3.693 s | 3.642 s | 21.169 B |
+| Previous native | 1.707 s | 1.695 s | 16.493 B |
+| New native | 1.697 s | 1.686 s | 16.385 B |
+| Previous Wasmtime | 2.364 s | 2.349 s | 21.275 B |
+| New Wasmtime | 2.335 s | 2.319 s | 21.169 B |
 
 ![Seconds to rebuild the frozen and current compiler](rebuild.svg)
 
-Across both changes, a separate eight-round experiment compared the first and last compilers on the same original project at `9682303`. The Wasmtime/native time ratio moved from **1.47× to 1.43×**. Median within-pair counts fell by **12.6% of instructions** in Wasmtime and paired process CPU time fell by **6.8%**. [Campaign comparison](campaign.json)
+Across both changes, the first and last compilers rebuilt the same original project at `9682303`. Wasmtime went from **2.53 to 2.33 s** and the paired Wasmtime/native ratio from **1.49× to 1.38×**. Across eight paired rounds, Wasmtime used **12.6% fewer instructions** and took **8.2% less elapsed time**. An earlier eight-round pass on the same inputs under heavier load measured 1.47× to 1.43×. [Campaign comparison](campaign.json) · [Higher-load campaign](campaign-shared.json)
 
 ## What changed
 
@@ -41,7 +41,9 @@ Four additional pairs counted host CPU instructions on the compiler thread. Each
 | Optimization | 1.30 B | 1.83 B | +0.53 B |
 | Emit Wasm | 5.15 B | 6.46 B | +1.31 B |
 
-Lifetime analysis accounted for **40%** of the 4.78 billion extra instructions, followed by Wasm emission at **28%**. The next experiment is to count which expression cases create or copy lifetime results, then test a compact representation for the most frequent case against these same phase counts and structural fingerprints.
+Lifetime analysis accounted for **40%** of the 4.78 billion extra instructions, followed by Wasm emission at **28%**. The two largest remaining costs are in different compiler phases.
+
+Counting all 2,314,081 lifetime evaluations with a syntax node showed that 30.85% returned only a type and 35.09% returned only a type and a storage location. Only 20 carried tuple data. This probe ran in memory64 because its counters exceeded the trained memory32 allocation. It emitted the same module as the native control. A fixed-memory32 trial used these counts to skip materializing discarded integer and binary results when evaluating operands. It saved 0.12% of full-build instructions and 0.56% of elapsed time over four pairs. Separating lifetime cell creation from lookup changed instructions by less than 0.01%. Moving the rare set-fold path out of line saved 0.15%. Earlier, halving the size of every lifetime value saved 0.80% of instructions. These variants remain experiments. [Shape counts and paired runs](followup-experiments.json.gz)
 
 ![CPU instructions for native Goose and two engines running the same Wasm](engine-control.svg)
 
