@@ -1,0 +1,102 @@
+{
+  "frozen_source": {
+    "source_commit": "3084b81450a55ed4ba2eafa6ba90d2a2d5e2bc17",
+    "source_archive_sha256": "a633af84522b467c00fc4563fa9b63a154f7e4a3f6000abe560095aa086a7ff7"
+  },
+  "command": [
+    "selfhost/main.goose",
+    "--stdlib",
+    "stdlib",
+    "--target",
+    "wasm-direct",
+    "-O2",
+    "--wasm-memory64",
+    "--wasm-max-pages",
+    "262144",
+    "--check"
+  ],
+  "original": {
+    "calls": 152957,
+    "empty": 8418,
+    "full_chain_certificate": 104346,
+    "plain": 127464,
+    "quick": 25493,
+    "compact_entries": 9234419,
+    "already_stamped": 6640043,
+    "direct_reaches": 1968479,
+    "cyclic_reaches": 6313,
+    "local_reaches": 21244,
+    "other_entries": 1390212,
+    "materialized_effects": 832787,
+    "quick_materialized": 200412,
+    "shrink": 116753,
+    "grow": 668523,
+    "read": 21547,
+    "store": 9384,
+    "kind5": 0,
+    "kind6": 0,
+    "kind7": 2,
+    "replace": 0,
+    "relative_store": 0
+  },
+  "versioned": {
+    "compact_entries": 8145110,
+    "with_older_certificate": 1891119,
+    "skipped_by_last_change": 1792641,
+    "plain": 127464,
+    "whole_summary_covered": 104789,
+    "changed_since_covered": 996
+  },
+  "incomplete_compact_replays": {
+    "completed_calls": 20838,
+    "completed_entries": 5728863,
+    "incomplete_calls": 470,
+    "incomplete_entries": 155500,
+    "certified_prefix_entries": 190,
+    "unstamped_entries": 152535
+  },
+  "ignoring_recursion_epoch_upper_bound": {
+    "calls": 9313,
+    "visited_entries": 8145110,
+    "potential_entries": 242851
+  },
+  "corpus": {
+    "source_count": 4357,
+    "complete_checks": 2874,
+    "with_skipped_reads": 80,
+    "totals": {
+      "visited": 7405,
+      "older_certificate_available": 787,
+      "skipped": 388,
+      "plain": 18446,
+      "fully_covered": 12768,
+      "partly_covered": 153
+    },
+    "manifest_sha256": "114d9ecbf070ee26eae6e6fb5fe75b202fda471bb36880d105480dd3dd402961",
+    "probe_sha256": "fc03c8362c4ffe7cb73a5aa47345fcd1789f0803bb24dc007cfe229e42795902",
+    "probe_lifetimes_sha256": "33c3ff98d170aee37c7d6222979abacc16f01e5a79a58a519ec217ceeda11c7f",
+    "upstream_archive_sha256": "8b4d0f59a808aea60a7a40416c391795a4bdb05bc9de7d074eb7d4f858db7353"
+  },
+  "instrumented_wasm": {
+    "probe": {
+      "sha256": "9de80e5d1a4c3b45514dd2a60bf4f14a62e68c076eaf84d5098490dbb8a10381",
+      "bytes": 7451163
+    },
+    "release-probe": {
+      "sha256": "2098b588a3a202479e78c8bd5a183fed8d121ca86c74a1a9915cc3f34e19c496",
+      "bytes": 7450881
+    },
+    "changed-probe": {
+      "sha256": "a5b54f25daeb3d12c30236f821bd1236087fa172bd1c5d3ca947eaa4866ebbf9",
+      "bytes": 7450905
+    },
+    "prefix-probe": {
+      "sha256": "3f288c52d0b7c1f2a3aab938a56473ed8461d1b79d23a97048c11db15c08fe9b",
+      "bytes": 7451080
+    },
+    "epoch-probe": {
+      "sha256": "d318def974f6ebc2828efafbdfeb074f1e6cbbf1d2200acbde0accea08b5fb84",
+      "bytes": 7450239
+    }
+  }
+}

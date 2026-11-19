@@ -1,0 +1,169 @@
+{
+  "source": "34ddff8db385b1e357e3b5048d7a301ead975fc5",
+  "source_archive": "14283ec33483eb7c2468e968fa2d9866df9dc138f4cc0402f9b9f21806a7dfee",
+  "clang": {
+    "sha256": "ca0d2f7fbe94836762f36c7e73292289bc4d5e4b9b5defc320ef0856259a2855",
+    "bytes": 124768,
+    "version": "clang version 23.1.5\nTarget: x86_64-pc-linux-gnu\nThread model: posix\nInstalledDir: /usr/bin"
+  },
+  "compiler": {
+    "training": {
+      "squares": {
+        "source": "420d9e6b4a2496865eb9f66603c4cbb0fdbb2add30e8ccc709a15102f4748b14",
+        "output": "fc8ae2dbef752d8e8eaaafec21e1c7500c3b27677f9030c502bf8c196ca7d845",
+        "region_stats": "d3d5a720044c4c70c5a7451aba346db24102aebf7a1e5fd3034c0896fb0904cf"
+      },
+      "sorting": {
+        "source": "00d2c7ed328100d018a3adc4ef3f2c5abd83d8219e8c6c0a56d00b0b1df8a27e",
+        "output": "b9ce93a5ef630da6e37912991cac3c3f052b8a5cf7290752ad4068e378e0aede",
+        "region_stats": "cd6823c1a7e9eb72623b02984aa29a8b67962bdd30a789b049a24dcdd2d46c63"
+      },
+      "tour": {
+        "source": "a46393946390a6fc888d013ae0a07383812a57667d2474071eb938f853b8b834",
+        "output": "24e6ffb411721ea6ab95389127ca6d23e2db2ece47e0060e32383ba1e611e8b0",
+        "region_stats": "220b9903eb20c0d610f229080e74e5539d03b6f58e47fe4829e1ccb91b343356"
+      }
+    },
+    "old_profile": "5e9e71f639b0e43bb9bc3f840bf7c231c7dd6c92f2d09929d72a92335f29b325",
+    "new_profile": "17ceb0dc82223528e5e83486a28647cfd0f03630c7624d800f220ba2c7f94c0c",
+    "previous_layout_module": "89c0062b41cd58e9e92ac7fbca6f241fcba4337a41f43a164fdcb91bd832ad39",
+    "fixed_point": "c7f91ef87e5fe5e7810a939da749b071b98b8a772ef7f3165a187960602ad1e2",
+    "native_fixed_emission": "c7f91ef87e5fe5e7810a939da749b071b98b8a772ef7f3165a187960602ad1e2",
+    "native": "0b3a26ca21cc39ec7f53422e4521a692bf7b6af12e6546a00d6984da137adc5e",
+    "portable_native": "fe23695e4c38f1d83345c722949b51535da6a5d5b08c4c7131c26169223e9d25",
+    "portable_guest": "fe23695e4c38f1d83345c722949b51535da6a5d5b08c4c7131c26169223e9d25",
+    "host": "b247393d8fbe3115246f20703f726e90eeaaed762a75932c7bb131a4433ad026"
+  },
+  "bootstrap": {
+    "fixed_point": true,
+    "generated_c_sha256": "5c4a94776aa8415d8aff9d2e560e9dcf16a5a7c0b78256660d817f44f9214e82",
+    "next_generation_c_sha256": "5c4a94776aa8415d8aff9d2e560e9dcf16a5a7c0b78256660d817f44f9214e82",
+    "third_generation_c_sha256": null,
+    "executable_sha256": "e9850ec009798942b09138ee89548b936a03cab309bf5943f824676ce2929e7f",
+    "profile_used": false,
+    "cached": {
+      "build-seed": true,
+      "build-goose": false
+    }
+  },
+  "qualification": {
+    "status": "passed",
+    "seconds": 354.1,
+    "stages": {
+      "bootstrap": {
+        "exit": 0,
+        "seconds": 182.6
+      },
+      "conformance": {
+        "exit": 0,
+        "seconds": 141.2,
+        "gaps": {
+          "open_gaps": 104,
+          "unexpected_failures": 0,
+          "fixed_gaps": 0
+        },
+        "summary": {
+          "selected": 10797,
+          "passed": 10693,
+          "failed": 104
+        }
+      },
+      "native-checks": {
+        "exit": 0,
+        "seconds": 33.6,
+        "summary": "54 steps ok"
+      },
+      "conformance-memory64": {
+        "exit": 0,
+        "seconds": 169.7,
+        "gaps": {
+          "open_gaps": 8,
+          "unexpected_failures": 0,
+          "fixed_gaps": 0
+        },
+        "summary": {
+          "selected": 4777,
+          "passed": 4769,
+          "failed": 8
+        }
+      },
+      "equivalence": {
+        "exit": 0,
+        "seconds": 169.7,
+        "summary": {
+          "compared": 10057,
+          "differing": 0,
+          "seconds": {
+            "baseline": 83.752,
+            "candidate": 79.872
+          }
+        }
+      },
+      "unit-tests": {
+        "exit": 0,
+        "seconds": 171.2,
+        "count": 89
+      }
+    }
+  },
+  "lifetime": {
+    "compared": 4357,
+    "differing": 0,
+    "with_lifetime_fingerprints": 3130,
+    "fingerprint_lines": 11596,
+    "controls": {
+      "self0.err": {
+        "fp": 7,
+        "stderr_sha256": "29da7dac92f804a5493cefe3ee5d4c46b16fdbfbb1394504208ccc512e117696"
+      },
+      "class0.err": {
+        "fp": 3,
+        "stderr_sha256": "46b8480e8d9b05c60a28cd18bc0ae2b78c5e95b59967738ad9b5279008d58898"
+      },
+      "class1.err": {
+        "fp": 4,
+        "stderr_sha256": "90e17c23e7a3456fe654554e04f74cf60ecddccd9a40c314dee64794c7b512df"
+      }
+    },
+    "probes": {
+      "baseline": {
+        "probe": "cdb614f5b262c3706d221396ccaa70cddf7b27f1412b85a8e791c362196f8809",
+        "self.wasm": "b88ab7e890b0376ece714e408355fadb3e0098faacd6ef76a4360f3bbfc5e023",
+        "class.wasm": "f3f0387cc1488cf1a632417c4663b3c5632e10eb33e54e72f4ef407ce6578d38"
+      },
+      "release": {
+        "probe": "5661a6a0ed90a3a0a0c2525c46d853682af1254a1319f23db742da382676ea13",
+        "self.wasm": "00ce5001a5c6f8077117811695a15be330acb1298e47e7e5714709ddd0e0de79",
+        "class.wasm": "f0fa1a32810b02b9fc9faa50226ef83259d262470207c7e291f5461b67482075"
+      }
+    }
+  },
+  "upstream": {
+    "reference": "9e4d9ff8927c69c653031850f1b0911ce6827dc71648f1e11448ed06736b75e0",
+    "revision": "2e2bedef5b980bf013cac5aaa0095bfea64e5569",
+    "compiler": "0b3a26ca21cc39ec7f53422e4521a692bf7b6af12e6546a00d6984da137adc5e",
+    "engine": "b247393d8fbe3115246f20703f726e90eeaaed762a75932c7bb131a4433ad026",
+    "controls": [
+      {
+        "source": "test/lifetimes/growshrink_unrelated_refs.goose",
+        "sha256": "7cd4470698a711d7056a6b97004d81af4bb7616c51da3c7f59475c4316a959f4",
+        "phase": "run",
+        "skipped": 45,
+        "upstream_exit": 0,
+        "candidate_compile_exit": 0,
+        "output": "1 k2\nJane\n2\n",
+        "wasm": "a8d3b472684280e8b27e0cffecf5b223b0b7c2db8784c34288429c81880510ec"
+      },
+      {
+        "source": "test/errors_tc/balanced_shrink_recursive_callee.goose",
+        "sha256": "d55137b120566f1f48740ac2427fcb5cdff3f19a5fa58fc9f7d0f5158c1a916a",
+        "phase": "type-error",
+        "skipped": 4,
+        "upstream_exit": 1,
+        "candidate_compile_exit": 1,
+        "upstream_diagnostic": "/home/jacobt/src/goose-to-wasm/build/life-parity/fp-corpus/upstream/test/errors_tc/balanced_shrink_recursive_callee.goose:11: error: cannot call walk, which shrinks s while mine (bound at /home/jacobt/src/goose-to-wasm/build/life-parity/fp-corpus/upstream/test/errors_tc/balanced_shrink_recursive_callee.goose:9) is still used: it may refer into s (\u00a75.2)",
+        "candidate_diagnostic": "/home/jacobt/src/goose-to-wasm/build/life-parity/fp-corpus/upstream/test/errors_tc/balanced_shrink_recursive_callee.goose:5:28: error: array shrink invalidates a reference or holder that is used afterward"
+      }
+    ]
+  }
+}
