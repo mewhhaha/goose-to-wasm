@@ -23,6 +23,8 @@ struct CgFunction {
     closure_signature: i64 = -1, thunk: i64 = -1,
     capture_first: i64 = 0, capture_count: i64 = 0, arena_local: bool = false, elements: bool = false,
 }
+// Positions in functions, before adding the import count.
+struct CgFunctionIndex { first: i32 = -1, elements: i32 = -1 }
 struct CgCapture { function: i64, symbol: i64 }
 struct CgText { data: i64, length: i64 }
 struct CgSegment { address: i64, start: i64, count: i64 }
@@ -32,7 +34,7 @@ struct CgSegment { address: i64, start: i64, count: i64 }
 struct CgParameterUse { symbol: i64, start: i64, end: i64, initial: bool = false }
 struct CgModule {
     parameter_uses: CgParameterUse[>..]&,
-    functions: CgFunction[>..]&, captures: CgCapture[>..]&, imports: CgImport[>..]&,
+    functions: CgFunction[>..]&, functions_by_symbol: CgFunctionIndex[>..]&, captures: CgCapture[>..]&, imports: CgImport[>..]&,
     signatures: CgSignature[>..]&, signature_bytes: u8[>..]&,
     segments: CgSegment[>..]&, segment_slots: i64[>..]&, data: u8[>..]&, globals: i64[>..]&,
     symbol_owners: SymbolOwners,
@@ -370,9 +372,9 @@ fn cg_abort(p: Program&, m: CgModule&, f: CgBody&, node: i64, text: u8[:]) {
 fn cg_trap_if(p: Program&, m: CgModule&, f: CgBody&, node: i64, text: u8[:]) {
     cg_begin(f, 0x04, 0x40); cg_abort(p, m, f, node, text); cg_end(f);
 }
-fn cg_function(m: CgModule&, symbol: i64) -> i64 {
-    for item, i in m.functions { if item.symbol == symbol { return i; } }
-    return -1;
+inline fn cg_function(m: CgModule&, symbol: i64) -> i64 {
+    if symbol < 0 || symbol >= m.functions_by_symbol.len { return -1; }
+    return m.functions_by_symbol[symbol].first as i64;
 }
 fn cg_region_call(m: CgModule&, f: CgBody&, callee: i64, node: i64) {
     if callee >= 0 { m.region_calls.push(RegionCall { caller: f.function_index, callee: callee, live: f.region_live, node: node }); }
@@ -384,9 +386,11 @@ fn cg_bound_regions(p: Program&, m: CgModule&) {
     if bound > 4294967295 { region_diagnose(p, -1, "data-region count exceeds wasm32 limits"); return; }
     m.region_count = bound;
 }
-fn cg_elements_function(m: CgModule&, symbol: i64) -> i64 {
-    for item, index in m.functions { if item.symbol == symbol && item.elements { return index; } }
-    return cg_function(m, symbol);
+inline fn cg_elements_function(m: CgModule&, symbol: i64) -> i64 {
+    if symbol < 0 || symbol >= m.functions_by_symbol.len { return -1; }
+    let elements = m.functions_by_symbol[symbol].elements;
+    if elements >= 0 { return elements as i64; }
+    return m.functions_by_symbol[symbol].first as i64;
 }
 fn cg_elements_table(m: CgModule&) -> i64 {
     var bytes: u8[>..] = [];
@@ -4104,6 +4108,18 @@ fn cg_collect(p: Program&, m: CgModule&) {
             m.functions.push(CgFunction { node: item.node, symbol: item.symbol, elements: true });
         }
     }
+    // Both ordinary bodies and element bodies are now registered. The first
+    // position wins, and an element lookup falls back to the first body.
+    // Every body has a thunk outside scalar mode, so a valid Wasm function
+    // section's u32 count bounds every position below 2^31.
+    m.functions_by_symbol.resize(p.symbols.len, CgFunctionIndex {});
+    for index in 0..m.functions.len {
+        let symbol = m.functions[index].symbol;
+        if m.functions_by_symbol[symbol].first < 0 { m.functions_by_symbol[symbol].first = index as i32; }
+        if m.functions[index].elements && m.functions_by_symbol[symbol].elements < 0 {
+            m.functions_by_symbol[symbol].elements = index as i32;
+        }
+    }
     var helpers = CgHelperDemand {};
     for item in m.functions { cg_scan_helpers(p, helpers, p.nodes[item.node].right, true); }
     for symbol in p.symbols {
@@ -4397,14 +4413,14 @@ fn generate_wasm(p: Program&, out: u8[>..]&) {
         cg_fail(p, -1, "wasm: linear memory requires 1 <= initial_pages <= maximum_pages <= 65535"); return;
     }
     if p.pointer_bytes != 4 && p.pointer_bytes != 8 { cg_fail(p, -1, "wasm: checked layout must use memory32 or memory64 pointers"); return; }
-    var functions: CgFunction[>..] = []; var captures: CgCapture[>..] = []; var imports: CgImport[>..] = [];
+    var functions: CgFunction[>..] = []; var functions_by_symbol: CgFunctionIndex[>..] = []; var captures: CgCapture[>..] = []; var imports: CgImport[>..] = [];
     var signatures: CgSignature[>..] = []; var signature_bytes: u8[>..] = []; var segments: CgSegment[>..] = []; var segment_slots: i64[>..] = []; var data: u8[>..] = []; var globals: i64[>..] = []; var global_regions: i64[>..] = []; var region_functions: RegionFunction[>..] = []; var region_calls: RegionCall[>..] = [];
     var region_memo: i64[>..] = [];
     var binding_heads: i64[>..] = []; var binding_next: i64[>..] = [];
     var owners = SymbolOwners { heads: binding_heads, next: binding_next };
     index_symbol_owners(p, owners);
     var parameter_uses: CgParameterUse[>..] = [];
-    var m = CgModule { parameter_uses: parameter_uses, functions: functions, captures: captures, imports: imports, signatures: signatures, signature_bytes: signature_bytes, segments: segments, segment_slots: segment_slots, data: data, globals: globals, global_regions: global_regions, symbol_owners: owners, region_functions: region_functions, region_calls: region_calls, region_memo: region_memo,
+    var m = CgModule { parameter_uses: parameter_uses, functions: functions, functions_by_symbol: functions_by_symbol, captures: captures, imports: imports, signatures: signatures, signature_bytes: signature_bytes, segments: segments, segment_slots: segment_slots, data: data, globals: globals, global_regions: global_regions, symbol_owners: owners, region_functions: region_functions, region_calls: region_calls, region_memo: region_memo,
         stack_limit: (p.maximum_pages * 65536 / 2) & -8 };
     cg_collect(p, m); if p.diagnostics.len > 0 { return; }
     if m.scalar { m.resolver = -1; m.host_reserve = -1; }
