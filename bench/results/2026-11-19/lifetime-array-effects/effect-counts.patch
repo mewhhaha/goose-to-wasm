@@ -1,0 +1,50 @@
+--- a/selfhost/checker_lifetimes.goose
++++ b/selfhost/checker_lifetimes.goose
+@@ -5788,6 +5788,7 @@
+ // m: for a class-keyed frame, how the call reads its class roots; an effect
+ // that names one is replayed as the call's own (life_map_set). call: the
+ // call's node, where a store that the arguments' depths forbid is reported.
++var replay_counts: i64[12];
+ fn life_replay(p: Program&, l: Lifetimes&, frame: i64, summary: bool = false, m: LifeMap = LifeMap {}, call: i64 = -1) {
+     var at = l.frames[frame].first_effect; if summary { at = l.frames[frame].first_summary; }
+     // A discovery replay only offers effects and joins into contents and
+@@ -5809,7 +5810,15 @@
+     // there are none here most of the time.
+     var quick = !l.discovery && m.count == 0 && l.class_frames == 0 && l.frame > 0 && l.activations < 1073741824;
+     if quick { for index in l.hold_floor..l.hold_count { if l.holds[index].kind == 2 { quick = false; } } }
+-    if others { at = l.frames[frame].first_other; }
++    if others {
++        var cursor = at; replay_counts[0]++;
++        while cursor >= 0 {
++            let kind = l.summaries[cursor].kind;
++            if kind == 1 { replay_counts[1]++; } if kind == 2 { replay_counts[2]++; } if kind == 8 { replay_counts[3]++; }
++            cursor = l.summaries[cursor].after;
++        }
++        at = l.frames[frame].first_other;
++    }
+     var complete = chain >= 0 && !others;
+     // While summaries hold their construct reads by leaf, the list is the
+     // other entries with each read after the one it names
+@@ -5863,6 +5872,7 @@
+                 continue;
+             }
+             if life_replayable_leaf(l, s.kind) && s.leaf >= 0 && life_leaf_offered_in(l, s.leaf as i64, activation, replay_epoch, stamp_chain) {
++                if s.kind == 1 { replay_counts[4]++; } if s.kind == 2 { replay_counts[5]++; } if s.kind == 8 { replay_counts[6]++; }
+                 at = s.after; if others { at = s.other; } continue;
+             }
+         }
+@@ -5909,6 +5919,7 @@
+         // Concrete discovery records these normalized array operations. The
+         // validation pass below still checks holds and live references in order.
+         if remembered && leaf >= 0 && effect.kind != 3 {
++            if effect.kind == 1 { replay_counts[7]++; } if effect.kind == 2 { replay_counts[8]++; } if effect.kind == 8 { replay_counts[9]++; }
+             life_offer_once(l, LifeEffect { kind: effect.kind, node: effect.node, value: effect.value, places: effect.value.place }, leaf);
+         } else if effect.kind == 1 { life_shrink(p, l, effect.node, effect.value); }
+         else if effect.kind == 2 { life_grow(p, l, effect.node, effect.value); }
+@@ -6336,5 +6347,6 @@
+     if p.entry >= 0 { life_function(p, l, p.entry, -1, -1, 0); }
+     for root in standalone { life_function(p, l, root.function_node, -1, root.arguments, 0); }
+     l.types_frozen = false;
++    print(replay_counts);
+     if p.diagnostics.len == 0 { life_export_provenance(p, l); life_refresh_named_results(p); }
+ }

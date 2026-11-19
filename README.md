@@ -4,13 +4,13 @@ A [Goose](https://github.com/aardappel/goose) compiler written in Goose. It emit
 
 ## Benchmarks
 
-**The compiler rebuilding itself.** The bundled 32-bit compiler rebuilt its own sources in **3.48 s** in Wasmtime and **2.21 s** native, or **1.58× native time** across seven fresh-process pairs. On the same frozen compiler project, Wasmtime took **3.65 s before and 3.65 s after**, and native took **2.33 s before and 2.28 s after**. Across 22 alternating pairs the median within-pair change in Wasmtime time was +0.1%. Tracking changed lifetime reads saved 0.73 billion Wasmtime instructions per rebuild. [Paired measurements and memory cost](bench/results/2026-11-19/lifetime-read-replay/README.md)
+**The compiler rebuilding itself.** The bundled 32-bit compiler rebuilt its own sources in **4.27 s** in Wasmtime and **2.67 s** native, or **1.60× native time**. On the frozen project, the lifetime checker change cut Wasmtime rebuild time by **3.5%** across 16 paired rounds. Wasmtime went from **1.59× to 1.58× native time** when compared within the same round. [Paired rebuilds](bench/results/2026-11-19/lifetime-array-effects/README.md)
 
-![Native and Wasmtime process time to rebuild the frozen and current compiler](bench/results/2026-11-19/lifetime-read-replay/rebuild.svg)
+![Native and Wasmtime process time to rebuild the frozen and current compiler](bench/results/2026-11-19/lifetime-array-effects/rebuild.svg)
 
-**Cold and cached self-compilation.** With an empty Wasmtime cache, the default memory64 compiler took **19.75 s** on one core and **12.72 s** with eight cores for preparation. The bundled fixed memory32 compiler took **12.06 s** uncached and **8.54 s** cached, versus **5.94 s** native. These three-run medians overlapped other benchmarks on the shared host. [Edited builds and phase times](bench/results/2026-11-19/lifetime-read-replay/README.md#cold-and-cached-self-compilation) · [Gdev status](bench/results/2026-11-18/compiler-request-latency/README.md#compiling-gdev)
+**Cold and cached self-compilation.** With an empty Wasmtime cache, the memory64 compiler took **16.11 s** on one core and **8.20 s** on eight cores. The bundled memory32 compiler took **5.26 s** cold with eight cores and **3.96 s** cached on one core, versus **2.55 s** native. Each median covers three fresh processes. Cold runs compile the module and cached runs load precompiled code. [Launch and edit times](bench/results/2026-11-19/lifetime-array-effects/README.md#cold-and-cached-self-compilation) · [Gdev status](bench/results/2026-11-18/compiler-request-latency/README.md#compiling-gdev)
 
-![Seconds to rebuild the compiler in cold, cached and native processes](bench/results/2026-11-19/lifetime-read-replay/launch.svg)
+![Seconds to rebuild the compiler in cold, cached and native processes](bench/results/2026-11-19/lifetime-array-effects/launch.svg)
 
 **Compiler speed.** Across eleven programs, compiler `06c84ac` used 2.3% less CPU time than `34ddff8` to emit Wasm and 2.1% less to emit C. These are geometric means of medians over 31 measurements per cell. The chart shows wall time. In the earlier snapshot 59 comparison, Wasm emission took 0.58× the C++ compiler’s time and C emission took 0.53×. [Measurements](bench/results/2026-11-19/lifetime-array-effects/catalog-summary.json) · [Snapshot 59](bench/results/2026-11-11/compiler-throughput-59/README.md)
 
@@ -38,6 +38,7 @@ A [Goose](https://github.com/aardappel/goose) compiler written in Goose. It emit
 
 | Question | Measurements |
 | --- | --- |
+| What did tracking changed reads save? | [Lifetime reads and memory cost](bench/results/2026-11-19/lifetime-read-replay/README.md) |
 | What improved string-heavy builds? | [8,192 literals and full compiler rebuilds](bench/results/2026-11-19/compiler-passes/README.md) |
 | How much memory does a 32-bit compiler need? | [Fixed layouts and Blot2 capacity](bench/results/2026-11-18/compiler-layout-trials/README.md) · [Growing regions during compilation](bench/results/2026-11-18/compiler-region-recovery/README.md) |
 | What sped up large project checks? | [Lifetime analysis](bench/results/2026-11-17/lifetime-compact-reads/README.md) · [Compiler iteration](bench/results/2026-11-17/compiler-iteration/README.md) · [Self-check pairs](bench/results/2026-11-17/compiler-and-row-performance/README.md) · [Blot2](bench/results/2026-11-17/blot2-captured-reads/README.md) |

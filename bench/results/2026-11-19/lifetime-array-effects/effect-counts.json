@@ -1,0 +1,39 @@
+{
+  "workload": "14283ec33483eb7c2468e968fa2d9866df9dc138f4cc0402f9b9f21806a7dfee",
+  "target_arguments": [
+    "selfhost/main.goose",
+    "--stdlib",
+    "stdlib",
+    "--target",
+    "wasm-direct",
+    "-O2",
+    "--wasm-memory64",
+    "--wasm-max-pages",
+    "262144",
+    "--check"
+  ],
+  "native_probe": "ec48713b8b2992370ed9acc53483ae05e716e9aaae592d4a91ecbbaa17323d1e",
+  "wasm_probe": "d39e49300af8e0c579b0d533e726762e9e412c6a7eff1ddea79965cc4ca496c9",
+  "both_engines": {
+    "completed_replays": 104735,
+    "group_shrink": 111910,
+    "group_grow": 667290,
+    "group_replace": 0,
+    "individual_shrink": 21184,
+    "individual_grow": 134300,
+    "individual_replace": 0,
+    "offered_shrink": 18874,
+    "offered_grow": 100209,
+    "offered_replace": 0
+  },
+  "baseline_recursion": {
+    "calls": 170226,
+    "inactive_nonrecursive": 150986,
+    "frame_visits": 1467320,
+    "inactive_visits": 1404117,
+    "inactive_cycle_matches": 0,
+    "arguments_appended": 552201,
+    "append_visits": 280213,
+    "index_visits": 884747
+  }
+}

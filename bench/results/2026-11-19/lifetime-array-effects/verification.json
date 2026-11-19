@@ -1,0 +1,153 @@
+{
+  "qualification": {
+    "status": "passed",
+    "head": "06c84ace21db4e1d390a365d95cc8d974332f971",
+    "since": "70625be",
+    "bootstrap": {
+      "fixed_point": true,
+      "generated_c_sha256": "19f463e823eb4ffc0d616e2c4263729d3e20952c045e9563f60a93ffc29a8f31",
+      "next_generation_c_sha256": "19f463e823eb4ffc0d616e2c4263729d3e20952c045e9563f60a93ffc29a8f31",
+      "third_generation_c_sha256": null,
+      "executable_sha256": "a05064fd8bbbd869171b202acc453fb3cade769689e4d0205897a0998fdd8fa3",
+      "profile_used": false,
+      "cached": {
+        "build-seed": true,
+        "build-goose": false
+      }
+    },
+    "seconds": 319.7
+  },
+  "stages": [
+    {
+      "stage": "bootstrap",
+      "exit": 0,
+      "seconds": 174.3
+    },
+    {
+      "stage": "conformance",
+      "exit": 0,
+      "seconds": 93.7,
+      "summary": "{'selected': 10797, 'passed': 10693, 'failed': 104}",
+      "gaps": "{'open_gaps': 104, 'unexpected_failures': 0, 'fixed_gaps': 0}"
+    },
+    {
+      "stage": "native-checks",
+      "exit": 0,
+      "seconds": 26.3,
+      "summary": "54 steps ok"
+    },
+    {
+      "stage": "conformance-memory64",
+      "exit": 0,
+      "seconds": 93.2,
+      "summary": "{'selected': 4777, 'passed': 4769, 'failed': 8}",
+      "gaps": "{'open_gaps': 8, 'unexpected_failures': 0, 'fixed_gaps': 0}"
+    },
+    {
+      "stage": "equivalence",
+      "exit": 0,
+      "seconds": 95.3,
+      "summary": "{\"compared\": 10057, \"differing\": 0, \"seconds\": {\"baseline\": 90.81, \"candidate\": 87.437}}"
+    },
+    {
+      "stage": "unit-tests",
+      "exit": 0,
+      "seconds": 145.2
+    }
+  ],
+  "compiler_output_equivalence": {
+    "compared": 10057,
+    "differing": 0,
+    "seconds": {
+      "baseline": 90.81,
+      "candidate": 87.437
+    }
+  },
+  "frozen_sources": {
+    "34ddff8": "14283ec33483eb7c2468e968fa2d9866df9dc138f4cc0402f9b9f21806a7dfee",
+    "06c84ac": "0a8af932039e95ef622ceb580da04371567f24a5d476b33108d2d92ff22434d6"
+  },
+  "clang": {
+    "sha256": "ca0d2f7fbe94836762f36c7e73292289bc4d5e4b9b5defc320ef0856259a2855",
+    "bytes": 124768,
+    "version": "clang version 23.1.5\nTarget: x86_64-pc-linux-gnu\nThread model: posix\nInstalledDir: /usr/bin"
+  },
+  "emitter": {
+    "sha256": "0b3a26ca21cc39ec7f53422e4521a692bf7b6af12e6546a00d6984da137adc5e",
+    "bytes": 7071040
+  },
+  "compiler": {
+    "training": {
+      "squares": {
+        "source": "420d9e6b4a2496865eb9f66603c4cbb0fdbb2add30e8ccc709a15102f4748b14",
+        "output": "fc8ae2dbef752d8e8eaaafec21e1c7500c3b27677f9030c502bf8c196ca7d845",
+        "region_stats": "b576594eb439b48ff0dc28a203b8c44f0f6badab1f63a4ef88d03593b306548d"
+      },
+      "sorting": {
+        "source": "00d2c7ed328100d018a3adc4ef3f2c5abd83d8219e8c6c0a56d00b0b1df8a27e",
+        "output": "b9ce93a5ef630da6e37912991cac3c3f052b8a5cf7290752ad4068e378e0aede",
+        "region_stats": "35ef8c209a7b962be5e5966d90eb9f77b26f2e8a2c5db99b2e1557fefc962fdd"
+      },
+      "tour": {
+        "source": "a46393946390a6fc888d013ae0a07383812a57667d2474071eb938f853b8b834",
+        "output": "24e6ffb411721ea6ab95389127ca6d23e2db2ece47e0060e32383ba1e611e8b0",
+        "region_stats": "daa5a78864e507fd582525e90febf56a7e80f75a0a8f40a09b00d3d1af6dd0fe"
+      }
+    },
+    "old_profile": "17ceb0dc82223528e5e83486a28647cfd0f03630c7624d800f220ba2c7f94c0c",
+    "new_profile": "75a9a7647ed98112ad2e38cca4985a661c40b1d843b892c9fce75a03e0de9503",
+    "fixed_point": "d0625d4a2574006207913a19d8fe71671a5f5b5d5aad6c687a67d29b6bebd1ea",
+    "native_fixed_emission": "d0625d4a2574006207913a19d8fe71671a5f5b5d5aad6c687a67d29b6bebd1ea",
+    "native": "b26001dd22b60da8fd44ac10b893d61bddd8cc87acd5009654d556e03d9c7f04",
+    "portable_native": "bd01448a28ca0a409cc89417d2d79200aa9ff4c55aa4c50b6bcbb67199abad09",
+    "portable_guest": "bd01448a28ca0a409cc89417d2d79200aa9ff4c55aa4c50b6bcbb67199abad09",
+    "host": "b247393d8fbe3115246f20703f726e90eeaaed762a75932c7bb131a4433ad026"
+  },
+  "logical_fingerprints": {
+    "compared": 4357,
+    "differing": 0,
+    "with_lifetime_fingerprints": 3130,
+    "fingerprint_lines": 11596,
+    "controls": {
+      "self0.err": {
+        "fp": 7,
+        "stderr_sha256": "29da7dac92f804a5493cefe3ee5d4c46b16fdbfbb1394504208ccc512e117696"
+      },
+      "class0.err": {
+        "fp": 3,
+        "stderr_sha256": "46b8480e8d9b05c60a28cd18bc0ae2b78c5e95b59967738ad9b5279008d58898"
+      },
+      "class1.err": {
+        "fp": 4,
+        "stderr_sha256": "90e17c23e7a3456fe654554e04f74cf60ecddccd9a40c314dee64794c7b512df"
+      }
+    },
+    "probes": {
+      "baseline": {
+        "probe": "5661a6a0ed90a3a0a0c2525c46d853682af1254a1319f23db742da382676ea13",
+        "self.wasm": "00ce5001a5c6f8077117811695a15be330acb1298e47e7e5714709ddd0e0de79",
+        "class.wasm": "f0fa1a32810b02b9fc9faa50226ef83259d262470207c7e291f5461b67482075"
+      },
+      "release": {
+        "probe": "745fedf7c7b7bad51cb7d9f352cc32309e3b1319fcb28442e961d04a286a5f76",
+        "self.wasm": "f952d9fbfc74df6b110b21dd483d460c4c111a442d3de095dfa656ae80071223",
+        "class.wasm": "783e2c1cd160e1f9fa3285a6b36307b37de9550f92115c40edee22ceb92a9e91"
+      }
+    }
+  },
+  "ordered_reference_fingerprints": {
+    "compared": 4357,
+    "differing": 0,
+    "with_lifetime_fingerprints": 3130,
+    "fingerprint_lines": 11596
+  },
+  "targeted_regression": [
+    "test_mixed_owner_replay_preserves_read_before_shrink (tests.test_holder_walks.HolderWalks.test_mixed_owner_replay_preserves_read_before_shrink) ... ok",
+    "test_repeated_shrinks (tests.test_holder_walks.HolderWalks.test_repeated_shrinks) ... ok",
+    "",
+    "----------------------------------------------------------------------",
+    "Ran 2 tests in 0.016s",
+    "",
+    "OK"
+  ]
+}
