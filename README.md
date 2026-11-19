@@ -12,15 +12,15 @@ A [Goose](https://github.com/aardappel/goose) compiler written in Goose. It emit
 
 ![Seconds to rebuild the compiler with uncached, cached and native launches](bench/results/2026-11-19/compiler-passes/launch.svg)
 
-**Compiler speed.** Across eleven programs, compiler `3084b81` used 1.6% less CPU time than `4a9d35e` to emit Wasm and 3.0% less to emit C. These are geometric means of medians over 31 measurements per cell. The chart shows wall time. In the earlier snapshot 59 comparison, Wasm emission took 0.58× the C++ compiler’s time and C emission took 0.53×. [Measurements](bench/results/2026-11-19/compiler-passes/catalog-summary.json) · [Snapshot 59](bench/results/2026-11-11/compiler-throughput-59/README.md)
+**Compiler speed.** Across eleven programs, compiler `34ddff8` used 2.8% less CPU time than `3084b81` to emit Wasm and 3.0% less to emit C. These are geometric means of medians over 31 measurements per cell. The chart shows wall time. In the earlier snapshot 59 comparison, Wasm emission took 0.58× the C++ compiler’s time and C emission took 0.53×. [Measurements](bench/results/2026-11-19/lifetime-read-replay/catalog-summary.json) · [Snapshot 59](bench/results/2026-11-11/compiler-throughput-59/README.md)
 
 ![Compiler execution time for eleven programs](bench/charts/compiler-comparison.svg)
 
-**The compiler as Wasm.** Building compiler `3084b81` on its own sources on the shared host took 7.52 s for direct Wasm and 47.18 s through C and Clang. Across three runs, self-check took 6.68 s native, 11.99 s in Wasmtime and 16.76 s in V8. Emitting the compiler took 5.83 s, 15.17 s and 15.48 s respectively. C builds used CPUs 0, 2, 3, 4 and 6. Wasm builds and execution used CPU 3. Both Wasm engines used prepared, default memory64 modules and timed execution after instantiation. [Measurements](bench/results/2026-11-19/compiler-passes/selfhost.json)
+**The compiler as Wasm.** Building compiler `34ddff8` on its own sources on the shared host took 2.45 s for direct Wasm and 41.94 s through C and Clang. Across three runs, self-check took 3.35 s native, 8.88 s in Wasmtime and 8.68 s in V8. Emitting the compiler took 3.14 s, 8.42 s and 10.51 s respectively. C builds used CPUs 0, 2, 3, 4 and 6. Wasm builds and execution used CPU 3. Both Wasm engines used prepared, default memory64 modules and timed execution after instantiation. [Measurements](bench/results/2026-11-19/lifetime-read-replay/selfhost.json)
 
 ![Compiler self-hosting build and execution times](bench/charts/compiler-selfhost-execution.svg)
 
-**Example programs.** On the shared host pinned to CPU 1, cold builds for the ten examples took 82.2–108.9 ms for direct Wasm and 0.407–2.924 s through C, including compilation and linking. Sorting took 334 ms with minimal Wasmtime AOT and 206 ms native, including process launch and exit. [Builds](bench/results/2026-11-19/compiler-passes/examples.json.gz) · [Process times](bench/results/2026-11-19/compiler-passes/host.json.gz)
+**Example programs.** On the shared host pinned to CPU 1, cold builds for the ten examples took 63.4–80.6 ms for direct Wasm and 0.297–2.119 s through C, including compilation and linking. Sorting took 159 ms with minimal Wasmtime AOT and 122 ms native, including process launch and exit. [Builds](bench/results/2026-11-19/lifetime-read-replay/examples.json.gz) · [Process times](bench/results/2026-11-19/lifetime-read-replay/host.json.gz)
 
 ![Example program build times](bench/charts/goose-examples-compilation.svg)
 
@@ -28,7 +28,7 @@ A [Goose](https://github.com/aardappel/goose) compiler written in Goose. It emit
 
 ![Wasmtime preparation times for ten examples](bench/charts/goose-host-preparation.svg)
 
-**Mandelbrot.** On the shared host pinned to CPU 1, a resident run on the official input took a median 3.72 s native, 4.44 s in Wasmtime and 3.35 s in V8. GCC C and upstream Goose native controls took 3.31 s and 4.01 s. The seven-sample runtime excludes compilation, startup and instantiation. [Measurements](bench/results/2026-11-19/compiler-passes/langbench-hot.json.gz)
+**Mandelbrot.** On the shared host pinned to CPU 1, a resident run on the official input took a median 2.50 s native, 2.72 s in Wasmtime and 2.69 s in V8. GCC C and upstream Goose native controls took 2.73 s and 2.55 s. The seven-sample runtime excludes compilation, startup and instantiation. [Measurements](bench/results/2026-11-19/lifetime-read-replay/langbench-hot.json.gz)
 
 ![Mandelbrot runtime by engine](bench/charts/langbench-hot-runtime.svg)
 
