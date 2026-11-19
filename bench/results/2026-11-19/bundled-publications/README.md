@@ -36,6 +36,8 @@ When a Goose function builds an array in stages, it can register a destination t
 
 An early design assumed the list was empty and restarted emission when it found a registration. On a 512-function program whose only registration was in its global initializer, that cost **54.0%** more retired native compiler instructions. With the shipped single-lowering pass, bundled emission took 0.002% more native compiler instructions than default emission on that input. The same-size program without any mappings used 6.3% more compiler instructions in bundled mode to scan and shorten the emitted code. [Generated sources, controls and counters](controls.json.gz)
 
+On the same frozen workload, an experimental compiler that unconditionally omitted all publication work retired 26.094 billion instructions. The released compiler reached the same count to three decimal places while preserving live mappings. The [paired process runner](../../2026-11-18/compiler-frame-cost/measure.py) verifies the emitted module after each timed sample.
+
 On the frozen compiler, replacing the forwarding helper with an empty function saved 2.4% of retired instructions, leaving the calls in place. Splitting it into a short caller and a tail-called slow path saved 1.5%. Enabling Wasmtime's general inliner saved 2.5% but grew the prepared image by 36% and changed diagnostic stack traces. A separate experiment packing lifetime hash keys reduced instructions by 0.9% on the previous compiler and remains outside this release. These were separate prototype screens. [Experiments and rejected alternatives](experiments.json.gz)
 
 An independent Wasm decoder reconstructed the entire shipped module from the previous compiler’s output on identical sources. It accounted for 12,407 forwarding calls, 25,674 saves and 8,604 restores. Every byte outside the code section matched. [Byte audit](audit.json) · [Verifier](tools/audit-publication.sh)
@@ -55,3 +57,7 @@ The compiler timed these stages during three additional self-rebuilds per engine
 | Wasm emission | 0.706 s | 1.016 s |
 
 Host load was sampled during the campaign. The one-minute load average ranged from 8.8 to 82.7 on 16 logical CPUs. Wall time includes scheduling delays. Retired instructions count CPU work independently of those delays. [Host samples](host-load.json.gz) · [Goose control sources and prototype patches](probes.tar.gz)
+
+## Example and compiler benchmarks
+
+The README catalog, self-hosting, ten examples and resident Mandelbrot benchmarks ran sequentially after the rebuild trials. The catalog produced identical Wasm and C artifacts across both compiler versions for all eleven programs. Repeating the native build from the same absolute source path reproduced the qualified executable’s SHA-256 digest. The native compiler embeds those paths in diagnostics. An earlier set of measurements overlapped bootstrap and qualification. The README shows the sequential measurements. [Catalog](catalog-summary.json) · [Self-hosting](selfhost.json) · [Examples](examples.json.gz) · [Wasmtime processes](host.json.gz) · [Resident Mandelbrot](langbench-hot.json.gz) · [Concurrent run](reader-concurrent.json.gz)
