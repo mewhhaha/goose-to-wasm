@@ -31,8 +31,8 @@ fn main() { outer(true); }
     def test_class_transition_preserves_standalone_arguments_and_errors(self):
         source = self.work / "class_transition.goose"
         # A call past the 4,096-frame concrete limit needs the full read history.
-        functions = [f"fn f{i}() -> i64 {{ {i} }}" for i in range(4100)]
-        calls = [f"    f{i}();" for i in range(len(functions))]
+        functions = [f"fn call_{i}() -> i64 {{ {i} }}" for i in range(4100)]
+        calls = [f"    call_{i}();" for i in range(len(functions))]
         program = "\n".join([
             "fn standalone(xs: const i64[:], tag: i64&) -> i64 { xs.len + tag }",
             *functions,
