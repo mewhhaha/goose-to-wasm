@@ -55,7 +55,21 @@ Counting eligible declarations predicted the restart and saved 14.3% of instruct
 
 ## Wasmtime-specific follow-up
 
-The generated Wasm calls a helper after a growable array changes. That helper forwards header updates to an active construction destination. The frozen compiler made **31,961,683 calls with no destination** in one emission, including 11,167,366 during checking alone. Native Clang inlined the null test into callers. A scratch emitter tested for a destination at each call site. The isolated compiler retired **26.688 B instructions**, down from **27.481 B**, and produced the same frozen output. Its Wasm file grew by 61,980 bytes. Eight pairs with opposite starting orders measured 4.08% and 3.92% lower median paired wall time. All 20 construction controls matched upstream Goose across both memory widths. A returned-header case still forwarded two actual stores in both versions. These figures isolate the code that runs the compiler. [Counter and timing evidence](publication.json.gz) · [Code and reproduction scripts](publication-probes.tar.gz)
+The generated Wasm calls a helper after a growable array changes. That helper forwards header updates to an active construction destination. The frozen compiler made **31,961,683 calls with no destination** in one emission. A separate check-only invocation made 11,167,366 empty calls. Native Clang inlined the null test into callers. A scratch emitter tested for a destination at each call site. The isolated compiler retired **26.688 B instructions**, down from **27.481 B**, and produced the same frozen output. Its Wasm file grew by 61,980 bytes. Eight pairs with opposite starting orders measured 4.08% and 3.92% lower median paired wall time. All 20 construction controls matched upstream Goose across both memory widths. A returned-header case still forwarded two actual stores in both versions. These figures isolate the code that runs the compiler. [Counter and timing evidence](publication.json.gz) · [Code and reproduction scripts](publication-probes.tar.gz)
+
+### Preparation and complete rebuilds
+
+A compiler built with the guard in both its executable and its code generator reproduced its own fixed32 module. It emitted an 8,972,823-byte memory64 module for the frozen sources. The released compiler emitted 8,886,107 bytes. Each version matched its respective native reference in every timed rebuild. [Compiler, output and runner identities](publication.json.gz)
+
+| Patched compiler vs released compiler, frozen source | Median paired wall change | Median paired process CPU change |
+| --- | ---: | ---: |
+| Cached Wasmtime, six full rebuilds per version | −5.39% | −6.84% |
+| Cold one-core Wasmtime, six full rebuilds per version | +0.46% | +1.01% |
+| Native, six full rebuilds per version | +6.26% | +0.20% |
+
+In the cold rebuilds, the median paired change was +2.50% for preparation and instantiation and −1.65% for guest execution. The candidate retired 2.81% fewer instructions in the cached Wasmtime rebuild and changed native instructions by +0.04%. Guarding every call site grew the precompiled compiler image by **2.80%**. The separate resident V8 trial measured 3.79% lower execution time across two paired emissions that produced identical output. [All samples, engine settings and output hashes](publication.json.gz)
+
+Moving a single check into the shared helper added seven bytes to the compiler module. It changed frozen rebuild instructions by −0.81% and wall time by +0.45% across four cached Wasmtime pairs. The call-site prototype favored cached rebuilds. Cold one-core rebuilds stayed within the run-to-run variation, and the cache grew. Both prototypes remain experimental. [Source patches and reproduction scripts](publication-probes.tar.gz)
 
 ## Cold and cached self-compilation
 
@@ -67,7 +81,7 @@ The default memory64 compiler took **23.90 s** to rebuild from a cold Wasmtime p
 
 All 10,057 output comparisons matched. The default conformance suite retained its 104 known gaps across 10,797 rows and memory64 retained eight across 4,777. All 54 native checks and 91 unit tests passed. The compiler reproduced its generated C, portable Wasm and fixed memory32 Wasm. [Qualification and hashes](verification.json)
 
-The two releases gave identical exit status, stdout and ordered diagnostics on 4,357 distinct sources. Their 3,130 final logical-state fingerprints matched, including frame results and inputs, captures, roots, storage cells, non-read effects and exits. All 786 ordered discovery and validation fingerprints matched for the cases that retained full collection. Omitting unused records changes internal scheduling on 47 programs, so the final comparison follows live tuples and frame inputs by value. Forced-class and mixed-owner controls exercised the fallback, and the production-threshold test includes an independently checked function with reference and slice parameters. [Per-source comparisons](fingerprints.json.gz) · [Upstream and final-release fixtures](controls.json.gz)
+The two releases gave identical exit status, stdout and ordered diagnostics on 4,357 distinct sources. Their 3,130 final logical-state fingerprints matched, including frame results and inputs, captures, roots, storage cells, non-read effects and exits. All 786 ordered discovery and validation fingerprints matched for the cases that retained full collection. A stricter probe on the integrated prototype saw scheduling or temporary allocation differences on 47 programs. The final comparison follows live tuples and frame inputs by value. Forced-class and mixed-owner controls exercised the fallback, and the production-threshold test includes an independently checked function with reference and slice parameters. [Per-source comparisons](fingerprints.json.gz) · [Upstream and final-release fixtures](controls.json.gz)
 
 ## Reproduce
 

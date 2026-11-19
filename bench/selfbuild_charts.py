@@ -29,7 +29,11 @@ def rebuilds(path, cases):
     rounds = set(samples[cases[0]])
     if not rounds or any(set(group) != rounds for group in samples.values()):
         raise ValueError(f"Incomplete rebuild rounds in {path}")
-    return [median(samples[case].values()) for case in cases], len(rounds)
+    return samples
+
+
+def paired_ratio(samples, native, wasm):
+    return median(seconds / samples[native][n] for n, seconds in samples[wasm].items())
 
 
 def panel(ax, labels, times, colors):
@@ -57,19 +61,28 @@ def main():
     directory = args.directory
     plt.rcParams.update({"font.size": 10, "svg.hashsalt": "selfbuild", "svg.fonttype": "none"})
 
-    frozen, pairs = rebuilds(directory / "frozen.json", ["native-before", "native-after", "wasm-before", "wasm-after"])
-    current, own_pairs = rebuilds(directory / "current.json", ["native", "wasm"])
-    fig, (left, right) = plt.subplots(1, 2, figsize=(9.0, 3.7), width_ratios=[2, 1], sharey=True, layout="constrained")
+    frozen = rebuilds(directory / "frozen.json", ["native-before", "native-after", "wasm-before", "wasm-after"])
+    current = rebuilds(directory / "current.json", ["native", "wasm"])
+    frozen_times = [median(series.values()) for series in frozen.values()]
+    current_times = [median(series.values()) for series in current.values()]
+    previous = paired_ratio(frozen, "native-before", "wasm-before")
+    latest = paired_ratio(frozen, "native-after", "wasm-after")
+    own = paired_ratio(current, "native", "wasm")
+    fig, (left, right) = plt.subplots(1, 2, figsize=(9.0, 3.9), width_ratios=[2, 1], sharey=True, layout="constrained")
     fig.suptitle("Seconds to rebuild the Goose compiler", fontsize=16, weight="bold")
-    left.set_title(f"Same frozen project · {pairs} rounds", loc="left", fontsize=11)
-    right.set_title(f"Current compiler on itself · {own_pairs} rounds", loc="left", fontsize=11)
-    panel(left, ["Previous\nnative", "Current\nnative", "Previous\nWasmtime", "Current\nWasmtime"], frozen, [NATIVE, NATIVE, WASM, WASM])
-    panel(right, ["Native", "Wasmtime"], current, [NATIVE, WASM])
-    left.set_ylim(0, max(*frozen, *current) * 1.2)
+    left.set_title(f"Same frozen project · {len(frozen['native-before'])} rounds\n"
+                   f"Paired Wasmtime/native ratio {previous:.2f}× → {latest:.2f}×", loc="left", fontsize=11)
+    right.set_title(f"Current compiler on itself · {len(current['native'])} rounds\n"
+                    f"Paired Wasmtime/native ratio {own:.2f}×", loc="left", fontsize=11)
+    panel(left, ["Previous\nnative", "Current\nnative", "Previous\nWasmtime", "Current\nWasmtime"], frozen_times, [NATIVE, NATIVE, WASM, WASM])
+    panel(right, ["Native", "Wasmtime"], current_times, [NATIVE, WASM])
+    left.set_ylim(0, max(*frozen_times, *current_times) * 1.2)
     save(fig, directory / "rebuild")
 
     cases = ["cold1", "cold8", "cached64", "cached_bundled64", "cold8_bundled32", "cached_bundled32", "native"]
-    times, rounds = rebuilds(directory / "launch.json", cases)
+    launches = rebuilds(directory / "launch.json", cases)
+    times = [median(series.values()) for series in launches.values()]
+    rounds = len(launches["native"])
     fig, ax = plt.subplots(figsize=(9.5, 3.8), layout="constrained")
     fig.suptitle("Cold and cached compiler launches", fontsize=16, weight="bold")
     ax.set_title(f"Seconds to rebuild its own sources · {rounds} fresh processes per configuration", loc="left", fontsize=11)
