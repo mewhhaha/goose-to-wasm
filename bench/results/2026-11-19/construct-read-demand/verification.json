@@ -1,0 +1,150 @@
+{
+  "qualification": {
+    "head": "a161c257934030dce3f8c3c21c69190bd4c01814",
+    "since": "9cffc41",
+    "status": "passed",
+    "seconds": 304.7,
+    "bootstrap": {
+      "fixed_point": true,
+      "generated_c_sha256": "1aa341d6bff357fb43ec2a09472576eb1c9a47fbcd3c43a2cba05fb7cd62febe",
+      "next_generation_c_sha256": "1aa341d6bff357fb43ec2a09472576eb1c9a47fbcd3c43a2cba05fb7cd62febe",
+      "third_generation_c_sha256": null,
+      "executable_sha256": "4c7d97ae32294bec2d79730c777ddd8d3a79ae9b0e8fbc0d97d30267a81d3400",
+      "profile_used": false,
+      "cached": {
+        "build-seed": true,
+        "build-goose": true
+      }
+    }
+  },
+  "stages": [
+    {
+      "stage": "bootstrap",
+      "exit": 0,
+      "seconds": 7.5
+    },
+    {
+      "stage": "conformance",
+      "exit": 0,
+      "seconds": 257.9,
+      "summary": "{'selected': 10797, 'passed': 10693, 'failed': 104}",
+      "gaps": "{'open_gaps': 104, 'unexpected_failures': 0, 'fixed_gaps': 0}"
+    },
+    {
+      "stage": "native-checks",
+      "exit": 0,
+      "seconds": 110.6,
+      "summary": "54 steps ok"
+    },
+    {
+      "stage": "conformance-memory64",
+      "exit": 0,
+      "seconds": 247.3,
+      "summary": "{'selected': 4777, 'passed': 4769, 'failed': 8}",
+      "gaps": "{'open_gaps': 8, 'unexpected_failures': 0, 'fixed_gaps': 0}"
+    },
+    {
+      "stage": "equivalence",
+      "exit": 0,
+      "seconds": 234.1,
+      "summary": "{\"compared\": 10057, \"differing\": 0, \"seconds\": {\"baseline\": 225.118, \"candidate\": 218.223}}"
+    },
+    {
+      "stage": "unit-tests",
+      "exit": 0,
+      "seconds": 296.8
+    }
+  ],
+  "unit_tests": 91,
+  "compiler_output_equivalence": {
+    "compared": 10057,
+    "differing": 0,
+    "seconds": {
+      "baseline": 225.118,
+      "candidate": 218.223
+    }
+  },
+  "equivalence_compilers": {
+    "baseline": {
+      "path": "/home/jacobt/src/goose-to-wasm/build/result-copies-19/shipping/own/build-1/compiler-native",
+      "sha256": "76194f2a28d07622abc64aba2f493da856c7a78a5017a330da6552f699299cf7"
+    },
+    "candidate": {
+      "path": "/home/jacobt/src/goose-to-wasm/build/read-demand-19/qualify/bootstrap/bin/goose",
+      "sha256": "4c7d97ae32294bec2d79730c777ddd8d3a79ae9b0e8fbc0d97d30267a81d3400"
+    }
+  },
+  "compiler": {
+    "training": {
+      "squares": {
+        "source": "420d9e6b4a2496865eb9f66603c4cbb0fdbb2add30e8ccc709a15102f4748b14",
+        "output": "fc8ae2dbef752d8e8eaaafec21e1c7500c3b27677f9030c502bf8c196ca7d845",
+        "region_stats": "51f092acdc5a841549a1806faf451dbc3229e9eff764d01fb533afd10cf36212"
+      },
+      "sorting": {
+        "source": "00d2c7ed328100d018a3adc4ef3f2c5abd83d8219e8c6c0a56d00b0b1df8a27e",
+        "output": "b9ce93a5ef630da6e37912991cac3c3f052b8a5cf7290752ad4068e378e0aede",
+        "region_stats": "2e5862cccd78eecaa8c02cd0dc34a1aa7011f44df15b19acb2d74dabe1d1a7ee"
+      },
+      "tour": {
+        "source": "a46393946390a6fc888d013ae0a07383812a57667d2474071eb938f853b8b834",
+        "output": "24e6ffb411721ea6ab95389127ca6d23e2db2ece47e0060e32383ba1e611e8b0",
+        "region_stats": "e58583ab6b72d59154d040908244b2b2ea5aaffdb4e7430e510d0cdd064a32c2"
+      }
+    },
+    "old_profile": "d30f145d38c5e29a5243c0cd47cad07f3f8d444bb46af5e00b72b1c4a98790a7",
+    "new_profile": "907d1737b54e2b13581fb81ba652f40cb87478b04e302e46ca379c9a1e22b76b",
+    "fixed_point": "a15fc47c0ed47b87a740efbbd45b216ecb413a26b3c7845fc364512c468bb316",
+    "native_fixed_emission": "a15fc47c0ed47b87a740efbbd45b216ecb413a26b3c7845fc364512c468bb316",
+    "native": "f6df6a2c69903db3993616bb9bac4fe80cac495675a674b23acbd6a82ab889ac",
+    "portable_native": "710f7d88ab157c80fa2235c64ef617de6796c31670377722ba0322ab3c485639",
+    "portable_guest": "710f7d88ab157c80fa2235c64ef617de6796c31670377722ba0322ab3c485639",
+    "host": "b247393d8fbe3115246f20703f726e90eeaaed762a75932c7bb131a4433ad026"
+  },
+  "logical_checks": {
+    "corpus": {
+      "total": 4357,
+      "observation_diffs": 0,
+      "projection_diffs": 0,
+      "full_diffs": 0,
+      "baseline_lines": 11596,
+      "full_lines": 786,
+      "projected_lines": 3130,
+      "omitted_cases": 2939
+    },
+    "controls": {
+      "total": 32,
+      "observation_diffs": 0,
+      "projection_diffs": 0,
+      "full_diffs": 0,
+      "baseline_lines": 126,
+      "full_lines": 52,
+      "projected_lines": 31,
+      "omitted_cases": 18
+    },
+    "forced": {
+      "total": 31,
+      "observation_diffs": 0,
+      "projection_diffs": 0,
+      "full_diffs": 0,
+      "baseline_lines": 119,
+      "full_lines": 59,
+      "projected_lines": 30,
+      "omitted_cases": 15
+    }
+  },
+  "frozen_sources": {
+    "fc34386679b120e6f822bd18f6cf7ab0319035ee": "2220c2ff3a47d0d30ade05e940ca920d68847e6ef1c38e631a098a6cbc7793db",
+    "34ddff8db385b1e357e3b5048d7a301ead975fc5": "14283ec33483eb7c2468e968fa2d9866df9dc138f4cc0402f9b9f21806a7dfee",
+    "6e503fb3f000ab6e77869dc3ea5b54c39f74c963": "8da6280ac3dfbb82d5240e12cdd54e14d921d3d48aba4738ded0a801c8caaf69"
+  },
+  "emitter": {
+    "sha256": "0b3a26ca21cc39ec7f53422e4521a692bf7b6af12e6546a00d6984da137adc5e",
+    "bytes": 7071040
+  },
+  "clang": {
+    "sha256": "ca0d2f7fbe94836762f36c7e73292289bc4d5e4b9b5defc320ef0856259a2855",
+    "bytes": 124768,
+    "version": "clang version 23.1.5\nTarget: x86_64-pc-linux-gnu\nThread model: posix\nInstalledDir: /usr/bin"
+  }
+}
