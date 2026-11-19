@@ -47029,6 +47029,36 @@
       "provenance": "independently specified; retained batch42 correctness control"
     },
     {
+      "id": "corpus/contracts/views/mixed-depth-holder/native",
+      "source": "tests/fixtures/contracts/views/mixed-depth-holder.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "3 2\n8 2\n8 7\n",
+        "exit": 0
+      },
+      "provenance": "Observed with upstream Goose on a holder used at two lexical depths"
+    },
+    {
+      "id": "corpus/contracts/views/mixed-depth-holder/wasm-direct",
+      "source": "tests/fixtures/contracts/views/mixed-depth-holder.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "3 2\n8 2\n8 7\n",
+        "exit": 0
+      },
+      "provenance": "Observed with upstream Goose on a holder used at two lexical depths"
+    },
+    {
       "id": "corpus/contracts/views/private-holder-view/native",
       "source": "tests/fixtures/contracts/views/private-holder-view.goose",
       "phase": "run",
