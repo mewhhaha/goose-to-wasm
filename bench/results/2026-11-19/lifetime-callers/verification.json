@@ -1,0 +1,316 @@
+{
+  "qualification": {
+    "schema": "goose-qualification-v1",
+    "started": "2026-11-19T17:08:35+0100",
+    "head": "96823036e614a42f8bf97a85c0ce593c044d8dfd",
+    "dirty": false,
+    "since": "2959a75",
+    "units_pass": false,
+    "stages": [
+      {
+        "stage": "bootstrap",
+        "command": [
+          "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+          "scripts/bootstrap.py",
+          "--verify",
+          "--build-dir",
+          "/home/jacobt/src/goose-to-wasm/build/lifetime-caller-trial/release-qualified/bootstrap",
+          "--cache-dir",
+          "/home/jacobt/src/goose-to-wasm/build/qualify-cache/bootstrap"
+        ],
+        "exit": 0,
+        "seconds": 274.4,
+        "log": "/home/jacobt/src/goose-to-wasm/build/lifetime-caller-trial/release-qualified/bootstrap.log"
+      },
+      {
+        "stage": "conformance",
+        "command": [
+          "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+          "tests/conformance.py",
+          "--compiler",
+          "/home/jacobt/src/goose-to-wasm/build/lifetime-caller-trial/release-qualified/bootstrap/bin/goose",
+          "--levels",
+          "0",
+          "2",
+          "--cc",
+          "gcc",
+          "--known-gaps",
+          "tests/conformance/known-gaps.json",
+          "--native-cache",
+          "/home/jacobt/src/goose-to-wasm/build/qualify-cache/native",
+          "--output-dir",
+          "/home/jacobt/src/goose-to-wasm/build/lifetime-caller-trial/release-qualified/conformance",
+          "--jobs",
+          "6"
+        ],
+        "exit": 0,
+        "seconds": 140.0,
+        "log": "/home/jacobt/src/goose-to-wasm/build/lifetime-caller-trial/release-qualified/conformance.log",
+        "summary": "{'selected': 10797, 'passed': 10693, 'failed': 104}",
+        "gaps": "{'open_gaps': 104, 'unexpected_failures': 0, 'fixed_gaps': 0}",
+        "native_cache": "{'native_builds': 3216, 'cache_hits': 3152}"
+      },
+      {
+        "stage": "native-checks",
+        "command": [
+          "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+          "native/tests/check.py",
+          "--output",
+          "/home/jacobt/src/goose-to-wasm/build/lifetime-caller-trial/release-qualified/native"
+        ],
+        "exit": 0,
+        "seconds": 54.7,
+        "log": "/home/jacobt/src/goose-to-wasm/build/lifetime-caller-trial/release-qualified/native-checks.log",
+        "summary": "54 steps ok"
+      },
+      {
+        "stage": "conformance-memory64",
+        "command": [
+          "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+          "tests/conformance.py",
+          "--compiler",
+          "/home/jacobt/src/goose-to-wasm/build/lifetime-caller-trial/release-qualified/bootstrap/bin/goose",
+          "--levels",
+          "0",
+          "2",
+          "--cc",
+          "gcc",
+          "--known-gaps",
+          "tests/conformance/known-gaps-memory64.json",
+          "--native-cache",
+          "/home/jacobt/src/goose-to-wasm/build/qualify-cache/native",
+          "--output-dir",
+          "/home/jacobt/src/goose-to-wasm/build/lifetime-caller-trial/release-qualified/conformance-memory64",
+          "--jobs",
+          "3",
+          "--targets",
+          "wasm-direct",
+          "--wasm-memory64"
+        ],
+        "exit": 0,
+        "seconds": 138.2,
+        "log": "/home/jacobt/src/goose-to-wasm/build/lifetime-caller-trial/release-qualified/conformance-memory64.log",
+        "summary": "{'selected': 4777, 'passed': 4769, 'failed': 8}",
+        "gaps": "{'open_gaps': 8, 'unexpected_failures': 0, 'fixed_gaps': 0}",
+        "native_cache": "{'native_builds': 0, 'cache_hits': 0}"
+      },
+      {
+        "stage": "equivalence",
+        "command": [
+          "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+          "tests/output_equivalence.py",
+          "--baseline",
+          "/home/jacobt/src/goose-to-wasm/build/lifetime-work/own/build-1/compiler-native",
+          "--candidate",
+          "/home/jacobt/src/goose-to-wasm/build/lifetime-caller-trial/release-qualified/bootstrap/bin/goose",
+          "--output-dir",
+          "/home/jacobt/src/goose-to-wasm/build/lifetime-caller-trial/release-qualified/equivalence",
+          "--selfhost",
+          "/home/jacobt/src/goose-to-wasm/build/lifetime-caller-trial/release-qualified/frozen/selfhost",
+          "--jobs",
+          "3"
+        ],
+        "exit": 0,
+        "seconds": 128.5,
+        "log": "/home/jacobt/src/goose-to-wasm/build/lifetime-caller-trial/release-qualified/equivalence.log",
+        "summary": "{\"compared\": 10057, \"differing\": 0, \"seconds\": {\"baseline\": 190.28, \"candidate\": 175.887}}",
+        "differing": []
+      },
+      {
+        "stage": "unit-tests",
+        "command": [
+          "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+          "-m",
+          "unittest",
+          "--durations",
+          "10",
+          "tests.test_conformance_runner",
+          "tests.test_bootstrap_optimization",
+          "tests.test_native_units",
+          "tests.test_driver_outputs",
+          "tests.test_cli_outputs",
+          "tests.test_root_struct_backends",
+          "tests.test_slice_pool_backends",
+          "tests.test_loop_ordinals",
+          "tests.test_dynamic_remainder",
+          "tests.test_descending_while",
+          "tests.test_zero_stores",
+          "tests.test_owner_view_host",
+          "tests.test_ordinary_owner_modes",
+          "tests.test_aggregate_print",
+          "tests.test_while_unroll",
+          "tests.test_fixed_memory_frames",
+          "tests.test_holder_walks",
+          "tests.test_data_segments"
+        ],
+        "exit": 0,
+        "seconds": 216.0,
+        "log": "/home/jacobt/src/goose-to-wasm/build/lifetime-caller-trial/release-qualified/unit-tests.log"
+      }
+    ],
+    "bootstrap": {
+      "fixed_point": true,
+      "generated_c_sha256": "239d6dab2d99a4563c2b6badb27e2a4f7428c5001668d910e7b84862f0830f7e",
+      "next_generation_c_sha256": "239d6dab2d99a4563c2b6badb27e2a4f7428c5001668d910e7b84862f0830f7e",
+      "third_generation_c_sha256": null,
+      "executable_sha256": "5b75c2715d7b72c8a41f2b8a6a389dae5d020facf1c096332d404c08ffb04dd1",
+      "profile_used": false,
+      "cached": {
+        "build-seed": true,
+        "build-goose": false
+      }
+    },
+    "seconds": 490.6,
+    "status": "passed",
+    "failed": []
+  },
+  "equivalence": {
+    "summary": {
+      "compared": 10057,
+      "differing": 0,
+      "seconds": {
+        "baseline": 190.28,
+        "candidate": 175.887
+      }
+    },
+    "manifest_sha256": "114d9ecbf070ee26eae6e6fb5fe75b202fda471bb36880d105480dd3dd402961",
+    "differing": []
+  },
+  "release": {
+    "training": {
+      "squares": {
+        "source": "420d9e6b4a2496865eb9f66603c4cbb0fdbb2add30e8ccc709a15102f4748b14",
+        "output": "fc8ae2dbef752d8e8eaaafec21e1c7500c3b27677f9030c502bf8c196ca7d845",
+        "profile": "23ab0cf3642373a23f97e432b07493f9502fac2d9d207569291ca1e9d5c84010"
+      },
+      "sorting": {
+        "source": "00d2c7ed328100d018a3adc4ef3f2c5abd83d8219e8c6c0a56d00b0b1df8a27e",
+        "output": "b9ce93a5ef630da6e37912991cac3c3f052b8a5cf7290752ad4068e378e0aede",
+        "profile": "763780a35e1d106f327c266fa03ee92bb36ffafea592916c1ab486f7f6586030"
+      },
+      "tour": {
+        "source": "a46393946390a6fc888d013ae0a07383812a57667d2474071eb938f853b8b834",
+        "output": "24e6ffb411721ea6ab95389127ca6d23e2db2ece47e0060e32383ba1e611e8b0",
+        "profile": "9d7b34996758a71172785be23015716865f99b0ccab99e8bff8e4c80c813b450"
+      }
+    },
+    "previous_profile": "737402c7368f1c468378e075c86358b0a9c3e9eb6b99d403f0234567011e680b",
+    "profile": "cb9734c4d4338c0e79446db851f6d7a2058aca148e868933846965cfefd4c787",
+    "fixed": "2e87827f7aa678e88f3575c7aba6c620889528e044801c015f0ddc3699f144a2",
+    "repro": "2e87827f7aa678e88f3575c7aba6c620889528e044801c015f0ddc3699f144a2",
+    "previous_fixed": "73dfc05f2e739217d40aeadb8b63d2b8e85dba7331d180e23eba56a743a87825",
+    "native": "e39bc3a776d4885522092ffd730e8f9f4b978d5c54946426c5cc6758e6b18dd9",
+    "native_fixed": "2e87827f7aa678e88f3575c7aba6c620889528e044801c015f0ddc3699f144a2",
+    "portable": "bbecbe9c15d3388fde96604a3d1935c378f1ffd733d7e90baa872e5b07d70ae5",
+    "portable_pinned_emitter": "bbecbe9c15d3388fde96604a3d1935c378f1ffd733d7e90baa872e5b07d70ae5",
+    "training_compiler": "e39bc3a776d4885522092ffd730e8f9f4b978d5c54946426c5cc6758e6b18dd9",
+    "host": "b247393d8fbe3115246f20703f726e90eeaaed762a75932c7bb131a4433ad026"
+  },
+  "frozen_before": {
+    "training": {
+      "squares": {
+        "source": "420d9e6b4a2496865eb9f66603c4cbb0fdbb2add30e8ccc709a15102f4748b14",
+        "output": "fc8ae2dbef752d8e8eaaafec21e1c7500c3b27677f9030c502bf8c196ca7d845",
+        "profile": "58be48334826a3b036a2396240c57770b6b71d9f38d1303a537516daed4c75b1"
+      },
+      "sorting": {
+        "source": "00d2c7ed328100d018a3adc4ef3f2c5abd83d8219e8c6c0a56d00b0b1df8a27e",
+        "output": "b9ce93a5ef630da6e37912991cac3c3f052b8a5cf7290752ad4068e378e0aede",
+        "profile": "1d02e9e7fe73bae311ca06e405661d1bde34e45a5c40af96186af6e3c8641f51"
+      },
+      "tour": {
+        "source": "a46393946390a6fc888d013ae0a07383812a57667d2474071eb938f853b8b834",
+        "output": "24e6ffb411721ea6ab95389127ca6d23e2db2ece47e0060e32383ba1e611e8b0",
+        "profile": "c94557295a6c13feacf7a140a0aea964f27db6a84dad2f125c703978371e374c"
+      }
+    },
+    "previous_profile": "9dbf8309d35ff805bd5c41a3111438b526e7e1d544406564ae2ae1c21c38fa08",
+    "profile": "737402c7368f1c468378e075c86358b0a9c3e9eb6b99d403f0234567011e680b",
+    "fixed": "73dfc05f2e739217d40aeadb8b63d2b8e85dba7331d180e23eba56a743a87825",
+    "repro": "73dfc05f2e739217d40aeadb8b63d2b8e85dba7331d180e23eba56a743a87825",
+    "previous_fixed": "d1520382d41b5a8a1c7a6786c28a8a1e99bc1117b7b58d7a68f61a5567cb8459",
+    "native": "0ae25a2a6a21046cef626060480607e7b0a47a411a37488852132d95b7cd3f3b",
+    "native_fixed": "73dfc05f2e739217d40aeadb8b63d2b8e85dba7331d180e23eba56a743a87825",
+    "portable": "1b49ff4ecd7988760de0515ad6faef1e5272ed16cbb86276586dcb28f2df310e",
+    "portable_pinned_emitter": "1b49ff4ecd7988760de0515ad6faef1e5272ed16cbb86276586dcb28f2df310e",
+    "training_compiler": "0ae25a2a6a21046cef626060480607e7b0a47a411a37488852132d95b7cd3f3b",
+    "host": "b247393d8fbe3115246f20703f726e90eeaaed762a75932c7bb131a4433ad026"
+  },
+  "fingerprints": {
+    "4096": {
+      "total": 4395,
+      "passed": 4395
+    },
+    "16": {
+      "total": 4394,
+      "passed": 4394
+    }
+  },
+  "mixed_depth_contracts": {
+    "holder-contracts": {
+      "selected": 4,
+      "passed": 4,
+      "failed": 0
+    },
+    "holder-contracts-64": {
+      "selected": 2,
+      "passed": 2,
+      "failed": 0
+    }
+  },
+  "charts": {
+    "compiler-comparison.svg": "e3906f4e3ec2681a053166bc97a840b285ff0e540eb3cb5fd26005dfb62fb124",
+    "compiler-selfhost-execution.svg": "37d0bce43c42516be40d2d431184276a85c8f63579a61f5282e39368ca180432",
+    "goose-examples-compilation.svg": "865cc6800e01a63d0a97b566d0b748925a3823d209750cc372281867eb43f57a",
+    "goose-examples-runtime.svg": "e354a9dcfdaf137eb24f24aea0ddc96cb1e7266e56499305493257b71914ec9b",
+    "goose-host-preparation.svg": "5e28078bfeb0f32d47668699be1e7bba601ac0969e7ee455fb3120d3be3463e5",
+    "langbench-compilation.svg": "7535b23146362c3b8728faf115caccb804d4c7d426dfdc65c300d8c72c38b6d1",
+    "langbench-hot-runtime.svg": "8eb0fefc7b2934f2db34b6b6eaa1427dd35ffba88745359c503ea4784d52d8e1",
+    "langbench-runtime.svg": "e61c824930be3421b16ed843fae1f79bf84a4304981faaa2c0ac301d30ad5f09"
+  },
+  "dated_chart_files": {
+    "calls.svg": "c32c675aeb38bf5511a663b10e08373aba77466763c269cfd47158d79d5cfa63",
+    "calls.png": "010644d656351f5194d57b506f5d5a163128a682b26ff8aac7cdef8339b34282",
+    "rebuild.svg": "b33b32cd8cf36735944c5541b44c6533cfad2c781cc4cd68bc2bcedb7f1f5637",
+    "rebuild.png": "58a199b0d2ca21b8759d415abaf7eeacf1686456844c28a8f02be55c87cbf0c2",
+    "launch.svg": "b7777ae5804f1dca22fbdf72f730e9fd94b491932c975eb47889b5b519ee277b",
+    "launch.png": "a159efc0c516aad115e042d10b17c96068800688838cb564bc7e4104808411e7",
+    "experiments.json.gz": "3c007e4596f98da6db6b8a38a1379f3de467ca1979231d0acce4d859884a417f",
+    "boundaries.json": "59cd4b38fd8d88f5011a0ff04d50b7414d2b8f70f65e2e291363316fbf82be49",
+    "frozen.json": "4a305fe222b1061273555844bc93ccdfee3b86b382a1bab6671cafedbc239715",
+    "current.json": "b02451884195bd21fed8958a3ee1ba185a205a8beb0aec20fd239143347654da",
+    "launch.json": "eba34237a24ea7f0f01fef85e912bfad5275598b099d4e2a5da401162bf3d204"
+  },
+  "post_fixture_conformance": {
+    "source_commit": "5e6ef188beaad9f0256c9d3b95b16202fcafadfc",
+    "manifest_sha256": "2054a3fc40d9d517d66ceafd153e6adfc4495a682cadea7431e4f6881a5e9499",
+    "results": {
+      "conformance": {
+        "summary": {
+          "selected": 10801,
+          "passed": 10697,
+          "failed": 104
+        },
+        "comparison_with_known_gaps": {
+          "open_gaps": 104,
+          "unexpected_failures": 0,
+          "fixed_gaps": 0
+        },
+        "report_sha256": "ced878aa82946cdcdd581925d10b443d837af811b395e912254d8a8be4fa4552"
+      },
+      "conformance-memory64": {
+        "summary": {
+          "selected": 4779,
+          "passed": 4771,
+          "failed": 8
+        },
+        "comparison_with_known_gaps": {
+          "open_gaps": 8,
+          "unexpected_failures": 0,
+          "fixed_gaps": 0
+        },
+        "report_sha256": "d1e4e152bdefbab0b8aa377e50425ceb18a670e3d9db36c6db38aeaa871121ac"
+      }
+    }
+  }
+}
