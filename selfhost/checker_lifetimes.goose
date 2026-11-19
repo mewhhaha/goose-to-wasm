@@ -53,6 +53,7 @@ struct LifeRoot { symbol: i64 = -1, frame: i64 = -1, node: i64 = -1, type_id: i6
 // reached: of a reference argument, life_reached of its expression (the
 // type of the storage it points into), for the stores a call makes through it.
 struct LifeValue { type_id: i64 = -1, place: i64 = 0, refs: i64 = 0, contents: i64 = 0, self_pools: i64 = 0, relative_roots: i64 = 0, tuple: i64 = -1, element_array: i64 = -1, reached: i64 = -1 }
+let LIFE_EMPTY_VALUE = LifeValue {};
 struct LifeItem { value: LifeValue, next: i64 = -1 }
 // live is set and cleared through life_set_live, which mirrors it in live_bits.
 struct LifeCell { symbol: i64, frame: i64, root: i64, parameter: bool = false, refs: i64 = 0, live_refs: i64 = 0, contents: i64 = 0, initial: i64 = 0, committed: bool = false, growshrink: bool = false, depth: i64 = 0, initialized: bool = false, live: bool = false, next_symbol: i64 = -1, next_frame: i64 = -1, next_capture_input: i64 = -1, next_parameter: i64 = -1 }
@@ -2018,12 +2019,15 @@ inline fn life_cached_size_class(p: Program&, l: Lifetimes&, ty: i64) -> i64 {
     return result;
 }
 fn life_push_future(l: Lifetimes&, node: i64, loop_scope: i64 = -1) {
-    if node < 0 { return; }
+    // Only validation checks whether a later expression still uses a cell.
+    if l.discovery || node < 0 { return; }
     let entry = LifeFuture { node: node, frame: l.frame, loop_scope: loop_scope };
     if l.future_count == l.futures.len { l.futures.push(entry); } else { l.futures[l.future_count] = entry; }
     l.future_count += 1;
 }
 fn life_hold(l: Lifetimes&, value: LifeValue, node: i64, kind: i64 = 0) {
+    // Held operands are consulted when validating overlapping uses.
+    if l.discovery { return; }
     let entry = LifeHold { value: value, node: node, kind: kind, frame: l.frame };
     if l.hold_count == l.holds.len { l.holds.push(entry); } else { l.holds[l.hold_count] = entry; }
     l.hold_count += 1;
@@ -3334,6 +3338,8 @@ fn life_construct_read(p: Program&, l: Lifetimes&, node: i64, value: LifeValue, 
     }
 }
 fn life_coerce(p: Program&, l: Lifetimes&, value: LifeValue, expected: i64) -> LifeValue {
+    // An exact type can still require dropping references from copied contents.
+    if value.type_id == expected && value.contents == 0 { return value; }
     var out = value;
     if expected < 0 || expected == TYPE_VOID { return out; }
     if value.type_id >= 0 && p.types[value.type_id].kind == TY_SLICE && p.types[expected].kind == TY_REF && p.types[expected].element >= 0 && p.types[p.types[expected].element].kind == TY_SLICE {
@@ -5169,7 +5175,9 @@ recursive fn life_function(p: Program&, l: Lifetimes&, function_node: i64, call:
 }
 
 recursive fn life_call(p: Program&, l: Lifetimes&, node: i64, destination: i64, selected_result: i64) -> LifeValue {
-    let n: const Node& = p.nodes[node]; var out = LifeValue { type_id: n.type_id };
+    let n: const Node& = p.nodes[node];
+    var out = LIFE_EMPTY_VALUE;
+    out.type_id = n.type_id;
     if n.symbol < 0 { return out; }
     let symbol: const Symbol& = p.symbols[n.symbol]; var builtin = -1;
     if (symbol.flags & S_BUILTIN) != 0 { builtin = symbol.index; }
@@ -5382,7 +5390,9 @@ fn life_storage_path(p: Program&, node: i64) -> bool {
 
 recursive fn life_eval(p: Program&, l: Lifetimes&, node: i64, destination: i64 = 0, selected_result: i64 = -1) -> LifeValue {
     if node < 0 { return LifeValue {}; }
-    let n: const Node& = p.nodes[node]; var out = LifeValue { type_id: n.type_id };
+    let n: const Node& = p.nodes[node];
+    var out = LIFE_EMPTY_VALUE;
+    out.type_id = n.type_id;
     if n.kind == N_NAME && n.symbol >= 0 && (p.symbols[n.symbol].flags & (S_FUNCTION | S_TYPE | S_BUILTIN)) == 0 {
         let cell = life_cell(p, l, n.symbol);
         out.place = life_root_set(l, l.cells[cell].root); out.refs = l.cells[cell].refs;
@@ -5410,7 +5420,8 @@ recursive fn life_eval(p: Program&, l: Lifetimes&, node: i64, destination: i64 =
 }
 
 recursive fn life_eval_body(p: Program&, l: Lifetimes&, node: i64, n: const Node&, destination: i64, selected_result: i64) -> LifeValue {
-    var out = LifeValue { type_id: n.type_id };
+    var out = LIFE_EMPTY_VALUE;
+    out.type_id = n.type_id;
     if n.kind == N_UNARY {
         let value = life_eval(p, l, n.left);
         if n.integer == T_BITAND { out.refs = value.place; if value.type_id >= 0 && p.types[value.type_id].kind == TY_REF { out.refs = value.refs; } out.contents = value.contents; }
