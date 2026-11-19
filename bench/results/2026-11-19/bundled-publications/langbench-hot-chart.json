@@ -1,0 +1,93 @@
+{
+  "schema": "goose-langbench-hot-chart-v1",
+  "report": "bench/results/2026-11-19/bundled-publications/langbench-hot.json.gz",
+  "report_sha256": "2b4ea0bc69998ebc38778b51f9068b8ae3624d684f2a2566262b6def48aa982a",
+  "charts": {
+    "langbench-hot-runtime.svg": {
+      "values": [
+        {
+          "profile": "small",
+          "cells": [
+            "c-gcc",
+            "c-clang",
+            "upstream-goose-native",
+            "goose-native",
+            "goose-wasm-wasmtime",
+            "goose-wasm-v8"
+          ],
+          "median_ms": [
+            127.340218,
+            134.856936,
+            157.760226,
+            131.112966,
+            133.731307,
+            140.996163
+          ],
+          "mad_ms": [
+            16.865326,
+            29.556633,
+            31.961243,
+            14.817486,
+            15.388812,
+            37.360607
+          ]
+        },
+        {
+          "profile": "medium",
+          "cells": [
+            "c-gcc",
+            "c-clang",
+            "upstream-goose-native",
+            "goose-native",
+            "goose-wasm-wasmtime",
+            "goose-wasm-v8"
+          ],
+          "median_ms": [
+            1286.052479,
+            1181.043224,
+            1269.348882,
+            1119.241567,
+            1188.00683,
+            1052.175009
+          ],
+          "mad_ms": [
+            437.080514,
+            306.269338,
+            154.623847,
+            146.942764,
+            247.858455,
+            146.173268
+          ]
+        },
+        {
+          "profile": "official",
+          "cells": [
+            "c-gcc",
+            "c-clang",
+            "upstream-goose-native",
+            "goose-native",
+            "goose-wasm-wasmtime",
+            "goose-wasm-v8"
+          ],
+          "median_ms": [
+            4296.990368,
+            4397.24039,
+            4188.151305,
+            4659.912463,
+            4980.31204,
+            4710.707962
+          ],
+          "mad_ms": [
+            505.780452,
+            430.208607,
+            735.717942,
+            738.91163,
+            1209.797337,
+            532.362336
+          ]
+        }
+      ],
+      "sha256": "e01985b8eb0defaa207e5e45a786db1687f913bd7cb03a3a29a53d6928eee8a1"
+    }
+  }
+}
