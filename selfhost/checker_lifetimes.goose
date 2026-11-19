@@ -56,9 +56,9 @@ struct LifeValue { type_id: i64 = -1, place: i64 = 0, refs: i64 = 0, contents: i
 struct LifeItem { value: LifeValue, next: i64 = -1 }
 // live is set and cleared through life_set_live, which mirrors it in live_bits.
 struct LifeCell { symbol: i64, frame: i64, root: i64, parameter: bool = false, refs: i64 = 0, live_refs: i64 = 0, contents: i64 = 0, initial: i64 = 0, committed: bool = false, growshrink: bool = false, depth: i64 = 0, initialized: bool = false, live: bool = false, next_symbol: i64 = -1, next_frame: i64 = -1, next_capture_input: i64 = -1, next_parameter: i64 = -1 }
-// first_other, last_other: the discovery summary's entries that are not
-// construct reads, in order (LifeSummary.other). reads_version: how many
-// times a construct read has been added to the summary or changed in it.
+// first_other, last_other: discovery effects that need individual replay,
+// in insertion order. replay_version changes whenever a replayable leaf
+// is added or updated, invalidating a completed replay of this summary.
 // chain: how many frames the parent chain holds, set at each activation.
 // chain_recursive: the nearest recursive frame of that chain, from this
 // frame up, or 0, as of recursion epoch chain_epoch (life_nearest_recursive).
@@ -67,7 +67,7 @@ struct LifeCell { symbol: i64, frame: i64, root: i64, parameter: bool = false, r
 // next older frame in its input_heads and home_heads buckets.
 // function_active: on the newest frame of a function, how many of the
 // function's frames are active.
-struct LifeFrame { function_node: i64 = -1, parent: i64 = -1, lexical: i64 = 0, call: i64 = -1, inputs: i64 = -1, base: i64 = 0, active: bool = false, result: LifeValue = LifeValue {}, destination: i64 = 0, selected_result: i64 = -1, checked_revision: i64 = -1, next_function: i64 = -1, first_cell: i64 = -1, first_capture_input: i64 = -1, first_parameter: i64 = -1, first_effect: i64 = -1, last_effect: i64 = -1, validated: bool = false, first_summary: i64 = -1, last_summary: i64 = -1, effect_epoch: i64 = 0, recursive_call: bool = false, home: i64 = -1, capture_inputs: i64 = -1, cycle: i64 = -1, activation: i64 = 0, context: i64 = 0, first_other: i64 = -1, last_other: i64 = -1, reads_version: i64 = 0, first_read: i64 = -1, last_read: i64 = -1, read_table: i64 = 0, read_cap: i64 = 0, read_count: i64 = 0, chain: i64 = 0, chain_epoch: i64 = -1, chain_recursive: i64 = 0, inputs_hash: i64 = 0, inputs_kinds: i64 = 0, mixed_kinds: bool = false, next_inputs: i64 = -1, next_home: i64 = -1, function_active: i64 = 0,
+struct LifeFrame { function_node: i64 = -1, parent: i64 = -1, lexical: i64 = 0, call: i64 = -1, inputs: i64 = -1, base: i64 = 0, active: bool = false, result: LifeValue = LifeValue {}, destination: i64 = 0, selected_result: i64 = -1, checked_revision: i64 = -1, next_function: i64 = -1, first_cell: i64 = -1, first_capture_input: i64 = -1, first_parameter: i64 = -1, first_effect: i64 = -1, last_effect: i64 = -1, validated: bool = false, first_summary: i64 = -1, last_summary: i64 = -1, effect_epoch: i64 = 0, recursive_call: bool = false, home: i64 = -1, capture_inputs: i64 = -1, cycle: i64 = -1, activation: i64 = 0, context: i64 = 0, first_other: i64 = -1, last_other: i64 = -1, replay_version: i64 = 0, first_read: i64 = -1, last_read: i64 = -1, read_table: i64 = 0, read_cap: i64 = 0, read_count: i64 = 0, chain: i64 = 0, chain_epoch: i64 = -1, chain_recursive: i64 = 0, inputs_hash: i64 = 0, inputs_kinds: i64 = 0, mixed_kinds: bool = false, next_inputs: i64 = -1, next_home: i64 = -1, function_active: i64 = 0,
     first_exit: i64 = -1, parameter_version: i64 = 0,
     // island: the class-keyed frame this frame last ran under, itself for
     // such a frame, 0 for none. For a class-keyed frame: classes, class_count:
@@ -192,11 +192,11 @@ struct LifeSummary {
     next: i64 = -1, owner: i64 = -1, kind: i64 = 0, node: i64 = -1, type_id: i64 = -1, cell: i64 = -1, field: i64 = -1,
     places: i64 = -1, refs: i64 = -1, contents: i64 = -1, place: i64 = -1, walked: i32 = -1,
     replayed: i32 = -1, replayed_epoch: i32 = -1,
-    // leaf: for a construct read (kind 3), what life_leaf names its node and
-    // value by, or -1 before its first replay and after its sets change.
+    // leaf: the interned kind, node and value of a replayable effect, or -1
+    // before its first replay and after its sets change.
     // after: the effect's next in its frame's list (LifeEffect.next), so that
     // a replay passes an entry it skips without reading the effect.
-    // other: the next entry of the frame's summary that is not a construct read.
+    // other: the next summary entry that needs individual replay.
     leaf: i32 = -1, after: i64 = -1, other: i64 = -1,
 }
 // A construct read by what offering it depends on: its node and its value.
@@ -279,7 +279,7 @@ struct Lifetimes {
     // Chains of frames by number (life_context: a frame and its parent's chain).
     contexts: LifeContext[>..]&, context_heads: i64[>..]&,
     // For a chain of frames and a frame whose summary was replayed in it with
-    // every construct read offered (life_replay): the summary's reads_version
+    // every replayable leaf offered (life_replay): the summary's replay_version
     // then. An open-addressed map from chain, frame and recursion epoch in
     // one word (life_chain_key).
     chain_replays: i64[>..]&, chain_versions: i64[>..]&, chain_replay_count: i64 = 0,
@@ -466,6 +466,11 @@ inline fn life_leaf_hash(kind: i64, node: i64, v: const LifeValue&) -> i64 {
     for part in [kind, node, v.type_id, v.place, v.refs, v.contents, v.self_pools, v.relative_roots, v.tuple, v.element_array, v.reached] { h = (h ^ (part as! u64)) * 1099511628211; h ^= h >> 29; }
     return (h >> 1) as i64;
 }
+// Replaying these effects during concrete discovery only records the
+// operation in caller summaries. A shrink entry already names an array.
+inline fn life_replayable_leaf(l: Lifetimes&, kind: i64) -> bool {
+    return kind == 3 || l.compact && (kind == 1 || kind == 2 || kind == 8);
+}
 // The leaf of a check-only effect: equal kinds, nodes and values, set for set by ID.
 fn life_leaf(l: Lifetimes&, kind: i64, node: i64, v: const LifeValue&) -> i64 {
     if 2 * l.leaves.len >= l.leaf_heads.len {
@@ -529,8 +534,7 @@ inline fn life_chain_key(l: Lifetimes&, item: i64, epoch: i64) -> i64 {
     if context < 0 || context >= 16777216 || item >= 16777216 || epoch >= 32768 || l.class_frames > 0 { return -1; }
     return (context * 16777216 + item) * 32768 + epoch;
 }
-// The reads_version a summary had when this chain of frames last replayed
-// all its construct reads, or -1.
+// The summary version this chain last replayed completely, or -1.
 fn life_chain_replayed(l: Lifetimes&, key: i64) -> i64 {
     if l.chain_replays.len == 0 { return -1; }
     var slot = life_mix(key, 1) & (l.chain_replays.len - 1);
@@ -623,7 +627,7 @@ fn life_effect_merge(l: Lifetimes&, effect: const LifeEffect&, frame: i64, bucke
             l.effects[previous].places = places; l.effects[previous].value.refs = refs; l.effects[previous].value.contents = contents; l.effects[previous].value.place = value_places;
             life_summary_seen(l, previous, effect);
             l.summaries[previous].walked = walked; l.summaries[previous].replayed = -1; l.summaries[previous].leaf = -1;
-            if effect.kind == 3 { l.frames[frame].reads_version += 1; }
+            if life_replayable_leaf(l, effect.kind) { l.frames[frame].replay_version += 1; }
             return 1;
         }
         previous = next;
@@ -774,8 +778,8 @@ fn life_read_add(l: Lifetimes&, frame: i64, entry: LifeReadEntry) {
 fn life_read_merge(l: Lifetimes&, frame: i64, leaf: i64, key: i64, index: i64, outside: bool) -> i64 {
     let walked = life_walked(l, frame, outside);
     if index < 0 {
-        l.frames[frame].reads_version += 1;
-        life_read_add(l, frame, LifeReadEntry { changed: l.frames[frame].reads_version, key: key, leaf: leaf as i32, seen: leaf as i32, walked: walked, before: l.frames[frame].last_summary as i32 });
+        l.frames[frame].replay_version += 1;
+        life_read_add(l, frame, LifeReadEntry { changed: l.frames[frame].replay_version, key: key, leaf: leaf as i32, seen: leaf as i32, walked: walked, before: l.frames[frame].last_summary as i32 });
         l.revision += 1;
         return 0;
     }
@@ -799,7 +803,7 @@ fn life_read_merge(l: Lifetimes&, frame: i64, leaf: i64, key: i64, index: i64, o
     let joined = life_leaf(l, 3, l.leaves[held].node, value);
     l.summary_reads[index].leaf = joined as i32; l.summary_reads[index].seen = leaf as i32; l.summary_reads[index].walked = walked; l.summary_reads[index].sent = -1;
     if joined != held {
-        l.frames[frame].reads_version += 1; l.summary_reads[index].changed = l.frames[frame].reads_version;
+        l.frames[frame].replay_version += 1; l.summary_reads[index].changed = l.frames[frame].replay_version;
     }
     return 1;
 }
@@ -941,7 +945,7 @@ fn life_effect(l: Lifetimes&, effect: LifeEffect) -> i64 {
                 if l.discovery {
                     if last < 0 { l.frames[frame].first_summary = index; }
                     l.frames[frame].last_summary = index; l.revision += 1;
-                    if entry.kind == 3 { l.frames[frame].reads_version += 1; }
+                    if life_replayable_leaf(l, entry.kind) { l.frames[frame].replay_version += 1; }
                     else {
                         let before = l.frames[frame].last_other;
                         if before >= 0 { l.summaries[before].other = index; } else { l.frames[frame].first_other = index; }
@@ -3290,10 +3294,9 @@ fn life_grow(p: Program&, l: Lifetimes&, node: i64, receiver: LifeValue) {
         }
     }
 }
-// Offers an effect that discovery only records (a construct read; with
-// LIFE_ONCE_ALL a growth or a replacement too), unless the current
-// activation has been offered it (life_leaf_offered). known: its leaf, where
-// the caller has looked it up and found it not offered (life_replay).
+// Offer a discovery effect once per activation. A replay can pass a leaf
+// that it has already looked up and found outstanding. Validation uses this
+// shortcut only for recording construct reads, and checks each use separately.
 fn life_offer_once(l: Lifetimes&, offer: LifeEffect, known: i64) {
     // In validation this is the recording of the effect in the frames'
     // effect lists, which have it from then on; what it is checked against
@@ -3301,7 +3304,7 @@ fn life_offer_once(l: Lifetimes&, offer: LifeEffect, known: i64) {
     // stamps: the activation's stamp on the leaf can say the offer was made.
     // compact: the summaries take the read by its leaf (life_read_offer).
     let stamps = (l.discovery || l.class_frames == 0) && l.frame > 0 && l.activations < 1073741824;
-    let compact = l.compact && l.discovery && l.frame > 0;
+    let compact = offer.kind == 3 && l.compact && l.discovery && l.frame > 0;
     if !stamps && !compact { life_effect(l, offer); return; }
     var leaf = known; var offered = false;
     if leaf < 0 { leaf = life_leaf(l, offer.kind, offer.node, offer.value); offered = stamps && life_leaf_offered(l, leaf); }
@@ -4227,6 +4230,8 @@ fn life_cycle_head(l: Lifetimes&, frame: i64) -> i64 {
     return head;
 }
 fn life_cycle_call(p: Program&, l: Lifetimes&, target: i64, call: i64, destination: i64) {
+    // Only an active callee or a member of a known cycle can close a cycle.
+    if !l.frames[target].active && !l.frames[target].recursive_call { return; }
     var entry = -1; var at = l.frame; let target_head = life_cycle_head(l, target);
     while at > 0 {
         if at == target || l.frames[target].recursive_call && life_cycle_head(l, at) == target_head { entry = at; break; }
@@ -5801,12 +5806,9 @@ fn life_replay(p: Program&, l: Lifetimes&, frame: i64, summary: bool = false, m:
     let activation = l.frames[l.frame].activation; let replay_epoch = l.recursion_epoch;
     let into = activation as i32; let epoch = replay_epoch as i32;
     let plain = memo && m.count == 0;
-    // Most of a summary is construct reads. A replay that found every one of
-    // them offered, or offered the rest, says so for its chain of frames
-    // (chain_replays). Until the summary gains or changes a read, a replay
-    // in that chain again has only the other entries to go through, in the
-    // same order: each frame of the chain took the reads then.
-    let version = l.frames[frame].reads_version; var chain: i64 = -1; if plain { chain = life_chain_key(l, frame, l.recursion_epoch); }
+    // A completed replay records that this chain received every replayable
+    // leaf. Until one changes, only the other entries need to run again.
+    let version = l.frames[frame].replay_version; var chain: i64 = -1; if plain { chain = life_chain_key(l, frame, l.recursion_epoch); }
     var covered: i64 = -1; if chain >= 0 { covered = life_chain_replayed(l, chain); }
     let others = covered == version;
     // In validation a construct read does two things: it is recorded up the
@@ -5864,11 +5866,13 @@ fn life_replay(p: Program&, l: Lifetimes&, frame: i64, summary: bool = false, m:
         if plain {
             let s: const LifeSummary& = l.summaries[at];
             if s.replayed == into && s.replayed_epoch == epoch {
-                if complete && s.kind == 3 && (s.leaf < 0 || !life_leaf_offered_in(l, s.leaf as i64, activation, replay_epoch, stamp_chain)) { complete = false; }
+                if complete && life_replayable_leaf(l, s.kind) && (s.leaf < 0 || !life_leaf_offered_in(l, s.leaf as i64, activation, replay_epoch, stamp_chain)) { complete = false; }
                 at = s.after; if others { at = s.other; }
                 continue;
             }
-            if s.kind == 3 && s.leaf >= 0 && life_leaf_offered_in(l, s.leaf as i64, activation, replay_epoch, stamp_chain) { at = s.after; continue; }
+            if life_replayable_leaf(l, s.kind) && s.leaf >= 0 && life_leaf_offered_in(l, s.leaf as i64, activation, replay_epoch, stamp_chain) {
+                at = s.after; if others { at = s.other; } continue;
+            }
         }
         if quick {
             let s: const LifeSummary& = l.summaries[at];
@@ -5904,13 +5908,17 @@ fn life_replay(p: Program&, l: Lifetimes&, frame: i64, summary: bool = false, m:
         if remembered {
             let s: const LifeSummary& = l.summaries[at];
             if s.replayed == into && s.replayed_epoch == epoch { at = next; continue; }
-            if effect.kind == 3 {
+            if life_replayable_leaf(l, effect.kind) {
                 leaf = s.leaf as i64; if leaf < 0 { leaf = life_leaf(l, effect.kind, effect.node, effect.value); l.summaries[at].leaf = leaf as i32; }
                 if life_leaf_offered_in(l, leaf, activation, replay_epoch, stamp_chain) { at = next; continue; }
             }
             l.offer_count = 0; l.offer_recursive = false;
         }
-        if effect.kind == 1 { life_shrink(p, l, effect.node, effect.value); }
+        // Concrete discovery records these normalized array operations. The
+        // validation pass below still checks holds and live references in order.
+        if remembered && leaf >= 0 && effect.kind != 3 {
+            life_offer_once(l, LifeEffect { kind: effect.kind, node: effect.node, value: effect.value, places: effect.value.place }, leaf);
+        } else if effect.kind == 1 { life_shrink(p, l, effect.node, effect.value); }
         else if effect.kind == 2 { life_grow(p, l, effect.node, effect.value); }
         else if effect.kind == 3 { life_construct_read(p, l, effect.node, effect.value, leaf); }
         else if effect.kind == 8 { life_replace(p, l, effect.node, effect.value); }
@@ -5986,10 +5994,10 @@ fn life_replay(p: Program&, l: Lifetimes&, frame: i64, summary: bool = false, m:
             }
         }
         if remembered && l.offer_count > 0 && !l.offer_recursive { l.summaries[at].replayed = into; l.summaries[at].replayed_epoch = epoch; }
-        if complete && effect.kind == 3 && (leaf < 0 || !life_leaf_offered_in(l, leaf, activation, replay_epoch, stamp_chain)) { complete = false; }
+        if complete && life_replayable_leaf(l, effect.kind) && (leaf < 0 || !life_leaf_offered_in(l, leaf, activation, replay_epoch, stamp_chain)) { complete = false; }
         at = next;
     }
-    if complete && l.frames[frame].reads_version == version { life_chain_replay(l, chain, version); }
+    if complete && l.frames[frame].replay_version == version { life_chain_replay(l, chain, version); }
 }
 
 // Persist the final root proof by Symbol ID so optimizer clones can carry it
