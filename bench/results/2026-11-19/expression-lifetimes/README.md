@@ -35,6 +35,29 @@ Lifetime analysis accounts for 2.256 s in Wasmtime and 1.525 s native on the fro
 
 Writing the returned value directly into caller-provided storage removed **323.5 MB** of evaluator copies per check. Flattening that path removed **355.4 MB**. Across five paired rebuilds those strategies changed Wasmtime wall time by **−0.9%** and **−0.7%**, respectively. Expanding fixed-width copies into scalar loads and stores increased elapsed time by 2.8% for 72-byte copies. The SIMD trial at widths up to 96 bytes lowered retired instructions by 2.4% and increased elapsed time by 2.2%. The compiler keeps its existing calling convention. [Eleven experiment series](screens.json.gz) · [Source patches and probing scripts](experiments.tar.gz)
 
+## Can the checker skip groups of reads?
+
+In a frozen self-check, the compiler visited **8,235,771 read entries** while replaying the effects of earlier function calls. The caller had already received 1,852,489 at their current version and already knew another 4,486,327 individually. Of the version-covered entries, 1,618,977 fell in uninterrupted runs of at least 16. A group can be skipped together if every read is covered and the jump stays before the next interleaved effect. [Run lengths and per-candidate counts](replay-trials.json.gz)
+
+| Fixed memory32 experiment, four pairs per order | First order | Reversed order | Retired instructions |
+| --- | ---: | ---: | ---: |
+| Return early on a completed, empty replay | +3.7% | -7.6% | -0.2% |
+| Keep traversal fields together | +7.6% | -10.6% | -0.0% |
+| Compare the exact caller stamp first | -5.8% | -16.6% | +0.1% |
+| Combine all three changes | -6.8% | -13.6% | -0.0% |
+
+The exact stamp matched **2,099,033 of 6,383,282** comparisons. Another ten rounds on CPU 7 gave +0.6% and -2.9% for the stamp shortcut across the two orders. A further twelve rounds included the identical release binary under a second label. The duplicate changed by +4.5% and -0.8% against the original. The stamp trial changed by +3.5% and -1.1% against the original and -3.8% and -0.3% against the duplicate. The four-pair exploratory results overlapped the launch benchmark on the shared machine. The larger apparent gain did not repeat in the control runs.
+
+Grouping affected both traversal and storage. The three grouped compilers each exhausted a data region on the full frozen rebuild with the shipped layout, and again after separately sizing their regions from squares, sorting and tour. A fourth prototype reused the existing lookup array for group metadata and exhausted the region while appending a read under its own example-trained layout. The default memory64 layout had enough room to time all three against the release compiled for that same layout.
+
+| Experimental memory64 compiler | Fewer read visits per self-check | First three pairs | Reversed three pairs | Retired instructions |
+| --- | ---: | ---: | ---: | ---: |
+| 16 adjacent entries | 272,393 | +0.5% | -9.1% | +0.3% |
+| 16 reads from one call frame | 1,227,664 | -2.5% | +6.1% | +0.3% |
+| 64 reads from one call frame | 663,925 | +0.1% | +4.3% | +0.4% |
+
+For a separate memory32 comparison, both compilers sized their regions from peak use while compiling a separate compiler revision (`06c84ac`). The timed project was still `34ddff8`. Grouping 16 reads from one call frame changed median paired rebuild time by **-0.9%** (-0.3% and -5.9% across the two orders) and retired instructions by **+0.2%**. On one self-check this grouping maintained metadata for 1,003,113 appended reads and 6,332 changed leaves. It tested group membership 624,825 times and jumped 81,907 times. The release keeps the smaller per-read representation. The next candidate is reducing the number of per-frame entries created during discovery. Every successful timed process emitted the same 8,886,107-byte module. [Paired runs, capacity failures, compiler hashes and counters](replay-trials.json.gz) · [Patches and sizing profiles](replay-patches.tar.gz)
+
 ## Cold and cached self-compilation
 
 ![Cold and cached compiler process times](launch.svg)
