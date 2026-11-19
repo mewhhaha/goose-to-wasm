@@ -48,8 +48,8 @@ def function_body(path, stats, name="clear"):
     raise AssertionError(f"missing {name} function")
 
 
-def instructions(body):
-    """Decode instruction boundaries, so immediates cannot mimic rem opcodes."""
+def instruction_operands(body):
+    """Decode instruction boundaries and the leading immediate, if any."""
     groups, offset = uleb(body, 0)
     for _ in range(groups):
         _, offset = uleb(body, offset)
@@ -57,9 +57,9 @@ def instructions(body):
     while offset < len(body):
         op = body[offset]
         offset += 1
-        yield op
+        operand = None
         if op in (0x02,0x03,0x04,0x0c,0x0d,0x10,0x20,0x21,0x22,0x23,0x24,0x3f,0x40,0x41,0x42):
-            _, offset = uleb(body, offset)  # Signed and unsigned LEB have the same byte boundary.
+            operand, offset = uleb(body, offset)  # Signed and unsigned LEB use the same byte boundary.
         elif op == 0x0e:
             count, offset = uleb(body, offset)
             for _ in range(count+1):
@@ -73,6 +73,7 @@ def instructions(body):
             offset += 8
         elif op == 0xfc:
             sub, offset = uleb(body, offset)
+            operand = sub
             if sub in (10,14):
                 _, offset = uleb(body, offset)
                 _, offset = uleb(body, offset)
@@ -80,8 +81,24 @@ def instructions(body):
                 _, offset = uleb(body, offset)
             else:
                 raise AssertionError(f"unexpected prefixed instruction {sub}")
+        elif op == 0xfd:
+            operand, offset = uleb(body, offset)
+            if operand <= 0x0b or 0x54 <= operand <= 0x5d:
+                _, offset = uleb(body, offset)
+                _, offset = uleb(body, offset)
+            if operand in (0x0c, 0x0d):
+                offset += 16
+            elif 0x15 <= operand <= 0x22 or 0x54 <= operand <= 0x5b:
+                offset += 1
         elif not (op in (0x00,0x01,0x05,0x0b,0x0f,0x1a,0x1b) or 0x45 <= op <= 0xc4):
             raise AssertionError(f"unexpected instruction {op:#x}")
+        yield op, operand
+
+
+def instructions(body):
+    """Decode instruction boundaries, so immediates cannot mimic rem opcodes."""
+    for op, _ in instruction_operands(body):
+        yield op
 
 
 class Compile:

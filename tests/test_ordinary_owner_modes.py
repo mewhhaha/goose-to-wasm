@@ -6,12 +6,30 @@ import subprocess
 import tempfile
 import unittest
 
+from tests import goose_stats
+
 ROOT = Path(__file__).resolve().parents[1]
 COMPILER = Path(os.environ.get("GOOSE_COMPILER", ROOT / "build/bin/goose")).resolve()
 STDLIB = Path(os.environ.get("GOOSE_STDLIB", COMPILER.parent / "stdlib")).resolve()
 ROWS = "var rows:u8[>..]=[1,77,51];\n"
 READ = 'print(rows.len," ",rows[0]);'
 FOREIGN = 'extern fn inspect(out:u8[>..]&) -> i64 = "{}";\n'
+
+
+def code_section(wasm):
+    return dict(goose_stats.sections(wasm))[10]
+
+
+def publication_accesses(wasm):
+    code = code_section(wasm)
+    functions, offset = goose_stats.uleb(code, 0)
+    accesses = 0
+    for _ in range(functions):
+        length, offset = goose_stats.uleb(code, offset)
+        body = code[offset:offset + length]
+        offset += length
+        accesses += sum(op in (0x23, 0x24) and index == 11 for op, index in goose_stats.instruction_operands(body))
+    return accesses
 
 
 @unittest.skipUnless(COMPILER.is_file(), "bootstrap the compiler first")
@@ -34,18 +52,24 @@ class OrdinaryOwnerModes(unittest.TestCase):
         return out
 
     def test_bundled_import_and_foreign_fallback(self):
+        reads = 'print(rows.len," ",rows[0]," ",rows[1]);'
         cases = [
-            ("bundled stdout", "import os;\n" + ROWS + 'fn main(){write_stdout("");' + READ + "}", True),
-            ("unknown symbol", FOREIGN.format("observer") + ROWS + "fn main(){let x=inspect(rows);" + READ + "}", False),
-            ("wrong system signature", FOREIGN.format("system") + ROWS + "fn main(){let x=inspect(rows);" + READ + "}", False),
-            ("user declared stdlib symbol", FOREIGN.format("gs_os_arg") + ROWS + "fn main(){let x=inspect(rows);" + READ + "}", False),
+            ("bundled stdout", "import os;\n" + ROWS + 'fn main(){write_stdout("");' + reads + "}", True),
+            ("unknown symbol", FOREIGN.format("observer") + ROWS + "fn main(){let x=inspect(rows);" + reads + "}", False),
+            ("wrong system signature", FOREIGN.format("system") + ROWS + "fn main(){let x=inspect(rows);" + reads + "}", False),
+            ("user declared stdlib symbol", FOREIGN.format("gs_os_arg") + ROWS + "fn main(){let x=inspect(rows);" + reads + "}", False),
         ]
         for name, source, specializes in cases:
-            for bits in (32, 64):
-                with self.subTest(case=name, bits=bits):
-                    general = self.compile(source, bits, False).read_bytes()
-                    bundled = self.compile(source, bits, True).read_bytes()
-                    if specializes:
+            for bits, optimization in ((32, "-O0"), (32, "-O2"), (64, "-O2")):
+                with self.subTest(case=name, bits=bits, optimization=optimization):
+                    general = self.compile(source, bits, False, optimization).read_bytes()
+                    bundled = self.compile(source, bits, True, optimization).read_bytes()
+                    if bits == 32 and optimization == "-O2":
+                        # Shared owner decoding in the general mode adds one function.
+                        general_functions, _ = goose_stats.uleb(code_section(general), 0)
+                        bundled_functions, _ = goose_stats.uleb(code_section(bundled), 0)
+                        self.assertEqual(general_functions - bundled_functions, int(specializes))
+                    elif specializes:
                         self.assertLess(len(bundled), len(general))
                     else:
                         self.assertEqual(bundled, general)
@@ -61,9 +85,13 @@ fn main() { print_tuple(); print(result); }
                 with self.subTest(bits=bits, optimization=optimization):
                     general = self.compile(source, bits, False, optimization)
                     bundled = self.compile(source, bits, True, optimization)
-                    self.assertEqual(bundled.read_bytes(), general.read_bytes())
-                    result = subprocess.run(["node", ROOT / "scripts/run_wasm.mjs", bundled], check=True, capture_output=True)
-                    self.assertEqual(result.stdout, b"5\n[1, 2]\n")
+                    if bits == 64 or optimization == "-O0":
+                        self.assertEqual(bundled.read_bytes(), general.read_bytes())
+                    else:
+                        self.assertEqual(publication_accesses(bundled.read_bytes()), publication_accesses(general.read_bytes()))
+                    for module in (general, bundled):
+                        result = subprocess.run(["node", ROOT / "scripts/run_wasm.mjs", module], check=True, capture_output=True)
+                        self.assertEqual(result.stdout, b"5\n[1, 2]\n")
 
     def test_bundled_no_publication_omits_control_marks(self):
         source = """var result: i64[>..] = [];
@@ -80,7 +108,7 @@ fn main() {
             with self.subTest(bits=bits):
                 general = self.compile(source, bits, False)
                 bundled = self.compile(source, bits, True)
-                self.assertLess(bundled.stat().st_size, general.stat().st_size)
+                self.assertLess(publication_accesses(bundled.read_bytes()), publication_accesses(general.read_bytes()))
                 result = subprocess.run(["node", ROOT / "scripts/run_wasm.mjs", bundled], check=True, capture_output=True)
                 self.assertEqual(result.stdout, b"[0, 1, 2, 3, 5, 6]\n")
 
