@@ -1,0 +1,170 @@
+{
+  "schema": "goose-publication-byte-audit-v1",
+  "comparison": "Reconstruct the whole candidate from the same-source baseline using decoded instruction deletions.",
+  "build_options": [
+    "selfhost/main.goose",
+    "--stdlib",
+    "stdlib",
+    "--target",
+    "wasm-direct",
+    "-O2",
+    "--wasm-bundled-host",
+    "--wasm-initial-pages",
+    "65535",
+    "--wasm-max-pages",
+    "65535"
+  ],
+  "decoder": {
+    "implementation": "wasmparser 0.261.0 via host/rust/Cargo.lock",
+    "rustc": "rustc 1.97.1 (8bab26f4f 2026-07-14)",
+    "program": {
+      "path": "build/publication-next/host-review/audit-publication.rs",
+      "sha256": "736cc78d9a53ea7b021abd8638caf547d38e495e8fde3a52fcb1ff1641ba517c",
+      "bytes": 19516
+    },
+    "wrapper": {
+      "path": "bench/results/2026-11-19/bundled-publications/tools/audit-publication.sh",
+      "sha256": "5f34d76d8bb70a7a7a88e42aee1947dec2389de5ac0df9053b60f57150842d60",
+      "bytes": 1059
+    },
+    "private_mark_check": "Verify reaching local writes at every reachable read across structured Wasm branch and loop edges.",
+    "source": {
+      "path": "bench/results/2026-11-19/bundled-publications/tools/audit-publication.rs",
+      "sha256": "736cc78d9a53ea7b021abd8638caf547d38e495e8fde3a52fcb1ff1641ba517c",
+      "bytes": 19516
+    }
+  },
+  "same_source_pairs": [
+    {
+      "source": {
+        "source_commit": "fc34386679b120e6f822bd18f6cf7ab0319035ee",
+        "source_archive_sha256": "2220c2ff3a47d0d30ade05e940ca920d68847e6ef1c38e631a098a6cbc7793db",
+        "source_directory": "build/read-demand-19/release/source",
+        "training_profile": {
+          "path": "build/read-demand-19/release/training.profile",
+          "sha256": "907d1737b54e2b13581fb81ba652f40cb87478b04e302e46ca379c9a1e22b76b",
+          "bytes": 878
+        }
+      },
+      "baseline_emitter": {
+        "path": "build/read-demand-19/own/build-1/compiler-native",
+        "sha256": "f6df6a2c69903db3993616bb9bac4fe80cac495675a674b23acbd6a82ab889ac",
+        "bytes": 7079400
+      },
+      "candidate_emitter": {
+        "path": "build/publication-next/proof/gated-helpers/emitter.wasm",
+        "sha256": "b3665de61011c465c535a2d8312e1c9da638910eb80907ab9e869983d24f6ac1",
+        "bytes": 7471094
+      },
+      "candidate_host": {
+        "path": "host/rust/target/release/goose-wasmtime",
+        "sha256": "b247393d8fbe3115246f20703f726e90eeaaed762a75932c7bb131a4433ad026",
+        "bytes": 17245208
+      },
+      "audit": {
+        "decoder": "wasmparser 0.261.0",
+        "baseline": {
+          "path": "build/read-demand-19/release/fixed.wasm",
+          "sha256": "a15fc47c0ed47b87a740efbbd45b216ecb413a26b3c7845fc364512c468bb316",
+          "bytes": 7458550
+        },
+        "candidate": {
+          "path": "build/publication-next/proof/gated-helpers/compiler.wasm",
+          "sha256": "4ce291bfe046bd4c0a71e85cf88ff1ee5fbb05ad0cb152ff9dd8e6ee7287dd7d",
+          "bytes": 7232848
+        },
+        "memory_bits": 32,
+        "global_head": {
+          "index": 11,
+          "initial": 0,
+          "private": true
+        },
+        "publisher": {
+          "index": 1585,
+          "body_sha256": "9cfd92e5ef1dbd9371b4694a100e6e32034106665f9ade97a55299bd38ca943d",
+          "identical": true
+        },
+        "prefix_mapper_present": false,
+        "start_function": 1582,
+        "first_thunk": 1587,
+        "function_bodies": 3124,
+        "changed_bodies": 1249,
+        "unchanged_bodies": 1875,
+        "changed_non_user_bodies": [
+          1586,
+          3146
+        ],
+        "removed_publisher_calls": 12396,
+        "removed_private_head_saves": 25612,
+        "removed_private_head_restores": 8576,
+        "removed_instruction_bytes": 225699,
+        "encoding_bytes_removed": 3,
+        "all_non_code_sections_identical": true,
+        "entire_candidate_reconstructed": true
+      }
+    },
+    {
+      "source": {
+        "source_commit": "7ff11b74a7c78c00f0213c7c01af86c1bb989454",
+        "source_archive_sha256": "ac1f320fb2f04f7949ecc60b6953f07e88767d1e27613b263ca662a530bf818b",
+        "source_directory": "build/publication-release/own/source",
+        "training_profile": {
+          "path": "build/publication-release/release/training.profile",
+          "sha256": "9dbf8309d35ff805bd5c41a3111438b526e7e1d544406564ae2ae1c21c38fa08",
+          "bytes": 878
+        }
+      },
+      "baseline_emitter": {
+        "path": "build/read-demand-19/own/build-1/compiler-native",
+        "sha256": "f6df6a2c69903db3993616bb9bac4fe80cac495675a674b23acbd6a82ab889ac",
+        "bytes": 7079400
+      },
+      "candidate_emitter": {
+        "path": "build/publication-release/own/build-1/compiler-native",
+        "sha256": "d14a8ca084577559d6e03ebf5ce0d9dcc5b1578d0c389b3c91a59584ba34f5e5",
+        "bytes": 7091752
+      },
+      "audit": {
+        "decoder": "wasmparser 0.261.0",
+        "baseline": {
+          "path": "build/publication-next/host-review/final-source-before.wasm",
+          "sha256": "df487745c3e7da2694b3e3d293a677bf9a465388c6c252ce5d495630f784cb3d",
+          "bytes": 7471110
+        },
+        "candidate": {
+          "path": "build/publication-release/release/fixed.wasm",
+          "sha256": "d1520382d41b5a8a1c7a6786c28a8a1e99bc1117b7b58d7a68f61a5567cb8459",
+          "bytes": 7244971
+        },
+        "memory_bits": 32,
+        "global_head": {
+          "index": 11,
+          "initial": 0,
+          "private": true
+        },
+        "publisher": {
+          "index": 1590,
+          "body_sha256": "9cfd92e5ef1dbd9371b4694a100e6e32034106665f9ade97a55299bd38ca943d",
+          "identical": true
+        },
+        "prefix_mapper_present": false,
+        "start_function": 1587,
+        "first_thunk": 1592,
+        "function_bodies": 3134,
+        "changed_bodies": 1254,
+        "unchanged_bodies": 1880,
+        "changed_non_user_bodies": [
+          1591,
+          3156
+        ],
+        "removed_publisher_calls": 12407,
+        "removed_private_head_saves": 25674,
+        "removed_private_head_restores": 8604,
+        "removed_instruction_bytes": 226136,
+        "encoding_bytes_removed": 3,
+        "all_non_code_sections_identical": true,
+        "entire_candidate_reconstructed": true
+      }
+    }
+  ]
+}
