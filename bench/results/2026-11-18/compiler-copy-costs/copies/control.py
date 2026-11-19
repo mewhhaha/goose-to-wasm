@@ -1,4 +1,4 @@
-"""Prove counter extraction on a small memory64 module with predetermined counts."""
+"""Prove counter extraction on a small Wasm module with predetermined counts."""
 import argparse
 from collections import Counter
 import json
@@ -11,19 +11,25 @@ from instrument import instrument
 
 p = argparse.ArgumentParser(description=__doc__)
 p.add_argument('decoder', type=lambda x: Path(x).resolve())
+p.add_argument('--memory32', action='store_true', help='exercise i32 addresses and unsigned lengths')
 a = p.parse_args()
-wat = '''
+address = "i64"
+width = "memory64"
+if a.memory32:
+    address = "i32"
+    width = "memory32"
+wat = f'''
 (module
  (import "test" "unused" (func))
- (memory (export "memory") i64 1)
+ (memory (export "memory") {address} 1)
  (global i64 (i64.const 0))
- (func $control (export "control") (param $length i64) (param $run i32)
-   i64.const 0 i32.const 70 i64.const 16 memory.fill
-   i64.const 8 i64.const 0 i64.const 10 memory.copy
-   i64.const 32 i64.const 8 local.get $length memory.copy
-   i64.const 48 i64.const 32 i64.load i64.store
-   i64.const 64 i32.const 33 local.get $length memory.fill
-   local.get $run if i64.const 88 i64.const 0 i64.const 7 memory.copy end))
+ (func $control (export "control") (param $length {address}) (param $run i32)
+   {address}.const 0 i32.const 70 {address}.const 16 memory.fill
+   {address}.const 8 {address}.const 0 {address}.const 10 memory.copy
+   {address}.const 32 {address}.const 8 local.get $length memory.copy
+   {address}.const 48 {address}.const 32 i64.load i64.store
+   {address}.const 64 i32.const 33 local.get $length memory.fill
+   local.get $run if {address}.const 88 {address}.const 0 {address}.const 7 memory.copy end))
 '''
 with tempfile.TemporaryDirectory() as tmp:
     directory = Path(tmp)
@@ -55,7 +61,7 @@ with tempfile.TemporaryDirectory() as tmp:
             assert dict(actual) == expected, actual
     assert snapshots[0] == snapshots[1]
     assert snapshots[1][48:56] == b'F'*8 and snapshots[1][64:72] == b'!'*8
-    print(json.dumps({'control': 'memory64, two calls, overlapping source/destination, zero dynamic length, '
+    print(json.dumps({'control': width + ', two calls, overlapping source/destination, zero dynamic length, '
                                 'untaken copy, equal-width adjacent scalar load/store, memory compared',
                       'expected_equals_observed': True, 'source_and_instrumented_memory_equal': True,
                       'counters': [{'kind': k, 'size': w, 'metric': m, 'value': v}

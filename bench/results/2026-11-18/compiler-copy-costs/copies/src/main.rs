@@ -48,7 +48,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                     V128Load {..} => Some(16),
                     _ => None,
                 };
-                immediate = match op { I64Const { value } => Some(value), _ => None };
+                immediate = match op {
+                    I32Const { value } => Some(i64::from(value as u32)),
+                    I64Const { value } if value >= 0 => Some(value),
+                    _ => None,
+                };
             }
         }
         function += 1;
