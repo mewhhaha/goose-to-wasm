@@ -79,6 +79,27 @@ def main():
     left.set_ylim(0, max(*frozen_times, *current_times) * 1.2)
     save(fig, directory / "rebuild")
 
+    campaign_path = directory / "campaign.json"
+    if campaign_path.is_file():
+        cases = ["native-before", "wasm-before", "native-after", "wasm-after"]
+        campaign = rebuilds(campaign_path, cases)
+        previous = paired_ratio(campaign, "native-before", "wasm-before")
+        current_ratio = paired_ratio(campaign, "native-after", "wasm-after")
+        fig, (left, right) = plt.subplots(1, 2, figsize=(9.0, 3.9), width_ratios=[2, 1],
+                                         sharey=True, layout="constrained")
+        fig.suptitle("Full compiler rebuild before and after optimization", fontsize=15, weight="bold")
+        left.set_title(f"Same frozen sources · {len(campaign['wasm-before'])} pairs\n"
+                       f"Wasmtime/native {previous:.2f}× → {current_ratio:.2f}×", loc="left", fontsize=11)
+        right.set_title(f"Current compiler on itself · {len(current['native'])} pairs\n"
+                        f"Wasmtime/native {own:.2f}×", loc="left", fontsize=11)
+        times = [median(campaign[case].values()) for case in cases]
+        panel(left, ["Original\nnative", "Original\nWasmtime", "Current\nnative", "Current\nWasmtime"],
+              times, [NATIVE, WASM, NATIVE, WASM])
+        panel(right, ["Native", "Wasmtime"], current_times, [NATIVE, WASM])
+        left.set_ylim(0, max(*times, *current_times) * 1.2)
+        left.set_ylabel("Elapsed seconds")
+        save(fig, directory / "campaign")
+
     cases = ["cold1", "cold8", "cached64", "cached_bundled64", "cold8_bundled32", "cached_bundled32", "native"]
     launches = rebuilds(directory / "launch.json", cases)
     times = [median(series.values()) for series in launches.values()]
