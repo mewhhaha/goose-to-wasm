@@ -37,4 +37,4 @@ Check native and direct output at O0 and O2:
 python examples/run.py --backends native direct --levels 0 2 --output-dir build/examples-qualification
 ```
 
-The [historical qualification](../bench/results/2026-11-01/examples/qualification.json) used the earlier C++ compiler. [Current measurements](../bench/results/2026-11-05/threads-pools-and-access/README.md) use the Goose compiler.
+The [historical qualification](../bench/results/2026-11-01/examples/qualification.json) used the earlier C++ compiler. [Current build and runtime measurements](../README.md#benchmarks) use the Goose compiler.
