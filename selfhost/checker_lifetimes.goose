@@ -133,7 +133,7 @@ struct LifeFuture { node: i64, frame: i64, loop_scope: i64 = -1 }
 // A question a shrink check has asked of a live cell, and its answer
 // (life_shrink_array): a reference's pointee type and what it refers to, or
 // a holder's type, place and contents.
-struct LifeAsked { a: i64, b: i64, c: i64, into: bool }
+struct LifeAsked { a: i64, b: i64, c: i64, into: bool, next: i32 }
 struct LifeHold { value: LifeValue, node: i64, kind: i64 = 0, frame: i64 = 0 }
 struct LifeTemp { frame: i64 }
 struct LifeRead { node: i64, symbol: i64, answer: bool, next: i64 = -1 }
@@ -3248,27 +3248,42 @@ fn life_shrink_array(p: Program&, l: Lifetimes&, node: i64, receiver: LifeValue,
         if conflict { life_error(p, l, node, "array shrink invalidates a value still needed by the enclosing expression"); }
     }
     l.asked.clear();
+    var heads: i32[32] = [0; 32];
     var index = life_next_holder(l, -1);
     while index >= 0 {
-        // A cell whose type neither is a reference nor holds one points into
-        // nothing (life_points_into): most live cells are numbers.
-        let cell_type = p.symbols[l.cells[index].symbol].type_id;
-        if !life_is_ref(p, cell_type) && !life_holds(p, cell_type) { index = life_next_holder(l, index); continue; }
-        let cell = l.cells[index]; let visible = life_visible(l, index); index = life_next_holder(l, index);
-        if !visible { continue; }
-        if balanced && (cell.frame != l.frame || (p.symbols[cell.symbol].flags & S_PARAMETER) != 0) { continue; }
-        let value = LifeValue { type_id: cell_type, place: life_root_set(l, cell.root), refs: cell.live_refs, contents: l.roots[cell.root].live_contents };
-        // Whether a value points into the array depends on a reference's
-        // pointee type and referents, or on a holder's type, place and
-        // contents (life_points_into), and on nothing this loop changes.
-        // Every frame up the stack has a cell for the same few references:
-        // the answer for one is the answer for the next.
-        var a = cell_type; var b = value.place; var c = value.contents;
-        if life_is_ref(p, cell_type) { a = p.types[cell_type].element; b = value.refs; c = -2; }
+        let candidate = index; index = life_next_holder(l, index);
+        let symbol = l.cells[candidate].symbol;
+        let cell_type = p.symbols[symbol].type_id;
+        let reference = life_is_ref(p, cell_type);
+        if !reference && !life_holds(p, cell_type) { continue; }
+        if !life_visible(l, candidate) { continue; }
+        if balanced && (l.cells[candidate].frame != l.frame || (p.symbols[symbol].flags & S_PARAMETER) != 0) { continue; }
+        // Intern every place in scan order. The alternative count determines
+        // the precision of later class queries, even for a direct reference.
+        let root = l.cells[candidate].root;
+        let place = life_root_set(l, root);
+        var a = cell_type; var b = place; var c = -2;
+        if reference { a = p.types[cell_type].element; b = l.cells[candidate].live_refs; }
+        else { c = l.roots[root].live_contents; }
         var into = false; var known = false;
-        for old in l.asked { if old.a == a && old.b == b && old.c == c { known = true; into = old.into; break; } }
-        if !known { into = life_points_into(p, l, value, receiver.place, receiver.type_id); if l.asked.len < 64 { l.asked.push(LifeAsked { a: a, b: b, c: c, into: into }); } }
-        if into && life_used_after(p, l, cell) {
+        // Each shrink checks a different array. Links are one-based within this scan.
+        let bucket = (a ^ (b << 1) ^ (b >> 4) ^ c) & 31;
+        var at = heads[bucket];
+        while at > 0 {
+            let old: const LifeAsked& = l.asked[(at as i64) - 1];
+            if old.a == a && old.b == b && old.c == c { known = true; into = old.into; break; }
+            at = old.next;
+        }
+        if !known {
+            var value = LifeValue { type_id: cell_type };
+            if reference { value.refs = b; } else { value.place = b; value.contents = c; }
+            into = life_points_into(p, l, value, receiver.place, receiver.type_id);
+            if l.asked.len < 64 {
+                l.asked.push(LifeAsked { a: a, b: b, c: c, into: into, next: heads[bucket] });
+                heads[bucket] = l.asked.len as i32;
+            }
+        }
+        if into && life_used_after(p, l, l.cells[candidate]) {
             life_error(p, l, node, "array shrink invalidates a reference or holder that is used afterward");
         }
     }
