@@ -69,6 +69,9 @@ struct CgSequence {
 struct CgSlot { local: i64 = -1, value: bool = false, incoming: i64 = -1, address_used: bool = false }
 struct CgFrameAddress { local: i64, offset: i64 }
 struct CgBody {
+    // User and start functions use wb_reuse_locals. Scalar and hand-written
+    // helper bodies use their own encoding paths.
+    events: WbEvent[>..]&, record_events: bool = false,
     code: u8[>..]&, locals: i64[>..]&, slots: CgSlot[>..]&, addresses: CgFrameAddress[>..]&,
     labels: i64[>..]&, exits: CgExit[>..]&, results: i64[>..]&, destinations: i64[>..]&, work: i64[>..]&, raw_slots: i64[>..]&, sequences: CgSequence[>..]&,
     constructions: CgConstruction[>..]&, construction_destinations: CgDestination[>..]&, receiving: CgReceiving[>..]&,
@@ -204,11 +207,29 @@ fn cg_local(f: CgBody&, wasm_type: i64) -> i64 {
     f.locals.push(wasm_type);
     return index;
 }
-fn cg_save(f: CgBody&, wasm_type: i64) -> i64 {
-    let slot = cg_local(f, wasm_type); wb_op(f.code, 0x21, slot); return slot;
+// An event carries the original byte offset, operand and opcode. Locals in
+// the incoming signature do not take part in slot reuse.
+inline fn cg_record(f: CgBody&, opcode: i64, operand: i64) {
+    if f.record_events { f.events.push(WbEvent { start: f.code.len, operand: operand, opcode: opcode as u8 }); }
 }
-inline fn cg_get(f: CgBody&, slot: i64) { wb_op(f.code, 0x20, slot); }
-inline fn cg_set(f: CgBody&, slot: i64) { wb_op(f.code, 0x21, slot); }
+inline fn cg_control(f: CgBody&, opcode: i64) {
+    cg_record(f, opcode, 0);
+    wb_byte(f.code, opcode);
+}
+fn cg_save(f: CgBody&, wasm_type: i64) -> i64 {
+    let slot = cg_local(f, wasm_type);
+    cg_record(f, 0x21, slot);
+    wb_op(f.code, 0x21, slot);
+    return slot;
+}
+fn cg_get(f: CgBody&, slot: i64) {
+    if slot >= f.params { cg_record(f, 0x20, slot); }
+    wb_op(f.code, 0x20, slot);
+}
+fn cg_set(f: CgBody&, slot: i64) {
+    if slot >= f.params { cg_record(f, 0x21, slot); }
+    wb_op(f.code, 0x21, slot);
+}
 // 64-bit memory (docs/TARGET.md). With cg_wide an address is an i64 and a
 // slice a v128 of pointer and count; without it they are what they always
 // were, an i32 and an i64 of 32-bit pointer and count, and every helper
@@ -271,17 +292,18 @@ fn ws_pack(f: CgBody&) {
     let count = cg_save(f, 0x7e); wb_byte(f.code, 0xfd); wb_u(f.code, 0x12); cg_get(f, count); wb_byte(f.code, 0xfd); wb_u(f.code, 0x1e); wb_byte(f.code, 1);
 }
 fn cg_begin(f: CgBody&, opcode: i64, result: i64) -> i64 {
-    wb_byte(f.code, opcode); wb_byte(f.code, result);
+    cg_control(f, opcode); wb_byte(f.code, result);
     f.serial++; f.labels.push(f.serial); return f.serial;
 }
-fn cg_end(f: CgBody&) { wb_byte(f.code, 0x0b); f.labels.pop(); }
+fn cg_end(f: CgBody&) { cg_control(f, 0x0b); f.labels.pop(); }
 fn cg_branch(p: Program&, f: CgBody&, label: i64, conditional: bool) {
     var at = f.labels.len;
     while at > 0 {
         at--;
         if f.labels[at] == label {
             var opcode = 0x0c; if conditional { opcode = 0x0d; }
-            wb_op(f.code, opcode, f.labels.len - at - 1); return;
+            let depth = f.labels.len - at - 1;
+            cg_record(f, opcode, depth); wb_op(f.code, opcode, depth); return;
         }
     }
     cg_fail(p, f.function, "wasm: branch target is outside this function");
@@ -604,7 +626,7 @@ recursive fn cg_pack_view(p: Program&, m: CgModule&, f: CgBody&, id: i64, node: 
         // and its caller's diagnostic line in one shared fallback.
         if m.owner_view >= 0 {
             cg_get(f, base); wc_load(f.code, 5); wa_op(f.code, 0x45); cg_begin(f, 0x04, ws());
-            cg_get(f, base); ws_load(f.code, 0); wb_byte(f.code, 0x05);
+            cg_get(f, base); ws_load(f.code, 0); cg_control(f, 0x05);
             cg_get(f, base); cg_diagnostic_line(p, f, node); wb_op(f.code, 0x10, m.owner_view); cg_end(f); return;
         }
         cg_owner_read_base(p, m, f, base, node); wa_extend(f.code);
@@ -835,7 +857,7 @@ recursive fn cg_binary(p: Program&, m: CgModule&, f: CgBody&, node: i64) {
     if op == T_ANDAND || op == T_OROR {
         cg_truth_scope(p, m, f, n.left); if cg_diverges(p, n.left) { return; } cg_begin(f, 0x04, 0x7f);
         if op == T_ANDAND { cg_truth(p, m, f, n.right); } else { wb_i32(f.code, 1); }
-        wb_byte(f.code, 0x05);
+        cg_control(f, 0x05);
         if op == T_OROR { cg_truth(p, m, f, n.right); } else { wb_i32(f.code, 0); }
         cg_end(f); return;
     }
@@ -866,9 +888,9 @@ fn cg_float_remainder(p: Program&, m: CgModule&, f: CgBody&, node: i64, w: i64) 
     cg_get(f, value); if w == 0x7d { wb_f32(f.code, 3.4028234663852886e38); } else { wb_f64(f.code, 1.7976931348623157e308); }
     wb_byte(f.code, cg_numeric_opcode(T_GT, w, false)); wb_byte(f.code, 0x72);
     cg_begin(f, 0x04, w); cg_zero(f.code, w); cg_zero(f.code, w); wb_byte(f.code, div_op);
-    wb_byte(f.code, 0x05);
+    cg_control(f, 0x05);
     cg_get(f, value); cg_get(f, magnitude); wb_byte(f.code, cg_numeric_opcode(T_LT, w, false));
-    cg_begin(f, 0x04, w); cg_get(f, original); wb_byte(f.code, 0x05);
+    cg_begin(f, 0x04, w); cg_get(f, original); cg_control(f, 0x05);
     cg_get(f, magnitude); let scale = cg_save(f, w);
     let scaled = cg_begin(f, 0x02, 0x40); let scaling = cg_begin(f, 0x03, 0x40);
     cg_get(f, scale); cg_get(f, scale); wb_byte(f.code, add_op); let twice = cg_save(f, w);
@@ -2592,7 +2614,7 @@ recursive fn cg_pool_builtin(p: Program&, m: CgModule&, f: CgBody&, node: i64, b
     cg_get(f, free_count); wa_truth(f.code); cg_begin(f, 0x04, 0x40);
     cg_get(f, free_count); wa_const(f.code, 1); wa_op(f.code, 0x6b); cg_set(f, free_count); cg_get(f, state); cg_get(f, free_count); wa_store(f.code, ww(3));
     cg_get(f, state); wa_load(f.code, ww(2)); cg_get(f, free_count); wa_const(f.code, wa_bytes()); wa_op(f.code, 0x6c); wa_op(f.code, 0x6a); wa_load(f.code, 0); cg_set(f, index);
-    wb_byte(f.code, 0x05); wb_i32(f.code, 1); cg_set(f, fresh); cg_end(f);
+    cg_control(f, 0x05); wb_i32(f.code, 1); cg_set(f, fresh); cg_end(f);
     cg_get(f, fresh); cg_begin(f, 0x04, 0x40);
     cg_get(f, old); wa_const(f.code, -1); wa_op(f.code, 0x46); cg_trap_if(p, m, f, node, "array length overflow");
     cg_get(f, old); wa_const(f.code, 1); wa_op(f.code, 0x6a); let count = cg_save(f, wa()); cg_array_reserve(p, m, f, id, header, count, node); cg_end(f);
@@ -2723,7 +2745,7 @@ recursive fn cg_region_array_builtin(p: Program&, m: CgModule&, f: CgBody&, node
         cg_get(f, destination); cg_get(f, index); wa_const(f.code, cg_size(p, element)); wa_op(f.code, 0x6c); wa_op(f.code, 0x6a); let location = cg_save(f, wa()); cg_get(f, fill); cg_write_value(p, m, f, element, location, node);
         cg_get(f, index); wa_const(f.code, 1); wa_op(f.code, 0x6a); cg_set(f, index); cg_branch(p, f, again, false); cg_end(f); cg_end(f); if grow { cg_region_publish(f, header, top); }
     }
-    wb_byte(f.code, 0x05);
+    cg_control(f, 0x05);
     if grow { cg_get(f, old); cg_get(f, count); wa_op(f.code, 0x6b); let removed = cg_save(f, wa()); let bytes = cg_region_array_bytes(p, m, f, id, removed, node); cg_region_rewind(p, m, f, header, bytes, node); }
     cg_end(f); cg_owner_set_length(p, m, f, header, count, node);
 }
@@ -2908,7 +2930,7 @@ fn cg_format_scalar(p: Program&, m: CgModule&, f: CgBody&, output_type: i64, out
     }
     if kind == TY_BOOL {
         cg_get(f, value); cg_begin(f, 0x04, 0x40); cg_format_text(p, m, f, output_type, output, "true", node);
-        wb_byte(f.code, 0x05); cg_format_text(p, m, f, output_type, output, "false", node); cg_end(f); return;
+        cg_control(f, 0x05); cg_format_text(p, m, f, output_type, output, "false", node); cg_end(f); return;
     }
     if kind == TY_ARRAY || kind == TY_SLICE {
         if p.types[id].element != TYPE_U8 { cg_fail(p, node, "wasm: compound formatting requires the semantic rendering helper"); return; }
@@ -3378,7 +3400,7 @@ recursive fn cg_expr_body(p: Program&, m: CgModule&, f: CgBody&, node: i64) {
     if n.kind == N_IF || n.kind == N_GUARD {
         let result = cg_control_slots(p, f, n.type_id, node); cg_truth_scope(p, m, f, n.left); if cg_diverges(p, n.left) { return; } cg_begin(f, 0x04, 0x40);
         cg_block_into(p, m, f, n.right, n.type_id, result);
-        if n.third >= 0 { wb_byte(f.code, 0x05); cg_block_into(p, m, f, n.third, n.type_id, result); }
+        if n.third >= 0 { cg_control(f, 0x05); cg_block_into(p, m, f, n.third, n.type_id, result); }
         cg_end(f); cg_control_get(p, f, n.type_id, result); return;
     }
     if n.kind == N_WHILE || n.kind == N_LOOP { cg_loop(p, m, f, node); return; }
@@ -3572,7 +3594,7 @@ fn cg_parameter_copies(p: Program&, m: CgModule&, f: CgBody&) {
 fn cg_emit_epilogue(p: Program&, m: CgModule&, f: CgBody&) {
     if m.scalar {
         if !f.frame_free { cg_get(f, f.frame); wb_op(f.code, 0x24, 0); }
-        for result in f.results { cg_get(f, result); } wb_byte(f.code, 0x0b); return;
+        for result in f.results { cg_get(f, result); } cg_control(f, 0x0b); return;
     }
     var results: i64[>..] = []; if f.function >= 0 { cg_function_results(p, f.function, results); }
     if m.nonlocal_returns {
@@ -3622,12 +3644,24 @@ fn cg_emit_epilogue(p: Program&, m: CgModule&, f: CgBody&) {
     if f.heap_mark >= 0 { cg_get(f, f.heap_mark); wb_op(f.code, 0x24, 1); }
     if f.forward_mark >= 0 { cg_get(f, f.forward_mark); wb_op(f.code, 0x24, 5); }
     cg_get(f, f.frame); wb_op(f.code, 0x24, 0);
-    for result in f.results { cg_get(f, result); } wb_byte(f.code, 0x0b);
+    for result in f.results { cg_get(f, result); } cg_control(f, 0x0b);
+}
+// Move the events from an unchanged byte run. The write cursor can trail
+// the read cursor after a removed parameter use.
+fn cg_copy_events(events: WbEvent[>..]&, read: i64&, write: i64&, end: i64, delta: i64) {
+    while read < events.len {
+        let start = events[read].start;
+        if start >= end { return; }
+        if read != write { events[write] = events[read]; }
+        if delta != 0 { events[write].start = start + delta; }
+        read++; write++;
+    }
 }
 fn cg_emit_function(p: Program&, m: CgModule&, function: i64, function_index: i64, elements: bool, out: u8[>..]&, slots: CgSlot[>..]&) {
+    var events: WbEvent[>..] = [];
     var code: u8[>..] = []; var locals: i64[>..] = []; var addresses: CgFrameAddress[>..] = [];
     var labels: i64[>..] = []; var exits: CgExit[>..] = []; var results: i64[>..] = []; var destinations: i64[>..] = []; var work: i64[>..] = []; var raw_slots: i64[>..] = []; var sequences: CgSequence[>..] = []; var constructions: CgConstruction[>..] = []; var construction_destinations: CgDestination[>..] = []; var receiving: CgReceiving[>..] = []; var defers: i64[>..] = [];
-    var f = CgBody { code: code, locals: locals, slots: slots, addresses: addresses, labels: labels, exits: exits, results: results, destinations: destinations, work: work, raw_slots: raw_slots, sequences: sequences, constructions: constructions, construction_destinations: construction_destinations, receiving: receiving, function: function, function_index: function_index, elements: elements, defers: defers };
+    var f = CgBody { events: events, code: code, locals: locals, slots: slots, addresses: addresses, labels: labels, exits: exits, results: results, destinations: destinations, work: work, raw_slots: raw_slots, sequences: sequences, constructions: constructions, construction_destinations: construction_destinations, receiving: receiving, record_events: !m.scalar, function: function, function_index: function_index, elements: elements, defers: defers };
     cg_prepare_function(p, m, f, function);
     if m.scalar && function >= 0 { f.frame_free = !cg_scalar_prints(p, p.nodes[function].right); }
     f.done = cg_begin(f, 0x02, 0x40);
@@ -3654,16 +3688,33 @@ fn cg_emit_function(p: Program&, m: CgModule&, function: i64, function_index: i6
     // Frame size includes literals and call snapshots discovered recursively.
     // Emit the reservation only after that size has become final.
     var body: u8[>..] = []; var cursor = 0;
+    var event_read = 0; var event_write = 0; var parameter_edits = false;
     for use in m.parameter_uses {
         if slots[use.symbol].address_used { continue; }
+        if f.record_events {
+            cg_copy_events(events, event_read, event_write, use.start, body.len - cursor);
+            while event_read < events.len && events[event_read].start < use.end { event_read++; }
+            parameter_edits = true;
+        }
         body.append(code[cursor..use.start]);
+        // The replacement accesses an incoming parameter and needs no event.
         if !use.initial { wb_op(body, 0x20, slots[use.symbol].incoming); }
         cursor = use.end;
     }
     m.parameter_uses.clear();
-    body.append(code[cursor..]); code.clear(); cg_emit_prelude(p, m, f); code.append(body);
+    if parameter_edits {
+        cg_copy_events(events, event_read, event_write, code.len, body.len - cursor);
+        events.resize(event_write);
+    }
+    let body_event_count = events.len;
+    body.append(code[cursor..]); code.clear(); cg_emit_prelude(p, m, f);
+    let prelude_bytes = code.len;
+    code.append(body);
     if m.scalar { wb_compact_body(out, locals, code, f.params); }
-    else { wb_reuse_locals(locals, code, f.params); wb_body(out, locals, code); }
+    else {
+        wb_reuse_locals(locals, code, f.params, events, body_event_count, prelude_bytes);
+        wb_body(out, locals, code);
+    }
     m.region_functions[function_index].own = f.region_peak;
     // The next body reuses the table. Only this body's bindings and
     // captures acquired slots.
@@ -3672,9 +3723,10 @@ fn cg_emit_function(p: Program&, m: CgModule&, function: i64, function_index: i6
     for capture in m.captures { if capture.function == function { slots[capture.symbol] = CgSlot {}; } }
 }
 fn cg_emit_array_helper(p: Program&, m: CgModule&, out: u8[>..]&, helper: i64) {
+    var events: WbEvent[>..] = [];
     var code: u8[>..] = []; var locals: i64[>..] = []; var slots: CgSlot[>..] = []; var addresses: CgFrameAddress[>..] = [];
     var labels: i64[>..] = []; var exits: CgExit[>..] = []; var results: i64[>..] = []; var destinations: i64[>..] = []; var work: i64[>..] = []; var raw_slots: i64[>..] = []; var sequences: CgSequence[>..] = []; var constructions: CgConstruction[>..] = []; var construction_destinations: CgDestination[>..] = []; var receiving: CgReceiving[>..] = []; var defers: i64[>..] = [];
-    var f = CgBody { code: code, locals: locals, slots: slots, addresses: addresses, labels: labels, exits: exits, results: results, destinations: destinations, work: work, raw_slots: raw_slots, sequences: sequences, constructions: constructions, construction_destinations: construction_destinations, receiving: receiving, params: 4, diagnostic_line: 3, defers: defers };
+    var f = CgBody { events: events, code: code, locals: locals, slots: slots, addresses: addresses, labels: labels, exits: exits, results: results, destinations: destinations, work: work, raw_slots: raw_slots, sequences: sequences, constructions: constructions, construction_destinations: construction_destinations, receiving: receiving, params: 4, diagnostic_line: 3, defers: defers };
     if helper == m.update_length {
         f.params = 3; f.diagnostic_line = 2;
         cg_update_image_length(p, m, f, 0, 1, -1);
@@ -3690,9 +3742,10 @@ fn cg_emit_array_helper(p: Program&, m: CgModule&, out: u8[>..]&, helper: i64) {
 // given, as a push would (length, region cursor, memory), and returns where
 // they go. The host copies them in. It needs to know nothing of regions.
 fn cg_emit_host_reserve(p: Program&, m: CgModule&, out: u8[>..]&) {
+    var events: WbEvent[>..] = [];
     var code: u8[>..] = []; var locals: i64[>..] = []; var slots: CgSlot[>..] = []; var addresses: CgFrameAddress[>..] = [];
     var labels: i64[>..] = []; var exits: CgExit[>..] = []; var results: i64[>..] = []; var destinations: i64[>..] = []; var work: i64[>..] = []; var raw_slots: i64[>..] = []; var sequences: CgSequence[>..] = []; var constructions: CgConstruction[>..] = []; var construction_destinations: CgDestination[>..] = []; var receiving: CgReceiving[>..] = []; var defers: i64[>..] = [];
-    var f = CgBody { code: code, locals: locals, slots: slots, addresses: addresses, labels: labels, exits: exits, results: results, destinations: destinations, work: work, raw_slots: raw_slots, sequences: sequences, constructions: constructions, construction_destinations: construction_destinations, receiving: receiving, params: 2, defers: defers };
+    var f = CgBody { events: events, code: code, locals: locals, slots: slots, addresses: addresses, labels: labels, exits: exits, results: results, destinations: destinations, work: work, raw_slots: raw_slots, sequences: sequences, constructions: constructions, construction_destinations: construction_destinations, receiving: receiving, params: 2, defers: defers };
     let id = m.host_reserve_type;
     cg_array_length(p, m, f, id, 0); let old = cg_save(f, wa());
     cg_get(f, old); wa_extend(f.code); cg_get(f, 1); wa_extend(f.code); wb_byte(f.code, 0x7c); let wide = cg_save(f, 0x7e);
@@ -4628,7 +4681,7 @@ fn cg_read_relative(p: Program&, m: CgModule&, f: CgBody&, id: i64, node: i64) {
     }
     let offset = cg_save(f, 0x7e);
     let optional = (t.flags & TF_OPTIONAL) != 0;
-    if optional { cg_get(f, offset); wb_byte(f.code, 0x50); cg_begin(f, 0x04, wa()); wa_const(f.code, 0); wb_byte(f.code, 0x05); }
+    if optional { cg_get(f, offset); wb_byte(f.code, 0x50); cg_begin(f, 0x04, wa()); wa_const(f.code, 0); cg_control(f, 0x05); }
     cg_get(f, origin); cg_get(f, offset); wb_byte(f.code, 0x7c); let target = cg_save(f, 0x7e);
     // A 64-bit target is the address as it is: there is no narrower range
     // to leave, and an address outside memory traps where it is used.
@@ -4644,7 +4697,7 @@ fn cg_relative_offset(p: Program&, m: CgModule&, f: CgBody&, id: i64, slot: i64,
     let origin = cg_relative_origin(p, m, f, id, slot, node);
     cg_get(f, value); cg_resolve_pointer(m, f); let target = cg_save(f, wa());
     let optional = (t.flags & TF_OPTIONAL) != 0;
-    if optional { cg_get(f, target); wa_op(f.code, 0x45); cg_begin(f, 0x04, 0x7e); wb_i64(f.code, 0); wb_byte(f.code, 0x05); }
+    if optional { cg_get(f, target); wa_op(f.code, 0x45); cg_begin(f, 0x04, 0x7e); wb_i64(f.code, 0); cg_control(f, 0x05); }
     cg_get(f, target); wa_extend(f.code); cg_get(f, origin); wb_byte(f.code, 0x7d);
     if optional { cg_end(f); }
     let offset = cg_save(f, 0x7e);
@@ -4749,7 +4802,7 @@ fn cg_owner_read_length(p: Program&, m: CgModule&, f: CgBody&, header: i64, node
     // take the length from the shared view on the encoded path.
     if m.owner_view >= 0 && f.diagnostic_line < 0 {
         cg_get(f, header); wc_load(f.code, 5); wa_op(f.code, 0x45); cg_begin(f, 0x04, wa());
-        cg_get(f, header); wc_load(f.code, 1); wb_byte(f.code, 0x05);
+        cg_get(f, header); wc_load(f.code, 1); cg_control(f, 0x05);
         cg_get(f, header); cg_diagnostic_line(p, f, node); wb_op(f.code, 0x10, m.owner_view); ws_len(f.code);
         cg_end(f); return;
     }
@@ -4805,7 +4858,7 @@ fn cg_owner_read_capacity(p: Program&, m: CgModule&, f: CgBody&, header: i64) {
     // Address-sized: a runtime-limited image's first word, or the control's capacity word.
     cg_get(f, header); wc_load(f.code, 5); wa_const(f.code, 5); wa_op(f.code, 0x46); cg_begin(f, 0x04, wa());
     cg_get(f, header); wc_load(f.code, 4); if cg_wide { wb_mem(f.code, 0x29, 0, 0); } else { wb_mem(f.code, 0x28, 0, 0); }
-    wb_byte(f.code, 0x05); cg_get(f, header); wc_load(f.code, 3); cg_end(f);
+    cg_control(f, 0x05); cg_get(f, header); wc_load(f.code, 3); cg_end(f);
 }
 fn cg_destination(f: CgBody&, type_id: i64, header: i64, lifetime: i64, elements: bool, normal: bool, escape: bool, entry: i64, construction: i64) -> i64 {
     var state = construction;
@@ -5834,7 +5887,7 @@ recursive fn cg_numeric(p: Program&, m: CgModule&, f: CgBody&, op: i64, id: i64,
         cg_get(f, result); wb_i64(f.code, 0); wb_byte(f.code, 0x53); cg_begin(f, 0x04, 0x40);
         cg_get(f, result); cg_get(f, b); if calculation != w { wb_byte(f.code, 0xac); } let divisor = cg_save(f, 0x7e);
         cg_get(f, divisor); wb_i64(f.code, 0); wb_byte(f.code, 0x53); cg_begin(f, 0x04, 0x7e);
-        wb_i64(f.code, 0); cg_get(f, divisor); wb_byte(f.code, 0x7d); wb_byte(f.code, 0x05); cg_get(f, divisor); cg_end(f);
+        wb_i64(f.code, 0); cg_get(f, divisor); wb_byte(f.code, 0x7d); cg_control(f, 0x05); cg_get(f, divisor); cg_end(f);
         wb_byte(f.code, 0x7c); cg_set(f, result); cg_end(f);
     }
     if !unsigned && calculation != w && (checked || op == T_DIV && p.debug) {

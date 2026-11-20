@@ -179,6 +179,12 @@ fn wb_compact_body(out: u8[>..]&, locals: i64[:], code: u8[:], params: i64) {
     wb_body(out, kept, encoded);
 }
 
+// An event is a non-parameter local access or control instruction. Its
+// offset is relative to the emitted body or prelude. Branch table targets
+// stay in the bytecode.
+struct WbEvent { start: i64, operand: i64, opcode: u8 }
+struct WbLocalAccess { start: i64, index: i64 }
+
 // A block, loop or if being read by wb_reuse_locals: where it began (a loop),
 // where its definite assignments start on the undo stack, and whether a
 // branch names it.
@@ -197,66 +203,71 @@ struct WbFrame { at: i64, looping: bool = false, conditional: bool = false, alte
 // A write dominates a later read in the same block or one nested in it; a
 // local written in both arms of an if that no branch names is written after
 // it. Everything else is taken as not written, which only costs sharing.
-fn wb_reuse_locals(locals: i64[>..]&, code: u8[>..]&, params: i64) {
+fn wb_reuse_locals(locals: i64[>..]&, code: u8[>..]&, params: i64, events: WbEvent[:], body_event_count: i64, prelude_bytes: i64) {
     if locals.len < 2 { return; }
-    var locals_at: i64[>..] = [];
+    var locals_at: WbLocalAccess[>..] = [];
     let bytes: u8[:] = code;
     let total = params + locals.len;
     var first: i64[>..] = []; var last: i64[>..] = []; var written: i64[>..] = []; var arm: i64[>..] = []; var stamp: i64[>..] = [];
     first.resize(total, -1); last.resize(total, -1); written.resize(total, 0); arm.resize(total, -1); stamp.resize(total, -1);
     var loop_end: i64[>..] = [];
     var frames: WbFrame[>..] = []; var undo: i64[>..] = []; var covers: i64[>..] = []; var merged: i64[>..] = [];
-    // Only local accesses and control instructions contribute span endpoints.
-    // Keep the first position for reads of an implicitly zeroed local.
-    var position = -1; var at = 0;
-    while at < bytes.len {
-        let start = at; let op = bytes[at] as i64; at++;
-        var index = -1;
-        // Numeric instructions emitted in this range have no immediates.
-        if op < 0x45 || op >= 0xfc { index = wb_read_operands(bytes, at, op); }
-        let rewrite = op >= 0x20 && op <= 0x22 && index >= params;
-        if start != 0 && !rewrite && !(op >= 0x02 && op <= 0x05 || op >= 0x0b && op <= 0x0e) { continue; }
-        position++;
-        if op == 0x02 || op == 0x03 || op == 0x04 {
-            frames.push(WbFrame { at: position, looping: op == 0x03, conditional: op == 0x04, undo: undo.len });
-        } else if op == 0x05 {
-            // The then arm ends: remember what it wrote, then forget it.
-            let depth = frames.len - 1; let mark = frames[depth].undo;
-            for index in mark..undo.len { arm[undo[index]] = frames[depth].at; written[undo[index]] = 0; }
-            undo.resize(mark); frames[depth].alternative = true;
-        } else if op == 0x0b {
-            if frames.len == 0 { break; }
-            let frame = frames.pop(); merged.clear();
-            for index in frame.undo..undo.len {
-                let local = undo[index]; written[local] = 0;
-                if frame.conditional && frame.alternative && !frame.branched && arm[local] == frame.at { merged.push(local); }
-            }
-            undo.resize(frame.undo);
-            for local in merged { if written[local] == 0 { written[local] = frames.len + 1; undo.push(local); } }
-            if frame.looping {
-                if frame.at >= loop_end.len { loop_end.resize(frame.at + 1, -1); }
-                loop_end[frame.at] = position;
-            }
-        } else if op == 0x0c || op == 0x0d {
-            if index < frames.len { frames[frames.len - 1 - index].branched = true; }
-        } else if op == 0x0e {
-            var cursor = start + 1; let count = wb_read_unsigned(bytes, cursor);
-            for target in 0..count + 1 {
-                let label = wb_read_unsigned(bytes, cursor);
-                if label < frames.len { frames[frames.len - 1 - label].branched = true; }
-            }
-        } else if rewrite {
-            locals_at.push(start);
-            let local = index;
-            if first[local] < 0 { first[local] = position; } last[local] = position;
-            if op == 0x20 {
-                // The outermost loop entered since the write, or of all.
-                var depth = written[local] - 1; if depth < 0 { first[local] = 0; depth = 0; }
-                while depth < frames.len && !frames[depth].looping { depth++; }
-                if depth < frames.len && stamp[local] != frames[depth].at {
-                    stamp[local] = frames[depth].at; covers.push(local); covers.push(frames[depth].at);
+    // The first instruction may have no event (typically global.get in
+    // the prelude). Keep its position for implicitly zeroed locals.
+    var position = -1;
+    if prelude_bytes > 0 {
+        if body_event_count == events.len || events[body_event_count].start != 0 { position = 0; }
+    } else if bytes.len > 0 && (body_event_count == 0 || events[0].start != 0) { position = 0; }
+    for segment in 0..2 {
+        var first_event = body_event_count; var limit = events.len; var base = 0;
+        if segment != 0 { first_event = 0; limit = body_event_count; base = prelude_bytes; }
+        for event_index in first_event..limit {
+            let event: const WbEvent& = events[event_index];
+            let start = base + event.start;
+            let op = event.opcode as i64;
+            let index = event.operand;
+            position++;
+            if op == 0x02 || op == 0x03 || op == 0x04 {
+                frames.push(WbFrame { at: position, looping: op == 0x03, conditional: op == 0x04, undo: undo.len });
+            } else if op == 0x05 {
+                // The then arm ends: remember what it wrote, then forget it.
+                let depth = frames.len - 1; let mark = frames[depth].undo;
+                for index in mark..undo.len { arm[undo[index]] = frames[depth].at; written[undo[index]] = 0; }
+                undo.resize(mark); frames[depth].alternative = true;
+            } else if op == 0x0b {
+                if frames.len == 0 { break; }
+                let frame = frames.pop(); merged.clear();
+                for index in frame.undo..undo.len {
+                    let local = undo[index]; written[local] = 0;
+                    if frame.conditional && frame.alternative && !frame.branched && arm[local] == frame.at { merged.push(local); }
                 }
-            } else if written[local] == 0 { written[local] = frames.len + 1; undo.push(local); }
+                undo.resize(frame.undo);
+                for local in merged { if written[local] == 0 { written[local] = frames.len + 1; undo.push(local); } }
+                if frame.looping {
+                    if frame.at >= loop_end.len { loop_end.resize(frame.at + 1, -1); }
+                    loop_end[frame.at] = position;
+                }
+            } else if op == 0x0c || op == 0x0d {
+                if index < frames.len { frames[frames.len - 1 - index].branched = true; }
+            } else if op == 0x0e {
+                var cursor = start + 1; let count = wb_read_unsigned(bytes, cursor);
+                for target in 0..count + 1 {
+                    let label = wb_read_unsigned(bytes, cursor);
+                    if label < frames.len { frames[frames.len - 1 - label].branched = true; }
+                }
+            } else if op >= 0x20 {
+                locals_at.push(WbLocalAccess { start: start, index: index });
+                let local = index;
+                if first[local] < 0 { first[local] = position; } last[local] = position;
+                if op == 0x20 {
+                    // The outermost loop entered since the write, or of all.
+                    var depth = written[local] - 1; if depth < 0 { first[local] = 0; depth = 0; }
+                    while depth < frames.len && !frames[depth].looping { depth++; }
+                    if depth < frames.len && stamp[local] != frames[depth].at {
+                        stamp[local] = frames[depth].at; covers.push(local); covers.push(frames[depth].at);
+                    }
+                } else if written[local] == 0 { written[local] = frames.len + 1; undo.push(local); }
+            }
         }
     }
     var pair = 0;
@@ -270,43 +281,54 @@ fn wb_reuse_locals(locals: i64[>..]&, code: u8[>..]&, params: i64) {
     var head: i64[>..] = []; var next: i64[>..] = []; head.resize(position + 1, -1); next.resize(total, -1);
     var local = total - 1;
     while local >= params { if first[local] >= 0 { next[local] = head[first[local]]; head[first[local]] = local; } local--; }
-    var slot_type: i64[>..] = []; var slot_free: i64[>..] = []; var slot_of: i64[>..] = []; slot_of.resize(total, -1);
-    // A skipped prefix contains only busy slots of this type and slots of
-    // other types. It stays skippable until its first same-type span ends.
-    var prefix_len: i64[128] = [0; 128];
-    var prefix_end: i64[128] = [0; 128];
-    for span_start in 0..head.len {
-        var member = head[span_start];
+    // Wasm groups slots by type in first-use order. Link each type's spans
+    // in their original order so its first free slot can be found directly.
+    var kinds: i64[>..] = [];
+    var begin: i64[128] = [-1; 128]; var tail: i64[128] = [-1; 128];
+    for chain in head {
+        var member = chain;
         while member >= 0 {
-            let kind = locals[member - params];
-            var chosen = prefix_len[kind];
-            var until = prefix_end[kind];
-            if until < span_start { chosen = 0; until = head.len; }
-            while chosen < slot_free.len {
-                if slot_type[chosen] == kind {
-                    let end = slot_free[chosen];
-                    if end < span_start { break; }
-                    if end < until { until = end; }
-                }
-                chosen++;
-            }
-            prefix_len[kind] = chosen;
-            prefix_end[kind] = until;
-            if chosen == slot_type.len { slot_type.push(kind); slot_free.push(-1); }
-            slot_free[chosen] = last[member]; slot_of[member] = chosen; member = next[member];
+            let following = next[member]; let kind = locals[member - params];
+            if tail[kind] < 0 { kinds.push(kind); begin[kind] = member; }
+            else { next[tail[kind]] = member; }
+            tail[kind] = member; next[member] = -1; member = following;
         }
     }
-    // Indexes of one type are adjacent, so the declaration is one group each.
-    var kinds: i64[>..] = []; var index_of: i64[>..] = []; index_of.resize(slot_type.len, -1); var kept: i64[>..] = [];
-    for kind in slot_type { var known = false; for seen in kinds { if seen == kind { known = true; } } if !known { kinds.push(kind); } }
-    for kind in kinds { for candidate, slot in slot_type { if candidate == kind { index_of[slot] = params + kept.len; kept.push(kind); } } }
+    var kept: i64[>..] = []; var ends: i64[>..] = [];
+    for kind in kinds {
+        ends.clear(); var skip = 0; var until = -1;
+        var member = begin[kind];
+        while member >= 0 {
+            let start = first[member];
+            if until < start { skip = 0; until = head.len; }
+            while skip < ends.len {
+                let end = ends[skip];
+                if end < start { break; }
+                if end < until { until = end; }
+                skip++;
+            }
+            if skip == ends.len { ends.push(last[member]); }
+            else { ends[skip] = last[member]; }
+            // Once this span is placed, reuse its start slot for the final local index.
+            first[member] = params + kept.len + skip;
+            member = next[member];
+        }
+        kept.resize(kept.len + ends.len, kind);
+    }
     // Rewrite a one-byte index in place. Copy unchanged runs around wider
     // replacements, including the opcode that precedes each index.
     var encoded: u8[>..] = []; var copied = 0;
-    for start in locals_at {
-        var end = start + 1;
-        let old = wb_read_unsigned(bytes, end);
-        let index = index_of[slot_of[old]];
+    for at in 0..locals_at.len {
+        let access: const WbLocalAccess& = locals_at[at];
+        let start = access.start;
+        let old = access.index;
+        // The emitter uses the shortest unsigned LEB for a local index.
+        var end = start + 2;
+        if old >= 128 {
+            var remaining = old >> 7;
+            while remaining > 0 { end++; remaining >>= 7; }
+        }
+        let index = first[old];
         if index < 128 && end == start + 2 {
             bytes[start + 1] = index as u8;
             continue;
