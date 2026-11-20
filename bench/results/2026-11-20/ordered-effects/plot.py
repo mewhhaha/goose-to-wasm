@@ -10,6 +10,22 @@ import matplotlib.pyplot as plt
 from matplotlib.ticker import PercentFormatter
 
 directory = Path(__file__).resolve().parent
+
+
+def save_chart(figure, name, png=False):
+    for ax in figure.axes:
+        ax.spines[:].set_visible(False)
+        ax.tick_params(length=0, pad=4)
+        ax.set_axisbelow(True)
+        ax.grid(axis="y", color="#dce2e7", linewidth=.8)
+    if png:
+        figure.savefig(directory / f"{name}.png", dpi=150)
+    path = directory / f"{name}.svg"
+    figure.savefig(path, metadata={"Date": None})
+    path.write_text("\n".join(line.rstrip() for line in path.read_text().splitlines()) + "\n")
+    plt.close(figure)
+
+
 with gzip.open(directory / "effect-checks.json.gz", "rt") as stream:
     cases = json.load(stream)["cases"]
 rebuild = json.loads((directory / "rebuilds.json").read_text())["current"]
@@ -40,12 +56,30 @@ own.set_ylim(0, max(times) * 1.25)
 own.set_title("Current compiler on its own source", fontsize=12, loc="left")
 own.set_ylabel("Elapsed seconds")
 own.set_xlabel(f'{rebuild["rounds"]} paired rebuilds · Wasmtime/native {ratio:.2f}×')
-for ax in (checks, own):
-    ax.spines[:].set_visible(False)
-    ax.tick_params(length=0, pad=4)
-    ax.set_axisbelow(True)
-    ax.grid(axis="y", color="#dce2e7", linewidth=.8)
-fig.savefig(directory / "ordered-effects.png", dpi=150)
-path = directory / "ordered-effects.svg"
-fig.savefig(path, metadata={"Date": None})
-path.write_text("\n".join(line.rstrip() for line in path.read_text().splitlines()) + "\n")
+save_chart(fig, "ordered-effects", png=True)
+
+profiles = json.loads((directory / "modules.json").read_text())["profiles"]
+with gzip.open(directory / "profiles.json.gz", "rt") as stream:
+    rebuilds = json.load(stream)["medians"]
+names = ["fixed", "balanced", "size"]
+labels = ["Direct", "Balanced", "Size"]
+fig, (download, speed) = plt.subplots(1, 2, figsize=(9.6, 3.6), layout="constrained")
+fig.suptitle("Compiler size and cached rebuild time", x=.015, ha="left", fontsize=15, weight="bold")
+for key, label, offset, color in [("bytes", "Wasm module", -.18, "#496b95"),
+                                  ("gzip_bytes", "Gzip download", .18, "#137c74")]:
+    values = [profiles[name][key] / 1e6 for name in names]
+    bars = download.bar([i + offset for i in range(3)], values, .34, label=label, color=color)
+    download.bar_label(bars, labels=[f"{v:.2f}" for v in values], padding=3, fontsize=9)
+download.set_xticks(range(3), labels=labels)
+download.set_ylim(0, 7.3)
+download.set_ylabel("Megabytes")
+download.set_title("Module and download size", fontsize=12, loc="left")
+download.legend(frameon=False, loc="upper right", fontsize=9)
+times = [rebuilds[key]["wall_seconds"] for key in ["native", *names]]
+bars = speed.bar(["Native", *labels], times, width=.65, color=["#445665", "#496b95", "#137c74", "#538786"])
+speed.bar_label(bars, labels=[f"{v:.2f} s" for v in times], padding=3, fontsize=9, weight="bold")
+speed.set_title("Rebuilding one frozen project", fontsize=12, loc="left")
+speed.set_ylabel("Elapsed seconds")
+speed.set_ylim(0, max(times) * 1.22)
+speed.set_xlabel("Seven runs per release · primed Wasmtime cache")
+save_chart(fig, "downloads")

@@ -1,0 +1,54 @@
+{
+  "source": "0ae296cd3bb097d6b63ebdc35c89c2fa50bf7c92",
+  "release": {
+    "training": {
+      "squares": {
+        "source": "420d9e6b4a2496865eb9f66603c4cbb0fdbb2add30e8ccc709a15102f4748b14",
+        "output": "fc8ae2dbef752d8e8eaaafec21e1c7500c3b27677f9030c502bf8c196ca7d845",
+        "profile": "5cee870a956259037e7499552de84cda44a2fe68dfa39cd5f0be5e3509d6b819"
+      },
+      "sorting": {
+        "source": "00d2c7ed328100d018a3adc4ef3f2c5abd83d8219e8c6c0a56d00b0b1df8a27e",
+        "output": "b9ce93a5ef630da6e37912991cac3c3f052b8a5cf7290752ad4068e378e0aede",
+        "profile": "85e96647a5ba7bababc2b7f8295ebf87f7af8f28b575d1c9bfb4d65cd65b74c3"
+      },
+      "tour": {
+        "source": "a46393946390a6fc888d013ae0a07383812a57667d2474071eb938f853b8b834",
+        "output": "24e6ffb411721ea6ab95389127ca6d23e2db2ece47e0060e32383ba1e611e8b0",
+        "profile": "d66cfcfcf3c815a80bb8ef56dd2a29626096e1e416d57f6c75f2bb4d69b4a965"
+      }
+    },
+    "previous_profile": "1a87d03c8fafa938a50444912bd05816fe2ca64cbd3927959c5cd55a8fbe5f94",
+    "profile": "0ac0a48b535cc6a4d6bcea7b522f175a77ac88f81b3729e96c2f305f1ccd7a08",
+    "fixed": "3ddacdf5baf82ac22fdbbfb30078e8d8fc01e990b4462f33032bc2dae990128a",
+    "repro": "3ddacdf5baf82ac22fdbbfb30078e8d8fc01e990b4462f33032bc2dae990128a",
+    "previous_fixed": "78714488488655cd591ee112519405c1feadfc15fc0a76b6d81c7ab97193bc2a",
+    "native": "0317ca2d700c484356a6944c60925a63b56013a1bd3dc2f0c9963c62029bf93d",
+    "native_fixed": "3ddacdf5baf82ac22fdbbfb30078e8d8fc01e990b4462f33032bc2dae990128a",
+    "portable": "2d0bd2b731d8cd09ed9a20490d230159f251d0c5307affb90eafa44c807284df",
+    "portable_pinned_emitter": "2d0bd2b731d8cd09ed9a20490d230159f251d0c5307affb90eafa44c807284df",
+    "training_compiler": "0317ca2d700c484356a6944c60925a63b56013a1bd3dc2f0c9963c62029bf93d",
+    "host": "b247393d8fbe3115246f20703f726e90eeaaed762a75932c7bb131a4433ad026"
+  },
+  "profiles": {
+    "fixed": {
+      "sha256": "3ddacdf5baf82ac22fdbbfb30078e8d8fc01e990b4462f33032bc2dae990128a",
+      "bytes": 6187725,
+      "gzip_bytes": 1538534
+    },
+    "balanced": {
+      "sha256": "437f80d44965dc9754de170cb7acc1bfe978e18f508d725f4ec23543bd3945df",
+      "bytes": 4394695,
+      "gzip_bytes": 1262507
+    },
+    "size": {
+      "sha256": "f081e436736ee108d26b568ce3911914337f46885a7e70f0bf041b774d0f55db",
+      "bytes": 3775371,
+      "gzip_bytes": 1026913
+    }
+  },
+  "packaging": {
+    "balanced": "/home/jacobt/src/goose-to-wasm/build/replay-study/artifacts/balanced.wasm (6,187,725 \u2192 4,394,695 bytes, 18.10 s)",
+    "size": "/home/jacobt/src/goose-to-wasm/build/replay-study/artifacts/size.wasm (6,187,725 \u2192 3,775,371 bytes, 329.91 s)"
+  }
+}
