@@ -1,0 +1,224 @@
+{
+  "scope": "Historical exploratory results, not production qualification",
+  "baseline_compiler_commit": "b6c2f10",
+  "frozen_input_commit": "f3f3158",
+  "counts": {
+    "shrink_checks": 23046,
+    "eligible_holders": 912435,
+    "ref_cells": 814835,
+    "aggregate_cells": 97600,
+    "memo_comparisons": 4268726,
+    "memo_type_matches": 1102895,
+    "memo_place_matches": 635441,
+    "memo_contents_matches": 635441,
+    "memo_positive_hits": 0,
+    "unique_points_into_queries": 276994,
+    "positive_points_into_queries": 3,
+    "used_after_queries": 3,
+    "used_after_true": 0,
+    "direct_ref_byte_bypasses": 0,
+    "direct_ref_type_comparisons": 179394,
+    "direct_ref_type_matches": 16729,
+    "direct_ref_overlap_queries": 16729,
+    "direct_ref_overlap_matches": 3,
+    "reference_follow_type_matches": 54429,
+    "reference_follow_matches": 0,
+    "holders_follow_queries": 97600,
+    "holders_follow_matches": 0,
+    "future_entries": 33,
+    "future_scope_passes": 33,
+    "future_frame_passes": 4,
+    "future_symbol_read_matches": 0,
+    "index_owner_queries": 0,
+    "index_owner_places_nonempty": 0,
+    "index_owner_type_matches": 0,
+    "index_owner_overlap_matches": 0,
+    "class_active_holders": 0,
+    "ordinary_holder_candidates": 912435
+  },
+  "removal": {
+    "baseline_median_seconds": 2.1859,
+    "removed_median_seconds": 2.0494,
+    "median_change_percent": -6.25,
+    "correctness": "unsafe, accepts three unsafe controls"
+  },
+  "reduced_fields": {
+    "median_seconds": 2.1653,
+    "correctness": "unsafe, omits life_root_set side effect"
+  },
+  "future_first": {
+    "baseline_median_seconds": 2.201,
+    "candidate_median_seconds": 21.908,
+    "paired_ratio_range": [
+      9.94,
+      14.11
+    ]
+  },
+  "preserve_root_side_effect": {
+    "rounds": 12,
+    "baseline_median_seconds": 2.200570564,
+    "candidate_median_seconds": 2.12834688,
+    "median_paired_ratio": 0.9781426398438611,
+    "min_paired_ratio": 0.8514847562348745,
+    "max_paired_ratio": 0.9854993292259767,
+    "correctness": "targeted controls match baseline, broader qualification required"
+  },
+  "archive": "holder-experiments.json.gz",
+  "paired_experiments": {
+    "build/holder-memo-nov20/confirm/paired.json": [
+      {
+        "candidate": "32-buckets",
+        "baseline": "baseline",
+        "rounds": 8,
+        "median_within_pair_percent": {
+          "wall_ns": -2.6322,
+          "cpu_s": -2.6709,
+          "instructions": -0.422,
+          "cycles": -2.1176
+        }
+      },
+      {
+        "candidate": "combined",
+        "baseline": "baseline",
+        "rounds": 8,
+        "median_within_pair_percent": {
+          "wall_ns": -2.9032,
+          "cpu_s": -2.7946,
+          "instructions": -0.8805,
+          "cycles": -2.7435
+        }
+      },
+      {
+        "candidate": "narrow",
+        "baseline": "baseline",
+        "rounds": 8,
+        "median_within_pair_percent": {
+          "wall_ns": -1.5344,
+          "cpu_s": -1.4737,
+          "instructions": -0.3889,
+          "cycles": -1.0572
+        }
+      }
+    ],
+    "build/holder-memo-nov20/linear/paired.json": [
+      {
+        "candidate": "borrow",
+        "baseline": "baseline",
+        "rounds": 5,
+        "median_within_pair_percent": {
+          "wall_ns": -0.4046,
+          "cpu_s": -0.2403,
+          "instructions": -0.0186,
+          "cycles": -0.355
+        }
+      },
+      {
+        "candidate": "place-first",
+        "baseline": "baseline",
+        "rounds": 5,
+        "median_within_pair_percent": {
+          "wall_ns": 0.7292,
+          "cpu_s": 0.6619,
+          "instructions": -0.0048,
+          "cycles": 0.5226
+        }
+      },
+      {
+        "candidate": "reverse",
+        "baseline": "baseline",
+        "rounds": 5,
+        "median_within_pair_percent": {
+          "wall_ns": 1.3745,
+          "cpu_s": 1.3876,
+          "instructions": -0.145,
+          "cycles": 0.7371
+        }
+      }
+    ],
+    "build/holder-memo-nov20/native/pairs/paired.json": [
+      {
+        "candidate": "wasm-after",
+        "baseline": "wasm-before",
+        "rounds": 8,
+        "median_within_pair_percent": {
+          "wall_ns": -0.8476,
+          "cpu_s": -0.8699,
+          "instructions": -0.8805,
+          "cycles": -0.7277
+        }
+      },
+      {
+        "candidate": "native-after",
+        "baseline": "native-before",
+        "rounds": 8,
+        "median_within_pair_percent": {
+          "wall_ns": -0.2536,
+          "cpu_s": -0.2532,
+          "instructions": -0.5079,
+          "cycles": -0.2629
+        }
+      }
+    ],
+    "build/holder-memo-nov20/native/preserve-pairs/paired.json": [
+      {
+        "candidate": "wasm-after",
+        "baseline": "wasm-before",
+        "rounds": 8,
+        "median_within_pair_percent": {
+          "wall_ns": -0.8914,
+          "cpu_s": -0.5495,
+          "instructions": -0.6953,
+          "cycles": -0.7697
+        }
+      },
+      {
+        "candidate": "native-after",
+        "baseline": "native-before",
+        "rounds": 8,
+        "median_within_pair_percent": {
+          "wall_ns": 0.2145,
+          "cpu_s": 0.3856,
+          "instructions": -0.2325,
+          "cycles": 0.504
+        }
+      }
+    ],
+    "build/holder-memo-nov20/paired/paired.json": [
+      {
+        "candidate": "8-buckets",
+        "baseline": "baseline",
+        "rounds": 6,
+        "median_within_pair_percent": {
+          "wall_ns": 0.4772,
+          "cpu_s": 0.3745,
+          "instructions": -0.4085,
+          "cycles": -0.4324
+        }
+      },
+      {
+        "candidate": "32-buckets",
+        "baseline": "baseline",
+        "rounds": 6,
+        "median_within_pair_percent": {
+          "wall_ns": -1.7307,
+          "cpu_s": -1.7238,
+          "instructions": -0.422,
+          "cycles": -1.8263
+        }
+      }
+    ],
+    "build/holder-memo-nov20/preserve-pairs/paired.json": [
+      {
+        "candidate": "preserve",
+        "baseline": "baseline",
+        "rounds": 12,
+        "median_within_pair_percent": {
+          "wall_ns": -2.1857,
+          "cpu_s": -2.1288,
+          "instructions": -0.6953,
+          "cycles": -1.8528
+        }
+      }
+    ]
+  }
+}

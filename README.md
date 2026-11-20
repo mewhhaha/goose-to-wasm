@@ -12,7 +12,7 @@ A [Goose](https://github.com/aardappel/goose) compiler written in Goose. It emit
 
 ![Seconds to rebuild the compiler in cold, cached and native processes](bench/results/2026-11-19/compiler-opportunities/launch.svg)
 
-**Compiler speed.** Across eleven programs, compiler `b6c2f10` used 3.0% more CPU time than `f3f3158` to emit Wasm and 3.8% more to emit C. These are geometric means of medians over 31 measurements per cell. The chart shows wall time. In the earlier snapshot 59 comparison, Wasm emission took 0.58× the C++ compiler’s time and C emission took 0.53×. [Measurements](bench/results/2026-11-19/compiler-opportunities/catalog-summary.json) · [Snapshot 59](bench/results/2026-11-11/compiler-throughput-59/README.md)
+**Compiler speed.** Across eleven programs, `b6c2f10` used 0.9% less CPU time than `f3f3158` to emit Wasm and 0.1% less to emit C. The chart shows elapsed time over 31 builds per workload and compiler. In the earlier snapshot 59 comparison, direct Wasm emission took 0.58× the C++ compiler’s time and C emission took 0.53×. [Catalog measurements and independent checks](bench/results/2026-11-20/compiler-followup/README.md#eleven-program-compiler-catalog) · [Snapshot 59](bench/results/2026-11-11/compiler-throughput-59/README.md)
 
 ![Compiler execution time for eleven programs](bench/charts/compiler-comparison.svg)
 
