@@ -52,10 +52,23 @@ def verify_frozen_source(source, commit, expected_sha256):
     archive = frozen_archive(commit)
     if hashlib.sha256(archive).hexdigest() != expected_sha256:
         raise RuntimeError("frozen source archive changed")
+    verify_source_files(source, archive)
+
+
+def verify_source_files(source, archive, *, check_extra=False):
     with tarfile.open(fileobj=io.BytesIO(archive)) as tar:
+        expected = set()
         for item in tar:
-            if item.isfile() and tar.extractfile(item).read() != (source / item.name).read_bytes():
+            if not item.isfile():
+                continue
+            path = source / item.name
+            expected.add(path)
+            if tar.extractfile(item).read() != path.read_bytes():
                 raise RuntimeError(f"frozen source changed: {item.name}")
+    if check_extra:
+        for path in source.rglob("*"):
+            if path.is_file() and path not in expected:
+                raise RuntimeError(f"extra file in frozen build source: {path.relative_to(source)}")
 
 
 def preparation_options(parser):
@@ -91,11 +104,17 @@ def run(argv, cwd, cpus):
 
 def build(args):
     stage = args.stage
-    stage.mkdir(parents=True, exist_ok=True)
     source = stage / "source"
-    source.mkdir()
     commit = git("rev-parse", args.commit + "^{commit}").decode().strip()
     archive = frozen_archive(commit)
+    archive_sha = hashlib.sha256(archive).hexdigest()
+    build_source = source
+    if args.build_source:
+        build_source = args.build_source
+        if stage.is_relative_to(build_source):
+            raise ValueError("use an output stage outside the frozen build source")
+        verify_source_files(build_source, archive, check_extra=True)
+    source.mkdir(parents=True)
     with tarfile.open(fileobj=io.BytesIO(archive)) as tar:
         tar.extractall(source, filter="data")
     emitter = stage / "emitter"
@@ -103,7 +122,8 @@ def build(args):
     cc = Path(shutil.which(args.cc)).resolve()
     report = {
         "source_commit": commit,
-        "source_archive_sha256": hashlib.sha256(archive).hexdigest(),
+        "source_archive_sha256": archive_sha,
+        "build_working_directory": str(build_source),
         "emitter": identity(emitter),
         "clang": {**identity(cc), "version": subprocess.check_output([cc, "--version"], text=True).strip()},
         "cpu_sets": {"native": args.build_cpus, "wasm": args.cpu},
@@ -121,7 +141,7 @@ def build(args):
             commands.reverse()
         row = {}
         for name, command, cpus in commands:
-            elapsed, _ = run(command, source, cpus)
+            elapsed, _ = run(command, build_source, cpus)
             row[name] = {"wall_ns": elapsed, "argv": list(map(str, command))}
             if name == "native":
                 stats = json.loads((trial / "build.json").read_text())
@@ -287,6 +307,8 @@ def main():
     command.add_argument("stage", type=lambda path: Path(path).resolve())
     command.add_argument("--emitter", type=Path, default=ROOT / "build/bin/goose")
     command.add_argument("--commit", default="HEAD")
+    command.add_argument("--build-source", type=lambda path: Path(path).resolve(), metavar="DIR",
+                         help="build from a previous stage's frozen source directory to retain native diagnostic paths")
     command.add_argument("--cc", default="clang-23")
     command.add_argument("--rounds", type=int, default=3)
     command.add_argument("--jobs", type=int, default=8)

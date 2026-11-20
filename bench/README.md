@@ -146,6 +146,10 @@ recursive inlining reports, optimized GCC IR, and disassembly alongside verified
 runtime-input measurements. The [retained follow-up](results/2026-10-26/fibonacci-followup/README.md)
 explains the native result and its limits.
 
+## Compiler self-hosting
+
+For repeated builds, pass `--build-source /path/to/first-stage/source` to `bench/selfhost_comparison.py build` and choose a fresh output stage. The native backend embeds diagnostic paths in generated C. Reusing the verified source directory keeps those paths stable when comparing artifact hashes and timings. [Measured example](results/2026-11-19/compiler-opportunities/README.md#reader-benchmarks)
+
 Resident compiler benchmarks reuse Wasmtime's on-disk compilation cache across processes. Guest execution timing starts at `_start` after instantiation. Use `bench/selfhost_comparison.py run ... --cold-preparation` for a fresh engine compilation, or `--cache-config FILE` to isolate a trial. The cold examples and lifecycle benchmarks retain their own preparation settings.
 
 The [frozen compiler comparison](results/2026-11-18/wasm-lowering/tools/trial.py) accepts `--preflight` and `--preflight --wide`. Both check the native binary, frozen project, module fingerprints, grouped report rounds and an actual hosted call with performance counters before preparing a compiler module.
