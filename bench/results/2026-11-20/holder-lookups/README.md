@@ -55,7 +55,7 @@ The local allocator needs to know when a function reads or writes a local variab
 | Simulated emission plus allocation, including event writes | −9.1% | −25.2% |
 | Whole replay process, retired instructions with event writes | −8.0% | −16.0% |
 
-The simulation copies the same encoded byte runs in both cases and charges the candidate for recording each event. It used 64.0 MB of event payload across the full capture, peaking at 1.06 MB for one function. Integration still needs to account for offsets that change when the emitter rewrites parameter accesses and inserts a function prelude. The next whole-compiler experiment can compare those offsets and each function's output bytes against the existing decoder, then time the full compiler with recording enabled. [Replay measurements and implementation](allocator-replay.json.gz)
+The simulation copies the same encoded byte runs in both cases and charges the candidate for recording each event. It used 64.0 MB of event payload across the full capture, peaking at 1.06 MB for one function. The subsequent whole-compiler experiment tested parameter edits and function preludes against the existing decoder, then measured full builds with recording enabled. [Production implementation and measured results](../wasm-local-events/README.md#what-changed) [Replay measurements and implementation](allocator-replay.json.gz)
 
 ## Reader benchmarks
 

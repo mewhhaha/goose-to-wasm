@@ -1,0 +1,93 @@
+{
+  "schema": "goose-langbench-hot-chart-v1",
+  "report": "bench/results/2026-11-20/wasm-local-events/langbench-hot.json.gz",
+  "report_sha256": "98ce6cd399369934a6a61afeb5ad89c918958998ff0cbfe1f896b078fcdac431",
+  "charts": {
+    "langbench-hot-runtime.svg": {
+      "values": [
+        {
+          "profile": "small",
+          "cells": [
+            "c-gcc",
+            "c-clang",
+            "upstream-goose-native",
+            "goose-native",
+            "goose-wasm-wasmtime",
+            "goose-wasm-v8"
+          ],
+          "median_ms": [
+            98.201625,
+            99.250178,
+            95.838712,
+            98.082689,
+            103.27805,
+            99.638243
+          ],
+          "mad_ms": [
+            2.534348,
+            0.685902,
+            1.914268,
+            1.430524,
+            1.075175,
+            1.663838
+          ]
+        },
+        {
+          "profile": "medium",
+          "cells": [
+            "c-gcc",
+            "c-clang",
+            "upstream-goose-native",
+            "goose-native",
+            "goose-wasm-wasmtime",
+            "goose-wasm-v8"
+          ],
+          "median_ms": [
+            748.419997,
+            786.964787,
+            754.474308,
+            796.477116,
+            809.877442,
+            790.95997
+          ],
+          "mad_ms": [
+            16.2919,
+            9.277829,
+            11.008116,
+            38.354149,
+            18.31409,
+            8.631768
+          ]
+        },
+        {
+          "profile": "official",
+          "cells": [
+            "c-gcc",
+            "c-clang",
+            "upstream-goose-native",
+            "goose-native",
+            "goose-wasm-wasmtime",
+            "goose-wasm-v8"
+          ],
+          "median_ms": [
+            3072.400799,
+            3135.746125,
+            3057.828232,
+            3104.04763,
+            3213.837429,
+            3169.721137
+          ],
+          "mad_ms": [
+            42.703751,
+            79.187156,
+            121.077972,
+            65.770357,
+            39.662428,
+            58.856515
+          ]
+        }
+      ],
+      "sha256": "55fa593b0c71365b39c728a80f888a78f2c576ab97645ff1ed20bf3ff548c214"
+    }
+  }
+}

@@ -1,0 +1,240 @@
+{
+  "qualification": {
+    "schema": "goose-qualification-v1",
+    "started": "2026-11-20T14:34:37+0100",
+    "head": "c9fb22671cfbca2506f1b3fa60ae560429f056a4",
+    "dirty": false,
+    "since": "origin/main",
+    "units_pass": false,
+    "stages": [
+      {
+        "stage": "bootstrap",
+        "command": [
+          "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+          "scripts/bootstrap.py",
+          "--verify",
+          "--build-dir",
+          "/home/jacobt/src/goose-to-wasm/build/events-release-nov20/qualified/bootstrap",
+          "--cache-dir",
+          "/home/jacobt/src/goose-to-wasm/build/qualify-cache/bootstrap"
+        ],
+        "exit": 0,
+        "seconds": 146.3,
+        "log": "/home/jacobt/src/goose-to-wasm/build/events-release-nov20/qualified/bootstrap.log"
+      },
+      {
+        "stage": "conformance",
+        "command": [
+          "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+          "tests/conformance.py",
+          "--compiler",
+          "/home/jacobt/src/goose-to-wasm/build/events-release-nov20/qualified/bootstrap/bin/goose",
+          "--levels",
+          "0",
+          "2",
+          "--cc",
+          "gcc",
+          "--known-gaps",
+          "tests/conformance/known-gaps.json",
+          "--native-cache",
+          "/home/jacobt/src/goose-to-wasm/build/qualify-cache/native",
+          "--output-dir",
+          "/home/jacobt/src/goose-to-wasm/build/events-release-nov20/qualified/conformance",
+          "--jobs",
+          "5"
+        ],
+        "exit": 0,
+        "seconds": 78.1,
+        "log": "/home/jacobt/src/goose-to-wasm/build/events-release-nov20/qualified/conformance.log",
+        "summary": "{'selected': 10801, 'passed': 10697, 'failed': 104}",
+        "gaps": "{'open_gaps': 104, 'unexpected_failures': 0, 'fixed_gaps': 0}",
+        "native_cache": "{'native_builds': 3218, 'cache_hits': 3154}"
+      },
+      {
+        "stage": "native-checks",
+        "command": [
+          "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+          "native/tests/check.py",
+          "--output",
+          "/home/jacobt/src/goose-to-wasm/build/events-release-nov20/qualified/native"
+        ],
+        "exit": 0,
+        "seconds": 27.1,
+        "log": "/home/jacobt/src/goose-to-wasm/build/events-release-nov20/qualified/native-checks.log",
+        "summary": "54 steps ok"
+      },
+      {
+        "stage": "conformance-memory64",
+        "command": [
+          "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+          "tests/conformance.py",
+          "--compiler",
+          "/home/jacobt/src/goose-to-wasm/build/events-release-nov20/qualified/bootstrap/bin/goose",
+          "--levels",
+          "0",
+          "2",
+          "--cc",
+          "gcc",
+          "--known-gaps",
+          "tests/conformance/known-gaps-memory64.json",
+          "--native-cache",
+          "/home/jacobt/src/goose-to-wasm/build/qualify-cache/native",
+          "--output-dir",
+          "/home/jacobt/src/goose-to-wasm/build/events-release-nov20/qualified/conformance-memory64",
+          "--jobs",
+          "2",
+          "--targets",
+          "wasm-direct",
+          "--wasm-memory64"
+        ],
+        "exit": 0,
+        "seconds": 86.0,
+        "log": "/home/jacobt/src/goose-to-wasm/build/events-release-nov20/qualified/conformance-memory64.log",
+        "summary": "{'selected': 4779, 'passed': 4771, 'failed': 8}",
+        "gaps": "{'open_gaps': 8, 'unexpected_failures': 0, 'fixed_gaps': 0}",
+        "native_cache": "{'native_builds': 0, 'cache_hits': 0}"
+      },
+      {
+        "stage": "equivalence",
+        "command": [
+          "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+          "tests/output_equivalence.py",
+          "--baseline",
+          "/home/jacobt/src/goose-to-wasm/build/holder-release-nov20/own/build-1/compiler-native",
+          "--candidate",
+          "/home/jacobt/src/goose-to-wasm/build/events-release-nov20/qualified/bootstrap/bin/goose",
+          "--output-dir",
+          "/home/jacobt/src/goose-to-wasm/build/events-release-nov20/qualified/equivalence",
+          "--selfhost",
+          "/home/jacobt/src/goose-to-wasm/build/events-release-nov20/qualified/frozen/selfhost",
+          "--jobs",
+          "2"
+        ],
+        "exit": 0,
+        "seconds": 85.7,
+        "log": "/home/jacobt/src/goose-to-wasm/build/events-release-nov20/qualified/equivalence.log",
+        "summary": "{\"compared\": 10061, \"differing\": 0, \"seconds\": {\"baseline\": 81.728, \"candidate\": 80.194}}",
+        "differing": []
+      },
+      {
+        "stage": "unit-tests",
+        "command": [
+          "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+          "-m",
+          "unittest",
+          "--durations",
+          "10",
+          "tests.test_conformance_runner",
+          "tests.test_bootstrap_optimization",
+          "tests.test_native_units",
+          "tests.test_driver_outputs",
+          "tests.test_cli_outputs",
+          "tests.test_root_struct_backends",
+          "tests.test_slice_pool_backends",
+          "tests.test_loop_ordinals",
+          "tests.test_dynamic_remainder",
+          "tests.test_descending_while",
+          "tests.test_zero_stores",
+          "tests.test_owner_view_host",
+          "tests.test_ordinary_owner_modes",
+          "tests.test_aggregate_print",
+          "tests.test_while_unroll",
+          "tests.test_fixed_memory_frames",
+          "tests.test_holder_walks",
+          "tests.test_data_segments",
+          "tests.test_fixed_memory_ops"
+        ],
+        "exit": 0,
+        "seconds": 131.1,
+        "log": "/home/jacobt/src/goose-to-wasm/build/events-release-nov20/qualified/unit-tests.log"
+      }
+    ],
+    "bootstrap": {
+      "fixed_point": true,
+      "generated_c_sha256": "65a1fa9a95c878917561f57f29342fef507882ee2afd190fc479a212b0fb346b",
+      "next_generation_c_sha256": "65a1fa9a95c878917561f57f29342fef507882ee2afd190fc479a212b0fb346b",
+      "third_generation_c_sha256": null,
+      "executable_sha256": "120a0d4c1571ad75d6492ffe4760baf43e1ede80f46d613d9704d97bbaf9c52b",
+      "profile_used": false,
+      "cached": {
+        "build-seed": true,
+        "build-goose": false
+      }
+    },
+    "seconds": 277.5,
+    "status": "passed",
+    "failed": []
+  },
+  "conformance": {
+    "conformance": {
+      "selected": 10801,
+      "passed": 10697,
+      "failed": 104
+    },
+    "conformance-memory64": {
+      "selected": 4779,
+      "passed": 4771,
+      "failed": 8
+    }
+  },
+  "equivalence": {
+    "compared": 10061,
+    "differing": 0,
+    "seconds": {
+      "baseline": 81.728,
+      "candidate": 80.194
+    }
+  },
+  "manifest": "2054a3fc40d9d517d66ceafd153e6adfc4495a682cadea7431e4f6881a5e9499",
+  "release": {
+    "training": {
+      "squares": {
+        "source": "420d9e6b4a2496865eb9f66603c4cbb0fdbb2add30e8ccc709a15102f4748b14",
+        "output": "fc8ae2dbef752d8e8eaaafec21e1c7500c3b27677f9030c502bf8c196ca7d845",
+        "profile": "0796c5de25338ea8304f864f24827f3dd3ad57e71be15a453dd07846c4727f41"
+      },
+      "sorting": {
+        "source": "00d2c7ed328100d018a3adc4ef3f2c5abd83d8219e8c6c0a56d00b0b1df8a27e",
+        "output": "b9ce93a5ef630da6e37912991cac3c3f052b8a5cf7290752ad4068e378e0aede",
+        "profile": "38b2d30ea587b6ca1b6bfb18f1c36d7c1a6e8f564a27e8d53e817891933410e3"
+      },
+      "tour": {
+        "source": "a46393946390a6fc888d013ae0a07383812a57667d2474071eb938f853b8b834",
+        "output": "24e6ffb411721ea6ab95389127ca6d23e2db2ece47e0060e32383ba1e611e8b0",
+        "profile": "246f47a9aca965532284f32af060ca8af6b5b89805fc8f8b05c47c6467c4e91c"
+      }
+    },
+    "previous_profile": "e51353f709af3fa51e09e6a7a847121b286567cae3e753110ba28705d5efec84",
+    "profile": "555e379b26789a256ad23bceef2d4b1e077a2aac3e77dde3ed4c668de347ccdd",
+    "fixed": "07a9e4033a99cf316479a4c5d28e924ffec7a68ff2d002a50a5b2d4a4e7c2212",
+    "repro": "07a9e4033a99cf316479a4c5d28e924ffec7a68ff2d002a50a5b2d4a4e7c2212",
+    "previous_fixed": "55794fa638082ba5d01dd115c012630450ccc96126ab8fca9bad0e53ecf0fa50",
+    "native": "e2e0f4127034eccb2da0670a58a8b45b1e7a20c62724e29a7267c83065724ca6",
+    "native_fixed": "07a9e4033a99cf316479a4c5d28e924ffec7a68ff2d002a50a5b2d4a4e7c2212",
+    "portable": "360f17fcc1d1fdd55beba67ea5a0b34639f62999bfeea38f30ba6e331ab62f70",
+    "portable_pinned_emitter": "360f17fcc1d1fdd55beba67ea5a0b34639f62999bfeea38f30ba6e331ab62f70",
+    "training_compiler": "e2e0f4127034eccb2da0670a58a8b45b1e7a20c62724e29a7267c83065724ca6",
+    "host": "b247393d8fbe3115246f20703f726e90eeaaed762a75932c7bb131a4433ad026"
+  },
+  "artifacts": {
+    "previous_fixed": {
+      "bytes": 7329733,
+      "sha256": "55794fa638082ba5d01dd115c012630450ccc96126ab8fca9bad0e53ecf0fa50"
+    },
+    "current_fixed": {
+      "bytes": 6172072,
+      "sha256": "07a9e4033a99cf316479a4c5d28e924ffec7a68ff2d002a50a5b2d4a4e7c2212"
+    },
+    "previous_portable": {
+      "bytes": 8793142,
+      "sha256": "d707d8e1449d11588a118b64902545199e92523ff1ccdb2367b99755c7fa9178"
+    },
+    "current_portable": {
+      "bytes": 7361442,
+      "sha256": "360f17fcc1d1fdd55beba67ea5a0b34639f62999bfeea38f30ba6e331ab62f70"
+    }
+  },
+  "regression": "test_local_reuse_across_reference_parameter_edits (tests.test_cli_outputs.WasmMemory64.test_local_reuse_across_reference_parameter_edits) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 0.484s\n\nOK\n",
+  "unit_log": "t_other_integer_widths_unsigned_and_literals)\n3.742s     test_byref_binding_and_owned_locals_survive_continue_and_return (tests.test_loop_ordinals.LoopOrdinals.test_byref_binding_and_owned_locals_survive_continue_and_return)\n3.686s     test_exits_and_mutating_conditions_keep_the_original_loop (tests.test_descending_while.DescendingWhile.test_exits_and_mutating_conditions_keep_the_original_loop)\n3.523s     test_runtime_divisors_and_exact_operand_order (tests.test_dynamic_remainder.DynamicRemainder.test_runtime_divisors_and_exact_operand_order)\n\n----------------------------------------------------------------------\nRan 97 tests in 130.861s\n\nOK\n",
+  "training_driver": "from pathlib import Path\nimport subprocess,sys,hashlib,json,os,time\nB=Path(__file__).resolve().parents[1];R=B.parents[1];O=R/'build/holder-release-nov20'\nH=R/'host/rust/target/release/goose-wasmtime'\nA=['selfhost/main.goose','--stdlib','stdlib','--target','wasm-direct','-O2']\nwide=['--wasm-memory64','--wasm-max-pages','262144']\nfixed=['--wasm-bundled-host','--wasm-initial-pages','65535','--wasm-max-pages','65535','--wasm-region-profile','']\ndef put(path,obj):path.write_text(json.dumps(obj,indent=2)+'\\n')\ndef sha(path):return hashlib.sha256(path.read_bytes()).hexdigest()\nfrom math import isqrt\nb=B/'own';s=b/'source';d=B/'release';d.mkdir(exist_ok=True);n=b/'build-1/compiler-native'\ndef ready(p):\n while not p.is_file(): time.sleep(2)\ndef go(*args,cwd=R,**kw):subprocess.run(args,cwd=cwd,check=True,**kw)\ndef run_release():\n os.sched_setaffinity(0,{4,6});q=n; ready(b/'build-1/build.json')\n inp=A;train=d/'train';train.mkdir(exist_ok=True);stats=train/'stats.wasm'\n go(q,*inp,*wide,'--wasm-region-stats','-o',stats,cwd=s)\n maximum={};controls={}\n for name in ['squares','sorting','tour']:\n  rel=Path('examples')/(name+'.goose');src=train/rel;src.parent.mkdir(exist_ok=True)\n  src.write_bytes(subprocess.check_output(['git','show',(B/'source-commit').read_text().strip()+':'+str(rel)],cwd=R))\n  prof=train/(name+'.profile');out=train/(name+'.wasm');ref=train/(name+'.ref')\n  args=[rel,'--stdlib',s/'stdlib','--target','wasm-direct','-O2',*wide]\n  go(H,stats,'--cache',train/'stats.cwasm','--',*args,'-o',out,cwd=train,env=dict(os.environ,GOOSE_REGION_PROFILE=str(prof)))\n  go(q,*args,'-o',ref,cwd=train);assert sha(ref)==sha(out)\n  controls[name]=dict(source=sha(src),output=sha(out),profile=sha(prof))\n  for line in prof.read_text().splitlines():\n   i,v=map(int,line.split());maximum[i]=max(v,maximum.get(i,0))\n pf=d/'training.profile';pf.write_text(''.join(f'{i} {isqrt(v<<16)}\\n' for i,v in sorted(maximum.items())))\n flags=fixed[:-1]+[pf];m=d/'fixed.wasm';go(q,*inp,*flags,'-o',m,cwd=s)\n repro=d/'repro.wasm';go(H,m,'--cache',d/'fixed.cwasm','--',*inp,*flags,'-o',repro,cwd=s)\n assert sha(m)==sha(repro);port=d/'portable.wasm';go(H,m,'--cache',d/'fixed.cwasm','--',*inp,*wide,'-o',port,cwd=s)\n ready(b/'build-1/build.json');assert sha(port)==sha(b/'build-1/compiler.wasm')\n native_mod=d/'native-fixed.wasm';go(n,*inp,*flags,'-o',native_mod,cwd=s);assert sha(native_mod)==sha(m)\n put(d/'identity.json',dict(training=controls,previous_profile=sha(O/'release/training.profile'),profile=sha(pf),fixed=sha(m),repro=sha(repro),previous_fixed=sha(O/'release/fixed.wasm'),native=sha(n),native_fixed=sha(native_mod),portable=sha(port),portable_pinned_emitter=sha(b/'build-1/compiler.wasm'),training_compiler=sha(q),host=sha(H)))\n\nif __name__==\"__main__\":run_release()\n"
+}
