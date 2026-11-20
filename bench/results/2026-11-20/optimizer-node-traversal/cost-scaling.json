@@ -1,0 +1,85 @@
+{
+  "emitter_sha256": "e2e0f4127034eccb2da0670a58a8b45b1e7a20c62724e29a7267c83065724ca6",
+  "wasmtime_host_sha256": "b247393d8fbe3115246f20703f726e90eeaaed762a75932c7bb131a4433ad026",
+  "fixed32_profile_sha256": "555e379b26789a256ad23bceef2d4b1e077a2aac3e77dde3ed4c668de347ccdd",
+  "counter": "One increment at each opt_inline_cost entry, including sentinel or negative-link exits.",
+  "fixtures": [
+    {
+      "flat_assignment_statements": 64,
+      "source_sha256": "2a548c62eaeafffb30a42f672a51c801fd1c70b40b73b2fe5b45105b4570af2d",
+      "baseline": {
+        "query_budget": 200,
+        "returned_cost": 197,
+        "visits": 658,
+        "inlined": true,
+        "module_sha256": "8959bd793874f592174b12177ebce3bb77c14e2d3108c7c93c9db68b7f2bbbe9",
+        "module_bytes": 1485
+      },
+      "candidate": {
+        "query_budget": 200,
+        "returned_cost": 197,
+        "visits": 197,
+        "inlined": true,
+        "module_sha256": "8959bd793874f592174b12177ebce3bb77c14e2d3108c7c93c9db68b7f2bbbe9",
+        "module_bytes": 1485
+      },
+      "runtime_stdout": "9\n"
+    },
+    {
+      "flat_assignment_statements": 512,
+      "source_sha256": "9dc41dd768cd875ea0da1419be96d6bfea2bb517e26b7ec7e7afe58d801ad12a",
+      "baseline": {
+        "query_budget": 200,
+        "returned_cost": 447000201,
+        "visits": 1117,
+        "inlined": false,
+        "module_sha256": "5be3c9e08c5e3e7921df473c045075ef2b131030456d406637010fbffb7dcf71",
+        "module_bytes": 2996
+      },
+      "candidate": {
+        "query_budget": 200,
+        "returned_cost": 201,
+        "visits": 201,
+        "inlined": false,
+        "module_sha256": "5be3c9e08c5e3e7921df473c045075ef2b131030456d406637010fbffb7dcf71",
+        "module_bytes": 2996
+      },
+      "runtime_stdout": "9\n"
+    },
+    {
+      "flat_assignment_statements": 4096,
+      "source_sha256": "3e03b89a28daf6847e3a24cc45b857e96ab10d11ae4caa2ec51dcdf5bd9208d7",
+      "baseline": {
+        "query_budget": 200,
+        "returned_cost": 4031000201,
+        "visits": 4701,
+        "inlined": false,
+        "module_sha256": "499aa132b8065c98f92fe8444a8ed984a5a9b2f4868769fe5fcf78635adf5ec8",
+        "module_bytes": 17334
+      },
+      "candidate": {
+        "query_budget": 200,
+        "returned_cost": 201,
+        "visits": 201,
+        "inlined": false,
+        "module_sha256": "499aa132b8065c98f92fe8444a8ed984a5a9b2f4868769fe5fcf78635adf5ec8",
+        "module_bytes": 17334
+      },
+      "runtime_stdout": "9\n"
+    }
+  ],
+  "baseline": {
+    "source_commit": "c9fb22671cfbca2506f1b3fa60ae560429f056a4",
+    "optimizer_source_sha256": "3608873520dce86dbc1bf9f2cef9d6f1eaa777650520d2714f81f28000ed7d75",
+    "instrumented_optimizer_sha256": "eccfc4a0781405a60f7bbc0fbd01b750358ebf2ff36dbd761fc67d0bc7c09c48",
+    "counted_fixed32_sha256": "ef253d77cdeb3d0fad657330a385a8d6cba719f0eeb04bec2c603e2ce5df8ef7",
+    "release_native_sha256": "e2e0f4127034eccb2da0670a58a8b45b1e7a20c62724e29a7267c83065724ca6"
+  },
+  "candidate": {
+    "source_commit": "092d3d3d92302d19ff335810942e12b4ebc82eb8",
+    "optimizer_source_sha256": "010a1a52692b4e77540c1294fc17d0381e3e78ff0bcc5fe7c95045d4021ca294",
+    "instrumented_optimizer_sha256": "81ab1a74d0ebdebea5f7cea30904e596a52445a930a99fcfdaa48770f8133f01",
+    "counted_fixed32_sha256": "96d832ef0e8a9496d23150f7c5c039374812ba3f4dbc931f422c08d6a9485aa4",
+    "release_native_sha256": "e88af8a29c2c5d86725ad04dea19ab799069f04b2305dbd99b2112b75a0d2131"
+  }
+}
