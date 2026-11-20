@@ -1,0 +1,1700 @@
+{
+  "metric": "Geometric mean of the 11 workload ratios of median per-process measurements, previous to current. Intervals resample paired rounds across the entire fixed catalog.",
+  "previous": "092d3d3d92302d19ff335810942e12b4ebc82eb8",
+  "current": "9a6040a2999dbdb100755ec07f211605bf3b228f",
+  "rounds_per_cpu": 30,
+  "cpus": {
+    "5": {
+      "summary": {
+        "check": {
+          "instructions": {
+            "before_geomean": 12411270.744391214,
+            "after_geomean": 11896550.092146514,
+            "ratio": 0.9585279651982996,
+            "interval95": [
+              0.9584703331828003,
+              0.9586085584264893
+            ]
+          },
+          "cycles": {
+            "before_geomean": 6392937.09590336,
+            "after_geomean": 6361633.070421746,
+            "ratio": 0.9951033421708987,
+            "interval95": [
+              0.972671673862664,
+              1.0095221477314835
+            ]
+          },
+          "cpu_us": {
+            "before_geomean": 4745.813393457236,
+            "after_geomean": 4711.9652450008825,
+            "ratio": 0.9928677877425555,
+            "interval95": [
+              0.9764130101809722,
+              1.009120974526958
+            ]
+          },
+          "wall_ns": {
+            "before_geomean": 4985862.506205706,
+            "after_geomean": 4955589.633794789,
+            "ratio": 0.9939282576739249,
+            "interval95": [
+              0.9735436717242149,
+              1.0121055167451243
+            ]
+          }
+        },
+        "wasm-direct": {
+          "instructions": {
+            "before_geomean": 22025807.21668342,
+            "after_geomean": 21439809.79891528,
+            "ratio": 0.9733949629176712,
+            "interval95": [
+              0.9733460533097773,
+              0.9734402627198792
+            ]
+          },
+          "cycles": {
+            "before_geomean": 10805340.336860323,
+            "after_geomean": 10787646.956079964,
+            "ratio": 0.9983625336890132,
+            "interval95": [
+              0.9710477444603459,
+              1.014691427777198
+            ]
+          },
+          "cpu_us": {
+            "before_geomean": 6707.546655850406,
+            "after_geomean": 6733.217052719808,
+            "ratio": 1.003827091809642,
+            "interval95": [
+              0.9764224728798271,
+              1.014078886368295
+            ]
+          },
+          "wall_ns": {
+            "before_geomean": 7069047.898606129,
+            "after_geomean": 7020306.420648381,
+            "ratio": 0.9931049444484066,
+            "interval95": [
+              0.9725423468525597,
+              1.015803909654789
+            ]
+          }
+        },
+        "native-c": {
+          "instructions": {
+            "before_geomean": 22822058.863707915,
+            "after_geomean": 22291493.93103357,
+            "ratio": 0.9767521004199119,
+            "interval95": [
+              0.9767060808521277,
+              0.9768006930158903
+            ]
+          },
+          "cycles": {
+            "before_geomean": 10894344.105062347,
+            "after_geomean": 10929192.046737723,
+            "ratio": 1.00319871865064,
+            "interval95": [
+              0.9798875424993853,
+              1.032716554797597
+            ]
+          },
+          "cpu_us": {
+            "before_geomean": 6724.86548926066,
+            "after_geomean": 6790.673090461634,
+            "ratio": 1.009785712637087,
+            "interval95": [
+              0.9847933369170999,
+              1.030643489055761
+            ]
+          },
+          "wall_ns": {
+            "before_geomean": 7080999.06333544,
+            "after_geomean": 7134023.264700856,
+            "ratio": 1.0074882373082026,
+            "interval95": [
+              0.9836490612638007,
+              1.0319311716456072
+            ]
+          }
+        }
+      },
+      "workloads": {
+        "errors/check": {
+          "instructions": {
+            "before": 17256477.5,
+            "after": 16880462.0,
+            "ratio": 0.9782101822344682
+          },
+          "cycles": {
+            "before": 8124446.0,
+            "after": 8467428.0,
+            "ratio": 1.0422160477157458
+          },
+          "cpu_us": {
+            "before": 5416.0,
+            "after": 5687.5,
+            "ratio": 1.050129246676514
+          },
+          "wall_ns": {
+            "before": 5729769.5,
+            "after": 5884700.0,
+            "ratio": 1.0270395693928003
+          }
+        },
+        "functions/check": {
+          "instructions": {
+            "before": 46176431.0,
+            "after": 45921224.0,
+            "ratio": 0.9944732194655754
+          },
+          "cycles": {
+            "before": 19900150.0,
+            "after": 19908881.0,
+            "ratio": 1.0004387404115045
+          },
+          "cpu_us": {
+            "before": 9655.5,
+            "after": 9577.0,
+            "ratio": 0.991869918699187
+          },
+          "wall_ns": {
+            "before": 10024182.5,
+            "after": 9953137.0,
+            "ratio": 0.9929125891313332
+          }
+        },
+        "life/check": {
+          "instructions": {
+            "before": 11624915.5,
+            "after": 11249115.5,
+            "ratio": 0.9676728832996678
+          },
+          "cycles": {
+            "before": 5603174.5,
+            "after": 5448974.0,
+            "ratio": 0.972479796943679
+          },
+          "cpu_us": {
+            "before": 4216.5,
+            "after": 4187.0,
+            "ratio": 0.9930036760346259
+          },
+          "wall_ns": {
+            "before": 4367301.5,
+            "after": 4322301.5,
+            "ratio": 0.9896961544789157
+          }
+        },
+        "mandelbrot/check": {
+          "instructions": {
+            "before": 7203563.5,
+            "after": 6838934.0,
+            "ratio": 0.9493820662509603
+          },
+          "cycles": {
+            "before": 3530697.0,
+            "after": 3470306.5,
+            "ratio": 0.9828955869053617
+          },
+          "cpu_us": {
+            "before": 3302.0,
+            "after": 3226.0,
+            "ratio": 0.9769836462749849
+          },
+          "wall_ns": {
+            "before": 3535158.0,
+            "after": 3400676.5,
+            "ratio": 0.9619588431408158
+          }
+        },
+        "maze/check": {
+          "instructions": {
+            "before": 16633593.0,
+            "after": 16264221.0,
+            "ratio": 0.9777936132019102
+          },
+          "cycles": {
+            "before": 7818026.5,
+            "after": 7632310.5,
+            "ratio": 0.9762451559866163
+          },
+          "cpu_us": {
+            "before": 5114.0,
+            "after": 5013.5,
+            "ratio": 0.9803480641376613
+          },
+          "wall_ns": {
+            "before": 5336731.5,
+            "after": 5301008.5,
+            "ratio": 0.9933062024949166
+          }
+        },
+        "sieve/check": {
+          "instructions": {
+            "before": 8715000.0,
+            "after": 8362996.5,
+            "ratio": 0.9596094664371773
+          },
+          "cycles": {
+            "before": 4291736.5,
+            "after": 4221034.0,
+            "ratio": 0.9835258991319714
+          },
+          "cpu_us": {
+            "before": 3661.5,
+            "after": 3593.5,
+            "ratio": 0.981428376348491
+          },
+          "wall_ns": {
+            "before": 3892237.5,
+            "after": 3766889.0,
+            "ratio": 0.967795259153636
+          }
+        },
+        "sorting/check": {
+          "instructions": {
+            "before": 53350884.0,
+            "after": 53103301.5,
+            "ratio": 0.9953593552451727
+          },
+          "cycles": {
+            "before": 23079927.0,
+            "after": 23008576.5,
+            "ratio": 0.9969085474143831
+          },
+          "cpu_us": {
+            "before": 10851.5,
+            "after": 10488.0,
+            "ratio": 0.9665023268672533
+          },
+          "wall_ns": {
+            "before": 11260284.5,
+            "after": 10958060.0,
+            "ratio": 0.9731601364068554
+          }
+        },
+        "squares/check": {
+          "instructions": {
+            "before": 850677.0,
+            "after": 688417.5,
+            "ratio": 0.8092583906700193
+          },
+          "cycles": {
+            "before": 1144039.5,
+            "after": 1095557.0,
+            "ratio": 0.9576216555459842
+          },
+          "cpu_us": {
+            "before": 2113.5,
+            "after": 2097.5,
+            "ratio": 0.9924296191152118
+          },
+          "wall_ns": {
+            "before": 2299351.0,
+            "after": 2230851.0,
+            "ratio": 0.9702089850570879
+          }
+        },
+        "sudoku/check": {
+          "instructions": {
+            "before": 11102972.0,
+            "after": 10700840.0,
+            "ratio": 0.9637815892897865
+          },
+          "cycles": {
+            "before": 5324299.0,
+            "after": 5355280.0,
+            "ratio": 1.0058187941736556
+          },
+          "cpu_us": {
+            "before": 4096.0,
+            "after": 4057.0,
+            "ratio": 0.990478515625
+          },
+          "wall_ns": {
+            "before": 4241968.0,
+            "after": 4407122.5,
+            "ratio": 1.0389334620157435
+          }
+        },
+        "tour/check": {
+          "instructions": {
+            "before": 14864889.0,
+            "after": 14750453.0,
+            "ratio": 0.9923015906812355
+          },
+          "cycles": {
+            "before": 7312553.5,
+            "after": 7519681.0,
+            "ratio": 1.0283249209732277
+          },
+          "cpu_us": {
+            "before": 4730.5,
+            "after": 4718.0,
+            "ratio": 0.9973575731952224
+          },
+          "wall_ns": {
+            "before": 4931726.0,
+            "after": 4964233.0,
+            "ratio": 1.0065914043075386
+          }
+        },
+        "vm/check": {
+          "instructions": {
+            "before": 14856221.0,
+            "after": 14432282.0,
+            "ratio": 0.9714638736190044
+          },
+          "cycles": {
+            "before": 6607283.0,
+            "after": 6625103.0,
+            "ratio": 1.002697023875018
+          },
+          "cpu_us": {
+            "before": 4540.0,
+            "after": 4555.0,
+            "ratio": 1.0033039647577093
+          },
+          "wall_ns": {
+            "before": 4743943.5,
+            "after": 4814278.0,
+            "ratio": 1.0148261673015289
+          }
+        },
+        "errors/wasm-direct": {
+          "instructions": {
+            "before": 32693223.5,
+            "after": 32317468.0,
+            "ratio": 0.9885066243161982
+          },
+          "cycles": {
+            "before": 14176376.5,
+            "after": 14158430.5,
+            "ratio": 0.9987340911833147
+          },
+          "cpu_us": {
+            "before": 7468.5,
+            "after": 7549.0,
+            "ratio": 1.0107786034678985
+          },
+          "wall_ns": {
+            "before": 7835757.5,
+            "after": 8012695.0,
+            "ratio": 1.0225807779273415
+          }
+        },
+        "functions/wasm-direct": {
+          "instructions": {
+            "before": 118272435.0,
+            "after": 118018613.0,
+            "ratio": 0.997853920907268
+          },
+          "cycles": {
+            "before": 43471597.0,
+            "after": 44193206.0,
+            "ratio": 1.0165995511966124
+          },
+          "cpu_us": {
+            "before": 17067.5,
+            "after": 17368.5,
+            "ratio": 1.0176358576241396
+          },
+          "wall_ns": {
+            "before": 17615119.0,
+            "after": 17941135.0,
+            "ratio": 1.0185077375861042
+          }
+        },
+        "life/wasm-direct": {
+          "instructions": {
+            "before": 18455212.5,
+            "after": 18079995.0,
+            "ratio": 0.9796687521208439
+          },
+          "cycles": {
+            "before": 8417399.5,
+            "after": 8478360.0,
+            "ratio": 1.007242201109737
+          },
+          "cpu_us": {
+            "before": 5350.5,
+            "after": 5438.0,
+            "ratio": 1.0163536118119803
+          },
+          "wall_ns": {
+            "before": 5634894.0,
+            "after": 5743225.5,
+            "ratio": 1.0192251176330913
+          }
+        },
+        "mandelbrot/wasm-direct": {
+          "instructions": {
+            "before": 8992045.0,
+            "after": 8627108.5,
+            "ratio": 0.9594156279244599
+          },
+          "cycles": {
+            "before": 4672996.5,
+            "after": 4633607.5,
+            "ratio": 0.9915709331261001
+          },
+          "cpu_us": {
+            "before": 3992.0,
+            "after": 3941.5,
+            "ratio": 0.9873496993987976
+          },
+          "wall_ns": {
+            "before": 4309436.5,
+            "after": 4135180.0,
+            "ratio": 0.9595639708347019
+          }
+        },
+        "maze/wasm-direct": {
+          "instructions": {
+            "before": 37064615.0,
+            "after": 36695231.5,
+            "ratio": 0.9900340661841489
+          },
+          "cycles": {
+            "before": 15432816.5,
+            "after": 15422281.0,
+            "ratio": 0.9993173313503727
+          },
+          "cpu_us": {
+            "before": 7833.5,
+            "after": 7894.5,
+            "ratio": 1.0077870683602477
+          },
+          "wall_ns": {
+            "before": 8120579.5,
+            "after": 8169172.5,
+            "ratio": 1.0059839325506266
+          }
+        },
+        "sieve/wasm-direct": {
+          "instructions": {
+            "before": 12521621.0,
+            "after": 12169581.5,
+            "ratio": 0.9718854691417349
+          },
+          "cycles": {
+            "before": 6155189.0,
+            "after": 6086616.0,
+            "ratio": 0.988859318535954
+          },
+          "cpu_us": {
+            "before": 4567.0,
+            "after": 4540.0,
+            "ratio": 0.9940880227720604
+          },
+          "wall_ns": {
+            "before": 4728503.5,
+            "after": 4662128.0,
+            "ratio": 0.9859626835424781
+          }
+        },
+        "sorting/wasm-direct": {
+          "instructions": {
+            "before": 131898479.5,
+            "after": 131651180.0,
+            "ratio": 0.9981250769460159
+          },
+          "cycles": {
+            "before": 53529401.5,
+            "after": 50250377.5,
+            "ratio": 0.9387434959458681
+          },
+          "cpu_us": {
+            "before": 20306.5,
+            "after": 19405.0,
+            "ratio": 0.9556053480412676
+          },
+          "wall_ns": {
+            "before": 21287704.0,
+            "after": 20107222.0,
+            "ratio": 0.9445462977125199
+          }
+        },
+        "squares/wasm-direct": {
+          "instructions": {
+            "before": 1284670.5,
+            "after": 1122409.0,
+            "ratio": 0.8736940717483588
+          },
+          "cycles": {
+            "before": 1692609.0,
+            "after": 1695816.5,
+            "ratio": 1.0018950035123293
+          },
+          "cpu_us": {
+            "before": 2644.0,
+            "after": 2681.5,
+            "ratio": 1.0141830559757943
+          },
+          "wall_ns": {
+            "before": 2811144.5,
+            "after": 2817637.5,
+            "ratio": 1.0023097354120358
+          }
+        },
+        "sudoku/wasm-direct": {
+          "instructions": {
+            "before": 17136087.0,
+            "after": 16734074.5,
+            "ratio": 0.9765400058951614
+          },
+          "cycles": {
+            "before": 8353124.0,
+            "after": 8279444.5,
+            "ratio": 0.9911794078478902
+          },
+          "cpu_us": {
+            "before": 5605.0,
+            "after": 5400.5,
+            "ratio": 0.963514719000892
+          },
+          "wall_ns": {
+            "before": 6044668.5,
+            "after": 5608343.5,
+            "ratio": 0.9278165543734946
+          }
+        },
+        "tour/wasm-direct": {
+          "instructions": {
+            "before": 28333050.0,
+            "after": 28218384.0,
+            "ratio": 0.9959529242351247
+          },
+          "cycles": {
+            "before": 12655657.5,
+            "after": 12858657.5,
+            "ratio": 1.016040257094505
+          },
+          "cpu_us": {
+            "before": 6688.0,
+            "after": 6900.0,
+            "ratio": 1.0316985645933014
+          },
+          "wall_ns": {
+            "before": 6998975.5,
+            "after": 7207963.0,
+            "ratio": 1.0298597273272352
+          }
+        },
+        "vm/wasm-direct": {
+          "instructions": {
+            "before": 24158768.5,
+            "after": 23734703.0,
+            "ratio": 0.9824467252956209
+          },
+          "cycles": {
+            "before": 10629417.5,
+            "after": 10998988.0,
+            "ratio": 1.0347686503046851
+          },
+          "cpu_us": {
+            "before": 6307.5,
+            "after": 6603.0,
+            "ratio": 1.0468489892984543
+          },
+          "wall_ns": {
+            "before": 6760326.5,
+            "after": 6854745.5,
+            "ratio": 1.0139666331204564
+          }
+        },
+        "errors/native-c": {
+          "instructions": {
+            "before": 34669473.5,
+            "after": 34293071.5,
+            "ratio": 0.9891431290411722
+          },
+          "cycles": {
+            "before": 15009919.5,
+            "after": 14908241.5,
+            "ratio": 0.9932259463483465
+          },
+          "cpu_us": {
+            "before": 7848.0,
+            "after": 7785.5,
+            "ratio": 0.9920361875637105
+          },
+          "wall_ns": {
+            "before": 8181450.5,
+            "after": 8110986.5,
+            "ratio": 0.9913873462902453
+          }
+        },
+        "functions/native-c": {
+          "instructions": {
+            "before": 129419206.5,
+            "after": 129171186.0,
+            "ratio": 0.998083588157373
+          },
+          "cycles": {
+            "before": 47657166.0,
+            "after": 47876125.5,
+            "ratio": 1.004594471689735
+          },
+          "cpu_us": {
+            "before": 18615.0,
+            "after": 18688.0,
+            "ratio": 1.003921568627451
+          },
+          "wall_ns": {
+            "before": 19156317.5,
+            "after": 19175479.5,
+            "ratio": 1.0010002966384328
+          }
+        },
+        "life/native-c": {
+          "instructions": {
+            "before": 19155261.5,
+            "after": 18779665.0,
+            "ratio": 0.9803919930824229
+          },
+          "cycles": {
+            "before": 8829208.0,
+            "after": 8939434.0,
+            "ratio": 1.0124842454725271
+          },
+          "cpu_us": {
+            "before": 5525.5,
+            "after": 5657.5,
+            "ratio": 1.0238892407926885
+          },
+          "wall_ns": {
+            "before": 5758710.0,
+            "after": 6148681.5,
+            "ratio": 1.0677185515506078
+          }
+        },
+        "mandelbrot/native-c": {
+          "instructions": {
+            "before": 11080264.5,
+            "after": 10715066.5,
+            "ratio": 0.9670406784964384
+          },
+          "cycles": {
+            "before": 5399356.5,
+            "after": 5330788.5,
+            "ratio": 0.9873007088900316
+          },
+          "cpu_us": {
+            "before": 4248.5,
+            "after": 4247.0,
+            "ratio": 0.9996469342120748
+          },
+          "wall_ns": {
+            "before": 4482426.0,
+            "after": 4594594.0,
+            "ratio": 1.0250239490847144
+          }
+        },
+        "maze/native-c": {
+          "instructions": {
+            "before": 39841226.0,
+            "after": 39472149.0,
+            "ratio": 0.9907363041488734
+          },
+          "cycles": {
+            "before": 17695191.0,
+            "after": 16857761.0,
+            "ratio": 0.9526747125815144
+          },
+          "cpu_us": {
+            "before": 8881.0,
+            "after": 8581.5,
+            "ratio": 0.9662763202342078
+          },
+          "wall_ns": {
+            "before": 9533669.0,
+            "after": 8960112.0,
+            "ratio": 0.9398387965850293
+          }
+        },
+        "sieve/native-c": {
+          "instructions": {
+            "before": 10011680.0,
+            "after": 9654289.0,
+            "ratio": 0.9643025945695428
+          },
+          "cycles": {
+            "before": 4922261.0,
+            "after": 4957444.5,
+            "ratio": 1.007147833079148
+          },
+          "cpu_us": {
+            "before": 3979.0,
+            "after": 4201.0,
+            "ratio": 1.0557929127921588
+          },
+          "wall_ns": {
+            "before": 4299116.5,
+            "after": 4345324.5,
+            "ratio": 1.0107482549030713
+          }
+        },
+        "sorting/native-c": {
+          "instructions": {
+            "before": 140795899.5,
+            "after": 140553842.5,
+            "ratio": 0.998280795102275
+          },
+          "cycles": {
+            "before": 53583918.0,
+            "after": 56625593.0,
+            "ratio": 1.056764699438365
+          },
+          "cpu_us": {
+            "before": 20733.0,
+            "after": 21602.5,
+            "ratio": 1.0419379732793133
+          },
+          "wall_ns": {
+            "before": 21331682.5,
+            "after": 22422308.0,
+            "ratio": 1.051127026665618
+          }
+        },
+        "squares/native-c": {
+          "instructions": {
+            "before": 1772793.0,
+            "after": 1610236.0,
+            "ratio": 0.9083045792712403
+          },
+          "cycles": {
+            "before": 1989010.0,
+            "after": 2035724.0,
+            "ratio": 1.0234860558770444
+          },
+          "cpu_us": {
+            "before": 2758.0,
+            "after": 2819.0,
+            "ratio": 1.0221174764321972
+          },
+          "wall_ns": {
+            "before": 2979521.0,
+            "after": 2983418.0,
+            "ratio": 1.0013079283549269
+          }
+        },
+        "sudoku/native-c": {
+          "instructions": {
+            "before": 18875752.5,
+            "after": 18473500.0,
+            "ratio": 0.9786894588705801
+          },
+          "cycles": {
+            "before": 8525765.5,
+            "after": 8386918.5,
+            "ratio": 0.9837144242355715
+          },
+          "cpu_us": {
+            "before": 5418.0,
+            "after": 5405.0,
+            "ratio": 0.9976005906238464
+          },
+          "wall_ns": {
+            "before": 5686437.0,
+            "after": 5680271.0,
+            "ratio": 0.9989156654685526
+          }
+        },
+        "tour/native-c": {
+          "instructions": {
+            "before": 18997130.0,
+            "after": 18791931.5,
+            "ratio": 0.9891984473444146
+          },
+          "cycles": {
+            "before": 8725944.5,
+            "after": 9008773.0,
+            "ratio": 1.0324123652173125
+          },
+          "cpu_us": {
+            "before": 5363.5,
+            "after": 5488.5,
+            "ratio": 1.0233056772629812
+          },
+          "wall_ns": {
+            "before": 5656184.5,
+            "after": 5730681.5,
+            "ratio": 1.0131708928518863
+          }
+        },
+        "vm/native-c": {
+          "instructions": {
+            "before": 25729946.5,
+            "after": 25305344.5,
+            "ratio": 0.9834977503742575
+          },
+          "cycles": {
+            "before": 10894429.5,
+            "after": 10734066.0,
+            "ratio": 0.9852802296806822
+          },
+          "cpu_us": {
+            "before": 6317.0,
+            "after": 6219.0,
+            "ratio": 0.9844863067911983
+          },
+          "wall_ns": {
+            "before": 6620405.5,
+            "after": 6539210.0,
+            "ratio": 0.9877355699737728
+          }
+        }
+      }
+    },
+    "6": {
+      "summary": {
+        "check": {
+          "instructions": {
+            "before_geomean": 12411568.766548626,
+            "after_geomean": 11896338.860174805,
+            "ratio": 0.9584879304087282,
+            "interval95": [
+              0.9584187127442406,
+              0.9585523670803647
+            ]
+          },
+          "cycles": {
+            "before_geomean": 8605344.56630269,
+            "after_geomean": 8358189.24914297,
+            "ratio": 0.9712788587074681,
+            "interval95": [
+              0.9471816600862315,
+              1.000145531351555
+            ]
+          },
+          "cpu_us": {
+            "before_geomean": 6031.215564795808,
+            "after_geomean": 5941.522297271157,
+            "ratio": 0.9851284924969046,
+            "interval95": [
+              0.966090794630719,
+              1.0088747945561796
+            ]
+          },
+          "wall_ns": {
+            "before_geomean": 8499135.29770565,
+            "after_geomean": 8451715.658683307,
+            "ratio": 0.9944206513531862,
+            "interval95": [
+              0.9246645757858711,
+              1.0763199049689742
+            ]
+          }
+        },
+        "wasm-direct": {
+          "instructions": {
+            "before_geomean": 22026086.475967273,
+            "after_geomean": 21439439.375112925,
+            "ratio": 0.9733658041570646,
+            "interval95": [
+              0.973334739048444,
+              0.9734009255641903
+            ]
+          },
+          "cycles": {
+            "before_geomean": 13639446.023578053,
+            "after_geomean": 13818376.915199827,
+            "ratio": 1.0131186333603641,
+            "interval95": [
+              0.9642511903731302,
+              1.0435941487262979
+            ]
+          },
+          "cpu_us": {
+            "before_geomean": 8250.306842119537,
+            "after_geomean": 8460.643829883817,
+            "ratio": 1.0254944442418144,
+            "interval95": [
+              0.9737941559044437,
+              1.0471084168201636
+            ]
+          },
+          "wall_ns": {
+            "before_geomean": 11904362.921012504,
+            "after_geomean": 12267459.384888537,
+            "ratio": 1.0305011251996643,
+            "interval95": [
+              0.9809387848305143,
+              1.0819689713199516
+            ]
+          }
+        },
+        "native-c": {
+          "instructions": {
+            "before_geomean": 22821748.116987266,
+            "after_geomean": 22291523.743808296,
+            "ratio": 0.9767667064564495,
+            "interval95": [
+              0.9767445961203893,
+              0.9767959188064688
+            ]
+          },
+          "cycles": {
+            "before_geomean": 14192320.578123476,
+            "after_geomean": 13790768.406769982,
+            "ratio": 0.9717063767589584,
+            "interval95": [
+              0.9483159817718462,
+              1.0105856005646976
+            ]
+          },
+          "cpu_us": {
+            "before_geomean": 8468.932957328743,
+            "after_geomean": 8266.39131531119,
+            "ratio": 0.9760841604204381,
+            "interval95": [
+              0.9603736607360691,
+              1.0168661472974396
+            ]
+          },
+          "wall_ns": {
+            "before_geomean": 11362128.924833693,
+            "after_geomean": 11449976.997770347,
+            "ratio": 1.0077316560582792,
+            "interval95": [
+              0.9458272387617863,
+              1.0945760183542919
+            ]
+          }
+        }
+      },
+      "workloads": {
+        "errors/check": {
+          "instructions": {
+            "before": 17256674.0,
+            "after": 16880591.5,
+            "ratio": 0.9782065477971016
+          },
+          "cycles": {
+            "before": 11709152.0,
+            "after": 11181034.5,
+            "ratio": 0.954897032680078
+          },
+          "cpu_us": {
+            "before": 7186.0,
+            "after": 6926.0,
+            "ratio": 0.9638185360423045
+          },
+          "wall_ns": {
+            "before": 8327223.5,
+            "after": 8190483.0,
+            "ratio": 0.9835791005249228
+          }
+        },
+        "functions/check": {
+          "instructions": {
+            "before": 46176281.0,
+            "after": 45921314.0,
+            "ratio": 0.9944783989858343
+          },
+          "cycles": {
+            "before": 28342554.5,
+            "after": 27537579.5,
+            "ratio": 0.9715983610439913
+          },
+          "cpu_us": {
+            "before": 12792.5,
+            "after": 12633.5,
+            "ratio": 0.9875708422904045
+          },
+          "wall_ns": {
+            "before": 15285250.5,
+            "after": 15079544.5,
+            "ratio": 0.986542189805787
+          }
+        },
+        "life/check": {
+          "instructions": {
+            "before": 11624805.0,
+            "after": 11249451.0,
+            "ratio": 0.9677109422480635
+          },
+          "cycles": {
+            "before": 6966272.5,
+            "after": 7179220.0,
+            "ratio": 1.0305683563196817
+          },
+          "cpu_us": {
+            "before": 4938.5,
+            "after": 5068.0,
+            "ratio": 1.026222537207654
+          },
+          "wall_ns": {
+            "before": 5904036.5,
+            "after": 6063190.0,
+            "ratio": 1.0269567269782292
+          }
+        },
+        "mandelbrot/check": {
+          "instructions": {
+            "before": 7203897.0,
+            "after": 6838932.0,
+            "ratio": 0.9493378375620862
+          },
+          "cycles": {
+            "before": 4504655.0,
+            "after": 4116504.5,
+            "ratio": 0.91383346782384
+          },
+          "cpu_us": {
+            "before": 3884.5,
+            "after": 3750.0,
+            "ratio": 0.9653752091646286
+          },
+          "wall_ns": {
+            "before": 5888397.0,
+            "after": 6099493.0,
+            "ratio": 1.0358494850126443
+          }
+        },
+        "maze/check": {
+          "instructions": {
+            "before": 16633708.0,
+            "after": 16264520.0,
+            "ratio": 0.9778048286046623
+          },
+          "cycles": {
+            "before": 10258253.0,
+            "after": 10137732.0,
+            "ratio": 0.9882513133571574
+          },
+          "cpu_us": {
+            "before": 6328.0,
+            "after": 6233.5,
+            "ratio": 0.985066371681416
+          },
+          "wall_ns": {
+            "before": 8602792.5,
+            "after": 7669316.5,
+            "ratio": 0.8914915127849474
+          }
+        },
+        "sieve/check": {
+          "instructions": {
+            "before": 8715371.5,
+            "after": 8362992.0,
+            "ratio": 0.9595680459519138
+          },
+          "cycles": {
+            "before": 5819844.0,
+            "after": 5584577.5,
+            "ratio": 0.9595751191956348
+          },
+          "cpu_us": {
+            "before": 4654.0,
+            "after": 4518.0,
+            "ratio": 0.9707778255264289
+          },
+          "wall_ns": {
+            "before": 6953258.0,
+            "after": 6836396.0,
+            "ratio": 0.983193202380812
+          }
+        },
+        "sorting/check": {
+          "instructions": {
+            "before": 53351081.0,
+            "after": 53102884.0,
+            "ratio": 0.9953478543386965
+          },
+          "cycles": {
+            "before": 33056876.5,
+            "after": 33867037.0,
+            "ratio": 1.0245080777671176
+          },
+          "cpu_us": {
+            "before": 14661.5,
+            "after": 14690.0,
+            "ratio": 1.0019438665893667
+          },
+          "wall_ns": {
+            "before": 18023351.5,
+            "after": 21386005.5,
+            "ratio": 1.1865720701280225
+          }
+        },
+        "squares/check": {
+          "instructions": {
+            "before": 850820.5,
+            "after": 688234.0,
+            "ratio": 0.808906226401456
+          },
+          "cycles": {
+            "before": 1359780.5,
+            "after": 1321294.5,
+            "ratio": 0.9716969025515515
+          },
+          "cpu_us": {
+            "before": 2588.5,
+            "after": 2614.5,
+            "ratio": 1.0100444272744833
+          },
+          "wall_ns": {
+            "before": 5304665.5,
+            "after": 5374418.5,
+            "ratio": 1.013149368230664
+          }
+        },
+        "sudoku/check": {
+          "instructions": {
+            "before": 11102686.0,
+            "after": 10701118.0,
+            "ratio": 0.9638314548389462
+          },
+          "cycles": {
+            "before": 7424685.0,
+            "after": 6851324.0,
+            "ratio": 0.9227763871463908
+          },
+          "cpu_us": {
+            "before": 5458.5,
+            "after": 5027.5,
+            "ratio": 0.921040578913621
+          },
+          "wall_ns": {
+            "before": 9185291.0,
+            "after": 8176741.5,
+            "ratio": 0.8901995048387689
+          }
+        },
+        "tour/check": {
+          "instructions": {
+            "before": 14864890.0,
+            "after": 14750271.5,
+            "ratio": 0.99228931394716
+          },
+          "cycles": {
+            "before": 9858636.0,
+            "after": 9272906.5,
+            "ratio": 0.9405871664193708
+          },
+          "cpu_us": {
+            "before": 5930.5,
+            "after": 5850.0,
+            "ratio": 0.9864261023522468
+          },
+          "wall_ns": {
+            "before": 7675648.0,
+            "after": 7966005.5,
+            "ratio": 1.0378284022404363
+          }
+        },
+        "vm/check": {
+          "instructions": {
+            "before": 14856562.5,
+            "after": 14432404.0,
+            "ratio": 0.9714497549483604
+          },
+          "cycles": {
+            "before": 9367296.0,
+            "after": 9495596.5,
+            "ratio": 1.0136966420192124
+          },
+          "cpu_us": {
+            "before": 6020.0,
+            "after": 6157.5,
+            "ratio": 1.0228405315614617
+          },
+          "wall_ns": {
+            "before": 9368584.0,
+            "after": 8766679.0,
+            "ratio": 0.9357528309507606
+          }
+        },
+        "errors/wasm-direct": {
+          "instructions": {
+            "before": 32693567.5,
+            "after": 32317754.0,
+            "ratio": 0.9885049711996098
+          },
+          "cycles": {
+            "before": 15846696.5,
+            "after": 17723414.0,
+            "ratio": 1.1184295730028022
+          },
+          "cpu_us": {
+            "before": 8472.5,
+            "after": 9064.5,
+            "ratio": 1.069873118914134
+          },
+          "wall_ns": {
+            "before": 13374188.0,
+            "after": 12589254.5,
+            "ratio": 0.941309820080292
+          }
+        },
+        "functions/wasm-direct": {
+          "instructions": {
+            "before": 118272654.0,
+            "after": 118018666.0,
+            "ratio": 0.9978525213444521
+          },
+          "cycles": {
+            "before": 60576955.0,
+            "after": 61732134.0,
+            "ratio": 1.019069611537919
+          },
+          "cpu_us": {
+            "before": 22958.0,
+            "after": 23827.5,
+            "ratio": 1.0378735081453088
+          },
+          "wall_ns": {
+            "before": 37762638.5,
+            "after": 27812832.5,
+            "ratio": 0.7365171927803721
+          }
+        },
+        "life/wasm-direct": {
+          "instructions": {
+            "before": 18455328.5,
+            "after": 18080242.0,
+            "ratio": 0.9796759781328195
+          },
+          "cycles": {
+            "before": 9457584.0,
+            "after": 10930401.0,
+            "ratio": 1.1557286723543772
+          },
+          "cpu_us": {
+            "before": 6030.5,
+            "after": 6917.0,
+            "ratio": 1.1470027360915347
+          },
+          "wall_ns": {
+            "before": 8444065.5,
+            "after": 11214858.5,
+            "ratio": 1.3281349487400351
+          }
+        },
+        "mandelbrot/wasm-direct": {
+          "instructions": {
+            "before": 8992191.0,
+            "after": 8626733.5,
+            "ratio": 0.9593583477041357
+          },
+          "cycles": {
+            "before": 6427207.0,
+            "after": 6267974.5,
+            "ratio": 0.9752252416951873
+          },
+          "cpu_us": {
+            "before": 5243.0,
+            "after": 5142.5,
+            "ratio": 0.9808315849704368
+          },
+          "wall_ns": {
+            "before": 7526264.0,
+            "after": 8408678.0,
+            "ratio": 1.1172446249560206
+          }
+        },
+        "maze/wasm-direct": {
+          "instructions": {
+            "before": 37065039.5,
+            "after": 36695125.0,
+            "ratio": 0.9900198541539393
+          },
+          "cycles": {
+            "before": 20236741.0,
+            "after": 21841859.0,
+            "ratio": 1.0793170204629292
+          },
+          "cpu_us": {
+            "before": 10101.5,
+            "after": 10645.0,
+            "ratio": 1.0538038905113103
+          },
+          "wall_ns": {
+            "before": 16038970.5,
+            "after": 15711486.5,
+            "ratio": 0.9795819812749204
+          }
+        },
+        "sieve/wasm-direct": {
+          "instructions": {
+            "before": 12521994.5,
+            "after": 12169366.0,
+            "ratio": 0.971839270493211
+          },
+          "cycles": {
+            "before": 7848204.5,
+            "after": 7259918.5,
+            "ratio": 0.9250419634197861
+          },
+          "cpu_us": {
+            "before": 5476.0,
+            "after": 5332.0,
+            "ratio": 0.9737034331628927
+          },
+          "wall_ns": {
+            "before": 9387060.0,
+            "after": 9694249.5,
+            "ratio": 1.0327247828393555
+          }
+        },
+        "sorting/wasm-direct": {
+          "instructions": {
+            "before": 131899251.0,
+            "after": 131650638.0,
+            "ratio": 0.9981151295544506
+          },
+          "cycles": {
+            "before": 65514797.0,
+            "after": 61667027.0,
+            "ratio": 0.9412686877439306
+          },
+          "cpu_us": {
+            "before": 25002.0,
+            "after": 24028.0,
+            "ratio": 0.961043116550676
+          },
+          "wall_ns": {
+            "before": 40311815.0,
+            "after": 40050653.0,
+            "ratio": 0.993521452705615
+          }
+        },
+        "squares/wasm-direct": {
+          "instructions": {
+            "before": 1284754.5,
+            "after": 1122274.0,
+            "ratio": 0.8735318693182238
+          },
+          "cycles": {
+            "before": 2022619.5,
+            "after": 1888216.0,
+            "ratio": 0.9335497853155277
+          },
+          "cpu_us": {
+            "before": 3178.0,
+            "after": 3134.5,
+            "ratio": 0.9863121460037759
+          },
+          "wall_ns": {
+            "before": 3964785.5,
+            "after": 4271889.5,
+            "ratio": 1.0774579103964137
+          }
+        },
+        "sudoku/wasm-direct": {
+          "instructions": {
+            "before": 17136177.0,
+            "after": 16733858.0,
+            "ratio": 0.9765222429716967
+          },
+          "cycles": {
+            "before": 11283416.0,
+            "after": 11131189.0,
+            "ratio": 0.986508784219247
+          },
+          "cpu_us": {
+            "before": 6948.0,
+            "after": 6992.0,
+            "ratio": 1.0063327576280945
+          },
+          "wall_ns": {
+            "before": 8907993.5,
+            "after": 8493906.0,
+            "ratio": 0.9535150648684241
+          }
+        },
+        "tour/wasm-direct": {
+          "instructions": {
+            "before": 28332753.5,
+            "after": 28218058.0,
+            "ratio": 0.9959518406850221
+          },
+          "cycles": {
+            "before": 14744240.0,
+            "after": 15143948.5,
+            "ratio": 1.0271094678328623
+          },
+          "cpu_us": {
+            "before": 7814.0,
+            "after": 8228.0,
+            "ratio": 1.052981827489122
+          },
+          "wall_ns": {
+            "before": 10386582.5,
+            "after": 12496548.5,
+            "ratio": 1.203143430478697
+          }
+        },
+        "vm/wasm-direct": {
+          "instructions": {
+            "before": 24158702.5,
+            "after": 23734702.0,
+            "ratio": 0.9824493678830641
+          },
+          "cycles": {
+            "before": 14876059.5,
+            "after": 15034835.5,
+            "ratio": 1.0106732565838419
+          },
+          "cpu_us": {
+            "before": 8214.5,
+            "after": 8416.0,
+            "ratio": 1.0245297948749164
+          },
+          "wall_ns": {
+            "before": 9521300.0,
+            "after": 10367536.0,
+            "ratio": 1.0888781994055434
+          }
+        },
+        "errors/native-c": {
+          "instructions": {
+            "before": 34669289.0,
+            "after": 34292927.0,
+            "ratio": 0.9891442250229014
+          },
+          "cycles": {
+            "before": 17865794.0,
+            "after": 18227228.0,
+            "ratio": 1.0202305030495706
+          },
+          "cpu_us": {
+            "before": 9199.0,
+            "after": 9085.0,
+            "ratio": 0.9876073486248506
+          },
+          "wall_ns": {
+            "before": 15350409.5,
+            "after": 11411513.0,
+            "ratio": 0.7434012102413294
+          }
+        },
+        "functions/native-c": {
+          "instructions": {
+            "before": 129419242.0,
+            "after": 129171083.5,
+            "ratio": 0.9980825223810228
+          },
+          "cycles": {
+            "before": 58147634.5,
+            "after": 57866399.5,
+            "ratio": 0.9951634317987604
+          },
+          "cpu_us": {
+            "before": 21846.5,
+            "after": 21942.0,
+            "ratio": 1.0043714096079464
+          },
+          "wall_ns": {
+            "before": 30079712.0,
+            "after": 37729680.5,
+            "ratio": 1.2543231963125179
+          }
+        },
+        "life/native-c": {
+          "instructions": {
+            "before": 19155617.0,
+            "after": 18779858.0,
+            "ratio": 0.9803838738266692
+          },
+          "cycles": {
+            "before": 11859086.5,
+            "after": 11098011.5,
+            "ratio": 0.9358234717319922
+          },
+          "cpu_us": {
+            "before": 7018.5,
+            "after": 6469.5,
+            "ratio": 0.9217781577260098
+          },
+          "wall_ns": {
+            "before": 8224102.0,
+            "after": 7949464.5,
+            "ratio": 0.9666057765334136
+          }
+        },
+        "mandelbrot/native-c": {
+          "instructions": {
+            "before": 11080116.5,
+            "after": 10715176.0,
+            "ratio": 0.9670634780780509
+          },
+          "cycles": {
+            "before": 7250958.0,
+            "after": 6991680.5,
+            "ratio": 0.9642423111539192
+          },
+          "cpu_us": {
+            "before": 5620.0,
+            "after": 5452.5,
+            "ratio": 0.9701957295373665
+          },
+          "wall_ns": {
+            "before": 6384370.5,
+            "after": 6289450.0,
+            "ratio": 0.9851323634804716
+          }
+        },
+        "maze/native-c": {
+          "instructions": {
+            "before": 39841315.5,
+            "after": 39471895.0,
+            "ratio": 0.9907277032556819
+          },
+          "cycles": {
+            "before": 23220028.5,
+            "after": 22335605.5,
+            "ratio": 0.9619112009272512
+          },
+          "cpu_us": {
+            "before": 10905.0,
+            "after": 10500.0,
+            "ratio": 0.9628610729023384
+          },
+          "wall_ns": {
+            "before": 12742246.0,
+            "after": 12743268.0,
+            "ratio": 1.0000802056403557
+          }
+        },
+        "sieve/native-c": {
+          "instructions": {
+            "before": 10011240.0,
+            "after": 9654303.0,
+            "ratio": 0.9643463746748655
+          },
+          "cycles": {
+            "before": 6415359.5,
+            "after": 6127685.5,
+            "ratio": 0.9551585534684377
+          },
+          "cpu_us": {
+            "before": 4998.0,
+            "after": 4825.5,
+            "ratio": 0.9654861944777912
+          },
+          "wall_ns": {
+            "before": 8988387.0,
+            "after": 8460401.5,
+            "ratio": 0.9412591491665857
+          }
+        },
+        "sorting/native-c": {
+          "instructions": {
+            "before": 140795661.0,
+            "after": 140554113.5,
+            "ratio": 0.9982844109095095
+          },
+          "cycles": {
+            "before": 76985934.5,
+            "after": 77717591.5,
+            "ratio": 1.0095037750045108
+          },
+          "cpu_us": {
+            "before": 28521.0,
+            "after": 28946.0,
+            "ratio": 1.0149013007959047
+          },
+          "wall_ns": {
+            "before": 42265508.0,
+            "after": 32506575.0,
+            "ratio": 0.7691040883739053
+          }
+        },
+        "squares/native-c": {
+          "instructions": {
+            "before": 1772679.0,
+            "after": 1610212.5,
+            "ratio": 0.9083497350620163
+          },
+          "cycles": {
+            "before": 2224057.0,
+            "after": 2165630.0,
+            "ratio": 0.9737295402051296
+          },
+          "cpu_us": {
+            "before": 3240.0,
+            "after": 3143.5,
+            "ratio": 0.970216049382716
+          },
+          "wall_ns": {
+            "before": 4923966.0,
+            "after": 4425081.5,
+            "ratio": 0.898682383265847
+          }
+        },
+        "sudoku/native-c": {
+          "instructions": {
+            "before": 18875485.5,
+            "after": 18473563.5,
+            "ratio": 0.9787066669093094
+          },
+          "cycles": {
+            "before": 11506165.0,
+            "after": 10577877.0,
+            "ratio": 0.9193225544740581
+          },
+          "cpu_us": {
+            "before": 6893.5,
+            "after": 6571.0,
+            "ratio": 0.9532167984333068
+          },
+          "wall_ns": {
+            "before": 8219553.0,
+            "after": 9214642.0,
+            "ratio": 1.1210636393487579
+          }
+        },
+        "tour/native-c": {
+          "instructions": {
+            "before": 18997080.5,
+            "after": 18792070.0,
+            "ratio": 0.989208315456683
+          },
+          "cycles": {
+            "before": 11703086.5,
+            "after": 11291164.5,
+            "ratio": 0.9648022767327235
+          },
+          "cpu_us": {
+            "before": 6897.0,
+            "after": 6879.5,
+            "ratio": 0.9974626649267797
+          },
+          "wall_ns": {
+            "before": 8887735.0,
+            "after": 11710462.0,
+            "ratio": 1.317598015692412
+          }
+        },
+        "vm/native-c": {
+          "instructions": {
+            "before": 25729291.0,
+            "after": 25305498.0,
+            "ratio": 0.9835287727127809
+          },
+          "cycles": {
+            "before": 15336084.0,
+            "after": 15239273.0,
+            "ratio": 0.9936873715610843
+          },
+          "cpu_us": {
+            "before": 8468.0,
+            "after": 8404.0,
+            "ratio": 0.9924421350968351
+          },
+          "wall_ns": {
+            "before": 9651358.5,
+            "after": 12309972.5,
+            "ratio": 1.2754652622218934
+          }
+        }
+      }
+    }
+  }
+}

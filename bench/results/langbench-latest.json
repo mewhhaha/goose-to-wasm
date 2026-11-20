@@ -1,14 +1,14 @@
 {
   "schema": "goose-langbench-latest-v1",
   "mode": "resident-after-warmup",
-  "report": "2026-11-20/optimizer-node-traversal/langbench-hot.json.gz",
-  "sha256": "730d02dc986e69e8e59cd0a842c5431971962d4c9fa5091b471796da1c8c424d",
+  "report": "2026-11-20/small-build-frontend/langbench-hot.json.gz",
+  "sha256": "4f0233660e63137d37b9a64488f274f0c4a14ddbba0e63d57fd069117d4c350f",
   "chart_verification": {
-    "report": "2026-11-20/optimizer-node-traversal/langbench-hot-chart.json",
-    "sha256": "1c8be7b3f6768599aa1d89c55bcca574790f4b263bd16821481af0829bfd3f39"
+    "report": "2026-11-20/small-build-frontend/langbench-hot-chart.json",
+    "sha256": "7aaa67e66264037e0406668f38965e7956f59251afbbaef999bab685fd91efdd"
   },
   "compilation_reference": {
-    "report": "2026-11-20/optimizer-node-traversal/langbench-build.json",
-    "sha256": "67f36917de6b3734688bd7c9bec63b0b7e9f2ebaf55771b05287e87a6a2817ea"
+    "report": "2026-11-20/small-build-frontend/langbench-build.json",
+    "sha256": "cb6a44eaba15418414a5e094a80662ad3b63d2c6df919f8bec94a2c130068a59"
   }
 }
