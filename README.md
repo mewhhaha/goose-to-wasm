@@ -4,11 +4,9 @@ A [Goose](https://github.com/aardappel/goose) compiler written in Goose. It emit
 
 ## Benchmarks
 
-**The compiler rebuilding itself.** On a frozen project, the balanced compiler rebuilt **2.0% faster in cached Wasmtime** than the previous version across 11 pairs. On its own sources, it took **2.21 s in Wasmtime** and **1.68 s native** (1.28×, median of 9 paired ratios). [Measurements and remaining gap](bench/results/2026-11-20/lifetime-captures/README.md#rebuilding-the-compiler)
+**The compiler rebuilding itself.** On a frozen project, the balanced compiler rebuilt **0.9% faster in cached Wasmtime** than `74af91f` across 11 pairs. On its own sources, it took **1.89 s in Wasmtime** and **1.44 s native** (1.31×, median of 9 paired ratios). [Measurements and remaining gap](bench/results/2026-11-20/ordered-effects/README.md)
 
-**Lifetime checking.** The checker now remembers which globals a function can read. With 512 globals in scope, a full compile check used **45.5% fewer instructions** when a function read two globals and **27.8% fewer** when it read all 512. [Programs and measurements](bench/results/2026-11-20/lifetime-captures/README.md#where-the-savings-come-from)
-
-![Instruction savings for global-heavy checks and seconds for the current compiler to rebuild itself](bench/results/2026-11-20/lifetime-captures/capture-cost.svg)
+![Ordered lifetime effects and compiler rebuilds](bench/results/2026-11-20/ordered-effects/ordered-effects.svg)
 
 **Compiler downloads.** The bundled compiler is 6.19 MB as emitted, **4.39 MB balanced** and **3.78 MB optimized for size**. With gzip the downloads are 1.54 MB, 1.26 MB and 1.03 MB. [Module sizes](bench/results/2026-11-20/lifetime-captures/modules.json) · [Compact command](docs/GUIDE.md#build-and-run)
 
@@ -44,6 +42,7 @@ A [Goose](https://github.com/aardappel/goose) compiler written in Goose. It emit
 
 | Question | Measurements |
 | --- | --- |
+| What did reusing checks for globals save? | [Global capture study](bench/results/2026-11-20/lifetime-captures/README.md) |
 | How did the three release profiles compare on cold preparation and rebuild time? | [Packaging study at `ef702b1`](bench/results/2026-11-20/compact-releases/README.md) |
 | How much faster did checking wide argument lists get? | [Wide argument study](bench/results/2026-11-20/lifetime-argument-lists/README.md) |
 | Can sharing Wasm branch endings reduce compiler size? | [Compiler size and preparation experiments](bench/results/2026-11-20/lifetime-argument-lists/compiler-size.md) |
