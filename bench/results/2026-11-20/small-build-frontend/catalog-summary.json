@@ -1,0 +1,168 @@
+{
+  "wasm-direct": {
+    "candidate_cpu_ratio": 0.9872109652169571,
+    "candidate_wall_ratio": 0.9875476896671354,
+    "catalog_round_bootstrap_95_cpu_ratio": [
+      0.9757689332798448,
+      0.9982631881777556
+    ],
+    "catalog_round_bootstrap_95_wall_ratio": [
+      0.9748068203584784,
+      1.0000361910686844
+    ],
+    "workload_cpu_ratios": {
+      "squares": 0.9919053549193035,
+      "tour": 0.9709613758104895,
+      "functions": 0.9849148972504906,
+      "errors": 0.9889587880344604,
+      "sieve": 0.9756389776356571,
+      "sorting": 0.9909622541201721,
+      "sudoku": 0.9945593035908141,
+      "maze": 1.0103041589075181,
+      "vm": 0.9834646886107128,
+      "life": 1.0000000000000764,
+      "mandelbrot": 0.9684400360685245
+    },
+    "changed_program_artifacts": [],
+    "workloads": {
+      "squares": {
+        "cpu_ratio": 0.9919053549193035,
+        "wall_ratio": 0.9975261532113037,
+        "identical_output": true
+      },
+      "tour": {
+        "cpu_ratio": 0.9709613758104895,
+        "wall_ratio": 0.9758811522189592,
+        "identical_output": true
+      },
+      "functions": {
+        "cpu_ratio": 0.9849148972504906,
+        "wall_ratio": 0.9794049715520384,
+        "identical_output": true
+      },
+      "errors": {
+        "cpu_ratio": 0.9889587880344604,
+        "wall_ratio": 0.9910109991892034,
+        "identical_output": true
+      },
+      "sieve": {
+        "cpu_ratio": 0.9756389776356571,
+        "wall_ratio": 0.9582706559313806,
+        "identical_output": true
+      },
+      "sorting": {
+        "cpu_ratio": 0.9909622541201721,
+        "wall_ratio": 0.9921324126779457,
+        "identical_output": true
+      },
+      "sudoku": {
+        "cpu_ratio": 0.9945593035908141,
+        "wall_ratio": 0.9986895427102768,
+        "identical_output": true
+      },
+      "maze": {
+        "cpu_ratio": 1.0103041589075181,
+        "wall_ratio": 1.0153214770639947,
+        "identical_output": true
+      },
+      "vm": {
+        "cpu_ratio": 0.9834646886107128,
+        "wall_ratio": 0.9849590620974294,
+        "identical_output": true
+      },
+      "life": {
+        "cpu_ratio": 1.0000000000000764,
+        "wall_ratio": 1.002593291467113,
+        "identical_output": true
+      },
+      "mandelbrot": {
+        "cpu_ratio": 0.9684400360685245,
+        "wall_ratio": 0.9685944426759211,
+        "identical_output": true
+      }
+    }
+  },
+  "native-c": {
+    "candidate_cpu_ratio": 0.9738994422204588,
+    "candidate_wall_ratio": 0.9771019103887324,
+    "catalog_round_bootstrap_95_cpu_ratio": [
+      0.9635197706008108,
+      0.990791336054443
+    ],
+    "catalog_round_bootstrap_95_wall_ratio": [
+      0.9637526164809419,
+      0.9901635704646905
+    ],
+    "workload_cpu_ratios": {
+      "squares": 0.965749235473973,
+      "tour": 1.0055983205037766,
+      "functions": 0.9897353648757032,
+      "errors": 0.966033601168773,
+      "sieve": 0.9655937846836938,
+      "sorting": 0.9875590086546107,
+      "sudoku": 0.9774296782885754,
+      "maze": 0.9910130718955157,
+      "vm": 0.9731442365720498,
+      "life": 0.9539217347110459,
+      "mandelbrot": 0.9389504495086821
+    },
+    "changed_program_artifacts": [],
+    "workloads": {
+      "squares": {
+        "cpu_ratio": 0.965749235473973,
+        "wall_ratio": 0.9956553322161232,
+        "identical_output": true
+      },
+      "tour": {
+        "cpu_ratio": 1.0055983205037766,
+        "wall_ratio": 0.9911105063593995,
+        "identical_output": true
+      },
+      "functions": {
+        "cpu_ratio": 0.9897353648757032,
+        "wall_ratio": 0.9886678106914071,
+        "identical_output": true
+      },
+      "errors": {
+        "cpu_ratio": 0.966033601168773,
+        "wall_ratio": 0.9663275334068665,
+        "identical_output": true
+      },
+      "sieve": {
+        "cpu_ratio": 0.9655937846836938,
+        "wall_ratio": 0.9719942128577134,
+        "identical_output": true
+      },
+      "sorting": {
+        "cpu_ratio": 0.9875590086546107,
+        "wall_ratio": 0.9952597957195447,
+        "identical_output": true
+      },
+      "sudoku": {
+        "cpu_ratio": 0.9774296782885754,
+        "wall_ratio": 0.9875321726039492,
+        "identical_output": true
+      },
+      "maze": {
+        "cpu_ratio": 0.9910130718955157,
+        "wall_ratio": 0.9859268183486258,
+        "identical_output": true
+      },
+      "vm": {
+        "cpu_ratio": 0.9731442365720498,
+        "wall_ratio": 0.9635637125321327,
+        "identical_output": true
+      },
+      "life": {
+        "cpu_ratio": 0.9539217347110459,
+        "wall_ratio": 0.9662266547812358,
+        "identical_output": true
+      },
+      "mandelbrot": {
+        "cpu_ratio": 0.9389504495086821,
+        "wall_ratio": 0.9375125938232943,
+        "identical_output": true
+      }
+    }
+  }
+}
