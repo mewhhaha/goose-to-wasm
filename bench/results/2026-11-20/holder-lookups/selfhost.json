@@ -1,0 +1,572 @@
+{
+  "schema": "goose-selfhost-comparison-v1",
+  "host": {
+    "platform": "Linux-7.3.4-1-cachyos-x86_64-with-glibc2.44",
+    "cpu": 3,
+    "python": "3.14.10 (main, Nov 13 2026, 15:10:24) [GCC 16.2.1 20260810]",
+    "cpu_model": "AMD Ryzen 7 3800X 8-Core Processor"
+  },
+  "workloads": {
+    "check": [
+      "selfhost/main.goose",
+      "--stdlib",
+      "stdlib",
+      "--check"
+    ],
+    "emit": [
+      "selfhost/main.goose",
+      "--stdlib",
+      "stdlib",
+      "--target",
+      "wasm-direct",
+      "-O2",
+      "--wasm-memory64",
+      "--wasm-max-pages",
+      "262144",
+      "-o",
+      "../emitted.wasm"
+    ]
+  },
+  "scripts": {
+    "scripts/goose_wasm.py": {
+      "sha256": "eaded5920739a21a6940ce73b59de285f7d7f683d049871c5700a3ec45fb94d9",
+      "bytes": 12759
+    },
+    "scripts/run_wasmtime.py": {
+      "sha256": "5f00e3b88c4a6271a5ca3f9040ffc3c96f95601df7d0e3ee7fe8a575ac2eda1e",
+      "bytes": 26880
+    },
+    "scripts/run_wasm.mjs": {
+      "sha256": "7e4fdf993a26567c9923e7431acdcc5b8c972b5bc48df832fd402e0de35103d1",
+      "bytes": 20566
+    },
+    "bench/selfhost_comparison.py": {
+      "sha256": "2ce2c6ef042a5db06bff97d1b08f4ac2a8778131507c896d3f1c4a617f28f45f",
+      "bytes": 14609
+    },
+    "bench/selfhost_v8.mjs": {
+      "sha256": "1d0e625c4daa6b20881a7f657503fdad91f0d77e3f347c494d32262d6b961bf3",
+      "bytes": 1700
+    }
+  },
+  "build": {
+    "source_commit": "673458e14139f71f46fae586ea1d9053be70de2b",
+    "source_archive_sha256": "09485a281ec27e54db641ef1fda875286ef4eef5bd8a24687f386acb1eac2748",
+    "build_working_directory": "/home/jacobt/src/goose-to-wasm/build/holder-release-nov20/own/source",
+    "emitter": {
+      "sha256": "0b3a26ca21cc39ec7f53422e4521a692bf7b6af12e6546a00d6984da137adc5e",
+      "bytes": 7071040
+    },
+    "clang": {
+      "sha256": "ca0d2f7fbe94836762f36c7e73292289bc4d5e4b9b5defc320ef0856259a2855",
+      "bytes": 124768,
+      "version": "clang version 23.1.5\nTarget: x86_64-pc-linux-gnu\nThread model: posix\nInstalledDir: /usr/bin"
+    },
+    "cpu_sets": {
+      "native": "0,2,4,6",
+      "wasm": "3"
+    },
+    "samples": [
+      {
+        "native": {
+          "wall_ns": 40124869772,
+          "argv": [
+            "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+            "/home/jacobt/src/goose-to-wasm/scripts/goose_wasm.py",
+            "build",
+            "selfhost/main.goose",
+            "--stdlib",
+            "stdlib",
+            "--goose",
+            "/home/jacobt/src/goose-to-wasm/build/holder-release-nov20/own-reader-quiet/emitter",
+            "--backend",
+            "native",
+            "--cc",
+            "/usr/bin/clang-23",
+            "--jobs",
+            "8",
+            "--no-cache",
+            "-O2",
+            "--emit-c",
+            "/home/jacobt/src/goose-to-wasm/build/holder-release-nov20/own-reader-quiet/build-1/compiler.c",
+            "--stats",
+            "/home/jacobt/src/goose-to-wasm/build/holder-release-nov20/own-reader-quiet/build-1/build.json",
+            "-o",
+            "/home/jacobt/src/goose-to-wasm/build/holder-release-nov20/own-reader-quiet/build-1/compiler-native"
+          ],
+          "frontend_ms": 3522.3919840000235,
+          "cc_compile_ms": 36403.3554560001,
+          "cc_link_ms": 59.983275000377034,
+          "total_ms": 40059.67233199999,
+          "native_units": 8,
+          "runtime_unit": "compiled"
+        },
+        "wasm": {
+          "wall_ns": 2949388434,
+          "argv": [
+            "/home/jacobt/src/goose-to-wasm/build/holder-release-nov20/own-reader-quiet/emitter",
+            "selfhost/main.goose",
+            "--stdlib",
+            "stdlib",
+            "--target",
+            "wasm-direct",
+            "-O2",
+            "--wasm-memory64",
+            "--wasm-max-pages",
+            "262144",
+            "-o",
+            "/home/jacobt/src/goose-to-wasm/build/holder-release-nov20/own-reader-quiet/build-1/compiler.wasm"
+          ]
+        },
+        "artifacts": {
+          "compiler-native": {
+            "sha256": "182b1314ab3fe0c38971a95d47bf0b451a2892506a24d53442db24beccab6110",
+            "bytes": 7055512
+          },
+          "compiler.wasm": {
+            "sha256": "d707d8e1449d11588a118b64902545199e92523ff1ccdb2367b99755c7fa9178",
+            "bytes": 8793142
+          },
+          "compiler.c": {
+            "sha256": "15aa360665847d44943824fa1a1fca055d2d674eda58f9df81b5af264b4b3c39",
+            "bytes": 49937069
+          }
+        }
+      },
+      {
+        "wasm": {
+          "wall_ns": 2758889376,
+          "argv": [
+            "/home/jacobt/src/goose-to-wasm/build/holder-release-nov20/own-reader-quiet/emitter",
+            "selfhost/main.goose",
+            "--stdlib",
+            "stdlib",
+            "--target",
+            "wasm-direct",
+            "-O2",
+            "--wasm-memory64",
+            "--wasm-max-pages",
+            "262144",
+            "-o",
+            "/home/jacobt/src/goose-to-wasm/build/holder-release-nov20/own-reader-quiet/build-2/compiler.wasm"
+          ]
+        },
+        "native": {
+          "wall_ns": 32933786860,
+          "argv": [
+            "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+            "/home/jacobt/src/goose-to-wasm/scripts/goose_wasm.py",
+            "build",
+            "selfhost/main.goose",
+            "--stdlib",
+            "stdlib",
+            "--goose",
+            "/home/jacobt/src/goose-to-wasm/build/holder-release-nov20/own-reader-quiet/emitter",
+            "--backend",
+            "native",
+            "--cc",
+            "/usr/bin/clang-23",
+            "--jobs",
+            "8",
+            "--no-cache",
+            "-O2",
+            "--emit-c",
+            "/home/jacobt/src/goose-to-wasm/build/holder-release-nov20/own-reader-quiet/build-2/compiler.c",
+            "--stats",
+            "/home/jacobt/src/goose-to-wasm/build/holder-release-nov20/own-reader-quiet/build-2/build.json",
+            "-o",
+            "/home/jacobt/src/goose-to-wasm/build/holder-release-nov20/own-reader-quiet/build-2/compiler-native"
+          ],
+          "frontend_ms": 2701.8517609999435,
+          "cc_compile_ms": 30042.66660300027,
+          "cc_link_ms": 58.025617000112106,
+          "total_ms": 32865.61612300011,
+          "native_units": 8,
+          "runtime_unit": "compiled"
+        },
+        "artifacts": {
+          "compiler-native": {
+            "sha256": "182b1314ab3fe0c38971a95d47bf0b451a2892506a24d53442db24beccab6110",
+            "bytes": 7055512
+          },
+          "compiler.wasm": {
+            "sha256": "d707d8e1449d11588a118b64902545199e92523ff1ccdb2367b99755c7fa9178",
+            "bytes": 8793142
+          },
+          "compiler.c": {
+            "sha256": "15aa360665847d44943824fa1a1fca055d2d674eda58f9df81b5af264b4b3c39",
+            "bytes": 49937069
+          }
+        }
+      },
+      {
+        "native": {
+          "wall_ns": 33098803932,
+          "argv": [
+            "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+            "/home/jacobt/src/goose-to-wasm/scripts/goose_wasm.py",
+            "build",
+            "selfhost/main.goose",
+            "--stdlib",
+            "stdlib",
+            "--goose",
+            "/home/jacobt/src/goose-to-wasm/build/holder-release-nov20/own-reader-quiet/emitter",
+            "--backend",
+            "native",
+            "--cc",
+            "/usr/bin/clang-23",
+            "--jobs",
+            "8",
+            "--no-cache",
+            "-O2",
+            "--emit-c",
+            "/home/jacobt/src/goose-to-wasm/build/holder-release-nov20/own-reader-quiet/build-3/compiler.c",
+            "--stats",
+            "/home/jacobt/src/goose-to-wasm/build/holder-release-nov20/own-reader-quiet/build-3/build.json",
+            "-o",
+            "/home/jacobt/src/goose-to-wasm/build/holder-release-nov20/own-reader-quiet/build-3/compiler-native"
+          ],
+          "frontend_ms": 2742.5450539999474,
+          "cc_compile_ms": 30150.93108200017,
+          "cc_link_ms": 78.9974220001568,
+          "total_ms": 33035.582437999896,
+          "native_units": 8,
+          "runtime_unit": "compiled"
+        },
+        "wasm": {
+          "wall_ns": 2623083892,
+          "argv": [
+            "/home/jacobt/src/goose-to-wasm/build/holder-release-nov20/own-reader-quiet/emitter",
+            "selfhost/main.goose",
+            "--stdlib",
+            "stdlib",
+            "--target",
+            "wasm-direct",
+            "-O2",
+            "--wasm-memory64",
+            "--wasm-max-pages",
+            "262144",
+            "-o",
+            "/home/jacobt/src/goose-to-wasm/build/holder-release-nov20/own-reader-quiet/build-3/compiler.wasm"
+          ]
+        },
+        "artifacts": {
+          "compiler-native": {
+            "sha256": "182b1314ab3fe0c38971a95d47bf0b451a2892506a24d53442db24beccab6110",
+            "bytes": 7055512
+          },
+          "compiler.wasm": {
+            "sha256": "d707d8e1449d11588a118b64902545199e92523ff1ccdb2367b99755c7fa9178",
+            "bytes": 8793142
+          },
+          "compiler.c": {
+            "sha256": "15aa360665847d44943824fa1a1fca055d2d674eda58f9df81b5af264b4b3c39",
+            "bytes": 49937069
+          }
+        }
+      }
+    ]
+  },
+  "execution": {
+    "warmup": {
+      "native": {
+        "wall_ns": 1171781695,
+        "result": {
+          "exit_code": 0,
+          "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "wasmtime": {
+        "wall_ns": 2863739050,
+        "instantiate_ns": 1794868,
+        "result": {
+          "exit_code": 0,
+          "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "v8": {
+        "wall_ns": 3466096496,
+        "instantiate_ns": 5708769,
+        "result": {
+          "exit_code": 0,
+          "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    "samples": [
+      [
+        {
+          "engine": "native",
+          "workload": "check",
+          "wall_ns": 1184785149,
+          "result": {
+            "exit_code": 0,
+            "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "engine": "wasmtime",
+          "workload": "check",
+          "wall_ns": 2984653930,
+          "instantiate_ns": 819481,
+          "result": {
+            "exit_code": 0,
+            "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "engine": "v8",
+          "workload": "check",
+          "wall_ns": 3406322302,
+          "instantiate_ns": 934921,
+          "result": {
+            "exit_code": 0,
+            "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "engine": "wasmtime",
+          "workload": "emit",
+          "wall_ns": 4276706882,
+          "instantiate_ns": 720343,
+          "result": {
+            "exit_code": 0,
+            "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "emitted_wasm": {
+              "sha256": "d707d8e1449d11588a118b64902545199e92523ff1ccdb2367b99755c7fa9178",
+              "bytes": 8793142
+            }
+          }
+        },
+        {
+          "engine": "v8",
+          "workload": "emit",
+          "wall_ns": 5063151766,
+          "instantiate_ns": 925021,
+          "result": {
+            "exit_code": 0,
+            "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "emitted_wasm": {
+              "sha256": "d707d8e1449d11588a118b64902545199e92523ff1ccdb2367b99755c7fa9178",
+              "bytes": 8793142
+            }
+          }
+        },
+        {
+          "engine": "native",
+          "workload": "emit",
+          "wall_ns": 1816332565,
+          "result": {
+            "exit_code": 0,
+            "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "emitted_wasm": {
+              "sha256": "d707d8e1449d11588a118b64902545199e92523ff1ccdb2367b99755c7fa9178",
+              "bytes": 8793142
+            }
+          }
+        }
+      ],
+      [
+        {
+          "engine": "wasmtime",
+          "workload": "check",
+          "wall_ns": 2910693390,
+          "instantiate_ns": 775398,
+          "result": {
+            "exit_code": 0,
+            "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "engine": "v8",
+          "workload": "check",
+          "wall_ns": 3483794944,
+          "instantiate_ns": 929429,
+          "result": {
+            "exit_code": 0,
+            "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "engine": "native",
+          "workload": "check",
+          "wall_ns": 1180149811,
+          "result": {
+            "exit_code": 0,
+            "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "engine": "v8",
+          "workload": "emit",
+          "wall_ns": 5180902158,
+          "instantiate_ns": 930673,
+          "result": {
+            "exit_code": 0,
+            "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "emitted_wasm": {
+              "sha256": "d707d8e1449d11588a118b64902545199e92523ff1ccdb2367b99755c7fa9178",
+              "bytes": 8793142
+            }
+          }
+        },
+        {
+          "engine": "native",
+          "workload": "emit",
+          "wall_ns": 2288682787,
+          "result": {
+            "exit_code": 0,
+            "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "emitted_wasm": {
+              "sha256": "d707d8e1449d11588a118b64902545199e92523ff1ccdb2367b99755c7fa9178",
+              "bytes": 8793142
+            }
+          }
+        },
+        {
+          "engine": "wasmtime",
+          "workload": "emit",
+          "wall_ns": 6054315930,
+          "instantiate_ns": 2107460,
+          "result": {
+            "exit_code": 0,
+            "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "emitted_wasm": {
+              "sha256": "d707d8e1449d11588a118b64902545199e92523ff1ccdb2367b99755c7fa9178",
+              "bytes": 8793142
+            }
+          }
+        }
+      ],
+      [
+        {
+          "engine": "v8",
+          "workload": "check",
+          "wall_ns": 4566033301,
+          "instantiate_ns": 6541987,
+          "result": {
+            "exit_code": 0,
+            "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "engine": "native",
+          "workload": "check",
+          "wall_ns": 1481464005,
+          "result": {
+            "exit_code": 0,
+            "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "engine": "wasmtime",
+          "workload": "check",
+          "wall_ns": 2976633335,
+          "instantiate_ns": 1204801,
+          "result": {
+            "exit_code": 0,
+            "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "engine": "native",
+          "workload": "emit",
+          "wall_ns": 2258174871,
+          "result": {
+            "exit_code": 0,
+            "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "emitted_wasm": {
+              "sha256": "d707d8e1449d11588a118b64902545199e92523ff1ccdb2367b99755c7fa9178",
+              "bytes": 8793142
+            }
+          }
+        },
+        {
+          "engine": "wasmtime",
+          "workload": "emit",
+          "wall_ns": 5382963535,
+          "instantiate_ns": 763145,
+          "result": {
+            "exit_code": 0,
+            "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "emitted_wasm": {
+              "sha256": "d707d8e1449d11588a118b64902545199e92523ff1ccdb2367b99755c7fa9178",
+              "bytes": 8793142
+            }
+          }
+        },
+        {
+          "engine": "v8",
+          "workload": "emit",
+          "wall_ns": 5247841499,
+          "instantiate_ns": 5889350,
+          "result": {
+            "exit_code": 0,
+            "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "emitted_wasm": {
+              "sha256": "d707d8e1449d11588a118b64902545199e92523ff1ccdb2367b99755c7fa9178",
+              "bytes": 8793142
+            }
+          }
+        }
+      ]
+    ]
+  },
+  "wasmtime": {
+    "version": "50.0.1",
+    "library": {
+      "sha256": "3127ca42fe7cdd3f0a43a358e79177dcfedd46c1746329826403b9d854de6178",
+      "bytes": 29673400
+    },
+    "preparation_cache_enabled": true,
+    "cache_config_sha256": null,
+    "config": "hosted config, Cranelift speed",
+    "engine_and_module_ns": 52347163
+  },
+  "v8": {
+    "source_sha256": "d707d8e1449d11588a118b64902545199e92523ff1ccdb2367b99755c7fa9178",
+    "module_compile_ns": 10175225180,
+    "node": "v24.22.1",
+    "v8": "13.6.233.17-node.58",
+    "exec_argv": [
+      "--no-liftoff",
+      "--no-wasm-lazy-compilation"
+    ],
+    "binary": {
+      "sha256": "e32e2d16081cf644f88392934288086e7662529d0d43277c34f7aad2207cfafb",
+      "bytes": 126879696
+    },
+    "argv": [
+      "taskset",
+      "-c",
+      "0,2,4,6",
+      "/home/jacobt/.local/share/fnm/node-versions/v24.22.1/installation/bin/node",
+      "--no-liftoff",
+      "--no-wasm-lazy-compilation",
+      "/home/jacobt/src/goose-to-wasm/bench/selfhost_v8.mjs",
+      "/home/jacobt/src/goose-to-wasm/build/holder-release-nov20/own-reader-quiet/build-1/compiler.wasm"
+    ],
+    "node_options": ""
+  }
+}

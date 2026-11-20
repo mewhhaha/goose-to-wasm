@@ -1,0 +1,404 @@
+{
+  "source": "673458e14139f71f46fae586ea1d9053be70de2b",
+  "source_archive_sha256": "09485a281ec27e54db641ef1fda875286ef4eef5bd8a24687f386acb1eac2748",
+  "cpu": 5,
+  "native": "182b1314ab3fe0c38971a95d47bf0b451a2892506a24d53442db24beccab6110",
+  "wasm": "55794fa638082ba5d01dd115c012630450ccc96126ab8fca9bad0e53ecf0fa50",
+  "host": "b247393d8fbe3115246f20703f726e90eeaaed762a75932c7bb131a4433ad026",
+  "probe_sha256": "a534f173bf5a05857bbab178f48bb3f5a60dc1d30b9c31f7a14c592d6a5741a9",
+  "expected_output": "d707d8e1449d11588a118b64902545199e92523ff1ccdb2367b99755c7fa9178",
+  "samples": [
+    {
+      "engine": "native",
+      "round": 1,
+      "phases": {
+        "parse": {
+          "ns": 197607174,
+          "instructions": 525829222,
+          "cycles": 257900059,
+          "branch_misses": 851638,
+          "cache_misses": 436269
+        },
+        "typecheck": {
+          "ns": 2031556517,
+          "instructions": 9266574827,
+          "cycles": 6629582501,
+          "branch_misses": 10806615,
+          "cache_misses": 78976647
+        },
+        "lifetime": {
+          "ns": 1600498174,
+          "instructions": 7523038491,
+          "cycles": 5337869709,
+          "branch_misses": 8206160,
+          "cache_misses": 64747182
+        },
+        "optimize": {
+          "ns": 228875437,
+          "instructions": 1296264829,
+          "cycles": 785114792,
+          "branch_misses": 1822918,
+          "cache_misses": 3971708
+        },
+        "backend": {
+          "ns": 780976823,
+          "instructions": 4668169233,
+          "cycles": 2710858463,
+          "branch_misses": 6593888,
+          "cache_misses": 20559188
+        },
+        "checking_except_lifetime": {
+          "ns": 431058343,
+          "instructions": 1743536336,
+          "cycles": 1291712792,
+          "branch_misses": 2600455,
+          "cache_misses": 14229465
+        }
+      },
+      "clock_samples": 7
+    },
+    {
+      "engine": "wasm",
+      "round": 1,
+      "phases": {
+        "parse": {
+          "ns": 138757859,
+          "instructions": 743252235,
+          "cycles": 410814470,
+          "branch_misses": 886838,
+          "cache_misses": 701435
+        },
+        "typecheck": {
+          "ns": 2772997057,
+          "instructions": 11397814699,
+          "cycles": 8919699648,
+          "branch_misses": 14618384,
+          "cache_misses": 120650897
+        },
+        "lifetime": {
+          "ns": 2237693914,
+          "instructions": 9013050544,
+          "cycles": 7065657185,
+          "branch_misses": 11620481,
+          "cache_misses": 98715685
+        },
+        "optimize": {
+          "ns": 327432542,
+          "instructions": 1783430791,
+          "cycles": 1080401503,
+          "branch_misses": 1845719,
+          "cache_misses": 4346758
+        },
+        "backend": {
+          "ns": 974291196,
+          "instructions": 5516334011,
+          "cycles": 3259274472,
+          "branch_misses": 5876009,
+          "cache_misses": 18533109
+        },
+        "checking_except_lifetime": {
+          "ns": 535303143,
+          "instructions": 2384764155,
+          "cycles": 1854042463,
+          "branch_misses": 2997903,
+          "cache_misses": 21935212
+        }
+      },
+      "clock_samples": 10
+    },
+    {
+      "engine": "wasm",
+      "round": 2,
+      "phases": {
+        "parse": {
+          "ns": 141133508,
+          "instructions": 743254070,
+          "cycles": 416006888,
+          "branch_misses": 892862,
+          "cache_misses": 919593
+        },
+        "typecheck": {
+          "ns": 2693187208,
+          "instructions": 11397814574,
+          "cycles": 8326409430,
+          "branch_misses": 13762085,
+          "cache_misses": 103363207
+        },
+        "lifetime": {
+          "ns": 2137910425,
+          "instructions": 9013050906,
+          "cycles": 6617106242,
+          "branch_misses": 11015878,
+          "cache_misses": 86920019
+        },
+        "optimize": {
+          "ns": 396463854,
+          "instructions": 1783428899,
+          "cycles": 1036693471,
+          "branch_misses": 1739568,
+          "cache_misses": 3610464
+        },
+        "backend": {
+          "ns": 931147458,
+          "instructions": 5516333547,
+          "cycles": 3116298493,
+          "branch_misses": 6097518,
+          "cache_misses": 21212515
+        },
+        "checking_except_lifetime": {
+          "ns": 555276783,
+          "instructions": 2384763668,
+          "cycles": 1709303188,
+          "branch_misses": 2746207,
+          "cache_misses": 16443188
+        }
+      },
+      "clock_samples": 10
+    },
+    {
+      "engine": "native",
+      "round": 2,
+      "phases": {
+        "parse": {
+          "ns": 80264611,
+          "instructions": 525829174,
+          "cycles": 226673031,
+          "branch_misses": 808336,
+          "cache_misses": 423703
+        },
+        "typecheck": {
+          "ns": 1766756878,
+          "instructions": 9266574209,
+          "cycles": 5850557813,
+          "branch_misses": 9578242,
+          "cache_misses": 58128720
+        },
+        "lifetime": {
+          "ns": 1429776903,
+          "instructions": 7523038100,
+          "cycles": 4764165398,
+          "branch_misses": 7131676,
+          "cache_misses": 45499093
+        },
+        "optimize": {
+          "ns": 230989815,
+          "instructions": 1296264945,
+          "cycles": 716291533,
+          "branch_misses": 1699525,
+          "cache_misses": 3498139
+        },
+        "backend": {
+          "ns": 802697570,
+          "instructions": 4668213970,
+          "cycles": 2572875409,
+          "branch_misses": 6233863,
+          "cache_misses": 17107330
+        },
+        "checking_except_lifetime": {
+          "ns": 336979975,
+          "instructions": 1743536109,
+          "cycles": 1086392415,
+          "branch_misses": 2446566,
+          "cache_misses": 12629627
+        }
+      },
+      "clock_samples": 7
+    },
+    {
+      "engine": "native",
+      "round": 3,
+      "phases": {
+        "parse": {
+          "ns": 87595720,
+          "instructions": 525829213,
+          "cycles": 252699743,
+          "branch_misses": 801350,
+          "cache_misses": 312457
+        },
+        "typecheck": {
+          "ns": 1760189861,
+          "instructions": 9266574595,
+          "cycles": 5798958794,
+          "branch_misses": 10035454,
+          "cache_misses": 65593016
+        },
+        "lifetime": {
+          "ns": 1373546330,
+          "instructions": 7523038268,
+          "cycles": 4603583008,
+          "branch_misses": 7646344,
+          "cache_misses": 55565977
+        },
+        "optimize": {
+          "ns": 200703755,
+          "instructions": 1296264792,
+          "cycles": 658609887,
+          "branch_misses": 1712092,
+          "cache_misses": 3678791
+        },
+        "backend": {
+          "ns": 756349422,
+          "instructions": 4668169320,
+          "cycles": 2498688866,
+          "branch_misses": 6468536,
+          "cache_misses": 19630808
+        },
+        "checking_except_lifetime": {
+          "ns": 386643531,
+          "instructions": 1743536327,
+          "cycles": 1195375786,
+          "branch_misses": 2389110,
+          "cache_misses": 10027039
+        }
+      },
+      "clock_samples": 7
+    },
+    {
+      "engine": "wasm",
+      "round": 3,
+      "phases": {
+        "parse": {
+          "ns": 153364584,
+          "instructions": 743253605,
+          "cycles": 414832813,
+          "branch_misses": 906906,
+          "cache_misses": 715118
+        },
+        "typecheck": {
+          "ns": 2635691089,
+          "instructions": 11397812792,
+          "cycles": 8510397927,
+          "branch_misses": 13712262,
+          "cache_misses": 101572683
+        },
+        "lifetime": {
+          "ns": 2047763019,
+          "instructions": 9013048930,
+          "cycles": 6745594380,
+          "branch_misses": 10720802,
+          "cache_misses": 80449988
+        },
+        "optimize": {
+          "ns": 308672641,
+          "instructions": 1783428794,
+          "cycles": 1018573099,
+          "branch_misses": 1794872,
+          "cache_misses": 4600399
+        },
+        "backend": {
+          "ns": 1053348408,
+          "instructions": 5516334105,
+          "cycles": 3301015854,
+          "branch_misses": 6300335,
+          "cache_misses": 22282402
+        },
+        "checking_except_lifetime": {
+          "ns": 587928070,
+          "instructions": 2384763862,
+          "cycles": 1764803547,
+          "branch_misses": 2991460,
+          "cache_misses": 21122695
+        }
+      },
+      "clock_samples": 10
+    },
+    {
+      "engine": "wasm",
+      "round": 4,
+      "phases": {
+        "parse": {
+          "ns": 153024270,
+          "instructions": 743253546,
+          "cycles": 418257262,
+          "branch_misses": 905597,
+          "cache_misses": 723988
+        },
+        "typecheck": {
+          "ns": 2783674442,
+          "instructions": 11397812780,
+          "cycles": 8628579270,
+          "branch_misses": 14242475,
+          "cache_misses": 110849609
+        },
+        "lifetime": {
+          "ns": 2160290090,
+          "instructions": 9013048945,
+          "cycles": 6823429467,
+          "branch_misses": 11205749,
+          "cache_misses": 89641228
+        },
+        "optimize": {
+          "ns": 374745635,
+          "instructions": 1783429064,
+          "cycles": 1094164396,
+          "branch_misses": 1867906,
+          "cache_misses": 4700558
+        },
+        "backend": {
+          "ns": 1035042703,
+          "instructions": 5516333986,
+          "cycles": 3366043861,
+          "branch_misses": 6724737,
+          "cache_misses": 26814105
+        },
+        "checking_except_lifetime": {
+          "ns": 623384352,
+          "instructions": 2384763835,
+          "cycles": 1805149803,
+          "branch_misses": 3036726,
+          "cache_misses": 21208381
+        }
+      },
+      "clock_samples": 10
+    },
+    {
+      "engine": "native",
+      "round": 4,
+      "phases": {
+        "parse": {
+          "ns": 87425254,
+          "instructions": 525829175,
+          "cycles": 235030517,
+          "branch_misses": 821780,
+          "cache_misses": 373023
+        },
+        "typecheck": {
+          "ns": 2981544203,
+          "instructions": 9266575234,
+          "cycles": 6869015590,
+          "branch_misses": 11216610,
+          "cache_misses": 77289688
+        },
+        "lifetime": {
+          "ns": 2581390419,
+          "instructions": 7523038985,
+          "cycles": 5604874271,
+          "branch_misses": 8686402,
+          "cache_misses": 63556051
+        },
+        "optimize": {
+          "ns": 459561055,
+          "instructions": 1296264914,
+          "cycles": 837912566,
+          "branch_misses": 1950800,
+          "cache_misses": 4156835
+        },
+        "backend": {
+          "ns": 893402277,
+          "instructions": 4668213936,
+          "cycles": 2784409427,
+          "branch_misses": 6260157,
+          "cache_misses": 18633752
+        },
+        "checking_except_lifetime": {
+          "ns": 400153784,
+          "instructions": 1743536249,
+          "cycles": 1264141319,
+          "branch_misses": 2530208,
+          "cache_misses": 13733637
+        }
+      },
+      "clock_samples": 7
+    }
+  ]
+}

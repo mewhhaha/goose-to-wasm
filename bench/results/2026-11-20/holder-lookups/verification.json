@@ -1,0 +1,287 @@
+{
+  "qualification": {
+    "schema": "goose-qualification-v1",
+    "started": "2026-11-20T13:49:43+0100",
+    "head": "673458e14139f71f46fae586ea1d9053be70de2b",
+    "dirty": true,
+    "since": "origin/main",
+    "units_pass": false,
+    "stages": [
+      {
+        "stage": "bootstrap",
+        "command": [
+          "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+          "scripts/bootstrap.py",
+          "--verify",
+          "--build-dir",
+          "/home/jacobt/src/goose-to-wasm/build/holder-release-nov20/qualified/bootstrap",
+          "--cache-dir",
+          "/home/jacobt/src/goose-to-wasm/build/qualify-cache/bootstrap"
+        ],
+        "exit": 0,
+        "seconds": 139.7,
+        "log": "/home/jacobt/src/goose-to-wasm/build/holder-release-nov20/qualified/bootstrap.log"
+      },
+      {
+        "stage": "conformance",
+        "command": [
+          "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+          "tests/conformance.py",
+          "--compiler",
+          "/home/jacobt/src/goose-to-wasm/build/holder-release-nov20/qualified/bootstrap/bin/goose",
+          "--levels",
+          "0",
+          "2",
+          "--cc",
+          "gcc",
+          "--known-gaps",
+          "tests/conformance/known-gaps.json",
+          "--native-cache",
+          "/home/jacobt/src/goose-to-wasm/build/qualify-cache/native",
+          "--output-dir",
+          "/home/jacobt/src/goose-to-wasm/build/holder-release-nov20/qualified/conformance",
+          "--jobs",
+          "5"
+        ],
+        "exit": 0,
+        "seconds": 70.1,
+        "log": "/home/jacobt/src/goose-to-wasm/build/holder-release-nov20/qualified/conformance.log",
+        "summary": "{'selected': 10801, 'passed': 10697, 'failed': 104}",
+        "gaps": "{'open_gaps': 104, 'unexpected_failures': 0, 'fixed_gaps': 0}",
+        "native_cache": "{'native_builds': 3218, 'cache_hits': 3154}"
+      },
+      {
+        "stage": "native-checks",
+        "command": [
+          "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+          "native/tests/check.py",
+          "--output",
+          "/home/jacobt/src/goose-to-wasm/build/holder-release-nov20/qualified/native"
+        ],
+        "exit": 0,
+        "seconds": 24.5,
+        "log": "/home/jacobt/src/goose-to-wasm/build/holder-release-nov20/qualified/native-checks.log",
+        "summary": "54 steps ok"
+      },
+      {
+        "stage": "conformance-memory64",
+        "command": [
+          "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+          "tests/conformance.py",
+          "--compiler",
+          "/home/jacobt/src/goose-to-wasm/build/holder-release-nov20/qualified/bootstrap/bin/goose",
+          "--levels",
+          "0",
+          "2",
+          "--cc",
+          "gcc",
+          "--known-gaps",
+          "tests/conformance/known-gaps-memory64.json",
+          "--native-cache",
+          "/home/jacobt/src/goose-to-wasm/build/qualify-cache/native",
+          "--output-dir",
+          "/home/jacobt/src/goose-to-wasm/build/holder-release-nov20/qualified/conformance-memory64",
+          "--jobs",
+          "2",
+          "--targets",
+          "wasm-direct",
+          "--wasm-memory64"
+        ],
+        "exit": 0,
+        "seconds": 75.9,
+        "log": "/home/jacobt/src/goose-to-wasm/build/holder-release-nov20/qualified/conformance-memory64.log",
+        "summary": "{'selected': 4779, 'passed': 4771, 'failed': 8}",
+        "gaps": "{'open_gaps': 8, 'unexpected_failures': 0, 'fixed_gaps': 0}",
+        "native_cache": "{'native_builds': 0, 'cache_hits': 0}"
+      },
+      {
+        "stage": "equivalence",
+        "command": [
+          "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+          "tests/output_equivalence.py",
+          "--baseline",
+          "/home/jacobt/src/goose-to-wasm/build/opportunity-release-nov19/own/build-1/compiler-native",
+          "--candidate",
+          "/home/jacobt/src/goose-to-wasm/build/holder-release-nov20/qualified/bootstrap/bin/goose",
+          "--output-dir",
+          "/home/jacobt/src/goose-to-wasm/build/holder-release-nov20/qualified/equivalence",
+          "--selfhost",
+          "/home/jacobt/src/goose-to-wasm/build/holder-release-nov20/qualified/frozen/selfhost",
+          "--jobs",
+          "2"
+        ],
+        "exit": 0,
+        "seconds": 75.2,
+        "log": "/home/jacobt/src/goose-to-wasm/build/holder-release-nov20/qualified/equivalence.log",
+        "summary": "{\"compared\": 10061, \"differing\": 0, \"seconds\": {\"baseline\": 72.207, \"candidate\": 69.102}}",
+        "differing": []
+      },
+      {
+        "stage": "unit-tests",
+        "command": [
+          "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+          "-m",
+          "unittest",
+          "--durations",
+          "10",
+          "tests.test_conformance_runner",
+          "tests.test_bootstrap_optimization",
+          "tests.test_native_units",
+          "tests.test_driver_outputs",
+          "tests.test_cli_outputs",
+          "tests.test_root_struct_backends",
+          "tests.test_slice_pool_backends",
+          "tests.test_loop_ordinals",
+          "tests.test_dynamic_remainder",
+          "tests.test_descending_while",
+          "tests.test_zero_stores",
+          "tests.test_owner_view_host",
+          "tests.test_ordinary_owner_modes",
+          "tests.test_aggregate_print",
+          "tests.test_while_unroll",
+          "tests.test_fixed_memory_frames",
+          "tests.test_holder_walks",
+          "tests.test_data_segments",
+          "tests.test_fixed_memory_ops"
+        ],
+        "exit": 0,
+        "seconds": 121.5,
+        "log": "/home/jacobt/src/goose-to-wasm/build/holder-release-nov20/qualified/unit-tests.log"
+      }
+    ],
+    "bootstrap": {
+      "fixed_point": true,
+      "generated_c_sha256": "ba7fbca25e2588cf3334cfb3d6b1fe323f0d0ffd2a354c33ce1db5e48d6a95ee",
+      "next_generation_c_sha256": "ba7fbca25e2588cf3334cfb3d6b1fe323f0d0ffd2a354c33ce1db5e48d6a95ee",
+      "third_generation_c_sha256": null,
+      "executable_sha256": "f30ce79e421efd61263a6222eb5ba33fe9213458dbd14f3e6c63f8fbf7421b8c",
+      "profile_used": false,
+      "cached": {
+        "build-seed": true,
+        "build-goose": false
+      }
+    },
+    "seconds": 261.3,
+    "status": "passed",
+    "failed": []
+  },
+  "qualification_worktree": "Only benchmark documentation and the historical catalog chart had tracked working changes at launch. The compiler source matches the frozen commit.",
+  "equivalence": {
+    "compared": 10061,
+    "differing": 0,
+    "seconds": {
+      "baseline": 72.207,
+      "candidate": 69.102
+    }
+  },
+  "conformance": {
+    "conformance": {
+      "selected": 10801,
+      "passed": 10697,
+      "failed": 104
+    },
+    "conformance-memory64": {
+      "selected": 4779,
+      "passed": 4771,
+      "failed": 8
+    }
+  },
+  "manifest": "2054a3fc40d9d517d66ceafd153e6adfc4495a682cadea7431e4f6881a5e9499",
+  "stages": [
+    "bootstrap                    exit 0    139.7 s  \nconformance                  exit 0     70.1 s  {'selected': 10801, 'passed': 10697, 'failed': 104}\nnative-checks                exit 0     24.5 s  54 steps ok\nconformance-memory64         exit 0     75.9 s  {'selected': 4779, 'passed': 4771, 'failed': 8}\nequivalence                  exit 0     75.2 s  {\"compared\": 10061, \"differing\": 0, \"seconds\": {\"baseline\": 72.207, \"candidate\": 69.102}}\nunit-tests                   exit 0    121.5 s  \npassed in 261.3 s; /home/jacobt/src/goose-to-wasm/build/holder-release-nov20/qualified/summary.json\n",
+    "....\n----------------------------------------------------------------------\nRan 4 tests in 0.137s\n\nOK\n"
+  ],
+  "release": {
+    "training": {
+      "squares": {
+        "source": "420d9e6b4a2496865eb9f66603c4cbb0fdbb2add30e8ccc709a15102f4748b14",
+        "output": "fc8ae2dbef752d8e8eaaafec21e1c7500c3b27677f9030c502bf8c196ca7d845",
+        "profile": "a41f9dcf59746a600a0181384a8b3baea7ab1d735ddeb9794fb6b20b079d6cba"
+      },
+      "sorting": {
+        "source": "00d2c7ed328100d018a3adc4ef3f2c5abd83d8219e8c6c0a56d00b0b1df8a27e",
+        "output": "b9ce93a5ef630da6e37912991cac3c3f052b8a5cf7290752ad4068e378e0aede",
+        "profile": "3a60b6a53429d6682ac3fdff12ca38a23f2f5288833939e5e167211cb149dace"
+      },
+      "tour": {
+        "source": "a46393946390a6fc888d013ae0a07383812a57667d2474071eb938f853b8b834",
+        "output": "24e6ffb411721ea6ab95389127ca6d23e2db2ece47e0060e32383ba1e611e8b0",
+        "profile": "5b65d0ab5b3324e6829f0be9a8686b224a2480f5cee3d3b1e642973710c1da2e"
+      }
+    },
+    "previous_profile": "5771ca177b54c72691fd5e70bf9cdb322198657906ac96212eb5b4e26496aecc",
+    "profile": "e51353f709af3fa51e09e6a7a847121b286567cae3e753110ba28705d5efec84",
+    "fixed": "55794fa638082ba5d01dd115c012630450ccc96126ab8fca9bad0e53ecf0fa50",
+    "repro": "55794fa638082ba5d01dd115c012630450ccc96126ab8fca9bad0e53ecf0fa50",
+    "previous_fixed": "93f2b6364f8d5565ea58db6b7a4efc1773c5140fe3a8ca139eca04cbc6d1b684",
+    "native": "182b1314ab3fe0c38971a95d47bf0b451a2892506a24d53442db24beccab6110",
+    "native_fixed": "55794fa638082ba5d01dd115c012630450ccc96126ab8fca9bad0e53ecf0fa50",
+    "portable": "d707d8e1449d11588a118b64902545199e92523ff1ccdb2367b99755c7fa9178",
+    "portable_pinned_emitter": "d707d8e1449d11588a118b64902545199e92523ff1ccdb2367b99755c7fa9178",
+    "training_compiler": "182b1314ab3fe0c38971a95d47bf0b451a2892506a24d53442db24beccab6110",
+    "host": "b247393d8fbe3115246f20703f726e90eeaaed762a75932c7bb131a4433ad026"
+  },
+  "lifetime": {
+    "ordinary": {
+      "class_frame_threshold": 4096,
+      "alternative_pressure_threshold": 4000000,
+      "sources": 4394,
+      "matches": 4394,
+      "trace_lines": 13817,
+      "nonzero_bad_exits": 0,
+      "statuses": {
+        "0": 2004,
+        "1": 2390
+      },
+      "sources_with_class_frames": 2,
+      "sources_with_typed_classes": 0,
+      "sources_triggering_pressure_rejections": 0,
+      "peak_class_frames": 6,
+      "peak_typed_classes": 0,
+      "peak_alts": 6528,
+      "diagnostic_compilers": {
+        "release": {
+          "bytes": 70562096,
+          "sha256": "622a1081bc9b9207f92f2c5718e6cfc5af70eece9b14ecbf89c5b0c2ee25c7d6"
+        },
+        "production": {
+          "bytes": 70570368,
+          "sha256": "4990be3ac6598e7c35f1ad00360603be79077c135b3ccc36f4e1db33243dfed3"
+        }
+      },
+      "differences": [],
+      "sources_with_lifetime_trace": 3166
+    },
+    "forced": {
+      "class_frame_threshold": 16,
+      "alternative_pressure_threshold": 4000000,
+      "sources": 4394,
+      "matches": 4394,
+      "trace_lines": 14036,
+      "nonzero_bad_exits": 0,
+      "statuses": {
+        "0": 1997,
+        "1": 2397
+      },
+      "sources_with_lifetime_trace": 3166,
+      "sources_with_class_frames": 256,
+      "sources_with_typed_classes": 70,
+      "sources_triggering_pressure_rejections": 0,
+      "peak_class_frames": 4086,
+      "peak_typed_classes": 82,
+      "peak_alts": 20460,
+      "diagnostic_compilers": {
+        "release": {
+          "bytes": 70562096,
+          "sha256": "bef1f609057b22348391f362ead999770d272061479681fefd4ec294f6a93cca"
+        },
+        "production": {
+          "bytes": 70570368,
+          "sha256": "701fd4d19bba9abb384715e2284f7d8f4b4e40cbf14711e90bd55350ed1ba957"
+        }
+      },
+      "differences": []
+    }
+  },
+  "pressure_rejections": 78769
+}
