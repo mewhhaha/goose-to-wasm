@@ -1,0 +1,112 @@
+{
+  "compiler_source_commit": "9a6040a2999dbdb100755ec07f211605bf3b228f",
+  "corpus_source_commit": "30b9ea7",
+  "baseline_checker_source_sha256": "7c9591c3aef186f4f2ce308e200808a275c9f9273e9623205a7e57426989c519",
+  "baseline_fixed_wasm_sha256": "ff17c9d5178cab0d4fa059c43287cbfb3c29629124b63255bf49812dfaac0449",
+  "candidate_checker_source_sha256": "283c51e15dad2dd94a91aa0bff3529744f3c45e50f6978b716da67e43126461a",
+  "candidate_fixed_wasm_sha256": "cc8563fdb4361810827559a99f9ae9808960213992a79975b2dbf43d1fc39c0e",
+  "emitter_sha256": "b4e5511e634d751c70d5b78b955e9ac99ac152c9dfc650dac0c52ea526068690",
+  "wasmtime_host_sha256": "b247393d8fbe3115246f20703f726e90eeaaed762a75932c7bb131a4433ad026",
+  "conformance_manifest_sha256": "2054a3fc40d9d517d66ceafd153e6adfc4495a682cadea7431e4f6881a5e9499",
+  "affinity": [
+    1,
+    9
+  ],
+  "configurations": {
+    "4096": {
+      "corpus": {
+        "accepted": 1985,
+        "class_retries": 0,
+        "compared": 4364,
+        "max_checked": 807,
+        "max_class_frames": 0,
+        "max_exits": 180,
+        "max_frames": 721,
+        "max_summary": 3088,
+        "trace_lines": 13679,
+        "with_class_frames": 0,
+        "with_trace": 3137
+      },
+      "baseline_probe_native_sha256": "5bf4736d18a5aff53edd084ad5cd21d1fa0a26de3c67137789189dd3152235f3",
+      "candidate_probe_native_sha256": "0be718ce11719d696e23730af2bb80850b95c9463a753c5ed114fab4c426d8a1",
+      "baseline_probe_wasm_sha256": "3c2df6436da0fea110c40ccfa95599612cd31f62d339d9d73be0418a958a0cfc",
+      "candidate_probe_wasm_sha256": "f381a6c1f9436049fc8eef36c22acb52da21922fd0a4d08722b41023510bd4e9",
+      "corpus_report_sha256": "3fc554f0828f574c2dabb6045eab0f1ba45c5b3e08760ed95bdf188a6390e6db",
+      "self_check_fingerprint_count": 8,
+      "self_check_max_class_frames": 0,
+      "self_check_fpframes": [
+        2000
+      ],
+      "self_check_trace_sha256": "73b287e44add7b712d6bf2e18d80c243ab4b6703eb238bdc020aa166d69044bc"
+    },
+    "16": {
+      "corpus": {
+        "accepted": 1978,
+        "class_retries": 217,
+        "compared": 4364,
+        "max_checked": 598,
+        "max_class_frames": 189,
+        "max_exits": 123,
+        "max_frames": 580,
+        "max_summary": 566,
+        "trace_lines": 14114,
+        "with_class_frames": 253,
+        "with_trace": 3137
+      },
+      "baseline_probe_native_sha256": "f8278764c4ce8cf9b3788c185a89e94b11b823951236aca07e43209d5a4e134e",
+      "candidate_probe_native_sha256": "32b10a96186faf8df623141aefdca0386cc6abd4ed2d5a639c55484c0c032e07",
+      "baseline_probe_wasm_sha256": "7e438bd79fb49e968fb531dc7046cbdef930b9198433a04419cc2df76e155553",
+      "candidate_probe_wasm_sha256": "9069b4c8b3084ab162954450e6667aa9eb9fd97d07f9725bb6a0748e85afbad1",
+      "corpus_report_sha256": "558d8fc10ae9e5a4385cf11ab90e78aab478be5b6f12f43fe0df254ea3393aa9",
+      "self_check_fingerprint_count": 10,
+      "self_check_max_class_frames": 1693,
+      "self_check_fpframes": [],
+      "self_check_trace_sha256": "17534c3b458ec5975ff80eebf204e0fdaea8a52f304d952bd0033d7e99e1afef"
+    }
+  },
+  "runtime": {
+    "control-runtime.json": {
+      "rows": 38,
+      "runtime_executions": 22,
+      "verified_results_sha256": "7ed03e13be34f0f83309df42ff74fc246d4287de5571da75cd3531633cc52a24"
+    },
+    "intrinsics.json": {
+      "rows": 23,
+      "runtime_executions": 19,
+      "verified_results_sha256": "d0f0d09e87e91b651b06d2e57455dd1cb624aee7f87893475ae49b9ec8a01bff"
+    }
+  },
+  "nested_tuple": {
+    "asserted": [
+      "merge",
+      "cycle",
+      "map"
+    ],
+    "tuple_levels": 3,
+    "trace_sha256": "454fa0de0e237293a2a1caf0cc429defcf378c32ef2b186b9886c832727477b0"
+  },
+  "retrained_runtime": {
+    "release_fixed_wasm": "build/lifetime-next-release/release/fixed.wasm",
+    "release_fixed_wasm_sha256": "9d1e71b239b45b3d8f9678b92e1bc2dcd9506d304d5e7306f6deaaa3e6d930b7",
+    "prior_fixed_wasm_sha256": "ff17c9d5178cab0d4fa059c43287cbfb3c29629124b63255bf49812dfaac0449",
+    "release_layout_profile_sha256": "3b2b271b392cbfd9322e77777f469e8f31ac99917464442c78922960a1b8463f",
+    "wasmtime_host_sha256": "b247393d8fbe3115246f20703f726e90eeaaed762a75932c7bb131a4433ad026",
+    "compared": 61,
+    "executed": 41,
+    "differences": [],
+    "reports": {
+      "control-runtime.json": {
+        "compared": 38,
+        "executed": 22,
+        "baseline_report_sha256": "a53f1b0059e159faf9aa3ecdc404cae2d5312b38c9572a40d0fc0c23a6bbc2c4",
+        "release_report_sha256": "0c2966f86cf3894491728e1475bc4480cc0523e924b085a73f239964a96662e3"
+      },
+      "intrinsics.json": {
+        "compared": 23,
+        "executed": 19,
+        "baseline_report_sha256": "88d8647d1581a26d24bff62ef894250eba86d058a12f39dbe0fc9d26f0135377",
+        "release_report_sha256": "8fe001c52c808969d6c71b6a0ddcea43eb6a2b8693ab2ba7e47320ad943fb69e"
+      }
+    }
+  }
+}
