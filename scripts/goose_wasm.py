@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build direct WebAssembly or a native executable with the Goose compiler."""
+"""Build Goose programs or compact a WebAssembly module for distribution."""
 from __future__ import annotations
 
 import argparse
@@ -51,6 +51,34 @@ def check_destinations(destinations, inputs):
         raise RuntimeError('an output would overwrite an input')
     if any(same_file(a, b) for i, a in enumerate(destinations) for b in destinations[i + 1:]):
         raise RuntimeError('output, C output and stats must use different paths')
+
+
+def compact(args):
+    source = args.source.resolve(strict=True)
+    output = args.output.resolve()
+    optimizer = shutil.which('wasm-opt')
+    if not optimizer:
+        raise RuntimeError('compact requires wasm-opt from Binaryen')
+    check_destinations([output], [source, Path(optimizer).resolve()])
+    with source.open('rb') as stream:
+        if stream.read(8) != b'\0asm\x01\0\0\0':
+            raise RuntimeError('compact expects a WebAssembly module')
+    # The remove-unused-brs pass regressed sorting and sieve in the packaged Wasmtime examples.
+    passes = ['--skip-pass', 'remove-unused-brs', '-O1', '--code-folding', '--reorder-functions']
+    if args.profile == 'size':
+        passes = ['-Oz']
+    features = ['--enable-bulk-memory', '--enable-multivalue', '--enable-sign-ext',
+                '--enable-simd', '--enable-nontrapping-float-to-int', '--enable-memory64']
+    output.parent.mkdir(parents=True, exist_ok=True)
+    with tempfile.TemporaryDirectory(prefix='.goose-compact-', dir=output.parent) as directory:
+        artifact = Path(directory) / 'compact.wasm'
+        elapsed = invoke([optimizer, *features, *passes, source, '-o', artifact], args.verbose)
+        original_bytes = source.stat().st_size
+        if artifact.stat().st_size >= original_bytes:
+            shutil.copyfile(source, artifact)
+        final_bytes = artifact.stat().st_size
+        os.replace(artifact, output)
+    print(f'{output} ({original_bytes:,} → {final_bytes:,} bytes, {elapsed / 1000:.2f} s)')
 
 
 # Generated C marks where the runtime unit ends and program functions begin.
@@ -215,6 +243,12 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     commands = parser.add_subparsers(dest='command', required=True)
     commands.add_parser('version')
+    pack = commands.add_parser('compact', help='optimize an emitted Goose Wasm module for distribution')
+    pack.add_argument('source', type=Path)
+    pack.add_argument('-o', '--output', type=Path, required=True)
+    pack.add_argument('--profile', choices=('balanced', 'size'), default='balanced',
+                      help='balanced folds branches and shortens calls (default). size uses Binaryen -Oz')
+    pack.add_argument('--verbose', '-v', action='store_true')
     command = commands.add_parser('build')
     command.add_argument('source', type=Path)
     command.add_argument('-o', '--output', type=Path, required=True)
@@ -248,6 +282,9 @@ def main():
     try:
         if args.command == 'version':
             print((ROOT / 'toolchain.json').read_text(), end='')
+            return 0
+        if args.command == 'compact':
+            compact(args)
             return 0
         report = build(args)
         if args.json:

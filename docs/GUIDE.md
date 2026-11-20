@@ -12,6 +12,14 @@ node scripts/run_wasm.mjs build/squares.wasm
 
 The example prints `sum=140`. Bootstrap installs the Goose compiler and standard library in `build/bin`. It uses the checked-in C seed and verifies generated C across compiler generations. See [bootstrap details](../selfhost/README.md).
 
+To distribute a smaller Wasm module, install Binaryen (`wasm-opt` on your path) and compact the emitted file.
+
+```sh
+python scripts/goose_wasm.py compact build/squares.wasm -o build/squares.release.wasm
+```
+
+The default `balanced` profile folds common branch endings and gives frequently referenced functions shorter indexes. Use `--profile size` for Binaryen’s more expensive `-Oz` pass. Both profiles accept Goose memory32 and memory64 modules and copy the original bytes if optimization would enlarge the file. Keep the original for debugging with function names. [Size and runtime measurements with Binaryen 133](../bench/results/2026-11-20/compact-releases/README.md)
+
 Build a native executable using the same compiler's C backend:
 
 ```sh
