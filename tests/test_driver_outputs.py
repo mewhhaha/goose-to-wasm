@@ -3,6 +3,7 @@
 import argparse
 import os
 from pathlib import Path
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -68,6 +69,31 @@ class DriverOutputs(unittest.TestCase):
         (self.work / "linked-stats.json").hardlink_to(self.work / "stats.json")
         self.assert_refused("native", DISTINCT, "-o", "program", "--stats", "stats.json",
                             "--emit-c", "linked-stats.json")
+
+    @unittest.skipUnless(shutil.which("wasm-opt"), "requires Binaryen")
+    def test_compact_profiles_preserve_execution_and_input(self):
+        result = self.build("direct", "-o", "program.wasm")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        original = (self.work / "program.wasm").read_bytes()
+        for profile in ("balanced", "size"):
+            with self.subTest(profile=profile):
+                output = self.work / (profile + ".wasm")
+                subprocess.run([sys.executable, DRIVER, "compact", "program.wasm", "--profile", profile,
+                                "-o", output], cwd=self.work, check=True, capture_output=True)
+                self.assertLessEqual(output.stat().st_size, len(original))
+                run = subprocess.run(["node", ROOT / "scripts/run_wasm.mjs", output], capture_output=True)
+                self.assertEqual((run.returncode, run.stdout), (0, b"41\n"), run.stderr)
+        self.assertEqual((self.work / "program.wasm").read_bytes(), original)
+
+    @unittest.skipUnless(shutil.which("wasm-opt"), "requires Binaryen")
+    def test_compact_failure_preserves_existing_output(self):
+        (self.work / "broken.wasm").write_bytes(b"\0asm\x01\0\0\0\x01\x7f")
+        output = self.work / "release.wasm"
+        output.write_bytes(b"previous release")
+        run = subprocess.run([sys.executable, DRIVER, "compact", "broken.wasm", "-o", output],
+                             cwd=self.work, capture_output=True)
+        self.assertNotEqual(run.returncode, 0)
+        self.assertEqual(output.read_bytes(), b"previous release")
 
     def test_distinct_outputs_still_build(self):
         native = self.build("native", "-o", "program", "--stats", "native.json", "--emit-c", "program.c")

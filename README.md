@@ -4,6 +4,10 @@ A [Goose](https://github.com/aardappel/goose) compiler written in Goose. It emit
 
 ## Benchmarks
 
+**Smaller compiler downloads.** The optional `compact` command shrinks the 6.18 MB bundled compiler to **4.39 MB balanced** or **3.77 MB for size**. Gzipped downloads fall from **1.54 MB to 1.26 MB or 1.03 MB**. Balanced cut cold Wasmtime preparation from **6.77 s to 5.08 s** in five pairs. Full rebuild times overlapped. [Measurements and tradeoffs](bench/results/2026-11-20/compact-releases/README.md) · [Usage](docs/GUIDE.md#build-and-run)
+
+![Compiler module size, gzipped download and single-core cold and cached rebuild times by release profile](bench/results/2026-11-20/compact-releases/profiles.svg)
+
 **Wide argument lists.** For ten calls with 512 arguments each, `ef702b1` used **71.61% fewer Wasmtime instructions in lifetime checking** than `9a6040a`. The chart shows the reduction at four call widths, with eight pairs per width. [Measurements](bench/results/2026-11-20/lifetime-argument-lists/README.md)
 
 ![Percentage reduction in lifetime checking instructions for ten calls at four argument counts](bench/results/2026-11-20/lifetime-argument-lists/wide-arguments.svg)
