@@ -6,6 +6,23 @@ from tests import goose_stats
 
 
 class HolderWalks(goose_stats.Compile, unittest.TestCase):
+    def test_shrink_with_many_distinct_live_views(self):
+        source = self.work / "many_views.goose"
+        count = 72
+        arrays = [f"    var xs{i}: i64[>..<] = [{i}, {i + 1}];" for i in range(count)]
+        views = [f"    let view{i} = xs{i}[0..1];" for i in range(count)]
+        reads = [f"    total += view{i}[0];" for i in range(count)]
+        # All views survive the shrink. The last eight questions exceed the 64-entry cache.
+        for target, status in [("spare", 0), ("xs0", 1), ("xs71", 1)]:
+            with self.subTest(target=target):
+                source.write_text("\n".join([
+                    "fn main() {", *arrays, *views, "    var spare: i64[>..<] = [1, 2];",
+                    f"    {target}.pop();", "    var total: i64 = 0;", *reads, "    print(total);", "}",
+                ]))
+                result = subprocess.run([goose_stats.GOOSE, source, "--check"], capture_output=True, text=True)
+                self.assertEqual(result.returncode, status, result.stderr)
+                self.assertEqual(result.stderr.count("array shrink invalidates a reference or holder"), status)
+
     def test_mixed_owner_replay_preserves_read_before_shrink(self):
         source = self.work / "mixed_owners.goose"
         source.write_text("""fn reset(xs: i64[>..<]&) {
