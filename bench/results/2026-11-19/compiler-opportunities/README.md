@@ -58,7 +58,7 @@ The fixed 32-bit compiler rebuilt itself in **3.14 s cold** on eight cores and *
 
 ## Remaining work
 
-Four phase measurements per engine put the extra Wasmtime work at **3.78 billion instructions**. Lifetime checking accounts for **1.59 billion** and Wasm emission for **0.85 billion**. Lifetime expression evaluation and replaying function summaries were the largest named lifetime differences in the sampled profiles. The next experiment is to count which arrays each summary actually visits, then test whether validation can look up just the holders that borrow from the array being resized. [Release phase counts](phase-counters.json) · [Sampled profiles and lifetime experiments](experiments.json.gz)
+Four phase measurements per engine put the extra Wasmtime work at **3.78 billion instructions**. Lifetime checking accounts for **1.59 billion** and Wasm emission for **0.85 billion**. Lifetime expression evaluation and replaying function summaries were the largest named lifetime differences in the sampled profiles. The November 20 follow-up counted how many live holders actually referred to the array being resized and measured alternative searches. [Holder-scan results](../../2026-11-20/compiler-followup/README.md#array-shrink-checks) · [Release phase counts](phase-counters.json) · [Sampled profiles and lifetime experiments](experiments.json.gz)
 
 | Compiler phase | Native, billion instructions | Wasmtime, billion instructions | Extra in Wasmtime |
 | --- | ---: | ---: | ---: |
@@ -70,7 +70,9 @@ Four phase measurements per engine put the extra Wasmtime work at **3.78 billion
 
 ## Reader benchmarks
 
-The eleven-program catalog, ten examples and Langbench ran twice on November 19. The README uses the lower-load repeat. In the self-hosting test the three native builds took a median 199.83 s during the first run. A repeat in a longer source path took 29.23 s and changed the native binary because the generated C embeds diagnostic paths. Repeating from the original source directory on November 20 reproduced the original C, native executable and Wasm hashes in all three builds. The self-host chart uses that median of 28.20 s and the execution timings from the same binaries. [First series](reader-load-control.json.gz) · [Repeat self-host builds](selfhost.json) · [Host load samples](host-pressure.jsonl.gz)
+The eleven-program catalog, ten examples and Langbench ran twice on November 19. The example and Langbench charts use the lower-load repeat. For the compiler catalog, the November 19 repeat measured 3.0% more CPU time to emit Wasm and 3.8% more to emit C. [November 19 chart](compiler-comparison.svg) · [November 20 recheck](../../2026-11-20/compiler-followup/README.md#eleven-program-compiler-catalog)
+
+In the self-hosting test the three native builds took a median 199.83 s during the first run. A repeat in a longer source path took 29.23 s and changed the native binary because the generated C embeds diagnostic paths. Repeating from the original source directory on November 20 reproduced the original C, native executable and Wasm hashes in all three builds. The self-host chart uses that median of 28.20 s and the execution timings from the same binaries. [First series](reader-load-control.json.gz) · [Repeat self-host builds](selfhost.json) · [Host load samples](host-pressure.jsonl.gz)
 
 ## Verification and reproduction
 
