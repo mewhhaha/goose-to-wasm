@@ -1,0 +1,572 @@
+{
+  "schema": "goose-selfhost-comparison-v1",
+  "host": {
+    "platform": "Linux-7.3.4-1-cachyos-x86_64-with-glibc2.44",
+    "cpu": 4,
+    "python": "3.14.10 (main, Nov 13 2026, 15:10:24) [GCC 16.2.1 20260810]",
+    "cpu_model": "AMD Ryzen 7 3800X 8-Core Processor"
+  },
+  "workloads": {
+    "check": [
+      "selfhost/main.goose",
+      "--stdlib",
+      "stdlib",
+      "--check"
+    ],
+    "emit": [
+      "selfhost/main.goose",
+      "--stdlib",
+      "stdlib",
+      "--target",
+      "wasm-direct",
+      "-O2",
+      "--wasm-memory64",
+      "--wasm-max-pages",
+      "262144",
+      "-o",
+      "../emitted.wasm"
+    ]
+  },
+  "scripts": {
+    "scripts/goose_wasm.py": {
+      "sha256": "98244408527d6e1c4fafeb13a47582a70306297d570d7d18119a32ea106eac49",
+      "bytes": 14819
+    },
+    "scripts/run_wasmtime.py": {
+      "sha256": "5f00e3b88c4a6271a5ca3f9040ffc3c96f95601df7d0e3ee7fe8a575ac2eda1e",
+      "bytes": 26880
+    },
+    "scripts/run_wasm.mjs": {
+      "sha256": "7e4fdf993a26567c9923e7431acdcc5b8c972b5bc48df832fd402e0de35103d1",
+      "bytes": 20566
+    },
+    "bench/selfhost_comparison.py": {
+      "sha256": "2ce2c6ef042a5db06bff97d1b08f4ac2a8778131507c896d3f1c4a617f28f45f",
+      "bytes": 14609
+    },
+    "bench/selfhost_v8.mjs": {
+      "sha256": "1d0e625c4daa6b20881a7f657503fdad91f0d77e3f347c494d32262d6b961bf3",
+      "bytes": 1700
+    }
+  },
+  "build": {
+    "source_commit": "0ae296cd3bb097d6b63ebdc35c89c2fa50bf7c92",
+    "source_archive_sha256": "3a11d2028592017196e743daec0a7811a95c0e5903d4d058dc2879abdd6ad2bf",
+    "build_working_directory": "/home/jacobt/src/goose-to-wasm/build/replay-study/own/source",
+    "emitter": {
+      "sha256": "0b3a26ca21cc39ec7f53422e4521a692bf7b6af12e6546a00d6984da137adc5e",
+      "bytes": 7071040
+    },
+    "clang": {
+      "sha256": "ca0d2f7fbe94836762f36c7e73292289bc4d5e4b9b5defc320ef0856259a2855",
+      "bytes": 124768,
+      "version": "clang version 23.1.5\nTarget: x86_64-pc-linux-gnu\nThread model: posix\nInstalledDir: /usr/bin"
+    },
+    "cpu_sets": {
+      "native": "1,3,5,7",
+      "wasm": "4"
+    },
+    "samples": [
+      {
+        "native": {
+          "wall_ns": 25136438747,
+          "argv": [
+            "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+            "/home/jacobt/src/goose-to-wasm/scripts/goose_wasm.py",
+            "build",
+            "selfhost/main.goose",
+            "--stdlib",
+            "stdlib",
+            "--goose",
+            "/home/jacobt/src/goose-to-wasm/build/replay-study/reader-repeat/selfhost/emitter",
+            "--backend",
+            "native",
+            "--cc",
+            "/usr/bin/clang-23",
+            "--jobs",
+            "8",
+            "--no-cache",
+            "-O2",
+            "--emit-c",
+            "/home/jacobt/src/goose-to-wasm/build/replay-study/reader-repeat/selfhost/build-1/compiler.c",
+            "--stats",
+            "/home/jacobt/src/goose-to-wasm/build/replay-study/reader-repeat/selfhost/build-1/build.json",
+            "-o",
+            "/home/jacobt/src/goose-to-wasm/build/replay-study/reader-repeat/selfhost/build-1/compiler-native"
+          ],
+          "frontend_ms": 2458.590253998409,
+          "cc_compile_ms": 22499.35869500041,
+          "cc_link_ms": 60.00795099680545,
+          "total_ms": 25078.606249997392,
+          "native_units": 8,
+          "runtime_unit": "compiled"
+        },
+        "wasm": {
+          "wall_ns": 2231991452,
+          "argv": [
+            "/home/jacobt/src/goose-to-wasm/build/replay-study/reader-repeat/selfhost/emitter",
+            "selfhost/main.goose",
+            "--stdlib",
+            "stdlib",
+            "--target",
+            "wasm-direct",
+            "-O2",
+            "--wasm-memory64",
+            "--wasm-max-pages",
+            "262144",
+            "-o",
+            "/home/jacobt/src/goose-to-wasm/build/replay-study/reader-repeat/selfhost/build-1/compiler.wasm"
+          ]
+        },
+        "artifacts": {
+          "compiler-native": {
+            "sha256": "0317ca2d700c484356a6944c60925a63b56013a1bd3dc2f0c9963c62029bf93d",
+            "bytes": 6076640
+          },
+          "compiler.wasm": {
+            "sha256": "2d0bd2b731d8cd09ed9a20490d230159f251d0c5307affb90eafa44c807284df",
+            "bytes": 7382769
+          },
+          "compiler.c": {
+            "sha256": "5ced2cb08e04c08c891b78da8767337a7600fe7280488e11959276b0c6e71182",
+            "bytes": 43546164
+          }
+        }
+      },
+      {
+        "wasm": {
+          "wall_ns": 2428121328,
+          "argv": [
+            "/home/jacobt/src/goose-to-wasm/build/replay-study/reader-repeat/selfhost/emitter",
+            "selfhost/main.goose",
+            "--stdlib",
+            "stdlib",
+            "--target",
+            "wasm-direct",
+            "-O2",
+            "--wasm-memory64",
+            "--wasm-max-pages",
+            "262144",
+            "-o",
+            "/home/jacobt/src/goose-to-wasm/build/replay-study/reader-repeat/selfhost/build-2/compiler.wasm"
+          ]
+        },
+        "native": {
+          "wall_ns": 24514007018,
+          "argv": [
+            "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+            "/home/jacobt/src/goose-to-wasm/scripts/goose_wasm.py",
+            "build",
+            "selfhost/main.goose",
+            "--stdlib",
+            "stdlib",
+            "--goose",
+            "/home/jacobt/src/goose-to-wasm/build/replay-study/reader-repeat/selfhost/emitter",
+            "--backend",
+            "native",
+            "--cc",
+            "/usr/bin/clang-23",
+            "--jobs",
+            "8",
+            "--no-cache",
+            "-O2",
+            "--emit-c",
+            "/home/jacobt/src/goose-to-wasm/build/replay-study/reader-repeat/selfhost/build-2/compiler.c",
+            "--stats",
+            "/home/jacobt/src/goose-to-wasm/build/replay-study/reader-repeat/selfhost/build-2/build.json",
+            "-o",
+            "/home/jacobt/src/goose-to-wasm/build/replay-study/reader-repeat/selfhost/build-2/compiler-native"
+          ],
+          "frontend_ms": 2411.431968001125,
+          "cc_compile_ms": 21881.8198700028,
+          "cc_link_ms": 78.89532399713062,
+          "total_ms": 24456.34305000567,
+          "native_units": 8,
+          "runtime_unit": "compiled"
+        },
+        "artifacts": {
+          "compiler-native": {
+            "sha256": "0317ca2d700c484356a6944c60925a63b56013a1bd3dc2f0c9963c62029bf93d",
+            "bytes": 6076640
+          },
+          "compiler.wasm": {
+            "sha256": "2d0bd2b731d8cd09ed9a20490d230159f251d0c5307affb90eafa44c807284df",
+            "bytes": 7382769
+          },
+          "compiler.c": {
+            "sha256": "5ced2cb08e04c08c891b78da8767337a7600fe7280488e11959276b0c6e71182",
+            "bytes": 43546164
+          }
+        }
+      },
+      {
+        "native": {
+          "wall_ns": 24515190661,
+          "argv": [
+            "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+            "/home/jacobt/src/goose-to-wasm/scripts/goose_wasm.py",
+            "build",
+            "selfhost/main.goose",
+            "--stdlib",
+            "stdlib",
+            "--goose",
+            "/home/jacobt/src/goose-to-wasm/build/replay-study/reader-repeat/selfhost/emitter",
+            "--backend",
+            "native",
+            "--cc",
+            "/usr/bin/clang-23",
+            "--jobs",
+            "8",
+            "--no-cache",
+            "-O2",
+            "--emit-c",
+            "/home/jacobt/src/goose-to-wasm/build/replay-study/reader-repeat/selfhost/build-3/compiler.c",
+            "--stats",
+            "/home/jacobt/src/goose-to-wasm/build/replay-study/reader-repeat/selfhost/build-3/build.json",
+            "-o",
+            "/home/jacobt/src/goose-to-wasm/build/replay-study/reader-repeat/selfhost/build-3/compiler-native"
+          ],
+          "frontend_ms": 2401.890788001765,
+          "cc_compile_ms": 21903.389106999384,
+          "cc_link_ms": 61.37522299832199,
+          "total_ms": 24456.617604999337,
+          "native_units": 8,
+          "runtime_unit": "compiled"
+        },
+        "wasm": {
+          "wall_ns": 2251904496,
+          "argv": [
+            "/home/jacobt/src/goose-to-wasm/build/replay-study/reader-repeat/selfhost/emitter",
+            "selfhost/main.goose",
+            "--stdlib",
+            "stdlib",
+            "--target",
+            "wasm-direct",
+            "-O2",
+            "--wasm-memory64",
+            "--wasm-max-pages",
+            "262144",
+            "-o",
+            "/home/jacobt/src/goose-to-wasm/build/replay-study/reader-repeat/selfhost/build-3/compiler.wasm"
+          ]
+        },
+        "artifacts": {
+          "compiler-native": {
+            "sha256": "0317ca2d700c484356a6944c60925a63b56013a1bd3dc2f0c9963c62029bf93d",
+            "bytes": 6076640
+          },
+          "compiler.wasm": {
+            "sha256": "2d0bd2b731d8cd09ed9a20490d230159f251d0c5307affb90eafa44c807284df",
+            "bytes": 7382769
+          },
+          "compiler.c": {
+            "sha256": "5ced2cb08e04c08c891b78da8767337a7600fe7280488e11959276b0c6e71182",
+            "bytes": 43546164
+          }
+        }
+      }
+    ]
+  },
+  "execution": {
+    "warmup": {
+      "native": {
+        "wall_ns": 996086173,
+        "result": {
+          "exit_code": 0,
+          "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "wasmtime": {
+        "wall_ns": 2451356681,
+        "instantiate_ns": 1572919,
+        "result": {
+          "exit_code": 0,
+          "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "v8": {
+        "wall_ns": 3018990140,
+        "instantiate_ns": 5440097,
+        "result": {
+          "exit_code": 0,
+          "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    "samples": [
+      [
+        {
+          "engine": "native",
+          "workload": "check",
+          "wall_ns": 995303340,
+          "result": {
+            "exit_code": 0,
+            "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "engine": "wasmtime",
+          "workload": "check",
+          "wall_ns": 2475343757,
+          "instantiate_ns": 758141,
+          "result": {
+            "exit_code": 0,
+            "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "engine": "v8",
+          "workload": "check",
+          "wall_ns": 3024134270,
+          "instantiate_ns": 899329,
+          "result": {
+            "exit_code": 0,
+            "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "engine": "wasmtime",
+          "workload": "emit",
+          "wall_ns": 3544417193,
+          "instantiate_ns": 685893,
+          "result": {
+            "exit_code": 0,
+            "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "emitted_wasm": {
+              "sha256": "2d0bd2b731d8cd09ed9a20490d230159f251d0c5307affb90eafa44c807284df",
+              "bytes": 7382769
+            }
+          }
+        },
+        {
+          "engine": "v8",
+          "workload": "emit",
+          "wall_ns": 4068795754,
+          "instantiate_ns": 850927,
+          "result": {
+            "exit_code": 0,
+            "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "emitted_wasm": {
+              "sha256": "2d0bd2b731d8cd09ed9a20490d230159f251d0c5307affb90eafa44c807284df",
+              "bytes": 7382769
+            }
+          }
+        },
+        {
+          "engine": "native",
+          "workload": "emit",
+          "wall_ns": 1443601843,
+          "result": {
+            "exit_code": 0,
+            "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "emitted_wasm": {
+              "sha256": "2d0bd2b731d8cd09ed9a20490d230159f251d0c5307affb90eafa44c807284df",
+              "bytes": 7382769
+            }
+          }
+        }
+      ],
+      [
+        {
+          "engine": "wasmtime",
+          "workload": "check",
+          "wall_ns": 2431700076,
+          "instantiate_ns": 669302,
+          "result": {
+            "exit_code": 0,
+            "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "engine": "v8",
+          "workload": "check",
+          "wall_ns": 2986801278,
+          "instantiate_ns": 890242,
+          "result": {
+            "exit_code": 0,
+            "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "engine": "native",
+          "workload": "check",
+          "wall_ns": 979321906,
+          "result": {
+            "exit_code": 0,
+            "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "engine": "v8",
+          "workload": "emit",
+          "wall_ns": 4059733157,
+          "instantiate_ns": 863491,
+          "result": {
+            "exit_code": 0,
+            "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "emitted_wasm": {
+              "sha256": "2d0bd2b731d8cd09ed9a20490d230159f251d0c5307affb90eafa44c807284df",
+              "bytes": 7382769
+            }
+          }
+        },
+        {
+          "engine": "native",
+          "workload": "emit",
+          "wall_ns": 1545921370,
+          "result": {
+            "exit_code": 0,
+            "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "emitted_wasm": {
+              "sha256": "2d0bd2b731d8cd09ed9a20490d230159f251d0c5307affb90eafa44c807284df",
+              "bytes": 7382769
+            }
+          }
+        },
+        {
+          "engine": "wasmtime",
+          "workload": "emit",
+          "wall_ns": 3594273575,
+          "instantiate_ns": 1216572,
+          "result": {
+            "exit_code": 0,
+            "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "emitted_wasm": {
+              "sha256": "2d0bd2b731d8cd09ed9a20490d230159f251d0c5307affb90eafa44c807284df",
+              "bytes": 7382769
+            }
+          }
+        }
+      ],
+      [
+        {
+          "engine": "v8",
+          "workload": "check",
+          "wall_ns": 3081906601,
+          "instantiate_ns": 4669354,
+          "result": {
+            "exit_code": 0,
+            "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "engine": "native",
+          "workload": "check",
+          "wall_ns": 1072360482,
+          "result": {
+            "exit_code": 0,
+            "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "engine": "wasmtime",
+          "workload": "check",
+          "wall_ns": 2658502068,
+          "instantiate_ns": 667359,
+          "result": {
+            "exit_code": 0,
+            "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "engine": "native",
+          "workload": "emit",
+          "wall_ns": 1486034297,
+          "result": {
+            "exit_code": 0,
+            "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "emitted_wasm": {
+              "sha256": "2d0bd2b731d8cd09ed9a20490d230159f251d0c5307affb90eafa44c807284df",
+              "bytes": 7382769
+            }
+          }
+        },
+        {
+          "engine": "wasmtime",
+          "workload": "emit",
+          "wall_ns": 3743343382,
+          "instantiate_ns": 676065,
+          "result": {
+            "exit_code": 0,
+            "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "emitted_wasm": {
+              "sha256": "2d0bd2b731d8cd09ed9a20490d230159f251d0c5307affb90eafa44c807284df",
+              "bytes": 7382769
+            }
+          }
+        },
+        {
+          "engine": "v8",
+          "workload": "emit",
+          "wall_ns": 4198196221,
+          "instantiate_ns": 866637,
+          "result": {
+            "exit_code": 0,
+            "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "emitted_wasm": {
+              "sha256": "2d0bd2b731d8cd09ed9a20490d230159f251d0c5307affb90eafa44c807284df",
+              "bytes": 7382769
+            }
+          }
+        }
+      ]
+    ]
+  },
+  "wasmtime": {
+    "version": "50.0.1",
+    "library": {
+      "sha256": "3127ca42fe7cdd3f0a43a358e79177dcfedd46c1746329826403b9d854de6178",
+      "bytes": 29673400
+    },
+    "preparation_cache_enabled": true,
+    "cache_config_sha256": null,
+    "config": "hosted config, Cranelift speed",
+    "engine_and_module_ns": 37155687
+  },
+  "v8": {
+    "source_sha256": "2d0bd2b731d8cd09ed9a20490d230159f251d0c5307affb90eafa44c807284df",
+    "module_compile_ns": 12575437368,
+    "node": "v24.22.1",
+    "v8": "13.6.233.17-node.58",
+    "exec_argv": [
+      "--no-liftoff",
+      "--no-wasm-lazy-compilation"
+    ],
+    "binary": {
+      "sha256": "e32e2d16081cf644f88392934288086e7662529d0d43277c34f7aad2207cfafb",
+      "bytes": 126879696
+    },
+    "argv": [
+      "taskset",
+      "-c",
+      "1,3,5,7",
+      "/home/jacobt/.local/share/fnm/node-versions/v24.22.1/installation/bin/node",
+      "--no-liftoff",
+      "--no-wasm-lazy-compilation",
+      "/home/jacobt/src/goose-to-wasm/bench/selfhost_v8.mjs",
+      "/home/jacobt/src/goose-to-wasm/build/replay-study/reader-repeat/selfhost/build-1/compiler.wasm"
+    ],
+    "node_options": ""
+  }
+}

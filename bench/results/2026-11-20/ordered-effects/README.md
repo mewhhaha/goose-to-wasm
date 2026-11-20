@@ -30,9 +30,26 @@ Each cell compares median whole-process hardware instructions over seven shuffle
 
 On the frozen project the median within-pair Wasmtime/native time ratio rounded to **1.31× for both versions**. On the current compiler’s own sources, nine pairs gave **1.89 s in cached Wasmtime** and **1.44 s native**, for a **1.31×** median paired ratio. The interval for that ratio was 1.307–1.315×. [Frozen runs](frozen.json) · [Own-source runs](current.json) · [Paired statistics](rebuilds.json)
 
-Fresh processes alternated order on CPU 7 of a shared Ryzen 7 3800X after qualification and the first reader runs finished. Wasmtime 50.0.1 used its primed Cranelift machine-code cache. Elapsed times include process launch, reading source, compilation and writing output. All 44 frozen rebuilds produced the same 7,378,033-byte module (SHA-256 `86cc98b268138c073ca529febfde21689dcb130658edf6f31f4ef7e3256342a3`), and all 18 own-source runs reproduced the 7,382,769-byte current compiler. Each interval is a percentile bootstrap of the paired median with 5,000 resamples. [Inputs, cache identities and hardware counters](frozen.json) · [Host load during measurements](primary-load.json)
+The previous compiler was `74af91f` and the current compiler was `0ae296c`. Both rebuilt project `9a6040a` with `-O2` and portable memory64 output. Its standard library also served the generated workloads. Fresh processes alternated order on CPU 7 of a shared Ryzen 7 3800X after qualification and the first reader runs finished. Wasmtime 50.0.1 used its primed Cranelift machine-code cache. Elapsed times include process launch, reading source, compilation and writing output. All 44 frozen rebuilds produced the same 7,378,033-byte module (SHA-256 `86cc98b268138c073ca529febfde21689dcb130658edf6f31f4ef7e3256342a3`), and all 18 own-source runs reproduced the 7,382,769-byte current compiler. Each interval is a percentile bootstrap of the paired median with 5,000 resamples. [Inputs, cache identities and hardware counters](frozen.json) · [Host load during measurements](primary-load.json)
+
+On its own sources the cached process spent a median **2.7 ms** loading the compiled module and instantiating it, and **1,879 ms** inside the Wasm entry point. The median end-to-end time was 1,887 ms. Startup accounts for only a few milliseconds of the roughly 450 ms difference from native. [Engine timers for each run](current.json)
 
 The separate phase probe ran the frozen project four times per compiler and backend. Lifetime checking fell from **8.25 to 8.01 billion instructions** in Wasmtime and **6.91 to 6.80 billion** in native code. Parsing, optimization and Wasm emission stayed within 0.01 billion of their preceding counts. Lifetime analysis still accounted for the largest instruction-count difference between backends, at 1.21 billion, followed by the rest of type checking at 0.62 billion. Counts alone do not predict elapsed time. [Phase counters](phases.json.gz)
+
+## Release size and execution time
+
+Seven additional paired rounds compared all three current Wasm releases with the current native compiler on the same frozen project. The Wasm processes used a primed machine-code cache. All 28 outputs were byte-identical. [Process timings and counters](profiles.json.gz) · [Module hashes and download sizes](modules.json)
+
+| Compiler | Wasm module | Gzip download | Full build | Host instructions | Paired time / native |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Native | — | — | 1.465 s | 13.73 B | 1.00× |
+| Direct | 6.19 MB | 1.54 MB | 1.905 s | 16.69 B | 1.31× |
+| Balanced | 4.39 MB | 1.26 MB | 1.917 s | 16.49 B | 1.30× |
+| Size | 3.78 MB | 1.03 MB | 1.942 s | 16.78 B | 1.33× |
+
+The size profile saves 0.24 MB of compressed download relative to balanced. Its paired median rebuild took 1.0% longer, with a 95% interval spanning 0.8% faster to 2.7% slower. This comparison resolves the size difference more clearly than the execution-time difference. [All seven rounds](profiles.json.gz)
+
+![Download sizes and seconds to rebuild one frozen compiler project](downloads.svg)
 
 ## What else was tried
 
@@ -47,3 +64,9 @@ The C bootstrap reached a fixed point, and the native and self-hosted compilers 
 Comparing checker state across 4,364 inputs at each of two settings also found no differences. Forcing the checker to group contexts after 16 frames exercised 253 inputs that used grouped analysis and 217 retries. All 38 focused runtime rows matched the preceding compiler, including diagnostics on rejected sources and emitted Wasm and output on accepted ones. [Differential checks](verification.json.gz)
 
 To repeat the generated workloads, run the driver from this checkout with the old and new bundled compiler modules, the release Wasmtime runner, the frozen standard library and an empty scratch directory. The full-rebuild driver accepts that same frozen source stage and a named list of compiler artifacts. The raw pair reports record compiler, engine, cache and output hashes. [Generated programs](measure-effects.py) · [Rebuild driver](../../2026-11-18/compiler-frame-cost/measure.py) · [Chart source](plot.py)
+
+## Reader benchmarks
+
+The current native compiler and its predecessor each built eleven programs 31 times per target. All catalog artifacts matched. All 100 timed example builds and all 30 Mandelbrot builds reproduced the preceding release’s program artifacts as well. Example process times include launch and exit. The resident Mandelbrot measurement times only the calculation after engine preparation and warmup. [Catalog samples](compiler-comparison.json.gz) · [Catalog summary](catalog-summary.json) · [Example builds](examples.json.gz) · [Example processes](host.json.gz) · [Mandelbrot builds](langbench-build.json) · [Resident runs](langbench-hot.json.gz)
+
+The first reader run overlapped qualification. Sorting took 457 ms under precompiled Wasmtime and 374 ms natively. The repeat measured 160 ms and 120 ms with identical programs. The published example and Mandelbrot charts use the repeat. The three matched portable compiler builds and executions followed it. A separate three-round cold-launch study covered the standard, bundled and native compiler configurations, with its first part overlapping other work. [Initial measurements](reader-controls.json.gz) · [Host load](reader-pressure.json) · [Portable build and execution](selfhost.json) · [Cold and cached launches](launch.json)
