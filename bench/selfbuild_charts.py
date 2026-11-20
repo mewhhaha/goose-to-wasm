@@ -79,6 +79,36 @@ def main():
     left.set_ylim(0, max(*frozen_times, *current_times) * 1.2)
     save(fig, directory / "rebuild")
 
+    repeat_path = directory / "wasmtime-repeat.json"
+    if repeat_path.is_file():
+        repeat = rebuilds(repeat_path, ["wasm-before", "wasm-after"])
+        rounds = sorted(repeat["wasm-before"])
+        saved = [100 * (1 - repeat["wasm-after"][n] / repeat["wasm-before"][n]) for n in rounds]
+        colors = [WASM] * len(rounds)
+        for index, percent in enumerate(saved):
+            if percent < 0:
+                colors[index] = "#b2543a"
+        fig, (left, right) = plt.subplots(1, 2, figsize=(9.0, 3.9), width_ratios=[2, 1],
+                                         layout="constrained")
+        fig.suptitle("Full Goose compiler rebuild", fontsize=16, weight="bold")
+        left.set_title(f"Same frozen project · {len(rounds)} Wasmtime pairs\n"
+                       f"Median time saved {median(saved):.1f}%", loc="left", fontsize=11)
+        left.bar(rounds, saved, color=colors, width=0.68)
+        left.axhline(0, color=NATIVE, linewidth=0.8)
+        left.axhline(median(saved), color=NATIVE, linestyle="--", linewidth=1)
+        left.set_xticks(rounds)
+        left.set_xlabel("Build pair")
+        left.set_ylabel("Elapsed time saved (%)")
+        left.set_axisbelow(True)
+        left.grid(axis="y", color="#dce2e7", linewidth=0.8)
+        left.spines[:].set_visible(False)
+        left.tick_params(length=0, pad=5)
+        right.set_title(f"Current project · {len(current['native'])} pairs\n"
+                        f"Wasmtime/native {own:.2f}×", loc="left", fontsize=11)
+        panel(right, ["Native", "Wasmtime"], current_times, [NATIVE, WASM])
+        right.set_ylabel("Elapsed seconds")
+        save(fig, directory / "paired-rebuild")
+
     campaign_path = directory / "campaign.json"
     if campaign_path.is_file():
         cases = ["native-before", "wasm-before", "native-after", "wasm-after"]
@@ -90,7 +120,7 @@ def main():
         fig.suptitle("Full compiler rebuild before and after optimization", fontsize=15, weight="bold")
         left.set_title(f"Same frozen sources · {len(campaign['wasm-before'])} pairs\n"
                        f"Wasmtime/native {previous:.2f}× → {current_ratio:.2f}×", loc="left", fontsize=11)
-        right.set_title(f"Current compiler on itself · {len(current['native'])} pairs\n"
+        right.set_title(f"Current project · {len(current['native'])} pairs\n"
                         f"Wasmtime/native {own:.2f}×", loc="left", fontsize=11)
         times = [median(campaign[case].values()) for case in cases]
         panel(left, ["Original\nnative", "Original\nWasmtime", "Current\nnative", "Current\nWasmtime"],
