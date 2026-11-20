@@ -1,0 +1,58 @@
+{
+  "source": "74af91f388a179805471146aaaebb5052b270429",
+  "release": {
+    "training": {
+      "squares": {
+        "source": "420d9e6b4a2496865eb9f66603c4cbb0fdbb2add30e8ccc709a15102f4748b14",
+        "output": "fc8ae2dbef752d8e8eaaafec21e1c7500c3b27677f9030c502bf8c196ca7d845",
+        "profile": "d204687b9c1f10416729afcd881712398f99a8ecf448b4788957936ba4f94127"
+      },
+      "sorting": {
+        "source": "00d2c7ed328100d018a3adc4ef3f2c5abd83d8219e8c6c0a56d00b0b1df8a27e",
+        "output": "b9ce93a5ef630da6e37912991cac3c3f052b8a5cf7290752ad4068e378e0aede",
+        "profile": "564b25a74734f3aa00dbc9e8e4c4d4b63729bb181d0f8fb541cac304ede66f15"
+      },
+      "tour": {
+        "source": "a46393946390a6fc888d013ae0a07383812a57667d2474071eb938f853b8b834",
+        "output": "24e6ffb411721ea6ab95389127ca6d23e2db2ece47e0060e32383ba1e611e8b0",
+        "profile": "e5d86a89062af1e74af46e30779877c9dd8cb4895194f46a93950699218f55f7"
+      }
+    },
+    "previous_profile": "3b2b271b392cbfd9322e77777f469e8f31ac99917464442c78922960a1b8463f",
+    "profile": "1a87d03c8fafa938a50444912bd05816fe2ca64cbd3927959c5cd55a8fbe5f94",
+    "fixed": "78714488488655cd591ee112519405c1feadfc15fc0a76b6d81c7ab97193bc2a",
+    "repro": "78714488488655cd591ee112519405c1feadfc15fc0a76b6d81c7ab97193bc2a",
+    "previous_fixed": "9d1e71b239b45b3d8f9678b92e1bc2dcd9506d304d5e7306f6deaaa3e6d930b7",
+    "native": "6edc2d9276e6636aeddeec8e3beeaeb07abe54609f34c52c163f911f8395e744",
+    "native_fixed": "78714488488655cd591ee112519405c1feadfc15fc0a76b6d81c7ab97193bc2a",
+    "portable": "978a20e64ef1a4769bdae8ffc0e67d29fea0f0b0b62851923715fbde8604ecb8",
+    "portable_pinned_emitter": "978a20e64ef1a4769bdae8ffc0e67d29fea0f0b0b62851923715fbde8604ecb8",
+    "training_compiler": "6edc2d9276e6636aeddeec8e3beeaeb07abe54609f34c52c163f911f8395e744",
+    "host": "b247393d8fbe3115246f20703f726e90eeaaed762a75932c7bb131a4433ad026"
+  },
+  "profiles": {
+    "fixed": {
+      "sha256": "78714488488655cd591ee112519405c1feadfc15fc0a76b6d81c7ab97193bc2a",
+      "bytes": 6188188,
+      "gzip_bytes": 1538634
+    },
+    "balanced": {
+      "sha256": "e8090ef987e34cee4a741dd90c46c70fa6771217fc61f7288783ec811c3294c0",
+      "bytes": 4394400,
+      "gzip_bytes": 1262422
+    },
+    "size": {
+      "sha256": "8e54985e2d987a925ef1e72b76bfaaed2fa6c2ab5ae0a2f2a07d2a4aa420e835",
+      "bytes": 3775085,
+      "gzip_bytes": 1026858
+    }
+  },
+  "packaging": {
+    "balanced": "/home/jacobt/src/goose-to-wasm/build/cached-engine/release/balanced.wasm (6,188,188 \u2192 4,394,400 bytes, 34.03 s)",
+    "size": "/home/jacobt/src/goose-to-wasm/build/cached-engine/release/size.wasm (6,188,188 \u2192 3,775,085 bytes, 242.21 s)"
+  },
+  "size_frozen_output": {
+    "sha256": "86cc98b268138c073ca529febfde21689dcb130658edf6f31f4ef7e3256342a3",
+    "bytes": 7378033
+  }
+}
