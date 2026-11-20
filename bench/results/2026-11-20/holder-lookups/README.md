@@ -17,6 +17,8 @@ On its own sources, compiler `673458e` took **2.34 s in cached Wasmtime and 1.75
 
 The table gives each compiler's median and the median of the 16 within-round changes. The Wasmtime/native ratio on these same sources moved from 1.33× to 1.30×. The resampled 95% interval for Wasmtime elapsed time was -2.45% to +4.88%. All timed compilers wrote the same 8,792,713-byte module. [Frozen rounds](frozen.json) · [Median ratios and intervals](rebuild-summary.json) · [Eight rounds during qualification](load-control.json) · [Twelve rounds during other benchmark work](interleaved-frozen.json) · [Concurrent own-source control](interleaved-current.json)
 
+A separate Wasmtime-only repeat alternated the same two compilers for 24 pairs. Elapsed time changed by +1.54% with a 95% interval of -1.06% to +8.91%. Instructions changed by -0.70%. Other work on the shared host increased scheduling pressure during this repeat. [24 Wasmtime pairs](wasm-confirm.json) · [Host load](load.json.gz)
+
 Across five optimization batches on the original project at `9682303`, cached Wasmtime took 15.63% less time and retired 19.45% fewer instructions. Its paired ratio went from 1.50× to 1.35× native. [Eight pairs on the original sources](campaign.json)
 
 ![Full compiler rebuild on the original project before and after all five batches](campaign.svg)
@@ -42,6 +44,18 @@ On the current compiler, four phase measurements per engine put the additional w
 Two follow-up experiments changed how the checker walks the bitmap of live holders. With six paired full builds per engine, the simpler traversal retired 0.16% fewer Wasmtime instructions and took 0.49% longer. Sharing the search for a nonempty word retired 0.29% fewer instructions and took 0.14% longer. Both preserved every output byte. The two traversal functions together occupied 0.65% of the sampled Wasmtime rebuild, so further work there has little room to close the native gap. [Profiles, trials, patches and oracle](word-trials.json.gz)
 
 The Wasm local allocator and operand decoder accounted for 249 of 3,379 Wasmtime samples (7.37%) and 171 of 2,474 native samples (6.91%). The current allocator decodes instructions after the emitter writes them. [Exact-code sampling and compiler identities](word-trials.json.gz)
+
+## Recording the instructions the allocator needs
+
+The local allocator needs to know when a function reads or writes a local variable and where control flow can branch. On 1,539 archived function bodies, it decoded 13.54 million Wasm instructions to find 7.11 million relevant events. Feeding those events directly to the current allocator produced the same remapped locals and output bytes in all 48 timed runs. [Frozen workloads and capture procedure](../../2026-11-17/wasm-slot-prefix/README.md#reproduction) · [Source patch, samples and control outputs](allocator-replay.json.gz)
+
+| Six paired rounds on the captured bodies | Native | Cached Wasmtime |
+| --- | ---: | ---: |
+| Allocator elapsed time with events prepared in advance | −30.6% | −37.9% |
+| Simulated emission plus allocation, including event writes | −9.1% | −25.2% |
+| Whole replay process, retired instructions with event writes | −8.0% | −16.0% |
+
+The simulation copies the same encoded byte runs in both cases and charges the candidate for recording each event. It used 64.0 MB of event payload across the full capture, peaking at 1.06 MB for one function. Integration still needs to account for offsets that change when the emitter rewrites parameter accesses and inserts a function prelude. The next whole-compiler experiment can compare those offsets and each function's output bytes against the existing decoder, then time the full compiler with recording enabled. [Replay measurements and implementation](allocator-replay.json.gz)
 
 ## Reader benchmarks
 
