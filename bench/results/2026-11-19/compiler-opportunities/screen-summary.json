@@ -1,0 +1,684 @@
+{
+  "measurement": "Median within-round percentage change. Negative is less time or work.",
+  "full_rebuild_samples": 322,
+  "rows": [
+    {
+      "screen": "codegen/field-comparison",
+      "reference": "baseline",
+      "candidate": "field-load-store",
+      "rounds": 5,
+      "delta_percent": {
+        "instructions": -2.498,
+        "cycles": -3.251,
+        "cpu_s": 0.613,
+        "wall_ns": -0.0
+      }
+    },
+    {
+      "screen": "codegen/field-comparison",
+      "reference": "baseline",
+      "candidate": "field-proven",
+      "rounds": 5,
+      "delta_percent": {
+        "instructions": -2.093,
+        "cycles": 0.067,
+        "cpu_s": 1.564,
+        "wall_ns": -4.348
+      }
+    },
+    {
+      "screen": "codegen/field-comparison",
+      "reference": "baseline",
+      "candidate": "field-construct",
+      "rounds": 5,
+      "delta_percent": {
+        "instructions": -2.754,
+        "cycles": -3.75,
+        "cpu_s": -5.291,
+        "wall_ns": -6.219
+      }
+    },
+    {
+      "screen": "codegen/field-comparison",
+      "reference": "baseline",
+      "candidate": "field-all-proven",
+      "rounds": 5,
+      "delta_percent": {
+        "instructions": -3.037,
+        "cycles": -4.904,
+        "cpu_s": -6.167,
+        "wall_ns": -12.155
+      }
+    },
+    {
+      "screen": "codegen/followup",
+      "reference": "baseline",
+      "candidate": "record-template",
+      "rounds": 5,
+      "delta_percent": {
+        "instructions": -0.425,
+        "cycles": -3.5,
+        "cpu_s": -3.316,
+        "wall_ns": -4.786
+      }
+    },
+    {
+      "screen": "codegen/followup",
+      "reference": "baseline",
+      "candidate": "field-offset",
+      "rounds": 5,
+      "delta_percent": {
+        "instructions": -2.093,
+        "cycles": 3.67,
+        "cpu_s": 4.09,
+        "wall_ns": 7.719
+      }
+    },
+    {
+      "screen": "codegen/screen",
+      "reference": "baseline",
+      "candidate": "field-offset",
+      "rounds": 3,
+      "delta_percent": {
+        "instructions": -2.094,
+        "cycles": -3.996,
+        "cpu_s": -5.563,
+        "wall_ns": -6.4
+      }
+    },
+    {
+      "screen": "codegen/screen",
+      "reference": "baseline",
+      "candidate": "small-frames",
+      "rounds": 3,
+      "delta_percent": {
+        "instructions": -0.12,
+        "cycles": -0.557,
+        "cpu_s": -1.751,
+        "wall_ns": -2.225
+      }
+    },
+    {
+      "screen": "codegen/screen",
+      "reference": "baseline",
+      "candidate": "narrow-locals",
+      "rounds": 3,
+      "delta_percent": {
+        "instructions": -0.398,
+        "cycles": -2.104,
+        "cpu_s": -2.546,
+        "wall_ns": -3.082
+      }
+    },
+    {
+      "screen": "codegen/screen",
+      "reference": "baseline",
+      "candidate": "slice-locals",
+      "rounds": 3,
+      "delta_percent": {
+        "instructions": -0.546,
+        "cycles": -1.455,
+        "cpu_s": -2.73,
+        "wall_ns": -3.946
+      }
+    },
+    {
+      "screen": "codegen/screen",
+      "reference": "baseline",
+      "candidate": "scalar-locals-all",
+      "rounds": 3,
+      "delta_percent": {
+        "instructions": -1.004,
+        "cycles": -3.536,
+        "cpu_s": -4.97,
+        "wall_ns": -5.888
+      }
+    },
+    {
+      "screen": "core/bytes",
+      "reference": "baseline",
+      "candidate": "short",
+      "rounds": 4,
+      "delta_percent": {
+        "instructions": -0.122,
+        "cycles": 4.458,
+        "cpu_s": 4.764,
+        "wall_ns": 7.754
+      }
+    },
+    {
+      "screen": "core/bytes",
+      "reference": "baseline",
+      "candidate": "pair",
+      "rounds": 4,
+      "delta_percent": {
+        "instructions": 0.379,
+        "cycles": -4.643,
+        "cpu_s": -5.682,
+        "wall_ns": -8.282
+      }
+    },
+    {
+      "screen": "core/composition",
+      "reference": "baseline",
+      "candidate": "base-tuning",
+      "rounds": 6,
+      "delta_percent": {
+        "instructions": -2.662,
+        "cycles": 1.525,
+        "cpu_s": 1.161,
+        "wall_ns": -0.135
+      }
+    },
+    {
+      "screen": "core/composition",
+      "reference": "baseline",
+      "candidate": "tuned-walk",
+      "rounds": 6,
+      "delta_percent": {
+        "instructions": -3.479,
+        "cycles": -0.701,
+        "cpu_s": 1.225,
+        "wall_ns": -0.488
+      }
+    },
+    {
+      "screen": "core/composition",
+      "reference": "baseline",
+      "candidate": "full-trial",
+      "rounds": 6,
+      "delta_percent": {
+        "instructions": -5.553,
+        "cycles": -5.868,
+        "cpu_s": -2.48,
+        "wall_ns": -6.806
+      }
+    },
+    {
+      "screen": "core/decode",
+      "reference": "baseline",
+      "candidate": "local",
+      "rounds": 3,
+      "delta_percent": {
+        "instructions": 0.061,
+        "cycles": -7.95,
+        "cpu_s": -10.039,
+        "wall_ns": -11.599
+      }
+    },
+    {
+      "screen": "core/decode",
+      "reference": "baseline",
+      "candidate": "localmem",
+      "rounds": 3,
+      "delta_percent": {
+        "instructions": 0.104,
+        "cycles": -8.065,
+        "cpu_s": -10.301,
+        "wall_ns": -13.008
+      }
+    },
+    {
+      "screen": "core/decode",
+      "reference": "baseline",
+      "candidate": "common",
+      "rounds": 3,
+      "delta_percent": {
+        "instructions": -0.074,
+        "cycles": 7.339,
+        "cpu_s": 6.072,
+        "wall_ns": -3.147
+      }
+    },
+    {
+      "screen": "core/decode",
+      "reference": "baseline",
+      "candidate": "readleb",
+      "rounds": 3,
+      "delta_percent": {
+        "instructions": -0.136,
+        "cycles": 11.888,
+        "cpu_s": 13.889,
+        "wall_ns": 1.366
+      }
+    },
+    {
+      "screen": "core/legal-layout",
+      "reference": "baseline",
+      "candidate": "legal-node",
+      "rounds": 4,
+      "delta_percent": {
+        "instructions": 0.001,
+        "cycles": 1.031,
+        "cpu_s": -1.939,
+        "wall_ns": -12.385
+      }
+    },
+    {
+      "screen": "core/legal-layout",
+      "reference": "baseline",
+      "candidate": "legal-symbol",
+      "rounds": 4,
+      "delta_percent": {
+        "instructions": 0.007,
+        "cycles": -3.739,
+        "cpu_s": -3.793,
+        "wall_ns": -39.829
+      }
+    },
+    {
+      "screen": "core/legal-layout-repeat",
+      "reference": "baseline",
+      "candidate": "legal-symbol",
+      "rounds": 8,
+      "delta_percent": {
+        "instructions": 0.007,
+        "cycles": 0.188,
+        "cpu_s": -0.265,
+        "wall_ns": -1.222
+      }
+    },
+    {
+      "screen": "core/nocapture-bounds",
+      "reference": "baseline",
+      "candidate": "nocapture",
+      "rounds": 1,
+      "delta_percent": {
+        "instructions": -0.687,
+        "cycles": -23.151,
+        "cpu_s": -25.658,
+        "wall_ns": -41.459
+      }
+    },
+    {
+      "screen": "core/noeffect-bounds",
+      "reference": "baseline",
+      "candidate": "noeffect",
+      "rounds": 1,
+      "delta_percent": {
+        "instructions": -1.126,
+        "cycles": -4.181,
+        "cpu_s": -4.847,
+        "wall_ns": -5.12
+      }
+    },
+    {
+      "screen": "core/post/screen",
+      "reference": "baseline",
+      "candidate": "O3",
+      "rounds": 5,
+      "delta_percent": {
+        "instructions": 0.281,
+        "cycles": -2.14,
+        "cpu_s": -1.823,
+        "wall_ns": -8.872
+      }
+    },
+    {
+      "screen": "core/post/screen",
+      "reference": "baseline",
+      "candidate": "local",
+      "rounds": 5,
+      "delta_percent": {
+        "instructions": -0.636,
+        "cycles": 0.757,
+        "cpu_s": 1.345,
+        "wall_ns": 5.505
+      }
+    },
+    {
+      "screen": "core/walks",
+      "reference": "baseline",
+      "candidate": "fused",
+      "rounds": 5,
+      "delta_percent": {
+        "instructions": -0.817,
+        "cycles": -1.604,
+        "cpu_s": -3.392,
+        "wall_ns": -3.94
+      }
+    },
+    {
+      "screen": "core/walks",
+      "reference": "baseline",
+      "candidate": "fusedlist",
+      "rounds": 5,
+      "delta_percent": {
+        "instructions": -0.992,
+        "cycles": -1.878,
+        "cpu_s": -3.574,
+        "wall_ns": -3.898
+      }
+    },
+    {
+      "screen": "frontend/combined-native",
+      "reference": "basen",
+      "candidate": "bestn",
+      "rounds": 4,
+      "delta_percent": {
+        "instructions": -2.241,
+        "cycles": -0.104,
+        "cpu_s": -2.994,
+        "wall_ns": 7.416
+      }
+    },
+    {
+      "screen": "frontend/combined-wasm",
+      "reference": "basew",
+      "candidate": "bestw",
+      "rounds": 4,
+      "delta_percent": {
+        "instructions": -2.663,
+        "cycles": -4.159,
+        "cpu_s": -4.103,
+        "wall_ns": -22.135
+      }
+    },
+    {
+      "screen": "frontend/native-screen",
+      "reference": "basen",
+      "candidate": "regionn",
+      "rounds": 4,
+      "delta_percent": {
+        "instructions": -1.74,
+        "cycles": -1.096,
+        "cpu_s": -0.371,
+        "wall_ns": -0.721
+      }
+    },
+    {
+      "screen": "frontend/native-screen",
+      "reference": "basen",
+      "candidate": "builtinn",
+      "rounds": 4,
+      "delta_percent": {
+        "instructions": -0.468,
+        "cycles": 2.102,
+        "cpu_s": -0.2,
+        "wall_ns": 20.91
+      }
+    },
+    {
+      "screen": "frontend/region-confirm",
+      "reference": "basew",
+      "candidate": "regionw",
+      "rounds": 6,
+      "delta_percent": {
+        "instructions": -1.709,
+        "cycles": -1.121,
+        "cpu_s": -1.99,
+        "wall_ns": 1.384
+      }
+    },
+    {
+      "screen": "frontend/region-confirm",
+      "reference": "basew",
+      "candidate": "scalarw",
+      "rounds": 6,
+      "delta_percent": {
+        "instructions": -0.852,
+        "cycles": -3.128,
+        "cpu_s": -2.367,
+        "wall_ns": -3.743
+      }
+    },
+    {
+      "screen": "frontend/screen",
+      "reference": "basew",
+      "candidate": "scopew",
+      "rounds": 4,
+      "delta_percent": {
+        "instructions": -0.247,
+        "cycles": -3.279,
+        "cpu_s": -2.668,
+        "wall_ns": -3.21
+      }
+    },
+    {
+      "screen": "frontend/screen",
+      "reference": "basew",
+      "candidate": "loopw",
+      "rounds": 4,
+      "delta_percent": {
+        "instructions": -0.223,
+        "cycles": 2.38,
+        "cpu_s": 2.589,
+        "wall_ns": 2.638
+      }
+    },
+    {
+      "screen": "frontend/screen2",
+      "reference": "basew",
+      "candidate": "emptyw",
+      "rounds": 4,
+      "delta_percent": {
+        "instructions": -0.149,
+        "cycles": -3.653,
+        "cpu_s": -3.987,
+        "wall_ns": -3.889
+      }
+    },
+    {
+      "screen": "frontend/screen2",
+      "reference": "basew",
+      "candidate": "locw",
+      "rounds": 4,
+      "delta_percent": {
+        "instructions": -0.545,
+        "cycles": -2.149,
+        "cpu_s": -2.866,
+        "wall_ns": -2.246
+      }
+    },
+    {
+      "screen": "frontend/screen3",
+      "reference": "basew",
+      "candidate": "builtinw",
+      "rounds": 4,
+      "delta_percent": {
+        "instructions": -0.954,
+        "cycles": 1.54,
+        "cpu_s": 1.919,
+        "wall_ns": 2.475
+      }
+    },
+    {
+      "screen": "frontend/screen3",
+      "reference": "basew",
+      "candidate": "regionw",
+      "rounds": 4,
+      "delta_percent": {
+        "instructions": -1.709,
+        "cycles": 0.271,
+        "cpu_s": 1.226,
+        "wall_ns": 1.819
+      }
+    },
+    {
+      "screen": "frontend/screen3",
+      "reference": "basew",
+      "candidate": "memw",
+      "rounds": 4,
+      "delta_percent": {
+        "instructions": -0.01,
+        "cycles": 0.768,
+        "cpu_s": 1.974,
+        "wall_ns": 3.736
+      }
+    },
+    {
+      "screen": "lifetime/screen",
+      "reference": "base",
+      "candidate": "cell",
+      "rounds": 3,
+      "delta_percent": {
+        "instructions": -0.161,
+        "cycles": 0.824,
+        "cpu_s": 1.399,
+        "wall_ns": 4.765
+      }
+    },
+    {
+      "screen": "lifetime/screen",
+      "reference": "base",
+      "candidate": "hash",
+      "rounds": 3,
+      "delta_percent": {
+        "instructions": -0.128,
+        "cycles": -17.679,
+        "cpu_s": -21.191,
+        "wall_ns": -26.88
+      }
+    },
+    {
+      "screen": "lifetime/screen",
+      "reference": "base",
+      "candidate": "dispatch",
+      "rounds": 3,
+      "delta_percent": {
+        "instructions": -0.034,
+        "cycles": -15.816,
+        "cpu_s": -19.489,
+        "wall_ns": -25.038
+      }
+    },
+    {
+      "screen": "lifetime/screen-guards",
+      "reference": "base",
+      "candidate": "receiver",
+      "rounds": 4,
+      "delta_percent": {
+        "instructions": -0.58,
+        "cycles": 0.801,
+        "cpu_s": 2.107,
+        "wall_ns": 2.235
+      }
+    },
+    {
+      "screen": "lifetime/screen-guards",
+      "reference": "base",
+      "candidate": "observations",
+      "rounds": 4,
+      "delta_percent": {
+        "instructions": -0.406,
+        "cycles": 4.058,
+        "cpu_s": 5.401,
+        "wall_ns": 5.36
+      }
+    },
+    {
+      "screen": "lifetime/screen-guards",
+      "reference": "base",
+      "candidate": "cell-hoist",
+      "rounds": 4,
+      "delta_percent": {
+        "instructions": -0.202,
+        "cycles": -0.868,
+        "cpu_s": -0.029,
+        "wall_ns": 0.212
+      }
+    },
+    {
+      "screen": "lifetime/screen-shrink",
+      "reference": "base",
+      "candidate": "borrow",
+      "rounds": 4,
+      "delta_percent": {
+        "instructions": -0.084,
+        "cycles": -1.411,
+        "cpu_s": -1.642,
+        "wall_ns": -2.647
+      }
+    },
+    {
+      "screen": "lifetime/screen-shrink",
+      "reference": "base",
+      "candidate": "bits",
+      "rounds": 4,
+      "delta_percent": {
+        "instructions": -0.349,
+        "cycles": -0.246,
+        "cpu_s": -0.607,
+        "wall_ns": 4.86
+      }
+    },
+    {
+      "screen": "lifetime/screen-shrink",
+      "reference": "base",
+      "candidate": "both",
+      "rounds": 4,
+      "delta_percent": {
+        "instructions": -0.433,
+        "cycles": -3.864,
+        "cpu_s": -6.085,
+        "wall_ns": -8.394
+      }
+    },
+    {
+      "screen": "lifetime/screen-types",
+      "reference": "base",
+      "candidate": "probes",
+      "rounds": 3,
+      "delta_percent": {
+        "instructions": 0.038,
+        "cycles": 1.733,
+        "cpu_s": -0.472,
+        "wall_ns": -2.032
+      }
+    },
+    {
+      "screen": "lifetime/screen-types",
+      "reference": "base",
+      "candidate": "keys",
+      "rounds": 3,
+      "delta_percent": {
+        "instructions": -0.637,
+        "cycles": -5.197,
+        "cpu_s": -8.228,
+        "wall_ns": -14.614
+      }
+    },
+    {
+      "screen": "lifetime-followup/pairs",
+      "reference": "base",
+      "candidate": "futures",
+      "rounds": 3,
+      "delta_percent": {
+        "instructions": 0.006,
+        "cycles": 1.367,
+        "cpu_s": 2.13,
+        "wall_ns": 4.696
+      }
+    },
+    {
+      "screen": "lifetime-followup/pairs",
+      "reference": "base",
+      "candidate": "empty-cell",
+      "rounds": 3,
+      "delta_percent": {
+        "instructions": 0.014,
+        "cycles": -1.083,
+        "cpu_s": -0.487,
+        "wall_ns": 0.62
+      }
+    },
+    {
+      "screen": "lifetime-followup/pairs",
+      "reference": "base",
+      "candidate": "empty-replay",
+      "rounds": 3,
+      "delta_percent": {
+        "instructions": -0.003,
+        "cycles": -1.196,
+        "cpu_s": 5.623,
+        "wall_ns": 21.597
+      }
+    }
+  ],
+  "unmeasured": [
+    {
+      "variant": "First record layout ordering",
+      "reason": "Goose requires field initializers in declaration order. The frozen compiler did not build with that ordering. The legal-layout screen preserves every constructor ordering constraint."
+    }
+  ]
+}

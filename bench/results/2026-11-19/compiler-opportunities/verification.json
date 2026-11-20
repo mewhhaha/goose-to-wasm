@@ -1,0 +1,423 @@
+{
+  "qualification": {
+    "schema": "goose-qualification-v1",
+    "started": "2026-11-19T19:32:40+0100",
+    "head": "b6c2f10930af9de6b6ecbda80922e75bb957bf96",
+    "dirty": false,
+    "since": "origin/main",
+    "units_pass": false,
+    "stages": [
+      {
+        "stage": "bootstrap",
+        "command": [
+          "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+          "scripts/bootstrap.py",
+          "--verify",
+          "--build-dir",
+          "/home/jacobt/src/goose-to-wasm/build/opportunity-release-nov19/qualified/bootstrap",
+          "--cache-dir",
+          "/home/jacobt/src/goose-to-wasm/build/qualify-cache/bootstrap"
+        ],
+        "exit": 0,
+        "seconds": 736.7,
+        "log": "/home/jacobt/src/goose-to-wasm/build/opportunity-release-nov19/qualified/bootstrap.log"
+      },
+      {
+        "stage": "conformance",
+        "command": [
+          "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+          "tests/conformance.py",
+          "--compiler",
+          "/home/jacobt/src/goose-to-wasm/build/opportunity-release-nov19/qualified/bootstrap/bin/goose",
+          "--levels",
+          "0",
+          "2",
+          "--cc",
+          "gcc",
+          "--known-gaps",
+          "tests/conformance/known-gaps.json",
+          "--native-cache",
+          "/home/jacobt/src/goose-to-wasm/build/qualify-cache/native",
+          "--output-dir",
+          "/home/jacobt/src/goose-to-wasm/build/opportunity-release-nov19/qualified/conformance",
+          "--jobs",
+          "6"
+        ],
+        "exit": 0,
+        "seconds": 104.4,
+        "log": "/home/jacobt/src/goose-to-wasm/build/opportunity-release-nov19/qualified/conformance.log",
+        "summary": "{'selected': 10801, 'passed': 10697, 'failed': 104}",
+        "gaps": "{'open_gaps': 104, 'unexpected_failures': 0, 'fixed_gaps': 0}",
+        "native_cache": "{'native_builds': 3218, 'cache_hits': 3154}"
+      },
+      {
+        "stage": "native-checks",
+        "command": [
+          "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+          "native/tests/check.py",
+          "--output",
+          "/home/jacobt/src/goose-to-wasm/build/opportunity-release-nov19/qualified/native"
+        ],
+        "exit": 0,
+        "seconds": 40.2,
+        "log": "/home/jacobt/src/goose-to-wasm/build/opportunity-release-nov19/qualified/native-checks.log",
+        "summary": "54 steps ok"
+      },
+      {
+        "stage": "conformance-memory64",
+        "command": [
+          "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+          "tests/conformance.py",
+          "--compiler",
+          "/home/jacobt/src/goose-to-wasm/build/opportunity-release-nov19/qualified/bootstrap/bin/goose",
+          "--levels",
+          "0",
+          "2",
+          "--cc",
+          "gcc",
+          "--known-gaps",
+          "tests/conformance/known-gaps-memory64.json",
+          "--native-cache",
+          "/home/jacobt/src/goose-to-wasm/build/qualify-cache/native",
+          "--output-dir",
+          "/home/jacobt/src/goose-to-wasm/build/opportunity-release-nov19/qualified/conformance-memory64",
+          "--jobs",
+          "3",
+          "--targets",
+          "wasm-direct",
+          "--wasm-memory64"
+        ],
+        "exit": 0,
+        "seconds": 97.7,
+        "log": "/home/jacobt/src/goose-to-wasm/build/opportunity-release-nov19/qualified/conformance-memory64.log",
+        "summary": "{'selected': 4779, 'passed': 4771, 'failed': 8}",
+        "gaps": "{'open_gaps': 8, 'unexpected_failures': 0, 'fixed_gaps': 0}",
+        "native_cache": "{'native_builds': 0, 'cache_hits': 0}"
+      },
+      {
+        "stage": "equivalence",
+        "command": [
+          "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+          "tests/output_equivalence.py",
+          "--baseline",
+          "/home/jacobt/src/goose-to-wasm/build/function-lookup-nov19/own/build-1/compiler-native",
+          "--candidate",
+          "/home/jacobt/src/goose-to-wasm/build/opportunity-release-nov19/qualified/bootstrap/bin/goose",
+          "--output-dir",
+          "/home/jacobt/src/goose-to-wasm/build/opportunity-release-nov19/qualified/equivalence",
+          "--selfhost",
+          "/home/jacobt/src/goose-to-wasm/build/opportunity-release-nov19/qualified/frozen/selfhost",
+          "--jobs",
+          "3"
+        ],
+        "exit": 0,
+        "seconds": 89.0,
+        "log": "/home/jacobt/src/goose-to-wasm/build/opportunity-release-nov19/qualified/equivalence.log",
+        "summary": "{\"compared\": 10061, \"differing\": 0, \"seconds\": {\"baseline\": 127.961, \"candidate\": 124.626}}",
+        "differing": []
+      },
+      {
+        "stage": "unit-tests",
+        "command": [
+          "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+          "-m",
+          "unittest",
+          "--durations",
+          "10",
+          "tests.test_conformance_runner",
+          "tests.test_bootstrap_optimization",
+          "tests.test_native_units",
+          "tests.test_driver_outputs",
+          "tests.test_cli_outputs",
+          "tests.test_root_struct_backends",
+          "tests.test_slice_pool_backends",
+          "tests.test_loop_ordinals",
+          "tests.test_dynamic_remainder",
+          "tests.test_descending_while",
+          "tests.test_zero_stores",
+          "tests.test_owner_view_host",
+          "tests.test_ordinary_owner_modes",
+          "tests.test_aggregate_print",
+          "tests.test_while_unroll",
+          "tests.test_fixed_memory_frames",
+          "tests.test_holder_walks",
+          "tests.test_data_segments",
+          "tests.test_fixed_memory_ops"
+        ],
+        "exit": 0,
+        "seconds": 182.8,
+        "log": "/home/jacobt/src/goose-to-wasm/build/opportunity-release-nov19/qualified/unit-tests.log"
+      }
+    ],
+    "bootstrap": {
+      "fixed_point": true,
+      "generated_c_sha256": "2d5158ea6af8f02ebdd8311ac124cc9162944693d812c1011c22e0b9b2ccd1cd",
+      "next_generation_c_sha256": "2d5158ea6af8f02ebdd8311ac124cc9162944693d812c1011c22e0b9b2ccd1cd",
+      "third_generation_c_sha256": null,
+      "executable_sha256": "40edfa7be313eb3b8d0caadbde8dcef5ea077375071407c1fe0061492bdc36c2",
+      "profile_used": false,
+      "cached": {
+        "build-seed": true,
+        "build-goose": false
+      }
+    },
+    "seconds": 919.8,
+    "status": "passed",
+    "failed": []
+  },
+  "equivalence": {
+    "compared": 10061,
+    "differing": 0,
+    "seconds": {
+      "baseline": 127.961,
+      "candidate": 124.626
+    }
+  },
+  "manifest": "2054a3fc40d9d517d66ceafd153e6adfc4495a682cadea7431e4f6881a5e9499",
+  "release": {
+    "training": {
+      "squares": {
+        "source": "420d9e6b4a2496865eb9f66603c4cbb0fdbb2add30e8ccc709a15102f4748b14",
+        "output": "fc8ae2dbef752d8e8eaaafec21e1c7500c3b27677f9030c502bf8c196ca7d845",
+        "profile": "07557f7b237405813eead8367872667b0252d71bdd7f35b06abb2e3935ce4d85"
+      },
+      "sorting": {
+        "source": "00d2c7ed328100d018a3adc4ef3f2c5abd83d8219e8c6c0a56d00b0b1df8a27e",
+        "output": "b9ce93a5ef630da6e37912991cac3c3f052b8a5cf7290752ad4068e378e0aede",
+        "profile": "2e55d01b3722fc5d93a61e9354838313af001d6ec7387e00dfd5c1d5e6906953"
+      },
+      "tour": {
+        "source": "a46393946390a6fc888d013ae0a07383812a57667d2474071eb938f853b8b834",
+        "output": "24e6ffb411721ea6ab95389127ca6d23e2db2ece47e0060e32383ba1e611e8b0",
+        "profile": "96bedd6d5edc081a36785c4f5837606fcbbf42aa5432cb81816f96b40d78b42b"
+      }
+    },
+    "previous_profile": "7fbce3bbb436aa322d153ba4ebf88b7cc25a1a55303beeb6517ef66d6fb7ee6c",
+    "profile": "5771ca177b54c72691fd5e70bf9cdb322198657906ac96212eb5b4e26496aecc",
+    "fixed": "93f2b6364f8d5565ea58db6b7a4efc1773c5140fe3a8ca139eca04cbc6d1b684",
+    "repro": "93f2b6364f8d5565ea58db6b7a4efc1773c5140fe3a8ca139eca04cbc6d1b684",
+    "previous_fixed": "53ce3b3464f09aa3ebb842b97913fa6652018eba19f39dfed43365ab2b642d2b",
+    "native": "b133b7e8cccddb52eb4cf01378345f557dc199f24fcf1a3a0fd04bf9af3f1b56",
+    "native_fixed": "93f2b6364f8d5565ea58db6b7a4efc1773c5140fe3a8ca139eca04cbc6d1b684",
+    "portable": "4146612b194a4c88dcdc9454a7fdd6b31200912686d1947528e4f3b77d100508",
+    "portable_pinned_emitter": "4146612b194a4c88dcdc9454a7fdd6b31200912686d1947528e4f3b77d100508",
+    "training_compiler": "b133b7e8cccddb52eb4cf01378345f557dc199f24fcf1a3a0fd04bf9af3f1b56",
+    "host": "b247393d8fbe3115246f20703f726e90eeaaed762a75932c7bb131a4433ad026"
+  },
+  "bundled": {
+    "before": {
+      "native": "f3a97035ca9953f9a2ed2afc40d3447afcaacfb7e2465600ff62f0b01825e8ca",
+      "summary": {
+        "selected": 4779,
+        "passed": 4769,
+        "failed": 10
+      },
+      "hash": "3edeaeae54b0f8212192d9d8573d96ec986868925da6a352272e5f0886a5251b"
+    },
+    "after": {
+      "native": "b133b7e8cccddb52eb4cf01378345f557dc199f24fcf1a3a0fd04bf9af3f1b56",
+      "summary": {
+        "selected": 4779,
+        "passed": 4769,
+        "failed": 10
+      },
+      "hash": "ea9ced93525fb15d419ba99a74ae1ffd3f3d8ed2ca928fe11e0adda609fb1e94"
+    },
+    "differing": [],
+    "open": [
+      {
+        "case": "corpus/contracts/temporary-region-retirement/live-memory-limit-constant/wasm-direct",
+        "level": 0,
+        "status": "fail",
+        "phase": "run",
+        "stdout_equal": false,
+        "exit_equal": false,
+        "diagnostic_equal": true,
+        "compile": {
+          "exit_code": 0,
+          "stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "run": {
+          "exit_code": 0,
+          "stdout": "d43574be921c54215a1e05bb2fc0c1a4b63dd2aea4bbfd5b9ebc11a2685943e2",
+          "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      {
+        "case": "corpus/contracts/temporary-region-retirement/live-memory-limit-constant/wasm-direct",
+        "level": 2,
+        "status": "fail",
+        "phase": "run",
+        "stdout_equal": false,
+        "exit_equal": false,
+        "diagnostic_equal": true,
+        "compile": {
+          "exit_code": 0,
+          "stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "run": {
+          "exit_code": 0,
+          "stdout": "d43574be921c54215a1e05bb2fc0c1a4b63dd2aea4bbfd5b9ebc11a2685943e2",
+          "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      {
+        "case": "corpus/contracts/upstream-differential/harvest/packed_layout_boundaries/5e21f78e5a/wasm-direct",
+        "level": 0,
+        "status": "fail",
+        "phase": "run",
+        "stdout_equal": false,
+        "exit_equal": true,
+        "diagnostic_equal": true,
+        "compile": {
+          "exit_code": 0,
+          "stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "run": {
+          "exit_code": 0,
+          "stdout": "a724ee98428c93b63cd17093b081c5caa1d4980ecab79a9e9e20f73ca7abc9ff",
+          "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      {
+        "case": "corpus/contracts/upstream-differential/harvest/packed_layout_boundaries/5e21f78e5a/wasm-direct",
+        "level": 2,
+        "status": "fail",
+        "phase": "run",
+        "stdout_equal": false,
+        "exit_equal": true,
+        "diagnostic_equal": true,
+        "compile": {
+          "exit_code": 0,
+          "stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "run": {
+          "exit_code": 0,
+          "stdout": "a724ee98428c93b63cd17093b081c5caa1d4980ecab79a9e9e20f73ca7abc9ff",
+          "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      {
+        "case": "corpus/contracts/upstream-differential/harvest/regions/b37ae9dfb7/wasm-direct",
+        "level": 0,
+        "status": "fail",
+        "phase": "run",
+        "stdout_equal": true,
+        "exit_equal": true,
+        "diagnostic_equal": false,
+        "compile": {
+          "exit_code": 0,
+          "stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "run": {
+          "exit_code": 1,
+          "stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stderr": "71f4baaf327cafa7084b37dcc62345365474e31c8057d5b8f8a2ce0f723b80a1"
+        }
+      },
+      {
+        "case": "corpus/contracts/upstream-differential/harvest/regions/b37ae9dfb7/wasm-direct",
+        "level": 2,
+        "status": "fail",
+        "phase": "run",
+        "stdout_equal": true,
+        "exit_equal": true,
+        "diagnostic_equal": false,
+        "compile": {
+          "exit_code": 0,
+          "stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "run": {
+          "exit_code": 1,
+          "stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stderr": "71f4baaf327cafa7084b37dcc62345365474e31c8057d5b8f8a2ce0f723b80a1"
+        }
+      },
+      {
+        "case": "corpus/contracts/upstream-differential/harvest/regions/d8577df2d9/wasm-direct",
+        "level": 0,
+        "status": "fail",
+        "phase": "run",
+        "stdout_equal": false,
+        "exit_equal": false,
+        "diagnostic_equal": true,
+        "compile": {
+          "exit_code": 0,
+          "stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "run": {
+          "exit_code": 1,
+          "stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stderr": "924b00d643fcb506be8623bf3635e20519f96dc66a3852331bb9c4e7b96a8111"
+        }
+      },
+      {
+        "case": "corpus/contracts/upstream-differential/harvest/regions/d8577df2d9/wasm-direct",
+        "level": 2,
+        "status": "fail",
+        "phase": "run",
+        "stdout_equal": false,
+        "exit_equal": false,
+        "diagnostic_equal": true,
+        "compile": {
+          "exit_code": 0,
+          "stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "run": {
+          "exit_code": 1,
+          "stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stderr": "924b00d643fcb506be8623bf3635e20519f96dc66a3852331bb9c4e7b96a8111"
+        }
+      },
+      {
+        "case": "corpus/contracts/upstream-differential/harvest/uleb_length_boundaries/5347625ed2/wasm-direct",
+        "level": 0,
+        "status": "fail",
+        "phase": "run",
+        "stdout_equal": false,
+        "exit_equal": false,
+        "diagnostic_equal": true,
+        "compile": {
+          "exit_code": 0,
+          "stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "run": {
+          "exit_code": 1,
+          "stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stderr": "ada0b323f43e7dddcce5d61e9e734ccd41bbfb94decfb6a16ddb2a6d8b22eb38"
+        }
+      },
+      {
+        "case": "corpus/contracts/upstream-differential/harvest/uleb_length_boundaries/5347625ed2/wasm-direct",
+        "level": 2,
+        "status": "fail",
+        "phase": "run",
+        "stdout_equal": false,
+        "exit_equal": false,
+        "diagnostic_equal": true,
+        "compile": {
+          "exit_code": 0,
+          "stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "run": {
+          "exit_code": 1,
+          "stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stderr": "ada0b323f43e7dddcce5d61e9e734ccd41bbfb94decfb6a16ddb2a6d8b22eb38"
+        }
+      }
+    ],
+    "method": "All 4,779 direct Wasm rows at O0/O2 with --wasm-bundled-host and --wasm-max-pages 65535. Compared status, phase, compiler and program exit, stdout and stderr after normalizing the run directory."
+  },
+  "focused": "experiments.json.gz",
+  "field_displacement_test": "......\n----------------------------------------------------------------------\nRan 6 tests in 3.039s\n\nOK\n"
+}
