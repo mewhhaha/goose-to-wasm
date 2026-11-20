@@ -2,8 +2,10 @@
 
 The compiler is written in Goose and bootstrapped from a frozen C seed. Independent source and output contracts check behavior without running a reference compiler. Passing these checks does not establish language or output parity.
 
-Tables in `model.goose` use stable integer IDs. Never retain a reference to a table
-element across a push, recursive call or another mutation of that table. `Program`
+Tables in `model.goose` use stable integer IDs. Keep an ID or the needed scalar
+fields across calls that can rewrite elements or grow the table, then look up
+the element again. A read-only walk such as `opt_inline_cost` can borrow a node
+across recursion because every recursive call only reads the node table. `Program`
 borrows tables owned by the driver. `Type.kind` is a category (`TY_INT`), while
 primitive IDs are `TYPE_I64` etc.; integer width is `Type.count` and signedness is
 `TF_UNSIGNED`.

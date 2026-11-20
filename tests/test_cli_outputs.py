@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """The compiler refuses outputs that would replace a source or another output, reads its size options, and runs as a Wasm module."""
 import importlib.util
+import json
 from pathlib import Path
 import re
 import subprocess
@@ -94,6 +95,45 @@ class OutputCollisions(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         for name in ("m.wasm", "s.json", "d.json"):
             self.assertTrue((self.work / name).stat().st_size > 0)
+
+
+@unittest.skipUnless(COMPILER.is_file(), "bootstrap the compiler first")
+class InliningBudget(unittest.TestCase):
+    def test_exact_budget_with_zero_cost_nested_function(self):
+        # The block costs one node, the bindings two each and the assignments
+        # three each. The last declaration costs zero, leaving the total at 200.
+        body = "    total += seed;\n" * 65
+        with tempfile.TemporaryDirectory() as directory:
+            work = Path(directory)
+            source = work / "main.goose"
+            stats = work / "stats.json"
+            output = work / "program.wasm"
+            for extra in ("", "    seed;\n"):
+                with self.subTest(extra_node=bool(extra)):
+                    source.write_text(
+                        "inline fn score(seed: i64, total: i64&) {\n"
+                        "    let first = seed;\n"
+                        "    let second = seed;\n"
+                        + body
+                        + "    fn unused(other: i64) -> i64 { return other - 100; }\n"
+                        + extra
+                        + "}\n"
+                        # The defer keeps main out of tail-loop analysis so the
+                        # node count changes only when the callee is cloned.
+                        "fn main() { defer {} var total = 0; score(2, total); print(total); }\n"
+                    )
+                    counts = []
+                    for level in (0, 1, 2):
+                        command = [COMPILER, source, "--target", "wasm-direct", f"-O{level}",
+                                   "--stdlib", SOURCE_STDLIB, "--wasm-stats", stats, "-o", output]
+                        result = subprocess.run(command, capture_output=True, text=True, timeout=30)
+                        self.assertEqual(result.returncode, 0, result.stderr)
+                        counts.append(json.loads(stats.read_text())["nodes"])
+                    if extra:
+                        self.assertEqual(counts, [counts[0]] * 3)
+                    else:
+                        self.assertGreater(counts[1], counts[0])
+                        self.assertEqual(counts[1], counts[2])
 
 
 @unittest.skipUnless(COMPILER.is_file(), "bootstrap the compiler first")
