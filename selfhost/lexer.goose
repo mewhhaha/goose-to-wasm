@@ -11,95 +11,60 @@ fn lex_hex(c: u8) -> i64 {
     if c >= 'A' && c <= 'F' { return c as i64 - 55; }
     return -1;
 }
-fn lex_equal(p: Program&, start: i64, end: i64, word: const u8[:]) -> bool {
-    if end - start != word.len { return false; }
-    for c, i in word { if p.text[start + i] != c { return false; } }
-    return true;
-}
-
-fn lex_keyword(p: Program&, start: i64, end: i64) -> i64 {
-    if end <= start { return T_IDENT; }
-    if p.text[start] == 'i' {
-        if lex_equal(p, start, end, "import") { return T_IMPORT; }
-        if lex_equal(p, start, end, "if") { return T_IF; }
-        if lex_equal(p, start, end, "in") { return T_IN; }
-        if lex_equal(p, start, end, "i8") { return T_TI8; }
-        if lex_equal(p, start, end, "i16") { return T_TI16; }
-        if lex_equal(p, start, end, "i32") { return T_TI32; }
-        if lex_equal(p, start, end, "i64") { return T_TI64; }
-    }
-    if p.text[start] == 'n' {
-        if lex_equal(p, start, end, "namespace") { return T_NAMESPACE; }
-        if lex_equal(p, start, end, "null") { return T_NULLLIT; }
-    }
-    if p.text[start] == 's' {
-        if lex_equal(p, start, end, "struct") { return T_STRUCT; }
-        if lex_equal(p, start, end, "simd") { return T_SIMD; }
-        if lex_equal(p, start, end, "self") { return T_SELF; }
-    }
-    if p.text[start] == 'e' {
-        if lex_equal(p, start, end, "enum") { return T_ENUM; }
-        if lex_equal(p, start, end, "export") { return T_EXPORT; }
-        if lex_equal(p, start, end, "extern") { return T_EXTERN; }
-        if lex_equal(p, start, end, "else") { return T_ELSE; }
-    }
-    if p.text[start] == 't' {
-        if lex_equal(p, start, end, "type") { return T_TYPE; }
-        if lex_equal(p, start, end, "thread_fn") { return T_THREADFN; }
-        if lex_equal(p, start, end, "true") { return T_TRUE; }
-    }
-    if p.text[start] == 'f' {
-        if lex_equal(p, start, end, "fn") { return T_FN; }
-        if lex_equal(p, start, end, "for") { return T_FOR; }
-        if lex_equal(p, start, end, "false") { return T_FALSE; }
-        if lex_equal(p, start, end, "f32") { return T_TF32; }
-        if lex_equal(p, start, end, "f64") { return T_TF64; }
-    }
-    if p.text[start] == 'r' {
-        if lex_equal(p, start, end, "recursive") { return T_RECURSIVE; }
-        if lex_equal(p, start, end, "reusable") { return T_REUSABLE; }
-        if lex_equal(p, start, end, "return") { return T_RETURN; }
-    }
-    if p.text[start] == 'l' {
-        if lex_equal(p, start, end, "let") { return T_LET; }
-        if lex_equal(p, start, end, "loop") { return T_LOOP; }
-    }
-    if p.text[start] == 'v' {
-        if lex_equal(p, start, end, "var") { return T_VAR; }
-        if lex_equal(p, start, end, "varint") { return T_TVARINT; }
-    }
-    if p.text[start] == 'c' {
-        if lex_equal(p, start, end, "const") { return T_CONST; }
-        if lex_equal(p, start, end, "continue") { return T_CONTINUE; }
-    }
-    if p.text[start] == 'p' {
-        if lex_equal(p, start, end, "pad") { return T_PAD; }
-    }
-    if p.text[start] == 'w' {
-        if lex_equal(p, start, end, "while") { return T_WHILE; }
-    }
-    if p.text[start] == 'b' {
-        if lex_equal(p, start, end, "block") { return T_BLOCK; }
-        if lex_equal(p, start, end, "break") { return T_BREAK; }
-        if lex_equal(p, start, end, "bool") { return T_TBOOL; }
-    }
-    if p.text[start] == 'g' {
-        if lex_equal(p, start, end, "guard") { return T_GUARD; }
-    }
-    if p.text[start] == 'd' {
-        if lex_equal(p, start, end, "defer") { return T_DEFER; }
-    }
-    if p.text[start] == 'm' {
-        if lex_equal(p, start, end, "match") { return T_MATCH; }
-    }
-    if p.text[start] == 'a' {
-        if lex_equal(p, start, end, "as") { return T_AS; }
-    }
-    if p.text[start] == 'u' {
-        if lex_equal(p, start, end, "u8") { return T_TU8; }
-        if lex_equal(p, start, end, "u16") { return T_TU16; }
-        if lex_equal(p, start, end, "u32") { return T_TU32; }
-        if lex_equal(p, start, end, "u64") { return T_TU64; }
+fn lex_keyword(word: u8[:]) -> i64 {
+    if word.len == 2 {
+        if same_bytes(word, "if") { return T_IF; }
+        if same_bytes(word, "in") { return T_IN; }
+        if same_bytes(word, "i8") { return T_TI8; }
+        if same_bytes(word, "fn") { return T_FN; }
+        if same_bytes(word, "as") { return T_AS; }
+        if same_bytes(word, "u8") { return T_TU8; }
+    } else if word.len == 3 {
+        if same_bytes(word, "i16") { return T_TI16; }
+        if same_bytes(word, "i32") { return T_TI32; }
+        if same_bytes(word, "i64") { return T_TI64; }
+        if same_bytes(word, "for") { return T_FOR; }
+        if same_bytes(word, "f32") { return T_TF32; }
+        if same_bytes(word, "f64") { return T_TF64; }
+        if same_bytes(word, "let") { return T_LET; }
+        if same_bytes(word, "var") { return T_VAR; }
+        if same_bytes(word, "pad") { return T_PAD; }
+        if same_bytes(word, "u16") { return T_TU16; }
+        if same_bytes(word, "u32") { return T_TU32; }
+        if same_bytes(word, "u64") { return T_TU64; }
+    } else if word.len == 4 {
+        if same_bytes(word, "null") { return T_NULLLIT; }
+        if same_bytes(word, "simd") { return T_SIMD; }
+        if same_bytes(word, "self") { return T_SELF; }
+        if same_bytes(word, "enum") { return T_ENUM; }
+        if same_bytes(word, "else") { return T_ELSE; }
+        if same_bytes(word, "type") { return T_TYPE; }
+        if same_bytes(word, "true") { return T_TRUE; }
+        if same_bytes(word, "loop") { return T_LOOP; }
+        if same_bytes(word, "bool") { return T_TBOOL; }
+    } else if word.len == 5 {
+        if same_bytes(word, "false") { return T_FALSE; }
+        if same_bytes(word, "const") { return T_CONST; }
+        if same_bytes(word, "while") { return T_WHILE; }
+        if same_bytes(word, "block") { return T_BLOCK; }
+        if same_bytes(word, "break") { return T_BREAK; }
+        if same_bytes(word, "guard") { return T_GUARD; }
+        if same_bytes(word, "defer") { return T_DEFER; }
+        if same_bytes(word, "match") { return T_MATCH; }
+    } else if word.len == 6 {
+        if same_bytes(word, "import") { return T_IMPORT; }
+        if same_bytes(word, "struct") { return T_STRUCT; }
+        if same_bytes(word, "export") { return T_EXPORT; }
+        if same_bytes(word, "extern") { return T_EXTERN; }
+        if same_bytes(word, "return") { return T_RETURN; }
+        if same_bytes(word, "varint") { return T_TVARINT; }
+    } else if word.len == 8 {
+        if same_bytes(word, "reusable") { return T_REUSABLE; }
+        if same_bytes(word, "continue") { return T_CONTINUE; }
+    } else if word.len == 9 {
+        if same_bytes(word, "namespace") { return T_NAMESPACE; }
+        if same_bytes(word, "thread_fn") { return T_THREADFN; }
+        if same_bytes(word, "recursive") { return T_RECURSIVE; }
     }
     return T_IDENT;
 }
@@ -284,7 +249,7 @@ fn lex_tokens(p: Program&, l: LexCursor&) {
             var at = l.at + 1;
             while at < l.end { let d = p.text[at]; if !lex_alpha(d) && !lex_digit(d) { break; } at++; }
             l.column += at - l.at; l.at = at;
-            t.kind = lex_keyword(p, t.start, l.at);
+            t.kind = lex_keyword(p.text[t.start..l.at]);
         } else if lex_digit(c) {
             var radix: i64 = 10;
             if c == '0' && (lex_peek(p, l, 1) == 'x' || lex_peek(p, l, 1) == 'X') {
