@@ -71,6 +71,26 @@ fn main() { outer(true); }
                 self.assertEqual(result.returncode, status, result.stderr)
                 self.assertEqual(result.stderr.count("array shrink invalidates"), status, result.stderr)
 
+    def test_nested_calls_preserve_argument_roots(self):
+        source = self.work / "nested_arguments.goose"
+        # The nested calls allocate their own argument lists between x and y.
+        program = """fn id(x: i64) -> i64 { x }
+fn pick(x: const i64[:], mark: i64, y: const i64[:]) -> const i64[:] { return y; }
+fn main() {
+    var xs: i64[>..<] = [1, 2];
+    var ys: i64[>..<] = [3, 4];
+    let result = pick(xs[..], id(id(5)), ys[..]);
+    TARGET.pop();
+    print(result[0]);
+}
+"""
+        for target, status in [("xs", 0), ("ys", 1)]:
+            with self.subTest(target=target):
+                source.write_text(program.replace("TARGET", target))
+                result = subprocess.run([goose_stats.GOOSE, source, "--check"], capture_output=True, text=True)
+                self.assertEqual(result.returncode, status, result.stderr)
+                self.assertEqual(result.stderr.count("array shrink invalidates a reference or holder"), status)
+
     def test_repeated_shrinks(self):
         program = """struct Holder { view: const i64[:], tag: i64 = 0 }
 struct Outer { holder: Holder& }
