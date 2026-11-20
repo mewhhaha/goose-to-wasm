@@ -283,6 +283,45 @@ class WasmMemory64(unittest.TestCase):
                         observed = self.run_module(engine, module)
                         self.assertEqual((observed.returncode, observed.stdout), (0, expected.stdout), observed.stderr)
 
+    def test_local_reuse_across_reference_parameter_edits(self):
+        source = self.work / "typed-parameter-locals.goose"
+        # The immutable reference can use its incoming parameter directly.
+        # The rebound reference needs a cell while the loop keeps differently
+        # typed values live across branches, including a v128 slice in memory64.
+        source.write_text("""\
+fn score(base: const i64&, var cell: i64&, other: i64&, values: i64[:], rebind: bool) -> i64, f64 {
+    var total = base + cell;
+    var weight = 0.5;
+    if rebind { cell .= other; }
+    for value in values {
+        if (value & 1) == 0 {
+            total += value + base;
+            weight += (value as f64) / 2.0;
+        } else {
+            total += cell - value;
+            weight -= base as f64;
+        }
+        cell += value;
+    }
+    return total, weight;
+}
+fn main() {
+    let base: i64 = 7;
+    var first: i64 = 10;
+    var second: i64 = 20;
+    let values: i64[3] = [2, 3, 4];
+    let a, x = score(base, first, second, values[..], true);
+    let b, y = score(base, first, second, values[..], false);
+    print(a, " ", x, " ", b, " ", y, " ", first, " ", second);
+}
+""")
+        for width, flags in ((32, []), (64, ["--wasm-memory64"])):
+            with self.subTest(width=width):
+                module = self.work / f"typed-parameter-locals.{width}.wasm"
+                self.emit(source, module, *flags)
+                observed = self.run_module("wasmtime", module)
+                self.assertEqual((observed.returncode, observed.stdout), (0, b"56 -3.5 46 -3.5 19 29\n"), observed.stderr)
+
     @unittest.skipUnless(RUST_HOST.is_file(), "build the Rust host first: cargo build --release in host/rust")
     def test_rust_host_reports_errors_as_the_python_runner(self):
         source = self.work / "fails.goose"
