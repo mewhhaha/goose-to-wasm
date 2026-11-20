@@ -317,6 +317,8 @@ fn check_plain_value_type(p: Program&, ty: i64) -> i64 {
     if ty < 0 || p.types[ty].kind == TY_REF || p.types[ty].kind == TY_SLICE { return ty; }
     return check_type_const(p, ty, false);
 }
+let CHECK_INITIAL_BUCKETS: i64 = 64;
+
 // Every scope's names share one table, bucketed by scope and name. A chain
 // holds a scope's same-named symbols in reverse link order, as a lookup expects.
 fn check_name_bucket(c: Checker&, hash: i64, scope: i64) -> i64 {
@@ -329,9 +331,9 @@ fn check_link_symbol(p: Program&, c: Checker&, symbol: i64, scope: i64) {
     c.link_scopes[symbol] = scope; c.name_hashes[symbol] = bytes_hash(token_text(p, p.symbols[symbol].name_token));
     // Two names per bucket at most, on average; rebuilt in link order.
     if 2 * c.name_table.len <= c.linked.len + 1 {
-        var count: i64 = 1024; while 2 * count <= c.linked.len + 1 { count <<= 1; }
+        var count = CHECK_INITIAL_BUCKETS; while 2 * count <= c.linked.len + 1 { count <<= 1; }
+        for slot in 0..c.name_table.len { c.name_table[slot] = -1; }
         while c.name_table.len < count { c.name_table.push(-1); }
-        for slot in 0..count { c.name_table[slot] = -1; }
         for index in 0..c.linked.len {
             let old = c.linked[index]; let bucket = check_name_bucket(c, c.name_hashes[old], c.link_scopes[old]);
             p.symbols[old].name_next = c.name_table[bucket]; c.name_table[bucket] = old;
@@ -710,9 +712,9 @@ fn check_effect_bucket(c: Checker&, function_node: i64, root: i64, kind: i64) ->
 // Two keys per bucket at most, on average.
 fn check_index_effect(c: Checker&, effect: i64, kind: i64) {
     if 2 * c.effect_key_heads.len <= c.effect_keys.len + 1 {
-        var count: i64 = 1024; while 2 * count <= c.effect_keys.len + 1 { count <<= 1; }
+        var count = CHECK_INITIAL_BUCKETS; while 2 * count <= c.effect_keys.len + 1 { count <<= 1; }
+        for slot in 0..c.effect_key_heads.len { c.effect_key_heads[slot] = -1; }
         while c.effect_key_heads.len < count { c.effect_key_heads.push(-1); }
-        for slot in 0..count { c.effect_key_heads[slot] = -1; }
         for index in 0..c.effect_keys.len {
             let key = c.effect_keys[index]; let owner = c.effects[key.effect];
             let bucket = check_effect_bucket(c, owner.function_node, owner.root, key.kind);
@@ -7866,7 +7868,7 @@ fn check_program_types(p: Program&, declarations_only: bool, scope_parents: i64[
     var checker_syntax_nodes: Node[>..] = []; var checker_syntax_lookup: i64[>..] = [];
     var checker_effects: CheckEffect[>..] = []; var checker_effect_lists: CheckEffectList[>..] = [];
     var checker_name_table: i64[>..] = []; var checker_link_scopes: i64[>..] = []; var checker_name_hashes: i64[>..] = []; var checker_linked: i64[>..] = [];
-    var checker_effect_keys: CheckEffectKey[>..] = []; var checker_effect_key_heads: i64[>..] = []; for slot in 0..1024 { checker_effect_key_heads.push(-1); }
+    var checker_effect_keys: CheckEffectKey[>..] = []; var checker_effect_key_heads: i64[>..] = []; checker_effect_key_heads.resize(CHECK_INITIAL_BUCKETS, -1);
     var checker_return_roots: CheckReturnRoot[>..] = []; var checker_return_root_lists: CheckEffectList[>..] = [];
     var checker_specializations: CheckSpecialization[>..] = [];
     var checker_needs: CheckNeed[>..] = []; var checker_need_frames: CheckNeedFrame[>..] = []; var checker_need_edges: CheckNeedEdge[>..] = [];
