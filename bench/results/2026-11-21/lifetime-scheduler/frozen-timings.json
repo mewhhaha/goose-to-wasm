@@ -1,0 +1,759 @@
+{
+  "source": "204ae57",
+  "workload": "9a6040a2999dbdb100755ec07f211605bf3b228f",
+  "output_sha256": "86cc98b268138c073ca529febfde21689dcb130658edf6f31f4ef7e3256342a3",
+  "cpu": 7,
+  "runner_sha256": "b247393d8fbe3115246f20703f726e90eeaaed762a75932c7bb131a4433ad026",
+  "modules": {
+    "control": "2910de62fb7990f65275c5c77715ea8b871fd75c20b5973352b818c3ca57074f",
+    "shadow": "3b54c2bfddfac1a881b44f3aad9c62875d9a7608aa7340d57bda89741eeb539d",
+    "validation": "3df1211eda176b775bf8b4ba6c3786987d2f3a3f13f657456445b8c2774d1f7e"
+  },
+  "pressure_start": "some avg10=0.00 avg60=0.00 avg300=0.00 total=311375637\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0\n",
+  "pressure_end": "some avg10=1.13 avg60=0.40 avg300=0.09 total=311873979\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0\n",
+  "summary": {
+    "control": {
+      "wall_ns": 1966505634.5,
+      "validation_ns": 337724776.0,
+      "later_ns": 417845625.0
+    },
+    "shadow": {
+      "wall_ns": 1961143860.0,
+      "validation_ns": 345767027.5,
+      "later_ns": 429869844.5,
+      "bodies": 8752.0,
+      "leaves": 2374.0,
+      "leaf_ns": 26478533.0,
+      "clean": 2466.0,
+      "clean_ns": 28925588.0,
+      "predicted": 1666.0,
+      "rejected": 0.0,
+      "projected_ns": 19177413.5,
+      "ordered_ns": 29797138.5,
+      "paired_delta_wall_ns": 13988289.0,
+      "paired_delta_later_ns": 10431224.0,
+      "paired_delta_validation_ns": 5183913.5
+    },
+    "validation": {
+      "wall_ns": 1970187273.0,
+      "validation_ns": 351402599.0,
+      "later_ns": 429201217.0,
+      "capture_count": 26963.0,
+      "capture_ns": 19132136.5,
+      "replay_count": 24046.0,
+      "replay_ns": 71167721.0,
+      "paired_delta_wall_ns": 49356768.5,
+      "paired_delta_later_ns": 17495398.0,
+      "paired_delta_validation_ns": 20020208.5
+    }
+  },
+  "warmup": [
+    {
+      "mode": "control",
+      "wall_ns": 1924871666,
+      "discovery_ns": {
+        "1": 192652208,
+        "2": 151745449,
+        "3": 131956332,
+        "4": 124492838
+      },
+      "validation_ns": 335248496,
+      "later_ns": 408194619
+    },
+    {
+      "mode": "shadow",
+      "wall_ns": 4770599650,
+      "discovery_ns": {
+        "1": 190879534,
+        "2": 153219290,
+        "3": 132285758,
+        "4": 125484302
+      },
+      "validation_ns": 325757571,
+      "later_ns": 410989350,
+      "shadow": {
+        "1": {
+          "class_frames": 0,
+          "bodies": 2917,
+          "leaves": 791,
+          "leaf_ns": 9719158,
+          "clean": 32,
+          "clean_ns": 181767,
+          "predicted": 0,
+          "rejected": 0,
+          "projected_ns": 0,
+          "ordered_ns": 741041
+        },
+        "2": {
+          "class_frames": 0,
+          "bodies": 2918,
+          "leaves": 792,
+          "leaf_ns": 8741174,
+          "clean": 806,
+          "clean_ns": 9292979,
+          "predicted": 32,
+          "rejected": 0,
+          "projected_ns": 162446,
+          "ordered_ns": 9783721
+        },
+        "3": {
+          "class_frames": 0,
+          "bodies": 2917,
+          "leaves": 791,
+          "leaf_ns": 8440975,
+          "clean": 829,
+          "clean_ns": 9319540,
+          "predicted": 805,
+          "rejected": 0,
+          "projected_ns": 9014360,
+          "ordered_ns": 9649398
+        },
+        "4": {
+          "class_frames": 0,
+          "bodies": 2917,
+          "leaves": 791,
+          "leaf_ns": 8365576,
+          "clean": 831,
+          "clean_ns": 9301579,
+          "predicted": 829,
+          "rejected": 0,
+          "projected_ns": 9229031,
+          "ordered_ns": 9301579
+        }
+      },
+      "bodies": 8752,
+      "leaves": 2374,
+      "leaf_ns": 25547725,
+      "clean": 2466,
+      "clean_ns": 27914098,
+      "predicted": 1666,
+      "rejected": 0,
+      "projected_ns": 18405837,
+      "ordered_ns": 28734698
+    },
+    {
+      "mode": "validation",
+      "wall_ns": 1912752553,
+      "discovery_ns": {
+        "1": 193741686,
+        "2": 155234672,
+        "3": 134281261,
+        "4": 127532997
+      },
+      "validation_ns": 339773114,
+      "later_ns": 417048930,
+      "capture_count": 26963,
+      "capture_ns": 18549730,
+      "replay_count": 24046,
+      "replay_ns": 69180432
+    }
+  ],
+  "samples": [
+    {
+      "control": {
+        "mode": "control",
+        "wall_ns": 1875588433,
+        "discovery_ns": {
+          "1": 188540815,
+          "2": 150667374,
+          "3": 130883108,
+          "4": 122517138
+        },
+        "validation_ns": 325375551,
+        "later_ns": 404067620
+      },
+      "shadow": {
+        "mode": "shadow",
+        "wall_ns": 1890898240,
+        "discovery_ns": {
+          "1": 188481029,
+          "2": 150984778,
+          "3": 138391858,
+          "4": 128697742
+        },
+        "validation_ns": 327886214,
+        "later_ns": 418074378,
+        "shadow": {
+          "1": {
+            "class_frames": 0,
+            "bodies": 2917,
+            "leaves": 791,
+            "leaf_ns": 9545926,
+            "clean": 32,
+            "clean_ns": 180015,
+            "predicted": 0,
+            "rejected": 0,
+            "projected_ns": 0,
+            "ordered_ns": 732423
+          },
+          "2": {
+            "class_frames": 0,
+            "bodies": 2918,
+            "leaves": 792,
+            "leaf_ns": 8578477,
+            "clean": 806,
+            "clean_ns": 9128932,
+            "predicted": 32,
+            "rejected": 0,
+            "projected_ns": 168329,
+            "ordered_ns": 9611791
+          },
+          "3": {
+            "class_frames": 0,
+            "bodies": 2917,
+            "leaves": 791,
+            "leaf_ns": 8563839,
+            "clean": 829,
+            "clean_ns": 9456693,
+            "predicted": 805,
+            "rejected": 0,
+            "projected_ns": 9150562,
+            "ordered_ns": 9785058
+          },
+          "4": {
+            "class_frames": 0,
+            "bodies": 2917,
+            "leaves": 791,
+            "leaf_ns": 8546424,
+            "clean": 831,
+            "clean_ns": 9481069,
+            "predicted": 829,
+            "rejected": 0,
+            "projected_ns": 9407399,
+            "ordered_ns": 9481069
+          }
+        },
+        "bodies": 8752,
+        "leaves": 2374,
+        "leaf_ns": 25688740,
+        "clean": 2466,
+        "clean_ns": 28066694,
+        "predicted": 1666,
+        "rejected": 0,
+        "projected_ns": 18726290,
+        "ordered_ns": 28877918
+      },
+      "validation": {
+        "mode": "validation",
+        "wall_ns": 1908287462,
+        "discovery_ns": {
+          "1": 192410061,
+          "2": 154376578,
+          "3": 138686808,
+          "4": 127840020
+        },
+        "validation_ns": 337237016,
+        "later_ns": 420903406,
+        "capture_count": 26963,
+        "capture_ns": 18411192,
+        "replay_count": 24046,
+        "replay_ns": 68393526
+      }
+    },
+    {
+      "control": {
+        "mode": "control",
+        "wall_ns": 1875485157,
+        "discovery_ns": {
+          "1": 188378151,
+          "2": 150074936,
+          "3": 130101039,
+          "4": 123308330
+        },
+        "validation_ns": 325617887,
+        "later_ns": 403484305
+      },
+      "validation": {
+        "mode": "validation",
+        "wall_ns": 1941499665,
+        "discovery_ns": {
+          "1": 191809947,
+          "2": 153703806,
+          "3": 134973616,
+          "4": 128622707
+        },
+        "validation_ns": 348049777,
+        "later_ns": 417300129,
+        "capture_count": 26963,
+        "capture_ns": 18928142,
+        "replay_count": 24046,
+        "replay_ns": 70426645
+      },
+      "shadow": {
+        "mode": "shadow",
+        "wall_ns": 1898959042,
+        "discovery_ns": {
+          "1": 193377919,
+          "2": 153238150,
+          "3": 132428694,
+          "4": 123797810
+        },
+        "validation_ns": 326185433,
+        "later_ns": 409464654,
+        "shadow": {
+          "1": {
+            "class_frames": 0,
+            "bodies": 2917,
+            "leaves": 791,
+            "leaf_ns": 9761324,
+            "clean": 32,
+            "clean_ns": 177966,
+            "predicted": 0,
+            "rejected": 0,
+            "projected_ns": 0,
+            "ordered_ns": 753833
+          },
+          "2": {
+            "class_frames": 0,
+            "bodies": 2918,
+            "leaves": 792,
+            "leaf_ns": 8700173,
+            "clean": 806,
+            "clean_ns": 9249739,
+            "predicted": 32,
+            "rejected": 0,
+            "projected_ns": 162048,
+            "ordered_ns": 9731075
+          },
+          "3": {
+            "class_frames": 0,
+            "bodies": 2917,
+            "leaves": 791,
+            "leaf_ns": 8425329,
+            "clean": 829,
+            "clean_ns": 9297748,
+            "predicted": 805,
+            "rejected": 0,
+            "projected_ns": 8987508,
+            "ordered_ns": 9622706
+          },
+          "4": {
+            "class_frames": 0,
+            "bodies": 2917,
+            "leaves": 791,
+            "leaf_ns": 8283704,
+            "clean": 831,
+            "clean_ns": 9211027,
+            "predicted": 829,
+            "rejected": 0,
+            "projected_ns": 9130775,
+            "ordered_ns": 9211027
+          }
+        },
+        "bodies": 8752,
+        "leaves": 2374,
+        "leaf_ns": 25409206,
+        "clean": 2466,
+        "clean_ns": 27758514,
+        "predicted": 1666,
+        "rejected": 0,
+        "projected_ns": 18280331,
+        "ordered_ns": 28564808
+      }
+    },
+    {
+      "shadow": {
+        "mode": "shadow",
+        "wall_ns": 1947858178,
+        "discovery_ns": {
+          "1": 195387089,
+          "2": 157297560,
+          "3": 137956827,
+          "4": 129541993
+        },
+        "validation_ns": 342324986,
+        "later_ns": 424796380,
+        "shadow": {
+          "1": {
+            "class_frames": 0,
+            "bodies": 2917,
+            "leaves": 791,
+            "leaf_ns": 9838403,
+            "clean": 32,
+            "clean_ns": 180453,
+            "predicted": 0,
+            "rejected": 0,
+            "projected_ns": 0,
+            "ordered_ns": 762758
+          },
+          "2": {
+            "class_frames": 0,
+            "bodies": 2918,
+            "leaves": 792,
+            "leaf_ns": 8860013,
+            "clean": 806,
+            "clean_ns": 9440274,
+            "predicted": 32,
+            "rejected": 0,
+            "projected_ns": 164393,
+            "ordered_ns": 9933402
+          },
+          "3": {
+            "class_frames": 0,
+            "bodies": 2917,
+            "leaves": 791,
+            "leaf_ns": 8749379,
+            "clean": 829,
+            "clean_ns": 9654608,
+            "predicted": 805,
+            "rejected": 0,
+            "projected_ns": 9332083,
+            "ordered_ns": 9993492
+          },
+          "4": {
+            "class_frames": 0,
+            "bodies": 2917,
+            "leaves": 791,
+            "leaf_ns": 8591021,
+            "clean": 831,
+            "clean_ns": 9530811,
+            "predicted": 829,
+            "rejected": 0,
+            "projected_ns": 9457211,
+            "ordered_ns": 9530811
+          }
+        },
+        "bodies": 8752,
+        "leaves": 2374,
+        "leaf_ns": 26200413,
+        "clean": 2466,
+        "clean_ns": 28625693,
+        "predicted": 1666,
+        "rejected": 0,
+        "projected_ns": 18953687,
+        "ordered_ns": 29457705
+      },
+      "control": {
+        "mode": "control",
+        "wall_ns": 2001593452,
+        "discovery_ns": {
+          "1": 206927164,
+          "2": 157378273,
+          "3": 134448614,
+          "4": 126113803
+        },
+        "validation_ns": 334097647,
+        "later_ns": 417940690
+      },
+      "validation": {
+        "mode": "validation",
+        "wall_ns": 1960925850,
+        "discovery_ns": {
+          "1": 199061985,
+          "2": 166237369,
+          "3": 139136078,
+          "4": 130944760
+        },
+        "validation_ns": 351706174,
+        "later_ns": 436318207,
+        "capture_count": 26963,
+        "capture_ns": 19230458,
+        "replay_count": 24046,
+        "replay_ns": 71200233
+      }
+    },
+    {
+      "shadow": {
+        "mode": "shadow",
+        "wall_ns": 1974429542,
+        "discovery_ns": {
+          "1": 194309136,
+          "2": 160070080,
+          "3": 143422038,
+          "4": 134934687
+        },
+        "validation_ns": 351495420,
+        "later_ns": 438426805,
+        "shadow": {
+          "1": {
+            "class_frames": 0,
+            "bodies": 2917,
+            "leaves": 791,
+            "leaf_ns": 9854203,
+            "clean": 32,
+            "clean_ns": 180510,
+            "predicted": 0,
+            "rejected": 0,
+            "projected_ns": 0,
+            "ordered_ns": 737150
+          },
+          "2": {
+            "class_frames": 0,
+            "bodies": 2918,
+            "leaves": 792,
+            "leaf_ns": 8827151,
+            "clean": 806,
+            "clean_ns": 9400154,
+            "predicted": 32,
+            "rejected": 0,
+            "projected_ns": 162839,
+            "ordered_ns": 9969684
+          },
+          "3": {
+            "class_frames": 0,
+            "bodies": 2917,
+            "leaves": 791,
+            "leaf_ns": 8885638,
+            "clean": 829,
+            "clean_ns": 9777487,
+            "predicted": 805,
+            "rejected": 0,
+            "projected_ns": 9466878,
+            "ordered_ns": 10119046
+          },
+          "4": {
+            "class_frames": 0,
+            "bodies": 2917,
+            "leaves": 791,
+            "leaf_ns": 9043864,
+            "clean": 831,
+            "clean_ns": 10047842,
+            "predicted": 829,
+            "rejected": 0,
+            "projected_ns": 9971717,
+            "ordered_ns": 10047842
+          }
+        },
+        "bodies": 8752,
+        "leaves": 2374,
+        "leaf_ns": 26756653,
+        "clean": 2466,
+        "clean_ns": 29225483,
+        "predicted": 1666,
+        "rejected": 0,
+        "projected_ns": 19601434,
+        "ordered_ns": 30136572
+      },
+      "validation": {
+        "mode": "validation",
+        "wall_ns": 1979448696,
+        "discovery_ns": {
+          "1": 201574101,
+          "2": 162153853,
+          "3": 141088139,
+          "4": 132663578
+        },
+        "validation_ns": 351099024,
+        "later_ns": 435905570,
+        "capture_count": 26963,
+        "capture_ns": 19033815,
+        "replay_count": 24046,
+        "replay_ns": 71135209
+      },
+      "control": {
+        "mode": "control",
+        "wall_ns": 1961762771,
+        "discovery_ns": {
+          "1": 195729244,
+          "2": 156357358,
+          "3": 135068120,
+          "4": 126325082
+        },
+        "validation_ns": 342551267,
+        "later_ns": 417750560
+      }
+    },
+    {
+      "validation": {
+        "mode": "validation",
+        "wall_ns": 2303024042,
+        "discovery_ns": {
+          "1": 195210206,
+          "2": 155873767,
+          "3": 138427438,
+          "4": 128195659
+        },
+        "validation_ns": 397552996,
+        "later_ns": 422496864,
+        "capture_count": 26963,
+        "capture_ns": 21009754,
+        "replay_count": 24046,
+        "replay_ns": 77221058
+      },
+      "control": {
+        "mode": "control",
+        "wall_ns": 2024197166,
+        "discovery_ns": {
+          "1": 205556742,
+          "2": 163851498,
+          "3": 139098333,
+          "4": 131343536
+        },
+        "validation_ns": 357364074,
+        "later_ns": 434293367
+      },
+      "shadow": {
+        "mode": "shadow",
+        "wall_ns": 1998614573,
+        "discovery_ns": {
+          "1": 200767002,
+          "2": 163299557,
+          "3": 140596301,
+          "4": 131047451
+        },
+        "validation_ns": 349935775,
+        "later_ns": 434943309,
+        "shadow": {
+          "1": {
+            "class_frames": 0,
+            "bodies": 2917,
+            "leaves": 791,
+            "leaf_ns": 10168090,
+            "clean": 32,
+            "clean_ns": 192338,
+            "predicted": 0,
+            "rejected": 0,
+            "projected_ns": 0,
+            "ordered_ns": 783942
+          },
+          "2": {
+            "class_frames": 0,
+            "bodies": 2918,
+            "leaves": 792,
+            "leaf_ns": 9120223,
+            "clean": 806,
+            "clean_ns": 9693280,
+            "predicted": 32,
+            "rejected": 0,
+            "projected_ns": 167536,
+            "ordered_ns": 10217900
+          },
+          "3": {
+            "class_frames": 0,
+            "bodies": 2917,
+            "leaves": 791,
+            "leaf_ns": 8977845,
+            "clean": 829,
+            "clean_ns": 9855003,
+            "predicted": 805,
+            "rejected": 0,
+            "projected_ns": 9534643,
+            "ordered_ns": 10182797
+          },
+          "4": {
+            "class_frames": 0,
+            "bodies": 2917,
+            "leaves": 791,
+            "leaf_ns": 8792180,
+            "clean": 831,
+            "clean_ns": 9771449,
+            "predicted": 829,
+            "rejected": 0,
+            "projected_ns": 9698961,
+            "ordered_ns": 9771449
+          }
+        },
+        "bodies": 8752,
+        "leaves": 2374,
+        "leaf_ns": 26890248,
+        "clean": 2466,
+        "clean_ns": 29319732,
+        "predicted": 1666,
+        "rejected": 0,
+        "projected_ns": 19401140,
+        "ordered_ns": 30172146
+      }
+    },
+    {
+      "validation": {
+        "mode": "validation",
+        "wall_ns": 2157529250,
+        "discovery_ns": {
+          "1": 202455332,
+          "2": 166632675,
+          "3": 142478690,
+          "4": 137055577
+        },
+        "validation_ns": 372477352,
+        "later_ns": 446166942,
+        "capture_count": 26963,
+        "capture_ns": 20274077,
+        "replay_count": 24046,
+        "replay_ns": 74450291
+      },
+      "shadow": {
+        "mode": "shadow",
+        "wall_ns": 2021378162,
+        "discovery_ns": {
+          "1": 200292407,
+          "2": 161498912,
+          "3": 143173210,
+          "4": 142494299
+        },
+        "validation_ns": 349209069,
+        "later_ns": 447166421,
+        "shadow": {
+          "1": {
+            "class_frames": 0,
+            "bodies": 2917,
+            "leaves": 791,
+            "leaf_ns": 10092807,
+            "clean": 32,
+            "clean_ns": 185635,
+            "predicted": 0,
+            "rejected": 0,
+            "projected_ns": 0,
+            "ordered_ns": 770540
+          },
+          "2": {
+            "class_frames": 0,
+            "bodies": 2918,
+            "leaves": 792,
+            "leaf_ns": 9092438,
+            "clean": 806,
+            "clean_ns": 9648255,
+            "predicted": 32,
+            "rejected": 0,
+            "projected_ns": 172627,
+            "ordered_ns": 10153645
+          },
+          "3": {
+            "class_frames": 0,
+            "bodies": 2917,
+            "leaves": 791,
+            "leaf_ns": 9059349,
+            "clean": 829,
+            "clean_ns": 9947185,
+            "predicted": 805,
+            "rejected": 0,
+            "projected_ns": 9625105,
+            "ordered_ns": 10281289
+          },
+          "4": {
+            "class_frames": 0,
+            "bodies": 2917,
+            "leaves": 791,
+            "leaf_ns": 10285496,
+            "clean": 831,
+            "clean_ns": 11259860,
+            "predicted": 829,
+            "rejected": 0,
+            "projected_ns": 11180429,
+            "ordered_ns": 11259860
+          }
+        },
+        "bodies": 8752,
+        "leaves": 2374,
+        "leaf_ns": 28437283,
+        "clean": 2466,
+        "clean_ns": 30855300,
+        "predicted": 1666,
+        "rejected": 0,
+        "projected_ns": 20978161,
+        "ordered_ns": 31694794
+      },
+      "control": {
+        "mode": "control",
+        "wall_ns": 1971248498,
+        "discovery_ns": {
+          "1": 195029196,
+          "2": 157510526,
+          "3": 136500089,
+          "4": 130606340
+        },
+        "validation_ns": 341351905,
+        "later_ns": 424616955
+      }
+    }
+  ]
+}

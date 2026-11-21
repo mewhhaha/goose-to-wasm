@@ -1,0 +1,53 @@
+{
+  "compiler_source": "204ae57bbc16a96a52b36471fac770c3a6279c0d",
+  "bootstrap_source": "9dbeba301e0207111e5a2d2d71fc3be1688fb8f2",
+  "bootstrap_sha256": "f9b434bca159399fbd73d762df011bf047c18d45609bbcdc3ef10f6a2b743f16",
+  "layout_profile_sha256": "aead13b2cfa9fd5a760c9d33d82661c2154be3d802555f7e4d3d85d0e139e7d1",
+  "workload": "9a6040a2999dbdb100755ec07f211605bf3b228f",
+  "workload_archive_sha256": "bbe416e4d284509de75955576b4a7e1e24ad4444a38b362ec1f093f2adaf0816",
+  "workload_archive_paths": [
+    ":(glob)selfhost/*.goose",
+    "stdlib",
+    "native"
+  ],
+  "workload_files_verified": 79,
+  "wasm_output_sha256": "86cc98b268138c073ca529febfde21689dcb130658edf6f31f4ef7e3256342a3",
+  "wasm_output_bytes": 7378033,
+  "wasmtime": "50.0.1",
+  "wasmtime_runner_sha256": "b247393d8fbe3115246f20703f726e90eeaaed762a75932c7bb131a4433ad026",
+  "native_audit_cc": "clang version 23.1.5",
+  "audit_frozen": {
+    "control": {
+      "compiler.wasm": "9906cec22262ffb99a7a74ffff7eb67c947b3ebe2a90eba66786aeb4af9a778b",
+      "frozen.wasm": "86cc98b268138c073ca529febfde21689dcb130658edf6f31f4ef7e3256342a3",
+      "frozen.stderr": "ba50082ae9b7b656450a749e93d5ae919f240e76d343ffaa616b5ee679ae59e4"
+    },
+    "audit": {
+      "compiler.wasm": "83b7cd917a1bf8253bd727df2111adc004668223110b671de59b9425141f18b3",
+      "frozen.wasm": "86cc98b268138c073ca529febfde21689dcb130658edf6f31f4ef7e3256342a3",
+      "frozen.stderr": "ba50082ae9b7b656450a749e93d5ae919f240e76d343ffaa616b5ee679ae59e4"
+    }
+  },
+  "audit_frozen_shadow": [
+    "round 1 237974489",
+    "shadow 1 0 2917 791 12861236 32 195734 0 0 0 859406",
+    "round 2 295443414",
+    "shadow 2 0 2918 792 12052858 806 12645378 32 0 797318 13351592",
+    "round 3 2810750933",
+    "shadow 3 0 2917 791 29692561 829 31880911 805 0 31408782 32264191",
+    "round 4 2815609084",
+    "shadow 4 0 2917 791 27655455 831 29902731 829 0 29812479 29902731",
+    "validate 408068772"
+  ],
+  "audit_frozen_fingerprints": [
+    "LIFEFP begin frames=1 summary=0 checked=0 rev=0 h=8977898596338007483 roots=7128479802766174666 cells=5 frames=7741167612470962177 effects=1161353661784754675 exits=0 exit_state=20 bad_exits=0",
+    "LIFEFP begin frames=2918 summary=41874 checked=0 rev=54528 h=6468880359331179563 roots=4853221836663342998 cells=6414730820564913307 frames=6289893034263097261 effects=4028528626719521112 exits=409 exit_state=1284415335714604592 bad_exits=0",
+    "LIFEFP begin frames=2919 summary=59033 checked=0 rev=72104 h=6704608921619478461 roots=7925595722485271894 cells=2629136973355576490 frames=4769889901222751293 effects=439548171825575739 exits=409 exit_state=1284415335714604592 bad_exits=0",
+    "LIFEFP begin frames=2919 summary=59523 checked=0 rev=72668 h=2400191544846283091 roots=7925595722485271894 cells=3241882383621998091 frames=4769889901222751293 effects=6471350121406384404 exits=409 exit_state=1284415335714604592 bad_exits=0",
+    "LIFEFP discovered frames=2919 summary=59523 checked=0 rev=72672 h=6449367712443503458 roots=7925595722485271894 cells=3241882383621998091 frames=4769889901222751293 effects=1977426090952137222 exits=409 exit_state=1284415335714604592 bad_exits=0",
+    "LIFEFP validated frames=2922 summary=59523 checked=18008 rev=72686 h=3200131557337618475 roots=1431968740038774088 cells=7183926000750964925 frames=1033392895330518537 effects=223880594506883518 exits=409 exit_state=1284415335714604592 bad_exits=0",
+    "LIFEFP proofs hash=4253985992132819150",
+    ""
+  ],
+  "audit_frozen_cpu": 6
+}
