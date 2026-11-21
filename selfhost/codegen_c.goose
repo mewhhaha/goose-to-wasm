@@ -490,10 +490,11 @@ fn cc_emit_map(p: Program&, out: u8[>..]&, id: i64) {
     }
     cc_text(out, "}\n");
 }
-inline fn cc_text(out: u8[>..]&, text: const u8[:]) { out.append(text); }
+// Share buffer writes across the C emitter.
+fn cc_text(out: u8[>..]&, text: const u8[:]) { out.append(text); }
 fn cc_number(out: u8[>..]&, value: i64) { out.format(value); }
-inline fn cc_id(out: u8[>..]&, prefix: const u8[:], id: i64) { cc_text(out, prefix); cc_number(out, id); }
-inline fn cc_type(out: u8[>..]&, type_id: i64) { cc_id(out, "g_t", type_id); }
+fn cc_id(out: u8[>..]&, prefix: const u8[:], id: i64) { cc_text(out, prefix); cc_number(out, id); }
+fn cc_type(out: u8[>..]&, type_id: i64) { cc_id(out, "g_t", type_id); }
 fn cc_fail(p: Program&, node: i64, message: const u8[:]) {
     var token: i64 = -1; if node >= 0 && node < p.nodes.len { token = p.nodes[node].token; }
     diagnose(p, token, message);

@@ -1,9 +1,10 @@
 // Deterministic WebAssembly binary encoding. This module has no assembler,
 // native compiler, filesystem, or process dependency.
 
-inline fn wb_byte(out: u8[>..]&, value: i64) { out.push((value & 255) as u8); }
+// Share byte and integer writers across Wasm emitters.
+fn wb_byte(out: u8[>..]&, value: i64) { out.push((value & 255) as u8); }
 
-inline fn wb_u(out: u8[>..]&, value: i64) {
+fn wb_u(out: u8[>..]&, value: i64) {
     var remaining = value as! u64;
     loop {
         var byte = (remaining & 127) as u8;
@@ -14,7 +15,7 @@ inline fn wb_u(out: u8[>..]&, value: i64) {
     }
 }
 
-inline fn wb_s(out: u8[>..]&, value: i64) {
+fn wb_s(out: u8[>..]&, value: i64) {
     var remaining = value;
     loop {
         let byte = remaining & 127;
