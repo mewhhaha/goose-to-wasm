@@ -35,6 +35,19 @@ The 52 frozen builds ran on CPU 7 of a Ryzen 7 3800X, with the order reversed ea
 
 A separate four-round probe attributed **8.01 → 7.90 billion instructions** to lifetime analysis in Wasmtime and **6.80 → 6.72 billion** in native code. The remaining lifetime gap is about **1.18 billion instructions**. [Phase counters](phases.json.gz)
 
+In a separate nine-round Wasmtime repeat, the two baseline labels used the same compiler and compiled-cache bytes. The candidate ran between the duplicate baseline calls and changed by **−2.11% (−2.80% to −0.91%)** against their average time. The two identical baselines changed by **+3.09% (−3.23% to +9.31%)** against each other. Both comparisons use paired medians and 95% bootstrap intervals. The elapsed gain varied across the two studies. The instruction savings reproduced across them. [Raw control and repeat](repeat.json.gz)
+
+## Release size and execution time
+
+Seven additional paired rounds compared all three current Wasm releases with the current native compiler on the same frozen project. The Wasm processes used a primed machine-code cache. All 28 outputs were byte-identical. [Process timings and counters](profiles.json.gz) · [Module hashes and download sizes](modules.json)
+
+| Compiler | Wasm module | Gzip download | Full build | Host instructions | Paired time / native |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Native | — | — | 1.548 s | 13.66 B | 1.00× |
+| Direct | 6.19 MB | 1.54 MB | 2.035 s | 16.58 B | 1.30× |
+| Balanced | 4.39 MB | 1.26 MB | 2.036 s | 16.38 B | 1.32× |
+| Size | 3.77 MB | 1.03 MB | 2.021 s | 16.66 B | 1.31× |
+
 ## The full construction-read control
 
 A frozen program uses 128 whole assignments and produces 32,768 reads at runtime. The compiler entered the full construction-read check 1,669 times. Both builds emitted identical Wasm and printed `32768`. A second program reads the array while replacing it and both builds produced the same two diagnostics. The safe program used **0.13% fewer** hardware instructions over seven check pairs. [Programs, outcomes and timings](replacement-control.json.gz)
@@ -44,3 +57,9 @@ A frozen program uses 128 whole assignments and produces 32,768 reads at runtime
 The C bootstrap reached a fixed point. Native and Wasm rebuilt the same bundled compiler, and the pinned emitter agreed with the compiler on the portable module. All 10,061 output comparisons, 101 unit tests and 54 native checks passed. The default and memory64 contract suites matched their known gaps. The checker traces matched for all 4,364 inputs at each of two frame limits. The forced 16-frame run exercised 217 class-analysis retries. All 38 focused runtime and diagnostic comparisons matched. [Qualification and artifact hashes](verification.json.gz)
 
 The [paired build driver](../../2026-11-18/compiler-frame-cost/measure.py) takes a frozen project, a scratch directory and named native binaries or Wasm modules. The paired archive records the workload, output, binaries, module cache and host hashes. The [training profile](training.profile) reproduces the release layout and the [chart script](plot.py) renders the published comparison.
+
+## Reader benchmarks
+
+All 44 catalog cells qualified, and the two compilers emitted identical artifacts for the eleven-program catalog. The example and Mandelbrot builds also reproduced the previous release's artifacts. The measured example times include process launch. The resident Mandelbrot times cover only the computation after preparation and warmup. Reader runs overlapped other work on the shared host, including some rounds with elevated CPU pressure. [Compiler catalog](compiler-comparison.json.gz) · [Example builds](examples.json.gz) · [Example processes](host.json.gz) · [Mandelbrot builds](langbench-build.json) · [Resident Mandelbrot](langbench-hot.json.gz) · [CPU pressure](reader-pressure.json)
+
+The portable self-host chart uses three builds from the same source directory. Its execution series checked and emitted the portable compiler in three rounds on native, Wasmtime and V8. The separate cold-start chart uses three fresh processes per configuration, including the fixed bundled module from this release. [Portable builds and runs](selfhost.json) · [Cold and cached starts](launch.json)
