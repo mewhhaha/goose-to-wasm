@@ -41,6 +41,18 @@ On identical input, the cached Wasmtime elapsed-time interval includes no change
 
 The self-build workload is also smaller. The same pinned native emitter saw **608,167 → 479,529 AST nodes** after optimization and emitted **7.38 → 4.79 MB** of portable memory64 on the two source revisions. This is a different-source observation. Every benchmark that compares release performance directly holds the workload fixed. [Source shape and artifact hashes](source-shape.json)
 
+## Smaller compiler build profiles
+
+Building the compiler itself at lower optimization levels shrank the package further. These variants still compiled the test project at `-O2`, and all mapped to the same frozen output. The four cached and three cold rounds are exploratory runs on a shared host. Measured elapsed changes use matched rounds within each run. [Build levels and samples](compiler-levels.json.gz)
+
+| Optimization level used to build the compiler | Balanced package | Cached time change | Cached instruction change | Cold rebuild median |
+| --- | ---: | ---: | ---: | ---: |
+| `-O2` | 3.085 MB | +0.0% | +0.0% | 4.64 s |
+| `-O1` | 2.699 MB | +8.6% | +16.6% | 4.69 s |
+| `-O0` | 2.184 MB | +10.9% | +22.4% | 4.40 s |
+
+The `-O0` prototype reaches half the previous balanced module's raw size. It passed 38 focused Wasm checks and emitted identical C for three examples whose compiled binaries ran successfully. The installed release keeps `-O2` because the smaller prototype used 22.4% more instructions for a cached rebuild. [Focused checks and C artifact hashes](compiler-levels.json.gz)
+
 ## Lifetime scheduling
 
 A trace of the baseline counted changes during argument binding and each frame’s evaluation. It marked frames that changed and followed calls backward to their callers, conservatively using edges from both the current and previous round. The instrumented build emitted the same frozen Wasm. [Trace, instrumentation and reduction](frame-trace.json.gz)
@@ -59,3 +71,9 @@ These are retrospective counts, with nested effects charged to their enclosing e
 The C bootstrap reached a fixed point. Native and Wasm rebuilt the bundled compiler byte for byte, and the pinned emitter produced the same portable module. All **10,061** output comparisons and all **38** focused runtime and diagnostic comparisons matched. The default suite (10,697/10,801), split native suite (5,926/6,022) and memory64 suite (4,771/4,779) matched their recorded gaps. All 101 unit tests and 54 native runtime checks passed. [Qualification and fingerprints](verification.json.gz) · [Layout training profile](training.profile)
 
 The [frozen comparison driver](../../2026-11-18/compiler-frame-cost/measure.py) measures native and Wasm compiler artifacts on the same staged source. The [cold and cached driver](../../2026-11-20/compact-releases/measure.py) compares the packaged modules. The [plot script](plot.py) renders the published figure.
+
+## Reader benchmarks
+
+All 44 catalog cells qualified. The 100 timed example builds and 30 Mandelbrot builds reproduced the preceding release's artifacts. The example process timings include start and exit. The resident Mandelbrot chart measures only computation after preparation and warmup. [Compiler catalog](compiler-comparison.json.gz) · [Example builds](examples.json.gz) · [Example process timings](host.json.gz) · [Mandelbrot builds](langbench-build.json) · [Resident runs](langbench-hot.json.gz) · [CPU pressure](reader-pressure.json)
+
+Three native and portable compiler builds used the same pinned emitter and frozen source directory. Their checks and emissions ran in native, Wasmtime and V8. A separate three-round series measured fresh-process launches using the current release's fixed memory32 bundle and the other recorded configurations. [Portable build and execution](selfhost.json) · [Cold and cached launches](launch.json)

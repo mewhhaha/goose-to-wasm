@@ -1,0 +1,326 @@
+{
+  "schema": "goose-compiler-comparison-chart-v1",
+  "report": "/home/jacobt/src/goose-to-wasm/bench/results/2026-11-21/shared-emitters/compiler-comparison.json.gz",
+  "report_sha256": "0f0ce6401a0c71bea0ab54118be129f506b6cb3bdce205cb937c287972344cf3",
+  "renderer_sha256": "2fd92b39b14c35707f960ac3051d6b2e93be4ec30b4ab8f0b223eef261ed2953",
+  "unverified_compilers": [],
+  "charts": {
+    "compiler-comparison.svg": {
+      "sha256": "f12873330f0b3507f7346bb6f9e9d8caf041e4bbff31f760cd4db5ace5bfc3e7",
+      "values": {
+        "wasm-direct": [
+          {
+            "workload": "squares",
+            "compiler": "parent",
+            "qualified": true,
+            "median_ms": 3.3831780001492007,
+            "mad_ms": 0.186635000318347
+          },
+          {
+            "workload": "tour",
+            "compiler": "parent",
+            "qualified": true,
+            "median_ms": 7.456041000295954,
+            "mad_ms": 0.4535349989964743
+          },
+          {
+            "workload": "functions",
+            "compiler": "parent",
+            "qualified": true,
+            "median_ms": 17.41155599938793,
+            "mad_ms": 0.3172050001012394
+          },
+          {
+            "workload": "errors",
+            "compiler": "parent",
+            "qualified": true,
+            "median_ms": 7.94235800003662,
+            "mad_ms": 0.2199079999627429
+          },
+          {
+            "workload": "sieve",
+            "compiler": "parent",
+            "qualified": true,
+            "median_ms": 5.252711000139243,
+            "mad_ms": 0.22740200074622408
+          },
+          {
+            "workload": "sorting",
+            "compiler": "parent",
+            "qualified": true,
+            "median_ms": 18.694723999942653,
+            "mad_ms": 0.48460400012118043
+          },
+          {
+            "workload": "sudoku",
+            "compiler": "parent",
+            "qualified": true,
+            "median_ms": 5.9384180003689835,
+            "mad_ms": 0.31841700001677964
+          },
+          {
+            "workload": "maze",
+            "compiler": "parent",
+            "qualified": true,
+            "median_ms": 8.34754100014834,
+            "mad_ms": 0.4690239993578871
+          },
+          {
+            "workload": "vm",
+            "compiler": "parent",
+            "qualified": true,
+            "median_ms": 6.79034299992054,
+            "mad_ms": 0.37221099955786485
+          },
+          {
+            "workload": "life",
+            "compiler": "parent",
+            "qualified": true,
+            "median_ms": 5.984235999676457,
+            "mad_ms": 0.2517200000511366
+          },
+          {
+            "workload": "mandelbrot",
+            "compiler": "parent",
+            "qualified": true,
+            "median_ms": 4.643711000426265,
+            "mad_ms": 0.25534599990351126
+          },
+          {
+            "workload": "squares",
+            "compiler": "candidate",
+            "qualified": true,
+            "median_ms": 3.583480000088457,
+            "mad_ms": 0.21444899994094158
+          },
+          {
+            "workload": "tour",
+            "compiler": "candidate",
+            "qualified": true,
+            "median_ms": 7.065867999699549,
+            "mad_ms": 0.2036279993262724
+          },
+          {
+            "workload": "functions",
+            "compiler": "candidate",
+            "qualified": true,
+            "median_ms": 17.404854000233172,
+            "mad_ms": 0.538316999154631
+          },
+          {
+            "workload": "errors",
+            "compiler": "candidate",
+            "qualified": true,
+            "median_ms": 7.822629999282071,
+            "mad_ms": 0.3007640007126611
+          },
+          {
+            "workload": "sieve",
+            "compiler": "candidate",
+            "qualified": true,
+            "median_ms": 5.235849999735365,
+            "mad_ms": 0.33325499953207327
+          },
+          {
+            "workload": "sorting",
+            "compiler": "candidate",
+            "qualified": true,
+            "median_ms": 18.63127100023121,
+            "mad_ms": 0.5823909996252041
+          },
+          {
+            "workload": "sudoku",
+            "compiler": "candidate",
+            "qualified": true,
+            "median_ms": 5.735361000006378,
+            "mad_ms": 0.25698900026327465
+          },
+          {
+            "workload": "maze",
+            "compiler": "candidate",
+            "qualified": true,
+            "median_ms": 8.134745000461407,
+            "mad_ms": 0.2329640010430012
+          },
+          {
+            "workload": "vm",
+            "compiler": "candidate",
+            "qualified": true,
+            "median_ms": 6.4485200000490295,
+            "mad_ms": 0.23755199981678743
+          },
+          {
+            "workload": "life",
+            "compiler": "candidate",
+            "qualified": true,
+            "median_ms": 5.800797000119928,
+            "mad_ms": 0.16466499982925598
+          },
+          {
+            "workload": "mandelbrot",
+            "compiler": "candidate",
+            "qualified": true,
+            "median_ms": 4.370910999568878,
+            "mad_ms": 0.10896799994952744
+          }
+        ],
+        "native-c": [
+          {
+            "workload": "squares",
+            "compiler": "parent",
+            "qualified": true,
+            "median_ms": 3.6458389995459584,
+            "mad_ms": 0.23010799941403093
+          },
+          {
+            "workload": "tour",
+            "compiler": "parent",
+            "qualified": true,
+            "median_ms": 5.991410000206088,
+            "mad_ms": 0.21191399991948856
+          },
+          {
+            "workload": "functions",
+            "compiler": "parent",
+            "qualified": true,
+            "median_ms": 18.49520300038421,
+            "mad_ms": 0.3263139997216058
+          },
+          {
+            "workload": "errors",
+            "compiler": "parent",
+            "qualified": true,
+            "median_ms": 8.321661000081804,
+            "mad_ms": 0.3406980004001525
+          },
+          {
+            "workload": "sieve",
+            "compiler": "parent",
+            "qualified": true,
+            "median_ms": 4.683457000282942,
+            "mad_ms": 0.18492199978936696
+          },
+          {
+            "workload": "sorting",
+            "compiler": "parent",
+            "qualified": true,
+            "median_ms": 20.05351200023142,
+            "mad_ms": 0.48851100018509896
+          },
+          {
+            "workload": "sudoku",
+            "compiler": "parent",
+            "qualified": true,
+            "median_ms": 6.032029000380135,
+            "mad_ms": 0.3298600004200125
+          },
+          {
+            "workload": "maze",
+            "compiler": "parent",
+            "qualified": true,
+            "median_ms": 8.54753199928382,
+            "mad_ms": 0.3280159990026732
+          },
+          {
+            "workload": "vm",
+            "compiler": "parent",
+            "qualified": true,
+            "median_ms": 6.83696099986264,
+            "mad_ms": 0.29523200009862194
+          },
+          {
+            "workload": "life",
+            "compiler": "parent",
+            "qualified": true,
+            "median_ms": 6.103372999859857,
+            "mad_ms": 0.34856400088756345
+          },
+          {
+            "workload": "mandelbrot",
+            "compiler": "parent",
+            "qualified": true,
+            "median_ms": 4.877516999840736,
+            "mad_ms": 0.20796700027858606
+          },
+          {
+            "workload": "squares",
+            "compiler": "candidate",
+            "qualified": true,
+            "median_ms": 3.438084000663366,
+            "mad_ms": 0.28133700106991455
+          },
+          {
+            "workload": "tour",
+            "compiler": "candidate",
+            "qualified": true,
+            "median_ms": 5.975860000035027,
+            "mad_ms": 0.30470000001514563
+          },
+          {
+            "workload": "functions",
+            "compiler": "candidate",
+            "qualified": true,
+            "median_ms": 18.504648999623896,
+            "mad_ms": 0.3412489995753276
+          },
+          {
+            "workload": "errors",
+            "compiler": "candidate",
+            "qualified": true,
+            "median_ms": 8.268601000054332,
+            "mad_ms": 0.32425900008092867
+          },
+          {
+            "workload": "sieve",
+            "compiler": "candidate",
+            "qualified": true,
+            "median_ms": 4.701691000263963,
+            "mad_ms": 0.23899500047264155
+          },
+          {
+            "workload": "sorting",
+            "compiler": "candidate",
+            "qualified": true,
+            "median_ms": 20.46199200049159,
+            "mad_ms": 0.6334370000331546
+          },
+          {
+            "workload": "sudoku",
+            "compiler": "candidate",
+            "qualified": true,
+            "median_ms": 5.844790000082867,
+            "mad_ms": 0.2167429993278347
+          },
+          {
+            "workload": "maze",
+            "compiler": "candidate",
+            "qualified": true,
+            "median_ms": 8.568141000068863,
+            "mad_ms": 0.3981889994975063
+          },
+          {
+            "workload": "vm",
+            "compiler": "candidate",
+            "qualified": true,
+            "median_ms": 6.815369999458198,
+            "mad_ms": 0.30248599978222046
+          },
+          {
+            "workload": "life",
+            "compiler": "candidate",
+            "qualified": true,
+            "median_ms": 6.04687500072032,
+            "mad_ms": 0.2947810007754015
+          },
+          {
+            "workload": "mandelbrot",
+            "compiler": "candidate",
+            "qualified": true,
+            "median_ms": 4.610818999935873,
+            "mad_ms": 0.16796099953353405
+          }
+        ]
+      }
+    }
+  }
+}
