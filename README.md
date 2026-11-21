@@ -4,11 +4,9 @@ A [Goose](https://github.com/aardappel/goose) compiler written in Goose. It emit
 
 ## Benchmarks
 
-**The compiler rebuilding itself.** On a frozen project, the balanced compiler rebuilt **0.9% faster in cached Wasmtime** than `74af91f` across 11 pairs. On its own sources, it took **1.89 s in Wasmtime** and **1.44 s native** (1.31×, median of 9 paired ratios). [Measurements and remaining gap](bench/results/2026-11-20/ordered-effects/README.md)
+**The compiler rebuilding itself.** The lifetime checker used **0.66% fewer instructions in cached Wasmtime** on a frozen project. Wasmtime elapsed time was within measurement noise. The current compiler rebuilt itself in **1.85 s in Wasmtime** and **1.41 s native** (1.31× across nine pairs). [Paired measurements](bench/results/2026-11-21/lifetime-value-paths/README.md)
 
-**Lifetime checking.** Full checks of programs that clear 1,024 arrays used 88.9% fewer instructions. Checking 1,024 slice stores used 80.9% fewer. [Programs and measurements](bench/results/2026-11-20/ordered-effects/README.md)
-
-![Percent fewer instructions for three workloads and elapsed seconds for native and Wasmtime compiler rebuilds](bench/results/2026-11-20/ordered-effects/ordered-effects.svg)
+![Paired elapsed time and instruction changes, with current native and Wasmtime rebuild times](bench/results/2026-11-21/lifetime-value-paths/rebuild.svg)
 
 **Compiler downloads.** The bundled compiler is 6.19 MB as emitted, **4.39 MB balanced** and **3.78 MB optimized for size**. With gzip the downloads are 1.54 MB, 1.26 MB and 1.03 MB. Across the three profiles, cached rebuilds took **1.91–1.94 s** on the same frozen project. [Sizes and rebuild times](bench/results/2026-11-20/ordered-effects/README.md#release-size-and-execution-time) · [Compact command](docs/GUIDE.md#build-and-run)
 
@@ -45,6 +43,7 @@ A [Goose](https://github.com/aardappel/goose) compiler written in Goose. It emit
 | Question | Measurements |
 | --- | --- |
 | What did reusing checks for globals save? | [Global capture study](bench/results/2026-11-20/lifetime-captures/README.md) |
+| What did indexing ordered lifetime effects save? | [Array clears, slice stores and rebuilds](bench/results/2026-11-20/ordered-effects/README.md) |
 | How did the three release profiles compare on cold preparation and rebuild time? | [Packaging study at `ef702b1`](bench/results/2026-11-20/compact-releases/README.md) |
 | How much faster did checking wide argument lists get? | [Wide argument study](bench/results/2026-11-20/lifetime-argument-lists/README.md) |
 | Can sharing Wasm branch endings reduce compiler size? | [Compiler size and preparation experiments](bench/results/2026-11-20/lifetime-argument-lists/compiler-size.md) |
