@@ -3395,8 +3395,12 @@ fn life_offer_once(l: Lifetimes&, offer: LifeEffect, known: i64) {
         if cyclic { l.offer_recursive = true; }
     }
 }
-fn life_construct_read(p: Program&, l: Lifetimes&, node: i64, value: LifeValue, known: i64 = -1) {
+// Many walks omit construction reads. Test that before calling the checker.
+inline fn life_construct_read(p: Program&, l: Lifetimes&, node: i64, value: const LifeValue&, known: i64 = -1) {
     if l.omit_construct_reads || l.reading_place > 0 { return; }
+    life_check_construct_read(p, l, node, value, known);
+}
+fn life_check_construct_read(p: Program&, l: Lifetimes&, node: i64, value: const LifeValue&, known: i64) {
     var effect_places = value.place; if life_is_ref(p, value.type_id) { effect_places = value.refs; }
     var effect_type = value.type_id; if effect_type >= 0 && p.types[effect_type].kind == TY_REF { effect_type = p.types[effect_type].element; }
     if value.element_array != -1 || life_cached_size_class(p, l, effect_type) == 2 { life_offer_once(l, LifeEffect { kind: 3, node: node, value: value, places: effect_places }, known); }
@@ -3418,29 +3422,35 @@ fn life_construct_read(p: Program&, l: Lifetimes&, node: i64, value: LifeValue, 
     }
 }
 fn life_coerce(p: Program&, l: Lifetimes&, value: LifeValue, expected: i64) -> LifeValue {
-    // An exact type can still require dropping references from copied contents.
+    if expected < 0 || expected == TYPE_VOID { return value; }
     if value.type_id == expected && value.contents == 0 { return value; }
     var out = value;
-    if expected < 0 || expected == TYPE_VOID { return out; }
-    if value.type_id >= 0 && p.types[value.type_id].kind == TY_SLICE && p.types[expected].kind == TY_REF && p.types[expected].element >= 0 && p.types[p.types[expected].element].kind == TY_SLICE {
-        out.refs = value.place; out.type_id = expected; return out;
+    let target: const Type& = p.types[expected];
+    let target_kind = target.kind;
+    // Equal types need no reference conversion, but copying can still drop contents.
+    if value.type_id == expected {
+        if target_kind != TY_REF && target_kind != TY_SLICE && !life_holds(p, expected) { out.contents = 0; }
+        return out;
     }
-    if value.type_id >= 0 && p.types[value.type_id].kind == TY_REF && p.types[value.type_id].element >= 0 &&
-       p.types[p.types[value.type_id].element].kind == TY_SLICE && p.types[expected].kind == TY_SLICE {
-        out = life_load(p, l, expected, value.refs); return out;
+    var source_kind: i64 = -1;
+    if value.type_id >= 0 { source_kind = p.types[value.type_id].kind; }
+    if target_kind == TY_SLICE {
+        if source_kind == TY_REF {
+            let element = p.types[value.type_id].element;
+            if element >= 0 {
+                if p.types[element].kind == TY_SLICE {
+                    out = life_load(p, l, expected, value.refs); return out;
+                }
+                if p.types[element].kind == TY_ARRAY { out.refs = life_interior(l, value.refs); }
+            }
+        } else if source_kind != TY_SLICE { out.refs = life_interior(l, value.place); }
+    } else if target_kind == TY_REF {
+        if source_kind != TY_REF && source_kind != TY_SLICE { out.refs = value.place; }
+        if source_kind == TY_SLICE && target.element >= 0 && p.types[target.element].kind == TY_SLICE { out.refs = value.place; }
+    } else {
+        if source_kind == TY_REF || source_kind == TY_SLICE { out.place = value.refs; out.refs = 0; }
+        if !life_holds(p, expected) { out.contents = 0; }
     }
-    if p.types[expected].kind == TY_SLICE && value.type_id >= 0 && p.types[value.type_id].kind == TY_REF && p.types[value.type_id].element >= 0 && p.types[p.types[value.type_id].element].kind == TY_ARRAY {
-        out.refs = life_interior(l, value.refs);
-    }
-    if life_is_ref(p, expected) && !life_is_ref(p, value.type_id) {
-        out.refs = value.place;
-        if p.types[expected].kind == TY_SLICE { out.refs = life_interior(l, out.refs); }
-    }
-    if !life_is_ref(p, expected) && life_is_ref(p, value.type_id) { out.place = value.refs; out.refs = 0; }
-    // A value whose type holds no references holds nothing, whatever it
-    // was copied out of: an owned array copied from a slice does not keep
-    // the slice's roots (§9.2, upstream ContentsOf).
-    if !life_is_ref(p, expected) && !life_holds(p, expected) { out.contents = 0; }
     out.type_id = expected;
     return out;
 }
