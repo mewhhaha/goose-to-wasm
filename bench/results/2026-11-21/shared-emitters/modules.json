@@ -1,0 +1,50 @@
+{
+  "source": "9dbeba301e0207111e5a2d2d71fc3be1688fb8f2",
+  "profiles": {
+    "fixed": {
+      "sha256": "7a9d57f6b2772c274b29f96ea3a6800401cd3d766210a7385def7a6fb3a1c306",
+      "bytes": 4122587,
+      "gzip_bytes": 1152088
+    },
+    "balanced": {
+      "sha256": "f4dadfc1ee7a5866e6f320961e961f757bfa5161a1d7feb330c4cf8e7256b849",
+      "bytes": 3084808,
+      "gzip_bytes": 945724
+    },
+    "size": {
+      "sha256": "23ff3ff24bb1cd14bf28e1a928138fc189c83e37e4f81ab4d8f388bb50eb527c",
+      "bytes": 2734773,
+      "gzip_bytes": 790074
+    }
+  },
+  "release": {
+    "training": {
+      "squares": {
+        "source": "420d9e6b4a2496865eb9f66603c4cbb0fdbb2add30e8ccc709a15102f4748b14",
+        "output": "fc8ae2dbef752d8e8eaaafec21e1c7500c3b27677f9030c502bf8c196ca7d845",
+        "profile": "a3b37db9e84fb58b995e5006b6d83b72b52599ea835757d06b8528c403207aea"
+      },
+      "sorting": {
+        "source": "00d2c7ed328100d018a3adc4ef3f2c5abd83d8219e8c6c0a56d00b0b1df8a27e",
+        "output": "b9ce93a5ef630da6e37912991cac3c3f052b8a5cf7290752ad4068e378e0aede",
+        "profile": "b954203b096579565cdd70feaf58da5a5b545ad16550fd1620dbf1fa9cec3b46"
+      },
+      "tour": {
+        "source": "a46393946390a6fc888d013ae0a07383812a57667d2474071eb938f853b8b834",
+        "output": "24e6ffb411721ea6ab95389127ca6d23e2db2ece47e0060e32383ba1e611e8b0",
+        "profile": "669cd8efb53508115a379d18f7b6f1565637ba4a1996291da57e9684d226f6e9"
+      }
+    },
+    "previous_profile": "2a3726c8748b635b896265d1a1adfc0b75de9fd77582f57c70208b8b91a7cd04",
+    "profile": "aead13b2cfa9fd5a760c9d33d82661c2154be3d802555f7e4d3d85d0e139e7d1",
+    "fixed": "7a9d57f6b2772c274b29f96ea3a6800401cd3d766210a7385def7a6fb3a1c306",
+    "repro": "7a9d57f6b2772c274b29f96ea3a6800401cd3d766210a7385def7a6fb3a1c306",
+    "previous_fixed": "18ae052d389b53dfe4b6316d2c20af3980a4217cd8d3e948d6431f55d1c86418",
+    "native": "f9b434bca159399fbd73d762df011bf047c18d45609bbcdc3ef10f6a2b743f16",
+    "native_fixed": "7a9d57f6b2772c274b29f96ea3a6800401cd3d766210a7385def7a6fb3a1c306",
+    "portable": "04579df919a049e231b313f4440c4a1c99cf20dbfe099ab4e79057b4e805651e",
+    "portable_pinned_emitter": "04579df919a049e231b313f4440c4a1c99cf20dbfe099ab4e79057b4e805651e",
+    "training_compiler": "f9b434bca159399fbd73d762df011bf047c18d45609bbcdc3ef10f6a2b743f16",
+    "host": "b247393d8fbe3115246f20703f726e90eeaaed762a75932c7bb131a4433ad026"
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "emitter": "761dd2d23b6d0826d7f8240b56b07afd33a2e754e579148895287871a3843e06",
+  "outputs": {
+    "previous": "4c11f0ec8e3a64ce836eefad82dd398c90de605f7b585ecaf4c8d843681ee79a",
+    "current": "04579df919a049e231b313f4440c4a1c99cf20dbfe099ab4e79057b4e805651e"
+  },
+  "sources": {
+    "previous": {
+      "functions": 1611,
+      "module_bytes": 7381718,
+      "source_files": 35,
+      "nodes": 608167,
+      "types": 2341
+    },
+    "current": {
+      "functions": 1611,
+      "module_bytes": 4794214,
+      "source_files": 35,
+      "nodes": 479529,
+      "types": 2341
+    }
+  },
+  "driver": "from pathlib import Path\nimport json,subprocess,hashlib,os\nr=Path.cwd()\nb=r/'build/neon-implementation';prev=r/'build/lifetime-cost-control'\ndef sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()\nout=b/'source-shape';out.mkdir(exist_ok=True)\nemitter=prev/'own/build-1/compiler-native'\nos.sched_setaffinity(0,{1})\nfor key,stage in [('previous',prev/'own'),('current',b/'own')]:\n stat=out/(key+'.json');module=out/(key+'.wasm')\n subprocess.run([emitter,'selfhost/main.goose','--stdlib','stdlib','--target','wasm-direct','-O2','--wasm-memory64','--wasm-max-pages','262144','--wasm-stats',stat,'-o',module],\n                cwd=stage/'source',check=True)\n assert sha(module)==sha(stage/'build-1/compiler.wasm')\n d=json.loads(stat.read_bytes());print(key, module.stat().st_size, {k:v for k,v in d.items() if isinstance(v,(int,float)) or k in ('optimizer','phases') and isinstance(v,dict)})\n(out/'identity.json').write_text(json.dumps(dict(emitter=sha(emitter),outputs={k:sha(out/(k+'.wasm')) for k in ['previous','current']}),indent=2))\n"
+}
