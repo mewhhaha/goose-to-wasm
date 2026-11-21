@@ -242,22 +242,23 @@ inline fn wa() -> i64 { if cg_wide { return 0x7e; } return 0x7f; }
 inline fn ws() -> i64 { if cg_wide { return 0x7b; } return 0x7e; }
 // The bytes of a growable array's control: six address-sized words.
 inline fn wc_bytes() -> i64 { if cg_wide { return 48; } return 24; }
+// Keep address and slice writers as calls when the compiler builds itself.
 // An address or size constant.
-inline fn wa_const(out: u8[>..]&, value: i64) { if cg_wide { wb_i64(out, value); } else { wb_i32(out, value); } }
+fn wa_const(out: u8[>..]&, value: i64) { if cg_wide { wb_i64(out, value); } else { wb_i32(out, value); } }
 // An i32 instruction on addresses: the i64 one of the same name with cg_wide.
-inline fn wa_op(out: u8[>..]&, op: i64) {
+fn wa_op(out: u8[>..]&, op: i64) {
     var opcode = op;
     if cg_wide { if op >= 0x45 && op <= 0x4f { opcode = op + 0x0b; } else if op >= 0x67 && op <= 0x78 { opcode = op + 0x12; } }
     wb_byte(out, opcode);
 }
 // Adds a constant offset to the address on the stack.
-inline fn wa_add(out: u8[>..]&, offset: i64) { if offset != 0 { wa_const(out, offset); wa_op(out, 0x6a); } }
+fn wa_add(out: u8[>..]&, offset: i64) { if offset != 0 { wa_const(out, offset); wa_op(out, 0x6a); } }
 // Loads and stores an address-sized word.
-inline fn wa_load(out: u8[>..]&, offset: i64) { if cg_wide { wb_mem(out, 0x29, 3, offset); } else { wb_mem(out, 0x28, 2, offset); } }
-inline fn wa_store(out: u8[>..]&, offset: i64) { if cg_wide { wb_mem(out, 0x37, 3, offset); } else { wb_mem(out, 0x36, 2, offset); } }
+fn wa_load(out: u8[>..]&, offset: i64) { if cg_wide { wb_mem(out, 0x29, 3, offset); } else { wb_mem(out, 0x28, 2, offset); } }
+fn wa_store(out: u8[>..]&, offset: i64) { if cg_wide { wb_mem(out, 0x37, 3, offset); } else { wb_mem(out, 0x36, 2, offset); } }
 // Word k of a control (base, raw length, limit, raw capacity, image base, mode).
-inline fn wc_load(out: u8[>..]&, word: i64) { if cg_wide { wb_mem(out, 0x29, 3, word * 8); } else { wb_mem(out, 0x28, 2, word * 4); } }
-inline fn wc_store(out: u8[>..]&, word: i64) { if cg_wide { wb_mem(out, 0x37, 3, word * 8); } else { wb_mem(out, 0x36, 2, word * 4); } }
+fn wc_load(out: u8[>..]&, word: i64) { if cg_wide { wb_mem(out, 0x29, 3, word * 8); } else { wb_mem(out, 0x28, 2, word * 4); } }
+fn wc_store(out: u8[>..]&, word: i64) { if cg_wide { wb_mem(out, 0x37, 3, word * 8); } else { wb_mem(out, 0x36, 2, word * 4); } }
 // The bytes of an address-sized word, and of k of them. A structure the
 // backend lays out itself as u32 words (controls, effect records and their
 // metadata, capture environments, cursor tables) keeps its word order with
@@ -280,11 +281,11 @@ inline fn wa_to_i32(out: u8[>..]&) { if cg_wide { wb_byte(out, 0xa7); } }
 inline fn wa_truth(out: u8[>..]&) { if cg_wide { wb_byte(out, 0x50); wb_byte(out, 0x45); } }
 // A slice on the stack: its pointer (an address), its count as an i64, its
 // count as an address-sized number.
-inline fn ws_ptr(out: u8[>..]&) { if cg_wide { wb_byte(out, 0xfd); wb_u(out, 0x1d); wb_byte(out, 0); } else { wb_byte(out, 0xa7); } }
-inline fn ws_count(out: u8[>..]&) { if cg_wide { wb_byte(out, 0xfd); wb_u(out, 0x1d); wb_byte(out, 1); } else { wb_i64(out, 32); wb_byte(out, 0x88); } }
-inline fn ws_len(out: u8[>..]&) { ws_count(out); wa_wrap(out); }
-inline fn ws_load(out: u8[>..]&, offset: i64) { if cg_wide { wb_byte(out, 0xfd); wb_u(out, 0); wb_u(out, 3); wb_u(out, offset); } else { wb_mem(out, 0x29, 3, offset); } }
-inline fn ws_store(out: u8[>..]&, offset: i64) { if cg_wide { wb_byte(out, 0xfd); wb_u(out, 0x0b); wb_u(out, 3); wb_u(out, offset); } else { wb_mem(out, 0x37, 3, offset); } }
+fn ws_ptr(out: u8[>..]&) { if cg_wide { wb_byte(out, 0xfd); wb_u(out, 0x1d); wb_byte(out, 0); } else { wb_byte(out, 0xa7); } }
+fn ws_count(out: u8[>..]&) { if cg_wide { wb_byte(out, 0xfd); wb_u(out, 0x1d); wb_byte(out, 1); } else { wb_i64(out, 32); wb_byte(out, 0x88); } }
+fn ws_len(out: u8[>..]&) { ws_count(out); wa_wrap(out); }
+fn ws_load(out: u8[>..]&, offset: i64) { if cg_wide { wb_byte(out, 0xfd); wb_u(out, 0); wb_u(out, 3); wb_u(out, offset); } else { wb_mem(out, 0x29, 3, offset); } }
+fn ws_store(out: u8[>..]&, offset: i64) { if cg_wide { wb_byte(out, 0xfd); wb_u(out, 0x0b); wb_u(out, 3); wb_u(out, offset); } else { wb_mem(out, 0x37, 3, offset); } }
 // Makes a slice of the pointer and the count on the stack, both i64 (the
 // pointer after wa_extend).
 fn ws_pack(f: CgBody&) {
