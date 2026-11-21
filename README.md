@@ -4,13 +4,11 @@ A [Goose](https://github.com/aardappel/goose) compiler written in Goose. It emit
 
 ## Benchmarks
 
-**The compiler rebuilding itself.** On a frozen project, the current compiler used **0.66% fewer Wasmtime instructions** and was **1.89% faster natively**. The primary Wasmtime elapsed-time interval included no change. On its own source it took **1.85 s in Wasmtime** and **1.41 s native** (1.31× across nine pairs). [Paired measurements](bench/results/2026-11-21/lifetime-value-paths/README.md)
+**The compiler rebuilding itself.** On its own source, the balanced compiler took **1.90 s in cached Wasmtime** and **1.45 s native** (1.31× across nine pairs). The cached Wasmtime elapsed-time interval included no change on frozen input. [Paired measurements](bench/results/2026-11-21/shared-emitters/README.md)
 
-![Paired elapsed time and instruction changes, with current native and Wasmtime rebuild times](bench/results/2026-11-21/lifetime-value-paths/rebuild.svg)
+**Compiler downloads.** Sharing emitter helpers cut the balanced compiler from 4.39 MB to **3.08 MB** (29.8% smaller). The size profile is **2.73 MB**. The balanced profile completed the frozen rebuild **19.8% faster from a cold start**. [Sizes and paired runs](bench/results/2026-11-21/shared-emitters/README.md#full-builds-on-a-frozen-project) · [Compact command](docs/GUIDE.md#build-and-run)
 
-**Compiler downloads.** The bundled compiler is 6.19 MB as emitted, **4.39 MB balanced** and **3.77 MB optimized for size**. With gzip the downloads are 1.54 MB, 1.26 MB and 1.03 MB. The three profiles rebuilt the same frozen project in **2.02–2.04 s** with a primed cache. [Sizes and rebuild times](bench/results/2026-11-21/lifetime-value-paths/README.md#release-size-and-execution-time) · [Compact command](docs/GUIDE.md#build-and-run)
-
-![Wasm and gzip sizes beside native and cached Wasmtime rebuild times](bench/results/2026-11-21/lifetime-value-paths/downloads.svg)
+![Previous and current Wasm sizes, plus elapsed seconds for cold and cached Wasmtime rebuilds](bench/results/2026-11-21/shared-emitters/release.svg)
 
 **Cold and cached self-compilation.** In a separate three-round run, the bundled 32-bit compiler took **2.78 s cold** with eight preparation threads and **1.99 s cached** on one core. Native took **1.61 s**. These fresh-process timings include startup. [All launches](bench/results/2026-11-21/lifetime-value-paths/launch.json)
 
@@ -43,6 +41,7 @@ A [Goose](https://github.com/aardappel/goose) compiler written in Goose. It emit
 | Question | Measurements |
 | --- | --- |
 | What did reusing checks for globals save? | [Global capture study](bench/results/2026-11-20/lifetime-captures/README.md) |
+| What changed after shortening lifetime value paths? | [Paired rebuilds and timing control](bench/results/2026-11-21/lifetime-value-paths/README.md) |
 | What did indexing ordered lifetime effects save? | [Array clears, slice stores and rebuilds](bench/results/2026-11-20/ordered-effects/README.md) |
 | How did the three release profiles compare on cold preparation and rebuild time? | [Packaging study at `ef702b1`](bench/results/2026-11-20/compact-releases/README.md) |
 | How much faster did checking wide argument lists get? | [Wide argument study](bench/results/2026-11-20/lifetime-argument-lists/README.md) |
