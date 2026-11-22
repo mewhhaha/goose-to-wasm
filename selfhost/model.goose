@@ -488,40 +488,60 @@ fn location_extern(p: Program&, function: i64) -> bool {
 // function's name or a function literal that code generation evaluates,
 // so neither a direct call's callee nor the trailing block a call binds to
 // a function parameter. Returns whether any function is located.
-fn mark_located_functions(p: Program&) -> bool {
+// Code generation scratch on function nodes: the function is used as a
+// first-class function value (mark_located_functions).
+let F_VALUE_USED: i64 = 1152921504606846976;
+
+fn mark_located_functions(p: Program&, mark_values: bool = false) -> bool {
     var candidates = false;
-    for n, id in p.nodes {
+    var roots: i64[>..] = [];
+    for id in 0..p.nodes.len {
+        let n: const Node& = p.nodes[id];
         if n.kind != N_FUNCTION && n.kind != N_FUNCTION_VALUE { continue; }
-        p.nodes[id].flags &= ~F_LOCATED;
-        if (n.flags & (F_CHECKED | F_GENERIC)) == F_CHECKED && (library_node(p, id) || (n.flags & F_EXTERN) != 0 && location_extern(p, id)) { candidates = true; }
-    }
-    if !candidates { return false; }
-    var values: bool[>..] = []; values.resize(p.nodes.len, false); var roots: i64[>..] = []; var work: i64[>..] = [];
-    for n in p.nodes {
-        if (n.kind == N_FUNCTION || n.kind == N_FUNCTION_VALUE) && (n.flags & (F_CHECKED | F_GENERIC)) == F_CHECKED { roots.push(n.right); }
-    }
-    for s in p.symbols { if (s.flags & S_GLOBAL) != 0 && s.node >= 0 { roots.push(p.nodes[s.node].right); } }
-    for root in roots {
-        work.clear(); work.push(root);
-        while work.len > 0 {
-            let id = work.pop(); if id < 0 { continue; }
-            let n = p.nodes[id];
-            if id != root && n.next >= 0 { work.push(n.next); }
-            if n.kind == N_FUNCTION || n.kind == N_IMPORT || n.kind == N_STRUCT || n.kind == N_ENUM || n.kind == N_ALIAS || n.kind == N_PATTERN { continue; }
-            if n.kind == N_FUNCTION_VALUE { values[id] = true; continue; }
-            if n.kind == N_NAME && n.symbol >= 0 && (p.symbols[n.symbol].flags & (S_FUNCTION | S_BUILTIN)) == S_FUNCTION && p.symbols[n.symbol].node >= 0 {
-                values[p.symbols[n.symbol].node] = true;
-            }
-            var callee = false;
-            if n.kind == N_CALL && n.symbol >= 0 { callee = (n.flags & F_DISPATCH) != 0 || (p.symbols[n.symbol].flags & (S_FUNCTION | S_BUILTIN)) == S_FUNCTION; }
-            if callee { work.push(n.first); continue; }
-            for child in [n.first, n.left, n.right, n.third] { if child >= 0 { work.push(child); } }
+        p.nodes[id].flags &= ~(F_LOCATED | F_VALUE_USED);
+        if (n.flags & (F_CHECKED | F_GENERIC)) == F_CHECKED {
+            roots.push(n.right);
+            if library_node(p, id) || (n.flags & F_EXTERN) != 0 && location_extern(p, id) { candidates = true; }
         }
     }
+    if !candidates && !mark_values { return false; }
+    for s_id in 0..p.symbols.len {
+        let s: const Symbol& = p.symbols[s_id];
+        if (s.flags & S_GLOBAL) != 0 && s.node >= 0 { roots.push(p.nodes[s.node].right); }
+    }
+    var work: i64[>..] = [];
+    for root in roots {
+        if root < 0 { continue; }
+        work.clear(); work.push(root);
+        while work.len > 0 {
+            let id = work.pop();
+            let n: const Node& = p.nodes[id];
+            if id != root && n.next >= 0 { work.push(n.next); }
+            let kind = n.kind;
+            if kind == N_FUNCTION || kind == N_IMPORT || kind == N_STRUCT || kind == N_ENUM || kind == N_ALIAS || kind == N_PATTERN { continue; }
+            if kind == N_FUNCTION_VALUE { p.nodes[id].flags |= F_VALUE_USED; continue; }
+            if kind == N_NAME && n.symbol >= 0 {
+                let sym: const Symbol& = p.symbols[n.symbol];
+                if (sym.flags & (S_FUNCTION | S_BUILTIN)) == S_FUNCTION && sym.node >= 0 {
+                    p.nodes[sym.node].flags |= F_VALUE_USED;
+                }
+            }
+            if kind == N_CALL && n.symbol >= 0 && ((n.flags & F_DISPATCH) != 0 || (p.symbols[n.symbol].flags & (S_FUNCTION | S_BUILTIN)) == S_FUNCTION) {
+                if n.first >= 0 { work.push(n.first); }
+                continue;
+            }
+            if n.first >= 0 { work.push(n.first); }
+            if n.left >= 0 { work.push(n.left); }
+            if n.right >= 0 { work.push(n.right); }
+            if n.third >= 0 { work.push(n.third); }
+        }
+    }
+    if !candidates { return false; }
     var located = false;
-    for n, id in p.nodes {
+    for id in 0..p.nodes.len {
+        let n: const Node& = p.nodes[id];
         if n.kind != N_FUNCTION && n.kind != N_FUNCTION_VALUE { continue; }
-        if (n.flags & (F_CHECKED | F_GENERIC)) != F_CHECKED || values[id] { continue; }
+        if (n.flags & (F_CHECKED | F_GENERIC | F_VALUE_USED)) != F_CHECKED { continue; }
         if (n.flags & (F_EXPORT | F_THREAD)) != 0 || id == p.entry { continue; }
         if (n.flags & F_EXTERN) != 0 { if !location_extern(p, id) { continue; } }
         else if !library_node(p, id) { continue; }
@@ -541,7 +561,8 @@ let F_UNWINDS: i64 = 576460752303423488;
 // returns whether any may be left.
 fn mark_unwinding_functions(p: Program&, without_defers: bool = false) -> bool {
     var functions: i64[>..] = []; var defers = false; var sites = false;
-    for n, id in p.nodes {
+    for id in 0..p.nodes.len {
+        let n: const Node& = p.nodes[id];
         if n.kind == N_DEFER && (n.flags & F_CHECKED) != 0 { defers = true; }
         if n.kind != N_FUNCTION && n.kind != N_FUNCTION_VALUE { continue; }
         p.nodes[id].flags &= ~F_UNWINDS;
@@ -557,22 +578,26 @@ fn mark_unwinding_functions(p: Program&, without_defers: bool = false) -> bool {
             work.clear(); work.push(root);
             while work.len > 0 && !unwinds {
                 let id = work.pop(); if id < 0 { continue; }
-                let n = p.nodes[id];
+                let n: const Node& = p.nodes[id];
                 if id != root && n.next >= 0 { work.push(n.next); }
-                if n.kind == N_FUNCTION || n.kind == N_FUNCTION_VALUE || n.kind == N_IMPORT || n.kind == N_STRUCT || n.kind == N_ENUM || n.kind == N_ALIAS || n.kind == N_PATTERN { continue; }
-                if n.kind == N_RETURN && n.symbol >= 0 && n.symbol < p.symbols.len && p.symbols[n.symbol].node != function { unwinds = true; sites = true; }
-                if n.kind == N_CALL && (n.flags & F_DISPATCH) != 0 {
+                let kind = n.kind;
+                if kind == N_FUNCTION || kind == N_FUNCTION_VALUE || kind == N_IMPORT || kind == N_STRUCT || kind == N_ENUM || kind == N_ALIAS || kind == N_PATTERN { continue; }
+                if kind == N_RETURN && n.symbol >= 0 && n.symbol < p.symbols.len && p.symbols[n.symbol].node != function { unwinds = true; sites = true; }
+                if kind == N_CALL && (n.flags & F_DISPATCH) != 0 {
                     var arm = n.third;
                     while arm >= 0 {
                         let symbol = p.nodes[arm].symbol;
                         if symbol >= 0 && p.symbols[symbol].node >= 0 && (p.nodes[p.symbols[symbol].node].flags & F_UNWINDS) != 0 { unwinds = true; }
                         arm = p.nodes[arm].next;
                     }
-                } else if n.kind == N_CALL && n.symbol >= 0 {
-                    let callee = p.symbols[n.symbol];
+                } else if kind == N_CALL && n.symbol >= 0 {
+                    let callee: const Symbol& = p.symbols[n.symbol];
                     if (callee.flags & (S_FUNCTION | S_BUILTIN)) == S_FUNCTION && callee.node >= 0 && (p.nodes[callee.node].flags & F_UNWINDS) != 0 { unwinds = true; }
-                } else if n.kind == N_CALL && sites { unwinds = true; }
-                for child in [n.first, n.left, n.right, n.third] { if child >= 0 { work.push(child); } }
+                } else if kind == N_CALL && sites { unwinds = true; }
+                if n.first >= 0 { work.push(n.first); }
+                if n.left >= 0 { work.push(n.left); }
+                if n.right >= 0 { work.push(n.right); }
+                if n.third >= 0 { work.push(n.third); }
             }
             if unwinds { p.nodes[function].flags |= F_UNWINDS; changed = true; }
         }

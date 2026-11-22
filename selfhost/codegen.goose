@@ -20,7 +20,7 @@ struct CgSignature { start: i64, count: i64 }
 struct CgImport { symbol: i64 = -1, signature: i64 = 0, host: i64 = -1 }
 struct CgFunction {
     node: i64, symbol: i64, signature: i64 = -1, index: i64 = -1,
-    closure_signature: i64 = -1, thunk: i64 = -1,
+    closure_signature: i64 = -1, thunk: i64 = -1, table_index: i64 = -1,
     capture_first: i64 = 0, capture_count: i64 = 0, arena_local: bool = false, elements: bool = false,
 }
 // Positions in functions, before adding the import count.
@@ -35,12 +35,12 @@ struct CgParameterUse { symbol: i64, start: i64, end: i64, initial: bool = false
 struct CgModule {
     parameter_uses: CgParameterUse[>..]&,
     functions: CgFunction[>..]&, functions_by_symbol: CgFunctionIndex[>..]&, captures: CgCapture[>..]&, imports: CgImport[>..]&,
-    signatures: CgSignature[>..]&, signature_bytes: u8[>..]&,
+    signatures: CgSignature[>..]&, signature_bytes: u8[>..]&, signature_slots: i64[>..]&, signature_scratch: u8[>..]&,
     segments: CgSegment[>..]&, segment_slots: i64[>..]&, data: u8[>..]&, globals: i64[>..]&,
     symbol_owners: SymbolOwners,
     global_regions: i64[>..]&, region_functions: RegionFunction[>..]&, region_calls: RegionCall[>..]&,
-    region_memo: i64[>..]&,
-    next_data: i64 = 1024, stack_limit: i64 = 0,
+    region_memo: u8[>..]&,
+    next_data: i64 = 1024, stack_limit: i64 = 0, thunk_count: i64 = 0,
     region_count: i64 = 0, global_region_count: i64 = 0, regions_enabled: bool = false,
     nonlocal_returns: bool = false, ordinary_owners: bool = false, maps_headers: bool = false,
     region_table_address: i64 = 0, host_reserve: i64 = -1, host_reserve_type: i64 = -1,
@@ -89,6 +89,18 @@ struct CgBody {
     // defer bodies are registered: the landing that runs them (cg_block_into).
     effect_landing: i64 = -1,
 }
+struct CgEmitScratch {
+    events: WbEvent[>..]&,
+    code: u8[>..]&, body: u8[>..]&, locals: i64[>..]&, addresses: CgFrameAddress[>..]&,
+    labels: i64[>..]&, exits: CgExit[>..]&, results: i64[>..]&, destinations: i64[>..]&,
+    work: i64[>..]&, raw_slots: i64[>..]&, sequences: CgSequence[>..]&,
+    constructions: CgConstruction[>..]&, construction_destinations: CgDestination[>..]&,
+    receiving: CgReceiving[>..]&, defers: i64[>..]&,
+    thunk_code: u8[>..]&, thunk_locals: i64[>..]&, thunk_results: i64[>..]&,
+    reuse: WbReuseScratch,
+}
+struct CgReserved { cursor: i64, limit: i64, top: i64 }
+
 fn cg_align(value: i64, alignment: i64) -> i64 {
     if alignment <= 1 { return value; }
     return (value + alignment - 1) & (0 - alignment);
@@ -102,12 +114,13 @@ inline fn cg_type_kind(p: Program&, id: i64) -> i64 {
     if id < 0 || id >= p.types.len { return TY_UNKNOWN; }
     return p.types[id].kind;
 }
-fn cg_aggregate(p: Program&, id: i64) -> bool {
+inline fn cg_aggregate(p: Program&, id: i64) -> bool {
+    if id < 13 { return false; }
     let kind = cg_type_kind(p, id);
     return kind == TY_ARRAY || kind == TY_STRUCT || kind == TY_ENUM;
 }
-fn cg_owner(p: Program&, id: i64) -> bool {
-    if cg_type_kind(p, id) != TY_ARRAY { return false; }
+inline fn cg_owner(p: Program&, id: i64) -> bool {
+    if id < 13 || cg_type_kind(p, id) != TY_ARRAY { return false; }
     let kind = p.types[id].array_kind;
     return kind == A_VAR || kind == A_GROW || kind == A_GROWSHRINK || kind == A_LIMITED && p.types[id].count < 0;
 }
@@ -334,16 +347,35 @@ fn cg_temporary(p: Program&, f: CgBody&, id: i64) -> i64 {
     let offset = cg_frame(f, bytes, p.types[id].align);
     cg_frame_address(f, offset); return cg_save(f, wa());
 }
-fn cg_signature(m: CgModule&, args: u8[:], results: u8[:]) -> i64 {
-    var encoded: u8[>..] = [];
-    wb_signature(encoded, args, results);
-    for sig, i in m.signatures {
-        if same_bytes(encoded, m.signature_bytes[sig.start..sig.start + sig.count]) { return i; }
+fn cg_signature_slot(m: CgModule&, bytes: u8[:]) -> i64 {
+    let mask = m.signature_slots.len - 1;
+    var slot = bytes_hash(bytes) & mask;
+    while m.signature_slots[slot] > 0 {
+        let sig: const CgSignature& = m.signatures[m.signature_slots[slot] - 1];
+        if bytes.len == sig.count && same_bytes(bytes, m.signature_bytes[sig.start..sig.start + sig.count]) { break; }
+        slot = (slot + 1) & mask;
     }
+    return slot;
+}
+fn cg_signature(m: CgModule&, args: u8[:], results: u8[:]) -> i64 {
+    m.signature_scratch.clear();
+    wb_signature(m.signature_scratch, args, results);
+    if 2 * m.signatures.len >= m.signature_slots.len {
+        var size = m.signature_slots.len * 2; if size == 0 { size = 32; }
+        m.signature_slots.clear(); m.signature_slots.resize(size, 0);
+        for sig, index in m.signatures {
+            let slot = cg_signature_slot(m, m.signature_bytes[sig.start..sig.start + sig.count]);
+            m.signature_slots[slot] = index + 1;
+        }
+    }
+    let slot = cg_signature_slot(m, m.signature_scratch);
+    let found = m.signature_slots[slot];
+    if found > 0 { return found - 1; }
     let at = m.signature_bytes.len;
-    m.signature_bytes.append(encoded);
+    m.signature_bytes.append(m.signature_scratch);
     let result = m.signatures.len;
-    m.signatures.push(CgSignature { start: at, count: encoded.len });
+    m.signatures.push(CgSignature { start: at, count: m.signature_scratch.len });
+    m.signature_slots[slot] = result + 1;
     return result;
 }
 // Slots hold segment index + 1. The segments themselves stay in emission order.
@@ -421,8 +453,10 @@ inline fn cg_elements_function(m: CgModule&, symbol: i64) -> i64 {
 fn cg_elements_table(m: CgModule&) -> i64 {
     var bytes: u8[>..] = [];
     for item in m.functions {
+        if item.table_index < 0 { continue; }
         let target = cg_elements_function(m, item.symbol);
-        for part in 0..4 { wb_byte(bytes, target >> (part * 8)); }
+        let slot = m.functions[target].table_index;
+        for part in 0..4 { wb_byte(bytes, slot >> (part * 8)); }
     }
     return cg_data(m, bytes);
 }
@@ -696,6 +730,19 @@ recursive fn cg_member_object(p: Program&, m: CgModule&, f: CgBody&, node: i64) 
     if cg_type_kind(p, id) == TY_REF { id = p.types[id].element; cg_load(p, m, f, id, 0); }
     return id;
 }
+fn cg_scale_index(f: CgBody&, stride: i64) {
+    if stride == 1 { return; }
+    if stride == 2 { wa_const(f.code, 1); wa_op(f.code, 0x74); return; }
+    if stride == 4 { wa_const(f.code, 2); wa_op(f.code, 0x74); return; }
+    if stride == 8 { wa_const(f.code, 3); wa_op(f.code, 0x74); return; }
+    if stride == 16 { wa_const(f.code, 4); wa_op(f.code, 0x74); return; }
+    if stride == 32 { wa_const(f.code, 5); wa_op(f.code, 0x74); return; }
+    if stride == 64 { wa_const(f.code, 6); wa_op(f.code, 0x74); return; }
+    if stride == 128 { wa_const(f.code, 7); wa_op(f.code, 0x74); return; }
+    if stride == 256 { wa_const(f.code, 8); wa_op(f.code, 0x74); return; }
+    wa_const(f.code, stride); wa_op(f.code, 0x6c);
+}
+
 recursive fn cg_address(p: Program&, m: CgModule&, f: CgBody&, node: i64) {
     if node < 0 { cg_fail(p, node, "wasm: missing assignment location"); return; }
     let n = p.nodes[node];
@@ -707,6 +754,19 @@ recursive fn cg_address(p: Program&, m: CgModule&, f: CgBody&, node: i64) {
         cg_field_place(p, m, f, object_type, node); cg_canonical_address(m, f, cg_size(p, p.nodes[n.symbol].type_id)); return;
     }
     if n.kind == N_INDEX {
+        var id = p.nodes[n.left].type_id;
+        let is_ref = cg_type_kind(p, id) == TY_REF;
+        if is_ref { id = p.types[id].element; }
+        let element = p.types[id].element;
+        if (n.flags & F_BOUNDS_PROVEN) != 0 && m.ordinary_owners && m.resolver < 0 && cg_owner(p, id) && p.types[element].storage != 1 {
+            cg_expr(p, m, f, n.left);
+            if is_ref { cg_load(p, m, f, id, 0); }
+            wc_load(f.code, 0);
+            let ptr = cg_save(f, wa());
+            cg_to(p, m, f, n.right, TYPE_U64); wa_wrap(f.code);
+            cg_scale_index(f, cg_size(p, element));
+            cg_get(f, ptr); wa_op(f.code, 0x6a); return;
+        }
         cg_expr(p, m, f, n.left); cg_pack_view(p, m, f, p.nodes[n.left].type_id, node);
         let view = cg_save(f, ws());
         cg_to(p, m, f, n.right, TYPE_U64); let index = cg_save(f, 0x7e);
@@ -714,14 +774,12 @@ recursive fn cg_address(p: Program&, m: CgModule&, f: CgBody&, node: i64) {
             cg_get(f, index); cg_get(f, view); ws_count(f.code); wb_byte(f.code, 0x5a);
             cg_trap_if(p, m, f, node, "array index out of bounds");
         }
-        var id = p.nodes[n.left].type_id; if cg_type_kind(p, id) == TY_REF { id = p.types[id].element; }
-        let element = p.types[id].element;
         if p.types[element].storage == 1 {
             cg_get(f, view); ws_ptr(f.code); let base = cg_save(f, wa());
             let cursor = cg_walk_elements(p, m, f, base, index, node); cg_get(f, cursor); return;
         }
         cg_get(f, view); ws_ptr(f.code); cg_get(f, index); wa_wrap(f.code);
-        wa_const(f.code, cg_size(p, element)); wa_op(f.code, 0x6c); wa_op(f.code, 0x6a); return;
+        cg_scale_index(f, cg_size(p, element)); wa_op(f.code, 0x6a); return;
     }
     cg_fail(p, node, "wasm: expression has no addressable storage");
 }
@@ -1071,9 +1129,9 @@ fn cg_closure(p: Program&, m: CgModule&, f: CgBody&, symbol: i64, node: i64) {
             cg_get(f, environment); cg_symbol_address(p, m, f, capture.symbol, node); wa_store(f.code, ww(ordinal)); ordinal++;
         }
     }
-    // A function value stays one i64 for now: the function number below, the
+    // A function value stays one i64 for now: the table slot below, the
     // environment's address above, which has to be under 4 GiB with cg_wide.
-    wb_i64(f.code, index); cg_get(f, environment); wa_extend(f.code); wb_i64(f.code, 32); wb_byte(f.code, 0x86); wb_byte(f.code, 0x84);
+    wb_i64(f.code, item.table_index); cg_get(f, environment); wa_extend(f.code); wb_i64(f.code, 32); wb_byte(f.code, 0x86); wb_byte(f.code, 0x84);
 }
 fn cg_direct_array_call(p: Program&, f: CgBody&, node: i64, destination: i64) -> bool {
     let n = p.nodes[node]; let target = f.construction_destinations[destination]; var natural = -1;
@@ -1254,7 +1312,7 @@ recursive fn cg_call(p: Program&, m: CgModule&, f: CgBody&, node: i64) {
         cg_get(f, closure); wb_byte(f.code, 0xa7);
         if cg_raw_value(f, node) { wa_from_i32(f.code); wa_const(f.code, 4); wa_op(f.code, 0x6c); wa_const(f.code, cg_elements_table(m)); wa_op(f.code, 0x6a); wb_mem(f.code, 0x28, 0, 0); }
         let signature = cg_signature(m, args, returns);
-        for item, candidate in m.functions { if item.closure_signature == signature { cg_region_call(m, f, candidate, node); } }
+        for item, candidate in m.functions { if item.table_index >= 0 && item.closure_signature == signature { cg_region_call(m, f, candidate, node); } }
         wb_op(f.code, 0x11, signature); wb_u(f.code, 0);
     }
     cg_effect_check(p, m, f, results);
@@ -1692,21 +1750,32 @@ let CG_EFFECT_TARGET: i64 = 2305843009213693952;
 recursive fn cg_scan_function(p: Program&, m: CgModule&, function: i64, node: i64, captures: bool) {
     if node < 0 { return; }
     let n: const Node& = p.nodes[node];
-    if n.kind == N_PATTERN || n.kind == N_FUNCTION || n.kind == N_FUNCTION_VALUE { return; }
-    if n.kind == N_RETURN && n.symbol >= 0 && (p.symbols[n.symbol].flags & S_FUNCTION) != 0 {
+    let kind = n.kind;
+    if kind == N_PATTERN || kind == N_FUNCTION || kind == N_FUNCTION_VALUE { return; }
+    if kind == N_RETURN && n.symbol >= 0 && (p.symbols[n.symbol].flags & S_FUNCTION) != 0 {
         let target = p.symbols[n.symbol].node;
         if target >= 0 && target != function { m.nonlocal_returns = true; p.nodes[target].flags |= CG_EFFECT_TARGET; p.nodes[node].flags |= F_NONLOCAL; }
     }
-    if captures && n.kind == N_NAME && n.symbol >= 0 {
+    if captures && kind == N_NAME && n.symbol >= 0 {
         let s: const Symbol& = p.symbols[n.symbol];
         if (s.flags & (S_FUNCTION | S_GLOBAL | S_TYPE | S_BUILTIN)) == 0 && (s.owner >= 0 || cg_storage_binding(p, n.symbol)) && s.owner != function && !cg_capture(m, function, n.symbol) {
             m.captures.push(CgCapture { function: function, symbol: n.symbol });
         }
     }
-    for head in [n.left, n.right, n.third, n.first] {
-        var child = head;
-        while child >= 0 { cg_scan_function(p, m, function, child, captures); child = p.nodes[child].next; }
+    let left = n.left; let right = n.right; let third = n.third; var child = n.first;
+    if left >= 0 {
+        var c = left;
+        while c >= 0 { cg_scan_function(p, m, function, c, captures); c = p.nodes[c].next; }
     }
+    if right >= 0 {
+        var c = right;
+        while c >= 0 { cg_scan_function(p, m, function, c, captures); c = p.nodes[c].next; }
+    }
+    if third >= 0 {
+        var c = third;
+        while c >= 0 { cg_scan_function(p, m, function, c, captures); c = p.nodes[c].next; }
+    }
+    while child >= 0 { cg_scan_function(p, m, function, child, captures); child = p.nodes[child].next; }
 }
 fn cg_scan_functions(p: Program&, m: CgModule&) {
     for id in 0..p.nodes.len {
@@ -2433,7 +2502,7 @@ recursive fn cg_emit_sequence(p: Program&, m: CgModule&, f: CgBody&, recipe: i64
     }
     var object = p.nodes[n.left].type_id; while cg_type_kind(p, object) == TY_REF { object = p.types[object].element; }
     let element = p.types[object].element;
-    cg_get(f, view); ws_ptr(f.code); cg_get(f, item.index); wa_wrap(f.code); wa_const(f.code, cg_size(p, element)); wa_op(f.code, 0x6c); wa_op(f.code, 0x6a);
+    cg_get(f, view); ws_ptr(f.code); cg_get(f, item.index); wa_wrap(f.code); cg_scale_index(f, cg_size(p, element)); wa_op(f.code, 0x6a);
     if !item.address && (cg_type_kind(p, n.type_id) != TY_REF || cg_type_kind(p, element) == TY_REF) {
         cg_load(p, m, f, element, 0); cg_convert(p, m, f, element, n.type_id, item.node);
     }
@@ -2639,10 +2708,11 @@ recursive fn cg_match(p: Program&, m: CgModule&, f: CgBody&, node: i64) {
 // and emission only retypes nodes that are being emitted.
 recursive fn cg_may_region(p: Program&, m: CgModule&, node: i64) -> bool {
     if node < 0 { return false; }
-    while m.region_memo.len < p.nodes.len { m.region_memo.push(0); }
+    if node >= m.region_memo.len { m.region_memo.resize(p.nodes.len, 0); }
     let known = m.region_memo[node]; if known != 0 { return known == 2; }
-    var result = false; let n = p.nodes[node];
-    if n.kind != N_FUNCTION && n.kind != N_FUNCTION_VALUE && n.kind != N_STRUCT && n.kind != N_ENUM && n.kind != N_ALIAS && n.kind != N_PATTERN {
+    var result = false; let n: const Node& = p.nodes[node];
+    let kind = n.kind;
+    if kind != N_FUNCTION && kind != N_FUNCTION_VALUE && kind != N_STRUCT && kind != N_ENUM && kind != N_ALIAS && kind != N_PATTERN {
         var id = n.type_id; while cg_type_kind(p, id) == TY_REF { id = p.types[id].element; }
         result = cg_region_owned_result(p, id) || cg_may_region(p, m, n.left) || cg_may_region(p, m, n.right) || cg_may_region(p, m, n.third);
         var child = n.first; while !result && child >= 0 { result = cg_may_region(p, m, child); child = p.nodes[child].next; }
@@ -2655,16 +2725,16 @@ recursive fn cg_statement(p: Program&, m: CgModule&, f: CgBody&, node: i64) {
     let live = f.region_live; let mark = cg_mark_regions(f); cg_statement_body(p, m, f, node); cg_restore_regions(f, mark); f.region_live = live;
 }
 recursive fn cg_statement_body(p: Program&, m: CgModule&, f: CgBody&, node: i64) {
-    let n = p.nodes[node];
-    if n.kind == N_VARIABLE { cg_declaration(p, m, f, node); return; }
-    if n.kind == N_ASSIGN { cg_assign(p, m, f, node); return; }
-    if n.kind == N_RETURN { cg_emit_return(p, m, f, node); return; }
-    if n.kind == N_BREAK { cg_break(p, m, f, node, false); return; }
-    if n.kind == N_CONTINUE { cg_break(p, m, f, node, true); return; }
-    if n.kind == N_FUNCTION || n.kind == N_STRUCT || n.kind == N_ENUM || n.kind == N_ALIAS || n.kind == N_EMPTY || n.kind == N_IMPORT { return; }
-    if n.kind == N_EXPR_STMT { cg_discard(p, m, f, n.left); return; }
-    if n.kind == N_FOR { cg_for(p, m, f, node); return; }
-    if n.kind == N_DEFER { cg_fail(p, node, "wasm: defer statement outside an emitted block"); return; }
+    let kind = p.nodes[node].kind;
+    if kind == N_VARIABLE { cg_declaration(p, m, f, node); return; }
+    if kind == N_ASSIGN { cg_assign(p, m, f, node); return; }
+    if kind == N_RETURN { cg_emit_return(p, m, f, node); return; }
+    if kind == N_BREAK { cg_break(p, m, f, node, false); return; }
+    if kind == N_CONTINUE { cg_break(p, m, f, node, true); return; }
+    if kind == N_FUNCTION || kind == N_STRUCT || kind == N_ENUM || kind == N_ALIAS || kind == N_EMPTY || kind == N_IMPORT { return; }
+    if kind == N_EXPR_STMT { cg_discard(p, m, f, p.nodes[node].left); return; }
+    if kind == N_FOR { cg_for(p, m, f, node); return; }
+    if kind == N_DEFER { cg_fail(p, node, "wasm: defer statement outside an emitted block"); return; }
     cg_discard(p, m, f, node);
 }
 recursive fn cg_print(p: Program&, m: CgModule&, f: CgBody&, id: i64, value: i64, node: i64, nested: bool) {
@@ -2771,7 +2841,7 @@ fn cg_array_pointer(p: Program&, m: CgModule&, f: CgBody&, id: i64, base: i64) {
     else { cg_get(f, base); wa_const(f.code, cg_static_prefix(p, id)); wa_op(f.code, 0x6a); }
 }
 fn cg_array_element(p: Program&, m: CgModule&, f: CgBody&, id: i64, base: i64, index: i64) {
-    cg_array_pointer(p, m, f, id, base); cg_get(f, index); wa_const(f.code, cg_size(p, p.types[id].element)); wa_op(f.code, 0x6c); wa_op(f.code, 0x6a);
+    cg_array_pointer(p, m, f, id, base); cg_get(f, index); cg_scale_index(f, cg_size(p, p.types[id].element)); wa_op(f.code, 0x6a);
 }
 fn cg_pool_state(p: Program&, m: CgModule&, f: CgBody&, header: i64, node: i64) -> i64 {
     if m.pool_global < 0 { cg_fail(p, node, "wasm: reusable pool state was not planned"); wa_const(f.code, 0); return cg_save(f, wa()); }
@@ -2915,17 +2985,21 @@ recursive fn cg_region_array_builtin(p: Program&, m: CgModule&, f: CgBody&, node
         let direct = cg_fixed_relative(p, element); var value = -1;
         if !direct { cg_to(p, m, f, arg, element); value = cg_save(f, cg_wasm_type(p, element)); }
         cg_owner_read_length(p, m, f, header, node); let old = cg_save(f, wa());
-        cg_get(f, old); wa_const(f.code, -1); wa_op(f.code, 0x46); cg_trap_if(p, m, f, node, "data region exhausted");
-        cg_get(f, old); wa_const(f.code, 1); wa_op(f.code, 0x6a); let count = cg_save(f, wa()); var destination = -1; var top = -1;
+        let stride = cg_size(p, element);
+        if !grow || stride == 0 {
+            cg_get(f, old); wa_const(f.code, -1); wa_op(f.code, 0x46); cg_trap_if(p, m, f, node, "data region exhausted");
+        }
+        cg_get(f, old); wa_const(f.code, 1); wa_op(f.code, 0x6a); let count = cg_save(f, wa()); var destination = -1;
+        var reserved = CgReserved { cursor: -1, limit: -1, top: -1 };
         if grow {
-            wb_i64(f.code, cg_size(p, element)); let bytes = cg_save(f, 0x7e); top = cg_region_reserve(p, m, f, header, bytes, node); destination = cg_region_cursor(f, header);
+            wb_i64(f.code, stride); let bytes = cg_save(f, 0x7e); reserved = cg_region_reserve_at(p, m, f, header, bytes, node); destination = reserved.cursor;
         } else {
             cg_get(f, count); cg_owner_read_capacity(p, m, f, header); wa_op(f.code, 0x4b); cg_trap_if(p, m, f, node, "array capacity exceeded");
             cg_array_element(p, m, f, id, header, old); destination = cg_save(f, wa());
         }
         if direct { cg_fixed_to(p, m, f, arg, element, destination); if cg_diverges(p, arg) { return; } }
         else { cg_get(f, value); cg_write_value(p, m, f, element, destination, node); }
-        if grow { cg_region_publish(f, header, top); }
+        if grow { cg_region_publish_at(f, reserved.limit, reserved.top); }
         cg_owner_set_length(p, m, f, header, count, node);
         if p.nodes[node].type_id != TYPE_VOID {
             cg_get(f, destination); if cg_type_kind(p, element) == TY_REF { cg_load(p, m, f, element, 0); }
@@ -2946,11 +3020,11 @@ recursive fn cg_region_array_builtin(p: Program&, m: CgModule&, f: CgBody&, node
         cg_pack_view(p, m, f, p.nodes[arg].type_id, node); let view = cg_save(f, ws()); cg_get(f, view); ws_len(f.code); let added = cg_save(f, wa());
         cg_owner_read_length(p, m, f, header, node); let old = cg_save(f, wa()); cg_get(f, old); wa_extend(f.code); cg_get(f, added); wa_extend(f.code); wb_byte(f.code, 0x7c); let wide = cg_save(f, 0x7e);
         cg_get(f, wide); wb_i64(f.code, wn_limit()); wb_byte(f.code, 0x56); cg_trap_if(p, m, f, node, "data region exhausted"); cg_get(f, wide); wa_wrap(f.code); let count = cg_save(f, wa());
-        var destination = -1; var top = -1;
-        if grow { let bytes = cg_region_array_bytes(p, m, f, id, added, node); top = cg_region_reserve(p, m, f, header, bytes, node); destination = cg_region_cursor(f, header); }
+        var destination = -1; var reserved = CgReserved { cursor: -1, limit: -1, top: -1 };
+        if grow { let bytes = cg_region_array_bytes(p, m, f, id, added, node); reserved = cg_region_reserve_at(p, m, f, header, bytes, node); destination = reserved.cursor; }
         else { cg_get(f, count); cg_owner_read_capacity(p, m, f, header); wa_op(f.code, 0x4b); cg_trap_if(p, m, f, node, "array capacity exceeded"); cg_array_element(p, m, f, id, header, old); destination = cg_save(f, wa()); }
-        cg_get(f, destination); cg_get(f, view); ws_ptr(f.code); cg_get(f, added); wa_const(f.code, cg_size(p, element)); wa_op(f.code, 0x6c); wb_copy(f.code);
-        if grow { cg_region_publish(f, header, top); } cg_owner_set_length(p, m, f, header, count, node); return;
+        cg_get(f, destination); cg_get(f, view); ws_ptr(f.code); cg_get(f, added); cg_scale_index(f, cg_size(p, element)); wb_copy(f.code);
+        if grow { cg_region_publish_at(f, reserved.limit, reserved.top); } cg_owner_set_length(p, m, f, header, count, node); return;
     }
     cg_to(p, m, f, arg, TYPE_U64); let wide = cg_save(f, 0x7e);
     if !cg_unsigned(p, p.nodes[arg].type_id) { cg_get(f, wide); wb_i64(f.code, 0); wb_byte(f.code, 0x53); if builtin == 27 { cg_trap_if(p, m, f, node, "negative pop count"); } else { cg_trap_if(p, m, f, node, "negative array count"); } }
@@ -2965,13 +3039,14 @@ recursive fn cg_region_array_builtin(p: Program&, m: CgModule&, f: CgBody&, node
     cg_get(f, count); cg_get(f, old); wa_op(f.code, 0x4b); cg_begin(f, 0x04, 0x40);
     if fill < 0 { cg_abort(p, m, f, node, "array resize growth requires a fill value"); }
     else {
-        cg_get(f, count); cg_get(f, old); wa_op(f.code, 0x6b); let added = cg_save(f, wa()); var destination = -1; var top = -1;
-        if grow { let bytes = cg_region_array_bytes(p, m, f, id, added, node); top = cg_region_reserve(p, m, f, header, bytes, node); destination = cg_region_cursor(f, header); }
+        cg_get(f, count); cg_get(f, old); wa_op(f.code, 0x6b); let added = cg_save(f, wa()); var destination = -1;
+        var reserved = CgReserved { cursor: -1, limit: -1, top: -1 };
+        if grow { let bytes = cg_region_array_bytes(p, m, f, id, added, node); reserved = cg_region_reserve_at(p, m, f, header, bytes, node); destination = reserved.cursor; }
         else { cg_get(f, count); cg_owner_read_capacity(p, m, f, header); wa_op(f.code, 0x4b); cg_trap_if(p, m, f, node, "array capacity exceeded"); cg_array_element(p, m, f, id, header, old); destination = cg_save(f, wa()); }
         wa_const(f.code, 0); let index = cg_save(f, wa()); let done = cg_begin(f, 0x02, 0x40); let again = cg_begin(f, 0x03, 0x40);
         cg_get(f, index); cg_get(f, added); wa_op(f.code, 0x4f); cg_branch(p, f, done, true);
-        cg_get(f, destination); cg_get(f, index); wa_const(f.code, cg_size(p, element)); wa_op(f.code, 0x6c); wa_op(f.code, 0x6a); let location = cg_save(f, wa()); cg_get(f, fill); cg_write_value(p, m, f, element, location, node);
-        cg_get(f, index); wa_const(f.code, 1); wa_op(f.code, 0x6a); cg_set(f, index); cg_branch(p, f, again, false); cg_end(f); cg_end(f); if grow { cg_region_publish(f, header, top); }
+        cg_get(f, destination); cg_get(f, index); cg_scale_index(f, cg_size(p, element)); wa_op(f.code, 0x6a); let location = cg_save(f, wa()); cg_get(f, fill); cg_write_value(p, m, f, element, location, node);
+        cg_get(f, index); wa_const(f.code, 1); wa_op(f.code, 0x6a); cg_set(f, index); cg_branch(p, f, again, false); cg_end(f); cg_end(f); if grow { cg_region_publish_at(f, reserved.limit, reserved.top); }
     }
     cg_control(f, 0x05);
     if grow { cg_get(f, old); cg_get(f, count); wa_op(f.code, 0x6b); let removed = cg_save(f, wa()); let bytes = cg_region_array_bytes(p, m, f, id, removed, node); cg_region_rewind(p, m, f, header, bytes, node); }
@@ -3133,15 +3208,15 @@ fn cg_format_bytes_inline(p: Program&, m: CgModule&, f: CgBody&, id: i64, output
         wa_op(f.code, 0x4b); cg_trap_if(p, m, f, node, "limited array capacity exceeded");
     }
     let region = m.regions_enabled && cg_region_value(p, id); let grow = p.types[id].array_kind == A_GROW || p.types[id].array_kind == A_GROWSHRINK;
-    var destination = -1; var top = -1;
+    var destination = -1; var reserved = CgReserved { cursor: -1, limit: -1, top: -1 };
     if region && grow {
-        cg_get(f, length); wa_extend(f.code); let bytes = cg_save(f, 0x7e); top = cg_region_reserve(p, m, f, output, bytes, node); destination = cg_region_cursor(f, output);
+        cg_get(f, length); wa_extend(f.code); let bytes = cg_save(f, 0x7e); reserved = cg_region_reserve_at(p, m, f, output, bytes, node); destination = reserved.cursor;
     } else {
         if !region { cg_array_reserve(p, m, f, id, output, count, node); }
         cg_array_element(p, m, f, id, output, old); destination = cg_save(f, wa());
     }
     cg_get(f, destination); cg_get(f, data); cg_resolve_pointer(m, f); cg_get(f, length); wb_copy(f.code);
-    if region && grow { cg_region_publish(f, output, top); } cg_array_set_length(p, m, f, id, output, count);
+    if region && grow { cg_region_publish_at(f, reserved.limit, reserved.top); } cg_array_set_length(p, m, f, id, output, count);
 }
 fn cg_format_text(p: Program&, m: CgModule&, f: CgBody&, id: i64, output: i64, text: u8[:], node: i64) {
     wa_const(f.code, cg_data(m, text)); let data = cg_save(f, wa()); wa_const(f.code, text.len); let length = cg_save(f, wa());
@@ -3304,6 +3379,15 @@ recursive fn cg_builtin(p: Program&, m: CgModule&, f: CgBody&, node: i64, builti
         return;
     }
     if builtin == 21 {
+        var id = p.nodes[arg].type_id;
+        let is_ref = cg_type_kind(p, id) == TY_REF;
+        if is_ref { id = p.types[id].element; }
+        if m.ordinary_owners && m.resolver < 0 && cg_owner(p, id) {
+            cg_expr(p, m, f, arg);
+            if is_ref { cg_load(p, m, f, id, 0); }
+            wc_load(f.code, 1); wa_extend(f.code);
+            cg_convert(p, m, f, TYPE_U64, n.type_id, node); return;
+        }
         cg_expr(p, m, f, arg); cg_pack_view(p, m, f, p.nodes[arg].type_id, node); ws_count(f.code); cg_convert(p, m, f, TYPE_U64, n.type_id, node); return;
     }
     if builtin == 22 {
@@ -3340,7 +3424,7 @@ recursive fn cg_slice(p: Program&, m: CgModule&, f: CgBody&, node: i64) {
     if p.types[p.types[id].element].storage == 1 {
         cg_get(f, view); ws_ptr(f.code); let base = cg_save(f, wa()); let pointer = cg_walk_elements(p, m, f, base, start, node); cg_get(f, pointer); wa_extend(f.code);
     } else {
-        cg_get(f, view); ws_ptr(f.code); cg_get(f, start); wa_wrap(f.code); wa_const(f.code, cg_size(p, p.types[id].element)); wa_op(f.code, 0x6c); wa_op(f.code, 0x6a); wa_extend(f.code);
+        cg_get(f, view); ws_ptr(f.code); cg_get(f, start); wa_wrap(f.code); cg_scale_index(f, cg_size(p, p.types[id].element)); wa_op(f.code, 0x6a); wa_extend(f.code);
     }
     cg_get(f, end); cg_get(f, start); wb_byte(f.code, 0x7d); ws_pack(f);
 }
@@ -3393,13 +3477,16 @@ recursive fn cg_cast_body(p: Program&, m: CgModule&, f: CgBody&, node: i64) {
     cg_get(f, value); cg_convert(p, m, f, from, to, node);
 }
 
-fn cg_diverges(p: Program&, node: i64) -> bool {
-    if node < 0 { return false; } let n = p.nodes[node];
-    if n.kind == N_FUNCTION || n.kind == N_FUNCTION_VALUE || n.kind == N_INTEGER || n.kind == N_FLOAT || n.kind == N_BOOL || n.kind == N_NULL || n.kind == N_STRING || n.kind == N_NAME { return false; }
-    return (n.flags & F_DIVERGES) != 0;
+inline fn cg_diverges(p: Program&, node: i64) -> bool {
+    if node < 0 { return false; }
+    let n: const Node& = p.nodes[node];
+    if (n.flags & F_DIVERGES) == 0 { return false; }
+    let k = n.kind;
+    return k != N_FUNCTION && k != N_FUNCTION_VALUE && k != N_INTEGER && k != N_FLOAT && k != N_BOOL && k != N_NULL && k != N_STRING && k != N_NAME;
 }
 fn cg_terminal(p: Program&, node: i64) -> bool {
-    if node < 0 { return false; } let n = p.nodes[node];
+    if node < 0 { return false; }
+    let n: const Node& = p.nodes[node];
     if cg_diverges(p, node) || n.kind == N_RETURN || n.kind == N_BREAK || n.kind == N_CONTINUE { return true; }
     if n.kind == N_EXPR_STMT { return cg_diverges(p, n.left); }
     if n.kind == N_VARIABLE || n.kind == N_ASSIGN { return cg_diverges(p, n.right); } return false;
@@ -3439,15 +3526,15 @@ recursive fn cg_project_result(p: Program&, m: CgModule&, f: CgBody&, node: i64,
 }
 recursive fn cg_expr(p: Program&, m: CgModule&, f: CgBody&, node: i64) {
     if node < 0 { return; }
-    let original = p.nodes[node].type_id; let diverges = cg_diverges(p, node); let n = p.nodes[node];
-    if diverges && original < 0 && (n.kind == N_ARRAY || n.kind == N_FILL || n.kind == N_RECORD || n.kind == N_BINARY) {
+    let original = p.nodes[node].type_id; let diverges = cg_diverges(p, node); let kind = p.nodes[node].kind;
+    if diverges && original < 0 && (kind == N_ARRAY || kind == N_FILL || kind == N_RECORD || kind == N_BINARY) {
         cg_bottom_prefix(p, m, f, node); wb_byte(f.code, 0x00); return;
     }
     if diverges && original < 0 { p.nodes[node].type_id = TYPE_VOID; }
-    if m.regions_enabled && cg_region_value(p, n.type_id) && f.active_node != node &&
-       (n.kind == N_BLOCK || n.kind == N_IF || n.kind == N_GUARD || n.kind == N_LOOP || n.kind == N_WHILE || n.kind == N_MATCH) {
-        let receiving = cg_temporary_destination(p, m, f, n.type_id, node);
-        if cg_owner(p, n.type_id) && cg_raw_value(f, node) { f.construction_destinations[receiving].elements = true; }
+    if m.regions_enabled && cg_region_value(p, original) && f.active_node != node &&
+       (kind == N_BLOCK || kind == N_IF || kind == N_GUARD || kind == N_LOOP || kind == N_WHILE || kind == N_MATCH) {
+        let receiving = cg_temporary_destination(p, m, f, original, node);
+        if cg_owner(p, original) && cg_raw_value(f, node) { f.construction_destinations[receiving].elements = true; }
         cg_construct_region(p, m, f, node, receiving); cg_get(f, f.construction_destinations[receiving].header);
     } else { cg_expr_body(p, m, f, node); }
     p.nodes[node].type_id = original;
@@ -3541,6 +3628,8 @@ recursive fn cg_expr_body(p: Program&, m: CgModule&, f: CgBody&, node: i64) {
             if token_is(p, n.token, "cap") && cg_type_kind(p, id) == TY_ARRAY {
                 if cg_owner(p, id) { let header = cg_save(f, wa()); cg_owner_read_capacity(p, m, f, header); wa_extend(f.code); }
                 else { wb_byte(f.code, 0x1a); wb_i64(f.code, p.types[id].count); }
+            } else if m.ordinary_owners && m.resolver < 0 && cg_owner(p, id) {
+                wc_load(f.code, 1); wa_extend(f.code);
             } else { cg_pack_view(p, m, f, id, node); ws_count(f.code); }
             cg_convert(p, m, f, TYPE_U64, n.type_id, node); return;
         }
@@ -3929,11 +4018,12 @@ fn cg_copy_events(events: WbEvent[>..]&, read: i64&, write: i64&, end: i64, delt
         read++; write++;
     }
 }
-fn cg_emit_function(p: Program&, m: CgModule&, function: i64, function_index: i64, elements: bool, out: u8[>..]&, slots: CgSlot[>..]&) {
-    var events: WbEvent[>..] = [];
-    var code: u8[>..] = []; var locals: i64[>..] = []; var addresses: CgFrameAddress[>..] = [];
-    var labels: i64[>..] = []; var exits: CgExit[>..] = []; var results: i64[>..] = []; var destinations: i64[>..] = []; var work: i64[>..] = []; var raw_slots: i64[>..] = []; var sequences: CgSequence[>..] = []; var constructions: CgConstruction[>..] = []; var construction_destinations: CgDestination[>..] = []; var receiving: CgReceiving[>..] = []; var defers: i64[>..] = [];
-    var f = CgBody { events: events, code: code, locals: locals, slots: slots, addresses: addresses, labels: labels, exits: exits, results: results, destinations: destinations, work: work, raw_slots: raw_slots, sequences: sequences, constructions: constructions, construction_destinations: construction_destinations, receiving: receiving, record_events: !m.scalar, function: function, function_index: function_index, elements: elements, defers: defers };
+fn cg_emit_function(p: Program&, m: CgModule&, function: i64, function_index: i64, elements: bool, out: u8[>..]&, slots: CgSlot[>..]&, scratch: CgEmitScratch&) {
+    scratch.events.clear(); scratch.code.clear(); scratch.locals.clear(); scratch.addresses.clear();
+    scratch.labels.clear(); scratch.exits.clear(); scratch.results.clear(); scratch.destinations.clear();
+    scratch.work.clear(); scratch.raw_slots.clear(); scratch.sequences.clear();
+    scratch.constructions.clear(); scratch.construction_destinations.clear(); scratch.receiving.clear(); scratch.defers.clear();
+    var f = CgBody { events: scratch.events, code: scratch.code, locals: scratch.locals, slots: slots, addresses: scratch.addresses, labels: scratch.labels, exits: scratch.exits, results: scratch.results, destinations: scratch.destinations, work: scratch.work, raw_slots: scratch.raw_slots, sequences: scratch.sequences, constructions: scratch.constructions, construction_destinations: scratch.construction_destinations, receiving: scratch.receiving, record_events: !m.scalar, function: function, function_index: function_index, elements: elements, defers: scratch.defers };
     cg_prepare_function(p, m, f, function);
     if m.scalar && function >= 0 { f.frame_free = !cg_scalar_prints(p, p.nodes[function].right); }
     f.done = cg_begin(f, 0x02, 0x40);
@@ -3959,33 +4049,33 @@ fn cg_emit_function(p: Program&, m: CgModule&, function: i64, function_index: i6
     cg_end(f); cg_emit_epilogue(p, m, f);
     // Frame size includes literals and call snapshots discovered recursively.
     // Emit the reservation only after that size has become final.
-    var body: u8[>..] = []; var cursor = 0;
+    scratch.body.clear(); var cursor = 0;
     var event_read = 0; var event_write = 0; var parameter_edits = false;
     for use in m.parameter_uses {
         if slots[use.symbol].address_used { continue; }
         if f.record_events {
-            cg_copy_events(events, event_read, event_write, use.start, body.len - cursor);
-            while event_read < events.len && events[event_read].start < use.end { event_read++; }
+            cg_copy_events(scratch.events, event_read, event_write, use.start, scratch.body.len - cursor);
+            while event_read < scratch.events.len && scratch.events[event_read].start < use.end { event_read++; }
             parameter_edits = true;
         }
-        body.append(code[cursor..use.start]);
+        scratch.body.append(scratch.code[cursor..use.start]);
         // The replacement accesses an incoming parameter and needs no event.
-        if !use.initial { wb_op(body, 0x20, slots[use.symbol].incoming); }
+        if !use.initial { wb_op(scratch.body, 0x20, slots[use.symbol].incoming); }
         cursor = use.end;
     }
     m.parameter_uses.clear();
     if parameter_edits {
-        cg_copy_events(events, event_read, event_write, code.len, body.len - cursor);
-        events.resize(event_write);
+        cg_copy_events(scratch.events, event_read, event_write, scratch.code.len, scratch.body.len - cursor);
+        scratch.events.resize(event_write);
     }
-    let body_event_count = events.len;
-    body.append(code[cursor..]); code.clear(); cg_emit_prelude(p, m, f);
-    let prelude_bytes = code.len;
-    code.append(body);
-    if m.scalar { wb_compact_body(out, locals, code, f.params); }
+    let body_event_count = scratch.events.len;
+    scratch.body.append(scratch.code[cursor..]); scratch.code.clear(); cg_emit_prelude(p, m, f);
+    let prelude_bytes = scratch.code.len;
+    scratch.code.append(scratch.body);
+    if m.scalar { wb_compact_body(out, scratch.locals, scratch.code, f.params); }
     else {
-        wb_reuse_locals(locals, code, f.params, events, body_event_count, prelude_bytes);
-        wb_body(out, locals, code);
+        wb_reuse_locals(scratch.locals, scratch.code, f.params, scratch.events, body_event_count, prelude_bytes, scratch.reuse);
+        wb_body(out, scratch.locals, scratch.code);
     }
     m.region_functions[function_index].own = f.region_peak;
     // The next body reuses the table. Only this body's bindings and
@@ -4023,9 +4113,9 @@ fn cg_emit_host_reserve(p: Program&, m: CgModule&, out: u8[>..]&) {
     cg_get(f, old); wa_extend(f.code); cg_get(f, 1); wa_extend(f.code); wb_byte(f.code, 0x7c); let wide = cg_save(f, 0x7e);
     if cg_wide { cg_get(f, wide); cg_get(f, old); wb_byte(f.code, 0x54); } else { cg_get(f, wide); wb_i64(f.code, 4294967295); wb_byte(f.code, 0x56); }
     cg_trap_if(p, m, f, -1, "array length overflow"); cg_get(f, wide); wa_wrap(f.code); let count = cg_save(f, wa());
-    cg_get(f, 1); wa_extend(f.code); let bytes = cg_save(f, 0x7e); let top = cg_region_reserve(p, m, f, 0, bytes, -1); let destination = cg_region_cursor(f, 0);
-    cg_region_publish(f, 0, top); cg_array_set_length(p, m, f, id, 0, count);
-    cg_get(f, destination); wb_byte(code, 0x0b); wb_body(out, locals, code);
+    cg_get(f, 1); wa_extend(f.code); let bytes = cg_save(f, 0x7e); let reserved = cg_region_reserve_at(p, m, f, 0, bytes, -1);
+    cg_region_publish_at(f, reserved.limit, reserved.top); cg_array_set_length(p, m, f, id, 0, count);
+    cg_get(f, reserved.cursor); wb_byte(code, 0x0b); wb_body(out, locals, code);
 }
 fn cg_allocate(p: Program&, m: CgModule&, f: CgBody&, node: i64) {
     if !f.scratch { wb_op(f.code, 0x10, m.allocator); return; }
@@ -4070,19 +4160,19 @@ fn cg_float_wrap_body(out: u8[>..]&) {
     wb_op(out, 0x20, 1); wb_i64(out, 0); wb_byte(out, 0x53); wb_byte(out, 0x04); wb_byte(out, 0x7e); wb_i64(out, 0); wb_op(out, 0x20, 3); wb_byte(out, 0x7d);
     wb_byte(out, 0x05); wb_op(out, 0x20, 3); wb_byte(out, 0x0b); wb_byte(out, 0x0b); wb_byte(out, 0x0b);
 }
-fn cg_emit_thunk(p: Program&, m: CgModule&, function_index: i64, out: u8[>..]&) {
-    let item = m.functions[function_index]; var code: u8[>..] = []; var no_locals: i64[>..] = [];
+fn cg_emit_thunk(p: Program&, m: CgModule&, function_index: i64, out: u8[>..]&, scratch: CgEmitScratch&) {
+    let item = m.functions[function_index]; scratch.thunk_code.clear(); scratch.thunk_locals.clear();
     var param = p.nodes[item.node].first; var count = 0;
-    while param >= 0 { wb_op(code, 0x20, count + 1); count++; param = p.nodes[param].next; }
+    while param >= 0 { wb_op(scratch.thunk_code, 0x20, count + 1); count++; param = p.nodes[param].next; }
     var capture_offset = 0;
     for capture in m.captures {
-        if capture.function == item.node { wb_op(code, 0x20, 0); wa_load(code, capture_offset); capture_offset += wa_bytes(); }
+        if capture.function == item.node { wb_op(scratch.thunk_code, 0x20, 0); wa_load(scratch.thunk_code, capture_offset); capture_offset += wa_bytes(); }
     }
-    var results: i64[>..] = []; cg_function_results(p, item.node, results);
+    scratch.thunk_results.clear(); cg_function_results(p, item.node, scratch.thunk_results);
     var destination = count + 1;
-    for id in results { if cg_aggregate(p, id) { wb_op(code, 0x20, destination); destination++; } }
-    if (p.nodes[item.node].flags & F_LOCATED) != 0 { wb_i32(code, p.tokens[p.nodes[item.node].token].line); }
-    wb_op(code, 0x10, item.index); wb_byte(code, 0x0b); wb_body(out, no_locals, code);
+    for id in scratch.thunk_results { if cg_aggregate(p, id) { wb_op(scratch.thunk_code, 0x20, destination); destination++; } }
+    if (p.nodes[item.node].flags & F_LOCATED) != 0 { wb_i32(scratch.thunk_code, p.tokens[p.nodes[item.node].token].line); }
+    wb_op(scratch.thunk_code, 0x10, item.index); wb_byte(scratch.thunk_code, 0x0b); wb_body(out, scratch.thunk_locals, scratch.thunk_code);
 }
 recursive fn cg_propagate_captures(p: Program&, m: CgModule&, function: i64, node: i64) {
     if node < 0 { return; } let n = p.nodes[node];
@@ -4161,18 +4251,19 @@ fn cg_scalar_results(p: Program&, function: i64) -> bool {
     return true;
 }
 recursive fn cg_private_arena(p: Program&, m: CgModule&, function: i64, node: i64) -> bool {
-    if node < 0 { return true; } let n = p.nodes[node];
-    if n.kind == N_PATTERN || (n.kind == N_FUNCTION || n.kind == N_FUNCTION_VALUE) && node != function { return true; }
-    if m.pool_global >= 0 && n.kind == N_VARIABLE && (n.flags & F_REUSABLE) != 0 { return false; }
-    if n.kind == N_RETURN && n.symbol >= 0 && p.symbols[n.symbol].node != function { return false; }
-    if n.kind == N_ASSIGN && !cg_private_place(p, function, n.left) { return false; }
-    if n.kind == N_CALL {
+    if node < 0 { return true; } let n: const Node& = p.nodes[node];
+    let kind = n.kind;
+    if kind == N_PATTERN || (kind == N_FUNCTION || kind == N_FUNCTION_VALUE) && node != function { return true; }
+    if m.pool_global >= 0 && kind == N_VARIABLE && (n.flags & F_REUSABLE) != 0 { return false; }
+    if kind == N_RETURN && n.symbol >= 0 && p.symbols[n.symbol].node != function { return false; }
+    if kind == N_ASSIGN && !cg_private_place(p, function, n.left) { return false; }
+    if kind == N_CALL {
         if (n.flags & F_DISPATCH) != 0 {
             var arm = n.third;
             while arm >= 0 { let target = cg_function(m, p.nodes[arm].symbol); if target < 0 || !m.functions[target].arena_local { return false; } arm = p.nodes[arm].next; }
         } else {
             if n.symbol < 0 || n.symbol >= p.symbols.len { return false; }
-            let symbol = p.symbols[n.symbol];
+            let symbol: const Symbol& = p.symbols[n.symbol];
             if (symbol.flags & S_BUILTIN) != 0 {
                 if symbol.index == 2 && !cg_private_place(p, function, n.first) { return false; }
                 if symbol.index == 16 && n.first >= 0 && p.nodes[n.first].next >= 0 &&
@@ -4194,18 +4285,27 @@ fn cg_plan_private_arenas(p: Program&, m: CgModule&) {
     loop {
         var changed = false;
         for item, index in m.functions {
+            if item.elements { continue; }
             if item.arena_local && !cg_private_arena(p, m, item.node, p.nodes[item.node].right) { m.functions[index].arena_local = false; changed = true; }
         }
         if !changed { break; }
     }
+    for item, index in m.functions {
+        if item.elements {
+            let first = m.functions_by_symbol[item.symbol].first as i64;
+            if first >= 0 { m.functions[index].arena_local = m.functions[first].arena_local; }
+        }
+    }
 }
 recursive fn cg_region_owned_result(p: Program&, id: i64) -> bool {
+    if id < 13 { return false; }
     if cg_type_kind(p, id) != TY_TUPLE { return cg_has_owner(p, id); }
     var component = p.types[id].first;
     while component >= 0 { if cg_region_owned_result(p, p.nodes[component].type_id) { return true; } component = p.nodes[component].next; }
     return false;
 }
 recursive fn cg_region_type_supported(p: Program&, id: i64) -> bool {
+    if id < 13 { return true; }
     var value = id;
     var kind = cg_type_kind(p, value);
     while kind == TY_REF { value = p.types[value].element; kind = cg_type_kind(p, value); }
@@ -4269,43 +4369,63 @@ recursive fn cg_effect_result_supported(p: Program&, id: i64) -> bool {
     if cg_image_owner(p, id) { if !cg_record_effect_supported(p, id) { return false; } array = cg_image_tail_type(p, id); }
     return cg_owner(p, array) && (p.types[array].array_kind != A_VAR || p.types[array].length_storage != 0) && p.types[p.types[array].element].storage != 1;
 }
-recursive fn cg_region_body_supported(p: Program&, function: i64, node: i64, owns: bool&) -> bool {
-    if node < 0 { return true; } let n = p.nodes[node];
-    if n.kind == N_PATTERN || n.kind == N_STRUCT || n.kind == N_ENUM || n.kind == N_ALIAS || n.kind == N_IMPORT || (n.kind == N_FUNCTION || n.kind == N_FUNCTION_VALUE) && node != function { return true; }
-    if !cg_region_type_supported(p, n.type_id) { return false; }
-    let constructs = n.kind == N_CALL || cg_result_channels(p, node) || n.kind == N_ARRAY || n.kind == N_FILL || n.kind == N_RECORD || n.kind == N_CAST;
-    if constructs && cg_region_owned_result(p, n.type_id) { owns = true; }
-    if n.kind == N_RETURN && n.symbol >= 0 {
+recursive fn cg_region_body_supported(p: Program&, m: CgModule&, function: i64, node: i64, owns: bool&, may: bool&) -> bool {
+    if node < 0 { return true; }
+    let n: const Node& = p.nodes[node];
+    let kind = n.kind;
+    if kind == N_PATTERN || kind == N_STRUCT || kind == N_ENUM || kind == N_ALIAS || kind == N_IMPORT || (kind == N_FUNCTION || kind == N_FUNCTION_VALUE) && node != function {
+        m.region_memo[node] = 1;
+        return true;
+    }
+    let tid = n.type_id;
+    if !cg_region_type_supported(p, tid) { return false; }
+    var sub_may = false;
+    if tid >= 13 {
+        var stripped = tid;
+        while cg_type_kind(p, stripped) == TY_REF { stripped = p.types[stripped].element; }
+        if cg_region_owned_result(p, stripped) {
+            sub_may = true;
+            if kind == N_CALL || cg_result_channels(p, node) || kind == N_ARRAY || kind == N_FILL || kind == N_RECORD || kind == N_CAST {
+                if cg_region_owned_result(p, tid) { owns = true; }
+            }
+        }
+    }
+    if kind == N_RETURN && n.symbol >= 0 {
         let target = p.symbols[n.symbol].node;
         if target != function && !cg_effect_result_supported(p, cg_result_type(p, target)) { return false; }
-
     }
-    if !cg_region_body_supported(p, function, n.left, owns) || !cg_region_body_supported(p, function, n.right, owns) || !cg_region_body_supported(p, function, n.third, owns) { return false; }
+    if !cg_region_body_supported(p, m, function, n.left, owns, sub_may) ||
+       !cg_region_body_supported(p, m, function, n.right, owns, sub_may) ||
+       !cg_region_body_supported(p, m, function, n.third, owns, sub_may) { return false; }
     var child = n.first; var emitted = true;
     while child >= 0 {
         var child_owns = false;
-        if !cg_region_body_supported(p, function, child, child_owns) { return false; }
+        if !cg_region_body_supported(p, m, function, child, child_owns, sub_may) { return false; }
         if emitted && child_owns { owns = true; }
         if cg_terminal(p, child) { emitted = false; }
         child = p.nodes[child].next;
     }
+    if sub_may { m.region_memo[node] = 2; may = true; } else { m.region_memo[node] = 1; }
     return true;
 }
 fn cg_array_regions_supported(p: Program&, m: CgModule&) -> bool {
-    var owns = false;
-    for symbol in p.symbols {
+    m.region_memo.resize(p.nodes.len, 0);
+    var owns = false; var may = false;
+    for s_id in 0..p.symbols.len {
+        let symbol: const Symbol& = p.symbols[s_id];
         if symbol.owner >= 0 && (p.nodes[symbol.owner].flags & F_REACHABLE) == 0 { continue; }
         if symbol.node >= 0 && (p.nodes[symbol.node].kind == N_FIELD || p.nodes[symbol.node].kind == N_VARIANT) { continue; }
         if symbol.type_id >= 0 && (symbol.flags & (S_FUNCTION | S_TYPE | S_BUILTIN)) == 0 {
             if !cg_region_type_supported(p, symbol.type_id) { return false; }
             if cg_has_owner(p, symbol.type_id) { owns = true; }
             if (symbol.flags & S_GLOBAL) != 0 && symbol.node >= 0 &&
-               !cg_region_body_supported(p, -1, p.nodes[symbol.node].right, owns) { return false; }
+               !cg_region_body_supported(p, m, -1, p.nodes[symbol.node].right, owns, may) { return false; }
         }
     }
     for item in m.functions {
+        if item.elements { continue; }
         let result = cg_result_type(p, item.node);
-        if !cg_region_type_supported(p, result) || !cg_region_body_supported(p, item.node, p.nodes[item.node].right, owns) { return false; }
+        if !cg_region_type_supported(p, result) || !cg_region_body_supported(p, m, item.node, p.nodes[item.node].right, owns, may) { return false; }
         if cg_region_owned_result(p, result) { owns = true; }
     }
     return owns;
@@ -4420,9 +4540,10 @@ fn cg_region_width(p: Program&, id: i64) -> i64 {
 }
 fn cg_collect(p: Program&, m: CgModule&) {
     cg_root_layouts(p);
-    cg_scan_functions(p, m); p.unwinding = m.nonlocal_returns && mark_unwinding_functions(p); mark_located_functions(p);
+    cg_scan_functions(p, m); p.unwinding = m.nonlocal_returns && mark_unwinding_functions(p); mark_located_functions(p, true);
     for host in 0..9 { m.imports.push(CgImport { signature: cg_host_signature(m, host), host: host }); }
-    for symbol, i in p.symbols {
+    for i in 0..p.symbols.len {
+        let symbol: const Symbol& = p.symbols[i];
         m.globals.push(-1); m.global_regions.push(-1);
         if (symbol.flags & S_GLOBAL) != 0 && symbol.type_id >= 0 && symbol.component_owner < 0 {
             m.next_data = cg_align(m.next_data, p.types[symbol.type_id].align); m.globals[i] = m.next_data; m.next_data += cg_slot_size(p, symbol.type_id);
@@ -4431,11 +4552,14 @@ fn cg_collect(p: Program&, m: CgModule&) {
     }
     // A named component (`owner.field` in an index or relative reference
     // type) is that field's place inside its global owner's frame.
-    for symbol, i in p.symbols {
+    for i in 0..p.symbols.len {
+        let symbol: const Symbol& = p.symbols[i];
         if symbol.component_owner >= 0 && symbol.component >= 0 && m.globals[symbol.component_owner] >= 0 { m.globals[i] = m.globals[symbol.component_owner] + p.nodes[symbol.component].integer; }
     }
-    for n, node in p.nodes {
-        if n.kind == N_CALL && (n.flags & F_DISPATCH) != 0 {
+    for node in 0..p.nodes.len {
+        let n: const Node& = p.nodes[node];
+        let kind = n.kind;
+        if kind == N_CALL && (n.flags & F_DISPATCH) != 0 {
             var arm = n.third;
             while arm >= 0 {
                 let symbol = p.nodes[arm].symbol;
@@ -4445,11 +4569,11 @@ fn cg_collect(p: Program&, m: CgModule&) {
         }
         // Checking makes implicit borrows explicit. Also keep a place for a
         // reference-typed name retained by specialization or inlining.
-        if n.kind == N_UNARY && n.integer == T_BITAND && n.left >= 0 && p.nodes[n.left].kind == N_NAME &&
+        if kind == N_UNARY && n.integer == T_BITAND && n.left >= 0 && p.nodes[n.left].kind == N_NAME &&
            cg_type_kind(p, p.nodes[n.left].type_id) != TY_REF {
             let symbol = p.nodes[n.left].symbol; if symbol >= 0 { p.symbols[symbol].flags |= CG_ADDRESS_TAKEN; }
         }
-        if n.kind == N_NAME && n.symbol >= 0 && n.symbol < p.symbols.len &&
+        if kind == N_NAME && n.symbol >= 0 && n.symbol < p.symbols.len &&
            ((n.flags & F_REFERENCE_CONTEXT) != 0 || cg_type_kind(p, n.type_id) == TY_REF || cg_type_kind(p, n.coerced_type) == TY_REF) {
             let sk = cg_type_kind(p, p.symbols[n.symbol].type_id);
             if sk == TY_REF {
@@ -4466,7 +4590,7 @@ fn cg_collect(p: Program&, m: CgModule&) {
                 p.symbols[n.symbol].flags |= CG_ADDRESS_TAKEN;
             }
         }
-        if n.kind != N_FUNCTION && n.kind != N_FUNCTION_VALUE || n.symbol < 0 || (n.flags & F_GENERIC) != 0 ||
+        if kind != N_FUNCTION && kind != N_FUNCTION_VALUE || n.symbol < 0 || (n.flags & F_GENERIC) != 0 ||
            (n.flags & (F_CHECKED | F_REACHABLE)) != (F_CHECKED | F_REACHABLE) { continue; }
         if (n.flags & F_THREAD) != 0 { cg_fail(p, node, "wasm: threads are unsupported by the direct host ABI"); }
         if (n.flags & F_EXTERN) != 0 {
@@ -4495,8 +4619,9 @@ fn cg_collect(p: Program&, m: CgModule&) {
         }
     }
     var helpers = CgHelperDemand {};
-    for item in m.functions { cg_scan_helpers(p, helpers, p.nodes[item.node].right, true); }
-    for symbol in p.symbols {
+    for item in m.functions { if !item.elements { cg_scan_helpers(p, helpers, p.nodes[item.node].right, true); } }
+    for s_id in 0..p.symbols.len {
+        let symbol: const Symbol& = p.symbols[s_id];
         if (symbol.flags & S_GLOBAL) != 0 && symbol.node >= 0 { cg_scan_helpers(p, helpers, p.nodes[symbol.node].right, symbol.component_owner < 0); }
     }
     if helpers.pool { m.pool_global = 0; }
@@ -4506,7 +4631,7 @@ fn cg_collect(p: Program&, m: CgModule&) {
     var previous_captures = 0;
     while previous_captures < m.captures.len {
         previous_captures = m.captures.len;
-        for item in m.functions { cg_propagate_captures(p, m, item.node, p.nodes[item.node].right); }
+        for item in m.functions { if !item.elements { cg_propagate_captures(p, m, item.node, p.nodes[item.node].right); } }
     }
     for capture in m.captures { p.symbols[capture.symbol].flags |= CG_ADDRESS_TAKEN; }
     for item, i in m.functions {
@@ -4514,7 +4639,11 @@ fn cg_collect(p: Program&, m: CgModule&) {
         var count = 0; for capture in m.captures { if capture.function == item.node { count++; } }
         m.functions[i].capture_count = count;
         m.functions[i].signature = cg_make_signature(p, m, item.node, false);
-        m.functions[i].closure_signature = cg_make_signature(p, m, item.node, true);
+        if (p.nodes[item.node].flags & F_VALUE_USED) != 0 {
+            m.functions[i].closure_signature = cg_make_signature(p, m, item.node, true);
+            m.functions[i].table_index = m.thunk_count;
+            m.thunk_count += 1;
+        }
         m.functions[i].index = m.imports.len + i;
     }
     m.region_functions.push(RegionFunction { entry: true });
@@ -4534,10 +4663,10 @@ fn cg_collect(p: Program&, m: CgModule&) {
     if helpers.raw_appends > 1 { m.raw_append_type = helpers.raw_append_type; m.raw_append = thunk_base; thunk_base++; }
     if !m.ordinary_owners && m.resolver < 0 && helpers.owner_indexes > 1 { m.owner_view = thunk_base; thunk_base++; }
     if !m.ordinary_owners && m.regions_enabled && helpers.owner_mutations > 1 { m.update_length = thunk_base; thunk_base++; }
-    for item, i in m.functions { m.functions[i].thunk = thunk_base + i; }
+    for item, i in m.functions { if item.table_index >= 0 { m.functions[i].thunk = thunk_base + item.table_index; } }
     if m.regions_enabled {
         m.host_reserve_type = cg_host_reserve_type(p, m);
-        if m.host_reserve_type >= 0 { m.host_reserve = thunk_base + m.functions.len; }
+        if m.host_reserve_type >= 0 { m.host_reserve = thunk_base + m.thunk_count; }
     }
     if m.functions.len == 1 && m.imports.len == 9 && p.entry == m.functions[0].node && m.functions[0].capture_count == 0 {
         let entry = m.functions[0].node;
@@ -4787,22 +4916,47 @@ fn generate_wasm(p: Program&, out: u8[>..]&) {
     }
     if p.pointer_bytes != 4 && p.pointer_bytes != 8 { cg_fail(p, -1, "wasm: checked layout must use memory32 or memory64 pointers"); return; }
     var functions: CgFunction[>..] = []; var functions_by_symbol: CgFunctionIndex[>..] = []; var captures: CgCapture[>..] = []; var imports: CgImport[>..] = [];
-    var signatures: CgSignature[>..] = []; var signature_bytes: u8[>..] = []; var segments: CgSegment[>..] = []; var segment_slots: i64[>..] = []; var data: u8[>..] = []; var globals: i64[>..] = []; var global_regions: i64[>..] = []; var region_functions: RegionFunction[>..] = []; var region_calls: RegionCall[>..] = [];
-    var region_memo: i64[>..] = [];
+    var signatures: CgSignature[>..] = []; var signature_bytes: u8[>..] = []; var signature_slots: i64[>..] = []; var signature_scratch: u8[>..] = [];
+    var segments: CgSegment[>..] = []; var segment_slots: i64[>..] = []; var data: u8[>..] = []; var globals: i64[>..] = []; var global_regions: i64[>..] = []; var region_functions: RegionFunction[>..] = []; var region_calls: RegionCall[>..] = [];
+    var region_memo: u8[>..] = [];
     var binding_heads: i64[>..] = []; var binding_next: i64[>..] = [];
     var owners = SymbolOwners { heads: binding_heads, next: binding_next };
     index_symbol_owners(p, owners);
     var parameter_uses: CgParameterUse[>..] = [];
-    var m = CgModule { parameter_uses: parameter_uses, functions: functions, functions_by_symbol: functions_by_symbol, captures: captures, imports: imports, signatures: signatures, signature_bytes: signature_bytes, segments: segments, segment_slots: segment_slots, data: data, globals: globals, global_regions: global_regions, symbol_owners: owners, region_functions: region_functions, region_calls: region_calls, region_memo: region_memo,
+    var m = CgModule { parameter_uses: parameter_uses, functions: functions, functions_by_symbol: functions_by_symbol, captures: captures, imports: imports, signatures: signatures, signature_bytes: signature_bytes, signature_slots: signature_slots, signature_scratch: signature_scratch, segments: segments, segment_slots: segment_slots, data: data, globals: globals, global_regions: global_regions, symbol_owners: owners, region_functions: region_functions, region_calls: region_calls, region_memo: region_memo,
         stack_limit: (p.maximum_pages * 65536 / 2) & -8 };
     cg_collect(p, m); if p.diagnostics.len > 0 { return; }
     if m.scalar { m.resolver = -1; m.host_reserve = -1; }
     var slots: CgSlot[>..] = []; slots.resize(p.symbols.len, CgSlot {});
-    var body_count = m.functions.len * 2 + 3; if m.resolver >= 0 { body_count++; } if m.header_helper >= 0 { body_count++; } if m.prefix_helper >= 0 { body_count++; } if m.raw_append >= 0 { body_count++; } if m.owner_view >= 0 { body_count++; } if m.update_length >= 0 { body_count++; } if m.host_reserve >= 0 { body_count++; } if m.scalar { body_count = m.functions.len + 1; }
+    var sc_events: WbEvent[>..] = []; var sc_code: u8[>..] = []; var sc_body: u8[>..] = []; var sc_locals: i64[>..] = [];
+    var sc_addresses: CgFrameAddress[>..] = []; var sc_labels: i64[>..] = []; var sc_exits: CgExit[>..] = [];
+    var sc_results: i64[>..] = []; var sc_destinations: i64[>..] = []; var sc_work: i64[>..] = []; var sc_raw_slots: i64[>..] = [];
+    var sc_sequences: CgSequence[>..] = []; var sc_constructions: CgConstruction[>..] = [];
+    var sc_construction_destinations: CgDestination[>..] = []; var sc_receiving: CgReceiving[>..] = []; var sc_defers: i64[>..] = [];
+    var sc_thunk_code: u8[>..] = []; var sc_thunk_locals: i64[>..] = []; var sc_thunk_results: i64[>..] = [];
+    var rw_locals_at: WbLocalAccess[>..] = []; var rw_first: i32[>..] = []; var rw_last: i32[>..] = [];
+    var rw_written: i32[>..] = []; var rw_arm: i32[>..] = []; var rw_stamp: i32[>..] = []; var rw_loop_end: i32[>..] = [];
+    var rw_frames: WbFrame[>..] = []; var rw_undo: i32[>..] = []; var rw_covers: i32[>..] = []; var rw_merged: i32[>..] = [];
+    var rw_head: i32[>..] = []; var rw_next: i32[>..] = []; var rw_kinds: i64[>..] = []; var rw_kept: i64[>..] = [];
+    var rw_ends: i32[>..] = []; var rw_encoded: u8[>..] = [];
+    var emit_scratch = CgEmitScratch {
+        events: sc_events, code: sc_code, body: sc_body, locals: sc_locals, addresses: sc_addresses,
+        labels: sc_labels, exits: sc_exits, results: sc_results, destinations: sc_destinations,
+        work: sc_work, raw_slots: sc_raw_slots, sequences: sc_sequences,
+        constructions: sc_constructions, construction_destinations: sc_construction_destinations,
+        receiving: sc_receiving, defers: sc_defers,
+        thunk_code: sc_thunk_code, thunk_locals: sc_thunk_locals, thunk_results: sc_thunk_results,
+        reuse: WbReuseScratch {
+            locals_at: rw_locals_at, first: rw_first, last: rw_last, written: rw_written, arm: rw_arm, stamp: rw_stamp,
+            loop_end: rw_loop_end, frames: rw_frames, undo: rw_undo, covers: rw_covers, merged: rw_merged,
+            head: rw_head, next: rw_next, kinds: rw_kinds, kept: rw_kept, ends: rw_ends, encoded: rw_encoded,
+        },
+    };
+    var body_count = m.functions.len + m.thunk_count + 3; if m.resolver >= 0 { body_count++; } if m.header_helper >= 0 { body_count++; } if m.prefix_helper >= 0 { body_count++; } if m.raw_append >= 0 { body_count++; } if m.owner_view >= 0 { body_count++; } if m.update_length >= 0 { body_count++; } if m.host_reserve >= 0 { body_count++; } if m.scalar { body_count = m.functions.len + 1; }
     var code: u8[>..] = []; wb_u(code, body_count);
     var body: u8[>..] = [];
-    for item, index in m.functions { body.clear(); cg_emit_function(p, m, item.node, index, item.elements, body, slots); wb_u(code, body.len); wb_raw(code, body); }
-    body.clear(); cg_emit_function(p, m, -1, m.functions.len, false, body, slots); wb_u(code, body.len); wb_raw(code, body);
+    for item, index in m.functions { body.clear(); cg_emit_function(p, m, item.node, index, item.elements, body, slots, emit_scratch); wb_u(code, body.len); wb_raw(code, body); }
+    body.clear(); cg_emit_function(p, m, -1, m.functions.len, false, body, slots, emit_scratch); wb_u(code, body.len); wb_raw(code, body);
     if !m.scalar {
         body.clear(); cg_allocator_body(body); wb_u(code, body.len); wb_raw(code, body);
         body.clear(); cg_float_wrap_body(body); wb_u(code, body.len); wb_raw(code, body);
@@ -4812,7 +4966,7 @@ fn generate_wasm(p: Program&, out: u8[>..]&) {
         if m.raw_append >= 0 { body.clear(); cg_emit_array_helper(p, m, body, m.raw_append); wb_u(code, body.len); wb_raw(code, body); }
         if m.owner_view >= 0 { body.clear(); cg_emit_array_helper(p, m, body, m.owner_view); wb_u(code, body.len); wb_raw(code, body); }
         if m.update_length >= 0 { body.clear(); cg_emit_array_helper(p, m, body, m.update_length); wb_u(code, body.len); wb_raw(code, body); }
-        for item, i in m.functions { body.clear(); cg_emit_thunk(p, m, i, body); wb_u(code, body.len); wb_raw(code, body); }
+        for item, i in m.functions { if item.table_index >= 0 { body.clear(); cg_emit_thunk(p, m, i, body, emit_scratch); wb_u(code, body.len); wb_raw(code, body); } }
         if m.host_reserve >= 0 {
             // This exported helper accepts a control address from the host.
             let ordinary = m.ordinary_owners; m.ordinary_owners = false;
@@ -4847,26 +5001,28 @@ fn generate_wasm(p: Program&, out: u8[>..]&) {
     }
     var reserve_signature = -1;
     if m.host_reserve >= 0 { var pair_address: u8[>..] = []; pair_address.push(wa() as u8); pair_address.push(wa() as u8); reserve_signature = cg_signature(m, pair_address, one_address); }
-    var module: u8[>..] = [0, 97, 115, 109, 1, 0, 0, 0]; var section: u8[>..] = [];
+    let out_mark = out.len;
+    for b in [0, 97, 115, 109, 1, 0, 0, 0] { out.push(b as u8); }
+    var section: u8[>..] = [];
     wb_u(section, m.signatures.len);
-    for sig in m.signatures { wb_raw(section, m.signature_bytes[sig.start..sig.start + sig.count]); } wb_section(module, 1, section); section.clear();
+    for sig in m.signatures { wb_raw(section, m.signature_bytes[sig.start..sig.start + sig.count]); } wb_section(out, 1, section); section.clear();
     wb_u(section, m.imports.len);
     for item in m.imports {
         if item.host >= 0 { wb_import(section, "goose", cg_host_name(item.host), item.signature); }
         else { wb_import(section, "env", cg_external_name(p, p.symbols[item.symbol].node), item.signature); }
     }
-    wb_section(module, 2, section); section.clear();
+    wb_section(out, 2, section); section.clear();
     wb_u(section, body_count); for item in m.functions { wb_u(section, item.signature); }
     wb_u(section, start_signature);
-    if !m.scalar { wb_u(section, allocator_signature); wb_u(section, wrap_signature); if m.resolver >= 0 { wb_u(section, allocator_signature); } if m.header_helper >= 0 { wb_u(section, header_signature); } if m.prefix_helper >= 0 { wb_u(section, prefix_signature); } if m.raw_append >= 0 { wb_u(section, append_signature); } if m.owner_view >= 0 { wb_u(section, view_signature); } if m.update_length >= 0 { wb_u(section, update_signature); } for item in m.functions { wb_u(section, item.closure_signature); } if m.host_reserve >= 0 { wb_u(section, reserve_signature); } }
-    wb_section(module, 3, section); section.clear();
-    if !m.scalar { wb_u(section, 1); wb_byte(section, 0x70); wb_byte(section, 0); wb_u(section, m.functions.len); wb_section(module, 4, section); section.clear(); }
+    if !m.scalar { wb_u(section, allocator_signature); wb_u(section, wrap_signature); if m.resolver >= 0 { wb_u(section, allocator_signature); } if m.header_helper >= 0 { wb_u(section, header_signature); } if m.prefix_helper >= 0 { wb_u(section, prefix_signature); } if m.raw_append >= 0 { wb_u(section, append_signature); } if m.owner_view >= 0 { wb_u(section, view_signature); } if m.update_length >= 0 { wb_u(section, update_signature); } for item in m.functions { if item.table_index >= 0 { wb_u(section, item.closure_signature); } } if m.host_reserve >= 0 { wb_u(section, reserve_signature); } }
+    wb_section(out, 3, section); section.clear();
+    if !m.scalar { wb_u(section, 1); wb_byte(section, 0x70); wb_byte(section, 0); wb_u(section, m.thunk_count); wb_section(out, 4, section); section.clear(); }
     var initial_pages = p.initial_pages; let static_pages = (m.next_data + 65535) / 65536;
     if initial_pages < static_pages { initial_pages = static_pages; }
     // Limits with a maximum (0x01), of an i64-indexed memory (0x04) when wide.
     var memory_limits = 1; if cg_wide { memory_limits = 5; }
-    wb_u(section, 1); wb_byte(section, memory_limits); wb_u(section, initial_pages); wb_u(section, p.maximum_pages); wb_section(module, 5, section); section.clear();
-    cg_module_globals(p, m, section); wb_section(module, 6, section); section.clear();
+    wb_u(section, 1); wb_byte(section, memory_limits); wb_u(section, initial_pages); wb_u(section, p.maximum_pages); wb_section(out, 5, section); section.clear();
+    cg_module_globals(p, m, section); wb_section(out, 6, section); section.clear();
     var export_count = 2; for item in m.functions { if (p.nodes[item.node].flags & F_EXPORT) != 0 { export_count++; } }
     // For a host: goose.reserve, which a host appends to a growable byte
     // array with, and, with --wasm-region-stats, the region table's address
@@ -4882,18 +5038,18 @@ fn generate_wasm(p: Program&, out: u8[>..]&) {
             cg_exportable(p, item.node); wb_export(section, cg_external_name(p, item.node), 0, item.index);
         }
     }
-    wb_section(module, 7, section); section.clear();
-    if !m.scalar {
-        wb_u(section, 1); wb_u(section, 0); wb_i32(section, 0); wb_byte(section, 0x0b); wb_u(section, m.functions.len);
-        for item in m.functions { wb_u(section, item.thunk); } wb_section(module, 9, section); section.clear();
+    wb_section(out, 7, section); section.clear();
+    if !m.scalar && m.thunk_count > 0 {
+        wb_u(section, 1); wb_u(section, 0); wb_i32(section, 0); wb_byte(section, 0x0b); wb_u(section, m.thunk_count);
+        for item in m.functions { if item.table_index >= 0 { wb_u(section, item.thunk); } } wb_section(out, 9, section); section.clear();
     }
-    wb_section(module, 10, code);
+    wb_section(out, 10, code);
     wb_u(section, m.segments.len);
     for segment in m.segments {
         wb_u(section, 0); wa_const(section, segment.address); wb_byte(section, 0x0b); wb_u(section, segment.count); wb_raw(section, m.data[segment.start..segment.start + segment.count]);
     }
-    wb_section(module, 11, section); section.clear();
-    if m.scalar { cg_scalar_metadata(p, m, module); }
+    wb_section(out, 11, section); section.clear();
+    if m.scalar { cg_scalar_metadata(p, m, out); }
     else if p.debug {
         var name_count = m.imports.len + m.functions.len + 3; if m.host_reserve >= 0 { name_count++; }
         wb_name(section, "name"); var names: u8[>..] = []; wb_u(names, name_count);
@@ -4901,9 +5057,9 @@ fn generate_wasm(p: Program&, out: u8[>..]&) {
         for item in m.functions { wb_u(names, item.index); wb_name(names, token_text(p, p.nodes[item.node].token)); }
         wb_u(names, m.start); wb_name(names, "_start"); wb_u(names, m.allocator); wb_name(names, "goose.allocate"); wb_u(names, m.float_wrap); wb_name(names, "goose.float_wrap");
         if m.host_reserve >= 0 { wb_u(names, m.host_reserve); wb_name(names, "goose.reserve"); }
-        wb_byte(section, 1); wb_u(section, names.len); wb_raw(section, names); wb_section(module, 0, section);
+        wb_byte(section, 1); wb_u(section, names.len); wb_raw(section, names); wb_section(out, 0, section);
     }
-    if p.diagnostics.len == 0 { out.append(module); }
+    if p.diagnostics.len > 0 { out.resize(out_mark, 0); }
 }
 
 struct CgDecoded { value: i64, cursor: i64 }
@@ -5858,21 +6014,32 @@ fn cg_region_cursor_slot(f: CgBody&, header: i64) -> i64 {
 fn cg_region_cursor(f: CgBody&, header: i64) -> i64 {
     let slot = cg_region_cursor_slot(f, header); cg_get(f, slot); wa_load(f.code, 0); return cg_save(f, wa());
 }
-fn cg_region_publish(f: CgBody&, header: i64, top: i64) {
-    let slot = cg_region_cursor_slot(f, header); cg_get(f, slot); cg_get(f, top); wa_store(f.code, 0);
+fn cg_region_publish_at(f: CgBody&, slot: i64, top: i64) {
+    cg_get(f, slot); cg_get(f, top); wa_store(f.code, 0);
     if cg_region_stats {
         cg_get(f, top); cg_get(f, slot); wa_load(f.code, ww(2)); wa_op(f.code, 0x4b); cg_begin(f, 0x04, 0x40);
         cg_get(f, slot); cg_get(f, top); wa_store(f.code, ww(2)); cg_end(f);
     }
 }
-fn cg_region_reserve(p: Program&, m: CgModule&, f: CgBody&, header: i64, bytes: i64, node: i64) -> i64 {
-    let cursor = cg_region_cursor(f, header); cg_get(f, header); wc_load(f.code, 2); let limit = cg_save(f, wa());
+fn cg_region_publish(f: CgBody&, header: i64, top: i64) {
+    let slot = cg_region_cursor_slot(f, header);
+    cg_region_publish_at(f, slot, top);
+}
+fn cg_region_reserve_at(p: Program&, m: CgModule&, f: CgBody&, header: i64, bytes: i64, node: i64) -> CgReserved {
+    let limit = cg_region_cursor_slot(f, header);
+    cg_get(f, limit); wa_load(f.code, 0); let cursor = cg_save(f, wa());
+    // One combined bounds check: cursor < base || cursor > limit || bytes > (limit - cursor).
+    // When this does not trap, base <= cursor <= limit and cursor + bytes <= limit without wrapping.
     cg_get(f, cursor); cg_get(f, limit); wa_load(f.code, ww(1)); wa_op(f.code, 0x49);
-    cg_get(f, cursor); cg_get(f, limit); wa_op(f.code, 0x4b); wb_byte(f.code, 0x72); cg_trap_if(p, m, f, node, "data region exhausted");
-    cg_get(f, bytes); cg_get(f, limit); cg_get(f, cursor); wa_op(f.code, 0x6b); wa_extend(f.code); wb_byte(f.code, 0x56); cg_trap_if(p, m, f, node, "data region exhausted");
-    cg_get(f, cursor); wa_extend(f.code); cg_get(f, bytes); wb_byte(f.code, 0x7c); let top64 = cg_save(f, 0x7e);
-    cg_get(f, top64); cg_get(f, limit); wa_extend(f.code); wb_byte(f.code, 0x56); cg_trap_if(p, m, f, node, "data region exhausted");
-    cg_get(f, top64); wa_wrap(f.code); let top = cg_save(f, wa()); cg_ensure_memory(p, m, f, top, node); return top;
+    cg_get(f, cursor); cg_get(f, limit); wa_op(f.code, 0x4b); wb_byte(f.code, 0x72);
+    cg_get(f, bytes); cg_get(f, limit); cg_get(f, cursor); wa_op(f.code, 0x6b); wa_extend(f.code); wb_byte(f.code, 0x56); wb_byte(f.code, 0x72);
+    cg_trap_if(p, m, f, node, "data region exhausted");
+    cg_get(f, cursor); cg_get(f, bytes); wa_wrap(f.code); wa_op(f.code, 0x6a); let top = cg_save(f, wa());
+    if p.initial_pages != p.maximum_pages { cg_ensure_memory(p, m, f, top, node); }
+    return CgReserved { cursor: cursor, limit: limit, top: top };
+}
+fn cg_region_reserve(p: Program&, m: CgModule&, f: CgBody&, header: i64, bytes: i64, node: i64) -> i64 {
+    return cg_region_reserve_at(p, m, f, header, bytes, node).top;
 }
 fn cg_region_acquire(p: Program&, m: CgModule&, f: CgBody&, id: i64, owner: i64, global_region: i64, node: i64) -> i64 {
     let header = cg_region_header(p, f, id, owner);
@@ -6204,7 +6371,7 @@ let CG_MEMO_BYTE_RECORD: i64 = 0;
 let CG_MEMO_HAS_OWNER: i64 = 1;
 let CG_MEMO_RECORD_IMAGE: i64 = 2;
 let CG_MEMO_REGION_TYPE: i64 = 3;
-fn cg_memo_get(p: Program&, id: i64, predicate: i64) -> i64 {
+inline fn cg_memo_get(p: Program&, id: i64, predicate: i64) -> i64 {
     let memo = p.types[id].codegen_memo;
     if (memo >> 16) != id + 1 { return -1; }
     let bits = (memo >> (2 * predicate)) & 3;
@@ -6219,7 +6386,7 @@ fn cg_memo_set(p: Program&, id: i64, predicate: i64, value: bool) -> bool {
     return value;
 }
 fn cg_byte_record(p: Program&, id: i64) -> bool {
-    if cg_type_kind(p, id) != TY_STRUCT { return false; }
+    if id < 13 || cg_type_kind(p, id) != TY_STRUCT { return false; }
     let known = cg_memo_get(p, id, CG_MEMO_BYTE_RECORD); if known >= 0 { return known == 1; }
     // A root owner stores each component apart, never as one byte image.
     if root_struct_type(p, id) { return cg_memo_set(p, id, CG_MEMO_BYTE_RECORD, false); }
@@ -6660,7 +6827,7 @@ recursive fn cg_dispatch(p: Program&, m: CgModule&, f: CgBody&, node: i64) {
     cg_abort(p, m, f, node, "invalid enum dispatch tag"); cg_end(f); cg_control_get(p, f, n.type_id, result); f.work.resize(mark);
 }
 recursive fn cg_record_image(p: Program&, id: i64) -> bool {
-    if cg_type_kind(p, id) != TY_STRUCT || cg_byte_record(p, id) || p.types[id].tail < 0 { return false; }
+    if id < 13 || cg_type_kind(p, id) != TY_STRUCT || cg_byte_record(p, id) || p.types[id].tail < 0 { return false; }
     let known = cg_memo_get(p, id, CG_MEMO_RECORD_IMAGE); if known >= 0 { return known == 1; }
     let field = p.types[id].tail; let tail = p.nodes[field].type_id;
     if cg_type_kind(p, tail) == TY_ARRAY { return cg_memo_set(p, id, CG_MEMO_RECORD_IMAGE, p.types[tail].array_kind == A_VAR || p.types[tail].array_kind == A_LIMITED && p.types[tail].count < 0); }
@@ -6795,6 +6962,7 @@ fn cg_copy_runtime_limited(p: Program&, m: CgModule&, f: CgBody&, id: i64, desti
 }
 
 recursive fn cg_has_owner(p: Program&, id: i64) -> bool {
+    if id < 13 { return false; }
     if cg_owner(p, id) || cg_byte_record(p, id) || cg_record_image(p, id) { return true; }
     if cg_type_kind(p, id) == TY_ENUM { return (p.types[id].flags & F_VARIABLE_MODE) != 0; }
     if cg_type_kind(p, id) != TY_STRUCT { return false; }
