@@ -35,7 +35,7 @@ struct CcBody {
     activation_required: bool = false, natural_members: bool = false,
     serial: i64 = 0, result_type: i64 = TYPE_VOID, has_self_runs: bool = false, self_build_depth: i64 = 0,
     region_live: i64 = 0, region_peak: i64 = 0, function_index: i64 = -1, active_node: i64 = -1, receiver: i64 = -1,
-    calls: RegionCall[>..]&, indices: i64[>..]&, temp_regions: i64[>..]&, destinations: CcDestination[>..]&, receiving: CcReceiving[>..]&, fills: CcFill[>..]&, indirect: i64[>..]&, channels: CcChannels[>..]&, cursors: CcCursor[>..]&, result_ref: i64 = -1, self_images: bool&,
+    calls: RegionCall[>..]&, indices: const i32[>..]&, temp_regions: i64[>..]&, destinations: CcDestination[>..]&, receiving: CcReceiving[>..]&, fills: CcFill[>..]&, indirect: i64[>..]&, channels: CcChannels[>..]&, cursors: CcCursor[>..]&, result_ref: i64 = -1, self_images: bool&,
     // The `defer` statements of the blocks being emitted, in registration
     // order (§6.6): an exit emits the bodies above its height, latest first.
     defers: i64[>..]&, running_defers: i64 = 0,
@@ -3581,7 +3581,7 @@ fn cc_local_initialized(p: Program&, f: CcBody&, id: i64) -> bool {
     if symbol.scope >= 0 { return true; }
     return !life_may_reach_local(p, declaration.right, id);
 }
-fn cc_emit_function(p: Program&, out: u8[>..]&, function: i64, plans: RegionFunction[>..]&, calls: RegionCall[>..]&, indices: i64[>..]&, self_images: bool&, natural_members: bool, has_self_runs: bool, owners: const SymbolOwners&) {
+fn cc_emit_function(p: Program&, out: u8[>..]&, function: i64, plans: RegionFunction[>..]&, calls: RegionCall[>..]&, indices: const i32[>..]&, self_images: bool&, natural_members: bool, has_self_runs: bool, owners: const SymbolOwners&) {
     let n = p.nodes[function]; var checked = n.first; var signature_activation = false;
     while checked >= 0 {
         let type_id = p.nodes[checked].type_id;
@@ -3837,11 +3837,11 @@ fn generate_c(p: Program&, out: u8[>..]&) {
     var self_images = false;
     var used: bool[>..] = []; used.resize(p.types.len, false); var type_work: i64[>..] = [];
     cc_used_types(p, used, type_work);
-    var plans: RegionFunction[>..] = []; var calls: RegionCall[>..] = []; var indices: i64[>..] = [];
+    var plans: RegionFunction[>..] = []; var calls: RegionCall[>..] = []; var indices: i32[>..] = [];
     indices.resize(p.nodes.len, -1);
     for n, node in p.nodes {
         if !cc_emittable(p, node) { continue; }
-        indices[node] = plans.len; plans.push(RegionFunction { node: node, entry: true });
+        indices[node] = plans.len as i32; plans.push(RegionFunction { node: node, entry: true });
     }
     let initializer = plans.len; plans.push(RegionFunction { entry: true });
     var global_count = 0;

@@ -10,6 +10,10 @@ A [Goose](https://github.com/aardappel/goose) compiler written in Goose. It emit
 
 ![Previous and current Wasm sizes, plus elapsed seconds for cold and cached Wasmtime rebuilds](bench/results/2026-11-22/readback-cache-and-pipeline-fastpaths/release.svg)
 
+**Head-to-head vs upstream C++ Goose.** Upstream C++ Goose (`763e6ad9994e`) also checks and builds `selfhost/main.goose` natively (emitting byte-identical Wasm). Across five alternating rounds on CPU 7 compiling `selfhost/main.goose`, our **cached Wasmtime balanced compiler** emitted Wasm in **1.09 s** (**4.87× faster** than upstream C++ Goose emitting C in **5.26 s**, and **4.56× faster** than upstream C++ `check` alone in **4.94 s**) and emitted C in **1.93 s** (**2.73× faster**). Our self-hosted native compiler took **0.90 s** for Wasm (**5.86× faster**) and **1.40 s** for C (**3.81× faster**), while our compiler built through upstream C++ Goose + GCC (`-O3` with bounds-check elision) emitted the same Wasm in **0.60 s** (**8.80× faster**). [Head-to-head measurements](bench/results/2026-11-22/upstream-goose-selfcompile/README.md)
+
+![Compiling selfhost/main.goose: upstream C++ Goose vs Goose-to-Wasm](bench/results/2026-11-22/upstream-goose-selfcompile/upstream-selfcompile.svg)
+
 **Cold and cached self-compilation.** In a separate three-round run, the bundled 32-bit compiler took **1.36 s cold** with eight preparation threads and **1.02 s cached** on one core (edited source **1.00 s**). Native took **0.83 s**. These fresh-process timings include startup. [All launches](bench/results/2026-11-22/readback-cache-and-pipeline-fastpaths/launch.json)
 
 ![Seconds to rebuild the compiler in cold, cached and native processes](bench/results/2026-11-22/readback-cache-and-pipeline-fastpaths/launch.svg)

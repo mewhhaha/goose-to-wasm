@@ -251,8 +251,8 @@ fn wb_reuse_locals(locals: i64[>..]&, code: u8[>..]&, params: i64, events: WbEve
     let max_pos = events.len + 2;
     if s.loop_end.len < max_pos { s.loop_end.resize(max_pos, -1); }
     if s.head.len < max_pos { s.head.resize(max_pos, -1); }
-    s.frames.clear();
     s.covers.clear();
+    var frame_len: i64 = 0;
     let bytes: u8[:] = code;
     let first: i32[:] = s.first[0..total];
     for i in params..total { first[i] = -1; }
@@ -290,8 +290,8 @@ fn wb_reuse_locals(locals: i64[>..]&, code: u8[>..]&, params: i64, events: WbEve
                     var depth = (written[local] as i64) - 1;
                     if depth < 0 { first[local] = 0; depth = 0; }
                     if loop_depth > 0 {
-                        while depth < s.frames.len && !s.frames[depth].looping { depth++; }
-                        if depth < s.frames.len {
+                        while depth < frame_len && !s.frames[depth].looping { depth++; }
+                        if depth < frame_len {
                             let loop_at = s.frames[depth].at;
                             let tag = epoch + loop_at;
                             if stamp[local] != tag {
@@ -300,13 +300,14 @@ fn wb_reuse_locals(locals: i64[>..]&, code: u8[>..]&, params: i64, events: WbEve
                         }
                     }
                 } else if written[local] == 0 {
-                    written[local] = (s.frames.len + 1) as i32;
+                    written[local] = (frame_len + 1) as i32;
                     undo[undo_len] = local as i32;
                     undo_len++;
                 }
             } else if op == 0x0b {
-                if s.frames.len == 0 { break; }
-                let frame = s.frames.pop();
+                if frame_len == 0 { break; }
+                frame_len--;
+                let frame = s.frames[frame_len];
                 let fmark = frame.undo as i64;
                 let can_merge = frame.conditional && frame.alternative && !frame.branched;
                 let tag = epoch + frame.at;
@@ -319,7 +320,7 @@ fn wb_reuse_locals(locals: i64[>..]&, code: u8[>..]&, params: i64, events: WbEve
                     }
                 }
                 undo_len = fmark;
-                let new_depth = (s.frames.len + 1) as i32;
+                let new_depth = (frame_len + 1) as i32;
                 for mi in 0..merged_len {
                     let local = merged[mi] as i64;
                     if written[local] == 0 {
@@ -331,10 +332,12 @@ fn wb_reuse_locals(locals: i64[>..]&, code: u8[>..]&, params: i64, events: WbEve
                 if frame.looping { loop_depth--; loop_end[frame.at as i64] = position; }
             } else if op == 0x02 || op == 0x03 || op == 0x04 {
                 if op == 0x03 { loop_depth++; }
-                s.frames.push(WbFrame { at: position, looping: op == 0x03, conditional: op == 0x04, undo: undo_len as i32 });
+                let nf = WbFrame { at: position, looping: op == 0x03, conditional: op == 0x04, undo: undo_len as i32 };
+                if frame_len == s.frames.len { s.frames.push(nf); } else { s.frames[frame_len] = nf; }
+                frame_len++;
             } else if op == 0x05 {
                 // The then arm ends: remember what it wrote, then forget it.
-                let depth = s.frames.len - 1; let mark = s.frames[depth].undo as i64;
+                let depth = frame_len - 1; let mark = s.frames[depth].undo as i64;
                 let tag = epoch + s.frames[depth].at;
                 for ui in mark..undo_len {
                     let loc = undo[ui] as i64;
@@ -342,12 +345,12 @@ fn wb_reuse_locals(locals: i64[>..]&, code: u8[>..]&, params: i64, events: WbEve
                 }
                 undo_len = mark; s.frames[depth].alternative = true;
             } else if op == 0x0c || op == 0x0d {
-                if index < s.frames.len { s.frames[s.frames.len - 1 - index].branched = true; }
+                if index < frame_len { s.frames[frame_len - 1 - index].branched = true; }
             } else if op == 0x0e {
                 var cursor = base + (event.start as i64) + 1; let count = wb_read_unsigned(bytes, cursor);
                 for target in 0..count + 1 {
                     let label = wb_read_unsigned(bytes, cursor);
-                    if label < s.frames.len { s.frames[s.frames.len - 1 - label].branched = true; }
+                    if label < frame_len { s.frames[frame_len - 1 - label].branched = true; }
                 }
             }
         }

@@ -363,8 +363,7 @@ fn cg_signature_slot(m: CgModule&, bytes: u8[:]) -> i64 {
     }
     return slot;
 }
-fn cg_signature(m: CgModule&, args: u8[:], results: u8[:]) -> i64 {
-    m.signature_scratch.clear();
+fn cg_signature(m: CgModule&, args: const u8[:], results: const u8[:]) -> i64 {
     wb_signature(m.signature_scratch, args, results);
     if 2 * m.signatures.len >= m.signature_slots.len {
         var size = m.signature_slots.len * 2; if size == 0 { size = 32; }
@@ -376,12 +375,13 @@ fn cg_signature(m: CgModule&, args: u8[:], results: u8[:]) -> i64 {
     }
     let slot = cg_signature_slot(m, m.signature_scratch);
     let found = m.signature_slots[slot];
-    if found > 0 { return found - 1; }
+    if found > 0 { m.signature_scratch.clear(); return found - 1; }
     let at = m.signature_bytes.len;
     m.signature_bytes.append(m.signature_scratch);
     let result = m.signatures.len;
     m.signatures.push(CgSignature { start: at, count: m.signature_scratch.len });
     m.signature_slots[slot] = result + 1;
+    m.signature_scratch.clear();
     return result;
 }
 // Slots hold segment index + 1. The segments themselves stay in emission order.
@@ -4799,9 +4799,11 @@ fn cg_collect(p: Program&, m: CgModule&) {
         m.region_functions.push(RegionFunction { node: fnode, entry: fnode == p.entry || (p.nodes[fnode].flags & F_EXPORT) != 0 });
         var count = 0; for capture in m.captures { if capture.function == fnode { count++; } }
         m.functions[i].capture_count = count;
-        m.functions[i].signature = cg_make_signature(p, m, fnode, false);
+        let sig = cg_make_signature(p, m, fnode, false);
+        m.functions[i].signature = sig;
         if (p.nodes[fnode].flags & F_VALUE_USED) != 0 {
-            m.functions[i].closure_signature = cg_make_signature(p, m, fnode, true);
+            let csig = cg_make_signature(p, m, fnode, true);
+            m.functions[i].closure_signature = csig;
             m.functions[i].table_index = m.thunk_count;
             m.thunk_count += 1;
         }

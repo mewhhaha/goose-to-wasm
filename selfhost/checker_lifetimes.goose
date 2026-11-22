@@ -201,7 +201,7 @@ struct LifeReadBack { type_id: i64 = -1, places: i64 = -1, epoch: i64 = -1, set:
 // frame up the chain, 2 if a place of one was outside every frame of the
 // chain; as LifeSummary.walked, for the frame's current list.
 struct LifeEffect { kind: i32, node: i32, value: LifeValue, places: i32 = 0, cell: i32 = -1, field: i32 = -1, next: i32 = -1, previous_barrier: i32 = -1, owner: i32 = -1, index_key: i64 = -1, index_next: i32 = -1, epoch: i32 = 0, walked: i8 = 0 }
-struct LifeFailure { node: i64, message: const u8[:] }
+struct LifeFailure { node: i64, kind: i64 }
 // Per effect, for discovery merges: the next effect in its
 // summary_heads bucket, the fields a merge compares exactly (copies of the
 // effect's own, which never change), and the sets last merged into it. Merging
@@ -265,7 +265,7 @@ struct LifeOffer {
 struct LifeInexactRead { places: i32 = -1, type_id: i32 = -1, result: i32 = 0, version: i64 = -1 }
 struct LifeFarMemo { places: i32 = -1, activation: i32 = -1, epoch: i32 = -1, home: i32 = 0, far: i64 = 0, cyclic: bool = false }
 struct Lifetimes {
-    parents: const i64[:], depths: const i64[:], functions: const i64[:],
+    parents: const i64[>..]&, depths: const i64[>..]&, functions: const i64[>..]&,
     roots: LifeRoot[>..]&, sets: LifeSet[>..]&, alts: LifeAlt[>..]&, cells: LifeCell[>..]&,
     held_walks: LifeWalkMemo[>..]&,
     frames: LifeFrame[>..]&, items: LifeItem[>..]&, pairs: LifePair[>..]&, pair_heads: i32[>..]&, exits: LifeExit[>..]&,
@@ -801,7 +801,7 @@ fn life_effect_indexed(l: Lifetimes&, effect: const LifeEffect&, frame: i64, buc
         if old.owner == frame && old.epoch == l.frames[frame].effect_epoch && life_same_effect(l, old, effect) { break; }
         found = old.index_next;
     }
-    if effect.kind == 1 { return (found > l.frames[frame].last_shrink_barrier) as i64; }
+    if effect.kind == 1 { if found > l.frames[frame].last_shrink_barrier { return 1; } return 0; }
     if effect.kind == 4 || effect.kind == 6 || effect.kind == 7 {
         // In class analysis even an unsuccessful search observes aliasing.
         // Visit precisely the same opposing operations, newest first.
@@ -813,7 +813,8 @@ fn life_effect_indexed(l: Lifetimes&, effect: const LifeEffect&, frame: i64, buc
             if life_overlaps(l, barrier.places, effect.places) { return 0; }
             at = barrier.previous_barrier;
         }
-        return (found >= 0) as i64;
+        if found >= 0 { return 1; }
+        return 0;
     }
     if found < 0 { return 0; }
     let walked = l.effects[found].walked;
@@ -1179,10 +1180,15 @@ fn life_error(p: Program&, l: Lifetimes&, node: i64, message: const u8[:]) {
     }
     diagnose(p, token, message);
 }
-fn life_scope_error(p: Program&, l: Lifetimes&, node: i64, message: const u8[:]) {
-    if !l.discovery { life_error(p, l, node, message); return; }
+fn life_failure_message(kind: i64) -> const u8[:] {
+    if kind == 0 { return "reference or slice binding changes its committed root lifetime depth"; }
+    if kind == 1 { return "stored reference does not outlive the storage that receives it"; }
+    return "returned reference points into this invocation's local or temporary storage";
+}
+fn life_scope_error(p: Program&, l: Lifetimes&, node: i64, kind: i64) {
+    if !l.discovery { life_error(p, l, node, life_failure_message(kind)); return; }
     for failure in l.failures { if failure.node == node { return; } }
-    l.failures.push(LifeFailure { node: node, message: message });
+    l.failures.push(LifeFailure { node: node, kind: kind });
 }
 inline fn life_is_ref(p: Program&, ty: i64) -> bool {
     return ty >= 0 && (p.types[ty].kind == TY_REF || p.types[ty].kind == TY_SLICE);
@@ -4351,7 +4357,8 @@ fn life_add_contents(l: Lifetimes&, root: i64, storing: i64, exact: bool = false
         let held = life_join(l, l.roots[root].stored, sources);
         if !life_equal(l, held, l.roots[root].stored) {
             l.roots[root].stored = held; l.revision += 1; l.frames[owner].stored_version += 1;
-            l.frames[owner].all_stored = life_join(l, l.frames[owner].all_stored, sources);
+            let all_s = life_join(l, l.frames[owner].all_stored, sources);
+            l.frames[owner].all_stored = all_s;
             if l.roots[root].stored_next == -2 { l.roots[root].stored_next = l.frames[owner].stored_first; l.frames[owner].stored_first = root; l.frames[owner].stored_count += 1; }
         }
     }
@@ -4448,7 +4455,7 @@ fn life_bind(p: Program&, l: Lifetimes&, node: i64, cell: i64, value: const Life
             }
             let depth = life_binding_depth(l, sources);
             if l.cells[cell].committed && depth != l.cells[cell].depth {
-                life_scope_error(p, l, node, "reference or slice binding changes its committed root lifetime depth");
+                life_scope_error(p, l, node, 0);
             }
             if !l.cells[cell].committed { l.cells[cell].committed = true; l.cells[cell].depth = depth as i32; l.cells[cell].initial = sources as i32; }
         }
@@ -4515,13 +4522,13 @@ fn life_store(p: Program&, l: Lifetimes&, node: i64, given: i64, value: const Li
             var class_read = false;
             if l.roots[source.root].class_frame >= 0 { class_read = l.roots[source.root].class_index >= l.frames[l.roots[source.root].class_frame].class_base || !source.exact && source.from == source.root; }
             if l.roots[source.root].depth > owner.depth && !(class_read && owner.frame == 0) {
-                life_scope_error(p, l, node, "stored reference does not outlive the storage that receives it");
+                life_scope_error(p, l, node, 1);
             }
             // Storage known only to outlive a class root may be anything that
             // does: what it takes must outlive everything, or have come out
             // of that class's storage itself (upstream ShrinkTargets).
             if !d.exact && owner.class_frame >= 0 && source.root != 0 && l.roots[source.root].depth > 0 && !(source.root == d.root && !source.exact) {
-                life_scope_error(p, l, node, "stored reference does not outlive the storage that receives it");
+                life_scope_error(p, l, node, 1);
             }
             at = source.next;
         }
@@ -4654,7 +4661,7 @@ recursive fn life_return_value(p: Program&, l: Lifetimes&, node: i64, value: Lif
     while at >= 0 {
         let root: const LifeRoot& = l.roots[l.alts[at].root];
         if root.depth >= l.frames[target].base && root.depth > 0 {
-            life_scope_error(p, l, node, "returned reference points into this invocation's local or temporary storage");
+            life_scope_error(p, l, node, 2);
         }
         at = l.alts[at].next;
     }
@@ -5604,7 +5611,8 @@ recursive fn life_class_call(p: Program&, l: Lifetimes&, function_node: i64, cal
             let span = life_global_capture_span(p, l, function_node);
             if l.frames[target].validated && life_global_captures_match(p, l, l.frames[target].capture_inputs, span) { evaluate = false; }
             else {
-                l.frames[target].capture_inputs = life_capture_span_snapshot(p, l, span);
+                let snap = life_capture_span_snapshot(p, l, span);
+                l.frames[target].capture_inputs = snap;
                 life_reset_validation(l.frames[target]);
             }
         }
@@ -5619,7 +5627,7 @@ recursive fn life_class_call(p: Program&, l: Lifetimes&, function_node: i64, cal
             if l.revision == before { break; }
         }
         l.discovery = false;
-        for index in failures..l.failures.len { life_error(p, l, l.failures[index].node, l.failures[index].message); }
+        for index in failures..l.failures.len { life_error(p, l, l.failures[index].node, life_failure_message(l.failures[index].kind)); }
         l.failures.resize(failures);
     }
     if evaluate { life_class_eval(p, l, target, c.sets); }
@@ -5842,7 +5850,8 @@ recursive fn life_function(p: Program&, l: Lifetimes&, function_node: i64, call:
                     if l.frames[target].first_effect >= 0 { life_replay(p, l, target); }
                     return l.frames[target].result;
                 }
-                l.frames[target].capture_inputs = life_capture_span_snapshot(p, l, span);
+                let snap = life_capture_span_snapshot(p, l, span);
+                l.frames[target].capture_inputs = snap;
                 life_reset_validation(l.frames[target]);
             }
         } else {
@@ -5861,7 +5870,8 @@ recursive fn life_function(p: Program&, l: Lifetimes&, function_node: i64, call:
         l.frames[target].parent = previous_frame; l.frames[target].destination = destination;
         l.frames[target].chain = l.frames[previous_frame].chain + 1; l.frames[target].chain_epoch = -1;
         l.activations += 1; l.frames[target].activation = l.activations; l.frames[target].island = l.island;
-        l.frames[target].context = life_context(l, target, l.frames[previous_frame].context);
+        let ctx = life_context(l, target, l.frames[previous_frame].context);
+        l.frames[target].context = ctx;
     }
     l.frame = target; l.scope = p.nodes[function_node].scope;
     var formal = p.nodes[function_node].first; var item = arguments;
@@ -7166,7 +7176,7 @@ fn life_replay(p: Program&, l: Lifetimes&, frame: i64, summary: bool = false, m:
                         // something only known to outlive one, is judged where
                         // that island's calls land it in turn.
                         if owner >= 0 && (l.roots[source.root].class_index >= l.frames[owner].class_base || !source.exact) { continue; }
-                        if l.roots[source.root].depth > l.roots[alt.root].depth { life_scope_error(p, l, call, "stored reference does not outlive the storage that receives it"); refused = true; }
+                        if l.roots[source.root].depth > l.roots[alt.root].depth { life_scope_error(p, l, call, 1); refused = true; }
                     }
                 }
                 // A refused store is reported here, once: it does not land,
@@ -7587,7 +7597,7 @@ fn life_check_roots(p: Program&, l: Lifetimes&, standalone: const LifeStandalone
     }
     return true;
 }
-fn check_lifetimes(p: Program&, scope_parent: const i64[:], scope_depth: const i64[:], scope_functions: const i64[:], pool_references: const i64[:]) {
+fn check_lifetimes(p: Program&, scope_parent: const i64[>..]&, scope_depth: const i64[>..]&, scope_functions: const i64[>..]&, pool_references: const i64[:]) {
     if p.diagnostics.len > 0 { return; }
     let nodes = p.nodes.len; let types = p.types.len; let holds = p.type_holds.len;
     let messages = p.messages.len;
@@ -8317,7 +8327,7 @@ fn life_prepare_nodes(p: Program&, l: Lifetimes&, full: bool) -> bool {
     return omit_reads;
 }
 
-fn life_check_attempt(p: Program&, scope_parent: const i64[:], scope_depth: const i64[:], scope_functions: const i64[:], pool_references: const i64[:], full: bool) -> bool {
+fn life_check_attempt(p: Program&, scope_parent: const i64[>..]&, scope_depth: const i64[>..]&, scope_functions: const i64[>..]&, pool_references: const i64[:], full: bool) -> bool {
     var roots: LifeRoot[>..] = [LifeRoot {}]; var sets: LifeSet[>..] = [LifeSet {}];
     var alts: LifeAlt[>..] = []; var cells: LifeCell[>..] = []; var frames: LifeFrame[>..] = [LifeFrame {}];
     var held_walks: LifeWalkMemo[>..] = [];
@@ -8423,7 +8433,7 @@ fn life_check_attempt(p: Program&, scope_parent: const i64[:], scope_depth: cons
         if !life_check_roots(p, l, standalone, omit_reads) { return false; }
         if l.failures.len > 0 {
             l.discovery = false;
-            for failure in l.failures { life_error(p, l, failure.node, failure.message); }
+            for failure in l.failures { life_error(p, l, failure.node, life_failure_message(failure.kind)); }
             l.types_frozen = false;
             return true;
         }

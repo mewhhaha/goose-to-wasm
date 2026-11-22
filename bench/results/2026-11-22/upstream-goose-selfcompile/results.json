@@ -1,0 +1,305 @@
+{
+  "cpu": 7,
+  "upstream_version": "goose runtime 763e6ad9994e",
+  "host": {
+    "path": "/home/jacobt/src/goose-to-wasm/host/rust/target/release/goose-wasmtime",
+    "bytes": 17245208,
+    "gzip_bytes": 4683799,
+    "sha256": "b247393d8fbe3115246f20703f726e90eeaaed762a75932c7bb131a4433ad026"
+  },
+  "upstream_cpp": {
+    "path": "/home/jacobt/src/goose-to-wasm/build/native/goose",
+    "bytes": 8284984,
+    "gzip_bytes": 3095906,
+    "sha256": "b27ab168cfc9bcd51e5801c5e0c2c520e98db9c2db54fe15d5206d3168c59bb2"
+  },
+  "direct_wasm": {
+    "path": "/home/jacobt/src/goose-to-wasm/build/bench-upstream-compat/direct.wasm",
+    "bytes": 3568656,
+    "gzip_bytes": 962077,
+    "sha256": "0b9e174a2521e8339fe84ba0be8d4505a32e75fdf0b07621bbc5b286ff9bb6b5"
+  },
+  "balanced_wasm": {
+    "path": "/home/jacobt/src/goose-to-wasm/build/bench-upstream-compat/balanced.wasm",
+    "bytes": 2823608,
+    "gzip_bytes": 835793,
+    "sha256": "0e8e8170125244e0576cbe5dc6fd17d26a9c6a77ad719ba3b5df0606eb005915"
+  },
+  "candidate_native": {
+    "path": "/home/jacobt/src/goose-to-wasm/build/qualify-upstream-compat/bootstrap/bin/goose",
+    "bytes": 4781928,
+    "gzip_bytes": 1817185,
+    "sha256": "4de606cf161a9c74d14cc359bf6d0d0b111a7d569c0fb54f60c1250aeeb7f940"
+  },
+  "cppbuilt_native": {
+    "path": "/home/jacobt/src/goose-to-wasm/build/bench-upstream-compat/goose-from-cpp",
+    "bytes": 2267552,
+    "gzip_bytes": 1048614,
+    "sha256": "5fd10b2d2acf6689090377c348946ba1928d7a3fc91c1f0e20a69b4ab777c29e"
+  },
+  "frozen": {
+    "rounds": 5,
+    "medians": {
+      "native-before": {
+        "wall_seconds": 0.709313187,
+        "cpu_seconds": 0.703517999999999,
+        "instructions": 5634286261,
+        "cycles": 2476342357,
+        "output": {
+          "bytes": 5897497,
+          "sha256": "df47e5c4ad0b37d48c4c8df2baf1db2f538faf7dbf1b13665913c73fbf424afe"
+        }
+      },
+      "native-after": {
+        "wall_seconds": 0.707335345,
+        "cpu_seconds": 0.7013290000000012,
+        "instructions": 5613885621,
+        "cycles": 2470334139,
+        "output": {
+          "bytes": 5897497,
+          "sha256": "df47e5c4ad0b37d48c4c8df2baf1db2f538faf7dbf1b13665913c73fbf424afe"
+        }
+      },
+      "wasm-before": {
+        "wall_seconds": 0.860466102,
+        "cpu_seconds": 0.8535609999999991,
+        "instructions": 5720830002,
+        "cycles": 3050465390,
+        "output": {
+          "bytes": 5897497,
+          "sha256": "df47e5c4ad0b37d48c4c8df2baf1db2f538faf7dbf1b13665913c73fbf424afe"
+        }
+      },
+      "wasm-after": {
+        "wall_seconds": 0.840658677,
+        "cpu_seconds": 0.8342010000000037,
+        "instructions": 5719889451,
+        "cycles": 2972803774,
+        "output": {
+          "bytes": 5897497,
+          "sha256": "df47e5c4ad0b37d48c4c8df2baf1db2f538faf7dbf1b13665913c73fbf424afe"
+        }
+      }
+    },
+    "paired": {
+      "wasm-after / wasm-before": {
+        "wall": {
+          "median": 0.9750870464854176,
+          "interval95": [
+            0.9407005313477941,
+            0.9853828874656686
+          ],
+          "rounds_below_one": 5
+        },
+        "instructions": {
+          "median": 0.9998363459536915,
+          "interval95": [
+            0.9998344063711614,
+            0.9998363812922182
+          ],
+          "rounds_below_one": 5
+        }
+      },
+      "native-after / native-before": {
+        "wall": {
+          "median": 0.9991328940133067,
+          "interval95": [
+            0.9890007026912339,
+            1.0147145754467972
+          ],
+          "rounds_below_one": 4
+        },
+        "instructions": {
+          "median": 0.9963791462337814,
+          "interval95": [
+            0.9963789979679912,
+            0.9963795161924102
+          ],
+          "rounds_below_one": 5
+        }
+      }
+    }
+  },
+  "head_to_head": {
+    "rounds": 5,
+    "medians": {
+      "upstream-cpp-check": {
+        "wall_seconds": 4.944738085,
+        "cpu_seconds": 4.907032000000001,
+        "instructions": 39340598105,
+        "cycles": 18185414906,
+        "output": null
+      },
+      "upstream-cpp-emit-c": {
+        "wall_seconds": 5.263149941,
+        "cpu_seconds": 5.223178999999995,
+        "instructions": 41035793449,
+        "cycles": 19181334804,
+        "output": {
+          "bytes": 13773175,
+          "sha256": "91254ddac54a5a94b48934b5848ca1a7af9becfd200b33675160db070a465063"
+        }
+      },
+      "wasmtime-balanced-emit-c": {
+        "wall_seconds": 1.931294684,
+        "cpu_seconds": 1.9165899999999993,
+        "instructions": 14622559813,
+        "cycles": 7095562127,
+        "output": {
+          "bytes": 36761790,
+          "sha256": "b4cd1571f43850da208114ef592609a839c5eacef2e6c444b01f4afcb93da09f"
+        }
+      },
+      "selfhost-native-emit-c": {
+        "wall_seconds": 1.400705841,
+        "cpu_seconds": 1.3893200000000263,
+        "instructions": 12174438576,
+        "cycles": 5000793982,
+        "output": {
+          "bytes": 36761790,
+          "sha256": "b4cd1571f43850da208114ef592609a839c5eacef2e6c444b01f4afcb93da09f"
+        }
+      },
+      "wasmtime-balanced-emit-wasm": {
+        "wall_seconds": 1.091197765,
+        "cpu_seconds": 1.0826629999999966,
+        "instructions": 7569891058,
+        "cycles": 3988918740,
+        "output": {
+          "bytes": 4673668,
+          "sha256": "a48985788d6b40c5f0e815d9a6332fc94200b2d076b48d581e7abac40b0c7e5e"
+        }
+      },
+      "selfhost-native-emit-wasm": {
+        "wall_seconds": 0.904875948,
+        "cpu_seconds": 0.8970290000000034,
+        "instructions": 7143598192,
+        "cycles": 3257820929,
+        "output": {
+          "bytes": 4673668,
+          "sha256": "a48985788d6b40c5f0e815d9a6332fc94200b2d076b48d581e7abac40b0c7e5e"
+        }
+      },
+      "cppbuilt-native-emit-wasm": {
+        "wall_seconds": 0.598023484,
+        "cpu_seconds": 0.592725999999999,
+        "instructions": 3100291608,
+        "cycles": 2119850626,
+        "output": {
+          "bytes": 4673668,
+          "sha256": "a48985788d6b40c5f0e815d9a6332fc94200b2d076b48d581e7abac40b0c7e5e"
+        }
+      }
+    },
+    "paired": {
+      "wasmtime-emit-wasm / upstream-cpp-emit-c": {
+        "wall": {
+          "median": 0.20512855478232328,
+          "interval95": [
+            0.2008512972399601,
+            0.21012486119293183
+          ],
+          "rounds_below_one": 5
+        },
+        "instructions": {
+          "median": 0.18447044450128625,
+          "interval95": [
+            0.18447011598870025,
+            0.1844904712485465
+          ],
+          "rounds_below_one": 5
+        }
+      },
+      "wasmtime-emit-wasm / upstream-cpp-check": {
+        "wall": {
+          "median": 0.21931161686075715,
+          "interval95": [
+            0.2144438561611529,
+            0.2230074691483428
+          ],
+          "rounds_below_one": 5
+        },
+        "instructions": {
+          "median": 0.19241931624414993,
+          "interval95": [
+            0.19240533649858707,
+            0.19242066903840924
+          ],
+          "rounds_below_one": 5
+        }
+      },
+      "wasmtime-emit-c / upstream-cpp-emit-c": {
+        "wall": {
+          "median": 0.3669465444932875,
+          "interval95": [
+            0.36189829070902285,
+            0.37732381774406637
+          ],
+          "rounds_below_one": 5
+        },
+        "instructions": {
+          "median": 0.356336806699575,
+          "interval95": [
+            0.35633619247670695,
+            0.3563753361952652
+          ],
+          "rounds_below_one": 5
+        }
+      },
+      "selfhost-native-emit-wasm / upstream-cpp-emit-c": {
+        "wall": {
+          "median": 0.17070058437343477,
+          "interval95": [
+            0.16210249059339363,
+            0.17476189798135394
+          ],
+          "rounds_below_one": 5
+        },
+        "instructions": {
+          "median": 0.17408209169583103,
+          "interval95": [
+            0.17408187233672004,
+            0.17410102720654194
+          ],
+          "rounds_below_one": 5
+        }
+      },
+      "selfhost-native-emit-c / upstream-cpp-emit-c": {
+        "wall": {
+          "median": 0.2626304363688064,
+          "interval95": [
+            0.2549335951587567,
+            0.2781790819001065
+          ],
+          "rounds_below_one": 5
+        },
+        "instructions": {
+          "median": 0.2966785358038856,
+          "interval95": [
+            0.29667809473046053,
+            0.29671071267677734
+          ],
+          "rounds_below_one": 5
+        }
+      },
+      "cppbuilt-native-emit-wasm / upstream-cpp-emit-c": {
+        "wall": {
+          "median": 0.11362463367068265,
+          "interval95": [
+            0.10746012171774583,
+            0.11693802146115807
+          ],
+          "rounds_below_one": 5
+        },
+        "instructions": {
+          "median": 0.0755509117145035,
+          "interval95": [
+            0.07555080605948009,
+            0.07555911760015088
+          ],
+          "rounds_below_one": 5
+        }
+      }
+    }
+  }
+}
