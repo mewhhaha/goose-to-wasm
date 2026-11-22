@@ -383,6 +383,7 @@ fn driver_main() -> i64 {
     var type_properties: i64[>..] = []; var builtin_symbols: i64[>..] = [];
     var type_buckets: TypeBucket[>..] = []; var type_links: TypeLink[>..] = []; var type_scan_marks: i64[>..] = []; var type_holds: i64[>..] = [];
     var inline_sites: InlineSite[>..] = []; var region_profile: i64[>..] = [];
+    var ident_table: i32[>..] = [];
     // A region profile is lines of "index bytes", as a host writes them
     // (GOOSE_REGION_PROFILE): what each data region was seen to need.
     if o.profile_arg >= 0 {
@@ -405,7 +406,7 @@ fn driver_main() -> i64 {
                       nodes: nodes, types: types, symbols: symbols, diagnostics: diagnostics,
                       type_properties: type_properties, builtin_symbols: builtin_symbols,
                       type_buckets: type_buckets, type_links: type_links, type_scan_marks: type_scan_marks, type_holds: type_holds,
-                      inline_sites: inline_sites, region_profile: region_profile };
+                      inline_sites: inline_sites, region_profile: region_profile, ident_table: ident_table };
     p.optimization = o.optimization; p.debug = o.debug; p.library = o.library;
     p.check_only = o.check || o.parse; p.reachable_program = o.reachable_program; p.expansion_limit = o.expansion_limit; p.stack_reserve = o.stack_reserve;
     p.initial_pages = o.initial_pages; p.maximum_pages = o.maximum_pages; p.region_stats = o.region_stats; p.bundled_host = o.bundled_host;

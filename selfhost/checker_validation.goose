@@ -582,13 +582,17 @@ fn validation_thread_call(p: Program&, node: i64) {
 // const qualifier says nothing about whether it points into another global.
 fn check_validate_thread_globals(p: Program&) {
     var globals: bool[>..] = [];
-    for function_node in 0..p.nodes.len {
-        let n = p.nodes[function_node];
+    for s_id in 0..p.symbols.len {
+        let sym: const Symbol& = p.symbols[s_id];
+        if (sym.flags & S_FUNCTION) == 0 || sym.node < 0 { continue; }
+        let function_node = sym.node;
+        if p.nodes[function_node].symbol != s_id { continue; }
+        let n: const Node& = p.nodes[function_node];
         if n.kind != N_FUNCTION || (n.flags & (F_THREAD | F_CHECKED)) != (F_THREAD | F_CHECKED) { continue; }
         thread_globals(p, function_node, globals);
         for used, symbol in globals {
             if !used { continue; }
-            let global = p.symbols[symbol];
+            let global: const Symbol& = p.symbols[symbol];
             if root_struct_type(p, global.type_id) {
                 var message: u8[>..] = []; message.append("thread programs cannot copy root global "); message.append(token_text(p, global.name_token));
                 message.append(" (reached from thread_fn "); message.append(token_text(p, n.token)); message.append("); construct worker-local state instead");
@@ -671,84 +675,101 @@ fn validation_checkfree_calls(p: Program&, function: i64) {
 }
 
 fn check_validate_program(p: Program&) {
+    let type_count = p.types.len;
+    var elem_bad: bool[>..] = []; elem_bad.resize(type_count, false);
+    for tid in 0..type_count {
+        let t: const Type& = p.types[tid];
+        if t.kind == TY_ARRAY || t.kind == TY_SLICE {
+            let elem = t.element;
+            if root_struct_type(p, elem) || validation_zero_layout(p, elem) || (elem >= 0 && p.types[elem].kind == TY_FN) {
+                elem_bad[tid] = true;
+            }
+        }
+    }
     let count = p.nodes.len;
     for node in 0..count {
-        let n = p.nodes[node];
-        if n.kind == N_FUNCTION && (n.flags & F_THREAD) != 0 { validation_thread_signature(p, node); }
-        if n.kind == N_FUNCTION || n.kind == N_FUNCTION_VALUE || n.kind == N_TYPE_FN { validation_function(p, node); }
-        if (n.kind == N_FUNCTION || n.kind == N_FUNCTION_VALUE) && (n.flags & F_CHECKED) != 0 { validation_checkfree_calls(p, node); }
-        if n.kind == N_TYPE_ARRAY { validation_element_layout(p, n.type_id, n.token); }
-        if (n.flags & F_CHECKED) == 0 || n.type_id < 0 { continue; }
-        validation_element_layout(p, n.type_id, n.token);
-        if p.types[n.type_id].kind == TY_FN &&
-           (n.kind == N_BLOCK || n.kind == N_IF || n.kind == N_LOOP || n.kind == N_MATCH) {
-            diagnose(p, n.token, "a function value must be a function name or block literal");
+        let n: const Node& = p.nodes[node];
+        let kind = n.kind;
+        let flags = n.flags;
+        let tid = n.type_id;
+        let tok = n.token;
+        if kind == N_FUNCTION || kind == N_FUNCTION_VALUE || kind == N_TYPE_FN {
+            if kind == N_FUNCTION && (flags & F_THREAD) != 0 { validation_thread_signature(p, node); }
+            validation_function(p, node);
+            if kind != N_TYPE_FN && (flags & F_CHECKED) != 0 { validation_checkfree_calls(p, node); }
         }
-        validation_array_operation(p, node); validation_assignment(p, node);
-        if n.kind == N_CALL { validation_thread_call(p, node); }
-        if n.kind == N_VARIABLE {
-            validation_value_type(p, n.type_id, n.token);
+        if kind == N_TYPE_ARRAY && tid >= 0 && tid < elem_bad.len && elem_bad[tid] { validation_element_layout(p, tid, tok); }
+        if (flags & F_CHECKED) == 0 || tid < 0 { continue; }
+        if tid < elem_bad.len && elem_bad[tid] { validation_element_layout(p, tid, tok); }
+        if p.types[tid].kind == TY_FN &&
+           (kind == N_BLOCK || kind == N_IF || kind == N_LOOP || kind == N_MATCH) {
+            diagnose(p, tok, "a function value must be a function name or block literal");
+        }
+        if kind == N_INDEX || kind == N_CALL { validation_array_operation(p, node); }
+        else if kind == N_ASSIGN { validation_assignment(p, node); }
+        if kind == N_CALL {
+            validation_thread_call(p, node);
+            if validation_builtin(p, node, 23) { validation_index_of(p, node); }
+        } else if kind == N_VARIABLE {
+            validation_value_type(p, tid, tok);
             var binding = n.first;
             while binding >= 0 {
                 validation_value_type(p, p.nodes[binding].type_id, p.nodes[binding].token);
                 binding = p.nodes[binding].next;
             }
-        } else if n.kind == N_FOR {
+            if p.types[tid].kind == TY_FN { diagnose(p, tok, "function values cannot be stored"); }
+        } else if kind == N_FIELD {
+            if p.types[tid].kind == TY_FN { diagnose(p, tok, "function values cannot be stored"); }
+        } else if kind == N_FOR {
             var binding = n.first;
             while binding >= 0 {
                 let annotation = p.nodes[binding].left;
                 if annotation >= 0 { validation_value_type(p, p.nodes[annotation].type_id, p.nodes[binding].token); }
                 binding = p.nodes[binding].next;
             }
-        } else if n.kind == N_CAST && n.right >= 0 && validation_varint(p, p.nodes[n.right].type_id) {
-            diagnose(p, n.token, "cannot cast to varint (varints are written at construction only)");
-        }
-        if n.kind == N_BINARY {
+        } else if kind == N_CAST && n.right >= 0 && validation_varint(p, p.nodes[n.right].type_id) {
+            diagnose(p, tok, "cannot cast to varint (varints are written at construction only)");
+        } else if kind == N_BINARY {
             var inspect = true;
             if n.integer == T_DOTEQ || n.integer == T_DOTNEQ || n.integer == T_ANDAND || n.integer == T_OROR { inspect = false; }
             if (n.integer == T_EQ || n.integer == T_NEQ) && n.left >= 0 && n.right >= 0 &&
                (p.nodes[n.left].kind == N_NULL || p.nodes[n.right].kind == N_NULL) { inspect = false; }
             if inspect && (validation_optional(p, n.left) || validation_optional(p, n.right)) {
-                diagnose(p, n.token, "optional reference must be narrowed before a value operation");
+                diagnose(p, tok, "optional reference must be narrowed before a value operation");
             }
-        } else if n.kind == N_UNARY {
+        } else if kind == N_UNARY {
             if (n.integer == T_MUL || n.integer == T_MINUS || n.integer == T_BITNOT ||
                 n.integer == T_INC || n.integer == T_DEC) && validation_optional(p, n.left) {
-                diagnose(p, n.token, "optional reference must be narrowed before dereferencing");
+                diagnose(p, tok, "optional reference must be narrowed before dereferencing");
             }
-        } else if n.kind == N_MEMBER || n.kind == N_INDEX || n.kind == N_SLICE {
-            if validation_optional(p, n.left) { diagnose(p, n.token, "optional reference must be narrowed before access"); }
-        }
-        if n.kind == N_BLOCK && n.last >= 0 && (p.nodes[n.last].flags & F_TAIL) != 0 &&
-           p.nodes[n.last].kind != N_RETURN {
-            validation_control_value(p, n.last, node);
-        } else if n.kind == N_MATCH {
+        } else if kind == N_MEMBER || kind == N_INDEX || kind == N_SLICE {
+            if validation_optional(p, n.left) { diagnose(p, tok, "optional reference must be narrowed before access"); }
+        } else if kind == N_BLOCK {
+            if n.last >= 0 && (p.nodes[n.last].flags & F_TAIL) != 0 && p.nodes[n.last].kind != N_RETURN {
+                validation_control_value(p, n.last, node);
+            }
+        } else if kind == N_MATCH {
             var arm = n.first;
             while arm >= 0 { validation_control_value(p, p.nodes[arm].right, node); arm = p.nodes[arm].next; }
-        } else if n.kind == N_BREAK && n.symbol >= 0 {
-            validation_control_value(p, n.left, n.symbol);
-        }
-        if (n.kind == N_VARIABLE || n.kind == N_FIELD) && p.types[n.type_id].kind == TY_FN {
-            diagnose(p, n.token, "function values cannot be stored");
-        }
-        if n.kind == N_RETURN {
+        } else if kind == N_BREAK {
+            if n.symbol >= 0 { validation_control_value(p, n.left, n.symbol); }
+        } else if kind == N_RETURN {
             var value = n.first;
             while value >= 0 {
                 let type_id = p.nodes[value].type_id;
-                if type_id >= 0 && p.types[type_id].kind == TY_FN { diagnose(p, n.token, "function values cannot be returned"); }
+                if type_id >= 0 && p.types[type_id].kind == TY_FN { diagnose(p, tok, "function values cannot be returned"); }
                 value = p.nodes[value].next;
             }
-        }
-        if validation_builtin(p, node, 23) { validation_index_of(p, node); }
-        if n.kind == N_ARRAY || n.kind == N_FILL {
-            if p.types[n.type_id].kind == TY_ARRAY && p.types[n.type_id].element < 0 {
-                diagnose(p, n.token, "empty array element type was never determined");
+        } else if kind == N_ARRAY || kind == N_FILL {
+            if p.types[tid].kind == TY_ARRAY && p.types[tid].element < 0 {
+                diagnose(p, tok, "empty array element type was never determined");
             }
             validation_array_length(p, node);
         }
     }
     validation_index_owners(p);
-    for t in p.types {
+    for tid in 0..p.types.len {
+        let t: const Type& = p.types[tid];
         if t.kind != TY_STRUCT { continue; }
         var field = t.first;
         while field >= 0 {

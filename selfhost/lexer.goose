@@ -12,60 +12,97 @@ fn lex_hex(c: u8) -> i64 {
     return -1;
 }
 fn lex_keyword(word: u8[:]) -> i64 {
-    if word.len == 2 {
-        if same_bytes(word, "if") { return T_IF; }
-        if same_bytes(word, "in") { return T_IN; }
-        if same_bytes(word, "i8") { return T_TI8; }
-        if same_bytes(word, "fn") { return T_FN; }
-        if same_bytes(word, "as") { return T_AS; }
-        if same_bytes(word, "u8") { return T_TU8; }
-    } else if word.len == 3 {
-        if same_bytes(word, "i16") { return T_TI16; }
-        if same_bytes(word, "i32") { return T_TI32; }
-        if same_bytes(word, "i64") { return T_TI64; }
-        if same_bytes(word, "for") { return T_FOR; }
-        if same_bytes(word, "f32") { return T_TF32; }
-        if same_bytes(word, "f64") { return T_TF64; }
-        if same_bytes(word, "let") { return T_LET; }
-        if same_bytes(word, "var") { return T_VAR; }
-        if same_bytes(word, "pad") { return T_PAD; }
-        if same_bytes(word, "u16") { return T_TU16; }
-        if same_bytes(word, "u32") { return T_TU32; }
-        if same_bytes(word, "u64") { return T_TU64; }
-    } else if word.len == 4 {
-        if same_bytes(word, "null") { return T_NULLLIT; }
-        if same_bytes(word, "simd") { return T_SIMD; }
-        if same_bytes(word, "self") { return T_SELF; }
-        if same_bytes(word, "enum") { return T_ENUM; }
-        if same_bytes(word, "else") { return T_ELSE; }
-        if same_bytes(word, "type") { return T_TYPE; }
-        if same_bytes(word, "true") { return T_TRUE; }
-        if same_bytes(word, "loop") { return T_LOOP; }
-        if same_bytes(word, "bool") { return T_TBOOL; }
-    } else if word.len == 5 {
-        if same_bytes(word, "false") { return T_FALSE; }
-        if same_bytes(word, "const") { return T_CONST; }
-        if same_bytes(word, "while") { return T_WHILE; }
-        if same_bytes(word, "block") { return T_BLOCK; }
-        if same_bytes(word, "break") { return T_BREAK; }
-        if same_bytes(word, "guard") { return T_GUARD; }
-        if same_bytes(word, "defer") { return T_DEFER; }
-        if same_bytes(word, "match") { return T_MATCH; }
-    } else if word.len == 6 {
-        if same_bytes(word, "import") { return T_IMPORT; }
-        if same_bytes(word, "struct") { return T_STRUCT; }
-        if same_bytes(word, "export") { return T_EXPORT; }
-        if same_bytes(word, "extern") { return T_EXTERN; }
-        if same_bytes(word, "return") { return T_RETURN; }
-        if same_bytes(word, "varint") { return T_TVARINT; }
-    } else if word.len == 8 {
-        if same_bytes(word, "reusable") { return T_REUSABLE; }
-        if same_bytes(word, "continue") { return T_CONTINUE; }
-    } else if word.len == 9 {
-        if same_bytes(word, "namespace") { return T_NAMESPACE; }
-        if same_bytes(word, "thread_fn") { return T_THREADFN; }
-        if same_bytes(word, "recursive") { return T_RECURSIVE; }
+    let n = word.len;
+    if n < 2 || n > 9 || n == 7 { return T_IDENT; }
+    let c0 = word[0];
+    if n == 2 {
+        let c1 = word[1];
+        if c0 == 'i' {
+            if c1 == 'f' { return T_IF; }
+            if c1 == 'n' { return T_IN; }
+            if c1 == '8' { return T_TI8; }
+        } else if c0 == 'f' {
+            if c1 == 'n' { return T_FN; }
+        } else if c0 == 'a' {
+            if c1 == 's' { return T_AS; }
+        } else if c0 == 'u' {
+            if c1 == '8' { return T_TU8; }
+        }
+        return T_IDENT;
     }
+    if n == 3 {
+        if c0 == 'i' {
+            if same_bytes(word, "i64") { return T_TI64; }
+            if same_bytes(word, "i32") { return T_TI32; }
+            if same_bytes(word, "i16") { return T_TI16; }
+        } else if c0 == 'l' {
+            if same_bytes(word, "let") { return T_LET; }
+        } else if c0 == 'v' {
+            if same_bytes(word, "var") { return T_VAR; }
+        } else if c0 == 'f' {
+            if same_bytes(word, "for") { return T_FOR; }
+            if same_bytes(word, "f64") { return T_TF64; }
+            if same_bytes(word, "f32") { return T_TF32; }
+        } else if c0 == 'u' {
+            if same_bytes(word, "u64") { return T_TU64; }
+            if same_bytes(word, "u32") { return T_TU32; }
+            if same_bytes(word, "u16") { return T_TU16; }
+        } else if c0 == 'p' {
+            if same_bytes(word, "pad") { return T_PAD; }
+        }
+        return T_IDENT;
+    }
+    if n == 4 {
+        if c0 == 'e' {
+            if same_bytes(word, "else") { return T_ELSE; }
+            if same_bytes(word, "enum") { return T_ENUM; }
+        } else if c0 == 't' {
+            if same_bytes(word, "true") { return T_TRUE; }
+            if same_bytes(word, "type") { return T_TYPE; }
+        } else if c0 == 'b' {
+            if same_bytes(word, "bool") { return T_TBOOL; }
+        } else if c0 == 'l' {
+            if same_bytes(word, "loop") { return T_LOOP; }
+        } else if c0 == 'n' {
+            if same_bytes(word, "null") { return T_NULLLIT; }
+        } else if c0 == 's' {
+            if same_bytes(word, "self") { return T_SELF; }
+            if same_bytes(word, "simd") { return T_SIMD; }
+        }
+        return T_IDENT;
+    }
+    if n == 5 {
+        if c0 == 'f' { if same_bytes(word, "false") { return T_FALSE; } }
+        else if c0 == 'c' { if same_bytes(word, "const") { return T_CONST; } }
+        else if c0 == 'w' { if same_bytes(word, "while") { return T_WHILE; } }
+        else if c0 == 'b' {
+            if same_bytes(word, "break") { return T_BREAK; }
+            if same_bytes(word, "block") { return T_BLOCK; }
+        }
+        else if c0 == 'm' { if same_bytes(word, "match") { return T_MATCH; } }
+        else if c0 == 'g' { if same_bytes(word, "guard") { return T_GUARD; } }
+        else if c0 == 'd' { if same_bytes(word, "defer") { return T_DEFER; } }
+        return T_IDENT;
+    }
+    if n == 6 {
+        if c0 == 'r' { if same_bytes(word, "return") { return T_RETURN; } }
+        else if c0 == 's' { if same_bytes(word, "struct") { return T_STRUCT; } }
+        else if c0 == 'i' { if same_bytes(word, "import") { return T_IMPORT; } }
+        else if c0 == 'e' {
+            if same_bytes(word, "export") { return T_EXPORT; }
+            if same_bytes(word, "extern") { return T_EXTERN; }
+        }
+        else if c0 == 'v' { if same_bytes(word, "varint") { return T_TVARINT; } }
+        return T_IDENT;
+    }
+    if n == 8 {
+        if c0 == 'c' { if same_bytes(word, "continue") { return T_CONTINUE; } }
+        else if c0 == 'r' { if same_bytes(word, "reusable") { return T_REUSABLE; } }
+        return T_IDENT;
+    }
+    if c0 == 'r' { if same_bytes(word, "recursive") { return T_RECURSIVE; } }
+    else if c0 == 'n' { if same_bytes(word, "namespace") { return T_NAMESPACE; } }
+    else if c0 == 't' { if same_bytes(word, "thread_fn") { return T_THREADFN; } }
     return T_IDENT;
 }
 
@@ -236,20 +273,49 @@ fn lex_tokens(p: Program&, l: LexCursor&) {
             }
             continue;
         }
+        if l.at >= l.end {
+            p.tokens.push(Token { kind: T_EOF, source: source_id, start: l.at, end: l.at, line: l.line, column: l.column });
+            return;
+        }
+        if lex_alpha(c) {
+            let start = l.at; let col = l.column;
+            var h: u32 = (2166136261 ^ (c as u32)) * 16777619;
+            var at = start + 1;
+            while at < l.end {
+                let d = p.text[at];
+                if !lex_alpha(d) && !lex_digit(d) { break; }
+                h = (h ^ (d as u32)) * 16777619;
+                at++;
+            }
+            let kw = lex_keyword(p.text[start..at]);
+            l.column += at - start; l.at = at;
+            let token_id = p.tokens.len;
+            p.tokens.push(Token { kind: kw, source: source_id, start: start, end: at, line: l.line, column: col });
+            if kw == T_IDENT { intern_ident(p, token_id, h); }
+            if l.skeleton { lex_skeleton(p, l, token_id); }
+            continue;
+        }
+        if c != 0 && !lex_digit(c) && c != '"' && c != '\'' {
+            let start = l.at; let col = l.column; let line = l.line;
+            let pk = lex_punctuation(p, l);
+            let token_id = p.tokens.len;
+            if pk == T_EOF {
+                p.tokens.push(Token { kind: -1, source: source_id, start: start, end: l.at, line: line, column: col });
+                diagnose(p, token_id, "illegal character in source text");
+            } else {
+                p.tokens.push(Token { kind: pk, source: source_id, start: start, end: l.at, line: line, column: col });
+            }
+            if l.skeleton { lex_skeleton(p, l, token_id); }
+            continue;
+        }
         var t = Token { kind: T_EOF, source: source_id, start: l.at, end: l.at, line: l.line, column: l.column };
         let token_id = p.tokens.len;
         // Reserve the diagnostic's token before scanning a fallible literal.
         p.tokens.push(t);
-        if l.at >= l.end { return; }
         if c == 0 {
             lex_take(p, l);
             diagnose(p, token_id, "NUL byte is not valid source text");
             t.kind = -1;
-        } else if lex_alpha(c) {
-            var at = l.at + 1;
-            while at < l.end { let d = p.text[at]; if !lex_alpha(d) && !lex_digit(d) { break; } at++; }
-            l.column += at - l.at; l.at = at;
-            t.kind = lex_keyword(p.text[t.start..l.at]);
         } else if lex_digit(c) {
             var radix: i64 = 10;
             if c == '0' && (lex_peek(p, l, 1) == 'x' || lex_peek(p, l, 1) == 'X') {

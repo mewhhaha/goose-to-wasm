@@ -51,6 +51,7 @@ struct Optimizer {
     first_free_slots: const i64[:],
     facts: OptFact[>..]&, function_states: u8[>..]&, maps: OptMap[>..]&, node_maps: OptNodeMap[>..]&, dependency_work: i64[>..]&, proof_old: i64[>..]&, proof_new: i64[>..]&,
     bound_guards: OptBoundGuard[>..]&,
+    inlined_blocks: i64[>..]&,
     current_function: i64 = -1, next_slot: i64 = 0, folded: i64 = 0, propagated: i64 = 0,
     inlined: i64 = 0, tail_loops: i64 = 0, has_index: bool = false,
     // While a library body is copied into the program's code, the call its
@@ -65,7 +66,7 @@ fn opt_literal(p: Program&, node: i64) -> bool {
     let kind = p.nodes[node].kind;
     return kind == N_INTEGER || kind == N_FLOAT || kind == N_BOOL || kind == N_NULL;
 }
-fn opt_replace(p: Program&, destination: i64, source: i64) {
+fn opt_replace(p: Program&, o: Optimizer&, destination: i64, source: i64) {
     let next = p.nodes[destination].next; let token = p.nodes[destination].token;
     let type_id = p.nodes[destination].type_id; let coerced_type = p.nodes[destination].coerced_type; let tail = p.nodes[destination].flags & F_TAIL;
     let replacement = p.nodes[source];
@@ -76,6 +77,8 @@ fn opt_replace(p: Program&, destination: i64, source: i64) {
     if replacement.kind == N_FLOAT {
         let value = opt_float_value(p, replacement.type_id, replacement.float_value);
         p.nodes[destination].float_value = opt_float_value(p, p.nodes[destination].type_id, value);
+    } else if replacement.kind == N_BLOCK && (replacement.flags & F_EARLY) != 0 && replacement.origin >= 0 {
+        o.inlined_blocks.push(destination);
     }
 }
 fn opt_set_integer(p: Program&, node: i64, value: i64, kind: i64) {
@@ -258,6 +261,7 @@ recursive fn opt_clone(p: Program&, o: Optimizer&, node: i64, map_start: i64) ->
         let empty = new_node(p, N_EMPTY, n.token); p.nodes[empty].flags = F_CHECKED; p.nodes[empty].type_id = TYPE_VOID; return empty;
     }
     let result = p.nodes.len; p.nodes.push(n); o.node_maps.push(OptNodeMap { from: node, to: result }); opt_note_site(p, o, node, result);
+    if n.kind == N_BLOCK && (n.flags & F_EARLY) != 0 && n.origin >= 0 { o.inlined_blocks.push(result); }
     if (n.kind == N_BINDING || n.kind == N_VARIABLE) && n.symbol >= 0 && n.symbol < p.symbols.len && p.symbols[n.symbol].node == node {
         var symbol = p.symbols[n.symbol]; let original = n.symbol;
         symbol.node = result; symbol.owner = o.current_function; symbol.scope = -2;
@@ -297,27 +301,33 @@ fn opt_capture(p: Program&, function_node: i64, symbol: i64) {
 }
 recursive fn opt_fix_inline(p: Program&, o: Optimizer&, node: i64, callee: i64, target: i64, map_start: i64, node_start: i64) {
     if node < 0 { return; }
-    var n = p.nodes[node];
-    if n.kind == N_FUNCTION || n.kind == N_FUNCTION_VALUE { return; }
-    if n.kind == N_NAME || n.kind == N_VARIABLE || n.kind == N_BINDING && n.symbol >= 0 && n.symbol < p.symbols.len && p.symbols[n.symbol].node == node {
-        p.nodes[node].symbol = opt_mapped_symbol(o, n.symbol, map_start);
-        if n.kind == N_NAME { opt_capture(p, o.current_function, p.nodes[node].symbol); }
+    var kind = p.nodes[node].kind;
+    if kind == N_FUNCTION || kind == N_FUNCTION_VALUE { return; }
+    let sym = p.nodes[node].symbol;
+    if kind == N_NAME || kind == N_VARIABLE || kind == N_BINDING && sym >= 0 && sym < p.symbols.len && p.symbols[sym].node == node {
+        let mapped = opt_mapped_symbol(o, sym, map_start);
+        p.nodes[node].symbol = mapped;
+        if kind == N_NAME { opt_capture(p, o.current_function, mapped); }
     }
-    if n.kind == N_RETURN && n.symbol == callee {
-        p.nodes[node].kind = N_BREAK; p.nodes[node].symbol = target; p.nodes[node].left = n.first;
-        p.nodes[node].first = -1; p.nodes[node].last = -1; p.nodes[node].flags &= ~F_NONLOCAL; n = p.nodes[node];
-    } else if n.kind == N_RETURN && o.current_function >= 0 && n.symbol == p.nodes[o.current_function].symbol { p.nodes[node].flags &= ~F_NONLOCAL; }
-    if n.kind == N_BREAK || n.kind == N_CONTINUE {
-        for index in node_start..o.node_maps.len { let map = o.node_maps[index]; if n.symbol == map.from { p.nodes[node].symbol = map.to; break; } }
+    if kind == N_RETURN && sym == callee {
+        p.nodes[node].kind = N_BREAK; p.nodes[node].symbol = target; p.nodes[node].left = p.nodes[node].first;
+        p.nodes[node].first = -1; p.nodes[node].last = -1; p.nodes[node].flags &= ~F_NONLOCAL; kind = N_BREAK;
+    } else if kind == N_RETURN && o.current_function >= 0 && sym == p.nodes[o.current_function].symbol { p.nodes[node].flags &= ~F_NONLOCAL; }
+    if kind == N_BREAK || kind == N_CONTINUE {
+        let cur_sym = p.nodes[node].symbol;
+        for index in node_start..o.node_maps.len { let map: const OptNodeMap& = o.node_maps[index]; if cur_sym == map.from { p.nodes[node].symbol = map.to; break; } }
     }
-    var child = n.first; if n.kind == N_PATTERN { child = -1; }
+    let first = p.nodes[node].first; let left = p.nodes[node].left;
+    let right = p.nodes[node].right; let third = p.nodes[node].third;
+    let flags = p.nodes[node].flags;
+    var child = first; if kind == N_PATTERN { child = -1; }
     while child >= 0 { opt_fix_inline(p, o, child, callee, target, map_start, node_start); child = p.nodes[child].next; }
-    if n.kind == N_BREAK {
-        child = n.left;
+    if kind == N_BREAK {
+        child = left;
         while child >= 0 { opt_fix_inline(p, o, child, callee, target, map_start, node_start); child = p.nodes[child].next; }
-    } else if n.kind != N_RECORD && n.kind != N_VARIABLE && n.kind != N_PARAM && n.kind != N_FIELD { opt_fix_inline(p, o, n.left, callee, target, map_start, node_start); }
-    opt_fix_inline(p, o, n.right, callee, target, map_start, node_start);
-    if n.kind != N_CALL || (n.flags & F_DISPATCH) != 0 { opt_fix_inline(p, o, n.third, callee, target, map_start, node_start); }
+    } else if kind != N_RECORD && kind != N_VARIABLE && kind != N_PARAM && kind != N_FIELD { opt_fix_inline(p, o, left, callee, target, map_start, node_start); }
+    opt_fix_inline(p, o, right, callee, target, map_start, node_start);
+    if kind != N_CALL || (flags & F_DISPATCH) != 0 { opt_fix_inline(p, o, third, callee, target, map_start, node_start); }
 }
 
 fn opt_temporary(p: Program&, o: Optimizer&, owner: i64, scope: i64, token: i64, ty: i64, value: i64) -> i64 {
@@ -381,7 +391,7 @@ recursive fn opt_try_inline(p: Program&, o: Optimizer&, node: i64) -> bool {
     let proof_start = o.proof_old.len;
     for index in map_start..o.maps.len { o.proof_old.push(o.maps[index].from); o.proof_new.push(o.maps[index].to); }
     life_clone_provenance(p, o.proof_old[proof_start..], o.proof_new[proof_start..]);
-    opt_replace(p, node, inline_body); check_retarget_exits(p, node, inline_body, node); o.inlined += 1;
+    opt_replace(p, o, node, inline_body); check_retarget_exits(p, node, inline_body, node); o.inlined += 1;
     opt_node(p, o, node, 1); return true;
 }
 
@@ -468,7 +478,7 @@ recursive fn opt_node(p: Program&, o: Optimizer&, node: i64, depth: i64) {
     if kind == N_NAME && entry.symbol >= 0 {
         opt_fact(o, entry.symbol); let fact: const OptFact& = o.facts[entry.symbol];
         if fact.literal >= 0 && fact.writes == 0 && fact.addresses == 0 {
-            let type_id = entry.type_id; opt_replace(p, node, fact.literal); p.nodes[node].type_id = type_id; o.propagated += 1;
+            let type_id = entry.type_id; opt_replace(p, o, node, fact.literal); p.nodes[node].type_id = type_id; o.propagated += 1;
         }
         return;
     }
@@ -481,7 +491,7 @@ recursive fn opt_node(p: Program&, o: Optimizer&, node: i64, depth: i64) {
         let condition: const Node& = p.nodes[left];
         if condition.kind == N_BOOL {
             var chosen = third; if condition.integer != 0 { chosen = right; }
-            if chosen >= 0 { opt_node(p, o, chosen, depth + 1); opt_replace(p, node, chosen); }
+            if chosen >= 0 { opt_node(p, o, chosen, depth + 1); opt_replace(p, o, node, chosen); }
             else { opt_empty(p, node); }
             o.folded += 1; return;
         }
@@ -489,9 +499,9 @@ recursive fn opt_node(p: Program&, o: Optimizer&, node: i64, depth: i64) {
         opt_node(p, o, left, depth + 1); let value: const Node& = p.nodes[left];
         if value.kind == N_BOOL {
             if op == T_ANDAND && value.integer == 0 || op == T_OROR && value.integer != 0 {
-                opt_replace(p, node, left); o.folded += 1; return;
+                opt_replace(p, o, node, left); o.folded += 1; return;
             }
-            opt_node(p, o, right, depth + 1); opt_replace(p, node, right); o.folded += 1; return;
+            opt_node(p, o, right, depth + 1); opt_replace(p, o, node, right); o.folded += 1; return;
         }
     }
     var child = first;
@@ -629,7 +639,7 @@ recursive fn opt_tail_rewrite(p: Program&, o: Optimizer&, node: i64, function_sy
             }
             let jump = new_node(p, N_CONTINUE, n.token); p.nodes[jump].symbol = loop_node;
             p.nodes[jump].type_id = TYPE_VOID; p.nodes[jump].flags = F_CHECKED;
-            append_child(p, inline_body, jump); opt_replace(p, node, inline_body); return 1;
+            append_child(p, inline_body, jump); opt_replace(p, o, node, inline_body); return 1;
         }
     }
     var child = n.first;
@@ -958,36 +968,37 @@ recursive fn opt_function(p: Program&, o: Optimizer&, node: i64) {
 }
 fn optimize_program(p: Program&) {
     if p.diagnostics.len > 0 { return; }
-    var optimizer_facts: OptFact[>..] = [];
+    var optimizer_facts: OptFact[>..] = []; optimizer_facts.resize(p.symbols.len, OptFact {});
     var function_states: u8[>..] = []; function_states.resize(p.nodes.len, 0);
     var optimizer_maps: OptMap[>..] = []; var optimizer_node_maps: OptNodeMap[>..] = [];
     var optimizer_dependencies: i64[>..] = []; var optimizer_proof_old: i64[>..] = []; var optimizer_proof_new: i64[>..] = [];
     var optimizer_bound_guards: OptBoundGuard[>..] = [];
+    var optimizer_inlined_blocks: i64[>..] = [];
     // Each function is optimized once. Inlining and tail calls allocate their
     // temporaries from next_slot while that function is active.
     var slots: i64[>..] = [];
-    for symbol in p.symbols {
+    for s_id in 0..p.symbols.len {
+        let symbol: const Symbol& = p.symbols[s_id];
         if symbol.owner < 0 || symbol.slot < 0 { continue; }
         if symbol.owner >= slots.len { slots.resize(symbol.owner + 1, 0); }
         if symbol.slot >= slots[symbol.owner] { slots[symbol.owner] = symbol.slot + 1; }
     }
-    var o = Optimizer { first_free_slots: slots[..], facts: optimizer_facts, function_states: function_states, maps: optimizer_maps, node_maps: optimizer_node_maps, dependency_work: optimizer_dependencies, proof_old: optimizer_proof_old, proof_new: optimizer_proof_new, bound_guards: optimizer_bound_guards };
-    for symbol, id in p.symbols { opt_fact(o, id); }
+    var o = Optimizer { first_free_slots: slots[..], facts: optimizer_facts, function_states: function_states, maps: optimizer_maps, node_maps: optimizer_node_maps, dependency_work: optimizer_dependencies, proof_old: optimizer_proof_old, proof_new: optimizer_proof_new, bound_guards: optimizer_bound_guards, inlined_blocks: optimizer_inlined_blocks };
     let count = p.symbols.len;
     for i in 0..count {
-        let s = p.symbols[i]; if s.node < 0 { continue; }
+        let s: const Symbol& = p.symbols[i]; if s.node < 0 { continue; }
         if (s.flags & S_GLOBAL) != 0 && s.component_owner < 0 { opt_collect(p, o, s.node); }
         if (s.flags & S_FUNCTION) != 0 && (s.flags & S_BUILTIN) == 0 && (p.nodes[s.node].flags & F_REACHABLE) != 0 {
             opt_collect(p, o, p.nodes[s.node].right);
         }
     }
     for i in 0..count {
-        let s = p.symbols[i]; if s.node >= 0 && (s.flags & S_GLOBAL) != 0 && s.component_owner < 0 { opt_node(p, o, s.node, 0); }
+        let s: const Symbol& = p.symbols[i]; if s.node >= 0 && (s.flags & S_GLOBAL) != 0 && s.component_owner < 0 { opt_node(p, o, s.node, 0); }
     }
     for i in 0..count {
-        let s = p.symbols[i];
+        let s: const Symbol& = p.symbols[i];
         if s.node >= 0 && (s.flags & S_FUNCTION) != 0 && (s.flags & S_BUILTIN) == 0 &&
            (p.nodes[s.node].flags & F_REACHABLE) != 0 { opt_function(p, o, s.node); }
     }
-    life_refresh_named_results(p);
+    life_refresh_named_results_for(p, o.inlined_blocks[..]);
 }

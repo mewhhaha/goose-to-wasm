@@ -9,8 +9,10 @@ fn operation_name(p: Program&, at: i64, prefix: u8[:], unique: bool = true) -> i
         var value = p.nodes.len;
         loop { p.text.push(('a' as i64 + value % 26) as u8); value /= 26; if value == 0 { break; } }
     }
-    token.end = p.text.len; token.text_start = token.start; token.text_len = token.end - token.start;
-    let result = p.tokens.len; p.tokens.push(token); return result;
+    token.end = p.text.len; token.text_start = 0; token.text_len = token.end - token.start;
+    let result = p.tokens.len; p.tokens.push(token);
+    intern_ident_token(p, result);
+    return result;
 }
 fn operation_type(p: Program&, type_id: i64, token: i64) -> i64 {
     let node = new_node(p, N_TYPE_NAME, token); p.nodes[node].type_id = type_id; return node;

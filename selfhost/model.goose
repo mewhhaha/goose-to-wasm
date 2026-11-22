@@ -383,6 +383,8 @@ struct Program {
     // seen to need (--wasm-region-profile), the weight of its share of memory;
     // region_stats makes the module keep each region's high-water mark.
     region_profile: i64[>..]&, region_stats: bool = false, bundled_host: bool = false,
+    // Interned T_IDENT lookup table: 1-based canonical token ID per slot (0 empty).
+    ident_table: i32[>..]&, ident_count: i64 = 0,
 }
 fn index_symbol_owners(p: Program&, owners: SymbolOwners&) {
     // Owner -1 names the initializer. Keep every list in symbol order
@@ -402,6 +404,67 @@ fn bytes_hash(bytes: u8[:]) -> i64 {
     for byte in bytes { hash = (hash ^ (byte as u32)) * 16777619; }
     return hash as i64;
 }
+fn intern_ident(p: Program&, token_id: i64, hash: u32) {
+    let h = hash as i64;
+    let tok: const Token& = p.tokens[token_id];
+    let start = tok.start; let end = tok.end; let length = end - start;
+    if 2 * (p.ident_count + 1) > p.ident_table.len {
+        var new_size: i64 = 16384;
+        if p.ident_table.len > 0 { new_size = p.ident_table.len * 2; }
+        var old_reps: i32[>..] = [];
+        for entry in p.ident_table { if entry > 0 { old_reps.push(entry); } }
+        p.ident_table.clear();
+        p.ident_table.resize(new_size, 0);
+        let new_mask = new_size - 1;
+        for rep_plus_one in old_reps {
+            let rep = (rep_plus_one as i64) - 1;
+            var slot = p.tokens[rep].integer & new_mask;
+            while p.ident_table[slot] != 0 { slot = (slot + 1) & new_mask; }
+            p.ident_table[slot] = rep_plus_one;
+        }
+    }
+    let mask = p.ident_table.len - 1;
+    var slot = h & mask;
+    let text: const u8[:] = p.text;
+    loop {
+        let entry = p.ident_table[slot];
+        if entry == 0 {
+            let canonical = token_id + 1;
+            p.ident_table[slot] = canonical as i32;
+            p.ident_count += 1;
+            p.tokens[token_id].integer = h;
+            p.tokens[token_id].text_start = canonical;
+            return;
+        }
+        let rep = (entry as i64) - 1;
+        let rt: const Token& = p.tokens[rep];
+        if rt.integer == h && rt.end - rt.start == length {
+            var same = true;
+            var rstart = rt.start;
+            for i in 0..length {
+                if text[rstart + i] != text[start + i] { same = false; break; }
+            }
+            if same {
+                p.tokens[token_id].integer = h;
+                p.tokens[token_id].text_start = entry as i64;
+                return;
+            }
+        }
+        slot = (slot + 1) & mask;
+    }
+}
+fn intern_ident_token(p: Program&, token_id: i64) {
+    let t: const Token& = p.tokens[token_id];
+    var h: u32 = 2166136261;
+    for i in t.start..t.end { h = (h ^ (p.text[i] as u32)) * 16777619; }
+    intern_ident(p, token_id, h);
+}
+inline fn token_hash(p: Program&, token: i64) -> i64 {
+    if token < 0 || token >= p.tokens.len { return 2166136261; }
+    let t: const Token& = p.tokens[token];
+    if t.kind == T_IDENT && t.text_start > 0 { return t.integer; }
+    return bytes_hash(p.text[t.start..t.end]);
+}
 inline fn same_bytes(a: u8[:], b: u8[:]) -> bool {
     if a.len != b.len { return false; }
     for c, i in a { if c != b[i] { return false; } }
@@ -413,10 +476,14 @@ inline fn token_text(p: Program&, token: i64) -> u8[:] {
     return p.text[t.start..t.end];
 }
 inline fn same_name(p: Program&, a: i64, b: i64) -> bool {
+    if a == b { return true; }
     if a < 0 || a >= p.tokens.len || b < 0 || b >= p.tokens.len {
         return same_bytes(token_text(p, a), token_text(p, b));
     }
     let left: const Token& = p.tokens[a]; let right: const Token& = p.tokens[b];
+    if left.kind == T_IDENT && right.kind == T_IDENT && left.text_start > 0 && right.text_start > 0 {
+        return left.text_start == right.text_start;
+    }
     return same_bytes(p.text[left.start..left.end], p.text[right.start..right.end]);
 }
 inline fn token_is(p: Program&, token: i64, text: u8[:]) -> bool {
@@ -636,7 +703,11 @@ fn add_type(p: Program&, ty: Type) -> i64 {
 fn type_hash(kind: i64, element: i64, count: i64, flags: i64, declaration: i64) -> i64 {
     var h: u64 = 1469598103934665603;
     var d = declaration; if kind == TY_ARRAY { d = -1; }
-    for part in [kind, element, count, flags, d] { h = (h ^ (part as! u64)) * 1099511628211; h ^= h >> 29; }
+    h = (h ^ (kind as! u64)) * 1099511628211; h ^= h >> 29;
+    h = (h ^ (element as! u64)) * 1099511628211; h ^= h >> 29;
+    h = (h ^ (count as! u64)) * 1099511628211; h ^= h >> 29;
+    h = (h ^ (flags as! u64)) * 1099511628211; h ^= h >> 29;
+    h = (h ^ (d as! u64)) * 1099511628211; h ^= h >> 29;
     return (h >> 1) as i64;
 }
 fn type_hash_of(p: Program&, id: i64) -> i64 {

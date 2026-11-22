@@ -7136,6 +7136,44 @@ fn life_named_results_into(p: Program&, function_node: i64, inline_body: bool, s
         symbols.push(candidate); ordinals.push(ordinal); bound.push(candidate);
     }
 }
+fn life_refresh_named_results_for(p: Program&, inlined_blocks: const i64[:]) {
+    var symbols: i64[>..] = []; var ordinals: i64[>..] = [];
+    var locals: i64[>..] = []; var returns: i64[>..] = [];
+    var work: i64[>..] = []; var others: i64[>..] = [];
+    var bound: i64[>..] = []; var reach_work: i64[>..] = [];
+    let sym_count = p.symbols.len;
+    for s_id in 0..sym_count {
+        let sym: const Symbol& = p.symbols[s_id];
+        if (sym.flags & S_FUNCTION) == 0 || sym.node < 0 { continue; }
+        let function_node = sym.node;
+        let fn_n: const Node& = p.nodes[function_node];
+        if fn_n.kind != N_FUNCTION || fn_n.symbol != s_id || fn_n.type_id < 0 || fn_n.right < 0 || (fn_n.flags & F_CHECKED) == 0 { continue; }
+        p.nodes[function_node].named_results = -1;
+        symbols.clear(); ordinals.clear();
+        life_named_results_into(p, function_node, false, symbols, ordinals, locals, returns, work, others, bound, reach_work);
+        for candidate, index in symbols {
+            let binding = p.nodes.len;
+            p.nodes.push(Node { kind: N_BINDING, next: p.nodes[function_node].named_results, symbol: candidate, integer: ordinals[index] });
+            p.nodes[function_node].named_results = binding;
+        }
+    }
+    for bi in 0..inlined_blocks.len {
+        let function_node = inlined_blocks[bi];
+        if function_node < 0 || function_node >= p.nodes.len { continue; }
+        let fn_n: const Node& = p.nodes[function_node];
+        if fn_n.kind != N_BLOCK || fn_n.type_id < 0 || (fn_n.flags & F_EARLY) == 0 { continue; }
+        let origin = fn_n.origin;
+        if origin < 0 || (p.nodes[origin].kind != N_FUNCTION && p.nodes[origin].kind != N_FUNCTION_VALUE) { continue; }
+        p.nodes[function_node].named_results = -1;
+        symbols.clear(); ordinals.clear();
+        life_named_results_into(p, function_node, true, symbols, ordinals, locals, returns, work, others, bound, reach_work);
+        for candidate, index in symbols {
+            let binding = p.nodes.len;
+            p.nodes.push(Node { kind: N_BINDING, next: p.nodes[function_node].named_results, symbol: candidate, integer: ordinals[index] });
+            p.nodes[function_node].named_results = binding;
+        }
+    }
+}
 fn life_refresh_named_results(p: Program&) {
     let node_count = p.nodes.len;
     var symbols: i64[>..] = []; var ordinals: i64[>..] = [];

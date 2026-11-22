@@ -8,7 +8,7 @@ import os;
 
 // Stable IDs are the only links held while tables grow. Scope, flow and
 // provenance are checker work tables; checked nodes contain backend contracts.
-struct CheckScope { parent: i64, function_node: i64, depth: i64 = 0, namespace_node: i64 = -1, frame_root: i64 = 0, first_variable: i64 = -1, outer_exits: i64 = -1 }
+struct CheckScope { parent: i64, function_node: i64, depth: i64 = 0, namespace_node: i64 = -1, frame_root: i64 = 0, first_variable: i64 = -1, outer_exits: i64 = -1, decl_count: i32 = 0, first_decl: i32 = -1 }
 struct TypeBinding { parameter: i64, value: i64, next: i64 = -1, literal: bool = false }
 struct CheckList { first: i64 = -1, last: i64 = -1, count: i64 = 0 }
 struct CheckSpan { first: i64 = 0, count: i64 = 0 }
@@ -75,7 +75,7 @@ struct Checker {
     scopes: CheckScope[>..]&, variables: CheckVariable[>..]&, variable_lookup: i64[>..]&,
     roots: CheckRoot[>..]&, root_nodes: i64[>..]&, root_symbols: i64[>..]&, effects: CheckEffect[>..]&, effect_lists: CheckEffectList[>..]&, effect_keys: CheckEffectKey[>..]&, effect_key_heads: i64[>..]&,
     // Scope names (check_link_symbol): buckets, each symbol's link scope and name hash, symbols in link order.
-    name_table: i64[>..]&, link_scopes: i64[>..]&, name_hashes: i64[>..]&, linked: i64[>..]&,
+    name_table: i32[>..]&, link_scopes: i32[>..]&, name_hashes: i32[>..]&, linked: i32[>..]&,
     environments: CheckEnvironment[>..]&, environment_heads: i64[>..]&,
     outer_exits: CheckOuterExit[>..]&,
     syntax_nodes: Node[>..]&, syntax_lookup: i64[>..]&,
@@ -237,7 +237,7 @@ fn check_list_count(p: Program&, first: i64) -> i64 {
 recursive fn check_same_type(p: Program&, a: i64, b: i64) -> bool {
     if a == b { return true; }
     if a < 0 || b < 0 { return false; }
-    let at = p.types[a]; let bt = p.types[b];
+    let at: const Type& = p.types[a]; let bt: const Type& = p.types[b];
     if at.kind != bt.kind || at.flags != bt.flags || at.storage != bt.storage || at.length_storage != bt.length_storage || at.pool != bt.pool || at.index_type != bt.index_type { return false; }
     if at.kind == TY_INT || at.kind == TY_FLOAT { return at.count == bt.count; }
     if at.kind == TY_STRUCT || at.kind == TY_ENUM || at.kind == TY_GENERIC {
@@ -301,9 +301,10 @@ fn check_array_type(p: Program&, element: i64, count: i64, array_kind: i64, flag
 }
 fn check_type_const(p: Program&, ty: i64, readonly: bool) -> i64 {
     if ty < 0 { return ty; }
+    let cur_flags = p.types[ty].flags;
+    if readonly && (cur_flags & TF_CONST) != 0 || !readonly && (cur_flags & TF_CONST) == 0 { return ty; }
     var copy = p.types[ty];
     if readonly { copy.flags |= TF_CONST; } else { copy.flags &= ~TF_CONST; }
-    if copy.flags == p.types[ty].flags { return ty; }
     var id = type_find(p, copy.kind, copy.element, copy.count, copy.flags, copy.declaration);
     while id >= 0 {
         let candidate: const Type& = p.types[id];
@@ -321,40 +322,63 @@ let CHECK_INITIAL_BUCKETS: i64 = 64;
 
 // Every scope's names share one table, bucketed by scope and name. A chain
 // holds a scope's same-named symbols in reverse link order, as a lookup expects.
-fn check_name_bucket(c: Checker&, hash: i64, scope: i64) -> i64 {
+inline fn check_name_bucket(c: Checker&, hash: i64, scope: i64) -> i64 {
     var h = (hash as! u64) * 11400714819323198485 ^ (scope as! u64) * 14029467366897019727;
     h ^= h >> 31; return (h & ((c.name_table.len - 1) as! u64)) as i64;
 }
 fn check_link_symbol(p: Program&, c: Checker&, symbol: i64, scope: i64) {
     if scope < 0 { return; }
-    while c.link_scopes.len < p.symbols.len { c.link_scopes.push(-1); c.name_hashes.push(0); }
-    c.link_scopes[symbol] = scope; c.name_hashes[symbol] = bytes_hash(token_text(p, p.symbols[symbol].name_token));
+    let h = token_hash(p, p.symbols[symbol].name_token);
+    if c.link_scopes.len < p.symbols.len {
+        c.link_scopes.resize(p.symbols.len, -1);
+        c.name_hashes.resize(p.symbols.len, 0);
+    }
+    c.link_scopes[symbol] = scope as i32; c.name_hashes[symbol] = h as! i32;
+    c.scopes[scope].decl_count += 1;
+    c.scopes[scope].first_decl = symbol as i32;
     // Two names per bucket at most, on average; rebuilt in link order.
     if 2 * c.name_table.len <= c.linked.len + 1 {
         var count = CHECK_INITIAL_BUCKETS; while 2 * count <= c.linked.len + 1 { count <<= 1; }
         for slot in 0..c.name_table.len { c.name_table[slot] = -1; }
-        while c.name_table.len < count { c.name_table.push(-1); }
+        if c.name_table.len < count { c.name_table.resize(count, -1); }
         for index in 0..c.linked.len {
-            let old = c.linked[index]; let bucket = check_name_bucket(c, c.name_hashes[old], c.link_scopes[old]);
-            p.symbols[old].name_next = c.name_table[bucket]; c.name_table[bucket] = old;
+            let old = c.linked[index] as i64;
+            let bucket = check_name_bucket(c, (c.name_hashes[old] as! u32) as i64, c.link_scopes[old] as i64);
+            p.symbols[old].name_next = c.name_table[bucket] as i64; c.name_table[bucket] = old as i32;
         }
     }
-    c.linked.push(symbol);
-    let bucket = check_name_bucket(c, c.name_hashes[symbol], scope);
-    p.symbols[symbol].name_next = c.name_table[bucket];
-    c.name_table[bucket] = symbol;
+    c.linked.push(symbol as i32);
+    let bucket = check_name_bucket(c, h, scope);
+    p.symbols[symbol].name_next = c.name_table[bucket] as i64;
+    c.name_table[bucket] = symbol as i32;
 }
 inline fn check_lookup_scope(p: Program&, c: Checker&, token: i64, scope: i64, role: i64 = 0) -> i64 {
-    return check_lookup_scope_hashed(p, c, token, scope, bytes_hash(token_text(p, token)), role);
+    return check_lookup_scope_hashed(p, c, token, scope, token_hash(p, token), role);
 }
 fn check_lookup_scope_hashed(p: Program&, c: Checker&, token: i64, scope: i64, hash: i64, role: i64 = 0) -> i64 {
     if scope < 0 || scope >= c.scopes.len { return -1; }
+    let sc: const CheckScope& = c.scopes[scope];
+    if sc.decl_count == 0 { return -1; }
+    let h32 = hash as! i32;
+    if sc.decl_count == 1 {
+        let id = sc.first_decl as i64;
+        if c.name_hashes[id] != h32 { return -1; }
+        let symbol: const Symbol& = p.symbols[id];
+        if !same_name(p, symbol.name_token, token) { return -1; }
+        if role == 0 || (symbol.flags & role) != 0 { return id; }
+        if role == S_FUNCTION && symbol.node >= 0 {
+            let kind = p.nodes[symbol.node].kind;
+            if (symbol.flags & (S_GLOBAL | S_FUNCTION | S_TYPE)) == 0 && kind != N_NAMESPACE || kind == N_TYPE_PARAM { return id; }
+        }
+        return -1;
+    }
     if c.name_table.len == 0 { return -1; }
     let bucket = check_name_bucket(c, hash, scope);
-    var id = c.name_table[bucket];
+    let scope32 = scope as i32;
+    var id = c.name_table[bucket] as i64;
     while id >= 0 {
         let symbol: const Symbol& = p.symbols[id];
-        if c.link_scopes[id] == scope && c.name_hashes[id] == hash && same_name(p, symbol.name_token, token) {
+        if c.link_scopes[id] == scope32 && c.name_hashes[id] == h32 && same_name(p, symbol.name_token, token) {
             if role == 0 || (symbol.flags & role) != 0 { return id; }
             if role == S_FUNCTION && symbol.node >= 0 {
                 let kind = p.nodes[symbol.node].kind;
@@ -379,7 +403,7 @@ fn check_global_value(p: Program&, symbol: i64) -> i64 {
 }
 
 inline fn check_lookup(p: Program&, c: Checker&, token: i64, scope: i64, role: i64 = 0) -> i64 {
-    return check_lookup_hashed(p, c, token, scope, bytes_hash(token_text(p, token)), role);
+    return check_lookup_hashed(p, c, token, scope, token_hash(p, token), role);
 }
 fn check_lookup_hashed(p: Program&, c: Checker&, token: i64, scope: i64, hash: i64, role: i64) -> i64 {
     var current = scope;
@@ -388,14 +412,16 @@ fn check_lookup_hashed(p: Program&, c: Checker&, token: i64, scope: i64, hash: i
         while end > 0 && c.scopes[end].namespace_node < 0 && c.scopes[end].function_node == function_node { end = c.scopes[end].parent; }
         var at = current; var parameter = -1; var function_symbol = -1; var type_symbol = -1;
         while at != end {
-            let found = check_lookup_scope_hashed(p, c, token, at, hash, role);
-            if found >= 0 {
-                let symbol = p.symbols[found];
-                if (symbol.flags & S_FUNCTION) != 0 { if function_symbol < 0 { function_symbol = found; } }
-                else if (symbol.flags & S_TYPE) != 0 {
-                    if symbol.node >= 0 && p.nodes[symbol.node].kind == N_TYPE_PARAM { if parameter < 0 { parameter = found; } }
-                    else if type_symbol < 0 { type_symbol = found; }
-                } else { return found; }
+            if c.scopes[at].decl_count > 0 {
+                let found = check_lookup_scope_hashed(p, c, token, at, hash, role);
+                if found >= 0 {
+                    let symbol: const Symbol& = p.symbols[found];
+                    if (symbol.flags & S_FUNCTION) != 0 { if function_symbol < 0 { function_symbol = found; } }
+                    else if (symbol.flags & S_TYPE) != 0 {
+                        if symbol.node >= 0 && p.nodes[symbol.node].kind == N_TYPE_PARAM { if parameter < 0 { parameter = found; } }
+                        else if type_symbol < 0 { type_symbol = found; }
+                    } else { return found; }
+                }
             }
             at = c.scopes[at].parent;
         }
@@ -405,9 +431,11 @@ fn check_lookup_hashed(p: Program&, c: Checker&, token: i64, scope: i64, hash: i
         current = end;
     }
     loop {
-        var found = check_lookup_scope_hashed(p, c, token, current, hash, role);
-        if role == 0 { found = check_global_value(p, found); }
-        if found >= 0 { return found; }
+        if c.scopes[current].decl_count > 0 {
+            var found = check_lookup_scope_hashed(p, c, token, current, hash, role);
+            if role == 0 { found = check_global_value(p, found); }
+            if found >= 0 { return found; }
+        }
         if current <= 0 { return -1; }
         current = c.scopes[current].parent;
     }
@@ -426,16 +454,18 @@ fn check_namespace_in(p: Program&, symbol: i64) -> i64 {
 }
 // A qualifier `ns::` names a namespace, which no variable hides.
 fn check_lookup_namespace(p: Program&, c: Checker&, token: i64, scope: i64) -> i64 {
-    let hash = bytes_hash(token_text(p, token)); var current = scope;
+    let hash = token_hash(p, token); var current = scope;
     loop {
-        let found = check_namespace_in(p, check_lookup_scope_hashed(p, c, token, current, hash));
-        if found >= 0 { return found; }
+        if current >= 0 && current < c.scopes.len && c.scopes[current].decl_count > 0 {
+            let found = check_namespace_in(p, check_lookup_scope_hashed(p, c, token, current, hash));
+            if found >= 0 { return found; }
+        }
         if current <= 0 || current >= c.scopes.len { return -1; }
         current = c.scopes[current].parent;
     }
 }
 fn check_lookup_name(p: Program&, c: Checker&, node: i64, role: i64 = 0) -> i64 {
-    let n = p.nodes[node];
+    let n: const Node& = p.nodes[node];
     if n.aux <= 1 || n.integer < 0 || n.integer >= p.tokens.len {
         return check_lookup(p, c, n.token, c.scope, role);
     }
@@ -594,18 +624,18 @@ fn check_root_index(c: Checker&, value: i64, root: i64) {
 }
 fn check_add_root(c: Checker&, value: i64, root: i64, kind: i64 = 0) {
     let first = check_root_head(c, value); var at = first;
-    while at >= 0 { let old = c.roots[at]; if old.root == root && old.kind == kind { return; } at = old.next; }
+    while at >= 0 { let old: const CheckRoot& = c.roots[at]; if old.root == root && old.kind == kind { return; } at = old.next; }
     let id = c.roots.len; c.roots.push(CheckRoot { value: value, root: root, kind: kind, next: first }); check_root_index(c, value, id);
 }
 fn check_copy_roots(c: Checker&, destination: i64, source: i64) {
     var at = check_root_head(c, source);
-    while at >= 0 { let root = c.roots[at]; at = root.next; check_add_root(c, destination, root.root, root.kind); }
+    while at >= 0 { let r = c.roots[at].root; let k = c.roots[at].kind; at = c.roots[at].next; check_add_root(c, destination, r, k); }
 }
 
 fn check_place_root(p: Program&, node: i64) -> i64 {
     var current = node;
     while current >= 0 {
-        let n = p.nodes[current];
+        let n: const Node& = p.nodes[current];
         if n.kind == N_NAME { return n.symbol; }
         if n.kind == N_MEMBER || n.kind == N_INDEX || n.kind == N_SLICE || n.kind == N_UNARY {
             current = n.left;
@@ -616,7 +646,7 @@ fn check_place_root(p: Program&, node: i64) -> i64 {
 fn check_reference_kind(p: Program&, node: i64) -> i64 {
     var current = node;
     while current >= 0 {
-        let n = p.nodes[current];
+        let n: const Node& = p.nodes[current];
         if n.kind == N_INDEX || n.kind == N_SLICE { return 1; }
         if n.kind == N_MEMBER || n.kind == N_UNARY || n.kind == N_CAST { current = n.left; }
         else { return 0; }
@@ -4855,13 +4885,15 @@ recursive fn check_member_function(p: Program&, c: Checker&, token: i64, receive
     }
     // Member syntax passes variables. Type parameters hide every function
     // set; local functions then precede the receiver and caller namespaces.
-    let hash = bytes_hash(token_text(p, token)); var scope = c.scope; var local = -1;
+    let hash = token_hash(p, token); var scope = c.scope; var local = -1;
     while scope > 0 && c.scopes[scope].namespace_node < 0 {
-        let parameter = check_lookup_scope_hashed(p, c, token, scope, hash, S_TYPE);
-        if parameter >= 0 && p.nodes[p.symbols[parameter].node].kind == N_TYPE_PARAM {
-            diagnose(p, token, "a type parameter cannot be called as a member"); return -2;
+        if c.scopes[scope].decl_count > 0 {
+            let parameter = check_lookup_scope_hashed(p, c, token, scope, hash, S_TYPE);
+            if parameter >= 0 && p.nodes[p.symbols[parameter].node].kind == N_TYPE_PARAM {
+                diagnose(p, token, "a type parameter cannot be called as a member"); return -2;
+            }
+            if local < 0 { local = check_lookup_scope_hashed(p, c, token, scope, hash, S_FUNCTION | S_BUILTIN); }
         }
-        if local < 0 { local = check_lookup_scope_hashed(p, c, token, scope, hash, S_FUNCTION | S_BUILTIN); }
         scope = c.scopes[scope].parent;
     }
     if local >= 0 { return local; }
@@ -7827,22 +7859,28 @@ fn check_foreign_return(p: Program&, function_node: i64) -> bool {
 fn check_unreached(p: Program&, c: Checker&, declarations: i64) {
     // A diagnostic-only root is checked with the declared parameter types.
     // Calls discovered here must not make emitted program roots reachable.
-    var reachable: bool[>..] = [];
-    for n in p.nodes { reachable.push((n.flags & F_REACHABLE) != 0); }
+    var reachable: bool[>..] = []; reachable.resize(p.nodes.len, false);
+    for i in 0..p.nodes.len {
+        let flags = p.nodes[i].flags;
+        if (flags & F_REACHABLE) != 0 { reachable[i] = true; }
+    }
     var specialized: bool[>..] = []; specialized.resize(p.nodes.len, false);
     for spec in c.specializations { if spec.original >= 0 && spec.original < specialized.len { specialized[spec.original] = true; } }
+    var checked_any = false;
     for i in 0..declarations {
-        let symbol = p.symbols[i]; if symbol.node < 0 || symbol.owner >= 0 { continue; }
-        let n = p.nodes[symbol.node];
-        if n.kind != N_FUNCTION || n.right < 0 || (n.flags & (F_GENERIC | F_THREAD | F_CHECKED)) != 0 { continue; }
-        if library_node(p, symbol.node) { continue; }
-        if specialized[symbol.node] { continue; }
+        let s_node = p.symbols[i].node; if s_node < 0 || p.symbols[i].owner >= 0 { continue; }
+        let kind = p.nodes[s_node].kind; let right = p.nodes[s_node].right; let flags = p.nodes[s_node].flags;
+        if kind != N_FUNCTION || right < 0 || (flags & (F_GENERIC | F_THREAD | F_CHECKED)) != 0 { continue; }
+        if library_node(p, s_node) { continue; }
+        if specialized[s_node] { continue; }
         // Signatures were prepared with the declarations; only bodies remain.
-        if p.reachable_program && (n.flags & F_EXPORT) == 0 { continue; }
-        if !check_foreign_return(p, symbol.node) { check_function(p, c, symbol.node); }
+        if p.reachable_program && (flags & F_EXPORT) == 0 { continue; }
+        if !check_foreign_return(p, s_node) { check_function(p, c, s_node); checked_any = true; }
     }
-    for n, i in p.nodes {
-        if n.kind != N_FUNCTION && n.kind != N_FUNCTION_VALUE { continue; }
+    if !checked_any { return; }
+    for i in 0..p.nodes.len {
+        let kind = p.nodes[i].kind;
+        if kind != N_FUNCTION && kind != N_FUNCTION_VALUE { continue; }
         p.nodes[i].flags &= ~F_REACHABLE;
         if i < reachable.len && reachable[i] { p.nodes[i].flags |= F_REACHABLE; }
     }
@@ -7867,7 +7905,7 @@ fn check_program_types(p: Program&, declarations_only: bool, scope_parents: i64[
     var checker_node_nonnegative: i64[>..] = [];
     var checker_syntax_nodes: Node[>..] = []; var checker_syntax_lookup: i64[>..] = [];
     var checker_effects: CheckEffect[>..] = []; var checker_effect_lists: CheckEffectList[>..] = [];
-    var checker_name_table: i64[>..] = []; var checker_link_scopes: i64[>..] = []; var checker_name_hashes: i64[>..] = []; var checker_linked: i64[>..] = [];
+    var checker_name_table: i32[>..] = []; var checker_link_scopes: i32[>..] = []; var checker_name_hashes: i32[>..] = []; var checker_linked: i32[>..] = [];
     var checker_effect_keys: CheckEffectKey[>..] = []; var checker_effect_key_heads: i64[>..] = []; checker_effect_key_heads.resize(CHECK_INITIAL_BUCKETS, -1);
     var checker_return_roots: CheckReturnRoot[>..] = []; var checker_return_root_lists: CheckEffectList[>..] = [];
     var checker_specializations: CheckSpecialization[>..] = [];
@@ -7958,13 +7996,24 @@ fn check_program_types(p: Program&, declarations_only: bool, scope_parents: i64[
     }
     check_finish_components(p, c);
     check_validate_type_uses(p); check_validate_program(p);
-    for scope in c.scopes { scope_parents.push(scope.parent); scope_depths.push(scope.depth); scope_functions.push(scope.function_node); }
-    var pool_types: bool[>..] = [];
-    for ty in p.types { pool_types.push(false); }
-    for node, id in p.nodes {
-        let ty = node.type_id;
-        if ty < 0 || pool_types[ty] || p.types[ty].kind != TY_REF || p.types[ty].length_storage < 0 || p.types[ty].pool < 0 || check_has_generic(p, p.types[ty].element, 0) { continue; }
-        pool_types[ty] = true; pool_references.push(id);
+    for i in 0..c.scopes.len {
+        let scope: const CheckScope& = c.scopes[i];
+        scope_parents.push(scope.parent); scope_depths.push(scope.depth); scope_functions.push(scope.function_node);
+    }
+    var has_pool_ref = false;
+    for tid in 0..p.types.len {
+        let t: const Type& = p.types[tid];
+        if t.kind == TY_REF && t.length_storage >= 0 && t.pool >= 0 { has_pool_ref = true; break; }
+    }
+    if has_pool_ref {
+        var pool_types: bool[>..] = []; pool_types.resize(p.types.len, false);
+        for id in 0..p.nodes.len {
+            let ty = p.nodes[id].type_id;
+            if ty < 0 || pool_types[ty] { continue; }
+            let t: const Type& = p.types[ty];
+            if t.kind != TY_REF || t.length_storage < 0 || t.pool < 0 || check_has_generic(p, t.element, 0) { continue; }
+            pool_types[ty] = true; pool_references.push(id);
+        }
     }
     return true;
 }
