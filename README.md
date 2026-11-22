@@ -4,11 +4,11 @@ A [Goose](https://github.com/aardappel/goose) compiler written in Goose. It emit
 
 ## Benchmarks
 
-**The compiler rebuilding itself.** On its own source, the balanced compiler took **1.90 s in cached Wasmtime** and **1.45 s native** (1.31× across nine pairs). The cached Wasmtime elapsed-time interval included no change on frozen input. [Paired measurements](bench/results/2026-11-21/shared-emitters/README.md)
+**The compiler rebuilding itself.** On its own source, the balanced compiler took **1.94 s in cached Wasmtime** and **1.66 s native** (1.18× paired elapsed time, 1.08× instructions across seven pairs on a shared host; down from 1.31×). On frozen source `9a6040a`, local promotion and direct Wasm lowering cut cached Wasmtime instructions by **16.5%** (16.46 B → **13.75 B**, fewer than the previous native compiler's 13.76 B) and paired elapsed time by **10.8%**. [Paired measurements](bench/results/2026-11-22/wasm-local-codegen/README.md)
 
-**Compiler downloads.** Sharing emitter helpers cut the balanced compiler from 4.39 MB to **3.08 MB** (29.8% smaller). The size profile is **2.73 MB**. The balanced profile completed the frozen rebuild **19.8% faster from a cold start**. [Sizes and paired runs](bench/results/2026-11-21/shared-emitters/README.md#full-builds-on-a-frozen-project) · [Compact command](docs/GUIDE.md#build-and-run)
+**Compiler downloads.** Local promotion and direct lowering cut the balanced compiler from 3.08 MB to **2.78 MB** (9.9% smaller; gzip 0.82 MB) and the size profile from 2.73 MB to **2.39 MB** (12.6% smaller). The balanced profile completed the frozen rebuild **12.0% faster from a cold start** (5.42 s → 4.54 s) and cut `sorting` guest runtime by **31.4%** (42.7% fewer instructions). [Sizes, paired runs and runtime](bench/results/2026-11-22/wasm-local-codegen/README.md#full-builds-on-a-frozen-project) · [Compact command](docs/GUIDE.md#build-and-run)
 
-![Previous and current Wasm sizes, plus elapsed seconds for cold and cached Wasmtime rebuilds](bench/results/2026-11-21/shared-emitters/release.svg)
+![Previous and current Wasm sizes, plus elapsed seconds for cold and cached Wasmtime rebuilds](bench/results/2026-11-22/wasm-local-codegen/release.svg)
 
 **Cold and cached self-compilation.** In a separate three-round run, the bundled 32-bit compiler took **2.37 s cold** with eight preparation threads and **1.84 s cached** on one core. Native took **1.39 s**. These fresh-process timings include startup. [All launches](bench/results/2026-11-21/shared-emitters/launch.json)
 
@@ -40,6 +40,7 @@ A [Goose](https://github.com/aardappel/goose) compiler written in Goose. It emit
 
 | Question | Measurements |
 | --- | --- |
+| What did sharing emitter write helpers save? | [3.08 MB balanced compiler and 19.8% faster cold rebuild](bench/results/2026-11-21/shared-emitters/README.md) |
 | How much work could a lifetime scheduler skip? | [Shadow test and four state-change witnesses](bench/results/2026-11-21/lifetime-scheduler/README.md) |
 | What did reusing checks for globals save? | [Global capture study](bench/results/2026-11-20/lifetime-captures/README.md) |
 | What changed after shortening lifetime value paths? | [Paired rebuilds and timing control](bench/results/2026-11-21/lifetime-value-paths/README.md) |

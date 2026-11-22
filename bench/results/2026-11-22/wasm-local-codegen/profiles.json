@@ -1,0 +1,47 @@
+{
+  "previous": {
+    "bytes": 3084808,
+    "gzip_bytes": 945724,
+    "sha256": "f4dadfc1ee7a5866e6f320961e961f757bfa5161a1d7feb330c4cf8e7256b849",
+    "cold": {
+      "wall_seconds": 5.420414265,
+      "preparation_seconds": 2.96184761,
+      "paired_time_change": 0.0
+    },
+    "cached": {
+      "wall_seconds": 2.416015553,
+      "preparation_seconds": 0.002413173,
+      "paired_time_change": 0.0
+    }
+  },
+  "balanced": {
+    "bytes": 2779606,
+    "gzip_bytes": 816335,
+    "sha256": "ced8e84e1b958624aec5b9bb833ced2da670fd880e53ed450473c31099804495",
+    "cold": {
+      "wall_seconds": 4.5417097,
+      "preparation_seconds": 2.522693232,
+      "paired_time_change": -0.12030990899140925
+    },
+    "cached": {
+      "wall_seconds": 2.130617675,
+      "preparation_seconds": 0.002350544,
+      "paired_time_change": -0.14819823220240358
+    }
+  },
+  "size": {
+    "bytes": 2389908,
+    "gzip_bytes": 669184,
+    "sha256": "1567dcf7529eae858c43636b3c183484e75ddde0858bf03b81d7098ec5bca22a",
+    "cold": {
+      "wall_seconds": 5.047194721,
+      "preparation_seconds": 3.027762296,
+      "paired_time_change": -0.03255312522860665
+    },
+    "cached": {
+      "wall_seconds": 2.077279558,
+      "preparation_seconds": 0.001910667,
+      "paired_time_change": -0.15801625446402212
+    }
+  }
+}
