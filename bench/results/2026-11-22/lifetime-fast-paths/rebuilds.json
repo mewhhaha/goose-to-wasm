@@ -1,0 +1,305 @@
+{
+  "cpu": 7,
+  "host": {
+    "path": "/home/jacobt/src/goose-to-wasm/host/rust/target/release/goose-wasmtime",
+    "bytes": 17245208,
+    "gzip_bytes": 4683799,
+    "sha256": "b247393d8fbe3115246f20703f726e90eeaaed762a75932c7bb131a4433ad026"
+  },
+  "frozen": {
+    "rounds": 7,
+    "medians": {
+      "native-before": {
+        "wall_seconds": 1.510868665,
+        "cpu_seconds": 1.4970130000000026,
+        "lifetime_seconds": 0.794810491,
+        "typecheck_seconds": 0.998521872,
+        "instructions": 12913298855,
+        "cycles": 5409555794,
+        "output": {
+          "bytes": 6594988,
+          "sha256": "3e3d7d8a06cbf2640f66c7e681a6252a958089c182850d8823f339f5c6485fa5"
+        }
+      },
+      "native-after": {
+        "wall_seconds": 1.106531196,
+        "cpu_seconds": 1.0931099999999958,
+        "lifetime_seconds": 0.379350737,
+        "typecheck_seconds": 0.583442004,
+        "instructions": 8958592038,
+        "cycles": 3895906548,
+        "output": {
+          "bytes": 6594988,
+          "sha256": "3e3d7d8a06cbf2640f66c7e681a6252a958089c182850d8823f339f5c6485fa5"
+        }
+      },
+      "wasm-before": {
+        "wall_seconds": 1.774650973,
+        "cpu_seconds": 1.7557260000000028,
+        "lifetime_seconds": 0.90124191,
+        "typecheck_seconds": 1.191656361,
+        "instructions": 13764715285,
+        "cycles": 6407627871,
+        "output": {
+          "bytes": 6594988,
+          "sha256": "3e3d7d8a06cbf2640f66c7e681a6252a958089c182850d8823f339f5c6485fa5"
+        }
+      },
+      "wasm-after": {
+        "wall_seconds": 1.313576932,
+        "cpu_seconds": 1.3016210000000044,
+        "lifetime_seconds": 0.449424915,
+        "typecheck_seconds": 0.733100937,
+        "instructions": 9799045779,
+        "cycles": 4711150579,
+        "output": {
+          "bytes": 6594988,
+          "sha256": "3e3d7d8a06cbf2640f66c7e681a6252a958089c182850d8823f339f5c6485fa5"
+        }
+      }
+    },
+    "paired": {
+      "wasm-after / wasm-before": {
+        "wall_seconds": {
+          "median": 0.7393192488250045,
+          "interval95": [
+            0.6840903146893949,
+            0.7474138669564073
+          ],
+          "rounds_below_one": 7
+        },
+        "cpu_seconds": {
+          "median": 0.7389345508147407,
+          "interval95": [
+            0.6869233082642632,
+            0.7479743422379097
+          ],
+          "rounds_below_one": 7
+        },
+        "lifetime_seconds": {
+          "median": 0.49867931099336277,
+          "interval95": [
+            0.44111409271873286,
+            0.503049652601009
+          ],
+          "rounds_below_one": 7
+        },
+        "instructions": {
+          "median": 0.7118960117960462,
+          "interval95": [
+            0.7118956786485027,
+            0.7118966267158081
+          ],
+          "rounds_below_one": 7
+        },
+        "cycles": {
+          "median": 0.7352409774484546,
+          "interval95": [
+            0.6952746220641479,
+            0.7424251275341515
+          ],
+          "rounds_below_one": 7
+        }
+      },
+      "native-after / native-before": {
+        "wall_seconds": {
+          "median": 0.7270966933514398,
+          "interval95": [
+            0.5686738046857632,
+            0.8042300235061572
+          ],
+          "rounds_below_one": 7
+        },
+        "cpu_seconds": {
+          "median": 0.7274471912126578,
+          "interval95": [
+            0.6099134638713929,
+            0.796647894302554
+          ],
+          "rounds_below_one": 7
+        },
+        "lifetime_seconds": {
+          "median": 0.4707908474081125,
+          "interval95": [
+            0.31455356581255656,
+            0.5618978956413287
+          ],
+          "rounds_below_one": 7
+        },
+        "instructions": {
+          "median": 0.693751049342283,
+          "interval95": [
+            0.6937485555635369,
+            0.6937545986986062
+          ],
+          "rounds_below_one": 7
+        },
+        "cycles": {
+          "median": 0.7174553390806495,
+          "interval95": [
+            0.6311254642022257,
+            0.777454009538688
+          ],
+          "rounds_below_one": 7
+        }
+      },
+      "wasm-after / native-before": {
+        "wall_seconds": {
+          "median": 0.8648568969477652,
+          "interval95": [
+            0.6000381938143451,
+            0.8761011355014103
+          ],
+          "rounds_below_one": 7
+        },
+        "cpu_seconds": {
+          "median": 0.8654817663197526,
+          "interval95": [
+            0.6504242936177742,
+            0.8772388750131068
+          ],
+          "rounds_below_one": 7
+        },
+        "lifetime_seconds": {
+          "median": 0.559582588599727,
+          "interval95": [
+            0.3473826153116906,
+            0.5678126118322135
+          ],
+          "rounds_below_one": 7
+        },
+        "instructions": {
+          "median": 0.7588336937006481,
+          "interval95": [
+            0.7588334563813808,
+            0.7588367817232491
+          ],
+          "rounds_below_one": 7
+        },
+        "cycles": {
+          "median": 0.870966448402591,
+          "interval95": [
+            0.7129260062334043,
+            0.8837707822944614
+          ],
+          "rounds_below_one": 7
+        }
+      },
+      "wasm-after / native-after": {
+        "wall_seconds": {
+          "median": 1.1736772715443624,
+          "interval95": [
+            1.0551535675991144,
+            1.2106674258971144
+          ],
+          "rounds_below_one": 0
+        },
+        "cpu_seconds": {
+          "median": 1.1784934727520626,
+          "interval95": [
+            1.0664206189009848,
+            1.2138862647733595
+          ],
+          "rounds_below_one": 0
+        },
+        "lifetime_seconds": {
+          "median": 1.1724298086707026,
+          "interval95": [
+            0.9859594758984401,
+            1.2089705351242632
+          ],
+          "rounds_below_one": 1
+        },
+        "instructions": {
+          "median": 1.0938159829619423,
+          "interval95": [
+            1.0938106096468099,
+            1.0938162920761048
+          ],
+          "rounds_below_one": 0
+        },
+        "cycles": {
+          "median": 1.213100596895107,
+          "interval95": [
+            1.1202803480547867,
+            1.228205494869817
+          ],
+          "rounds_below_one": 0
+        }
+      }
+    }
+  },
+  "own": {
+    "rounds": 7,
+    "medians": {
+      "native-after": {
+        "wall_seconds": 1.012524073,
+        "cpu_seconds": 1.0036869999999993,
+        "lifetime_seconds": 0.384761336,
+        "typecheck_seconds": 0.595062791,
+        "instructions": 8022479958,
+        "cycles": 3629692113,
+        "output": {
+          "bytes": 4518926,
+          "sha256": "4f93609e875fb7cea40e933d8cc9506a33ae3ac0d9011594926ffc95edf14778"
+        }
+      },
+      "wasm-after": {
+        "wall_seconds": 1.242665192,
+        "cpu_seconds": 1.2321259999999938,
+        "lifetime_seconds": 0.464019213,
+        "typecheck_seconds": 0.765365872,
+        "instructions": 9002338712,
+        "cycles": 4508094069,
+        "output": {
+          "bytes": 4518926,
+          "sha256": "4f93609e875fb7cea40e933d8cc9506a33ae3ac0d9011594926ffc95edf14778"
+        }
+      }
+    },
+    "paired": {
+      "wasm-after / native-after": {
+        "wall_seconds": {
+          "median": 1.2299232229292518,
+          "interval95": [
+            1.1370739349505306,
+            1.2614615420371285
+          ],
+          "rounds_below_one": 0
+        },
+        "cpu_seconds": {
+          "median": 1.225542425078742,
+          "interval95": [
+            1.136726058793103,
+            1.2609342023834154
+          ],
+          "rounds_below_one": 0
+        },
+        "lifetime_seconds": {
+          "median": 1.206659493989377,
+          "interval95": [
+            1.0399442610124046,
+            1.2732268174996595
+          ],
+          "rounds_below_one": 0
+        },
+        "instructions": {
+          "median": 1.1221391486335701,
+          "interval95": [
+            1.122138522274049,
+            1.1221455915371163
+          ],
+          "rounds_below_one": 0
+        },
+        "cycles": {
+          "median": 1.242342952695129,
+          "interval95": [
+            1.1816655014989947,
+            1.2667958916306155
+          ],
+          "rounds_below_one": 0
+        }
+      }
+    }
+  }
+}
