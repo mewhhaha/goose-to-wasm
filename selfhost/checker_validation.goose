@@ -20,7 +20,7 @@ fn validation_root_placement(p: Program&, type_id: i64, token: i64, position: u8
 // Checked-node invariants are independent of overload selection and flow joins.
 recursive fn validation_size_class(p: Program&, type_id: i64, depth: i64 = 0) -> i64 {
     if type_id < 0 || depth > 64 { return 0; }
-    let t = p.types[type_id];
+    let t: const Type& = p.types[type_id];
     if t.kind == TY_ENUM && (t.flags & F_VARIABLE_MODE) == 0 { return 0; }
     if t.storage == 1 || t.kind == TY_REF && t.length_storage == 0 { return 1; }
     if t.kind == TY_ARRAY {
@@ -42,7 +42,7 @@ recursive fn validation_size_class(p: Program&, type_id: i64, depth: i64 = 0) ->
 }
 fn validation_optional(p: Program&, node: i64) -> bool {
     if node < 0 || p.nodes[node].type_id < 0 { return false; }
-    let t = p.types[p.nodes[node].type_id];
+    let t: const Type& = p.types[p.nodes[node].type_id];
     return t.kind == TY_REF && (t.flags & TF_OPTIONAL) != 0;
 }
 fn validation_builtin(p: Program&, node: i64, index: i64) -> bool {
@@ -53,7 +53,7 @@ fn validation_builtin(p: Program&, node: i64, index: i64) -> bool {
 fn validation_storage_value(p: Program&, node: i64) -> bool {
     if node < 0 || p.nodes[node].type_id < 0 { return false; }
     if validation_builtin(p, node, 15) { return false; }
-    let n = p.nodes[node]; var type_id = n.type_id;
+    let n: const Node& = p.nodes[node]; var type_id = n.type_id;
     if p.types[type_id].kind == TY_REF {
         type_id = p.types[type_id].element;
         return validation_size_class(p, type_id) > 0;
@@ -66,7 +66,7 @@ fn validation_storage_value(p: Program&, node: i64) -> bool {
 }
 recursive fn validation_contains_binding(p: Program&, node: i64, symbol: i64, depth: i64 = 0) -> bool {
     if node < 0 || depth > 128 { return false; }
-    let n = p.nodes[node];
+    let n: const Node& = p.nodes[node];
     if n.kind == N_FUNCTION || n.kind == N_FUNCTION_VALUE || n.kind == N_IMPORT { return false; }
     if n.kind == N_VARIABLE && n.symbol == symbol { return true; }
     var child = n.first;
@@ -80,9 +80,9 @@ recursive fn validation_contains_binding(p: Program&, node: i64, symbol: i64, de
         validation_contains_binding(p, n.third, symbol, depth + 1);
 }
 fn validation_fresh_local(p: Program&, expression: i64, owner: i64) -> bool {
-    let n = p.nodes[expression];
+    let n: const Node& = p.nodes[expression];
     if n.kind != N_NAME || n.symbol < 0 { return false; }
-    let s = p.symbols[n.symbol];
+    let s: const Symbol& = p.symbols[n.symbol];
     if s.type_id < 0 || p.types[s.type_id].kind == TY_REF || (s.flags & (S_PARAMETER | S_GLOBAL)) != 0 { return false; }
     return validation_contains_binding(p, owner, n.symbol);
 }
@@ -97,15 +97,15 @@ fn validation_control_value(p: Program&, expression: i64, owner: i64) {
 struct ValidationRoot { symbol: i64 = -1, path: u64 = 0 }
 recursive fn validation_root(p: Program&, node: i64, depth: i64 = 0) -> ValidationRoot {
     if node < 0 || depth > 64 { return ValidationRoot {}; }
-    let n = p.nodes[node];
+    let n: const Node& = p.nodes[node];
     if n.kind == N_UNARY && (n.integer == T_BITAND || n.integer == T_MUL) {
         return validation_root(p, n.left, depth + 1);
     }
     if n.kind == N_SLICE { return validation_root(p, n.left, depth + 1); }
     if n.kind == N_NAME && n.symbol >= 0 {
-        let symbol = p.symbols[n.symbol];
+        let symbol: const Symbol& = p.symbols[n.symbol];
         if symbol.type_id < 0 { return ValidationRoot {}; }
-        let t = p.types[symbol.type_id];
+        let t: const Type& = p.types[symbol.type_id];
         if t.kind == TY_REF || t.kind == TY_SLICE {
             if (symbol.flags & (S_PARAMETER | S_MUTABLE)) != 0 || symbol.node < 0 { return ValidationRoot {}; }
             if p.nodes[symbol.node].kind == N_VARIABLE {
@@ -125,7 +125,7 @@ recursive fn validation_root(p: Program&, node: i64, depth: i64 = 0) -> Validati
 }
 recursive fn validation_element_owner(p: Program&, node: i64, depth: i64 = 0) -> ValidationRoot {
     if node < 0 || depth > 64 { return ValidationRoot {}; }
-    let n = p.nodes[node];
+    let n: const Node& = p.nodes[node];
     if n.kind == N_UNARY && (n.integer == T_BITAND || n.integer == T_MUL) {
         return validation_element_owner(p, n.left, depth + 1);
     }
@@ -147,7 +147,7 @@ recursive fn validation_element_owner(p: Program&, node: i64, depth: i64 = 0) ->
         }
     }
     if n.kind == N_NAME && n.symbol >= 0 {
-        let symbol = p.symbols[n.symbol];
+        let symbol: const Symbol& = p.symbols[n.symbol];
         if symbol.type_id >= 0 && p.types[symbol.type_id].kind == TY_REF &&
            (symbol.flags & (S_PARAMETER | S_MUTABLE)) == 0 && symbol.node >= 0 &&
            p.nodes[symbol.node].kind == N_VARIABLE {
@@ -168,7 +168,7 @@ fn validation_index_of(p: Program&, node: i64) {
     }
 }
 fn validation_array_length(p: Program&, node: i64) {
-    let n = p.nodes[node]; let t = p.types[n.type_id];
+    let n: const Node& = p.nodes[node]; let t: const Type& = p.types[n.type_id];
     if t.kind != TY_ARRAY || t.array_kind != A_VAR && t.array_kind != A_LIMITED ||
        t.length_storage < 1 || t.length_storage > 4 { return; }
     var count = 0;
@@ -194,12 +194,12 @@ fn validation_value_type(p: Program&, type_id: i64, token: i64) {
 
 fn validation_zero_layout(p: Program&, type_id: i64) -> bool {
     if type_id < 0 { return false; }
-    let t = p.types[type_id];
+    let t: const Type& = p.types[type_id];
     if t.kind == TY_ARRAY && (t.array_kind == A_FIXED || t.array_kind == A_LIMITED) && t.count == 0 { return true; }
     if t.kind != TY_STRUCT || t.declaration < 0 || t.size < 0 || p.nodes[t.declaration].kind != N_VARIANT { return false; }
     var field = t.first;
     while field >= 0 {
-        let f = p.nodes[field];
+        let f: const Node& = p.nodes[field];
         if (f.flags & F_PAD) == 0 || f.aux > 0 { return false; }
         field = f.next;
     }
@@ -208,7 +208,7 @@ fn validation_zero_layout(p: Program&, type_id: i64) -> bool {
 
 fn validation_element_layout(p: Program&, type_id: i64, token: i64) {
     if type_id < 0 { return; }
-    let t = p.types[type_id];
+    let t: const Type& = p.types[type_id];
     if t.kind == TY_ARRAY || t.kind == TY_SLICE { validation_root_placement(p, type_id, token, "nested"); }
     if (t.kind == TY_ARRAY || t.kind == TY_SLICE) && validation_zero_layout(p, t.element) {
         diagnose(p, token, "array and slice elements cannot use zero-length arrays or empty variant types");
@@ -226,7 +226,7 @@ fn validation_array_type(p: Program&, node: i64) -> i64 {
     return -1;
 }
 fn validation_array_operation(p: Program&, node: i64) {
-    let n = p.nodes[node];
+    let n: const Node& = p.nodes[node];
     if n.kind == N_INDEX {
         if (n.flags & F_SYNTHETIC) != 0 { return; }
         let array = validation_array_type(p, n.left);
@@ -255,7 +255,7 @@ fn validation_array_operation(p: Program&, node: i64) {
 recursive fn validation_frozen(p: Program&, type_id: i64, depth: i64 = 0) -> bool {
     if type_id < 0 || depth > 64 { return false; }
     if validation_size_class(p, type_id) == 2 { return false; }
-    let t = p.types[type_id];
+    let t: const Type& = p.types[type_id];
     if t.storage == 1 || t.kind == TY_REF && t.length_storage == 0 { return true; }
     if t.kind == TY_ARRAY { return t.array_kind == A_VAR; }
     // A variable-mode ADT is frozen whatever its payloads hold (§4.4); one
@@ -273,7 +273,7 @@ recursive fn validation_frozen(p: Program&, type_id: i64, depth: i64 = 0) -> boo
 fn validation_temporary_write(p: Program&, node: i64, rebind: bool) -> bool {
     var current = node; var slot = rebind;
     while current >= 0 {
-        let n = p.nodes[current];
+        let n: const Node& = p.nodes[current];
         if n.type_id >= 0 && (p.types[n.type_id].kind == TY_REF || p.types[n.type_id].kind == TY_SLICE) && !slot { return false; }
         if n.kind == N_IF || n.kind == N_MATCH || n.kind == N_BLOCK || n.kind == N_LOOP {
             return (n.flags & F_REFERENCE_CONTEXT) == 0;
@@ -284,7 +284,7 @@ fn validation_temporary_write(p: Program&, node: i64, rebind: bool) -> bool {
     return false;
 }
 fn validation_assignment(p: Program&, node: i64) {
-    let n = p.nodes[node];
+    let n: const Node& = p.nodes[node];
     if n.kind != N_ASSIGN || n.left < 0 { return; }
     if validation_temporary_write(p, n.left, n.integer == T_DOTASSIGN) {
         diagnose(p, n.token, "a control-flow value is a read-only temporary"); return;
@@ -318,7 +318,7 @@ fn validation_c_properties(p: Program&, type_id: i64) -> i64 {
         for old in seen { if old == key { visited = true; break; } }
         if visited { continue; }
         seen.push(key);
-        let t = p.types[item.type_id];
+        let t: const Type& = p.types[item.type_id];
         if t.kind == TY_INT {
             if t.index_type >= 0 { properties |= V_INDEX; }
             if item.size_class && t.storage == 1 { properties |= V_NONFIXED; }
@@ -340,7 +340,7 @@ fn validation_c_properties(p: Program&, type_id: i64) -> i64 {
             if t.kind == TY_ENUM && (t.flags & F_VARIABLE_MODE) == 0 { classify = false; }
             var field = t.first;
             while field >= 0 {
-                let f = p.nodes[field];
+                let f: const Node& = p.nodes[field];
                 if (f.flags & F_PAD) != 0 {
                     if t.kind == TY_STRUCT && t.declaration >= 0 && p.nodes[t.declaration].kind == N_STRUCT {
                         properties |= V_PAD;
@@ -356,7 +356,7 @@ fn validation_c_value_reason(p: Program&, type_id: i64) -> u8[:] {
     let properties = validation_c_properties(p, type_id);
     if (properties & V_INDEX) != 0 { return "C code is not checked against the array an index type names"; }
     if type_id < 0 { return "the C value needs a concrete type"; }
-    let t = p.types[type_id];
+    let t: const Type& = p.types[type_id];
     if validation_varint(p, type_id) { return "varints have no C form"; }
     if t.kind == TY_REF || t.kind == TY_SLICE { return "nested references and slices do not cross"; }
     if (properties & V_NONFIXED) != 0 { return "only fixed-size values cross by value"; }
@@ -366,13 +366,13 @@ fn validation_c_value_reason(p: Program&, type_id: i64) -> u8[:] {
 }
 fn validation_c_param_reason(p: Program&, type_id: i64) -> u8[:] {
     if type_id < 0 { return "parameter needs a type"; }
-    let t = p.types[type_id];
+    let t: const Type& = p.types[type_id];
     if t.kind == TY_REF {
         if (t.flags & TF_OPTIONAL) != 0 || t.length_storage >= 0 { return "only plain references cross"; }
         // A resizable crosses as its header, and C sees its elements as
         // blocks of their packed size (upstream ExternParamOk).
         if t.element >= 0 {
-            let sub = p.types[t.element];
+            let sub: const Type& = p.types[t.element];
             if sub.kind == TY_ARRAY && sub.array_kind == A_GROW && sub.element >= 0 { return validation_c_value_reason(p, sub.element); }
         }
         return validation_c_value_reason(p, t.element);
@@ -386,7 +386,7 @@ fn validation_c_nested_ref(p: Program&, syntax: i64) -> bool {
     while current >= 0 {
         for old in seen { if old == current { return false; } }
         seen.push(current);
-        let n = p.nodes[current];
+        let n: const Node& = p.nodes[current];
         if n.kind == N_TYPE_REF {
             return n.left >= 0 && p.nodes[n.left].type_id >= 0 && p.types[p.nodes[n.left].type_id].kind == TY_REF;
         }
@@ -424,7 +424,7 @@ fn validation_extern_diagnostic(p: Program&, function_node: i64, parameter: i64,
 }
 fn validation_extern_padding(p: Program&, function_node: i64, parameter: i64, type_id: i64) {
     if p.nodes[function_node].aux < 0 || type_id < 0 { return; }
-    let t = p.types[type_id];
+    let t: const Type& = p.types[type_id];
     if t.kind == TY_REF || t.kind == TY_SLICE { return; }
     if (validation_c_properties(p, type_id) & V_PAD) != 0 {
         validation_extern_diagnostic(p, function_node, parameter,
@@ -432,7 +432,7 @@ fn validation_extern_padding(p: Program&, function_node: i64, parameter: i64, ty
     }
 }
 fn validation_function(p: Program&, node: i64) {
-    let n = p.nodes[node];
+    let n: const Node& = p.nodes[node];
     // Generic declarations are checked when instantiated. Their concrete
     // clones retain the origin, so an attempted generic extern call is still
     // refused even though its argument types have become concrete.
@@ -450,7 +450,7 @@ fn validation_function(p: Program&, node: i64) {
         }
         var name = token_text(p, n.token);
         if n.integer >= 0 {
-            let token = p.tokens[n.integer];
+            let token: const Token& = p.tokens[n.integer];
             if token.text_len == 0 { p.nodes[node].integer = -1; }
             else { name = p.text[token.text_start..token.text_start + token.text_len]; }
         }
@@ -459,7 +459,7 @@ fn validation_function(p: Program&, node: i64) {
     }
     var parameter = n.first;
     while parameter >= 0 {
-        let param = p.nodes[parameter];
+        let param: const Node& = p.nodes[parameter];
         validation_value_type(p, param.type_id, param.token);
         validation_root_placement(p, param.type_id, param.token, "parameter");
         if external {
@@ -509,7 +509,7 @@ fn validation_thread_family(p: Program&, argument: i64) -> ValidationThreadFamil
         declaration = original;
     }
     if declaration >= 0 && p.nodes[declaration].symbol >= 0 { symbol = p.nodes[declaration].symbol; }
-    let family = p.symbols[symbol]; var result = ValidationThreadFamily {};
+    let family: const Symbol& = p.symbols[symbol]; var result = ValidationThreadFamily {};
     // A generic function parameter may name an entire overload family. The
     // worker arguments never select among that family's thread declarations.
     for candidate, index in p.symbols {
@@ -526,7 +526,7 @@ fn validation_resolve_thread(p: Program&, argument: i64) -> i64 {
     return validation_thread_family(p, argument).worker;
 }
 fn validation_thread_signature(p: Program&, node: i64) {
-    let n = p.nodes[node];
+    let n: const Node& = p.nodes[node];
     if n.symbol >= 0 && p.symbols[n.symbol].scope == 0 && token_is(p, n.token, "main") {
         diagnose(p, n.token, "fn main must be an ordinary function, not a thread_fn");
     }
@@ -534,7 +534,7 @@ fn validation_thread_signature(p: Program&, node: i64) {
     if n.left >= 0 { diagnose(p, n.token, "thread_fn cannot return values"); }
     var parameter = n.first;
     while parameter >= 0 {
-        let param = p.nodes[parameter];
+        let param: const Node& = p.nodes[parameter];
         if param.left < 0 || param.type_id < 0 { diagnose(p, param.token, "thread_fn needs fully typed parameters"); }
         else {
             let properties = validation_c_properties(p, param.type_id);
@@ -557,7 +557,7 @@ fn validation_thread_transfer(p: Program&, node: i64, type_id: i64) {
     }
 }
 fn validation_thread_call(p: Program&, node: i64) {
-    let n = p.nodes[node];
+    let n: const Node& = p.nodes[node];
     validation_thread_call_target(p, node, n.symbol);
     if (n.flags & F_DISPATCH) != 0 {
         var arm = n.third;
@@ -611,9 +611,10 @@ fn check_validate_thread_globals(p: Program&) {
 }
 fn validation_index_owners(p: Program&) {
     var seen: bool[>..] = []; seen.resize(p.symbols.len, false);
-    for t in p.types {
+    for tid in 0..p.types.len {
+        let t: const Type& = p.types[tid];
         if t.kind != TY_INT || t.index_type < 0 || t.pool < 0 || t.pool >= p.symbols.len { continue; }
-        let owner = p.symbols[t.pool];
+        let owner: const Symbol& = p.symbols[t.pool];
         if seen[t.pool] { continue; }
         seen[t.pool] = true;
         if (owner.flags & S_GLOBAL) == 0 {
@@ -632,7 +633,7 @@ fn validation_index_owners(p: Program&) {
 fn validation_checkfree(p: Program&, function: i64) -> bool {
     var current = function; var depth = 0;
     while current >= 0 && depth < 64 {
-        let n = p.nodes[current];
+        let n: const Node& = p.nodes[current];
         if (n.flags & F_CHECKFREE) != 0 { return true; }
         if n.symbol < 0 { return false; }
         current = p.symbols[n.symbol].owner; depth += 1;
@@ -657,7 +658,7 @@ fn validation_checkfree_calls(p: Program&, function: i64) {
     while work.len > 0 {
         let node = work.pop();
         if node < 0 || node >= p.nodes.len || seen[node] { continue; }
-        seen[node] = true; let n = p.nodes[node];
+        seen[node] = true; let n: const Node& = p.nodes[node];
         if n.kind == N_FUNCTION || n.kind == N_FUNCTION_VALUE || n.kind == N_STRUCT ||
            n.kind == N_ENUM || n.kind == N_ALIAS || n.kind == N_IMPORT { continue; }
         if n.kind == N_CALL {

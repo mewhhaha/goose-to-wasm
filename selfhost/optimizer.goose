@@ -82,20 +82,22 @@ fn opt_replace(p: Program&, o: Optimizer&, destination: i64, source: i64) {
     }
 }
 fn opt_set_integer(p: Program&, node: i64, value: i64, kind: i64) {
-    let original = p.nodes[node];
-    p.nodes[node] = Node { kind: kind, token: original.token, next: original.next, type_id: original.type_id, integer: value, flags: original.flags | F_CHECKED, scope: original.scope };
+    let tok = p.nodes[node].token; let nxt = p.nodes[node].next;
+    let ty = p.nodes[node].type_id; let fl = p.nodes[node].flags; let sc = p.nodes[node].scope;
+    p.nodes[node] = Node { kind: kind, token: tok, next: nxt, type_id: ty, integer: value, flags: fl | F_CHECKED, scope: sc };
 }
 fn opt_float_value(p: Program&, type_id: i64, value: f64) -> f64 {
     if check_numeric_value_type(p, type_id) == TYPE_F32 { return (value as! f32) as f64; }
     return value;
 }
 fn opt_set_float(p: Program&, node: i64, value: f64) {
-    let original = p.nodes[node];
-    p.nodes[node] = Node { kind: N_FLOAT, token: original.token, next: original.next, type_id: original.type_id, float_value: opt_float_value(p, original.type_id, value), flags: original.flags | F_CHECKED, scope: original.scope };
+    let tok = p.nodes[node].token; let nxt = p.nodes[node].next;
+    let ty = p.nodes[node].type_id; let fl = p.nodes[node].flags; let sc = p.nodes[node].scope;
+    p.nodes[node] = Node { kind: N_FLOAT, token: tok, next: nxt, type_id: ty, float_value: opt_float_value(p, ty, value), flags: fl | F_CHECKED, scope: sc };
 }
 fn opt_empty(p: Program&, node: i64) {
-    let original = p.nodes[node];
-    p.nodes[node] = Node { kind: N_EMPTY, token: original.token, next: original.next, type_id: TYPE_VOID, flags: F_CHECKED, scope: original.scope };
+    let tok = p.nodes[node].token; let nxt = p.nodes[node].next; let sc = p.nodes[node].scope;
+    p.nodes[node] = Node { kind: N_EMPTY, token: tok, next: nxt, type_id: TYPE_VOID, flags: F_CHECKED, scope: sc };
 }
 // Bitwise arithmetic makes release wrapping independent of the bootstrap
 // compiler's own debug-overflow instrumentation.
@@ -135,12 +137,23 @@ recursive fn opt_collect(p: Program&, o: Optimizer&, node: i64) {
         }
     }
     var child = n.first;
-    while child >= 0 { opt_collect(p, o, child); child = p.nodes[child].next; }
-    if n.left >= 0 && kind != N_RECORD && kind != N_VARIABLE && kind != N_PARAM && kind != N_FIELD {
-        opt_collect(p, o, n.left);
+    while child >= 0 {
+        let ck = p.nodes[child].kind;
+        if ck < N_INTEGER || ck > N_NAME { opt_collect(p, o, child); }
+        child = p.nodes[child].next;
     }
-    if n.right >= 0 { opt_collect(p, o, n.right); }
-    if n.third >= 0 && kind != N_CALL { opt_collect(p, o, n.third); }
+    if n.left >= 0 && kind != N_RECORD && kind != N_VARIABLE && kind != N_PARAM && kind != N_FIELD {
+        let lk = p.nodes[n.left].kind;
+        if lk < N_INTEGER || lk > N_NAME { opt_collect(p, o, n.left); }
+    }
+    if n.right >= 0 {
+        let rk = p.nodes[n.right].kind;
+        if rk < N_INTEGER || rk > N_NAME { opt_collect(p, o, n.right); }
+    }
+    if n.third >= 0 && kind != N_CALL {
+        let tk = p.nodes[n.third].kind;
+        if tk < N_INTEGER || tk > N_NAME { opt_collect(p, o, n.third); }
+    }
 }
 // Callers only need the exact cost up to their remaining inlining budget.
 recursive fn opt_inline_cost(p: Program&, node: i64, budget: i64) -> i64 {
@@ -302,11 +315,12 @@ recursive fn opt_clone(p: Program&, o: Optimizer&, node: i64, map_start: i64) ->
 }
 fn opt_capture(p: Program&, function_node: i64, symbol: i64) {
     if function_node < 0 || symbol < 0 || symbol >= p.symbols.len { return; }
-    let s = p.symbols[symbol];
-    if s.owner < 0 || s.owner == function_node || (s.flags & (S_FUNCTION | S_TYPE | S_GLOBAL)) != 0 { return; }
+    let owner = p.symbols[symbol].owner; let flags = p.symbols[symbol].flags;
+    if owner < 0 || owner == function_node || (flags & (S_FUNCTION | S_TYPE | S_GLOBAL)) != 0 { return; }
     var binding = p.nodes[function_node].captures; var last = -1;
     while binding >= 0 { if p.nodes[binding].symbol == symbol { return; } last = binding; binding = p.nodes[binding].next; }
-    let capture = new_node(p, N_BINDING, s.name_token); p.nodes[capture].symbol = symbol; p.nodes[capture].type_id = s.type_id;
+    let name_token = p.symbols[symbol].name_token; let type_id = p.symbols[symbol].type_id;
+    let capture = new_node(p, N_BINDING, name_token); p.nodes[capture].symbol = symbol; p.nodes[capture].type_id = type_id;
     if last < 0 { p.nodes[function_node].captures = capture; } else { p.nodes[last].next = capture; }
     p.nodes[function_node].flags |= F_CAPTURE; p.symbols[symbol].flags |= S_CAPTURE;
 }
@@ -380,27 +394,26 @@ recursive fn opt_try_inline(p: Program&, o: Optimizer&, node: i64) -> bool {
     if (callee_flags & F_INLINE) != 0 { budget = 200; }
     let cost = opt_inline_cost(p, callee_right, budget);
     if cost > budget || opt_inline_dependencies_cached(p, o, callee_node, strict) { return false; }
-    let call = p.nodes[node];
-    let callee = p.nodes[callee_node];
+    let call_tok = p.nodes[node].token; let call_ty = p.nodes[node].type_id; let call_scope = p.nodes[node].scope;
     let map_start = o.maps.len; let node_start = o.node_maps.len;
     // A library body copied into the program's code, but into a checkfree
     // function, has its library nodes report at the call (upstream AtCallSite).
     let site = location_token(p, node); let outer_site = o.site; o.site = -1;
     if library_node(p, callee_node) && !library_token(p, site) && (p.nodes[o.current_function].flags & F_CHECKFREE) == 0 { o.site = site; }
-    let inline_body = new_node(p, N_BLOCK, call.token); p.nodes[inline_body].flags = F_CHECKED | F_EARLY | (call.flags & F_DIVERGES);
-    p.nodes[inline_body].type_id = call.type_id; p.nodes[inline_body].scope = call.scope;
-    p.nodes[inline_body].origin = callee_node; p.nodes[inline_body].symbol = call.symbol;
-    var formal = callee.first; var argument = call.first;
+    let inline_body = new_node(p, N_BLOCK, call_tok); p.nodes[inline_body].flags = F_CHECKED | F_EARLY | (call_flags & F_DIVERGES);
+    p.nodes[inline_body].type_id = call_ty; p.nodes[inline_body].scope = call_scope;
+    p.nodes[inline_body].origin = callee_node; p.nodes[inline_body].symbol = call_symbol;
+    var formal = callee_first; var argument = call_first;
     while formal >= 0 {
         let next = p.nodes[argument].next; p.nodes[argument].next = -1;
-        let local = opt_temporary(p, o, o.current_function, call.scope, p.nodes[formal].token, p.nodes[formal].type_id, argument);
+        let local = opt_temporary(p, o, o.current_function, call_scope, p.nodes[formal].token, p.nodes[formal].type_id, argument);
         p.nodes[local].origin = formal; opt_note_site(p, o, formal, local);
         append_child(p, inline_body, local);
         o.maps.push(OptMap { from: p.nodes[formal].symbol, to: p.nodes[local].symbol }); opt_copy_fact(o, p.nodes[formal].symbol, p.nodes[local].symbol);
         formal = p.nodes[formal].next; argument = next;
     }
-    let body = opt_clone(p, o, callee.right, map_start); o.site = outer_site;
-    opt_fix_inline(p, o, body, call.symbol, inline_body, map_start, node_start);
+    let body = opt_clone(p, o, callee_right, map_start); o.site = outer_site;
+    opt_fix_inline(p, o, body, call_symbol, inline_body, map_start, node_start);
     var child = p.nodes[body].first;
     while child >= 0 { let next = p.nodes[child].next; p.nodes[child].next = -1; append_child(p, inline_body, child); child = next; }
     let proof_start = o.proof_old.len;
@@ -504,9 +517,11 @@ recursive fn opt_node(p: Program&, o: Optimizer&, node: i64, depth: i64) {
     let left = entry.left; let right = entry.right;
     let third = entry.third; let first = entry.first;
     let op = entry.integer;
+    var left_done = false;
     if kind == N_IF {
         o.has_guard = true;
-        opt_node(p, o, left, depth + 1);
+        left_done = true;
+        if left >= 0 { opt_node(p, o, left, depth + 1); }
         let condition: const Node& = p.nodes[left];
         if condition.kind == N_BOOL {
             var chosen = third; if condition.integer != 0 { chosen = right; }
@@ -516,7 +531,9 @@ recursive fn opt_node(p: Program&, o: Optimizer&, node: i64, depth: i64) {
         }
     } else if kind == N_BINARY && (op == T_ANDAND || op == T_OROR) {
         if op == T_ANDAND { o.has_guard = true; }
-        opt_node(p, o, left, depth + 1); let value: const Node& = p.nodes[left];
+        left_done = true;
+        if left >= 0 { opt_node(p, o, left, depth + 1); }
+        let value: const Node& = p.nodes[left];
         if value.kind == N_BOOL {
             if op == T_ANDAND && value.integer == 0 || op == T_OROR && value.integer != 0 {
                 opt_replace(p, o, node, left); o.folded += 1; return;
@@ -527,16 +544,37 @@ recursive fn opt_node(p: Program&, o: Optimizer&, node: i64, depth: i64) {
         o.has_guard = true;
     }
     var child = first;
-    while child >= 0 { let next = p.nodes[child].next; opt_node(p, o, child, depth + 1); child = next; }
-    if left >= 0 && kind != N_VARIABLE && kind != N_PARAM && kind != N_FIELD && kind != N_RECORD &&
+    while child >= 0 {
+        let next = p.nodes[child].next;
+        let ck = p.nodes[child].kind;
+        if ck != N_INTEGER && ck != N_BOOL && ck != N_NULL && ck != N_STRING && ck != N_EMPTY && ck != N_CONTINUE {
+            opt_node(p, o, child, depth + 1);
+        }
+        child = next;
+    }
+    if !left_done && left >= 0 && kind != N_VARIABLE && kind != N_PARAM && kind != N_FIELD && kind != N_RECORD &&
        kind != N_ASSIGN && kind != N_MULTI_ASSIGN {
-        opt_node(p, o, left, depth + 1);
+        let lk = p.nodes[left].kind;
+        if lk != N_INTEGER && lk != N_BOOL && lk != N_NULL && lk != N_STRING && lk != N_EMPTY && lk != N_CONTINUE {
+            opt_node(p, o, left, depth + 1);
+        }
     } else if kind == N_ASSIGN {
         let target: const Node& = p.nodes[left];
         if target.kind == N_INDEX { opt_node(p, o, target.right, depth + 1); }
     }
-    if right >= 0 { opt_node(p, o, right, depth + 1); }
-    if third >= 0 && kind != N_CALL { opt_node(p, o, third, depth + 1); }
+    if right >= 0 {
+        let rk = p.nodes[right].kind;
+        if rk != N_INTEGER && rk != N_BOOL && rk != N_NULL && rk != N_STRING && rk != N_EMPTY && rk != N_CONTINUE {
+            opt_node(p, o, right, depth + 1);
+        }
+    }
+    if third >= 0 && kind != N_CALL {
+        let tk = p.nodes[third].kind;
+        if tk != N_INTEGER && tk != N_BOOL && tk != N_NULL && tk != N_STRING && tk != N_EMPTY && tk != N_CONTINUE {
+            opt_node(p, o, third, depth + 1);
+        }
+    }
+    if kind == N_MEMBER || kind == N_ASSIGN || kind == N_EXPR_STMT || kind == N_RETURN || kind == N_IF { return; }
     let n: const Node& = p.nodes[node];
     if n.kind == N_VARIABLE && n.symbol >= 0 && n.first < 0 {
         opt_fact(o, n.symbol); let fact: const OptFact& = o.facts[n.symbol];
@@ -630,18 +668,23 @@ recursive fn opt_node(p: Program&, o: Optimizer&, node: i64, depth: i64) {
 }
 recursive fn opt_tail_rewrite(p: Program&, o: Optimizer&, node: i64, function_symbol: i64, loop_node: i64) -> i64 {
     if node < 0 { return 0; }
-    let n = p.nodes[node]; var changed = 0;
-    if n.kind == N_FUNCTION || n.kind == N_FUNCTION_VALUE { return 0; }
-    if n.kind == N_RETURN && n.symbol == function_symbol && n.first >= 0 && p.nodes[n.first].next < 0 {
-        let call = p.nodes[n.first];
-        if call.kind == N_CALL && call.symbol == function_symbol && (call.flags & F_DISPATCH) == 0 {
+    let kind = p.nodes[node].kind;
+    if kind == N_NAME || kind == N_INTEGER || kind == N_FLOAT || kind == N_BOOL || kind == N_NULL || kind == N_STRING ||
+       kind == N_EMPTY || kind == N_CONTINUE || kind == N_FUNCTION || kind == N_FUNCTION_VALUE { return 0; }
+    let n_first = p.nodes[node].first; let n_left = p.nodes[node].left;
+    let n_right = p.nodes[node].right; let n_third = p.nodes[node].third;
+    var changed = 0;
+    if kind == N_RETURN && p.nodes[node].symbol == function_symbol && n_first >= 0 && p.nodes[n_first].next < 0 {
+        if p.nodes[n_first].kind == N_CALL && p.nodes[n_first].symbol == function_symbol && (p.nodes[n_first].flags & F_DISPATCH) == 0 {
+            let n_tok = p.nodes[node].token; let n_scope = p.nodes[node].scope;
+            let call_first = p.nodes[n_first].first;
             let function_node = p.symbols[function_symbol].node;
-            let inline_body = new_node(p, N_BLOCK, n.token); p.nodes[inline_body].type_id = TYPE_VOID;
-            p.nodes[inline_body].flags = F_CHECKED; p.nodes[inline_body].scope = n.scope;
-            var temp_count = 0; var formal = p.nodes[function_node].first; var argument = call.first;
+            let inline_body = new_node(p, N_BLOCK, n_tok); p.nodes[inline_body].type_id = TYPE_VOID;
+            p.nodes[inline_body].flags = F_CHECKED; p.nodes[inline_body].scope = n_scope;
+            var temp_count = 0; var formal = p.nodes[function_node].first; var argument = call_first;
             while formal >= 0 && argument >= 0 {
                 let next = p.nodes[argument].next; p.nodes[argument].next = -1;
-                let temp = opt_temporary(p, o, function_node, n.scope, p.nodes[formal].token, p.nodes[formal].type_id, argument);
+                let temp = opt_temporary(p, o, function_node, n_scope, p.nodes[formal].token, p.nodes[formal].type_id, argument);
                 p.nodes[temp].origin = formal;
                 append_child(p, inline_body, temp); temp_count += 1;
                 formal = p.nodes[formal].next; argument = next;
@@ -654,21 +697,21 @@ recursive fn opt_tail_rewrite(p: Program&, o: Optimizer&, node: i64, function_sy
                 p.nodes[left].symbol = p.nodes[formal].symbol; p.nodes[left].type_id = p.nodes[formal].type_id;
                 let right = new_node(p, N_NAME, p.nodes[temp].token);
                 p.nodes[right].symbol = p.nodes[temp].symbol; p.nodes[right].type_id = p.nodes[temp].type_id;
-                let assign = new_node(p, N_ASSIGN, n.token);
+                let assign = new_node(p, N_ASSIGN, n_tok);
                 p.nodes[assign].left = left; p.nodes[assign].right = right; p.nodes[assign].integer = T_ASSIGN;
                 p.nodes[assign].type_id = TYPE_VOID; p.nodes[assign].flags = F_CHECKED;
                 append_child(p, inline_body, assign); formal = p.nodes[formal].next; temp = next_temp;
             }
-            let jump = new_node(p, N_CONTINUE, n.token); p.nodes[jump].symbol = loop_node;
+            let jump = new_node(p, N_CONTINUE, n_tok); p.nodes[jump].symbol = loop_node;
             p.nodes[jump].type_id = TYPE_VOID; p.nodes[jump].flags = F_CHECKED;
             append_child(p, inline_body, jump); opt_replace(p, o, node, inline_body); return 1;
         }
     }
-    var child = n.first;
+    var child = n_first;
     while child >= 0 { changed += opt_tail_rewrite(p, o, child, function_symbol, loop_node); child = p.nodes[child].next; }
-    changed += opt_tail_rewrite(p, o, n.left, function_symbol, loop_node);
-    changed += opt_tail_rewrite(p, o, n.right, function_symbol, loop_node);
-    changed += opt_tail_rewrite(p, o, n.third, function_symbol, loop_node);
+    if n_left >= 0 { changed += opt_tail_rewrite(p, o, n_left, function_symbol, loop_node); }
+    if n_right >= 0 { changed += opt_tail_rewrite(p, o, n_right, function_symbol, loop_node); }
+    if n_third >= 0 { changed += opt_tail_rewrite(p, o, n_third, function_symbol, loop_node); }
     return changed;
 }
 // Whether the tree holds a `defer` (§6.6, upstream HasDefer). Its body runs
@@ -676,41 +719,51 @@ recursive fn opt_tail_rewrite(p: Program&, o: Optimizer&, node: i64, function_sy
 recursive fn opt_has_defer(p: Program&, node: i64) -> bool {
     if node < 0 { return false; }
     let n: const Node& = p.nodes[node];
-    if n.kind == N_DEFER { return true; }
-    if n.kind == N_FUNCTION || n.kind == N_FUNCTION_VALUE { return false; }
+    let k = n.kind;
+    if k == N_DEFER { return true; }
+    if k >= N_INTEGER && k <= N_NAME || k == N_EMPTY || k == N_CONTINUE || k == N_FUNCTION || k == N_FUNCTION_VALUE { return false; }
     var child = n.first;
     while child >= 0 { if opt_has_defer(p, child) { return true; } child = p.nodes[child].next; }
-    return opt_has_defer(p, n.left) || opt_has_defer(p, n.right) || opt_has_defer(p, n.third);
+    return (n.left >= 0 && opt_has_defer(p, n.left)) || (n.right >= 0 && opt_has_defer(p, n.right)) || (n.third >= 0 && opt_has_defer(p, n.third));
 }
 fn opt_tail_function(p: Program&, o: Optimizer&, node: i64) {
-    let n = p.nodes[node];
-    if p.optimization < 1 || (n.flags & (F_CAPTURE | F_NONLOCAL)) != 0 || n.right < 0 { return; }
-    var formal = n.first;
+    let n_flags = p.nodes[node].flags; let n_right = p.nodes[node].right;
+    if p.optimization < 1 || (n_flags & (F_CAPTURE | F_NONLOCAL)) != 0 || n_right < 0 { return; }
+    var formal = p.nodes[node].first;
     while formal >= 0 {
         let ty = p.nodes[formal].type_id;
         if ty < 0 || !check_numeric(ty) && ty != TYPE_BOOL { return; }
         formal = p.nodes[formal].next;
     }
-    if opt_has_defer(p, n.right) { return; }
-    let loop_node = new_node(p, N_LOOP, n.token); p.nodes[loop_node].type_id = TYPE_VOID;
-    p.nodes[loop_node].flags = F_CHECKED; p.nodes[loop_node].right = n.right; p.nodes[loop_node].scope = n.scope;
-    let changed = opt_tail_rewrite(p, o, n.right, n.symbol, loop_node);
+    if opt_has_defer(p, n_right) { return; }
+    let n_tok = p.nodes[node].token; let n_scope = p.nodes[node].scope; let n_sym = p.nodes[node].symbol;
+    let loop_node = new_node(p, N_LOOP, n_tok); p.nodes[loop_node].type_id = TYPE_VOID;
+    p.nodes[loop_node].flags = F_CHECKED; p.nodes[loop_node].right = n_right; p.nodes[loop_node].scope = n_scope;
+    let changed = opt_tail_rewrite(p, o, n_right, n_sym, loop_node);
     if changed == 0 { return; }
-    let body = new_node(p, N_BLOCK, n.token); p.nodes[body].type_id = TYPE_VOID;
-    p.nodes[body].flags = F_CHECKED; p.nodes[body].scope = n.scope; append_child(p, body, loop_node);
+    let body = new_node(p, N_BLOCK, n_tok); p.nodes[body].type_id = TYPE_VOID;
+    p.nodes[body].flags = F_CHECKED; p.nodes[body].scope = n_scope; append_child(p, body, loop_node);
     p.nodes[node].right = body; o.tail_loops += changed;
 }
 recursive fn opt_callees(p: Program&, o: Optimizer&, node: i64) {
     if node < 0 { return; }
-    let n = p.nodes[node];
-    if n.kind == N_FUNCTION || n.kind == N_FUNCTION_VALUE { return; }
-    if n.kind == N_CALL && n.symbol >= 0 {
-        let s = p.symbols[n.symbol]; if (s.flags & S_BUILTIN) == 0 && s.node >= 0 { opt_function(p, o, s.node); }
+    let kind = p.nodes[node].kind;
+    if kind == N_NAME || kind == N_INTEGER || kind == N_FLOAT || kind == N_BOOL || kind == N_NULL || kind == N_STRING ||
+       kind == N_EMPTY || kind == N_CONTINUE || kind == N_FUNCTION || kind == N_FUNCTION_VALUE { return; }
+    let first = p.nodes[node].first; let left = p.nodes[node].left;
+    let right = p.nodes[node].right; let third = p.nodes[node].third;
+    if kind == N_CALL {
+        let sym = p.nodes[node].symbol;
+        if sym >= 0 {
+            let sflags = p.symbols[sym].flags; let snode = p.symbols[sym].node;
+            if (sflags & S_BUILTIN) == 0 && snode >= 0 { opt_function(p, o, snode); }
+        }
     }
-    var child = n.first;
+    var child = first;
     while child >= 0 { opt_callees(p, o, child); child = p.nodes[child].next; }
-    if n.kind != N_RECORD && n.kind != N_VARIABLE { opt_callees(p, o, n.left); }
-    opt_callees(p, o, n.right); opt_callees(p, o, n.third);
+    if left >= 0 && kind != N_RECORD && kind != N_VARIABLE { opt_callees(p, o, left); }
+    if right >= 0 { opt_callees(p, o, right); }
+    if third >= 0 { opt_callees(p, o, third); }
 }
 // Lightweight intra-procedural bounds proof: marks N_INDEX nodes with
 // F_BOUNDS_PROVEN when dominated by `for i in lo..arr.len` (lo >= 0),

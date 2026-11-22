@@ -1,6 +1,55 @@
 import model;
 
 
+// Zero-collision FNV-1a keyword filter: ((h * 3005) as! u32) >> 25 maps all 46
+// keywords to distinct slots; non-matching identifiers bypass lex_keyword.
+let LEX_KW_HASH: u32[128] = [
+    3378807160, 1303515621, 0, 1683726967, 0, 0, 0, 0,
+    0, 0, 3943480674, 4414187, 1579491469, 1542339703, 2246981567, 0,
+    3723446379, 2469985204, 0, 2901640080, 0, 1854009007, 188920568, 0,
+    1996966820, 0, 0, 0, 2171383808, 0, 0, 2045647647,
+    0, 0, 0, 0, 436337467, 3332055654, 0, 3183434736,
+    0, 0, 0, 0, 735142254, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 184981848, 0,
+    583776464, 0, 0, 0, 3365180733, 0, 0, 2116038550,
+    288002260, 0, 0, 0, 0, 2424823223, 0, 0,
+    0, 1094220446, 0, 0, 3402529440, 0, 0, 2317739966,
+    1361572173, 0, 0, 1498807978, 0, 959999494, 4211608755, 231090382,
+    1663232469, 0, 0, 2462236192, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 3331365182,
+    0, 0, 3400004773, 2046486290, 0, 99841201, 0, 0,
+    0, 0, 0, 0, 0, 0, 2977070660, 0,
+    0, 0, 1453506779, 1716507092, 1349190650, 0, 2218221252, 3088651068,
+];
+let LEX_IDENT: u8[256] = [
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0,
+    0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1,
+    0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+];
+let LEX_SINGLE: u8[128] = [
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 5, 6, 0, 0, 11, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 12, 0, 0, 0, 14,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7, 0, 8, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 0, 10, 48, 0,
+];
+
 inline fn lex_alpha(c: u8) -> bool {
     return c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z' || c == '_';
 }
@@ -283,11 +332,13 @@ fn lex_tokens(p: Program&, l: LexCursor&) {
             var at = start + 1;
             while at < l.end {
                 let d = p.text[at];
-                if !lex_alpha(d) && !lex_digit(d) { break; }
+                if LEX_IDENT[d] == 0 { break; }
                 h = (h ^ (d as u32)) * 16777619;
                 at++;
             }
-            let kw = lex_keyword(p.text[start..at]);
+            var kw = T_IDENT;
+            let kslot = (((h as u64 * 3005) as! u32) >> 25) as i64;
+            if LEX_KW_HASH[kslot] == h { kw = lex_keyword(p.text[start..at]); }
             l.column += at - start; l.at = at;
             let token_id = p.tokens.len;
             p.tokens.push(Token { kind: kw, source: source_id, start: start, end: at, line: l.line, column: col });
@@ -297,7 +348,13 @@ fn lex_tokens(p: Program&, l: LexCursor&) {
         }
         if c != 0 && !lex_digit(c) && c != '"' && c != '\'' {
             let start = l.at; let col = l.column; let line = l.line;
-            let pk = lex_punctuation(p, l);
+            var pk: i64 = 0;
+            if c < 128 { pk = LEX_SINGLE[c] as i64; }
+            if pk != 0 {
+                l.at++; l.column++;
+            } else {
+                pk = lex_punctuation(p, l);
+            }
             let token_id = p.tokens.len;
             if pk == T_EOF {
                 p.tokens.push(Token { kind: -1, source: source_id, start: start, end: l.at, line: line, column: col });
@@ -307,6 +364,34 @@ fn lex_tokens(p: Program&, l: LexCursor&) {
             }
             if l.skeleton { lex_skeleton(p, l, token_id); }
             continue;
+        }
+        if lex_digit(c) {
+            let start = l.at; let col = l.column; let line = l.line;
+            var at = start + 1;
+            var bits: u64 = (c - 48) as u64;
+            var simple = true;
+            if c == '0' && at < l.end && (p.text[at] == 'x' || p.text[at] == 'X') { simple = false; }
+            if simple {
+                while at < l.end {
+                    let d = p.text[at];
+                    if d >= '0' && d <= '9' {
+                        if at - start >= 18 { simple = false; break; }
+                        bits = bits * 10 + (d - 48) as u64;
+                        at++;
+                    } else if d == '_' || d == 'e' || d == 'E' || d == '.' && at + 1 < l.end && p.text[at + 1] >= '0' && p.text[at + 1] <= '9' {
+                        simple = false; break;
+                    } else {
+                        break;
+                    }
+                }
+            }
+            if simple {
+                l.column += at - start; l.at = at;
+                let token_id = p.tokens.len;
+                p.tokens.push(Token { kind: T_INTLIT, source: source_id, start: start, end: at, line: line, column: col, integer: bits as! i64 });
+                if l.skeleton { lex_skeleton(p, l, token_id); }
+                continue;
+            }
         }
         var t = Token { kind: T_EOF, source: source_id, start: l.at, end: l.at, line: l.line, column: l.column };
         let token_id = p.tokens.len;

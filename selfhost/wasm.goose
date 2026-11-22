@@ -5,8 +5,8 @@
 inline fn wb_byte(out: u8[>..]&, value: i64) { out.push((value & 255) as u8); }
 
 fn wb_u(out: u8[>..]&, value: i64) {
-    if value >= 0 && value < 128 { out.push(value as u8); return; }
-    if value >= 0 && value < 16384 { out.push(((value & 127) | 128) as u8); out.push((value >> 7) as u8); return; }
+    if (value as! u64) < 128 { out.push(value as u8); return; }
+    if (value as! u64) < 16384 { out.push(((value & 127) | 128) as u8); out.push((value >> 7) as u8); return; }
     var remaining = value as! u64;
     loop {
         var byte = (remaining & 127) as u8;
@@ -48,7 +48,8 @@ fn wb_section(out: u8[>..]&, kind: i64, payload: u8[:]) {
 
 inline fn wb_op(out: u8[>..]&, opcode: i64, argument: i64) {
     out.push((opcode & 255) as u8);
-    if argument >= 0 && argument < 128 { out.push(argument as u8); }
+    if (argument as! u64) < 128 { out.push(argument as u8); }
+    else if (argument as! u64) < 16384 { out.push(((argument & 127) | 128) as u8); out.push((argument >> 7) as u8); }
     else { wb_u(out, argument); }
 }
 
@@ -83,7 +84,8 @@ fn wb_f64(out: u8[>..]&, value: f64) {
 inline fn wb_mem(out: u8[>..]&, opcode: i64, alignment: i64, offset: i64) {
     out.push((opcode & 255) as u8);
     out.push((alignment & 127) as u8);
-    if offset >= 0 && offset < 128 { out.push(offset as u8); }
+    if (offset as! u64) < 128 { out.push(offset as u8); }
+    else if (offset as! u64) < 16384 { out.push(((offset & 127) | 128) as u8); out.push((offset >> 7) as u8); }
     else { wb_u(out, offset); }
 }
 
@@ -440,7 +442,9 @@ fn wb_reuse_locals(locals: i64[>..]&, code: u8[>..]&, params: i64, events: WbEve
                 while remaining > 0 { end++; remaining >>= 7; }
             }
             s.encoded.append(bytes[copied..start + 1]);
-            if index < 128 { s.encoded.push(index as u8); } else { wb_u(s.encoded, index); }
+            if index < 128 { s.encoded.push(index as u8); }
+            else if index < 16384 { s.encoded.push(((index & 127) | 128) as u8); s.encoded.push((index >> 7) as u8); }
+            else { wb_u(s.encoded, index); }
             copied = end;
         }
     }

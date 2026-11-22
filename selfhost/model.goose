@@ -685,12 +685,14 @@ fn new_node(p: Program&, kind: i64, token: i64) -> i64 {
 }
 fn append_child(p: Program&, parent: i64, child: i64) {
     if child < 0 { return; }
-    let tail = p.nodes[parent].last;
-    if tail < 0 { p.nodes[parent].first = child; }
+    let pnode: Node& = p.nodes[parent];
+    let tail = pnode.last;
+    if tail < 0 { pnode.first = child; }
     else { p.nodes[tail].next = child; }
     var last = child;
-    while p.nodes[last].next >= 0 { last = p.nodes[last].next; }
-    p.nodes[parent].last = last;
+    var nxt = p.nodes[last].next;
+    while nxt >= 0 { last = nxt; nxt = p.nodes[last].next; }
+    pnode.last = last;
 }
 fn add_type(p: Program&, ty: Type) -> i64 {
     let id = p.types.len; p.types.push(ty); return id;
