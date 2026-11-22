@@ -832,14 +832,23 @@ recursive fn cc_place_location(p: Program&, f: CcBody&, node: i64) -> CcPlace {
         if cc_size_class(p, type_id) == 1 {
             for cursor in f.cursors {
                 if cc_cursor_symbol(p, n.left) >= 0 && p.nodes[n.right].kind == N_NAME && cursor.symbol == cc_cursor_symbol(p, n.left) && cursor.index == p.nodes[n.right].symbol {
-                    cc_text(f.out, "if("); cc_id(f.out, "g_v", index); cc_text(f.out, "<0 || "); cc_id(f.out, "g_v", index); cc_text(f.out, ">=g_len("); cc_id(f.out, "g_v", base); cc_text(f.out, ","); cc_array_args(p, f.out, array, false); cc_text(f.out, "))g_index_fail("); cc_id(f.out, "g_v", index); cc_text(f.out, ",g_len("); cc_id(f.out, "g_v", base); cc_text(f.out, ","); cc_array_args(p, f.out, array, false); cc_text(f.out, "),"); cc_location(p, f, node); cc_text(f.out, ");\n");
+                    if (n.flags & F_BOUNDS_PROVEN) == 0 {
+                        cc_text(f.out, "if("); cc_id(f.out, "g_v", index); cc_text(f.out, "<0 || "); cc_id(f.out, "g_v", index); cc_text(f.out, ">=g_len("); cc_id(f.out, "g_v", base); cc_text(f.out, ","); cc_array_args(p, f.out, array, false); cc_text(f.out, "))g_index_fail("); cc_id(f.out, "g_v", index); cc_text(f.out, ",g_len("); cc_id(f.out, "g_v", base); cc_text(f.out, ","); cc_array_args(p, f.out, array, false); cc_text(f.out, "),"); cc_location(p, f, node); cc_text(f.out, ");\n");
+                    }
                     return CcPlace { type_id: type_id, address: cursor.address, form: CC_IMAGE };
                 }
             }
             cc_fail(p, node, "c: variable element indexing requires a checked traversal cursor"); return CcPlace { type_id: -1, address: -1 };
         }
-        let ref = cc_ref_temp(f); cc_set(f, ref); cc_text(f.out, "g_element_at("); cc_id(f.out, "g_v", base); cc_text(f.out, ",");
-        cc_array_args(p, f.out, array); cc_text(f.out, ","); cc_id(f.out, "g_v", index); cc_text(f.out, ",0,"); cc_location(p, f, node); cc_text(f.out, ");\n"); return CcPlace { type_id: type_id, address: ref };
+        let ref = cc_ref_temp(f); cc_set(f, ref);
+        if (n.flags & F_BOUNDS_PROVEN) != 0 {
+            cc_text(f.out, "g_element_unchecked("); cc_id(f.out, "g_v", base); cc_text(f.out, ",");
+            cc_array_args(p, f.out, array); cc_text(f.out, ","); cc_id(f.out, "g_v", index); cc_text(f.out, ");\n");
+        } else {
+            cc_text(f.out, "g_element_at("); cc_id(f.out, "g_v", base); cc_text(f.out, ",");
+            cc_array_args(p, f.out, array); cc_text(f.out, ","); cc_id(f.out, "g_v", index); cc_text(f.out, ",0,"); cc_location(p, f, node); cc_text(f.out, ");\n");
+        }
+        return CcPlace { type_id: type_id, address: ref };
     }
     let value = cc_expr(p, f, node); if value < 0 { return CcPlace { type_id: -1, address: -1 }; }
     return CcPlace { type_id: type_id, address: cc_temporary_ref(f, value), form: cc_value_form(p, type_id) };

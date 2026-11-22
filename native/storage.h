@@ -269,6 +269,19 @@ static int64_t g_cap(GRef r,int kind,int64_t fixed) {
     if(kind==2 && fixed>=0) return fixed;
     GArray a; memcpy(&a,g_address(r),sizeof a);if(!a.region)return 0;return a.region->capacity;
 }
+static GS_INLINE GRef g_element_unchecked(GRef r,int kind,int64_t fixed,int prefix,int64_t width,int64_t index) {
+    if(kind==1 || kind==2) {
+        int64_t bytes=prefix;
+        if(kind==1 && !bytes)bytes=gs_uleb_size(g_address(r));
+        if(kind==2 && fixed<0)bytes=8;
+        return r+(uintptr_t)((uint64_t)bytes+(uint64_t)index*(uint64_t)width);
+    }
+    if(kind==5) { GSlice s; memcpy(&s,g_address(r),sizeof s); return s.base+(uintptr_t)((uint64_t)index*(uint64_t)width); }
+    if(kind==0) return r+(uintptr_t)((uint64_t)index*(uint64_t)width);
+    if(!width) return g_moving(r,0);
+    unsigned char *base; memcpy(&base,g_address(r),sizeof base);
+    return (GRef)(uintptr_t)(base+(uint64_t)index*(uint64_t)width);
+}
 static GS_INLINE GRef g_element_at(GRef r,int kind,int64_t fixed,int prefix,int64_t width,int64_t index,int allow_end,const char *file,int line) {
     int64_t len=g_len(r,kind,fixed,prefix);
     if(index<0 || index>len || (!allow_end && index==len))g_index_fail(index,len,file,line);

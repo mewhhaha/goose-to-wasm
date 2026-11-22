@@ -236,6 +236,12 @@ fn cg_save(f: CgBody&, wasm_type: i64) -> i64 {
     wb_op(f.code, 0x21, slot);
     return slot;
 }
+fn cg_tee(f: CgBody&, wasm_type: i64) -> i64 {
+    let slot = cg_local(f, wasm_type);
+    cg_record(f, 0x22, slot);
+    wb_op(f.code, 0x22, slot);
+    return slot;
+}
 fn cg_get(f: CgBody&, slot: i64) {
     if slot >= f.params { cg_record(f, 0x20, slot); }
     f.code.push(0x20);
@@ -667,9 +673,12 @@ recursive fn cg_pack_view(p: Program&, m: CgModule&, f: CgBody&, id: i64, node: 
     }
     if cg_type_kind(p, id) == TY_REF { cg_load(p, m, f, p.types[id].element, 0); cg_pack_view(p, m, f, p.types[id].element, node); return; }
     if cg_type_kind(p, id) != TY_ARRAY { cg_fail(p, node, "wasm: expected an array or slice"); return; }
+    if cg_owner(p, id) && m.ordinary_owners { ws_load(f.code, 0); return; }
+    if !cg_owner(p, id) && p.types[id].array_kind == A_FIXED {
+        wa_extend(f.code); wb_i64(f.code, p.types[id].count); ws_pack(f); return;
+    }
     let base = cg_save(f, wa());
     if cg_owner(p, id) {
-        if m.ordinary_owners { cg_get(f, base); ws_load(f.code, 0); return; }
         // An ordinary control starts with the slice itself. Keep image decoding
         // and its caller's diagnostic line in one shared fallback.
         if m.owner_view >= 0 {
@@ -683,8 +692,7 @@ recursive fn cg_pack_view(p: Program&, m: CgModule&, f: CgBody&, id: i64, node: 
         cg_get(f, base); let prefix = cg_static_prefix(p, id);
         wa_add(f.code, prefix);
         wa_extend(f.code);
-        if p.types[id].array_kind == A_FIXED { wb_i64(f.code, p.types[id].count); }
-        else { cg_get(f, base); cg_length_load(p, f, id); wa_extend(f.code); }
+        cg_get(f, base); cg_length_load(p, f, id); wa_extend(f.code);
     }
     ws_pack(f);
 }
@@ -753,6 +761,17 @@ fn cg_scale_index(f: CgBody&, stride: i64) {
     wa_const(f.code, stride); wa_op(f.code, 0x6c);
 }
 
+fn cg_add_proven_index(p: Program&, m: CgModule&, f: CgBody&, index_node: i64, stride: i64) {
+    if p.nodes[index_node].kind == N_INTEGER && p.nodes[index_node].integer >= 0 {
+        wa_add(f.code, p.nodes[index_node].integer * stride);
+        return;
+    }
+    if cg_wide { cg_to(p, m, f, index_node, TYPE_U64); }
+    else { cg_to(p, m, f, index_node, TYPE_U32); }
+    cg_scale_index(f, stride);
+    wa_op(f.code, 0x6a);
+}
+
 recursive fn cg_address(p: Program&, m: CgModule&, f: CgBody&, node: i64) {
     if node < 0 { cg_fail(p, node, "wasm: missing assignment location"); return; }
     let n: const Node& = p.nodes[node];
@@ -768,22 +787,83 @@ recursive fn cg_address(p: Program&, m: CgModule&, f: CgBody&, node: i64) {
         let is_ref = cg_type_kind(p, id) == TY_REF;
         if is_ref { id = p.types[id].element; }
         let element = p.types[id].element;
-        if (n.flags & F_BOUNDS_PROVEN) != 0 && m.ordinary_owners && m.resolver < 0 && cg_owner(p, id) && p.types[element].storage != 1 {
+        let kind = cg_type_kind(p, id);
+        let owner = cg_owner(p, id);
+        if (n.flags & F_BOUNDS_PROVEN) != 0 && m.resolver < 0 && p.types[element].storage != 1 {
+            if owner && m.ordinary_owners {
+                cg_expr(p, m, f, n.left);
+                if is_ref { cg_load(p, m, f, id, 0); }
+                wc_load(f.code, 0);
+                cg_add_proven_index(p, m, f, n.right, cg_size(p, element));
+                return;
+            }
+            if kind == TY_SLICE {
+                cg_expr(p, m, f, n.left);
+                if is_ref { cg_load(p, m, f, id, 0); }
+                ws_ptr(f.code);
+                cg_add_proven_index(p, m, f, n.right, cg_size(p, element));
+                return;
+            }
+            if kind == TY_ARRAY && !owner {
+                cg_expr(p, m, f, n.left);
+                if is_ref { cg_load(p, m, f, id, 0); }
+                wa_add(f.code, cg_static_prefix(p, id));
+                cg_add_proven_index(p, m, f, n.right, cg_size(p, element));
+                return;
+            }
+        }
+        if cg_wide && owner && m.ordinary_owners && m.resolver < 0 && p.types[element].storage != 1 {
             cg_expr(p, m, f, n.left);
             if is_ref { cg_load(p, m, f, id, 0); }
-            wc_load(f.code, 0);
-            let ptr = cg_save(f, wa());
-            cg_to(p, m, f, n.right, TYPE_U64); wa_wrap(f.code);
-            cg_scale_index(f, cg_size(p, element));
-            cg_get(f, ptr); wa_op(f.code, 0x6a); return;
-        }
-        cg_expr(p, m, f, n.left); cg_pack_view(p, m, f, p.nodes[n.left].type_id, node);
-        let view = cg_save(f, ws());
-        cg_to(p, m, f, n.right, TYPE_U64); let index = cg_save(f, 0x7e);
-        if (n.flags & F_BOUNDS_PROVEN) == 0 {
-            cg_get(f, index); cg_get(f, view); ws_count(f.code); wb_byte(f.code, 0x5a);
+            let hdr = cg_tee(f, wa());
+            wc_load(f.code, 0); let ptr = cg_save(f, wa());
+            cg_get(f, hdr); wc_load(f.code, 1); let len = cg_save(f, 0x7e);
+            cg_to(p, m, f, n.right, TYPE_U64); let index = cg_tee(f, 0x7e);
+            cg_get(f, len); wb_byte(f.code, 0x5a);
             cg_trap_if(p, m, f, node, "array index out of bounds");
+            cg_get(f, ptr); cg_get(f, index);
+            cg_scale_index(f, cg_size(p, element)); wa_op(f.code, 0x6a); return;
         }
+        let simple_idx = p.nodes[n.right].kind == N_NAME && p.nodes[n.right].symbol >= 0 &&
+            p.nodes[n.right].symbol < f.slots.len && f.slots[p.nodes[n.right].symbol].value &&
+            cg_wasm_type(p, p.nodes[n.right].type_id) == 0x7e && cg_type_kind(p, p.nodes[n.right].type_id) == TY_INT;
+        let const_idx = p.nodes[n.right].kind == N_INTEGER && p.nodes[n.right].integer >= 0;
+        let simple_slice = kind == TY_SLICE && !is_ref && m.resolver < 0 &&
+            p.nodes[n.left].kind == N_NAME && p.nodes[n.left].symbol >= 0 &&
+            p.nodes[n.left].symbol < f.slots.len && f.slots[p.nodes[n.left].symbol].value &&
+            (simple_idx || const_idx);
+        var view = -1;
+        if simple_slice {
+            view = f.slots[p.nodes[n.left].symbol].local;
+        } else {
+            cg_expr(p, m, f, n.left); cg_pack_view(p, m, f, p.nodes[n.left].type_id, node);
+            view = cg_save(f, ws());
+        }
+        if (n.flags & F_BOUNDS_PROVEN) == 0 {
+            if const_idx && p.types[element].storage != 1 {
+                let kv = p.nodes[n.right].integer;
+                wb_i64(f.code, kv);
+                cg_get(f, view); ws_count(f.code); wb_byte(f.code, 0x5a);
+                cg_trap_if(p, m, f, node, "array index out of bounds");
+                cg_get(f, view); ws_ptr(f.code); wa_add(f.code, kv * cg_size(p, element)); return;
+            }
+            var index = -1;
+            if simple_idx {
+                index = f.slots[p.nodes[n.right].symbol].local;
+                cg_get(f, index);
+            } else {
+                cg_to(p, m, f, n.right, TYPE_U64); index = cg_tee(f, 0x7e);
+            }
+            cg_get(f, view); ws_count(f.code); wb_byte(f.code, 0x5a);
+            cg_trap_if(p, m, f, node, "array index out of bounds");
+            if p.types[element].storage == 1 {
+                cg_get(f, view); ws_ptr(f.code); let base = cg_save(f, wa());
+                let cursor = cg_walk_elements(p, m, f, base, index, node); cg_get(f, cursor); return;
+            }
+            cg_get(f, view); ws_ptr(f.code); cg_get(f, index); wa_wrap(f.code);
+            cg_scale_index(f, cg_size(p, element)); wa_op(f.code, 0x6a); return;
+        }
+        cg_to(p, m, f, n.right, TYPE_U64); let index = cg_save(f, 0x7e);
         if p.types[element].storage == 1 {
             cg_get(f, view); ws_ptr(f.code); let base = cg_save(f, wa());
             let cursor = cg_walk_elements(p, m, f, base, index, node); cg_get(f, cursor); return;
@@ -2451,6 +2531,25 @@ recursive fn cg_emit_sequence(p: Program&, m: CgModule&, f: CgBody&, recipe: i64
         }
         return;
     }
+    var object = p.nodes[n.left].type_id; while cg_type_kind(p, object) == TY_REF { object = p.types[object].element; }
+    let element = p.types[object].element;
+    if (n.flags & F_BOUNDS_PROVEN) != 0 && item.saved < 0 && item.pointer < 0 && m.resolver < 0 {
+        let obj_kind = cg_type_kind(p, object);
+        let obj_owner = cg_owner(p, object);
+        if obj_owner && m.ordinary_owners || obj_kind == TY_SLICE || obj_kind == TY_ARRAY && !obj_owner {
+            cg_emit_sequence(p, m, f, item.parent);
+            var deref = p.nodes[n.left].type_id;
+            while cg_type_kind(p, deref) == TY_REF { deref = p.types[deref].element; cg_load(p, m, f, deref, 0); }
+            if obj_owner { wc_load(f.code, 0); }
+            else if obj_kind == TY_SLICE { ws_ptr(f.code); }
+            else { wa_add(f.code, cg_static_prefix(p, object)); }
+            cg_get(f, item.index); wa_wrap(f.code); cg_scale_index(f, cg_size(p, element)); wa_op(f.code, 0x6a);
+            if !item.address && (cg_type_kind(p, n.type_id) != TY_REF || cg_type_kind(p, element) == TY_REF) {
+                cg_load(p, m, f, element, 0); cg_convert(p, m, f, element, n.type_id, item.node);
+            }
+            return;
+        }
+    }
     if item.saved >= 0 { cg_get(f, item.saved); }
     else {
         cg_emit_sequence(p, m, f, item.parent); cg_pack_view(p, m, f, p.nodes[n.left].type_id, item.node);
@@ -2460,8 +2559,6 @@ recursive fn cg_emit_sequence(p: Program&, m: CgModule&, f: CgBody&, recipe: i64
     if (n.flags & F_BOUNDS_PROVEN) == 0 {
         cg_get(f, item.index); cg_get(f, view); ws_count(f.code); wb_byte(f.code, 0x5a); cg_trap_if(p, m, f, item.node, "array index out of bounds");
     }
-    var object = p.nodes[n.left].type_id; while cg_type_kind(p, object) == TY_REF { object = p.types[object].element; }
-    let element = p.types[object].element;
     cg_get(f, view); ws_ptr(f.code); cg_get(f, item.index); wa_wrap(f.code); cg_scale_index(f, cg_size(p, element)); wa_op(f.code, 0x6a);
     if !item.address && (cg_type_kind(p, n.type_id) != TY_REF || cg_type_kind(p, element) == TY_REF) {
         cg_load(p, m, f, element, 0); cg_convert(p, m, f, element, n.type_id, item.node);
