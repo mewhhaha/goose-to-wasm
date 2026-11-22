@@ -1,0 +1,190 @@
+{
+  "wasm-direct": {
+    "candidate_cpu_ratio": 0.8748503366670486,
+    "candidate_wall_ratio": 0.875706063279564,
+    "catalog_round_bootstrap_95_cpu_ratio": [
+      0.8674666759424733,
+      0.8805480155235218
+    ],
+    "catalog_round_bootstrap_95_wall_ratio": [
+      0.8689737604069337,
+      0.8854068354927926
+    ],
+    "workload_cpu_ratios": {
+      "squares": 0.9647657101343939,
+      "tour": 0.8651555261416568,
+      "functions": 0.7816423823272481,
+      "errors": 0.85157644259369,
+      "sieve": 0.9493494423793182,
+      "sorting": 0.7739805078224993,
+      "sudoku": 0.9215896885068823,
+      "maze": 0.8409255242226846,
+      "vm": 0.864072398190035,
+      "life": 0.873443559910274,
+      "mandelbrot": 0.9622487778380405
+    },
+    "changed_program_artifacts": [
+      "squares",
+      "tour",
+      "functions",
+      "errors",
+      "sieve",
+      "sorting",
+      "sudoku",
+      "maze",
+      "vm",
+      "life",
+      "mandelbrot"
+    ],
+    "workloads": {
+      "squares": {
+        "cpu_ratio": 0.9647657101343939,
+        "wall_ratio": 0.9553581963093709,
+        "identical_output": false
+      },
+      "tour": {
+        "cpu_ratio": 0.8651555261416568,
+        "wall_ratio": 0.8737775160502279,
+        "identical_output": false
+      },
+      "functions": {
+        "cpu_ratio": 0.7816423823272481,
+        "wall_ratio": 0.7828581570889139,
+        "identical_output": false
+      },
+      "errors": {
+        "cpu_ratio": 0.85157644259369,
+        "wall_ratio": 0.8605976451517704,
+        "identical_output": false
+      },
+      "sieve": {
+        "cpu_ratio": 0.9493494423793182,
+        "wall_ratio": 0.9509750269836152,
+        "identical_output": false
+      },
+      "sorting": {
+        "cpu_ratio": 0.7739805078224993,
+        "wall_ratio": 0.7808958844231064,
+        "identical_output": false
+      },
+      "sudoku": {
+        "cpu_ratio": 0.9215896885068823,
+        "wall_ratio": 0.9079017609764513,
+        "identical_output": false
+      },
+      "maze": {
+        "cpu_ratio": 0.8409255242226846,
+        "wall_ratio": 0.8445889365430692,
+        "identical_output": false
+      },
+      "vm": {
+        "cpu_ratio": 0.864072398190035,
+        "wall_ratio": 0.8557852987919099,
+        "identical_output": false
+      },
+      "life": {
+        "cpu_ratio": 0.873443559910274,
+        "wall_ratio": 0.8775093555674737,
+        "identical_output": false
+      },
+      "mandelbrot": {
+        "cpu_ratio": 0.9622487778380405,
+        "wall_ratio": 0.9656695121884231,
+        "identical_output": false
+      }
+    }
+  },
+  "native-c": {
+    "candidate_cpu_ratio": 0.9182445317287842,
+    "candidate_wall_ratio": 0.928206778880369,
+    "catalog_round_bootstrap_95_cpu_ratio": [
+      0.9149560302716983,
+      0.9288405008619202
+    ],
+    "catalog_round_bootstrap_95_wall_ratio": [
+      0.919982113837827,
+      0.9351416618640899
+    ],
+    "workload_cpu_ratios": {
+      "squares": 0.9298307475317878,
+      "tour": 0.9385597446638781,
+      "functions": 0.9048065504093896,
+      "errors": 0.8961840628507383,
+      "sieve": 0.9345101048863171,
+      "sorting": 0.896244430299167,
+      "sudoku": 0.9208199356913075,
+      "maze": 0.9034707158351121,
+      "vm": 0.8982542761418744,
+      "life": 0.9397810218977688,
+      "mandelbrot": 0.9401515151515039
+    },
+    "changed_program_artifacts": [
+      "squares",
+      "tour",
+      "functions",
+      "errors",
+      "sorting",
+      "sudoku",
+      "maze",
+      "life",
+      "mandelbrot"
+    ],
+    "workloads": {
+      "squares": {
+        "cpu_ratio": 0.9298307475317878,
+        "wall_ratio": 0.9414084417879073,
+        "identical_output": false
+      },
+      "tour": {
+        "cpu_ratio": 0.9385597446638781,
+        "wall_ratio": 0.9589442532295175,
+        "identical_output": false
+      },
+      "functions": {
+        "cpu_ratio": 0.9048065504093896,
+        "wall_ratio": 0.9053700276513795,
+        "identical_output": false
+      },
+      "errors": {
+        "cpu_ratio": 0.8961840628507383,
+        "wall_ratio": 0.9086177344275691,
+        "identical_output": false
+      },
+      "sieve": {
+        "cpu_ratio": 0.9345101048863171,
+        "wall_ratio": 0.95401836992665,
+        "identical_output": true
+      },
+      "sorting": {
+        "cpu_ratio": 0.896244430299167,
+        "wall_ratio": 0.8965517047864692,
+        "identical_output": false
+      },
+      "sudoku": {
+        "cpu_ratio": 0.9208199356913075,
+        "wall_ratio": 0.9145674624649838,
+        "identical_output": false
+      },
+      "maze": {
+        "cpu_ratio": 0.9034707158351121,
+        "wall_ratio": 0.9088149344709631,
+        "identical_output": false
+      },
+      "vm": {
+        "cpu_ratio": 0.8982542761418744,
+        "wall_ratio": 0.9129934163487499,
+        "identical_output": true
+      },
+      "life": {
+        "cpu_ratio": 0.9397810218977688,
+        "wall_ratio": 0.9453850899346746,
+        "identical_output": false
+      },
+      "mandelbrot": {
+        "cpu_ratio": 0.9401515151515039,
+        "wall_ratio": 0.9669714436727096,
+        "identical_output": false
+      }
+    }
+  }
+}
