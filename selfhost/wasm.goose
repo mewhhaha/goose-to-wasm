@@ -6,6 +6,7 @@ inline fn wb_byte(out: u8[>..]&, value: i64) { out.push((value & 255) as u8); }
 
 fn wb_u(out: u8[>..]&, value: i64) {
     if value >= 0 && value < 128 { out.push(value as u8); return; }
+    if value >= 0 && value < 16384 { out.push(((value & 127) | 128) as u8); out.push((value >> 7) as u8); return; }
     var remaining = value as! u64;
     loop {
         var byte = (remaining & 127) as u8;
@@ -18,6 +19,7 @@ fn wb_u(out: u8[>..]&, value: i64) {
 
 fn wb_s(out: u8[>..]&, value: i64) {
     if value >= -64 && value < 64 { out.push((value & 127) as u8); return; }
+    if value >= -8192 && value < 8192 { out.push(((value & 127) | 128) as u8); out.push(((value >> 7) & 127) as u8); return; }
     var remaining = value;
     loop {
         let byte = remaining & 127;
@@ -193,7 +195,7 @@ fn wb_compact_body(out: u8[>..]&, locals: i64[:], code: u8[:], params: i64) {
 // An event is a non-parameter local access or control instruction. Its
 // offset is relative to the emitted body or prelude. Branch table targets
 // stay in the bytecode.
-struct WbEvent { start: i64, operand: i64, opcode: u8 }
+struct WbEvent { start: i32, operand: i32, opcode: u8 }
 struct WbLocalAccess { start: i32, index: i32 }
 
 // A block, loop or if being read by wb_reuse_locals: where it began (a loop),
@@ -228,7 +230,6 @@ struct WbReuseScratch {
 
 fn wb_reuse_locals(locals: i64[>..]&, code: u8[>..]&, params: i64, events: WbEvent[:], body_event_count: i64, prelude_bytes: i64, s: WbReuseScratch&) {
     if locals.len < 2 { return; }
-    s.locals_at.clear();
     s.encoded.clear();
     let total = params + locals.len;
     if s.epoch > 1000000000 {
@@ -244,7 +245,7 @@ fn wb_reuse_locals(locals: i64[>..]&, code: u8[>..]&, params: i64, events: WbEve
     if s.undo.len < total { s.undo.resize(total, 0); }
     if s.merged.len < total { s.merged.resize(total, 0); }
     if s.ends.len < total { s.ends.resize(total, 0); }
-    // Ensure loop_end has room for all event positions without shrinking.
+    // Ensure loop_end and head have room for all event positions without shrinking.
     let max_pos = events.len + 2;
     if s.loop_end.len < max_pos { s.loop_end.resize(max_pos, -1); }
     if s.head.len < max_pos { s.head.resize(max_pos, -1); }
@@ -252,7 +253,7 @@ fn wb_reuse_locals(locals: i64[>..]&, code: u8[>..]&, params: i64, events: WbEve
     s.covers.clear();
     let bytes: u8[:] = code;
     let first: i32[:] = s.first[0..total];
-    for i in 0..first.len { first[i] = -1; }
+    for i in params..total { first[i] = -1; }
     let last: i32[:] = s.last[0..total];
     let written: i32[:] = s.written[0..total];
     let arm: i32[:] = s.arm[0..total];
@@ -275,12 +276,10 @@ fn wb_reuse_locals(locals: i64[>..]&, code: u8[>..]&, params: i64, events: WbEve
         if segment != 0 { first_event = 0; limit = body_event_count; base = prelude_bytes; }
         for event_index in first_event..limit {
             let event: const WbEvent& = events[event_index];
-            let start = base + event.start;
             let op = event.opcode as i64;
-            let index = event.operand;
+            let index = event.operand as i64;
             position++;
             if op >= 0x20 {
-                s.locals_at.push(WbLocalAccess { start: start as i32, index: index as i32 });
                 let local = index;
                 if first[local] < 0 { first[local] = position; }
                 last[local] = position;
@@ -343,7 +342,7 @@ fn wb_reuse_locals(locals: i64[>..]&, code: u8[>..]&, params: i64, events: WbEve
             } else if op == 0x0c || op == 0x0d {
                 if index < s.frames.len { s.frames[s.frames.len - 1 - index].branched = true; }
             } else if op == 0x0e {
-                var cursor = start + 1; let count = wb_read_unsigned(bytes, cursor);
+                var cursor = base + (event.start as i64) + 1; let count = wb_read_unsigned(bytes, cursor);
                 for target in 0..count + 1 {
                     let label = wb_read_unsigned(bytes, cursor);
                     if label < s.frames.len { s.frames[s.frames.len - 1 - label].branched = true; }
@@ -362,10 +361,9 @@ fn wb_reuse_locals(locals: i64[>..]&, code: u8[>..]&, params: i64, events: WbEve
         if lend > last[local] { last[local] = lend; }
     }
     // Take the locals in the order their spans start; give each the first
-    // index of its type that is free again.
+    // index of its type that is free again. s.head is kept at -1 between calls.
     let head_len = (position as i64) + 1;
     let head: i32[:] = s.head[0..head_len];
-    for hi in 0..head.len { head[hi] = -1; }
     let next: i32[:] = s.next[0..total];
     var local = total - 1;
     while local >= params {
@@ -377,8 +375,10 @@ fn wb_reuse_locals(locals: i64[>..]&, code: u8[>..]&, params: i64, events: WbEve
     // in their original order so its first free slot can be found directly.
     s.kinds.clear();
     var begin: i32[8] = [-1; 8]; var tail: i32[8] = [-1; 8];
-    for chain in head {
-        var member = chain as i64;
+    for hi in 0..head.len {
+        var member = head[hi] as i64;
+        if member < 0 { continue; }
+        head[hi] = -1;
         while member >= 0 {
             let following = next[member] as i64; let kind = locals[member - params];
             let slot = (0x7f - kind) & 7;
@@ -410,27 +410,39 @@ fn wb_reuse_locals(locals: i64[>..]&, code: u8[>..]&, params: i64, events: WbEve
         }
         s.kept.resize(s.kept.len + ends_len, kind);
     }
-    // Rewrite a one-byte index in place. Copy unchanged runs around wider
-    // replacements, including the opcode that precedes each index.
+    // Rewrite equal-width indexes in place. Copy unchanged runs around
+    // width-changing replacements, including the opcode before each index.
     var copied = 0;
-    let accs: const WbLocalAccess[:] = s.locals_at;
-    for at in 0..accs.len {
-        let start = accs[at].start as i64;
-        let old = accs[at].index as i64;
-        let index = first[old] as i64;
-        if old < 128 && index < 128 {
-            bytes[start + 1] = index as u8;
-            continue;
+    for segment in 0..2 {
+        var first_event = body_event_count; var limit = events.len; var base = 0;
+        if segment != 0 { first_event = 0; limit = body_event_count; base = prelude_bytes; }
+        for event_index in first_event..limit {
+            let event: const WbEvent& = events[event_index];
+            if (event.opcode as i64) < 0x20 { continue; }
+            let start = base + (event.start as i64);
+            let old = event.operand as i64;
+            let index = first[old] as i64;
+            if old < 128 && index < 128 {
+                if old != index { bytes[start + 1] = index as u8; }
+                continue;
+            }
+            if old >= 128 && old < 16384 && index >= 128 && index < 16384 {
+                if old != index {
+                    bytes[start + 1] = ((index & 127) | 128) as u8;
+                    bytes[start + 2] = (index >> 7) as u8;
+                }
+                continue;
+            }
+            // The emitter uses the shortest unsigned LEB for a local index.
+            var end = start + 2;
+            if old >= 128 {
+                var remaining = old >> 7;
+                while remaining > 0 { end++; remaining >>= 7; }
+            }
+            s.encoded.append(bytes[copied..start + 1]);
+            if index < 128 { s.encoded.push(index as u8); } else { wb_u(s.encoded, index); }
+            copied = end;
         }
-        // The emitter uses the shortest unsigned LEB for a local index.
-        var end = start + 2;
-        if old >= 128 {
-            var remaining = old >> 7;
-            while remaining > 0 { end++; remaining >>= 7; }
-        }
-        s.encoded.append(bytes[copied..start + 1]);
-        if index < 128 { s.encoded.push(index as u8); } else { wb_u(s.encoded, index); }
-        copied = end;
     }
     locals.clear(); locals.append(s.kept);
     if copied == 0 { return; }
