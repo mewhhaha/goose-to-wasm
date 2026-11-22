@@ -512,11 +512,11 @@ fn diagnose(p: Program&, token: i64, message: u8[:]) {
 }
 // Whether a node comes from a library module (resolved through --stdlib).
 // Unreached library functions are neither prepared nor checked.
-fn library_node(p: Program&, node: i64) -> bool {
+inline fn library_node(p: Program&, node: i64) -> bool {
     let token = p.nodes[node].token;
     return token >= 0 && token < p.tokens.len && p.sources[p.tokens[token].source].library;
 }
-fn library_token(p: Program&, token: i64) -> bool {
+inline fn library_token(p: Program&, token: i64) -> bool {
     return token >= 0 && token < p.tokens.len && p.sources[p.tokens[token].source].library;
 }
 // The token whose line a failed check at node reports: its own, or, for a
@@ -524,7 +524,7 @@ fn library_token(p: Program&, token: i64) -> bool {
 fn location_token(p: Program&, node: i64) -> i64 {
     if node < 0 || node >= p.nodes.len { return -1; }
     let token = p.nodes[node].token;
-    if p.inline_sites.len == 0 || !library_token(p, token) { return token; }
+    if p.inline_sites.len == 0 || node < p.inline_sites[0].first || !library_token(p, token) { return token; }
     var low = 0; var high = p.inline_sites.len;
     while low < high {
         let middle = (low + high) / 2;

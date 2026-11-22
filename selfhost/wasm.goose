@@ -368,16 +368,20 @@ fn wb_reuse_locals(locals: i64[>..]&, code: u8[>..]&, params: i64, events: WbEve
     let head: i32[:] = s.head[0..head_len];
     let next: i32[:] = s.next[0..total];
     var local = total - 1;
+    var max_first: i64 = -1;
     while local >= params {
         let fpos = first[local] as i64;
-        if fpos >= 0 { next[local] = head[fpos]; head[fpos] = local as i32; }
+        if fpos >= 0 {
+            if fpos > max_first { max_first = fpos; }
+            next[local] = head[fpos]; head[fpos] = local as i32;
+        }
         local--;
     }
     // Wasm groups slots by type in first-use order. Link each type's spans
     // in their original order so its first free slot can be found directly.
     s.kinds.clear();
     var begin: i32[8] = [-1; 8]; var tail: i32[8] = [-1; 8];
-    for hi in 0..head.len {
+    for hi in 0..max_first + 1 {
         var member = head[hi] as i64;
         if member < 0 { continue; }
         head[hi] = -1;
@@ -390,9 +394,11 @@ fn wb_reuse_locals(locals: i64[>..]&, code: u8[>..]&, params: i64, events: WbEve
         }
     }
     s.kept.clear();
+    var changed = false;
     for kind in s.kinds {
         var ends_len: i64 = 0; var skip: i64 = 0; var until: i32 = -1;
         var member = begin[(0x7f - kind) & 7] as i64;
+        let base_slot = params + s.kept.len;
         while member >= 0 {
             let start = first[member];
             if until < start { skip = 0; until = head_len as i32; }
@@ -407,10 +413,33 @@ fn wb_reuse_locals(locals: i64[>..]&, code: u8[>..]&, params: i64, events: WbEve
                 ends_len++;
             } else { ends[skip] = last[member]; }
             // Once this span is placed, reuse its start slot for the final local index.
-            first[member] = (params + s.kept.len + skip) as i32;
+            let mapped = (base_slot + skip) as i32;
+            first[member] = mapped;
+            if mapped != member as i32 { changed = true; }
             member = next[member] as i64;
         }
         s.kept.resize(s.kept.len + ends_len, kind);
+    }
+    if !changed {
+        locals.clear(); locals.append(s.kept);
+        return;
+    }
+    // Fast path: when every old and new local index fits in one ULEB byte (< 128),
+    // every rewrite is a 1-byte in-place patch with no length changes.
+    if total < 128 {
+        for segment in 0..2 {
+            var first_event = body_event_count; var limit = events.len; var base = 0;
+            if segment != 0 { first_event = 0; limit = body_event_count; base = prelude_bytes; }
+            for event_index in first_event..limit {
+                let event: const WbEvent& = events[event_index];
+                if (event.opcode as i64) < 0x20 { continue; }
+                let old = event.operand as i64;
+                let index = first[old] as i64;
+                if old != index { bytes[base + (event.start as i64) + 1] = index as u8; }
+            }
+        }
+        locals.clear(); locals.append(s.kept);
+        return;
     }
     // Rewrite equal-width indexes in place. Copy unchanged runs around
     // width-changing replacements, including the opcode before each index.
