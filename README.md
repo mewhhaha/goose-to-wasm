@@ -10,19 +10,19 @@ A [Goose](https://github.com/aardappel/goose) compiler written in Goose. It emit
 
 ![Previous and current Wasm sizes, plus elapsed seconds for cold and cached Wasmtime rebuilds](bench/results/2026-11-22/lifetime-fast-paths/release.svg)
 
-**Cold and cached self-compilation.** In a separate three-round run, the bundled 32-bit compiler took **2.37 s cold** with eight preparation threads and **1.84 s cached** on one core. Native took **1.39 s**. These fresh-process timings include startup. [All launches](bench/results/2026-11-21/shared-emitters/launch.json)
+**Cold and cached self-compilation.** In a separate three-round run, the bundled 32-bit compiler took **1.71 s cold** with eight preparation threads and **1.23 s cached** on one core. Native took **1.05 s**. These fresh-process timings include startup. [All launches](bench/results/2026-11-22/lifetime-fast-paths/launch.json)
 
-![Seconds to rebuild the compiler in cold, cached and native processes](bench/results/2026-11-21/shared-emitters/launch.svg)
+![Seconds to rebuild the compiler in cold, cached and native processes](bench/results/2026-11-22/lifetime-fast-paths/launch.svg)
 
-**Compiler speed.** Across eleven programs, native compiler CPU time changed by **−2.5% for Wasm emission** and **−1.3% for C emission** against `e9a51a3`. Each compiler built each program 31 times on CPU 2. The earlier snapshot 59 measured 0.58× the C++ compiler’s time for Wasm and 0.53× for C. [Catalog and intervals](bench/results/2026-11-21/shared-emitters/catalog-summary.json) · [C++ comparison](bench/results/2026-11-11/compiler-throughput-59/README.md)
+**Compiler speed.** Across eleven small programs, native compiler CPU time changed by **+3.4% for Wasm emission** and **+2.1% for C emission** against `766898a` (fixed lifetime-precomputation setup on short inputs; byte-identical outputs across all 22 targets). Each compiler built each program 31 times on CPU 2. The earlier snapshot 59 measured 0.58× the C++ compiler’s time for Wasm and 0.53× for C. [Catalog and intervals](bench/results/2026-11-22/lifetime-fast-paths/catalog-summary.json) · [C++ comparison](bench/results/2026-11-11/compiler-throughput-59/README.md)
 
 ![Compiler execution time for eleven programs](bench/charts/compiler-comparison.svg)
 
-**The compiler as Wasm.** Building the compiler with the pinned Goose emitter took 2.24 s for portable Wasm and 17.95 s through C and Clang. Checking its own sources took 1.04 s native, 2.59 s in Wasmtime and 3.16 s in V8. These portable memory64 timings exclude engine preparation and ran on a shared host. [Three builds and three execution rounds](bench/results/2026-11-21/shared-emitters/selfhost.json)
+**The compiler as Wasm.** Building the compiler with the bootstrapped `f7ae491` Goose emitter took **1.01 s** for portable Wasm and **18.98 s** through C and Clang. Checking its own sources took **0.68 s** native, **1.65 s** in Wasmtime and **2.15 s** in V8 (emitting itself took **1.09 s** native, **2.31 s** in Wasmtime and **2.74 s** in V8). These portable memory64 timings exclude engine preparation and ran on a shared host. [Three builds and three execution rounds](bench/results/2026-11-22/lifetime-fast-paths/selfhost.json)
 
 ![Compiler self-hosting build and execution times](bench/charts/compiler-selfhost-execution.svg)
 
-**Example programs.** Cold builds of ten examples took 61.3–80.2 ms for direct Wasm and 0.312–2.253 s through C, including compilation and linking. Sorting took 164 ms in precompiled Wasmtime and 126 ms native. Both timings include process launch and exit. [Builds](bench/results/2026-11-21/shared-emitters/examples.json.gz) · [Process times](bench/results/2026-11-21/shared-emitters/host.json.gz)
+**Example programs.** Cold builds of ten examples took **62.7–80.9 ms** for direct Wasm and **0.300–2.236 s** through C, including compilation and linking. Sorting took **113 ms** in minimal precompiled Wasmtime (**115 ms** full precompiled) and **131 ms** native. Both timings include process launch and exit. [Builds](bench/results/2026-11-22/lifetime-fast-paths/examples.json.gz) · [Process times](bench/results/2026-11-22/lifetime-fast-paths/host.json.gz)
 
 ![Example program build times](bench/charts/goose-examples-compilation.svg)
 
@@ -30,7 +30,7 @@ A [Goose](https://github.com/aardappel/goose) compiler written in Goose. It emit
 
 ![Wasmtime preparation times for ten examples](bench/charts/goose-host-preparation.svg)
 
-**Mandelbrot.** On the official input, resident execution took 2.64 s native, 2.82 s in Wasmtime and 2.75 s in V8. GCC C took 2.61 s and upstream native Goose took 2.65 s. The seven samples per engine exclude compilation, startup and instantiation and ran on a shared host. [Measurements](bench/results/2026-11-21/shared-emitters/langbench-hot.json.gz)
+**Mandelbrot.** On the official input, resident execution took **2.70 s** native, **2.86 s** in Wasmtime and **2.88 s** in V8. GCC C took **2.59 s** and upstream native Goose took **2.70 s**. The seven samples per engine exclude compilation, startup and instantiation and ran on a shared host. [Measurements](bench/results/2026-11-22/lifetime-fast-paths/langbench-hot.json.gz)
 
 ![Mandelbrot runtime by engine](bench/charts/langbench-hot-runtime.svg)
 
