@@ -22,6 +22,7 @@ struct CgFunction {
     node: i64, symbol: i64, signature: i64 = -1, index: i64 = -1,
     closure_signature: i64 = -1, thunk: i64 = -1, table_index: i64 = -1,
     capture_first: i64 = 0, capture_count: i64 = 0, arena_local: bool = false, elements: bool = false,
+    header_pure: bool = false,
 }
 // Positions in functions, before adding the import count.
 struct CgFunctionIndex { first: i32 = -1, elements: i32 = -1 }
@@ -68,6 +69,14 @@ struct CgSequence {
 }
 struct CgSlot { local: i64 = -1, value: bool = false, incoming: i64 = -1, address_used: bool = false }
 struct CgFrameAddress { local: i64, offset: i64 }
+struct CgHoist {
+    sym: i32 = -1, field: i32 = -1, ptr_local: i32 = -1, len_local: i32 = -1,
+    sample_node: i32 = -1, target_type: i32 = -1,
+    flags: u16 = 0, uses: u16 = 0,
+}
+let CG_HOIST_SLICE: u16 = 1;
+let CG_HOIST_LEN: u16 = 2;
+let CG_HOIST_ALIVE: u16 = 4;
 struct CgBody {
     // User and start functions use wb_reuse_locals. Scalar and hand-written
     // helper bodies use their own encoding paths.
@@ -75,6 +84,7 @@ struct CgBody {
     code: u8[>..]&, locals: i64[>..]&, slots: CgSlot[>..]&, addresses: CgFrameAddress[>..]&,
     labels: i64[>..]&, exits: CgExit[>..]&, results: i64[>..]&, destinations: i64[>..]&, work: i64[>..]&, raw_slots: i64[>..]&, sequences: CgSequence[>..]&,
     constructions: CgConstruction[>..]&, construction_destinations: CgDestination[>..]&, receiving: CgReceiving[>..]&,
+    hoists: CgHoist[>..]&,
     function: i64 = -1, function_index: i64 = -1, params: i64 = 0, serial: i64 = 0,
     region_live: i64 = 0, region_peak: i64 = 0, acquisitions: i64 = 0, publishes: bool = false, region_mark: i64 = -1, publication_mark: i64 = -1,
     frame: i64 = -1, frame_bytes: i64 = 0, frame_used: bool = false, effect: i64 = 0, effect_metadata: i64 = -1, done: i64 = -1, frame_free: bool = false,
@@ -95,7 +105,7 @@ struct CgEmitScratch {
     labels: i64[>..]&, exits: CgExit[>..]&, results: i64[>..]&, destinations: i64[>..]&,
     work: i64[>..]&, raw_slots: i64[>..]&, sequences: CgSequence[>..]&,
     constructions: CgConstruction[>..]&, construction_destinations: CgDestination[>..]&,
-    receiving: CgReceiving[>..]&, defers: i64[>..]&,
+    receiving: CgReceiving[>..]&, defers: i64[>..]&, hoists: CgHoist[>..]&,
     thunk_code: u8[>..]&, thunk_locals: i64[>..]&, thunk_results: i64[>..]&,
     reuse: WbReuseScratch,
 }
@@ -789,6 +799,39 @@ recursive fn cg_address(p: Program&, m: CgModule&, f: CgBody&, node: i64) {
         let element = p.types[id].element;
         let kind = cg_type_kind(p, id);
         let owner = cg_owner(p, id);
+        if f.hoists.len > 0 && m.resolver < 0 && p.types[element].storage != 1 {
+            let hi = cg_hoist_find(p, f, n.left);
+            if hi >= 0 {
+                let h = f.hoists[hi];
+                if (n.flags & F_BOUNDS_PROVEN) != 0 {
+                    cg_get(f, h.ptr_local);
+                    cg_add_proven_index(p, m, f, n.right, cg_size(p, element));
+                    return;
+                }
+                if h.len_local >= 0 {
+                    if p.nodes[n.right].kind == N_INTEGER && p.nodes[n.right].integer >= 0 {
+                        let kv = p.nodes[n.right].integer;
+                        wb_i64(f.code, kv); cg_get(f, h.len_local); wb_byte(f.code, 0x5a);
+                        cg_trap_if(p, m, f, node, "array index out of bounds");
+                        cg_get(f, h.ptr_local); wa_add(f.code, kv * cg_size(p, element)); return;
+                    }
+                    var index = -1;
+                    let simple_idx = p.nodes[n.right].kind == N_NAME && p.nodes[n.right].symbol >= 0 &&
+                        p.nodes[n.right].symbol < f.slots.len && f.slots[p.nodes[n.right].symbol].value &&
+                        cg_wasm_type(p, p.nodes[n.right].type_id) == 0x7e && cg_type_kind(p, p.nodes[n.right].type_id) == TY_INT;
+                    if simple_idx {
+                        index = f.slots[p.nodes[n.right].symbol].local;
+                        cg_get(f, index);
+                    } else {
+                        cg_to(p, m, f, n.right, TYPE_U64); index = cg_tee(f, 0x7e);
+                    }
+                    cg_get(f, h.len_local); wb_byte(f.code, 0x5a);
+                    cg_trap_if(p, m, f, node, "array index out of bounds");
+                    cg_get(f, h.ptr_local); cg_get(f, index); wa_wrap(f.code);
+                    cg_scale_index(f, cg_size(p, element)); wa_op(f.code, 0x6a); return;
+                }
+            }
+        }
         if (n.flags & F_BOUNDS_PROVEN) != 0 && m.resolver < 0 && p.types[element].storage != 1 {
             if owner && m.ordinary_owners {
                 cg_expr(p, m, f, n.left);
@@ -2455,18 +2498,518 @@ fn cg_control_slots(p: Program&, f: CgBody&, id: i64, node: i64) -> i64 {
 fn cg_control_get(p: Program&, f: CgBody&, id: i64, first: i64) {
     var types: i64[>..] = []; cg_result_types(p, id, types); for item, i in types { cg_get(f, first + i); }
 }
+fn cg_hoist_unwrap(p: Program&, node: i64) -> i64 {
+    var cur = node;
+    while cur >= 0 && p.nodes[cur].kind == N_UNARY && p.nodes[cur].integer == T_MUL { cur = p.nodes[cur].left; }
+    return cur;
+}
+fn cg_hoist_find(p: Program&, f: CgBody&, expr: i64) -> i64 {
+    if f.hoists.len == 0 { return -1; }
+    let node = cg_hoist_unwrap(p, expr);
+    if node < 0 { return -1; }
+    let n: const Node& = p.nodes[node];
+    var sym = -1; var field = -1;
+    if n.kind == N_NAME { sym = n.symbol; }
+    else if n.kind == N_MEMBER && n.symbol >= 0 {
+        let base = cg_hoist_unwrap(p, n.left);
+        if base < 0 || p.nodes[base].kind != N_NAME { return -1; }
+        sym = p.nodes[base].symbol; field = n.symbol;
+    } else { return -1; }
+    var i = f.hoists.len;
+    while i > 0 {
+        i -= 1;
+        if f.hoists[i].sym == sym as i32 && f.hoists[i].field == field as i32 { return i; }
+    }
+    return -1;
+}
+fn cg_hoist_match(p: Program&, m: CgModule&, f: CgBody&, expr: i64, sym_out: i64&, field_out: i64&, target_ty_out: i64&, is_slice_out: bool&, allow_value_slice: bool = false) -> bool {
+    let node = cg_hoist_unwrap(p, expr);
+    if node < 0 { return false; }
+    let n: const Node& = p.nodes[node];
+    var tid = n.type_id;
+    if cg_type_kind(p, tid) == TY_REF {
+        if (p.types[tid].flags & TF_OPTIONAL) != 0 { return false; }
+        tid = p.types[tid].element;
+    }
+    if cg_type_kind(p, tid) == TY_REF { return false; }
+    let tk = cg_type_kind(p, tid);
+    let is_slice = tk == TY_SLICE;
+    let is_owner = cg_owner(p, tid);
+    if !is_slice && !is_owner { return false; }
+    let elem = p.types[tid].element;
+    if elem < 0 || elem >= p.types.len || p.types[elem].storage == 1 { return false; }
+    if n.kind == N_NAME {
+        let sym = n.symbol;
+        if sym < 0 || sym >= p.symbols.len || sym >= f.slots.len { return false; }
+        let s: const Symbol& = p.symbols[sym];
+        if s.owner != f.function || (s.flags & (S_GLOBAL | S_CAPTURE | S_FUNCTION | S_TYPE | S_BUILTIN)) != 0 { return false; }
+        if f.slots[sym].local < 0 { return false; }
+        if cg_type_kind(p, s.type_id) == TY_REF && (p.types[s.type_id].flags & TF_OPTIONAL) != 0 { return false; }
+        sym_out = sym; field_out = -1; target_ty_out = tid; is_slice_out = is_slice; return true;
+    }
+    if n.kind == N_MEMBER {
+        if m.prefix_helper >= 0 { return false; }
+        if n.symbol < 0 || n.symbol >= p.nodes.len || p.nodes[n.symbol].kind != N_FIELD { return false; }
+        if p.nodes[n.symbol].integer < 0 { return false; }
+        let ft = p.nodes[n.symbol].type_id;
+        if cg_type_kind(p, ft) == TY_REF && (p.types[ft].flags & TF_OPTIONAL) != 0 { return false; }
+        let base = cg_hoist_unwrap(p, n.left);
+        if base < 0 || p.nodes[base].kind != N_NAME { return false; }
+        let sym = p.nodes[base].symbol;
+        if sym < 0 || sym >= p.symbols.len || sym >= f.slots.len { return false; }
+        let s: const Symbol& = p.symbols[sym];
+        if s.owner != f.function || (s.flags & (S_GLOBAL | S_CAPTURE | S_FUNCTION | S_TYPE | S_BUILTIN)) != 0 { return false; }
+        if f.slots[sym].local < 0 { return false; }
+        var base_ty = p.nodes[base].type_id;
+        if cg_type_kind(p, base_ty) == TY_REF {
+            if (p.types[base_ty].flags & TF_OPTIONAL) != 0 { return false; }
+            base_ty = p.types[base_ty].element;
+        }
+        if cg_type_kind(p, s.type_id) == TY_REF && (p.types[s.type_id].flags & TF_OPTIONAL) != 0 { return false; }
+        if cg_type_kind(p, base_ty) != TY_STRUCT { return false; }
+        if cg_byte_record(p, base_ty) || cg_record_image(p, base_ty) || cg_frame_owner(p, base_ty) { return false; }
+        sym_out = sym; field_out = n.symbol; target_ty_out = tid; is_slice_out = is_slice; return true;
+    }
+    return false;
+}
+recursive fn cg_may_contain_owner(p: Program&, id: i64, depth: i64) -> bool {
+    if depth > 8 || id < 0 || id >= p.types.len { return true; }
+    if id <= TYPE_F64 { return false; }
+    let t: const Type& = p.types[id];
+    if t.kind == TY_INT || t.kind == TY_FLOAT || t.kind == TY_BOOL || t.kind == TY_VOID || t.kind == TY_FN { return false; }
+    if t.kind == TY_SLICE || t.kind == TY_REF { return true; }
+    if t.kind == TY_ARRAY {
+        if cg_owner(p, id) { return true; }
+        return cg_may_contain_owner(p, t.element, depth + 1);
+    }
+    if t.kind == TY_STRUCT || t.kind == TY_ENUM || t.kind == TY_TUPLE {
+        var field = t.first;
+        while field >= 0 {
+            if (p.nodes[field].flags & F_PAD) == 0 && cg_may_contain_owner(p, p.nodes[field].type_id, depth + 1) { return true; }
+            field = p.nodes[field].next;
+        }
+        return false;
+    }
+    return true;
+}
+fn cg_hoist_array_types_disjoint(p: Program&, t1: i64, t2: i64) -> bool {
+    if t1 < 0 || t2 < 0 || t1 >= p.types.len || t2 >= p.types.len { return false; }
+    let k1 = p.types[t1].kind; let k2 = p.types[t2].kind;
+    if k1 == TY_SLICE && k2 == TY_ARRAY || k1 == TY_ARRAY && k2 == TY_SLICE { return true; }
+    if k1 != TY_ARRAY || k2 != TY_ARRAY { return false; }
+    let e1 = p.types[t1].element; let e2 = p.types[t2].element;
+    if e1 < 0 || e2 < 0 || e1 >= p.types.len || e2 >= p.types.len || e1 == e2 { return false; }
+    let ek1 = p.types[e1].kind; let ek2 = p.types[e2].kind;
+    if ek1 != ek2 { return true; }
+    if cg_size(p, e1) != cg_size(p, e2) { return true; }
+    if ek1 == TY_STRUCT || ek1 == TY_ENUM { return e1 != e2; }
+    if ek1 == TY_INT { return p.types[e1].count != p.types[e2].count || cg_unsigned(p, e1) != cg_unsigned(p, e2); }
+    return false;
+}
+fn cg_hoist_disjoint(p: Program&, f: CgBody&, cand: CgHoist&, target_node: i64) -> bool {
+    let tn_id = cg_hoist_unwrap(p, target_node);
+    if tn_id < 0 { return false; }
+    let tn: const Node& = p.nodes[tn_id];
+    let csym: i64 = cand.sym;
+    let cfield: i64 = cand.field;
+    let ctgt: i64 = cand.target_type;
+    let csym_ty = p.symbols[csym].type_id;
+    let csym_ref = cg_type_kind(p, csym_ty) == TY_REF;
+    let cfield_ref = cfield >= 0 && cg_type_kind(p, p.nodes[cfield].type_id) == TY_REF;
+    let c_is_param = (p.symbols[csym].flags & S_PARAMETER) != 0;
+    var target_ty = tn.type_id;
+    if cg_type_kind(p, target_ty) == TY_REF { target_ty = p.types[target_ty].element; }
+    if tn.kind == N_NAME {
+        let tsym = tn.symbol;
+        if tsym < 0 || tsym >= p.symbols.len || tsym == csym { return false; }
+        let ts: const Symbol& = p.symbols[tsym];
+        let ts_local_nonref = ts.owner == f.function && (ts.flags & (S_GLOBAL | S_CAPTURE)) == 0 && cg_type_kind(p, ts.type_id) != TY_REF;
+        if ts_local_nonref {
+            if !csym_ref && !cfield_ref { return true; }
+            if c_is_param && !cfield_ref && (ts.flags & S_PARAMETER) == 0 { return true; }
+        }
+        return cg_hoist_array_types_disjoint(p, ctgt, target_ty);
+    }
+    if tn.kind == N_MEMBER {
+        let tbase = cg_hoist_unwrap(p, tn.left);
+        if tbase < 0 || p.nodes[tbase].kind != N_NAME {
+            return cg_hoist_array_types_disjoint(p, ctgt, target_ty);
+        }
+        let tsym = p.nodes[tbase].symbol; let tfield = tn.symbol;
+        if tsym < 0 || tsym >= p.symbols.len || tfield < 0 || tfield >= p.nodes.len || p.nodes[tfield].kind != N_FIELD { return false; }
+        let tfield_ref = cg_type_kind(p, p.nodes[tfield].type_id) == TY_REF;
+        if cfield >= 0 && tsym == csym && tfield != cfield && !cfield_ref && !tfield_ref { return true; }
+        let ts: const Symbol& = p.symbols[tsym];
+        let ts_local_nonref = ts.owner == f.function && (ts.flags & (S_GLOBAL | S_CAPTURE)) == 0 && cg_type_kind(p, ts.type_id) != TY_REF;
+        if tsym != csym && ts_local_nonref && !cfield_ref && !tfield_ref {
+            if !csym_ref { return true; }
+            if c_is_param && (ts.flags & S_PARAMETER) == 0 { return true; }
+        }
+        return cg_hoist_array_types_disjoint(p, ctgt, target_ty);
+    }
+    return cg_hoist_array_types_disjoint(p, ctgt, target_ty);
+}
+recursive fn cg_scan_header_pure(p: Program&, m: CgModule&, fn_node: i64, node: i64, budget: i64&) -> bool {
+    if node < 0 { return true; }
+    let n: const Node& = p.nodes[node]; let kind = n.kind;
+    if kind >= N_INTEGER && kind <= N_NAME { return true; }
+    if kind == N_FUNCTION || kind == N_FUNCTION_VALUE || kind == N_STRUCT || kind == N_ENUM || kind == N_ALIAS || kind == N_IMPORT || kind == N_EMPTY { return true; }
+    budget -= 1;
+    if budget < 0 { return false; }
+    if kind == N_DEFER || kind == N_MULTI_ASSIGN { return false; }
+    if kind == N_CAST && (n.flags & F_UNSIGNED) != 0 && cg_type_kind(p, n.type_id) == TY_REF { return false; }
+    if kind == N_RETURN && n.symbol >= 0 && (p.symbols[n.symbol].flags & S_FUNCTION) != 0 && p.symbols[n.symbol].node != fn_node { return false; }
+    if kind == N_ASSIGN {
+        if n.left < 0 { return false; }
+        let lhs: const Node& = p.nodes[n.left];
+        if lhs.kind == N_UNARY && (lhs.integer == T_MUL || lhs.integer == T_XOR) { return false; }
+        var lhs_ty = lhs.type_id;
+        if n.integer != T_DOTASSIGN && cg_type_kind(p, lhs_ty) == TY_REF { lhs_ty = p.types[lhs_ty].element; }
+        if lhs_ty > TYPE_F64 && cg_may_contain_owner(p, lhs_ty, 0) || lhs.kind == N_NAME && cg_type_kind(p, lhs.type_id) == TY_REF { return false; }
+    }
+    if kind == N_CALL {
+        if (n.flags & F_DISPATCH) != 0 || n.symbol < 0 || (p.symbols[n.symbol].flags & S_BUILTIN) == 0 { return false; }
+        let b = p.symbols[n.symbol].index;
+        if !(b == 0 || b == 1 || b == 3 || b == 4 || b == 5 || b == 6 || b == 14 || b == 15 || b == 17 || b == 21 || b == 22 || b == 23 || b == 38 || b == 39) {
+            return false;
+        }
+    }
+    if n.left >= 0 && !cg_scan_header_pure(p, m, fn_node, n.left, budget) { return false; }
+    if n.right >= 0 && !cg_scan_header_pure(p, m, fn_node, n.right, budget) { return false; }
+    if n.third >= 0 && !cg_scan_header_pure(p, m, fn_node, n.third, budget) { return false; }
+    var child = n.first;
+    while child >= 0 {
+        if !cg_scan_header_pure(p, m, fn_node, child, budget) { return false; }
+        child = p.nodes[child].next;
+    }
+    return true;
+}
+fn cg_compute_header_pure(p: Program&, m: CgModule&) {
+    if p.optimization < 2 || m.resolver >= 0 { return; }
+    for i in 0..m.functions.len {
+        if m.functions[i].capture_count != 0 { continue; }
+        let fn_node = m.functions[i].node;
+        if fn_node < 0 || (p.nodes[fn_node].flags & (F_EXTERN | F_NONLOCAL)) != 0 { continue; }
+        if cg_may_contain_owner(p, cg_result_type(p, fn_node), 0) { continue; }
+        var budget: i64 = 64;
+        if cg_scan_header_pure(p, m, fn_node, p.nodes[fn_node].right, budget) {
+            m.functions[i].header_pure = true;
+        }
+    }
+}
+fn cg_hoist_add_cand(p: Program&, m: CgModule&, f: CgBody&, expr: i64, needs_len: bool, cands: CgHoist[:], cand_count: i64&) {
+    var sym: i64 = -1; var field: i64 = -1; var target_ty: i64 = -1; var is_slice = false;
+    if !cg_hoist_match(p, m, f, expr, sym, field, target_ty, is_slice, false) { return; }
+    var existing_ptr: i32 = -1;
+    var hi = f.hoists.len;
+    while hi > 0 {
+        hi -= 1;
+        if f.hoists[hi].sym == sym as i32 && f.hoists[hi].field == field as i32 {
+            if f.hoists[hi].len_local >= 0 || !needs_len { return; }
+            existing_ptr = f.hoists[hi].ptr_local;
+            break;
+        }
+    }
+    for j in 0..cand_count {
+        if cands[j].sym == sym as i32 && cands[j].field == field as i32 {
+            if cands[j].uses < 65000 { cands[j].uses += 1; }
+            if needs_len { cands[j].flags |= CG_HOIST_LEN; }
+            return;
+        }
+    }
+    if cand_count < cands.len {
+        var fl: u16 = CG_HOIST_ALIVE;
+        if is_slice { fl |= CG_HOIST_SLICE; }
+        if needs_len { fl |= CG_HOIST_LEN; }
+        cands[cand_count] = CgHoist {
+            sym: sym as i32, field: field as i32, ptr_local: existing_ptr, len_local: -1,
+            sample_node: cg_hoist_unwrap(p, expr) as i32, target_type: target_ty as i32,
+            flags: fl, uses: 1,
+        };
+        cand_count += 1;
+    }
+}
+recursive fn cg_hoist_scan_collect(p: Program&, m: CgModule&, f: CgBody&, node: i64, cands: CgHoist[:], cand_count: i64&, budget: i64&, mutations: i64&, aborted: bool&) {
+    if aborted || node < 0 { return; }
+    let n: const Node& = p.nodes[node]; let kind = n.kind;
+    if kind >= N_INTEGER && kind <= N_NAME { return; }
+    if kind == N_FUNCTION || kind == N_FUNCTION_VALUE || kind == N_STRUCT || kind == N_ENUM || kind == N_ALIAS || kind == N_IMPORT || kind == N_EMPTY { return; }
+    budget -= 1;
+    if budget < 0 { aborted = true; return; }
+    if kind == N_DEFER || kind == N_MULTI_ASSIGN { aborted = true; return; }
+    if kind == N_CAST && (n.flags & F_UNSIGNED) != 0 && cg_type_kind(p, n.type_id) == TY_REF { aborted = true; return; }
+    if kind == N_UNARY && n.integer == T_BITAND { mutations += 1; }
+    if kind == N_VARIABLE || kind == N_FOR || kind == N_PATTERN { mutations += 1; }
+    if kind == N_ASSIGN {
+        if n.left < 0 { aborted = true; return; }
+        let lhs: const Node& = p.nodes[n.left];
+        if lhs.kind == N_UNARY && (lhs.integer == T_MUL || lhs.integer == T_XOR) { aborted = true; return; }
+        var lhs_ty = lhs.type_id;
+        if n.integer != T_DOTASSIGN && cg_type_kind(p, lhs_ty) == TY_REF { lhs_ty = p.types[lhs_ty].element; }
+        if lhs_ty > TYPE_F64 && cg_may_contain_owner(p, lhs_ty, 0) || lhs.kind == N_NAME && cg_type_kind(p, lhs.type_id) == TY_REF { mutations += 1; }
+    }
+    if kind == N_CALL {
+        if (n.flags & F_DISPATCH) != 0 || n.symbol < 0 { aborted = true; return; }
+        if (p.symbols[n.symbol].flags & S_BUILTIN) != 0 {
+            let b = p.symbols[n.symbol].index;
+            if b == 21 && n.first >= 0 { cg_hoist_add_cand(p, m, f, n.first, true, cands, cand_count); }
+            else if b == 0 || b == 1 || b == 3 || b == 4 || b == 5 || b == 6 || b == 14 || b == 15 || b == 17 || b == 22 || b == 23 || b == 38 || b == 39 {}
+            else if b == 2 || b == 16 || b >= 24 && b <= 29 { mutations += 1; }
+            else if b == 40 {
+                if n.first < 0 { aborted = true; return; }
+                var rid = p.nodes[n.first].type_id; if cg_type_kind(p, rid) == TY_REF { rid = p.types[rid].element; }
+                if cg_may_contain_owner(p, p.types[rid].element, 0) { aborted = true; return; }
+            } else { aborted = true; return; }
+        } else if (p.symbols[n.symbol].flags & S_FUNCTION) != 0 {
+            let cidx = cg_function(m, n.symbol);
+            if cidx < 0 || !m.functions[cidx].header_pure { aborted = true; return; }
+        } else { aborted = true; return; }
+    }
+    if kind == N_INDEX { cg_hoist_add_cand(p, m, f, n.left, (n.flags & F_BOUNDS_PROVEN) == 0, cands, cand_count); }
+    if kind == N_MEMBER && n.symbol < 0 && token_is(p, n.token, "len") { cg_hoist_add_cand(p, m, f, n.left, true, cands, cand_count); }
+    if n.left >= 0 { cg_hoist_scan_collect(p, m, f, n.left, cands, cand_count, budget, mutations, aborted); if aborted { return; } }
+    if n.right >= 0 { cg_hoist_scan_collect(p, m, f, n.right, cands, cand_count, budget, mutations, aborted); if aborted { return; } }
+    if n.third >= 0 { cg_hoist_scan_collect(p, m, f, n.third, cands, cand_count, budget, mutations, aborted); if aborted { return; } }
+    if kind != N_FOR {
+        var child = n.first;
+        while child >= 0 {
+            cg_hoist_scan_collect(p, m, f, child, cands, cand_count, budget, mutations, aborted);
+            if aborted { return; }
+            child = p.nodes[child].next;
+        }
+    }
+}
+fn cg_hoist_kill_sym(cands: CgHoist[:], cand_count: i64, sym: i64, alive_count: i64&) {
+    if sym < 0 { return; }
+    let s32 = sym as i32;
+    for j in 0..cand_count {
+        if (cands[j].flags & CG_HOIST_ALIVE) != 0 && cands[j].sym == s32 { cands[j].flags &= ~CG_HOIST_ALIVE; alive_count -= 1; }
+    }
+}
+fn cg_hoist_kill_receiver(p: Program&, f: CgBody&, cands: CgHoist[:], cand_count: i64, receiver: i64, alive_count: i64&) {
+    for j in 0..cand_count {
+        if (cands[j].flags & CG_HOIST_ALIVE) != 0 && !cg_hoist_disjoint(p, f, cands[j], receiver) { cands[j].flags &= ~CG_HOIST_ALIVE; alive_count -= 1; }
+    }
+}
+recursive fn cg_hoist_scan_kill(p: Program&, f: CgBody&, node: i64, cands: CgHoist[:], cand_count: i64, alive_count: i64&) {
+    if alive_count <= 0 || node < 0 { return; }
+    let n: const Node& = p.nodes[node]; let kind = n.kind;
+    if kind >= N_INTEGER && kind <= N_NAME { return; }
+    if kind == N_FUNCTION || kind == N_FUNCTION_VALUE || kind == N_STRUCT || kind == N_ENUM || kind == N_ALIAS || kind == N_IMPORT || kind == N_EMPTY { return; }
+    if kind == N_VARIABLE {
+        if n.symbol >= 0 { cg_hoist_kill_sym(cands, cand_count, n.symbol, alive_count); }
+        var b = n.first; while b >= 0 { cg_hoist_kill_sym(cands, cand_count, p.nodes[b].symbol, alive_count); b = p.nodes[b].next; }
+    } else if kind == N_FOR {
+        var b = n.first; while b >= 0 { cg_hoist_kill_sym(cands, cand_count, p.nodes[b].symbol, alive_count); b = p.nodes[b].next; }
+    } else if kind == N_PATTERN {
+        if n.left >= 0 { cg_hoist_kill_sym(cands, cand_count, p.nodes[n.left].symbol, alive_count); }
+    } else if kind == N_UNARY && n.integer == T_BITAND {
+        let target = cg_hoist_unwrap(p, n.left);
+        if target >= 0 {
+            if p.nodes[target].kind == N_NAME { cg_hoist_kill_sym(cands, cand_count, p.nodes[target].symbol, alive_count); }
+            else if p.nodes[target].kind == N_MEMBER {
+                let tb = cg_hoist_unwrap(p, p.nodes[target].left);
+                if tb >= 0 && p.nodes[tb].kind == N_NAME { cg_hoist_kill_sym(cands, cand_count, p.nodes[tb].symbol, alive_count); }
+            }
+            if p.nodes[target].type_id > TYPE_F64 && cg_may_contain_owner(p, p.nodes[target].type_id, 0) {
+                cg_hoist_kill_receiver(p, f, cands, cand_count, target, alive_count);
+            }
+        }
+    } else if kind == N_ASSIGN {
+        let lhs: const Node& = p.nodes[n.left];
+        if lhs.kind == N_NAME { cg_hoist_kill_sym(cands, cand_count, lhs.symbol, alive_count); }
+        else if lhs.kind == N_MEMBER {
+            let tb = cg_hoist_unwrap(p, lhs.left);
+            if tb >= 0 && p.nodes[tb].kind == N_NAME && lhs.symbol >= 0 {
+                let lsym = p.nodes[tb].symbol as i32; let lfield = lhs.symbol as i32;
+                for j in 0..cand_count {
+                    if (cands[j].flags & CG_HOIST_ALIVE) != 0 && cands[j].sym == lsym && cands[j].field == lfield {
+                        cands[j].flags &= ~CG_HOIST_ALIVE; alive_count -= 1;
+                    }
+                }
+            }
+        }
+        var lhs_ty = lhs.type_id;
+        if n.integer != T_DOTASSIGN && cg_type_kind(p, lhs_ty) == TY_REF { lhs_ty = p.types[lhs_ty].element; }
+        if lhs_ty > TYPE_F64 && cg_may_contain_owner(p, lhs_ty, 0) { cg_hoist_kill_receiver(p, f, cands, cand_count, n.left, alive_count); }
+    } else if kind == N_CALL {
+        if n.symbol >= 0 && (p.symbols[n.symbol].flags & S_BUILTIN) != 0 {
+            let b = p.symbols[n.symbol].index;
+            if b == 2 || b >= 24 && b <= 29 { cg_hoist_kill_receiver(p, f, cands, cand_count, n.first, alive_count); }
+            else if b == 16 && n.first >= 0 && p.nodes[n.first].next >= 0 { cg_hoist_kill_receiver(p, f, cands, cand_count, p.nodes[n.first].next, alive_count); }
+        }
+    }
+    if alive_count <= 0 { return; }
+    if n.left >= 0 { cg_hoist_scan_kill(p, f, n.left, cands, cand_count, alive_count); if alive_count <= 0 { return; } }
+    if n.right >= 0 { cg_hoist_scan_kill(p, f, n.right, cands, cand_count, alive_count); if alive_count <= 0 { return; } }
+    if n.third >= 0 { cg_hoist_scan_kill(p, f, n.third, cands, cand_count, alive_count); if alive_count <= 0 { return; } }
+    if kind != N_FOR {
+        var child = n.first;
+        while child >= 0 {
+            cg_hoist_scan_kill(p, f, child, cands, cand_count, alive_count);
+            if alive_count <= 0 { return; }
+            child = p.nodes[child].next;
+        }
+    }
+}
+recursive fn cg_hoist_emit_cands(p: Program&, m: CgModule&, f: CgBody&, cands: CgHoist[:], cand_count: i64) {
+    var ready: CgHoist[2] = [CgHoist {}; 2];
+    var ready_count: i64 = 0;
+    while ready_count < 2 && f.hoists.len + ready_count < 4 {
+        var best = -1; var best_uses: i64 = -1;
+        for j in 0..cand_count {
+            if (cands[j].flags & CG_HOIST_ALIVE) == 0 { continue; }
+            let is_slice = (cands[j].flags & CG_HOIST_SLICE) != 0;
+            let needs_len = (cands[j].flags & CG_HOIST_LEN) != 0;
+            let csym: i64 = cands[j].sym;
+            if is_slice && cands[j].field < 0 &&
+               f.slots[csym].value && cg_type_kind(p, p.symbols[csym].type_id) != TY_REF &&
+               (cg_wide && cands[j].uses < 3 || !cg_wide && !needs_len && cands[j].uses < 2) {
+                cands[j].flags &= ~CG_HOIST_ALIVE; continue;
+            }
+            let cuses: i64 = cands[j].uses;
+            if cuses > best_uses { best = j; best_uses = cuses; }
+        }
+        if best < 0 { break; }
+        cands[best].flags &= ~CG_HOIST_ALIVE;
+        var h = cands[best];
+        let snode: i64 = h.sample_node;
+        let is_slice = (h.flags & CG_HOIST_SLICE) != 0;
+        let needs_len = (h.flags & CG_HOIST_LEN) != 0;
+        cg_expr(p, m, f, snode);
+        var sid = p.nodes[snode].type_id;
+        if cg_type_kind(p, sid) == TY_REF { sid = p.types[sid].element; cg_load(p, m, f, sid, 0); }
+        if is_slice || !m.ordinary_owners {
+            if !is_slice { cg_pack_view(p, m, f, sid, snode); }
+            if !needs_len {
+                ws_ptr(f.code); h.ptr_local = cg_save(f, wa()) as i32; h.len_local = -1;
+            } else if h.ptr_local >= 0 {
+                ws_count(f.code); h.len_local = cg_save(f, 0x7e) as i32;
+            } else {
+                let v = cg_tee(f, ws());
+                ws_ptr(f.code); h.ptr_local = cg_save(f, wa()) as i32;
+                cg_get(f, v); ws_count(f.code); h.len_local = cg_save(f, 0x7e) as i32;
+            }
+        } else {
+            if !needs_len {
+                wc_load(f.code, 0); h.ptr_local = cg_save(f, wa()) as i32; h.len_local = -1;
+            } else if h.ptr_local >= 0 {
+                wc_load(f.code, 1); wa_extend(f.code); h.len_local = cg_save(f, 0x7e) as i32;
+            } else {
+                let hdr = cg_tee(f, wa());
+                wc_load(f.code, 0); h.ptr_local = cg_save(f, wa()) as i32;
+                cg_get(f, hdr); wc_load(f.code, 1); wa_extend(f.code); h.len_local = cg_save(f, 0x7e) as i32;
+            }
+        }
+        ready[ready_count] = h;
+        ready_count += 1;
+    }
+    for i in 0..ready_count { f.hoists.push(ready[i]); }
+}
+recursive fn cg_hoist_enter_loop(p: Program&, m: CgModule&, f: CgBody&, node: i64) -> i64 {
+    let mark = f.hoists.len;
+    if p.optimization < 2 || m.resolver >= 0 || f.hoists.len >= 4 { return mark; }
+    let n: const Node& = p.nodes[node];
+    var cands: CgHoist[4] = [CgHoist {}; 4];
+    var cand_count: i64 = 0;
+    var budget: i64 = 256; var mutations: i64 = 0; var aborted = false;
+    if n.kind == N_WHILE && n.left >= 0 { cg_hoist_scan_collect(p, m, f, n.left, cands, cand_count, budget, mutations, aborted); }
+    if !aborted && n.right >= 0 { cg_hoist_scan_collect(p, m, f, n.right, cands, cand_count, budget, mutations, aborted); }
+    if aborted || cand_count == 0 { return mark; }
+    if mutations > 0 {
+        var alive = cand_count;
+        if n.kind == N_WHILE && n.left >= 0 { cg_hoist_scan_kill(p, f, n.left, cands, cand_count, alive); }
+        if alive > 0 && n.right >= 0 { cg_hoist_scan_kill(p, f, n.right, cands, cand_count, alive); }
+        if alive <= 0 { return mark; }
+    }
+    cg_hoist_emit_cands(p, m, f, cands, cand_count);
+    return mark;
+}
+recursive fn cg_hoist_enter_for(p: Program&, m: CgModule&, f: CgBody&, node: i64, element_binding: i64, ordinal_binding: i64, sequence: bool, stable_view: bool&, view: i64, cursor: i64, hoisted_base: i64&, counter: i64, limit: i64, counter_type: i64, done: i64&, hoist_mark: i64&) {
+    let n: const Node& = p.nodes[node];
+    let iterable: const Node& = p.nodes[n.left];
+    var cands: CgHoist[4] = [CgHoist {}; 4];
+    var cand_count: i64 = 0;
+    var seq_sym: i64 = -1; var seq_field: i64 = -1; var seq_ty: i64 = -1; var seq_is_slice = false;
+    var seq_hoistable = false;
+    if sequence && cg_hoist_match(p, m, f, n.left, seq_sym, seq_field, seq_ty, seq_is_slice, true) {
+        if !stable_view && cg_hoist_find(p, f, n.left) >= 0 { stable_view = true; }
+        seq_hoistable = true;
+    }
+    if f.hoists.len < 4 || sequence && !stable_view && seq_hoistable {
+        var budget: i64 = 256; var mutations: i64 = 0; var aborted = false;
+        if sequence && !stable_view && seq_hoistable {
+            var fl: u16 = CG_HOIST_ALIVE | CG_HOIST_LEN;
+            if seq_is_slice { fl |= CG_HOIST_SLICE; }
+            cands[0] = CgHoist {
+                sym: seq_sym as i32, field: seq_field as i32, ptr_local: -1, len_local: -1,
+                sample_node: cg_hoist_unwrap(p, n.left) as i32, target_type: seq_ty as i32,
+                flags: fl, uses: 1,
+            };
+            cand_count = 1;
+        }
+        if n.right >= 0 { cg_hoist_scan_collect(p, m, f, n.right, cands, cand_count, budget, mutations, aborted); }
+        if aborted { cand_count = 0; }
+        else if cand_count > 0 {
+            var alive = cand_count;
+            cg_hoist_kill_sym(cands, cand_count, element_binding, alive);
+            cg_hoist_kill_sym(cands, cand_count, ordinal_binding, alive);
+            if alive > 0 && mutations > 0 && n.right >= 0 { cg_hoist_scan_kill(p, f, n.right, cands, cand_count, alive); }
+            if sequence && !stable_view && seq_hoistable && cands[0].sym == seq_sym as i32 && cands[0].field == seq_field as i32 && (cands[0].flags & CG_HOIST_ALIVE) != 0 {
+                stable_view = true;
+            }
+        }
+    }
+    if stable_view && cursor < 0 { cg_get(f, view); ws_ptr(f.code); hoisted_base = cg_save(f, wa()); }
+    hoist_mark = f.hoists.len;
+    if sequence && stable_view && seq_hoistable && hoisted_base >= 0 && f.hoists.len < 4 {
+        var sfl: u16 = CG_HOIST_ALIVE | CG_HOIST_LEN;
+        if seq_is_slice { sfl |= CG_HOIST_SLICE; }
+        f.hoists.push(CgHoist {
+            sym: seq_sym as i32, field: seq_field as i32, ptr_local: hoisted_base as i32, len_local: limit as i32,
+            sample_node: -1, target_type: seq_ty as i32, flags: sfl, uses: 1,
+        });
+        for j in 0..cand_count {
+            if cands[j].sym == seq_sym as i32 && cands[j].field == seq_field as i32 { cands[j].flags &= ~CG_HOIST_ALIVE; }
+        }
+    }
+    var emit_count = 0;
+    for j in 0..cand_count {
+        if (cands[j].flags & CG_HOIST_ALIVE) == 0 { continue; }
+        let is_sl = (cands[j].flags & CG_HOIST_SLICE) != 0;
+        let need_l = (cands[j].flags & CG_HOIST_LEN) != 0;
+        let csym: i64 = cands[j].sym;
+        if is_sl && cands[j].field < 0 &&
+           f.slots[csym].value && cg_type_kind(p, p.symbols[csym].type_id) != TY_REF &&
+           (cg_wide && cands[j].uses < 3 || !cg_wide && !need_l && cands[j].uses < 2) {
+            cands[j].flags &= ~CG_HOIST_ALIVE; continue;
+        }
+        emit_count += 1;
+    }
+    done = cg_begin(f, 0x02, 0x40);
+    if emit_count > 0 && f.hoists.len < 4 {
+        if !m.ordinary_owners {
+            cg_get(f, counter); cg_get(f, limit); var pre_cmp = T_GTEQ;
+            if iterable.kind == N_RANGE && (iterable.flags & F_INCLUSIVE) != 0 { pre_cmp = T_GT; }
+            wb_byte(f.code, cg_numeric_opcode(pre_cmp, cg_wasm_type(p, counter_type), cg_unsigned(p, counter_type)));
+            cg_branch(p, f, done, true);
+        }
+        cg_hoist_emit_cands(p, m, f, cands, cand_count);
+    }
+}
 recursive fn cg_loop(p: Program&, m: CgModule&, f: CgBody&, node: i64) {
     let n: const Node& = p.nodes[node]; let result = cg_control_slots(p, f, n.type_id, node);
     wb_op(f.code, 0x23, 0); let scratch = cg_save(f, wa()); var regions = -1;
     if m.regions_enabled && cg_may_region(p, m, node) { regions = cg_mark_regions(f); }
+    let hoist_mark = cg_hoist_enter_loop(p, m, f, node);
     let done = cg_begin(f, 0x02, 0x40); let again = cg_begin(f, 0x03, 0x40);
     f.exits.push(CgExit { label: done, again: again, node: node, result: result, type_id: n.type_id, scratch: scratch, regions: regions, publication: cg_mark_publications(m, f), defers: f.defers.len });
     if n.kind == N_WHILE {
         cg_branch_cond(p, m, f, n.left, done, false);
-        if cg_diverges(p, n.left) { f.exits.pop(); cg_end(f); cg_end(f); return; }
+        if cg_diverges(p, n.left) { f.exits.pop(); cg_end(f); cg_end(f); f.hoists.resize(hoist_mark); return; }
     }
     cg_block_into(p, m, f, n.right, TYPE_VOID, -1); f.exits.pop(); cg_branch(p, f, again, false);
-    cg_end(f); cg_end(f); cg_control_get(p, f, n.type_id, result);
+    cg_end(f); cg_end(f); f.hoists.resize(hoist_mark); cg_control_get(p, f, n.type_id, result);
 }
 recursive fn cg_replayable(p: Program&, node: i64) -> bool {
     if node < 0 { return true; } let n: const Node& = p.nodes[node];
@@ -2533,6 +3076,20 @@ recursive fn cg_emit_sequence(p: Program&, m: CgModule&, f: CgBody&, recipe: i64
     }
     var object = p.nodes[n.left].type_id; while cg_type_kind(p, object) == TY_REF { object = p.types[object].element; }
     let element = p.types[object].element;
+    if f.hoists.len > 0 && item.saved < 0 && item.pointer < 0 && m.resolver < 0 && p.types[element].storage != 1 {
+        let hi = cg_hoist_find(p, f, n.left);
+        if hi >= 0 && ((n.flags & F_BOUNDS_PROVEN) != 0 || f.hoists[hi].len_local >= 0) {
+            if (n.flags & F_BOUNDS_PROVEN) == 0 {
+                cg_get(f, item.index); cg_get(f, f.hoists[hi].len_local); wb_byte(f.code, 0x5a);
+                cg_trap_if(p, m, f, item.node, "array index out of bounds");
+            }
+            cg_get(f, f.hoists[hi].ptr_local); cg_get(f, item.index); wa_wrap(f.code); cg_scale_index(f, cg_size(p, element)); wa_op(f.code, 0x6a);
+            if !item.address && (cg_type_kind(p, n.type_id) != TY_REF || cg_type_kind(p, element) == TY_REF) {
+                cg_load(p, m, f, element, 0); cg_convert(p, m, f, element, n.type_id, item.node);
+            }
+            return;
+        }
+    }
     if (n.flags & F_BOUNDS_PROVEN) != 0 && item.saved < 0 && item.pointer < 0 && m.resolver < 0 {
         let obj_kind = cg_type_kind(p, object);
         let obj_owner = cg_owner(p, object);
@@ -2636,17 +3193,24 @@ recursive fn cg_for(p: Program&, m: CgModule&, f: CgBody&, node: i64) {
     if sequence && p.types[p.types[type_id].element].storage == 1 && cg_varint_cursor(p, f.function, node) {
         cg_get(f, view); ws_ptr(f.code); cursor = cg_save(f, wa());
     }
-    let stable_view = sequence && (
+    var stable_view = sequence && (
         cg_type_kind(p, type_id) == TY_ARRAY && p.types[type_id].array_kind == A_FIXED ||
         m.resolver < 0 && f.sequences[recipe].kind == 0 && cg_type_kind(p, iterable.type_id) == TY_SLICE ||
         m.resolver < 0 && iterable.kind == N_NAME && iterable.symbol >= 0 && cg_type_kind(p, p.symbols[iterable.symbol].type_id) == TY_SLICE &&
         (p.symbols[iterable.symbol].flags & (S_MUTABLE | S_GLOBAL | S_CAPTURE | CG_ADDRESS_TAKEN)) == 0);
-    var hoisted_base = -1;
-    if stable_view && cursor < 0 { cg_get(f, view); ws_ptr(f.code); hoisted_base = cg_save(f, wa()); }
     wb_op(f.code, 0x23, 0); let scratch = cg_save(f, wa());
     var regions = -1; if m.regions_enabled && cg_may_region(p, m, n.right) { regions = cg_mark_regions(f); }
     let publication = cg_mark_publications(m, f);
-    let done = cg_begin(f, 0x02, 0x40); let again = cg_begin(f, 0x03, 0x40);
+    var hoisted_base = -1;
+    var hoist_mark = f.hoists.len;
+    var done = -1;
+    if p.optimization >= 2 && m.resolver < 0 {
+        cg_hoist_enter_for(p, m, f, node, element_binding, ordinal_binding, sequence, stable_view, view, cursor, hoisted_base, counter, limit, counter_type, done, hoist_mark);
+    } else {
+        if stable_view && cursor < 0 { cg_get(f, view); ws_ptr(f.code); hoisted_base = cg_save(f, wa()); }
+        done = cg_begin(f, 0x02, 0x40);
+    }
+    let again = cg_begin(f, 0x03, 0x40);
     if sequence && !stable_view {
         cg_emit_sequence(p, m, f, recipe); cg_pack_view(p, m, f, iterable.type_id, node); cg_set(f, view);
         cg_get(f, view); ws_count(f.code); cg_set(f, limit);
@@ -2691,7 +3255,7 @@ recursive fn cg_for(p: Program&, m: CgModule&, f: CgBody&, node: i64) {
     cg_get(f, counter); if cg_wasm_type(p, counter_type) == 0x7e { wb_i64(f.code, 1); } else { wb_i32(f.code, 1); }
     wb_byte(f.code, cg_numeric_opcode(T_PLUS, cg_wasm_type(p, counter_type), false)); cg_normalize(p, f.code, counter_type); cg_set(f, counter);
     if ordinal_binding >= 0 && !sequence { cg_get(f, ordinal); wb_i64(f.code, 1); wb_byte(f.code, 0x7c); cg_set(f, ordinal); }
-    cg_branch(p, f, again, false); cg_end(f); cg_end(f);
+    cg_branch(p, f, again, false); cg_end(f); cg_end(f); f.hoists.resize(hoist_mark);
 }
 recursive fn cg_pattern(p: Program&, m: CgModule&, f: CgBody&, pattern: i64, type_id: i64, value: i64) {
     let n: const Node& = p.nodes[pattern];
@@ -3436,6 +4000,13 @@ recursive fn cg_builtin(p: Program&, m: CgModule&, f: CgBody&, node: i64, builti
         return;
     }
     if builtin == 21 {
+        if f.hoists.len > 0 && m.resolver < 0 {
+            let hi = cg_hoist_find(p, f, arg);
+            if hi >= 0 && f.hoists[hi].len_local >= 0 {
+                cg_get(f, f.hoists[hi].len_local);
+                cg_convert(p, m, f, TYPE_U64, n.type_id, node); return;
+            }
+        }
         var id = p.nodes[arg].type_id;
         let is_ref = cg_type_kind(p, id) == TY_REF;
         if is_ref { id = p.types[id].element; }
@@ -3697,9 +4268,17 @@ recursive fn cg_expr_body(p: Program&, m: CgModule&, f: CgBody&, node: i64) {
     if n.kind == N_BINARY { cg_binary(p, m, f, node); return; }
     if n.kind == N_MEMBER {
         if n.symbol < 0 && (token_is(p, n.token, "len") || token_is(p, n.token, "cap")) {
+            let is_len = token_is(p, n.token, "len");
+            if is_len && f.hoists.len > 0 && m.resolver < 0 {
+                let hi = cg_hoist_find(p, f, n.left);
+                if hi >= 0 && f.hoists[hi].len_local >= 0 {
+                    cg_get(f, f.hoists[hi].len_local);
+                    cg_convert(p, m, f, TYPE_U64, n.type_id, node); return;
+                }
+            }
             cg_expr(p, m, f, n.left); var id = p.nodes[n.left].type_id;
             if cg_type_kind(p, id) == TY_REF { id = p.types[id].element; cg_load(p, m, f, id, 0); }
-            if token_is(p, n.token, "cap") && cg_type_kind(p, id) == TY_ARRAY {
+            if !is_len && cg_type_kind(p, id) == TY_ARRAY {
                 if cg_owner(p, id) { let header = cg_save(f, wa()); cg_owner_read_capacity(p, m, f, header); wa_extend(f.code); }
                 else { wb_byte(f.code, 0x1a); wb_i64(f.code, p.types[id].count); }
             } else if m.ordinary_owners && m.resolver < 0 && cg_owner(p, id) {
@@ -4098,8 +4677,8 @@ fn cg_emit_function(p: Program&, m: CgModule&, function: i64, function_index: i6
     scratch.events.clear(); scratch.code.clear(); scratch.locals.clear(); scratch.addresses.clear();
     scratch.labels.clear(); scratch.exits.clear(); scratch.results.clear(); scratch.destinations.clear();
     scratch.work.clear(); scratch.raw_slots.clear(); scratch.sequences.clear();
-    scratch.constructions.clear(); scratch.construction_destinations.clear(); scratch.receiving.clear(); scratch.defers.clear();
-    var f = CgBody { events: scratch.events, code: scratch.code, locals: scratch.locals, slots: slots, addresses: scratch.addresses, labels: scratch.labels, exits: scratch.exits, results: scratch.results, destinations: scratch.destinations, work: scratch.work, raw_slots: scratch.raw_slots, sequences: scratch.sequences, constructions: scratch.constructions, construction_destinations: scratch.construction_destinations, receiving: scratch.receiving, record_events: !m.scalar, function: function, function_index: function_index, elements: elements, defers: scratch.defers };
+    scratch.constructions.clear(); scratch.construction_destinations.clear(); scratch.receiving.clear(); scratch.defers.clear(); scratch.hoists.clear();
+    var f = CgBody { events: scratch.events, code: scratch.code, locals: scratch.locals, slots: slots, addresses: scratch.addresses, labels: scratch.labels, exits: scratch.exits, results: scratch.results, destinations: scratch.destinations, work: scratch.work, raw_slots: scratch.raw_slots, sequences: scratch.sequences, constructions: scratch.constructions, construction_destinations: scratch.construction_destinations, receiving: scratch.receiving, hoists: scratch.hoists, record_events: !m.scalar, function: function, function_index: function_index, elements: elements, defers: scratch.defers };
     cg_prepare_function(p, m, f, function);
     if m.scalar && function >= 0 { f.frame_free = !cg_scalar_prints(p, p.nodes[function].right); }
     f.done = cg_begin(f, 0x02, 0x40);
@@ -4163,8 +4742,8 @@ fn cg_emit_function(p: Program&, m: CgModule&, function: i64, function_index: i6
 fn cg_emit_array_helper(p: Program&, m: CgModule&, out: u8[>..]&, helper: i64) {
     var events: WbEvent[>..] = [];
     var code: u8[>..] = []; var locals: i64[>..] = []; var slots: CgSlot[>..] = []; var addresses: CgFrameAddress[>..] = [];
-    var labels: i64[>..] = []; var exits: CgExit[>..] = []; var results: i64[>..] = []; var destinations: i64[>..] = []; var work: i64[>..] = []; var raw_slots: i64[>..] = []; var sequences: CgSequence[>..] = []; var constructions: CgConstruction[>..] = []; var construction_destinations: CgDestination[>..] = []; var receiving: CgReceiving[>..] = []; var defers: i64[>..] = [];
-    var f = CgBody { events: events, code: code, locals: locals, slots: slots, addresses: addresses, labels: labels, exits: exits, results: results, destinations: destinations, work: work, raw_slots: raw_slots, sequences: sequences, constructions: constructions, construction_destinations: construction_destinations, receiving: receiving, params: 4, diagnostic_line: 3, defers: defers };
+    var labels: i64[>..] = []; var exits: CgExit[>..] = []; var results: i64[>..] = []; var destinations: i64[>..] = []; var work: i64[>..] = []; var raw_slots: i64[>..] = []; var sequences: CgSequence[>..] = []; var constructions: CgConstruction[>..] = []; var construction_destinations: CgDestination[>..] = []; var receiving: CgReceiving[>..] = []; var defers: i64[>..] = []; var hoists: CgHoist[>..] = [];
+    var f = CgBody { events: events, code: code, locals: locals, slots: slots, addresses: addresses, labels: labels, exits: exits, results: results, destinations: destinations, work: work, raw_slots: raw_slots, sequences: sequences, constructions: constructions, construction_destinations: construction_destinations, receiving: receiving, hoists: hoists, params: 4, diagnostic_line: 3, defers: defers };
     if helper == m.update_length {
         f.params = 3; f.diagnostic_line = 2;
         cg_update_image_length(p, m, f, 0, 1, -1);
@@ -4182,8 +4761,8 @@ fn cg_emit_array_helper(p: Program&, m: CgModule&, out: u8[>..]&, helper: i64) {
 fn cg_emit_host_reserve(p: Program&, m: CgModule&, out: u8[>..]&) {
     var events: WbEvent[>..] = [];
     var code: u8[>..] = []; var locals: i64[>..] = []; var slots: CgSlot[>..] = []; var addresses: CgFrameAddress[>..] = [];
-    var labels: i64[>..] = []; var exits: CgExit[>..] = []; var results: i64[>..] = []; var destinations: i64[>..] = []; var work: i64[>..] = []; var raw_slots: i64[>..] = []; var sequences: CgSequence[>..] = []; var constructions: CgConstruction[>..] = []; var construction_destinations: CgDestination[>..] = []; var receiving: CgReceiving[>..] = []; var defers: i64[>..] = [];
-    var f = CgBody { events: events, code: code, locals: locals, slots: slots, addresses: addresses, labels: labels, exits: exits, results: results, destinations: destinations, work: work, raw_slots: raw_slots, sequences: sequences, constructions: constructions, construction_destinations: construction_destinations, receiving: receiving, params: 2, defers: defers };
+    var labels: i64[>..] = []; var exits: CgExit[>..] = []; var results: i64[>..] = []; var destinations: i64[>..] = []; var work: i64[>..] = []; var raw_slots: i64[>..] = []; var sequences: CgSequence[>..] = []; var constructions: CgConstruction[>..] = []; var construction_destinations: CgDestination[>..] = []; var receiving: CgReceiving[>..] = []; var defers: i64[>..] = []; var hoists: CgHoist[>..] = [];
+    var f = CgBody { events: events, code: code, locals: locals, slots: slots, addresses: addresses, labels: labels, exits: exits, results: results, destinations: destinations, work: work, raw_slots: raw_slots, sequences: sequences, constructions: constructions, construction_destinations: construction_destinations, receiving: receiving, hoists: hoists, params: 2, defers: defers };
     let id = m.host_reserve_type;
     cg_array_length(p, m, f, id, 0); let old = cg_save(f, wa());
     cg_get(f, old); wa_extend(f.code); cg_get(f, 1); wa_extend(f.code); wb_byte(f.code, 0x7c); let wide = cg_save(f, 0x7e);
@@ -5188,12 +5767,13 @@ fn generate_wasm(p: Program&, out: u8[>..]&) {
         stack_limit: (p.maximum_pages * 65536 / 2) & -8 };
     cg_collect(p, m); if p.diagnostics.len > 0 { return; }
     if m.scalar { m.resolver = -1; m.host_reserve = -1; }
+    cg_compute_header_pure(p, m);
     var slots: CgSlot[>..] = []; slots.resize(p.symbols.len, CgSlot {});
     var sc_events: WbEvent[>..] = []; var sc_code: u8[>..] = []; var sc_body: u8[>..] = []; var sc_locals: i64[>..] = [];
     var sc_addresses: CgFrameAddress[>..] = []; var sc_labels: i64[>..] = []; var sc_exits: CgExit[>..] = [];
     var sc_results: i64[>..] = []; var sc_destinations: i64[>..] = []; var sc_work: i64[>..] = []; var sc_raw_slots: i64[>..] = [];
     var sc_sequences: CgSequence[>..] = []; var sc_constructions: CgConstruction[>..] = [];
-    var sc_construction_destinations: CgDestination[>..] = []; var sc_receiving: CgReceiving[>..] = []; var sc_defers: i64[>..] = [];
+    var sc_construction_destinations: CgDestination[>..] = []; var sc_receiving: CgReceiving[>..] = []; var sc_defers: i64[>..] = []; var sc_hoists: CgHoist[>..] = [];
     var sc_thunk_code: u8[>..] = []; var sc_thunk_locals: i64[>..] = []; var sc_thunk_results: i64[>..] = [];
     var rw_locals_at: WbLocalAccess[>..] = []; var rw_first: i32[>..] = []; var rw_last: i32[>..] = [];
     var rw_written: i32[>..] = []; var rw_arm: i32[>..] = []; var rw_stamp: i32[>..] = []; var rw_loop_end: i32[>..] = [];
@@ -5205,7 +5785,7 @@ fn generate_wasm(p: Program&, out: u8[>..]&) {
         labels: sc_labels, exits: sc_exits, results: sc_results, destinations: sc_destinations,
         work: sc_work, raw_slots: sc_raw_slots, sequences: sc_sequences,
         constructions: sc_constructions, construction_destinations: sc_construction_destinations,
-        receiving: sc_receiving, defers: sc_defers,
+        receiving: sc_receiving, defers: sc_defers, hoists: sc_hoists,
         thunk_code: sc_thunk_code, thunk_locals: sc_thunk_locals, thunk_results: sc_thunk_results,
         reuse: WbReuseScratch {
             locals_at: rw_locals_at, first: rw_first, last: rw_last, written: rw_written, arm: rw_arm, stamp: rw_stamp,
