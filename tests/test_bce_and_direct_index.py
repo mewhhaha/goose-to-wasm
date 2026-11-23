@@ -109,7 +109,15 @@ fn main() {
 }
 """
         c_text, bin_path = self.emit_c(source, "-O2")
-        self.assertGreaterEqual(c_text.count("g_element_unchecked("), 12)
+        prog_c = c_text.split("G_FN void g_initialize(void);", 1)[1]
+        unchecked_hits = (
+            prog_c.count("g_element_unchecked(")
+            + prog_c.count("g_element_unchecked_nn(")
+            + prog_c.count(".data+(uint64_t)")
+            + prog_c.count(".base+(uintptr_t)((uint64_t)")
+        )
+        self.assertGreaterEqual(unchecked_hits, 12)
+        self.assertLessEqual(prog_c.count("g_element_at_nn(") + prog_c.count("g_element_at("), 1)
         nat = subprocess.run([str(bin_path)], stdin=subprocess.DEVNULL, capture_output=True, text=True, check=True)
         expected = "15 true 6 29\n"
         self.assertEqual(nat.stdout, expected)

@@ -1,7 +1,7 @@
 import model;
 
 // These describe native frames. Image sizes and field offsets remain separate.
-struct CcPlace { type_id: i64, address: i64, form: i64 = 0, stack: i64 = -1, owner_header: i64 = -1, image_base: i64 = -1, image_end: i64 = -1 }
+struct CcPlace { type_id: i64, address: i64, form: i64 = 0, stack: i64 = -1, owner_header: i64 = -1, image_base: i64 = -1, image_end: i64 = -1, nonnull: bool = false }
 struct CcDestination {
     type_id: i64, header: i64, stack: i64, lifetime: i64, form: i64 = 0,
     entry: i64 = -1, start: i64 = -1, receiver: i64 = -1,

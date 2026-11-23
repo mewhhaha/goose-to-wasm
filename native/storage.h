@@ -1,5 +1,6 @@
 /* Native frame adapters over the pinned plain-C Goose region runtime. */
 #define _GNU_SOURCE 1
+#include <stddef.h>
 #include <stdint.h>
 #include <inttypes.h>
 #include <stdarg.h>
@@ -59,13 +60,13 @@ typedef struct GAllocation { struct GAllocation *next; void *data; } GAllocation
 G_SHARED GS_TLS GAllocation *g_allocations;
 G_SHARED GS_TLS uint64_t g_legacy_bytes;
 G_SHARED int g_argc; G_SHARED char **g_argv;
-static GS_NORETURN void g_panic(const char *message) {
+static GS_NORETURN GS_NOINLINE __attribute__((cold)) void g_panic(const char *message) {
     gs_abort_msg((const uint8_t*)message,(int64_t)strlen(message),"<native>",0);
 }
-static GS_NORETURN void g_panic_at(const char *message,const char *file,int line) {
+static GS_NORETURN GS_NOINLINE __attribute__((cold)) void g_panic_at(const char *message,const char *file,int line) {
     gs_abort_msg((const uint8_t*)message,(int64_t)strlen(message),file,line);
 }
-G_SHARED _Thread_local uintptr_t g_native_stack_low;
+G_SHARED GS_TLS uintptr_t g_native_stack_low;
 static GS_NOINLINE __attribute__((cold)) void g_stack_check_init(void) {
     pthread_attr_t attributes;void *base;size_t bytes;
     if(pthread_getattr_np(pthread_self(),&attributes)) gs_panic("cannot inspect native stack");
@@ -78,18 +79,20 @@ static GS_NOINLINE __attribute__((cold)) void g_stack_check_init(void) {
 #endif
 #endif
 static GS_INLINE void g_stack_check(void) {
-    if(!g_native_stack_low)g_stack_check_init();
+#if GS_NEED_THREADS
+    if(__builtin_expect(!g_native_stack_low,0))g_stack_check_init();
+#endif
 #ifdef GS_NATIVE_STACK_ADDRESS
     // Keep the SysV AMD64 red zone outside the 128 KiB safety reserve.
     uintptr_t here=(uintptr_t)__builtin_stack_address();
-    if(here-g_native_stack_low<131072+128) g_panic("native call stack overflow");
+    if(__builtin_expect(here-g_native_stack_low<131072+128,0)) g_panic("native call stack overflow");
 #else
     unsigned char here;
-    if((uintptr_t)&here-g_native_stack_low<131072) g_panic("native call stack overflow");
+    if(__builtin_expect((uintptr_t)&here-g_native_stack_low<131072,0)) g_panic("native call stack overflow");
 #endif
 }
 #undef GS_NATIVE_STACK_ADDRESS
-static GS_NORETURN void g_index_fail(int64_t index,int64_t length,const char *file,int line) {
+static GS_NORETURN GS_NOINLINE __attribute__((cold)) void g_index_fail(int64_t index,int64_t length,const char *file,int line) {
     if(!file)file="<native>";gs_idxfail(index,length,file,line);
 }
 static void *g_alloc(size_t n) {
@@ -202,14 +205,14 @@ static GArray g_array(int64_t slot) {
 static GArray g_mapped_array(int64_t slot) {
     g_region(slot);return g_array(slot);
 }
-static void g_mark_regions(int64_t base,int64_t count,GWatermark *marks) {
-    if(base<0 || count<0 || base>g_region_count-count)g_panic("invalid native region watermark");
+static GS_INLINE void g_mark_regions(int64_t base,int64_t count,GWatermark *marks) {
+    if(__builtin_expect(base<0 || count<0 || base>g_region_count-count,0))g_panic("invalid native region watermark");
     for(int64_t i=0;i<count;i++) {
         GRegion *r=&g_regions[base+i];
         marks[i]=(GWatermark){r->stack.top,r->capacity,r->width,r->entry,r->freelist,r->free_count,r->free_mode};
     }
 }
-static void g_restore_regions(int64_t base,int64_t count,const GWatermark *marks) {
+static GS_INLINE void g_restore_regions(int64_t base,int64_t count,const GWatermark *marks) {
     for(int64_t i=0;i<count;i++) {
         GRegion *r=&g_regions[base+i];r->stack.top=marks[i].top;
         if(!r->stack.top)r->stack.top=r->base;
@@ -217,8 +220,8 @@ static void g_restore_regions(int64_t base,int64_t count,const GWatermark *marks
     }
 }
 typedef struct GPublication { struct GPublication *parent;uintptr_t source,target; } GPublication;
-G_SHARED _Thread_local GPublication *g_publication_top;
-static void g_header_changed(uintptr_t address) {
+G_SHARED GS_TLS GPublication *g_publication_top;
+static GS_NOINLINE __attribute__((cold)) void g_header_changed_slow(uintptr_t address) {
     for(;;) {
         GPublication *link=g_publication_top;
         while(link && link->source!=address)link=link->parent;
@@ -226,18 +229,23 @@ static void g_header_changed(uintptr_t address) {
         memcpy((void *)link->target,(const void *)address,sizeof(GArray));address=link->target;
     }
 }
-static void g_map_header(GPublication *link,uintptr_t source,uintptr_t target) {
+static GS_INLINE void g_header_changed(uintptr_t address) {
+    if(__builtin_expect(!g_publication_top,1))return;
+    g_header_changed_slow(address);
+}
+static GS_INLINE void g_map_header(GPublication *link,uintptr_t source,uintptr_t target) {
     if(source==target)return;
     *link=(GPublication){g_publication_top,source,target};g_publication_top=link;
 }
-static GRef g_ref(const void *p) { return (GRef)(uintptr_t)p; }
-static unsigned char *g_address(GRef ref) { if(!ref)g_panic("null reference");return (unsigned char *)(uintptr_t)ref; }
-static GRegion *g_array_region(GRef header) {
-    GArray value;memcpy(&value,g_address(header),sizeof value);return value.region;
+static GS_INLINE GRef g_ref(const void *p) { return (GRef)(uintptr_t)p; }
+static GS_INLINE unsigned char *g_ptr(GRef ref) { return (unsigned char *)(uintptr_t)ref; }
+static GS_INLINE unsigned char *g_address(GRef ref) { if(__builtin_expect(!ref,0))g_panic("null reference");return (unsigned char *)(uintptr_t)ref; }
+static GS_INLINE GRegion *g_array_region(GRef header) {
+    GRegion *reg;memcpy(&reg,g_address(header)+offsetof(GArray,region),sizeof reg);return reg;
 }
 static GS_INLINE GRef g_offset(GRef ref,int64_t offset) {
-    if(offset<0)g_panic("negative reference offset");
-    if(!ref && offset)g_panic("null reference");
+    if(__builtin_expect(offset<0,0))g_panic("negative reference offset");
+    if(__builtin_expect(!ref && offset,0))g_panic("null reference");
 #if (defined(__GNUC__) || defined(__clang__)) && !defined(__TINYC__)
     unsigned char *base=(unsigned char *)(uintptr_t)ref;
     size_t bytes=__builtin_object_size(base,2);
@@ -245,68 +253,109 @@ static GS_INLINE GRef g_offset(GRef ref,int64_t offset) {
 #endif
     return ref+(uintptr_t)offset;
 }
-static GRef g_owner(GRef root) { return root; }
-static GRef g_moving(GRef root,int64_t offset) {
+static GS_INLINE GRef g_owner(GRef root) { return root; }
+static GS_INLINE GRef g_moving(GRef root,int64_t offset) {
     unsigned char *base;memcpy(&base,g_address(root),sizeof base);
-    if(offset<0)g_panic("negative reference offset");if(!base && !offset)return g_ref(&g_empty_byte);return g_ref(base+offset);
+    if(__builtin_expect(offset<0,0))g_panic("negative reference offset");if(!base && !offset)return g_ref(&g_empty_byte);return g_ref(base+offset);
 }
-static uint64_t g_read_length(const void *p,int n) { uint64_t v=0; memcpy(&v,p,n); return v; }
-static void g_write_length(void *p,int n,uint64_t v) { memcpy(p,&v,n); }
-static int64_t g_len(GRef r,int kind,int64_t fixed,int prefix) {
-    if(kind==2 && fixed<0)return (int64_t)g_read_length(g_address(r)+4,4);
-    if(kind==1) {
-        uint64_t count;if(prefix)count=g_read_length(g_address(r),prefix);else count=gs_uleb_read(g_address(r));
-        if(count>INT64_MAX)g_panic("array length exceeds native range");return (int64_t)count;
-    }
-    if(kind==5) { GSlice s; memcpy(&s,g_address(r),sizeof s); return s.len; }
+static GS_INLINE uint64_t g_read_length(const void *p,int n) { uint64_t v=0; memcpy(&v,p,n); return v; }
+static GS_INLINE void g_write_length(void *p,int n,uint64_t v) { memcpy(p,&v,n); }
+static GS_INLINE int64_t g_len_ptr(const unsigned char *p,int kind,int64_t fixed,int prefix) {
+    if(kind==3 || kind==4) { int64_t len; memcpy(&len,p+offsetof(GArray,len),sizeof len); return len; }
+    if(kind==5) { int64_t len; memcpy(&len,p+offsetof(GSlice,len),sizeof len); return len; }
     if(kind==0) return fixed;
-    if(kind==2 && fixed>=0) return (int64_t)g_read_length(g_address(r),prefix);
-    GArray a; memcpy(&a,g_address(r),sizeof a); return a.len;
+    if(kind==2 && fixed<0)return (int64_t)g_read_length(p+4,4);
+    if(kind==2) return (int64_t)g_read_length(p,prefix);
+    uint64_t count;if(prefix)count=g_read_length(p,prefix);else count=gs_uleb_read(p);
+    if(__builtin_expect(count>INT64_MAX,0))g_panic("array length exceeds native range");return (int64_t)count;
 }
-static int64_t g_cap(GRef r,int kind,int64_t fixed) {
+static GS_INLINE int64_t g_len(GRef r,int kind,int64_t fixed,int prefix) {
+    if(kind==0) return fixed;
+    return g_len_ptr(g_address(r),kind,fixed,prefix);
+}
+static GS_INLINE int64_t g_len_nn(GRef r,int kind,int64_t fixed,int prefix) {
+    if(kind==0) return fixed;
+    return g_len_ptr(g_ptr(r),kind,fixed,prefix);
+}
+static GS_INLINE int64_t g_cap(GRef r,int kind,int64_t fixed) {
     if(kind==2 && fixed<0)return (int64_t)g_read_length(g_address(r),4);
     if(kind==0) return fixed;
     if(kind==2 && fixed>=0) return fixed;
-    GArray a; memcpy(&a,g_address(r),sizeof a);if(!a.region)return 0;return a.region->capacity;
+    GRegion *reg; memcpy(&reg,g_address(r)+offsetof(GArray,region),sizeof reg);if(!reg)return 0;return reg->capacity;
+}
+static GS_INLINE GRef g_element_unchecked_ptr(unsigned char *p,int kind,int64_t fixed,int prefix,int64_t width,int64_t index) {
+    if(kind==3 || kind==4) {
+        unsigned char *base; memcpy(&base,p+offsetof(GArray,data),sizeof base);
+        if(!width) return base?(GRef)(uintptr_t)base:(GRef)(uintptr_t)&g_empty_byte;
+        return (GRef)(uintptr_t)(base+(uint64_t)index*(uint64_t)width);
+    }
+    if(kind==5) { GRef base; memcpy(&base,p+offsetof(GSlice,base),sizeof base); return base+(uintptr_t)((uint64_t)index*(uint64_t)width); }
+    if(kind==0) return (GRef)(uintptr_t)(p+(uint64_t)index*(uint64_t)width);
+    int64_t bytes=prefix;
+    if(kind==1 && !bytes)bytes=gs_uleb_size(p);
+    if(kind==2 && fixed<0)bytes=8;
+    return (GRef)(uintptr_t)(p+(uint64_t)bytes+(uint64_t)index*(uint64_t)width);
 }
 static GS_INLINE GRef g_element_unchecked(GRef r,int kind,int64_t fixed,int prefix,int64_t width,int64_t index) {
-    if(kind==1 || kind==2) {
-        int64_t bytes=prefix;
-        if(kind==1 && !bytes)bytes=gs_uleb_size(g_address(r));
-        if(kind==2 && fixed<0)bytes=8;
-        return r+(uintptr_t)((uint64_t)bytes+(uint64_t)index*(uint64_t)width);
+    return g_element_unchecked_ptr(g_address(r),kind,fixed,prefix,width,index);
+}
+static GS_INLINE GRef g_element_unchecked_nn(GRef r,int kind,int64_t fixed,int prefix,int64_t width,int64_t index) {
+    return g_element_unchecked_ptr(g_ptr(r),kind,fixed,prefix,width,index);
+}
+static GS_INLINE GRef g_element_at_ptr(unsigned char *p,int kind,int64_t fixed,int prefix,int64_t width,int64_t index,int allow_end,const char *file,int line) {
+    if(kind==3 || kind==4) {
+        int64_t len; memcpy(&len,p+offsetof(GArray,len),sizeof len);
+        if(__builtin_expect(allow_end?((uint64_t)index>(uint64_t)len):((uint64_t)index>=(uint64_t)len),0)) g_index_fail(index,len,file,line);
+        unsigned char *data; memcpy(&data,p+offsetof(GArray,data),sizeof data);
+        if(!width) return data?(GRef)(uintptr_t)data:(GRef)(uintptr_t)&g_empty_byte;
+        if(allow_end && !data) return (GRef)(uintptr_t)&g_empty_byte;
+        return (GRef)(uintptr_t)(data+(uint64_t)index*(uint64_t)width);
     }
-    if(kind==5) { GSlice s; memcpy(&s,g_address(r),sizeof s); return s.base+(uintptr_t)((uint64_t)index*(uint64_t)width); }
-    if(kind==0) return r+(uintptr_t)((uint64_t)index*(uint64_t)width);
-    if(!width) return g_moving(r,0);
-    unsigned char *base; memcpy(&base,g_address(r),sizeof base);
-    return (GRef)(uintptr_t)(base+(uint64_t)index*(uint64_t)width);
+    if(kind==5) {
+        int64_t len; memcpy(&len,p+offsetof(GSlice,len),sizeof len);
+        if(__builtin_expect(allow_end?((uint64_t)index>(uint64_t)len):((uint64_t)index>=(uint64_t)len),0)) g_index_fail(index,len,file,line);
+        GRef base; memcpy(&base,p+offsetof(GSlice,base),sizeof base);
+        return base+(uintptr_t)((uint64_t)index*(uint64_t)width);
+    }
+    if(kind==0) {
+        if(__builtin_expect(allow_end?((uint64_t)index>(uint64_t)fixed):((uint64_t)index>=(uint64_t)fixed),0)) g_index_fail(index,fixed,file,line);
+        return (GRef)(uintptr_t)(p+(uint64_t)index*(uint64_t)width);
+    }
+    int64_t len=g_len_ptr(p,kind,fixed,prefix);
+    if(__builtin_expect(allow_end?((uint64_t)index>(uint64_t)len):((uint64_t)index>=(uint64_t)len),0)) g_index_fail(index,len,file,line);
+    int64_t bytes=prefix;
+    if(kind==1 && !bytes)bytes=gs_uleb_size(p);
+    if(kind==2 && fixed<0)bytes=8;
+    if(__builtin_expect(width && index>(INT64_MAX-bytes)/width,0))g_panic("array offset overflow");
+    return (GRef)(uintptr_t)(p+(uint64_t)bytes+(uint64_t)index*(uint64_t)width);
 }
 static GS_INLINE GRef g_element_at(GRef r,int kind,int64_t fixed,int prefix,int64_t width,int64_t index,int allow_end,const char *file,int line) {
-    int64_t len=g_len(r,kind,fixed,prefix);
-    if(index<0 || index>len || (!allow_end && index==len))g_index_fail(index,len,file,line);
-    if(width && index>INT64_MAX/width) g_panic("array offset overflow");
-    if(kind==1 || kind==2) {
-        int64_t bytes=prefix;
-        if(kind==1 && !bytes)bytes=gs_uleb_size(g_address(r));
-        if(kind==2 && fixed<0)bytes=8;
-        if(width && index>(INT64_MAX-bytes)/width)g_panic("array offset overflow");return g_offset(r,bytes+index*width);
-    }
-    if(kind==5) { GSlice s; memcpy(&s,g_address(r),sizeof s); return g_offset(s.base,index*width); }
-    if(kind==0) return g_offset(r,index*width);
-    return g_moving(r,index*width);
+    return g_element_at_ptr(g_address(r),kind,fixed,prefix,width,index,allow_end,file,line);
+}
+static GS_INLINE GRef g_element_at_nn(GRef r,int kind,int64_t fixed,int prefix,int64_t width,int64_t index,int allow_end,const char *file,int line) {
+    return g_element_at_ptr(g_ptr(r),kind,fixed,prefix,width,index,allow_end,file,line);
 }
 static GS_INLINE GRef g_element(GRef r,int kind,int64_t fixed,int prefix,int64_t width,int64_t index,int allow_end) {
     return g_element_at(r,kind,fixed,prefix,width,index,allow_end,NULL,0);
 }
-static GRef g_slot(GRef header,int kind,int64_t fixed,int prefix,int64_t width,int64_t index) {
+static GS_INLINE GRef g_slot(GRef header,int kind,int64_t fixed,int prefix,int64_t width,int64_t index) {
     if(kind==2 && fixed<0)return g_offset(header,8+index*width);
     if(kind==0)return g_offset(header,index*width);
     if(kind==2 && fixed>=0)return g_offset(header,prefix+index*width);
     return g_moving(header,index*width);
 }
-static GSlice g_view(GRef r,int kind,int64_t fixed,int prefix,int64_t width) {
-    GSlice s={g_element(r,kind,fixed,prefix,width,0,1),g_len(r,kind,fixed,prefix)}; return s;
+static GS_INLINE GSlice g_view(GRef r,int kind,int64_t fixed,int prefix,int64_t width) {
+    unsigned char *p=g_address(r);
+    if(kind==3 || kind==4) {
+        unsigned char *data; int64_t len;
+        memcpy(&data,p+offsetof(GArray,data),sizeof data);
+        memcpy(&len,p+offsetof(GArray,len),sizeof len);
+        GRef base=data?(GRef)(uintptr_t)data:(GRef)(uintptr_t)&g_empty_byte;
+        return (GSlice){base,len};
+    }
+    if(kind==5) { GSlice s; memcpy(&s,p,sizeof s); return s; }
+    GSlice s={g_element_at_ptr(p,kind,fixed,prefix,width,0,1,NULL,0),g_len_ptr(p,kind,fixed,prefix)};
+    return s;
 }
 /* Every array made in a region before its first bytes starts at its base, as
    the arrays made there afterwards start at its top. Several headers can
@@ -359,20 +408,178 @@ static GS_INLINE void g_reserve(GRef r,int kind,int64_t fixed,int prefix,int64_t
    resets leave its region's top alone: unreserved, the region keeps no top;
    reserved since by another header, the top stays above whatever that one
    holds, until g_reserve or a watermark moves it. */
-static void g_set_len(GRef r,int kind,int64_t fixed,int prefix,int64_t count) {
-    if(kind==2 && fixed<0){if(count<0 || count>g_cap(r,kind,fixed))g_panic("limited array capacity exceeded");g_write_length(g_address(r)+4,4,(uint64_t)count);}
+static GS_INLINE void g_set_len(GRef r,int kind,int64_t fixed,int prefix,int64_t count) {
+    if(kind==2 && fixed<0){if(__builtin_expect(count<0 || count>g_cap(r,kind,fixed),0))g_panic("limited array capacity exceeded");g_write_length(g_address(r)+4,4,(uint64_t)count);}
     else if(kind==2 && fixed>=0) g_write_length(g_address(r),prefix,(uint64_t)count);
-    else { GArray a; memcpy(&a,g_address(r),sizeof a); a.len=count;if(a.region && (kind==3 || kind==4) && a.data!=&g_empty_byte)a.region->stack.top=a.data+(size_t)count*(size_t)a.region->width;memcpy(g_address(r),&a,sizeof a);g_header_changed(r); }
+    else {
+        unsigned char *hp=g_address(r);
+        memcpy(hp+offsetof(GArray,len),&count,sizeof count);
+        if(kind==3 || kind==4) {
+            GRegion *reg; unsigned char *data;
+            memcpy(&reg,hp+offsetof(GArray,region),sizeof reg);
+            memcpy(&data,hp+offsetof(GArray,data),sizeof data);
+            if(reg && data!=&g_empty_byte)reg->stack.top=data+(size_t)count*(size_t)reg->width;
+        }
+        g_header_changed(r);
+    }
 }
-static void g_begin_builder(GRef ref) {
-    GArray value;memcpy(&value,g_address(ref),sizeof value);value.len=0;
+static GS_INLINE void g_begin_builder(GRef ref) {
+    unsigned char *hp=g_address(ref); GArray value;memcpy(&value,hp,sizeof value);value.len=0;
     if(value.region && value.data!=&g_empty_byte)value.region->stack.top=value.data;
-    memcpy(g_address(ref),&value,sizeof value);
+    memcpy(hp,&value,sizeof value);
 }
-static GS_INLINE GRef g_push(GRef r,int kind,int64_t fixed,int prefix,int64_t width,const void *v) {
+static GS_NOINLINE __attribute__((cold)) GRef g_push_slot_slow(GRef r,int kind,int64_t fixed,int prefix,int64_t width) {
+    int64_t n=g_len(r,kind,fixed,prefix);if(n==INT64_MAX)g_panic("array length overflow");g_reserve(r,kind,fixed,prefix,width,n+1);
+    g_set_len(r,kind,fixed,prefix,n+1); return g_element(r,kind,fixed,prefix,width,n,0);
+}
+static GS_INLINE GRef g_push_slot_ptr(unsigned char *hp,GRef r,int kind,int64_t fixed,int prefix,int64_t width) {
+    if((kind==3 || kind==4) && width>0 && (uint64_t)width<=GS_STACK_GAP) {
+        unsigned char *data; GRegion *reg;
+        memcpy(&data,hp+offsetof(GArray,data),sizeof data);
+        memcpy(&reg,hp+offsetof(GArray,region),sizeof reg);
+        if(__builtin_expect(data!=&g_empty_byte && reg!=NULL,1)) {
+            int64_t len; memcpy(&len,hp+offsetof(GArray,len),sizeof len);
+            unsigned char *dst=data+(uint64_t)len*(uint64_t)width;
+            int64_t next=len+1;
+            memcpy(hp+offsetof(GArray,len),&next,sizeof next);
+            if(next>reg->capacity)reg->capacity=next;
+            reg->width=width;
+            reg->stack.top=dst+(size_t)width;
+#if GS_STACK_STATS
+            uint64_t nused=(uint64_t)((uintptr_t)(dst+(size_t)width)-(uintptr_t)reg->base);
+            if(nused>reg->high_water)reg->high_water=nused;
+#endif
+            g_header_changed(r);
+            return (GRef)(uintptr_t)dst;
+        }
+    }
+    return g_push_slot_slow(r,kind,fixed,prefix,width);
+}
+static GS_INLINE GRef g_push_slot(GRef r,int kind,int64_t fixed,int prefix,int64_t width) {
+    return g_push_slot_ptr(g_address(r),r,kind,fixed,prefix,width);
+}
+static GS_INLINE GRef g_push_slot_nn(GRef r,int kind,int64_t fixed,int prefix,int64_t width) {
+    return g_push_slot_ptr(g_ptr(r),r,kind,fixed,prefix,width);
+}
+static GS_NOINLINE __attribute__((cold)) GRef g_push_slow(GRef r,int kind,int64_t fixed,int prefix,int64_t width,const void *v) {
     int64_t n=g_len(r,kind,fixed,prefix);if(n==INT64_MAX)g_panic("array length overflow");g_reserve(r,kind,fixed,prefix,width,n+1);
     g_set_len(r,kind,fixed,prefix,n+1); GRef dst=g_element(r,kind,fixed,prefix,width,n,0);
-    memcpy(g_address(dst),v,(size_t)width); return dst;
+    if(width)memcpy(g_address(dst),v,(size_t)width); return dst;
+}
+static GS_INLINE GRef g_push_ptr(unsigned char *hp,GRef r,int kind,int64_t fixed,int prefix,int64_t width,const void *v) {
+    if((kind==3 || kind==4) && width>0) {
+        GArray a; memcpy(&a,hp,sizeof a);
+        GRegion *reg=a.region;
+        if(__builtin_expect(reg!=NULL,1)) {
+            unsigned char *dst=a.data+(size_t)a.len*(size_t)width;
+            size_t avail=reg->usable;
+            size_t used=(size_t)((uintptr_t)dst-(uintptr_t)reg->base);
+            if(__builtin_expect(avail>=(size_t)width && used<=avail-(size_t)width,1)) {
+                memcpy(dst,v,(size_t)width);
+                int64_t next=a.len+1;
+                a.len=next;
+                if(next>reg->capacity)reg->capacity=next;
+                reg->width=width;
+                reg->stack.top=dst+(size_t)width;
+                uint64_t nused=(uint64_t)(used+(size_t)width);
+                if(nused>reg->high_water)reg->high_water=nused;
+                memcpy(hp,&a,sizeof a);
+                g_header_changed(r);
+                return (GRef)(uintptr_t)dst;
+            }
+        }
+    }
+    return g_push_slow(r,kind,fixed,prefix,width,v);
+}
+static GS_INLINE GRef g_push(GRef r,int kind,int64_t fixed,int prefix,int64_t width,const void *v) {
+    return g_push_ptr(g_address(r),r,kind,fixed,prefix,width,v);
+}
+static GS_INLINE GRef g_push_nn(GRef r,int kind,int64_t fixed,int prefix,int64_t width,const void *v) {
+    return g_push_ptr(g_ptr(r),r,kind,fixed,prefix,width,v);
+}
+static GS_NOINLINE __attribute__((cold)) void g_append_fixed_slow(GRef dst,int kind,int64_t fixed,int prefix,int64_t width,GRef src,int skind,int64_t sfixed,int sprefix) {
+    int64_t count=g_len(src,skind,sfixed,sprefix);
+    int64_t old=g_len(dst,kind,fixed,prefix);
+    if(count<0 || count>INT64_MAX-old)g_panic("array length overflow");
+    g_reserve(dst,kind,fixed,prefix,width,old+count);
+    if(count && width)memmove(g_address(g_element(dst,kind,fixed,prefix,width,old,1)),g_address(g_element(src,skind,sfixed,sprefix,width,0,1)),(size_t)count*(size_t)width);
+    g_set_len(dst,kind,fixed,prefix,old+count);
+}
+static GS_NOINLINE __attribute__((cold)) void g_append_slice_slow(GRef dst,int kind,int64_t width,GSlice src) {
+    g_append_fixed_slow(dst,kind,-1,0,width,g_ref(&src),5,-1,0);
+}
+static GS_INLINE void g_append_slice_ptr(unsigned char *hp,GRef dst,int kind,int64_t width,GSlice src) {
+    int64_t count=src.len;
+    if(__builtin_expect(count<=0,0)) { if(!count) return; g_panic("array length overflow"); }
+    GRegion *reg; memcpy(&reg,hp+offsetof(GArray,region),sizeof reg);
+    if(__builtin_expect(reg!=NULL,1)) {
+        unsigned char *data; int64_t len;
+        memcpy(&data,hp+offsetof(GArray,data),sizeof data);
+        memcpy(&len,hp+offsetof(GArray,len),sizeof len);
+        unsigned char *out=data+(size_t)len*(size_t)width;
+        size_t avail=reg->usable;
+        size_t used=(size_t)((uintptr_t)out-(uintptr_t)reg->base);
+        uint64_t bytes=(uint64_t)count*(uint64_t)width;
+        if(__builtin_expect((uint64_t)count<=(uint64_t)(avail/(size_t)width) && used<=avail-(size_t)bytes,1)) {
+            memmove(out,g_ptr(src.base),(size_t)bytes);
+            int64_t next=len+count;
+            memcpy(hp+offsetof(GArray,len),&next,sizeof next);
+            if(next>reg->capacity)reg->capacity=next;
+            reg->width=width;
+            reg->stack.top=out+(size_t)bytes;
+#if GS_STACK_STATS
+            uint64_t nused=(uint64_t)(used+(size_t)bytes);
+            if(nused>reg->high_water)reg->high_water=nused;
+#endif
+            g_header_changed(dst);
+            return;
+        }
+    }
+    g_append_slice_slow(dst,kind,width,src);
+}
+static GS_INLINE void g_append_slice(GRef dst,int kind,int64_t width,GSlice src) {
+    g_append_slice_ptr(g_address(dst),dst,kind,width,src);
+}
+static GS_INLINE void g_append_slice_nn(GRef dst,int kind,int64_t width,GSlice src) {
+    g_append_slice_ptr(g_ptr(dst),dst,kind,width,src);
+}
+static GS_INLINE void g_append_fixed_ptr(unsigned char *hp,GRef dst,int kind,int64_t fixed,int prefix,int64_t width,unsigned char *sp,GRef src,int skind,int64_t sfixed,int sprefix) {
+    if((kind==3 || kind==4) && width>0) {
+        int64_t count=g_len_ptr(sp,skind,sfixed,sprefix);
+        if(__builtin_expect(!count,0)) return;
+        GRegion *reg; memcpy(&reg,hp+offsetof(GArray,region),sizeof reg);
+        if(__builtin_expect(reg!=NULL && count>0,1)) {
+            unsigned char *data; int64_t len;
+            memcpy(&data,hp+offsetof(GArray,data),sizeof data);
+            memcpy(&len,hp+offsetof(GArray,len),sizeof len);
+            unsigned char *out=data+(size_t)len*(size_t)width;
+            size_t avail=reg->usable;
+            size_t used=(size_t)((uintptr_t)out-(uintptr_t)reg->base);
+            uint64_t bytes=(uint64_t)count*(uint64_t)width;
+            if(__builtin_expect((uint64_t)count<=(uint64_t)(avail/(size_t)width) && used<=avail-(size_t)bytes,1)) {
+                const unsigned char *in=g_ptr(g_element_unchecked_ptr(sp,skind,sfixed,sprefix,width,0));
+                memmove(out,in,(size_t)bytes);
+                int64_t next=len+count;
+                memcpy(hp+offsetof(GArray,len),&next,sizeof next);
+                if(next>reg->capacity)reg->capacity=next;
+                reg->width=width;
+                reg->stack.top=out+(size_t)bytes;
+#if GS_STACK_STATS
+                uint64_t nused=(uint64_t)(used+(size_t)bytes);
+                if(nused>reg->high_water)reg->high_water=nused;
+#endif
+                g_header_changed(dst);
+                return;
+            }
+        }
+    }
+    g_append_fixed_slow(dst,kind,fixed,prefix,width,src,skind,sfixed,sprefix);
+}
+static GS_INLINE void g_append_fixed(GRef dst,int kind,int64_t fixed,int prefix,int64_t width,GRef src,int skind,int64_t sfixed,int sprefix) {
+    g_append_fixed_ptr(g_address(dst),dst,kind,fixed,prefix,width,g_address(src),src,skind,sfixed,sprefix);
+}
+static GS_INLINE void g_append_fixed_nn(GRef dst,int kind,int64_t fixed,int prefix,int64_t width,GRef src,int skind,int64_t sfixed,int sprefix) {
+    g_append_fixed_ptr(g_ptr(dst),dst,kind,fixed,prefix,width,g_ptr(src),src,skind,sfixed,sprefix);
 }
 static void g_append_bytes(GRef r,int kind,int64_t fixed,int prefix,const void *data,int64_t count) {
     int64_t old=g_len(r,kind,fixed,prefix);
@@ -382,20 +589,43 @@ static void g_append_bytes(GRef r,int kind,int64_t fixed,int prefix,const void *
     if(count)memmove(g_address(g_element(r,kind,fixed,prefix,1,old,1)),data,(size_t)count);
     g_set_len(r,kind,fixed,prefix,old+count);
 }
-static void g_bytes(GArray *out,const void *p,int64_t n) {
-    if(n<=0) return; GRef r=g_ref(out); g_reserve(r,3,-1,0,1,out->len+n);
+static GS_NOINLINE __attribute__((cold)) void g_bytes_slow(GArray *out,const void *p,int64_t n) {
+    GRef r=g_ref(out); g_reserve(r,3,-1,0,1,out->len+n);
     memmove(out->data+out->len,p,(size_t)n); out->len+=n;
+}
+static GS_INLINE void g_bytes(GArray *out,const void *p,int64_t n) {
+    if(__builtin_expect(n<=0,0)) return;
+    GRegion *reg=out->region;
+    if(__builtin_expect(reg!=NULL,1)) {
+        unsigned char *dst=out->data+(size_t)out->len;
+        size_t avail=reg->usable;
+        size_t used=(size_t)((uintptr_t)dst-(uintptr_t)reg->base);
+        if(__builtin_expect((uint64_t)n<=(uint64_t)avail && used<=avail-(size_t)n,1)) {
+            memmove(dst,p,(size_t)n);
+            int64_t next=out->len+n;
+            out->len=next;
+            if(next>reg->capacity)reg->capacity=next;
+            reg->width=1;
+            reg->stack.top=dst+(size_t)n;
+#if GS_STACK_STATS
+            uint64_t nused=(uint64_t)(used+(size_t)n);
+            if(nused>reg->high_water)reg->high_water=nused;
+#endif
+            return;
+        }
+    }
+    g_bytes_slow(out,p,n);
 }
 static GClosure *g_closure(void *function,int64_t n) { GClosure *c=g_alloc(sizeof *c+(size_t)n*sizeof(GRef)); c->function=function; c->count=n; return c; }
 typedef struct GActivation {
     struct GActivation *parent; int64_t base,count; GWatermark *marks;GPublication *publications;unsigned char *fixed;
 } GActivation;
-G_SHARED _Thread_local GActivation *g_activation_top;
-static void g_activation_enter(GActivation *frame,int64_t base,int64_t count,GWatermark *marks) {
+G_SHARED GS_TLS GActivation *g_activation_top;
+static GS_INLINE void g_activation_enter(GActivation *frame,int64_t base,int64_t count,GWatermark *marks) {
     *frame=(GActivation){g_activation_top,base,count,marks,g_publication_top,g_fixed_region.stack.top};
     g_mark_regions(base,count,marks);g_activation_top=frame;
 }
-static void g_activation_leave(GActivation *frame) {
+static GS_INLINE void g_activation_leave(GActivation *frame) {
     g_fixed_region.stack.top=frame->fixed;if(!g_fixed_region.stack.top)g_fixed_region.stack.top=g_fixed_region.base;
     g_restore_regions(frame->base,frame->count,frame->marks);g_activation_top=frame->parent;g_publication_top=frame->publications;
 }
@@ -403,7 +633,7 @@ typedef struct GReturnFrame {
     struct GReturnFrame *parent;int64_t function;jmp_buf jump;void *result;size_t size;
     void (*publish)(void *,const void *);GActivation *activation;
 } GReturnFrame;
-G_SHARED _Thread_local GReturnFrame *g_return_top;
+G_SHARED GS_TLS GReturnFrame *g_return_top;
 static void *g_return_destination(int64_t function) {
     GReturnFrame *frame=g_return_top;while(frame && frame->function!=function)frame=frame->parent;
     if(!frame)g_panic("nonlocal return target is not active");return frame->result;
@@ -416,17 +646,17 @@ static void g_throw(int64_t function,const void *value,size_t size) {
     while(g_activation_top && g_activation_top!=f->activation)g_activation_leave(g_activation_top);
     g_return_top=f;longjmp(f->jump,1);
 }
-static int64_t g_div(int64_t a,int64_t b,const char *file,int line) { if(!b) g_panic_at("division by zero",file,line); if(a==INT64_MIN && b==-1) g_panic_at("integer overflow in division",file,line); return a/b; }
-static int64_t g_mod(int64_t a,int64_t b,const char *file,int line) { if(!b) g_panic_at("division by zero",file,line); if(a==INT64_MIN && b==-1) return 0; int64_t r=a%b; if(r<0) { uint64_t magnitude=(uint64_t)b; if(b<0) magnitude=0-magnitude; return (int64_t)((uint64_t)r+magnitude); } return r; }
-static uint64_t g_udiv(uint64_t a,uint64_t b,const char *file,int line) { if(!b) g_panic_at("division by zero",file,line); return a/b; }
-static uint64_t g_umod(uint64_t a,uint64_t b,const char *file,int line) { if(!b) g_panic_at("division by zero",file,line); return a%b; }
+static GS_INLINE int64_t g_div(int64_t a,int64_t b,const char *file,int line) { if(__builtin_expect(!b,0)) g_panic_at("division by zero",file,line); if(__builtin_expect(a==INT64_MIN && b==-1,0)) g_panic_at("integer overflow in division",file,line); return a/b; }
+static GS_INLINE int64_t g_mod(int64_t a,int64_t b,const char *file,int line) { if(__builtin_expect(!b,0)) g_panic_at("division by zero",file,line); if(__builtin_expect(a==INT64_MIN && b==-1,0)) return 0; int64_t r=a%b; if(r<0) { uint64_t magnitude=(uint64_t)b; if(b<0) magnitude=0-magnitude; return (int64_t)((uint64_t)r+magnitude); } return r; }
+static GS_INLINE uint64_t g_udiv(uint64_t a,uint64_t b,const char *file,int line) { if(__builtin_expect(!b,0)) g_panic_at("division by zero",file,line); return a/b; }
+static GS_INLINE uint64_t g_umod(uint64_t a,uint64_t b,const char *file,int line) { if(__builtin_expect(!b,0)) g_panic_at("division by zero",file,line); return a%b; }
 static double g_mul_add(double x,double y,double z) { volatile double product=x*y;return product+z; }
 static float g_mul_addf(float x,float y,float z) { volatile float product=x*y;return product+z; }
 static int64_t g_find_any(GSlice s,GRef set) { const unsigned char *p=g_address(s.base),*members=g_address(set);for(int64_t i=0;i<s.len;i++) if(members[p[i]]) return i;return -1; }
 static int64_t g_find_pair(GSlice s,GRef a,int64_t d,GRef b) { if(d<0 || d>=s.len) return -1;const unsigned char *p=g_address(s.base),*first=g_address(a),*second=g_address(b);for(int64_t i=0;i<s.len-d;i++) if(first[p[i]] && second[p[i+d]]) return i;return -1; }
 static uint64_t g_float_wrap(double a) { if(a!=a)return 0;if(!isfinite(a)) g_panic("float conversion is not finite");int negative=a<0;double magnitude=fmod(trunc(fabs(a)),18446744073709551616.0);uint64_t bits;if(magnitude>=9223372036854775808.0) bits=((uint64_t)(magnitude-9223372036854775808.0))+(UINT64_C(1)<<63);else bits=(uint64_t)magnitude;if(negative) bits=0-bits;return bits; }
-static void g_print_bytes(GArray *out,const void *p,int64_t n) { if(out) g_bytes(out,p,n); else if(n) fwrite(p,1,(size_t)n,stdout); }
-static void g_print_text(GArray *out,const char *s) { g_print_bytes(out,s,(int64_t)strlen(s)); }
+static inline void g_print_bytes(GArray *out,const void *p,int64_t n) { if(out) g_bytes(out,p,n); else if(n) fwrite(p,1,(size_t)n,stdout); }
+static inline void g_print_text(GArray *out,const char *s) { g_print_bytes(out,s,(int64_t)strlen(s)); }
 static char *g_path(GSlice p) { if(p.len<0 || p.len>=4096) return NULL; char *s=g_alloc((size_t)p.len+1); if(p.len) memcpy(s,g_address(p.base),(size_t)p.len); if(memchr(s,0,(size_t)p.len)) return NULL; return s; }
 static int g_os_read_file(GSlice path,GRef out) { char *s=g_path(path); if(!s) return 0; FILE *f=fopen(s,"rb"); if(!f) return 0; GArray a; memcpy(&a,g_address(out),sizeof a); unsigned char b[16384]; size_t n; while((n=fread(b,1,sizeof b,f))) g_bytes(&a,b,(int64_t)n); int ok=!ferror(f); fclose(f); memcpy(g_address(out),&a,sizeof a); return ok; }
 static int g_os_write_file(GSlice path,GSlice data,const char *mode) { char *s=g_path(path); if(!s) return 0; FILE *f=fopen(s,mode); if(!f) return 0; int ok=fwrite(g_address(data.base),1,(size_t)data.len,f)==(size_t)data.len; return fclose(f)==0 && ok; }
