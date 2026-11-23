@@ -1,0 +1,70 @@
+{
+  "previous": {
+    "path": "/home/jacobt/src/goose-to-wasm/build/bench-batch11/balanced.wasm",
+    "bytes": 2845771,
+    "gzip_bytes": 853394,
+    "sha256": "0cd685e9bc44b89a9f7711f8b2eb3ed1dca4aed56bac66a44fba1ca7d780abb5",
+    "cwasm_bytes": 5578048,
+    "cold": {
+      "wall_seconds": 2.776907142,
+      "prepare_seconds": 2.04689202,
+      "run_seconds": 0.719550257
+    },
+    "cached": {
+      "wall_seconds": 0.736703125,
+      "prepare_seconds": 0.001938244,
+      "run_seconds": 0.729507013
+    }
+  },
+  "direct": {
+    "path": "/home/jacobt/src/goose-to-wasm/build/bench-batch13/direct.wasm",
+    "bytes": 2908849,
+    "gzip_bytes": 804664,
+    "sha256": "eeb8296a0b2a7811b888bf3038102c2245946cce89c0c3005495181bb046cc18",
+    "cwasm_bytes": 5395720,
+    "cold": {
+      "wall_seconds": 2.720365899,
+      "prepare_seconds": 2.020513852,
+      "run_seconds": 0.691016651
+    },
+    "cached": {
+      "wall_seconds": 0.704379569,
+      "prepare_seconds": 0.00199913,
+      "run_seconds": 0.696738908
+    }
+  },
+  "balanced": {
+    "path": "/home/jacobt/src/goose-to-wasm/build/bench-batch13/balanced.wasm",
+    "bytes": 2480899,
+    "gzip_bytes": 732578,
+    "sha256": "c4be157904a7e6792a111e14123ae7d80424489e271b34edafef0d031bd5fb6f",
+    "cwasm_bytes": 4969360,
+    "cold": {
+      "wall_seconds": 2.538868534,
+      "prepare_seconds": 1.83722432,
+      "run_seconds": 0.690591358
+    },
+    "cached": {
+      "wall_seconds": 0.70463264,
+      "prepare_seconds": 0.001781006,
+      "run_seconds": 0.697740156
+    }
+  },
+  "size": {
+    "path": "/home/jacobt/src/goose-to-wasm/build/bench-batch13/size.wasm",
+    "bytes": 2260041,
+    "gzip_bytes": 638296,
+    "sha256": "8793a91e553c90455826def044ff1874f9061e07c0996308d0c1a4710f03a20f",
+    "cwasm_bytes": 5112576,
+    "cold": {
+      "wall_seconds": 2.78757269,
+      "prepare_seconds": 2.093793681,
+      "run_seconds": 0.680893516
+    },
+    "cached": {
+      "wall_seconds": 0.691190539,
+      "prepare_seconds": 0.001619469,
+      "run_seconds": 0.684326071
+    }
+  }
+}
