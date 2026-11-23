@@ -1,0 +1,326 @@
+{
+  "schema": "goose-compiler-comparison-chart-v1",
+  "report": "/home/jacobt/src/goose-to-wasm/bench/results/2026-11-23/wasm-peephole-wtime-aot-and-refresh/compiler-comparison.json.gz",
+  "report_sha256": "619d0b4a62ab6784b8dc6b92ef6ef3a68c7e8db9d61a501d5253cff6656dc265",
+  "renderer_sha256": "2fd92b39b14c35707f960ac3051d6b2e93be4ec30b4ab8f0b223eef261ed2953",
+  "unverified_compilers": [],
+  "charts": {
+    "compiler-comparison.svg": {
+      "sha256": "616e0b0f6a697e2d4ec740228a86a06f747bcd61622915b93f212b7500d5f0bd",
+      "values": {
+        "wasm-direct": [
+          {
+            "workload": "squares",
+            "compiler": "parent",
+            "qualified": true,
+            "median_ms": 2.762401010841131,
+            "mad_ms": 0.13570699957199395
+          },
+          {
+            "workload": "tour",
+            "compiler": "parent",
+            "qualified": true,
+            "median_ms": 5.16258500283584,
+            "mad_ms": 0.13621902326121926
+          },
+          {
+            "workload": "functions",
+            "compiler": "parent",
+            "qualified": true,
+            "median_ms": 11.484853021102026,
+            "mad_ms": 0.14294101856648922
+          },
+          {
+            "workload": "errors",
+            "compiler": "parent",
+            "qualified": true,
+            "median_ms": 5.756753991590813,
+            "mad_ms": 0.1299270079471171
+          },
+          {
+            "workload": "sieve",
+            "compiler": "parent",
+            "qualified": true,
+            "median_ms": 4.0629229915793985,
+            "mad_ms": 0.1018019684124738
+          },
+          {
+            "workload": "sorting",
+            "compiler": "parent",
+            "qualified": true,
+            "median_ms": 11.733877006918192,
+            "mad_ms": 0.14218100113794208
+          },
+          {
+            "workload": "sudoku",
+            "compiler": "parent",
+            "qualified": true,
+            "median_ms": 4.378904995974153,
+            "mad_ms": 0.12123101623728871
+          },
+          {
+            "workload": "maze",
+            "compiler": "parent",
+            "qualified": true,
+            "median_ms": 5.774677993031219,
+            "mad_ms": 0.1646229939069599
+          },
+          {
+            "workload": "vm",
+            "compiler": "parent",
+            "qualified": true,
+            "median_ms": 4.834700986975804,
+            "mad_ms": 0.08014202467165887
+          },
+          {
+            "workload": "life",
+            "compiler": "parent",
+            "qualified": true,
+            "median_ms": 4.354528995463625,
+            "mad_ms": 0.10711399954743683
+          },
+          {
+            "workload": "mandelbrot",
+            "compiler": "parent",
+            "qualified": true,
+            "median_ms": 3.5726719943340868,
+            "mad_ms": 0.09467999916523695
+          },
+          {
+            "workload": "squares",
+            "compiler": "candidate",
+            "qualified": true,
+            "median_ms": 2.707698004087433,
+            "mad_ms": 0.13226098963059485
+          },
+          {
+            "workload": "tour",
+            "compiler": "candidate",
+            "qualified": true,
+            "median_ms": 4.507139004999772,
+            "mad_ms": 0.12002800940535963
+          },
+          {
+            "workload": "functions",
+            "compiler": "candidate",
+            "qualified": true,
+            "median_ms": 9.548411995638162,
+            "mad_ms": 0.15189903206191957
+          },
+          {
+            "workload": "errors",
+            "compiler": "candidate",
+            "qualified": true,
+            "median_ms": 5.068525002570823,
+            "mad_ms": 0.09891900117509067
+          },
+          {
+            "workload": "sieve",
+            "compiler": "candidate",
+            "qualified": true,
+            "median_ms": 3.7135900056455284,
+            "mad_ms": 0.11272399569861591
+          },
+          {
+            "workload": "sorting",
+            "compiler": "candidate",
+            "qualified": true,
+            "median_ms": 9.90187400020659,
+            "mad_ms": 0.23861299268901348
+          },
+          {
+            "workload": "sudoku",
+            "compiler": "candidate",
+            "qualified": true,
+            "median_ms": 3.930292004952207,
+            "mad_ms": 0.1289549982175231
+          },
+          {
+            "workload": "maze",
+            "compiler": "candidate",
+            "qualified": true,
+            "median_ms": 5.143579008290544,
+            "mad_ms": 0.12697099009528756
+          },
+          {
+            "workload": "vm",
+            "compiler": "candidate",
+            "qualified": true,
+            "median_ms": 4.26341500133276,
+            "mad_ms": 0.1555059861857444
+          },
+          {
+            "workload": "life",
+            "compiler": "candidate",
+            "qualified": true,
+            "median_ms": 3.8274260004982352,
+            "mad_ms": 0.06542398477904499
+          },
+          {
+            "workload": "mandelbrot",
+            "compiler": "candidate",
+            "qualified": true,
+            "median_ms": 3.2840830099303275,
+            "mad_ms": 0.07854000432416797
+          }
+        ],
+        "native-c": [
+          {
+            "workload": "squares",
+            "compiler": "parent",
+            "qualified": true,
+            "median_ms": 2.6810269919224083,
+            "mad_ms": 0.08300802437588573
+          },
+          {
+            "workload": "tour",
+            "compiler": "parent",
+            "qualified": true,
+            "median_ms": 4.64389898115769,
+            "mad_ms": 0.12222101213410497
+          },
+          {
+            "workload": "functions",
+            "compiler": "parent",
+            "qualified": true,
+            "median_ms": 14.202379999915138,
+            "mad_ms": 0.20806599059142172
+          },
+          {
+            "workload": "errors",
+            "compiler": "parent",
+            "qualified": true,
+            "median_ms": 6.349841016344726,
+            "mad_ms": 0.13364397455006838
+          },
+          {
+            "workload": "sieve",
+            "compiler": "parent",
+            "qualified": true,
+            "median_ms": 3.734680009074509,
+            "mad_ms": 0.13549800496548414
+          },
+          {
+            "workload": "sorting",
+            "compiler": "parent",
+            "qualified": true,
+            "median_ms": 15.137396985664964,
+            "mad_ms": 0.17906998982653022
+          },
+          {
+            "workload": "sudoku",
+            "compiler": "parent",
+            "qualified": true,
+            "median_ms": 4.601738008204848,
+            "mad_ms": 0.1306189806200564
+          },
+          {
+            "workload": "maze",
+            "compiler": "parent",
+            "qualified": true,
+            "median_ms": 6.616578000830486,
+            "mad_ms": 0.11821399675682187
+          },
+          {
+            "workload": "vm",
+            "compiler": "parent",
+            "qualified": true,
+            "median_ms": 5.089715996291488,
+            "mad_ms": 0.09325699647888541
+          },
+          {
+            "workload": "life",
+            "compiler": "parent",
+            "qualified": true,
+            "median_ms": 4.560990986647084,
+            "mad_ms": 0.11095099034719169
+          },
+          {
+            "workload": "mandelbrot",
+            "compiler": "parent",
+            "qualified": true,
+            "median_ms": 3.712817997438833,
+            "mad_ms": 0.12703199172392488
+          },
+          {
+            "workload": "squares",
+            "compiler": "candidate",
+            "qualified": true,
+            "median_ms": 2.630990988109261,
+            "mad_ms": 0.11366498074494302
+          },
+          {
+            "workload": "tour",
+            "compiler": "candidate",
+            "qualified": true,
+            "median_ms": 3.9016070077195764,
+            "mad_ms": 0.092445028712973
+          },
+          {
+            "workload": "functions",
+            "compiler": "candidate",
+            "qualified": true,
+            "median_ms": 10.307516000466421,
+            "mad_ms": 0.12422600411809981
+          },
+          {
+            "workload": "errors",
+            "compiler": "candidate",
+            "qualified": true,
+            "median_ms": 5.291669018333778,
+            "mad_ms": 0.13297199620865285
+          },
+          {
+            "workload": "sieve",
+            "compiler": "candidate",
+            "qualified": true,
+            "median_ms": 3.369275014847517,
+            "mad_ms": 0.07067498518154025
+          },
+          {
+            "workload": "sorting",
+            "compiler": "candidate",
+            "qualified": true,
+            "median_ms": 10.8750440122094,
+            "mad_ms": 0.10441802442073822
+          },
+          {
+            "workload": "sudoku",
+            "compiler": "candidate",
+            "qualified": true,
+            "median_ms": 4.042825981741771,
+            "mad_ms": 0.09757597581483424
+          },
+          {
+            "workload": "maze",
+            "compiler": "candidate",
+            "qualified": true,
+            "median_ms": 5.431355006294325,
+            "mad_ms": 0.15317101497203112
+          },
+          {
+            "workload": "vm",
+            "compiler": "candidate",
+            "qualified": true,
+            "median_ms": 4.380127007607371,
+            "mad_ms": 0.08702499326318502
+          },
+          {
+            "workload": "life",
+            "compiler": "candidate",
+            "qualified": true,
+            "median_ms": 3.9405710122082382,
+            "mad_ms": 0.11125102173537016
+          },
+          {
+            "workload": "mandelbrot",
+            "compiler": "candidate",
+            "qualified": true,
+            "median_ms": 3.4101330093108118,
+            "mad_ms": 0.1498649944551289
+          }
+        ]
+      }
+    }
+  }
+}
