@@ -12,14 +12,13 @@ import model;
 // whose 2 GiB region holds fewer than 2^27 of them), so an alternative takes
 // 27 bytes instead of 51, and the region holds 79.5 M instead of 42.1 M.
 struct LifeAlt { root: i32, exact: bool = true, from: i32 = -1, slotread: bool = false, byteview: bool = false, target_type: i32 = -1, bound: i32 = 0, next: i32 = -1, component: i32 = -1 }
-// index: for a set of LIFE_BIG or more alternatives, a hashed root index in
-// set_index at index, of index_mask + 1 slots, made when the set is first
-// searched. A slot is an alternative's index, which fits 32 bits as next does.
+// Every LifeSet is stored as a contiguous slice of l.alts[first..first+count],
+// sorted ascending by root (with next links preserved for traversal).
 // hash: life_set_hash, once asked and not 0.
 // plain: the set without its class roots (life_strip), itself if it has
 // none, once asked; -1 before. folded, lasting: likewise what life_fold and
 // life_lasting make of it. interior caches the concrete interior projection.
-struct LifeSet { first: i32 = -1, count: i32 = 0, bound_depth: i32 = -1, bound_result: i32 = 0, index: i32 = -1, index_mask: i32 = 0, hash: i64 = 0, plain: i32 = -1, folded: i32 = -1, lasting: i32 = -1, interior: i32 = -1 }
+struct LifeSet { first: i32 = -1, count: i32 = 0, bound_depth: i32 = -1, bound_result: i32 = 0, hash: i64 = 0, plain: i32 = -1, folded: i32 = -1, lasting: i32 = -1, interior: i32 = -1 }
 // Entries index global_read_list. The frame-zero capture head identifies the set of cells.
 struct LifeCaptureSpan { first: i64 = 0, count: i64 = 0, head: i64 = -1 }
 // What the nodes a walk reaches from `start` say without following calls
@@ -324,9 +323,8 @@ struct Lifetimes {
     // then. An open-addressed map from chain, frame and recursion epoch in
     // one word (life_chain_key).
     chain_replays: LifeChainReplay[>..]&, chain_replay_count: i64 = 0,
-    // Open LifeBuild buffers and their root tables, as stacks; root indexes
-    // of large sets (LifeSet.index).
-    build_alts: LifeAlt[>..]&, build_slots: i64[>..]&, set_index: i32[>..]&,
+    // Open LifeBuild buffers and their root tables, as stacks.
+    build_alts: LifeAlt[>..]&, build_slots: i64[>..]&,
     // Lists being made or read once (life_list_set, life_build_drop), as a
     // stack.
     scratch: LifeAlt[>..]&,
@@ -1407,64 +1405,38 @@ fn life_holds_scan(p: Program&, ty: i64) -> bool {
     }
     return false;
 }
-// Sets of LIFE_BIG or more alternatives are searched through a root index
-// and accumulated without intermediate copies (LifeBuild).
+// Sets of LIFE_BIG or more alternatives are accumulated without intermediate
+// copies (LifeBuild). Every set is stored sorted ascending by root in a
+// contiguous span l.alts[first..first+count], searched directly by binary search.
 let LIFE_BIG: i64 = 16;
 inline fn life_root_hash(root: i64, mask: i64) -> i64 {
     var h: u64 = (root as! u64) * 1099511628211; h ^= h >> 29;
     return (h & (mask as! u64)) as i64;
 }
-fn life_find_linear(l: Lifetimes&, set: i64, root: i64) -> i64 {
-    var at = l.sets[set].first;
-    while at >= 0 { if l.alts[at].root == root { return at; } at = l.alts[at].next; }
-    return -1;
-}
-// Only a set under construction changes, and life_insert builds sets of
-// fewer than LIFE_BIG alternatives, so an index stays valid once built.
-fn life_index_build(l: Lifetimes&, set: i64) {
-    var size: i64 = 32; while size < 2 * l.sets[set].count { size <<= 1; }
-    let start = l.set_index.len; l.set_index.resize(start + size, -1);
-    var at = l.sets[set].first;
-    while at >= 0 {
-        var h = life_root_hash(l.alts[at].root, size - 1);
-        while l.set_index[start + h] >= 0 { h = (h + 1) & (size - 1); }
-        l.set_index[start + h] = at as i32; at = l.alts[at].next;
-    }
-    l.sets[set].index = start as i32; l.sets[set].index_mask = (size - 1) as i32;
-}
 fn life_find(l: Lifetimes&, set: i64, root: i64) -> i64 {
-    if l.sets[set].count < LIFE_BIG { return life_find_linear(l, set, root); }
-    if l.sets[set].index < 0 { life_index_build(l, set); }
-    let start = l.sets[set].index; let mask = l.sets[set].index_mask;
-    var h = life_root_hash(root, mask);
-    loop {
-        let at = l.set_index[start + h] as i64;
-        if at < 0 { return -1; }
-        if l.alts[at].root == root { return at; }
-        h = (h + 1) & mask;
+    let first = l.sets[set].first as i64;
+    let count = l.sets[set].count as i64;
+    if count == 0 { return -1; }
+    if count < 8 {
+        for i in 0..count { if l.alts[first + i].root == root { return first + i; } }
+        return -1;
+    }
+    var lo = first; var hi = first + count;
+    while lo < hi {
+        let mid = lo + ((hi - lo) >> 1);
+        let r = l.alts[mid].root as i64;
+        if r == root { return mid; }
+        if r < root { lo = mid + 1; } else { hi = mid; }
     }
     return -1;
 }
-// Whether two sets share one list (life_list_set), and so are equal.
+// Every set (empty, singleton via life_single, or canonical root-sorted
+// multi-element set via life_list_set) has a globally unique ID.
 inline fn life_same_list(l: Lifetimes&, a: i64, b: i64) -> bool {
-    return a == b || a >= 0 && b >= 0 && l.sets[a].first == l.sets[b].first && l.sets[a].count == l.sets[b].count;
+    return a == b;
 }
 inline fn life_equal(l: Lifetimes&, a: i64, b: i64) -> bool {
-    if a == b { return true; }
-    return life_equal_slow(l, a, b);
-}
-fn life_equal_slow(l: Lifetimes&, a: i64, b: i64) -> bool {
-    if l.sets[a].count != l.sets[b].count { return false; }
-    if l.sets[a].first == l.sets[b].first { return true; }
-    var at: i64 = l.sets[a].first;
-    while at >= 0 {
-        let x: const LifeAlt& = l.alts[at]; let found = life_find(l, b, x.root);
-        if found < 0 { return false; }
-        let y: const LifeAlt& = l.alts[found];
-        if x.exact != y.exact || x.from != y.from || x.slotread != y.slotread || x.byteview != y.byteview || x.target_type != y.target_type || x.bound != y.bound || x.component != y.component { return false; }
-        at = x.next;
-    }
-    return true;
+    return a == b;
 }
 // An alternative with another for the same root merged into it.
 inline fn life_merged(old: const LifeAlt&, alt: const LifeAlt&) -> LifeAlt {
@@ -1479,10 +1451,8 @@ inline fn life_merged(old: const LifeAlt&, alt: const LifeAlt&) -> LifeAlt {
     return out;
 }
 fn life_insert(l: Lifetimes&, set: i64, alt: const LifeAlt&) {
-    let old = life_find_linear(l, set, alt.root);
-    if old >= 0 { l.alts[old] = life_merged(l.alts[old], alt); return; }
-    let index = l.alts.len; var entry = alt; entry.next = l.sets[set].first;
-    l.alts.push(entry); l.sets[set].first = index as i32; l.sets[set].count += 1;
+    let index = l.alts.len; var entry = alt; entry.next = -1;
+    l.alts.push(entry); l.sets[set].first = index as i32; l.sets[set].count = 1;
 }
 // Whether old, for the same root, already admits everything incoming does.
 inline fn life_covers(old: const LifeAlt&, incoming: const LifeAlt&) -> bool {
@@ -1490,14 +1460,36 @@ inline fn life_covers(old: const LifeAlt&, incoming: const LifeAlt&) -> bool {
        !old.byteview && incoming.byteview || old.from >= 0 && old.from != incoming.from || old.target_type >= 0 && old.target_type != incoming.target_type || old.bound < incoming.bound ||
        old.component >= 0 && old.component != incoming.component);
 }
-// Whether joining b into a returns a.
+// Whether joining b into a returns a. Both sets are contiguous and sorted by root.
 fn life_subset(l: Lifetimes&, b: i64, a: i64) -> bool {
-    if l.sets[b].first == l.sets[a].first { return true; }
-    var probe: i64 = l.sets[b].first;
-    while probe >= 0 {
-        let incoming: const LifeAlt& = l.alts[probe]; let existing = life_find(l, a, incoming.root);
-        if existing < 0 || !life_covers(l.alts[existing], incoming) { return false; }
-        probe = incoming.next;
+    if b == a || b == 0 { return true; }
+    let cb = l.sets[b].count as i64;
+    if cb == 0 { return true; }
+    let ca = l.sets[a].count as i64;
+    if ca < cb { return false; }
+    let fa = l.sets[a].first as i64; let fb = l.sets[b].first as i64;
+    if cb * 4 < ca {
+        var lo = fa; let hi_end = fa + ca;
+        for i in 0..cb {
+            let incoming: const LifeAlt& = l.alts[fb + i];
+            let target = incoming.root as i64;
+            var hi = hi_end;
+            while lo < hi {
+                let mid = lo + ((hi - lo) >> 1);
+                if (l.alts[mid].root as i64) < target { lo = mid + 1; } else { hi = mid; }
+            }
+            if lo >= hi_end || (l.alts[lo].root as i64) != target || !life_covers(l.alts[lo], incoming) { return false; }
+            lo += 1;
+        }
+        return true;
+    }
+    var ia = fa; let ea = fa + ca;
+    var ib = fb; let eb = fb + cb;
+    while ib < eb {
+        let incoming: const LifeAlt& = l.alts[ib]; let target = incoming.root as i64;
+        while ia < ea && (l.alts[ia].root as i64) < target { ia += 1; }
+        if ia >= ea || (l.alts[ia].root as i64) != target || !life_covers(l.alts[ia], incoming) { return false; }
+        ia += 1; ib += 1;
     }
     return true;
 }
@@ -1561,14 +1553,14 @@ fn life_build_add_alt(l: Lifetimes&, b: LifeBuild&, alt: LifeAlt) {
         let count = l.sets[b.set].count;
         if count < LIFE_BIG {
             if b.set == 0 { b.set = life_alt_set(l, alt); return; }
-            let existing = life_find_linear(l, b.set, alt.root);
+            let existing = life_find(l, b.set, alt.root);
             if existing >= 0 && life_covers(l.alts[existing], alt) { return; }
             // Once frames are keyed by class the build is opened at its
             // second alternative: the sets in between are never read, and a
             // large program makes most of its alternatives in them.
             if count + 1 < LIFE_BIG && l.class_frames == 0 {
-                let start = l.scratch.len; var at = l.sets[b.set].first;
-                while at >= 0 { l.scratch.push(l.alts[at]); at = l.alts[at].next; }
+                let start = l.scratch.len; let first = l.sets[b.set].first as i64;
+                for i in 0..count { l.scratch.push(l.alts[first + i]); }
                 life_scratch_insert(l, start, alt);
                 b.set = life_list_set(l, start); l.scratch.resize(start);
                 return;
@@ -1585,51 +1577,96 @@ fn life_build_add_alt(l: Lifetimes&, b: LifeBuild&, alt: LifeAlt) {
     if existing >= 0 { var merged = life_merged(l.build_alts[existing], alt); merged.next = l.build_alts[existing].next; l.build_alts[existing] = merged; }
     else { var side = 0; if b.flipped { side = 1; } life_build_push(l, b, slot, alt, side); }
 }
-// A set of one alternative.
-fn life_alt_set(l: Lifetimes&, alt: LifeAlt) -> i64 {
-    let start = l.scratch.len; l.scratch.push(alt);
-    let set = life_list_set(l, start); l.scratch.resize(start);
-    return set;
+// A set of one alternative, canonically interned via life_single.
+inline fn life_alt_set(l: Lifetimes&, alt: LifeAlt) -> i64 {
+    return life_single(l, alt.root as i64, alt.exact, alt.from as i64, alt.slotread, alt.byteview, alt.target_type as i64, alt.bound as i64, alt.component as i64);
 }
 // The same for an open build.
 fn life_build_step(l: Lifetimes&, b: LifeBuild&, set: i64) {
-    var at: i64 = l.sets[set].first;
-    while at >= 0 {
-        let incoming: const LifeAlt& = l.alts[at]; let existing = l.build_slots[life_build_slot(l, b, incoming.root)];
+    let first = l.sets[set].first as i64; let count = l.sets[set].count as i64;
+    var i: i64 = 0;
+    while i < count {
+        let incoming: const LifeAlt& = l.alts[first + i]; let existing = l.build_slots[life_build_slot(l, b, incoming.root)];
         if existing < 0 || !life_covers(l.build_alts[existing], incoming) { break; }
-        at = incoming.next;
+        i += 1;
     }
-    if at < 0 { return; }
-    b.fresh = true; b.flipped = !b.flipped;
-    var side = 0; if b.flipped { side = 1; }
-    at = l.sets[set].first;
-    while at >= 0 {
-        let incoming: const LifeAlt& = l.alts[at]; at = incoming.next;
+    if i >= count { return; }
+    b.fresh = true;
+    for k in 0..count {
+        let incoming: const LifeAlt& = l.alts[first + k];
         let slot = life_build_slot(l, b, incoming.root); let existing = l.build_slots[slot];
         if existing >= 0 { var merged = life_merged(l.build_alts[existing], incoming); merged.next = l.build_alts[existing].next; l.build_alts[existing] = merged; }
-        else { life_build_push(l, b, slot, incoming, side); }
+        else { life_build_push(l, b, slot, incoming, 0); }
     }
 }
-// Appends an open build's list to scratch, head first or tail first. Read
-// forward, the deque is its front in reverse push order and then its back.
+// Appends an open build's elements to scratch (canonicalized in life_list_set).
 fn life_build_order(l: Lifetimes&, b: const LifeBuild&, head_first: bool) {
-    var first_side = 0; if b.flipped == head_first { first_side = 1; }
-    let end = b.base + b.size; var index = end - 1;
-    while index >= b.base { if l.build_alts[index].next == first_side { l.scratch.push(l.build_alts[index]); } index -= 1; }
-    for at in b.base..end { if l.build_alts[at].next != first_side { l.scratch.push(l.build_alts[at]); } }
+    let end = b.base + b.size;
+    for at in b.base..end { l.scratch.push(l.build_alts[at]); }
 }
 inline fn life_alt_same(a: const LifeAlt&, b: const LifeAlt&) -> bool {
     return a.root == b.root && a.exact == b.exact && a.from == b.from && a.slotread == b.slotread && a.byteview == b.byteview &&
        a.target_type == b.target_type && a.bound == b.bound && a.component == b.component;
 }
-// Whether a set lists scratch[start..] read from its end.
-fn life_list_same(l: Lifetimes&, set: i64, start: i64) -> bool {
-    var at: i64 = l.sets[set].first; var index = l.scratch.len - 1;
-    while at >= 0 && index >= start {
-        if !life_alt_same(l.alts[at], l.scratch[index]) { return false; }
-        at = l.alts[at].next; index -= 1;
+// Sort scratch[start..] ascending by root in place; linear scan when already sorted.
+fn life_scratch_sort(l: Lifetimes&, start: i64) {
+    let end = l.scratch.len; let count = end - start;
+    if count <= 1 { return; }
+    var first = start + 1;
+    while first < end && l.scratch[first].root >= l.scratch[first - 1].root { first += 1; }
+    if first == end { return; }
+    if count <= 32 || end - first <= 8 {
+        for i in first..end {
+            let key = l.scratch[i]; var j = i - 1;
+            while j >= start && l.scratch[j].root > key.root { l.scratch[j + 1] = l.scratch[j]; j -= 1; }
+            l.scratch[j + 1] = key;
+        }
+        return;
     }
-    return at < 0 && index < start;
+    // Iterative median-of-3 quicksort with insertion-sort cutoff (zero allocations).
+    var lo_stack: i64[64] = [0; 64]; var hi_stack: i64[64] = [0; 64];
+    var sp: i64 = 0; var lo = start; var hi = end - 1;
+    loop {
+        if hi - lo <= 16 {
+            for i in lo + 1..hi + 1 {
+                let key = l.scratch[i]; var j = i - 1;
+                while j >= lo && l.scratch[j].root > key.root { l.scratch[j + 1] = l.scratch[j]; j -= 1; }
+                l.scratch[j + 1] = key;
+            }
+            if sp == 0 { return; }
+            sp -= 1; lo = lo_stack[sp]; hi = hi_stack[sp];
+            continue;
+        }
+        let mid = lo + ((hi - lo) >> 1);
+        if l.scratch[mid].root < l.scratch[lo].root { let t = l.scratch[lo]; l.scratch[lo] = l.scratch[mid]; l.scratch[mid] = t; }
+        if l.scratch[hi].root < l.scratch[lo].root { let t = l.scratch[lo]; l.scratch[lo] = l.scratch[hi]; l.scratch[hi] = t; }
+        if l.scratch[hi].root < l.scratch[mid].root { let t = l.scratch[mid]; l.scratch[mid] = l.scratch[hi]; l.scratch[hi] = t; }
+        let pivot = l.scratch[mid].root;
+        var i = lo; var j = hi;
+        loop {
+            while l.scratch[i].root < pivot { i += 1; }
+            while l.scratch[j].root > pivot { j -= 1; }
+            if i >= j { break; }
+            let t = l.scratch[i]; l.scratch[i] = l.scratch[j]; l.scratch[j] = t;
+            i += 1; j -= 1;
+        }
+        if j - lo < hi - j {
+            if j + 1 < hi { lo_stack[sp] = j + 1; hi_stack[sp] = hi; sp += 1; }
+            hi = j;
+        } else {
+            if lo < j { lo_stack[sp] = lo; hi_stack[sp] = j; sp += 1; }
+            lo = j + 1;
+        }
+    }
+}
+// Whether a canonical set equals sorted scratch[start..].
+fn life_list_same(l: Lifetimes&, set: i64, start: i64) -> bool {
+    let base = l.sets[set].first as i64; let count = l.sets[set].count as i64;
+    if l.scratch.len - start != count { return false; }
+    for i in 0..count {
+        if !life_alt_same(l.alts[base + i], l.scratch[start + i]) { return false; }
+    }
+    return true;
 }
 fn life_list_rehash(l: Lifetimes&) {
     var size: i64 = 1024; while size <= 2 * (l.list_sets.len + 1) { size <<= 1; }
@@ -1640,14 +1677,15 @@ fn life_list_rehash(l: Lifetimes&) {
         l.list_slots[slot] = entry;
     }
 }
-// A set listing scratch[start..] tail first (in life_insert's order). Sets
-// are never changed once made, so a list made before is that set again:
-// equal lists made by joins and builds are one set.
-fn life_list_set(l: Lifetimes&, start: i64) -> i64 {
+// Canonical root-sorted set interned from scratch[start..].
+fn life_list_set(l: Lifetimes&, start: i64, already_sorted: bool = false) -> i64 {
     let count = l.scratch.len - start;
-    var h: u64 = 1469598103934665603; var at = l.scratch.len - 1;
-    while at >= start {
-        let a: const LifeAlt& = l.scratch[at]; at -= 1;
+    if count <= 0 { return 0; }
+    if count == 1 { return life_alt_set(l, l.scratch[start]); }
+    if !already_sorted { life_scratch_sort(l, start); }
+    var h: u64 = 1469598103934665603;
+    for at in start..l.scratch.len {
+        let a: const LifeAlt& = l.scratch[at];
         var flags = 0; if a.exact { flags += 1; } if a.slotread { flags += 2; } if a.byteview { flags += 4; }
         h = life_hash_step(h, a.root as i64);
         h = life_hash_step(h, a.from as i64);
@@ -1666,9 +1704,13 @@ fn life_list_set(l: Lifetimes&, start: i64) -> i64 {
         if l.list_keys[entry] == key && l.sets[set].count == count && life_list_same(l, set, start) { return set; }
         slot = (slot + 1) & mask;
     }
-    var next = -1;
-    for item in start..l.scratch.len { var entry = l.scratch[item]; entry.next = next as i32; next = l.alts.len; l.alts.push(entry); }
-    let index = l.sets.len; l.sets.push(LifeSet { first: next as i32, count: count as i32 });
+    let base = l.alts.len;
+    for i in 0..count {
+        var entry = l.scratch[start + i];
+        if i + 1 < count { entry.next = (base + i + 1) as i32; } else { entry.next = -1; }
+        l.alts.push(entry);
+    }
+    let index = l.sets.len; l.sets.push(LifeSet { first: base as i32, count: count as i32 });
     l.list_slots[slot] = l.list_sets.len; l.list_sets.push(index); l.list_keys.push(key);
     return index;
 }
@@ -1799,31 +1841,47 @@ inline fn life_join(l: Lifetimes&, a: i64, b: i64) -> i64 {
     if b == 0 || a == b { return a; }
     return life_join_slow(l, a, b);
 }
-fn life_join_slow(l: Lifetimes&, a: i64, b: i64) -> i64 {
-    // No life_equal test: b is a subset of any set equal to it, and set 0
-    // equals only an empty b.
-    if a == 0 { if l.sets[b].count == 0 { return a; } return b; }
-    if l.sets[a].count + l.sets[b].count >= LIFE_BIG {
+fn life_join_slow(l: Lifetimes&, a_in: i64, b_in: i64) -> i64 {
+    if a_in == 0 { return b_in; }
+    var a = a_in; var b = b_in;
+    if a > b { let swap = a; a = b; b = swap; }
+    let ca = l.sets[a].count as i64; let cb = l.sets[b].count as i64;
+    if ca == 0 { return b; }
+    if cb == 0 { return a; }
+    let cache = ca + cb >= LIFE_BIG;
+    var slot: i64 = 0;
+    if cache {
         if l.joins.len == 0 { l.joins.resize(1024, LifeJoin {}); }
         var h: u64 = (a as! u64) * 11400714819323198485 ^ (b as! u64) * 14029467366897019727; h ^= h >> 29;
-        let slot = (h & ((l.joins.len - 1) as! u64)) as i64;
+        slot = (h & ((l.joins.len - 1) as! u64)) as i64;
         if l.joins[slot].a == a && l.joins[slot].b == b { return l.joins[slot].set; }
-        var set = a;
-        if !life_subset(l, b, a) { var build = LifeBuild { set: a }; life_build_open(l, build); life_build_step(l, build, b); set = life_build_end(l, build); }
+    }
+    // Fast subset check avoids touching l.scratch on the common no-op joins.
+    var set: i64 = -1;
+    if ca >= cb && life_subset(l, b, a) { set = a; }
+    else if cb >= ca && life_subset(l, a, b) { set = b; }
+    if set < 0 {
+        // Single linear two-pointer merge of two root-sorted spans into l.scratch.
+        let fa = l.sets[a].first as i64; let ea = fa + ca;
+        let fb = l.sets[b].first as i64; let eb = fb + cb;
+        let start = l.scratch.len;
+        var ia = fa; var ib = fb;
+        while ia < ea && ib < eb {
+            let xa: const LifeAlt& = l.alts[ia]; let xb: const LifeAlt& = l.alts[ib];
+            if xa.root < xb.root { l.scratch.push(xa); ia += 1; }
+            else if xb.root < xa.root { l.scratch.push(xb); ib += 1; }
+            else { l.scratch.push(life_merged(xa, xb)); ia += 1; ib += 1; }
+        }
+        while ia < ea { l.scratch.push(l.alts[ia]); ia += 1; }
+        while ib < eb { l.scratch.push(l.alts[ib]); ib += 1; }
+        set = life_list_set(l, start, true);
+        l.scratch.resize(start);
+    }
+    if cache {
         l.joins[slot] = LifeJoin { a: a, b: b, set: set };
-        // Entries keep their slots when the table grows, as offers do.
         l.joins_recorded++;
         if l.joins_recorded > 4 * l.joins.len && l.joins.len < 1048576 { l.joins.resize(4 * l.joins.len, LifeJoin {}); l.joins_recorded = 0; }
-        return set;
     }
-    if life_subset(l, b, a) { return a; }
-    // The new set, as life_insert would list it, made after its list.
-    let start = l.scratch.len;
-    var at = l.sets[a].first;
-    while at >= 0 { let alt = l.alts[at]; life_scratch_insert(l, start, alt); at = alt.next; }
-    at = l.sets[b].first;
-    while at >= 0 { let alt = l.alts[at]; life_scratch_insert(l, start, alt); at = alt.next; }
-    let set = life_list_set(l, start); l.scratch.resize(start);
     return set;
 }
 fn life_depth(l: Lifetimes&, scope: i64) -> i64 {
@@ -5277,6 +5335,161 @@ fn life_reclaim_items(l: Lifetimes&, standalone: const LifeStandalone[:]) {
         i--;
         if marked[i] == 0 { l.items[i].next = l.free_item as i32; l.free_item = i; }
     }
+}
+fn life_mark_set(marked: u8[>..]&, set: i64) {
+    if set > 0 && set < marked.len { marked[set] = 1; }
+}
+fn life_mark_value_sets(marked: u8[>..]&, value: const LifeValue&) {
+    life_mark_set(marked, value.refs); life_mark_set(marked, value.contents);
+    life_mark_set(marked, value.place); life_mark_set(marked, value.self_pools);
+    life_mark_set(marked, value.relative_roots); life_mark_set(marked, value.element_array);
+}
+inline fn life_set_kept(marked: const u8[>..]&, set: i64) -> bool {
+    return set <= 0 || (set < marked.len && marked[set] != 0);
+}
+// Compact l.alts in place between passes when unreachable discovery sets grow
+// large. Live LifeSet IDs stay unchanged so no stored set IDs need rewriting,
+// and live entries in memo tables are preserved across compaction.
+fn life_reclaim_alts(l: Lifetimes&, standalone: const LifeStandalone[:]) {
+    var marked: u8[>..] = []; marked.resize(l.sets.len, 0);
+    var item_marked: u8[>..] = []; item_marked.resize(l.items.len, 0);
+    var pending: i64[>..] = [];
+    for root in standalone { life_keep_items(l, item_marked, pending, root.arguments); }
+    for i in 0..l.roots.len {
+        let r: const LifeRoot& = l.roots[i];
+        life_mark_set(marked, r.contents); life_mark_set(marked, r.live_contents); life_mark_set(marked, r.stored);
+        l.roots[i].any_set = 0; l.roots[i].any_serial = 0;
+    }
+    for i in 0..l.cells.len {
+        let c: const LifeCell& = l.cells[i];
+        life_mark_set(marked, c.refs); life_mark_set(marked, c.live_refs);
+        life_mark_set(marked, c.contents); life_mark_set(marked, c.initial);
+    }
+    for i in 0..l.frames.len {
+        let f: const LifeFrame& = l.frames[i];
+        life_keep_items(l, item_marked, pending, f.inputs);
+        life_keep_items(l, item_marked, pending, f.capture_inputs);
+        life_keep_items(l, item_marked, pending, f.result.tuple);
+        life_mark_value_sets(marked, f.result);
+        life_mark_set(marked, f.destination); life_mark_set(marked, f.class_destination);
+        life_mark_set(marked, f.class_stored); life_mark_set(marked, f.all_stored);
+        life_mark_set(marked, f.dep_dest);
+    }
+    for i in 0..l.exits.len {
+        life_keep_items(l, item_marked, pending, l.exits[i].value.tuple);
+        life_mark_value_sets(marked, l.exits[i].value);
+        life_mark_set(marked, l.exits[i].destination);
+    }
+    for i in 0..l.effects.len {
+        life_keep_items(l, item_marked, pending, l.effects[i].value.tuple);
+        life_mark_set(marked, l.effects[i].places);
+        life_mark_value_sets(marked, l.effects[i].value);
+    }
+    for i in 0..l.leaves.len {
+        life_keep_items(l, item_marked, pending, l.leaves[i].value.tuple);
+        life_mark_value_sets(marked, l.leaves[i].value);
+    }
+    for i in 0..l.hold_count {
+        life_keep_items(l, item_marked, pending, l.holds[i].value.tuple);
+        life_mark_value_sets(marked, l.holds[i].value);
+    }
+    for i in 0..l.items.len {
+        if item_marked[i] != 0 { life_mark_value_sets(marked, l.items[i].value); }
+    }
+    for i in 0..l.atoms.len { life_mark_set(marked, l.atoms[i].set); }
+    for i in 0..l.roots.len {
+        if !life_set_kept(marked, l.roots[i].stores) { l.roots[i].stores = 0; l.roots[i].stores_version = -1; }
+    }
+    // Clear dead set IDs from summary dedup caches while preserving live entries.
+    for i in 0..l.summaries.len {
+        let s: const LifeSummary& = l.summaries[i];
+        if s.places > 0 && marked[s.places] == 0 { l.summaries[i].places = -1; }
+        if s.refs > 0 && marked[s.refs] == 0 { l.summaries[i].refs = -1; }
+        if s.contents > 0 && marked[s.contents] == 0 { l.summaries[i].contents = -1; }
+        if s.place > 0 && marked[s.place] == 0 { l.summaries[i].place = -1; }
+    }
+    // Compact l.alts in place; live sets are in strictly increasing first order.
+    var write: i64 = 0;
+    for s in 1..l.sets.len {
+        if marked[s] == 0 || l.sets[s].count <= 0 {
+            l.sets[s].first = -1; l.sets[s].count = 0; l.sets[s].hash = 0;
+            l.sets[s].bound_depth = -1; l.sets[s].bound_result = 0;
+            l.sets[s].plain = -1; l.sets[s].folded = -1; l.sets[s].lasting = -1; l.sets[s].interior = -1;
+            continue;
+        }
+        if !life_set_kept(marked, l.sets[s].bound_result) { l.sets[s].bound_depth = -1; l.sets[s].bound_result = 0; }
+        if !life_set_kept(marked, l.sets[s].plain) { l.sets[s].plain = -1; }
+        if !life_set_kept(marked, l.sets[s].folded) { l.sets[s].folded = -1; }
+        if !life_set_kept(marked, l.sets[s].lasting) { l.sets[s].lasting = -1; }
+        if !life_set_kept(marked, l.sets[s].interior) { l.sets[s].interior = -1; }
+        let old_first = l.sets[s].first as i64; let count = l.sets[s].count as i64;
+        if write != old_first {
+            for k in 0..count {
+                var e = l.alts[old_first + k];
+                if k + 1 < count { e.next = (write + k + 1) as i32; } else { e.next = -1; }
+                l.alts[write + k] = e;
+            }
+            l.sets[s].first = write as i32;
+        }
+        write += count;
+    }
+    l.alts.resize(write);
+    // Keep atom_slots pointing to compacted singleton alt indices.
+    for i in 0..l.atom_slots.len {
+        let set = l.atom_slots[i].set;
+        if set >= 0 { l.atom_slots[i].alt = l.sets[set].first as i64; }
+    }
+    // Rebuild list_sets/list_keys/list_slots keeping only live canonical multi-sets.
+    var keep: i64 = 0;
+    for i in 0..l.list_sets.len {
+        let set = l.list_sets[i];
+        if set > 0 && set < marked.len && marked[set] != 0 && l.sets[set].count >= 2 {
+            l.list_sets[keep] = set; l.list_keys[keep] = l.list_keys[i]; keep += 1;
+        }
+    }
+    l.list_sets.resize(keep); l.list_keys.resize(keep);
+    life_list_rehash(l);
+    // Evict only entries referencing compacted-away set IDs from memo caches.
+    for i in 0..l.joins.len {
+        let e: const LifeJoin& = l.joins[i];
+        if e.a >= 0 && (!life_set_kept(marked, e.a) || !life_set_kept(marked, e.b) || !life_set_kept(marked, e.set)) { l.joins[i] = LifeJoin {}; }
+    }
+    for i in 0..l.contents_memo.len {
+        let e: const LifeContents& = l.contents_memo[i];
+        if e.places >= 0 && (!life_set_kept(marked, e.places) || !life_set_kept(marked, e.set)) { l.contents_memo[i] = LifeContents {}; }
+    }
+    for i in 0..l.loaded.len {
+        let e: const LifeLoaded& = l.loaded[i];
+        if e.contents >= 0 && (!life_set_kept(marked, e.contents >> 1) || !life_set_kept(marked, e.places) || !life_set_kept(marked, e.set)) { l.loaded[i] = LifeLoaded {}; }
+    }
+    for i in 0..l.referable.len {
+        let e: const LifeLoaded& = l.referable[i];
+        if e.contents >= 0 && (!life_set_kept(marked, e.contents) || !life_set_kept(marked, e.set)) { l.referable[i] = LifeLoaded {}; }
+    }
+    for i in 0..l.local_reads.len {
+        let e: const LifeLocalRead& = l.local_reads[i];
+        if e.places >= 0 && (!life_set_kept(marked, e.places) || !life_set_kept(marked, e.contents) || !life_set_kept(marked, e.result)) { l.local_reads[i] = LifeLocalRead {}; }
+    }
+    for i in 0..l.readbacks.len {
+        let e: const LifeReadBack& = l.readbacks[i];
+        if e.places >= 0 && (!life_set_kept(marked, e.places) || !life_set_kept(marked, e.set)) { l.readbacks[i] = LifeReadBack {}; }
+    }
+    for i in 0..l.inexact_reads.len {
+        let e: const LifeInexactRead& = l.inexact_reads[i];
+        if e.places >= 0 && (!life_set_kept(marked, e.places) || !life_set_kept(marked, e.result)) { l.inexact_reads[i] = LifeInexactRead {}; }
+    }
+    for i in 0..l.far_cache.len {
+        let e: const LifeFarMemo& = l.far_cache[i];
+        if e.places >= 0 && !life_set_kept(marked, e.places) { l.far_cache[i] = LifeFarMemo {}; }
+    }
+    for i in 0..l.offers.len {
+        let e: const LifeOffer& = l.offers[i];
+        if e.frame >= 0 && (!life_set_kept(marked, e.places) || !life_set_kept(marked, e.refs) || !life_set_kept(marked, e.contents) || !life_set_kept(marked, e.place)) { l.offers[i] = LifeOffer {}; }
+    }
+    l.map_memo.clear();
+    l.held_walks.clear(); l.walk_memo_roots.clear();
+    l.shrink_clean.clear(); l.global_shrink_clean.clear();
+    l.asked.clear();
 }
 fn life_item(l: Lifetimes&, first: i64, index: i64) -> LifeValue {
     var at = first; var i = 0;
@@ -9176,7 +9389,7 @@ fn life_check_attempt(p: Program&, scope_parent: const i64[>..]&, scope_depth: c
     var size_classes: i64[>..] = []; size_classes.resize(p.types.len, -1);
     var holder_starts: i64[>..] = []; holder_starts.resize(p.types.len, -1); var holder_counts: i64[>..] = []; holder_counts.resize(p.types.len, 0); var holder_refs: i64[>..] = [];
     var index_types: i64[>..] = []; var asked: LifeAsked[>..] = [];
-    var build_alts: LifeAlt[>..] = []; var build_slots: i64[>..] = []; var set_index: i32[>..] = []; var scratch: LifeAlt[>..] = [];
+    var build_alts: LifeAlt[>..] = []; var build_slots: i64[>..] = []; var scratch: LifeAlt[>..] = [];
     var list_slots: i64[>..] = []; var list_sets: i64[>..] = []; var list_keys: i64[>..] = []; var atom_slots: LifeAtomSlot[>..] = []; var cell_keys: LifeCellKey[>..] = [];
     var contains_pointee: i64[>..] = []; var contains_answer: bool[>..] = [];
     var live_bits: u64[>..] = []; var live_words: u64[>..] = []; var holder_bits: u64[>..] = [];
@@ -9206,7 +9419,7 @@ fn life_check_attempt(p: Program&, scope_parent: const i64[>..]&, scope_depth: c
         roots: roots, sets: sets, alts: alts, cells: cells, frames: frames, items: items, pairs: pairs, held_walks: held_walks, pair_heads: pair_heads, exits: exits,
         futures: futures, holds: holds, temps: temps, reads: reads, kills: kills, size_classes: size_classes, holder_starts: holder_starts, holder_counts: holder_counts, holder_refs: holder_refs, index_types: index_types, asked: asked, atoms: atoms, failures: failures, effects: effects, symbol_cells: symbol_cells, node_roots: node_roots, function_frames: function_frames, read_heads: read_heads, visited: visited, summary_heads: summary_heads, effect_heads: effect_heads, summaries: summaries, leaves: leaves, leaf_heads: leaf_heads, leaf_stamps: leaf_stamps, leaf_floors: leaf_floors, summary_reads: summary_reads, read_slots: read_slots, contexts: contexts, context_heads: context_heads, chain_replays: chain_replays, capture_reads: capture_reads, offers: offers, global_read_list: global_read_list,
         bodies: bodies, body_slots: body_slots, body_globals: body_globals, body_calls: body_calls,
-        build_alts: build_alts, build_slots: build_slots, set_index: set_index, scratch: scratch,
+        build_alts: build_alts, build_slots: build_slots, scratch: scratch,
         list_slots: list_slots, list_sets: list_sets, list_keys: list_keys, atom_slots: atom_slots, cell_keys: cell_keys, contains_pointee: contains_pointee, contains_answer: contains_answer,
         deep_cells: deep_cells, input_heads: input_heads, home_heads: home_heads,
         cell_slots: cell_slots, temp_slots: temp_slots, contents_memo: contents_memo, root_stamps: root_stamps,
@@ -9253,6 +9466,7 @@ fn life_check_attempt(p: Program&, scope_parent: const i64[>..]&, scope_depth: c
     var checkpoint = LifeRound { frames: saved_frames, cells: saved_cells, roots: saved_roots, exits: saved_exits };
     // All equations only add alternatives or weaken exactness. A changed
     // invocation feeds its caller and loops on the following discovery pass.
+    var reclaim_at: i64 = 28000000;
     loop {
         l.pass += 1;
         let before = l.revision; let frames_before = l.frames.len;
@@ -9272,10 +9486,17 @@ fn life_check_attempt(p: Program&, scope_parent: const i64[>..]&, scope_depth: c
             if settled { for wake in store_wakes { if !life_store_delivered(l, wake) { settled = false; break; } } }
         }
         if omit_reads { life_reclaim_items(l, standalone); }
+        if !l.watch_stores && l.alts.len > reclaim_at {
+            life_reclaim_alts(l, standalone);
+            reclaim_at = l.alts.len + 20000000;
+            if reclaim_at < 28000000 { reclaim_at = 28000000; }
+            if reclaim_at > 44000000 { reclaim_at = 44000000; }
+        }
         if settled { break; }
         l.watch_stores = omit_reads && l.class_frames == 0 && l.frames.len == frames_before && changes < frames_before;
     }
     l.watch_stores = false; l.discovery = false;
+    if l.alts.len > 36000000 { life_reclaim_alts(l, standalone); }
     for index in 0..l.roots.len { l.roots[index].live_contents = l.roots[index].contents; }
     for index in 0..l.cells.len { life_set_live(l, index, false); }
     l.live_epoch += 1; l.holder_grow_epoch += 1; l.global_live_epoch = 1;

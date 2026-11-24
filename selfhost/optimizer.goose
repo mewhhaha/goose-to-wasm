@@ -133,6 +133,13 @@ fn opt_replace(p: Program&, o: Optimizer&, destination: i64, source: i64) {
     } else if replacement.kind == N_BLOCK && (replacement.flags & F_EARLY) != 0 && replacement.origin >= 0 {
         o.inlined_blocks.push(destination);
     }
+    if destination != source && (replacement.kind == N_BLOCK && (replacement.flags & F_EARLY) != 0 ||
+        replacement.kind == N_LOOP || replacement.kind == N_FOR || replacement.kind == N_WHILE) {
+        check_retarget_exits(p, destination, source, destination);
+        if source < o.function_states.len && (o.function_states[source] & OPT_HAS_BREAK) != 0 {
+            opt_mark_break(o, destination);
+        }
+    }
 }
 fn opt_set_integer(p: Program&, node: i64, value: i64, kind: i64) {
     let tok = p.nodes[node].token; let nxt = p.nodes[node].next;
@@ -569,7 +576,7 @@ recursive fn opt_try_inline(p: Program&, o: Optimizer&, node: i64) -> bool {
     let proof_start = o.proof_old.len;
     for index in map_start..o.maps.len { o.proof_old.push(o.maps[index].from); o.proof_new.push(o.maps[index].to); }
     life_clone_provenance(p, o.proof_old[proof_start..], o.proof_new[proof_start..]);
-    opt_replace(p, o, node, inline_body); check_retarget_exits(p, node, inline_body, node); o.inlined += 1;
+    opt_replace(p, o, node, inline_body); o.inlined += 1;
     opt_node(p, o, node, 1); return true;
 }
 

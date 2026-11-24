@@ -589,6 +589,20 @@ reusable[] var pool_items: PoolItem[>..] = [];
 let epoch: const u8[:] = "ok";
 struct SameNameDefault { epoch: const u8[:] = epoch, count: i64 = 7 }
 fn make_same_name() -> SameNameDefault { return SameNameDefault {..}; }
+let always_true: bool = true;
+let always_false: bool = false;
+fn early_check(n: i64) -> bool {
+    if n < 0 { return false; }
+    if n == 0 { return false; }
+    return n > 3;
+}
+fn folded_inline_exits(n: i64) -> i64 {
+    var score: i64 = 0;
+    if always_true && early_check(n) { score += 1; }
+    if always_false || early_check(n - 5) { score += 2; }
+    if always_true { if early_check(n + 1) { score += 4; } }
+    return score;
+}
 fn main() {
     let x: i32 = 17;
     let ys: u16[2] = [3, 4];
@@ -600,7 +614,8 @@ fn main() {
     let c = ps.len + ps[0].value;
     pool_items.free_slice(ps);
     let reply = make_same_name();
-    print(a, " ", b, " ", c, " ", reply.epoch);
+    let d = folded_inline_exits(10) * 10 + folded_inline_exits(2);
+    print(a, " ", b, " ", c, " ", reply.epoch, " ", d);
 }
 """)
         c_out = self.work / "regressions.c"
@@ -611,7 +626,7 @@ fn main() {
         subprocess.run([self.cc, "-std=gnu11", "-D_GNU_SOURCE", "-O2", "-pthread", str(c_out), "-lm", "-o", str(exe)],
                        stdin=subprocess.DEVNULL, check=True, capture_output=True, text=True, timeout=60)
         run = subprocess.run([str(exe)], stdin=subprocess.DEVNULL, capture_output=True, text=True, timeout=30)
-        self.assertEqual((run.returncode, run.stdout), (0, "15 19 15 ok\n"), run.stderr)
+        self.assertEqual((run.returncode, run.stdout), (0, "15 19 15 ok 70\n"), run.stderr)
 
         # Field defaults must not resolve to sibling struct fields.
         bad_field_ref = self.work / "bad_field_default.goose"
