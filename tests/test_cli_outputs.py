@@ -175,6 +175,184 @@ fn main() {
                     else:
                         self.assertEqual(result.returncode, 0, result.stderr)
 
+    def test_class_lifetime_precision_and_controls(self):
+        # Cross the 4,096-frame class threshold so every positive and negative
+        # case runs through class-keyed lifetime summaries.
+        roots = "\n".join(f"    var root_{i}: i64 = 0; occupy(root_{i});" for i in range(4200))
+        preamble = "fn occupy(slot: i64&) { slot += 1; }\n"
+
+        def wrap(decls: str, body: str) -> str:
+            return preamble + decls + "fn main() {\n" + roots + "\n" + body + "}\n"
+
+        cases = [
+            ("grow-only slice and member slotread beside grow-shrink tail",
+             wrap(
+                 "struct Holder { s: const u8[:] }\n"
+                 "struct Keys { keys: u8[>..]&, gs: u8[>..<] }\n"
+                 "fn key(keys: u8[>..]&) -> const u8[:] { return keys[..]; }\n"
+                 "fn fill(keys: u8[>..]&, h: Holder&) { h.s = key(keys); }\n"
+                 "fn prep(k: Keys&, h: Holder&) { fill(k.keys, h); }\n",
+                 "    var ks: u8[>..] = [65, 66];\n"
+                 "    var k = Keys { keys: ks, gs: [9] };\n"
+                 "    var h = Holder { s: default<const u8[:]>() };\n"
+                 "    prep(k, h);\n"
+                 "    print(h.s.len);\n",
+             ), ""),
+            ("holder parameter field slotread",
+             wrap(
+                 "struct Buf { items: i64[:], junk: i64[>..<] }\n"
+                 "struct Store { a: Buf&, b: Buf& }\n"
+                 "struct View { x: i64[:], y: i64[:] }\n"
+                 "fn make_view(self_: Store) -> View { return View { x: self_.a.items, y: self_.b.items }; }\n",
+                 "    var data: i64[>..] = [10, 20];\n"
+                 "    var b1 = Buf { items: data[..], junk: [1] };\n"
+                 "    var b2 = Buf { items: data[..], junk: [2] };\n"
+                 "    let s = Store { a: b1, b: b2 };\n"
+                 "    let v = make_view(s);\n"
+                 "    print(v.x.len + v.y.len);\n",
+             ), ""),
+            ("temporary aggregate argument in recursive cycle",
+             wrap(
+                 "struct Roles { words: const u8[:] }\n"
+                 "recursive fn walk(n: i64, roles: Roles) -> i64 {\n"
+                 "    if n == 0 { return roles.words.len; }\n"
+                 "    var buf: u8[4] = [1, 2, 3, 4];\n"
+                 "    return walk(n - 1, Roles { words: buf[..2] });\n"
+                 "}\n",
+                 '    print(walk(2, Roles { words: "ab" }));\n',
+             ), ""),
+            ("static empty slice does not accumulate stored roots",
+             wrap(
+                 "struct Value { n: i64 = 0, elements: const Value[:] = default<const Value[:]>(), }\n"
+                 "reusable[] var element_pool: Value[>..] = [];\n"
+                 "struct Reader { dummy: i64 = 0 }\n"
+                 "fn make_elems(self_: Reader&, count: i64) -> Value[:] {\n"
+                 "    let r = element_pool.alloc_slice(count);\n"
+                 "    for &v in r { v = Value { .. }; }\n"
+                 "    return r;\n"
+                 "}\n"
+                 "fn pollute(other: Value[:]) {\n"
+                 "    var s: Value[:] = default<Value[:]>();\n"
+                 "    if other.len > 0 { s = other; }\n"
+                 "    if s.len > 0 { s[0] = Value { elements: other, .. }; }\n"
+                 "}\n"
+                 "recursive fn unaryValue(self_: Reader&, value: Value, depth: i64) -> Value {\n"
+                 "    if depth > 4 || value.elements.len == 0 { return Value { n: value.n, .. }; }\n"
+                 "    let elems = self_.make_elems(value.elements.len);\n"
+                 "    for element, index in value.elements { elems[index] = self_.unaryValue(element, depth + 1); }\n"
+                 "    return Value { elements: elems, .. };\n"
+                 "}\n"
+                 "recursive fn prefix(self_: Reader&, depth: i64) -> Value {\n"
+                 "    if depth > 4 { return Value { .. }; }\n"
+                 "    if depth < 2 {\n"
+                 "        let operand = self_.prefix(depth + 1);\n"
+                 "        return self_.unaryValue(operand, depth + 1);\n"
+                 "    }\n"
+                 "    return Value { elements: self_.make_elems(2), .. };\n"
+                 "}\n",
+                 "    var r = Reader { .. };\n"
+                 "    pollute(r.make_elems(1));\n"
+                 "    let out = r.prefix(0);\n"
+                 "    print(out.n);\n",
+             ), ""),
+            ("negative: shrink slice ref loaded through T[:]&",
+             wrap(
+                 "fn peek(p: i64[:]&, gs: i64[>..<]&) {\n"
+                 "    let v = p;\n"
+                 "    gs.clear();\n"
+                 "    print(v[0]);\n"
+                 "}\n",
+                 "    var gs: i64[>..<] = [42];\n"
+                 "    var s = gs[..];\n"
+                 "    peek(s, gs);\n",
+             ), "array shrink invalidates a reference or holder"),
+            ("negative: shrink while T[:]& alias is used",
+             wrap(
+                 "struct Item { x: i64 }\n"
+                 "fn shrink_it(a: Item[>..<]&, r: Item[:]&) -> i64 { a.clear(); return r.len; }\n",
+                 "    var a: Item[>..<] = [Item { x: 1 }];\n"
+                 "    var s: Item[:] = a;\n"
+                 "    print(shrink_it(a, s));\n",
+             ), "array shrink invalidates a reference or holder"),
+            ("negative: element assignment through ref keeps sibling escape",
+             wrap(
+                 "struct Box { r: i64& }\n"
+                 "fn bad(boxes: Box[>..<]&, x: i64&) -> i64 {\n"
+                 "    var local: i64 = 7;\n"
+                 "    boxes[0] = Box { r: local };\n"
+                 "    boxes[1] = Box { r: x };\n"
+                 "    return 0;\n"
+                 "}\n",
+                 "    var a: i64 = 1;\n"
+                 "    var b: Box[>..<] = [Box { r: a }, Box { r: a }];\n"
+                 "    print(bad(b, a));\n",
+             ), "stored reference does not outlive the storage that receives it"),
+            ("negative: store grow-shrink field slice",
+             wrap(
+                 "struct Pool { items: i64[>..<] }\n"
+                 "struct Holder { s: i64[:] }\n"
+                 "fn bad(p: Pool&, h: Holder&) { h.s = p.items; }\n",
+                 "    var p = Pool { items: [1, 2] };\n"
+                 "    var k: i64[>..] = [3];\n"
+                 "    var h = Holder { s: k };\n"
+                 "    bad(p, h);\n"
+                 "    p.items.clear();\n"
+                 "    print(h.s.len);\n",
+             ), "reference into grow-shrink elements cannot be stored"),
+            ("negative: let holder of grow-shrink in recursive cycle",
+             wrap(
+                 "struct View { s: i64[:] }\n"
+                 "recursive fn rec(n: i64, v: View) -> i64 {\n"
+                 "    if n == 0 { return v.s.len; }\n"
+                 "    var arr: i64[>..<] = [1, 2];\n"
+                 "    let next = View { s: arr };\n"
+                 "    let r = rec(n - 1, next);\n"
+                 "    arr.clear();\n"
+                 "    return r;\n"
+                 "}\n",
+                 "    var a: i64[>..] = [1];\n"
+                 "    print(rec(2, View { s: a }));\n",
+             ), "error:"),
+            ("negative: back-edge unkeyed static holder taint",
+             wrap(
+                 "struct Box { s: const u8[:] }\n"
+                 "recursive fn rec(n: i64, b: Box) -> Box {\n"
+                 "    if n == 0 { return b; }\n"
+                 "    var local: u8[2] = [65, 66];\n"
+                 "    return rec(n - 1, Box { s: local[..] });\n"
+                 "}\n",
+                 '    let b = rec(2, Box { s: "hi" });\n'
+                 "    print(b.s.len);\n",
+             ), "error:"),
+            ("negative: sound rejection of implicit T[>..<]& to T[:] stored in struct",
+             wrap(
+                 "struct Reflection { x: i64 }\n"
+                 "struct Engine { reflections: Reflection[>..<]& }\n"
+                 "struct ReflectionOrder { items: Reflection[:] }\n"
+                 "fn makeReflectionOrder(items: Reflection[:]) -> ReflectionOrder { return ReflectionOrder { items }; }\n"
+                 "fn finish(self_: Engine&) -> i64 {\n"
+                 "    var ctx = makeReflectionOrder(self_.reflections);\n"
+                 "    self_.reflections.clear();\n"
+                 "    return ctx.items[0].x;\n"
+                 "}\n",
+                 "    var arr: Reflection[>..<] = [Reflection { x: 42 }];\n"
+                 "    var e = Engine { reflections: arr };\n"
+                 "    print(finish(e));\n",
+             ), "reference into grow-shrink elements cannot be stored"),
+        ]
+        with tempfile.TemporaryDirectory() as directory:
+            source = Path(directory) / "main.goose"
+            for name, text, error in cases:
+                with self.subTest(name=name):
+                    source.write_text(text)
+                    result = subprocess.run([COMPILER, source, "--target", "native", "--check", "--stdlib", SOURCE_STDLIB],
+                                            stdin=subprocess.DEVNULL, capture_output=True, text=True, timeout=30)
+                    if error:
+                        self.assertEqual(result.returncode, 1, result.stderr)
+                        self.assertIn(error, result.stderr)
+                    else:
+                        self.assertEqual(result.returncode, 0, result.stderr)
+
 
 @unittest.skipUnless(COMPILER.is_file(), "bootstrap the compiler first")
 class StackReserve(unittest.TestCase):

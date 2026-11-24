@@ -2,15 +2,17 @@
 
 Standing rules are in [AGENTS.md](AGENTS.md). All six items of the Batches 9–13 runtime-performance campaign are complete, qualified, measured, and pushed to `origin/main` (compiler at `949c5c0`, with all five reader suites and `bench/charts/*.svg` refreshed in the follow-up commit).
 
-## Where it stands (2026-11-23)
+## Where it stands (2026-11-24)
 
-- **Qualification gate (Batch 13 `949c5c0`, all green):**
-  - Plain upstream C++ Goose check (`build/native/goose check selfhost/main.goose --stdlib stdlib < /dev/null`): **exit 0** (`4,183/14,080` index checks elided).
-  - C bootstrap (`scripts/bootstrap.py --verify`): **fixed point reached** (`d6cd3e92...`); native and balanced 32-bit Wasm compilers emit byte-identical `direct.wasm` (`2,908,849 B`).
+- **Qualification gate (Blot2 lifetime precision & scalability batch, all green):**
+  - Plain upstream C++ Goose check (`build/native/goose check selfhost/main.goose --stdlib stdlib < /dev/null`): **exit 0**.
+  - C bootstrap (`scripts/bootstrap.py --verify`): **fixed point reached** (`0ed55897…`, executable `7a08e2ee…`).
   - Default conformance: **10,697/10,801** (104 recorded gaps in [known-gaps.json](tests/conformance/known-gaps.json), 0 unexpected).
   - Memory64 conformance: **4,771/4,779** (8 recorded gaps in [known-gaps-memory64.json](tests/conformance/known-gaps-memory64.json), 0 unexpected).
   - Native runtime checks: **54/54** passed.
-  - Unit tests: **101/101** repo tests + **18/18** targeted backend/codegen unit tests (`test_native_units`, `test_native_c_codegen`, `test_wasm_sroa_multivalue`, `test_wasm_licm`, `test_bce_and_direct_index`, `test_wasm_peephole`).
+  - Unit tests: all passed (`54.9 s`), including 11 new `ClassLifetimeChecks` regression and negative-control cases in [tests/test_cli_outputs.py](tests/test_cli_outputs.py).
+  - `forced0` (`LIFE_CONCRETE_FRAMES = 0`) conformance audit: **75 fails vs 78 at `92125b6`** (**0 new fails**, **3 upstream `forced0` tests fixed**: `shrink_slice_ref_explicit_callee`, `shrink_slice_ref_loaded`, `growshrink_unrelated_refs`), **13/13** upstream lifetime sentinels rejected.
+  - Blot2 snapshots: `cb1e9e15` (`73.50 s`, default 2 GiB `--stack-reserve`) and `6ad5fbb` (`215.51 s`, `--stack-reserve 8G`) both complete full lifetime discovery and validation with **1** remaining diagnostic (`makeReflectionOrder(self_.reflections)`, a sound §5.2 rejection where upstream `d5ae5bb` has a `LoadSliceArgs` UAF false-accept bug). Own-source `--check` improved **−20.1%** (`0.412 s → 0.329 s` 8-unit dev; `0.324 s` qualified release). [Evidence](bench/results/2026-11-24/blot2-lifetime-fixes/README.md)
 - **Completed Batches 9–13 on `origin/main`:**
   - **Batch 9 (`f990ed2`):** Expanded intra-procedural BCE and direct Wasm/C `N_INDEX` lowering. [Evidence](bench/results/2026-11-23/bce-and-direct-indexing/README.md)
   - **Batch 10 (`4da2994`):** Loop-invariant Wasm array header hoisting (LICM). [Evidence](bench/results/2026-11-23/wasm-loop-header-hoisting/README.md)
@@ -27,10 +29,10 @@ Standing rules are in [AGENTS.md](AGENTS.md). All six items of the Batches 9–1
 ## Next priorities
 
 1. **Blot2 compatibility (standing primary compatibility frontier — [docs/FEATURES.md#blot2-compatibility](docs/FEATURES.md#blot2-compatibility)).**
-   - Resolve the 38 lifetime diagnostics on frozen Blot2 `6ad5fbb` (next trace starts at `importedBinding` in `check/check.goose:1643:520`) and the 33 lifetime / 25 earlier type-checking diagnostics on Blot release `cb1e9e15` before tuning Blot2 compile speed.
+   - **Done (2026-11-24):** Lifetime checking precision & scalability resolved on both frozen Blot2 snapshots (`cb1e9e15` in default 2 GiB, `6ad5fbb` with `--stack-reserve 8G`), leaving only the sound §5.2 rejection of `makeReflectionOrder(self_.reflections)` (upstream `d5ae5bb` `LoadSliceArgs` UAF bug). [Evidence](bench/results/2026-11-24/blot2-lifetime-fixes/README.md)
+   - **Next (Batch 2):** Implement the C-host/library build interface needed to link Blot2 natively (`--emit-runtime`, `--header`, `goose_init`, `goose_exit`, `--shared`, and reachable-export checking without `--library` checking unreachable code), then build and run archived Blot2 natively against `native/*.c` (keeping `../blot2` read-only).
    - Keep sibling checkouts (`../blot2`, `../wtime`, upstream Goose) strictly read-only and copy/archive pinned commits into `build/` before testing.
-   - Keep the 4,096-frame class-keyed threshold until the forced-class upstream disagreements are resolved (`18` accepts + `stdlib_regex`).
-   - After lifetime checking passes, implement the missing C-host/library pieces needed to link Blot2 natively (`--emit-runtime`, `--header`, `goose_init`, `--shared`, and reachable-export emission without `--library` checking unreachable code).
+   - Keep the 4,096-frame class-keyed threshold until the remaining forced-class upstream disagreements are resolved.
 2. **Next runtime and compiler speed opportunities (after or alongside compatibility):**
    - **Refresh checked-in C seed & PGO profile:** Regenerate the checked-in seed + Clang IR profile from post-Batch-13 C (21 MB vs 39 MB) using the [snapshot 63 protocol](selfhost/results/2026-11-14/snapshot-63/README.md) to speed up fresh `scripts/bootstrap.py --verify` runs.
    - **Close remaining Wasmtime vs native gap (`0.955 s` vs `0.637 s` on own source):**
