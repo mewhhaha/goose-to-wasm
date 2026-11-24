@@ -211,7 +211,8 @@ def tool_version(command: list[str]) -> dict:
 def metadata(args, manifest) -> dict:
     inputs = [Path(__file__), Path(process.__file__), DATA / "manifest.json", DATA / "test.json", DATA / "run.json",
               ROOT / "scripts" / "goose_wasm.py",
-              ROOT / "scripts" / "run_wasm.mjs", ROOT / "scripts" / "run_wasmtime.py", ROOT / "toolchain.json", ROOT / "selfhost" / "bootstrap.py",
+              ROOT / "scripts" / "run_wasm.mjs", ROOT / "scripts" / "run_wasmtime.py", ROOT / "scripts" / "run_wtime_aot.py",
+              ROOT / "toolchain.json", ROOT / "selfhost" / "bootstrap.py",
               ROOT / "bootstrap" / "seed.json", ROOT / "bootstrap" / "seed.c.gz", ROOT / "bootstrap" / "sources.tar.gz",
               *sorted((ROOT / "selfhost").glob("*.goose")), *sorted((ROOT / "stdlib").rglob("*.goose")),
               *sorted((ROOT / "native").rglob("*.h")),
@@ -323,6 +324,16 @@ def engine_command(args, artifact, engine, timing_path=None):
         return [artifact]
     if engine == "v8":
         command = [args.node, ROOT / "scripts" / "run_wasm.mjs", artifact]
+    elif engine in ("wtime-aot", "wtime-aot-x64"):
+        aot_backend = "x64" if engine == "wtime-aot-x64" else "rust"
+        cache_dir = getattr(args, "wtime_aot_cache", None) or (args.output_dir / "wtime-aot-cache")
+        command = [sys.executable, ROOT / "scripts" / "run_wtime_aot.py", artifact,
+                   "--backend", aot_backend, "--cache", cache_dir,
+                   "--target-cpu", getattr(args, "wtime_aot_target_cpu", "native")]
+        if getattr(args, "wtime_aot", None):
+            command += ["--wtime-aot", args.wtime_aot]
+        if getattr(args, "wtime_aot_toolchain", None):
+            command += ["--toolchain", args.wtime_aot_toolchain]
     else:
         command = [sys.executable, ROOT / "scripts" / "run_wasmtime.py", artifact]
     if timing_path is not None:
@@ -669,7 +680,11 @@ def main():
     parser.add_argument("--machine-label")
     parser.add_argument("--tracks", nargs="+", choices=("whole", "adapted"), default=["whole", "adapted"])
     parser.add_argument("--backends", nargs="+", choices=("native", "direct"), default=["native", "direct"])
-    parser.add_argument("--engines", nargs="+", choices=("v8", "wasmtime"), default=["v8", "wasmtime"])
+    parser.add_argument("--engines", nargs="+", choices=("v8", "wasmtime", "wtime-aot", "wtime-aot-x64"), default=["v8", "wasmtime"])
+    parser.add_argument("--wtime-aot", type=Path, default=None, help="optional path to wtime-aot binary")
+    parser.add_argument("--wtime-aot-cache", type=Path, default=None, help="cache directory for wtime-aot builds")
+    parser.add_argument("--wtime-aot-target-cpu", default="native")
+    parser.add_argument("--wtime-aot-toolchain", default=None)
     parser.add_argument("--profiles", nargs="+", choices=("test", "run"))
     parser.add_argument("--compile-samples", type=int)
     parser.add_argument("--runtime-samples", type=int)

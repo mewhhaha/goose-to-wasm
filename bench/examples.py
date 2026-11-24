@@ -15,14 +15,25 @@ import sys
 import benchmark as common
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "scripts"))
+import run_wtime_aot as wtime_aot_runner
+
 CATALOG = ROOT / "examples/manifest.json"
 BACKENDS = ("direct", "native")
+ENGINES = ("v8", "wasmtime", "wtime-aot", "wtime-aot-x64")
+WTIME_AOT_BACKENDS = {"wtime-aot": "rust", "wtime-aot-x64": "x64"}
+ENGINE_LABELS = {
+    "v8": "Direct / V8",
+    "wasmtime": "Direct / Wasmtime",
+    "wtime-aot": "Direct / wtime-aot",
+    "wtime-aot-x64": "Direct / wtime-aot (x64)",
+}
 
 
 def input_paths(examples, stdlib):
     paths = [CATALOG, Path(__file__), ROOT / "bench/benchmark.py", Path(common.process.__file__), ROOT / "toolchain.json", ROOT / "scripts/goose_wasm.py", ROOT / "selfhost/bootstrap.py",
              ROOT / "bootstrap/seed.json", ROOT / "bootstrap/seed.c.gz", ROOT / "bootstrap/sources.tar.gz",
-             ROOT / "scripts/run_wasm.mjs", ROOT / "scripts/run_wasmtime.py"]
+             ROOT / "scripts/run_wasm.mjs", ROOT / "scripts/run_wasmtime.py", ROOT / "scripts/run_wtime_aot.py"]
     paths += sorted((ROOT / "selfhost").glob("*.goose"))
     paths += sorted((ROOT / "native").rglob("*.h"))
     for example in examples:
@@ -31,10 +42,10 @@ def input_paths(examples, stdlib):
     return paths
 
 
-def engine_names(backend):
+def engine_names(backend, wasm_engines=("v8", "wasmtime")):
     if backend == "native":
         return ("native",)
-    return ("v8", "wasmtime")
+    return tuple(wasm_engines)
 
 
 def validate_timing(timing, process_seconds):
@@ -60,12 +71,17 @@ def tool_paths(args):
     if "native" in args.backends:
         names.append(("cc", args.cc))
     if any(backend != "native" for backend in args.backends):
-        names.append(("node", args.node))
-        try:
-            import wasmtime._ffi as ffi
-            tools["wasmtime_library"] = str(Path(ffi.dll._name).resolve())
-        except ImportError:
-            pass
+        selected = getattr(args, "engines", ("v8", "wasmtime"))
+        if "v8" in selected:
+            names.append(("node", args.node))
+        if "wasmtime" in selected:
+            try:
+                import wasmtime._ffi as ffi
+                tools["wasmtime_library"] = str(Path(ffi.dll._name).resolve())
+            except ImportError:
+                pass
+        if any(e in WTIME_AOT_BACKENDS for e in selected):
+            tools["wtime_aot"] = str(wtime_aot_runner.find_wtime_aot(getattr(args, "wtime_aot", None)))
     for name, executable in names:
         found = shutil.which(executable)
         if found:
@@ -109,10 +125,13 @@ def render(report):
                 value = cell(builds[(name, backend)]["wall_seconds"])
             values.append(value)
         lines.append("| " + " | ".join([name, *values]) + " |")
+    wasm_engines = tuple(cfg.get("engines", ("v8", "wasmtime")))
+    wasm_columns = tuple(("direct", e) for e in wasm_engines)
+    columns = wasm_columns + (("native", "native"),)
+    headers = [ENGINE_LABELS.get(e, f"Direct / {e}") for e in wasm_engines] + ["Goose Native C"]
     lines += ["", "## Whole-process runtime", "",
-              "| Example | Direct / V8 | Direct / Wasmtime | Goose Native C |",
-              "| --- | ---: | ---: | ---: |"]
-    columns = (("direct", "v8"), ("direct", "wasmtime"), ("native", "native"))
+              "| Example | " + " | ".join(headers) + " |",
+              "| --- | " + " | ".join("---:" for _ in headers) + " |"]
     for example in report["examples"]:
         name = example["name"]
         values = []
@@ -124,13 +143,14 @@ def render(report):
         lines.append("| " + " | ".join([name, *values]) + " |")
     for metric, title in (("entry_function_seconds", "Supplement: Wasm entrypoint"),
                           ("engine_compile_instantiate_seconds", "Supplement: Wasm engine compilation and instantiation")):
+        wasm_headers = [ENGINE_LABELS.get(e, f"Direct / {e}") for e in wasm_engines]
         lines += ["", "## " + title, "",
-                  "| Example | Direct / V8 | Direct / Wasmtime |",
-                  "| --- | ---: | ---: | ---: |"]
+                  "| Example | " + " | ".join(wasm_headers) + " |",
+                  "| --- | " + " | ".join("---:" for _ in wasm_headers) + " |"]
         for example in report["examples"]:
             name = example["name"]
             values = []
-            for backend, engine in columns[:2]:
+            for backend, engine in wasm_columns:
                 value = "—"
                 if (name, backend, engine) in runs:
                     value = cell(runs[(name, backend, engine)][metric])
@@ -161,6 +181,11 @@ def main():
     parser.add_argument("--seed", type=int, default=761204)
     parser.add_argument("--smoke", action="store_true", help="allow small correctness-only sample counts")
     parser.add_argument("--backends", nargs="+", choices=BACKENDS, default=list(BACKENDS))
+    parser.add_argument("--engines", nargs="+", choices=ENGINES, default=["v8", "wasmtime"])
+    parser.add_argument("--wtime-aot", type=Path, default=None, help="optional path to wtime-aot binary")
+    parser.add_argument("--wtime-aot-cache", type=Path, default=None, help="cache directory for wtime-aot builds")
+    parser.add_argument("--wtime-aot-target-cpu", default="native")
+    parser.add_argument("--wtime-aot-toolchain", default=None)
     parser.add_argument("--output-dir", type=Path, default=ROOT / "build/example-benchmarks")
     args = parser.parse_args()
     names = {e["name"] for e in manifest["examples"]}
@@ -170,6 +195,8 @@ def main():
         parser.error("unknown example names")
     if len(args.backends) != len(set(args.backends)):
         parser.error("duplicate backends")
+    if len(args.engines) != len(set(args.engines)):
+        parser.error("duplicate engines")
     if min(args.compile_samples, args.samples) < 1 or args.warmups < 0:
         parser.error("sample counts must be positive and warmups nonnegative")
     if not args.smoke and min(args.compile_samples, args.samples) < 5:
@@ -204,8 +231,10 @@ def main():
     report = {"schema": "goose-example-benchmarks-v1", "status": "running",
               "started_utc": datetime.now(timezone.utc).isoformat(), "environment": environment,
               "configuration": vars(args), "examples": examples, "upstream": manifest["upstream"],
-              "observations": [], "compile_summary": [], "runtime_summary": [], "failures": []}
+              "observations": [], "aot_builds": [], "compile_summary": [], "runtime_summary": [], "failures": []}
     output = args.output_dir
+    aot_cache = args.wtime_aot_cache or (output / "wtime-aot-cache")
+    aot_binaries = {}
 
     def checkpoint(force=False):
         if not force and len(report["observations"]) % 10:
@@ -223,8 +252,28 @@ def main():
         timing.unlink(missing_ok=True)
         if engine == "v8":
             command = [args.node, ROOT / "scripts/run_wasm.mjs", artifact]
-        if engine == "wasmtime":
+        elif engine == "wasmtime":
             command = [sys.executable, ROOT / "scripts/run_wasmtime.py", artifact]
+        elif engine in WTIME_AOT_BACKENDS:
+            key = (build["artifact_sha256"], engine)
+            if key not in aot_binaries:
+                aot_bin, build_ns = wtime_aot_runner.prepare_binary(
+                    artifact,
+                    backend=WTIME_AOT_BACKENDS[engine],
+                    cache_dir=aot_cache,
+                    wtime_aot=args.wtime_aot,
+                    target_cpu=args.wtime_aot_target_cpu,
+                    toolchain=args.wtime_aot_toolchain,
+                )
+                aot_binaries[key] = aot_bin
+                report["aot_builds"].append({
+                    "name": example["name"], "backend": build["backend"], "engine": engine,
+                    "aot_backend": WTIME_AOT_BACKENDS[engine],
+                    "wasm_sha256": build["artifact_sha256"],
+                    "artifact": str(aot_bin), "artifact_sha256": common.digest(aot_bin),
+                    "bytes": aot_bin.stat().st_size, "wall_seconds": build_ns / 1e9,
+                })
+            command = [aot_binaries[key]]
         instrumented = engine != "native" and phase == "measure-engine"
         if instrumented:
             command += ["--timing-json", timing]
@@ -270,9 +319,9 @@ def main():
             checkpoint()
             print("PASS build", example["name"], backend, sample, flush=True)
         for number, (example, build) in enumerate(unique.values()):
-            for engine in engine_names(build["backend"]):
+            for engine in engine_names(build["backend"], args.engines):
                 execute_example(example, build, engine, "qualification", number)
-        cells = [(e, artifacts[(e["name"], b)], engine) for e in examples for b in args.backends for engine in engine_names(b)]
+        cells = [(e, artifacts[(e["name"], b)], engine) for e in examples for b in args.backends for engine in engine_names(b, args.engines)]
         for phase, count in (("warmup", args.warmups), ("measure", args.samples)):
             jobs = list(itertools.product(range(count), cells))
             rng.shuffle(jobs)

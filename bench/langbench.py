@@ -34,6 +34,8 @@ REVISION = "f00181bd514606b140bf76ac461694a438c88270"
 UPSTREAM_GOOSE_REVISION = "2e2bedef5b980bf013cac5aaa0095bfea64e5569"
 CELLS = ("c-gcc", "c-clang", "upstream-goose-native", "goose-native",
          "goose-wasm-wasmtime", "goose-wasm-v8")
+OPTIONAL_WTIME_AOT_CELLS = ("goose-wasm-wtime-aot", "goose-wasm-wtime-aot-x64")
+ALL_CELLS = CELLS + OPTIONAL_WTIME_AOT_CELLS
 NATIVE_FLAGS = ["-O3", "-march=x86-64-v3", "-ffp-contract=off",
                 "-fno-fast-math", "-fno-strict-aliasing"]
 C_FLAGS = ["-O3", "-march=x86-64-v3", "-ffp-contract=off", "-fno-fast-math", "-std=c11"]
@@ -85,8 +87,9 @@ def summarize(values: list[float]) -> dict | None:
 def summaries(report: dict) -> list[dict]:
     """Keep every requested row visible; partial or failed rows never qualify."""
     rows = []
+    selected_cells = tuple(report.get("cells", CELLS))
     for profile in report["profiles"]:
-        for cell in CELLS:
+        for cell in selected_cells:
             builds = [b for b in report["builds"] if b["cell"] == cell]
             runs = [r for r in report["runs"] if r["profile"] == profile and r["cell"] == cell]
             measured = [r for r in runs if r["phase"] == "measurement"]
@@ -196,6 +199,7 @@ def metadata(args) -> dict:
         "upstream_goose_revision_evidence": "caller-supplied compiler; inspect compiler hash and preparation evidence"}
     inputs = [Path(__file__), Path(process.__file__), DATA, ROOT / "bench/host_input.c",
               ROOT / "scripts/run_wasm.mjs", ROOT / "scripts/run_wasmtime.py",
+              ROOT / "scripts/run_wtime_aot.py",
               ROOT / "scripts/goose_wasm.py", ROOT / "toolchain.json",
               ROOT / "selfhost/bootstrap.py", *sorted((ROOT / "selfhost").glob("*.goose")),
               ROOT / "native", args.stdlib, args.upstream_stdlib,
@@ -244,9 +248,15 @@ def trial(args) -> int:
         raise ValueError("requested CPU is outside the process affinity")
     output = args.output_dir.resolve()
     output.mkdir(parents=True, exist_ok=False)
+    selected_cells = list(CELLS)
+    if getattr(args, "with_wtime_aot", False):
+        selected_cells.append("goose-wasm-wtime-aot")
+    if getattr(args, "with_wtime_aot_x64", False):
+        selected_cells.append("goose-wasm-wtime-aot-x64")
     report = {"schema": "goose-langbench-local-v1", "status": "running",
               "scope": __doc__, "manifest": manifest,
-              "profiles": args.profiles, "samples": args.samples, "compile_samples": args.compile_samples,
+              "profiles": args.profiles, "cells": selected_cells,
+              "samples": args.samples, "compile_samples": args.compile_samples,
               "cpu": args.cpu, "seed": args.seed, "builds": [], "runs": [],
               "limitations": ["Local shared-host trial, not an official langbench Docker campaign.",
                               "C includes one pthread spawn/join and an atomic row queue; Goose is scalar without either.",
@@ -261,7 +271,7 @@ def trial(args) -> int:
     rng = random.Random(args.seed)
     artifacts = {}
     for round_index in range(args.compile_samples):
-        cells = list(CELLS)
+        cells = list(selected_cells)
         rng.shuffle(cells)
         for cell in cells:
             destination = output / "builds" / cell / str(round_index)
@@ -284,9 +294,24 @@ def trial(args) -> int:
             report["builds"].append(record)
             save(report, output)
             print(f"build {round_index + 1}/{args.compile_samples} {cell}: {record['status']}", flush=True)
+    aot_binaries = {}
+    aot_cache = output / "wtime-aot-cache"
+    if any(c in OPTIONAL_WTIME_AOT_CELLS for c in selected_cells):
+        sys.path.insert(0, str(ROOT / "scripts"))
+        import run_wtime_aot as wtime_aot_runner
+        for cell in selected_cells:
+            if cell in OPTIONAL_WTIME_AOT_CELLS and cell in artifacts:
+                aot_backend = "x64" if cell.endswith("-x64") else "rust"
+                aot_bin, _ = wtime_aot_runner.prepare_binary(
+                    artifacts[cell],
+                    backend=aot_backend,
+                    cache_dir=aot_cache,
+                    wtime_aot=getattr(args, "wtime_aot", None),
+                )
+                aot_binaries[cell] = aot_bin
     for phase, rounds in (("warmup", 1), ("measurement", args.samples)):
         for round_index in range(rounds):
-            jobs = [(profile, cell) for profile in args.profiles for cell in CELLS]
+            jobs = [(profile, cell) for profile in args.profiles for cell in selected_cells]
             rng.shuffle(jobs)
             for profile, cell in jobs:
                 parameters = manifest["profiles"][profile]
@@ -306,6 +331,8 @@ def trial(args) -> int:
                         command = ["node", ROOT / "scripts/run_wasm.mjs", artifact]
                     if cell == "goose-wasm-wasmtime":
                         command = [sys.executable, ROOT / "scripts/run_wasmtime.py", artifact]
+                    if cell in aot_binaries:
+                        command = [aot_binaries[cell]]
                     record.update(invoke(command, stdin=stdin, cpu=args.cpu))
                     try:
                         if record["status"] != "passed":
@@ -361,6 +388,9 @@ def main() -> int:
     parser.add_argument("--stdlib", type=Path, default=ROOT / "build/bin/stdlib")
     parser.add_argument("--upstream-goose", type=Path, required=True)
     parser.add_argument("--upstream-stdlib", type=Path, required=True)
+    parser.add_argument("--with-wtime-aot", action="store_true", help="include goose-wasm-wtime-aot (--backend rust) cell")
+    parser.add_argument("--with-wtime-aot-x64", action="store_true", help="include goose-wasm-wtime-aot-x64 (--backend x64) cell")
+    parser.add_argument("--wtime-aot", type=Path, default=None, help="optional path to wtime-aot binary")
     args = parser.parse_args()
     try:
         return trial(args)

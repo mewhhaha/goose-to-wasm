@@ -27,6 +27,7 @@ NATIVE_SOURCES = ("stdlib", "native")
 OBJECTS = ("compiler-native", "compiler.wasm", "compiler.c")
 WASM_FLAGS = ["--target", "wasm-direct", "-O2", "--wasm-memory64", "--wasm-max-pages", "262144"]
 ENGINES = ("native", "wasmtime", "v8")
+ALL_ENGINES = ("native", "wasmtime", "v8", "wtime-aot")
 WORKLOADS = {"check": [*SOURCE, "--check"], "emit": [*SOURCE, *WASM_FLAGS, "-o", "../emitted.wasm"]}
 
 
@@ -164,13 +165,26 @@ def receive(child):
     return json.loads(message)
 
 
-def trial(engine, workload, source, native, cpu, run_wasmtime, worker, output):
+def trial(engine, workload, source, native, cpu, run_wasmtime, worker, output, aot_bin=None, stage=None):
     argv = WORKLOADS[workload]
     output.unlink(missing_ok=True)
     if engine == "native":
         elapsed, result = run([native, *argv], source, str(cpu))
         stdout, stderr, status = result.stdout, result.stderr, result.returncode
         sample = {"wall_ns": elapsed}
+    elif engine == "wtime-aot":
+        timing_file = stage / f"wtime-aot-{workload}.timing.json"
+        timing_file.unlink(missing_ok=True)
+        cmd = [aot_bin, "--timing-json", timing_file, "--allow-files", source, "--allow-files", stage,
+               "--", str(aot_bin), *argv]
+        elapsed, result = run(cmd, source, str(cpu))
+        stdout, stderr, status = result.stdout, result.stderr, result.returncode
+        timing = json.loads(timing_file.read_text()) if timing_file.is_file() else {}
+        sample = {
+            "wall_ns": int(timing.get("start_function_ns", elapsed)),
+            "instantiate_ns": int(timing.get("compile_instantiate_ns", 0)),
+            "process_wall_ns": elapsed,
+        }
     else:
         if engine == "wasmtime":
             result = run_wasmtime(argv)
@@ -215,17 +229,45 @@ def measure(args):
     v8_argv = ["taskset", "-c", builds["cpu_sets"]["native"], node, "--no-liftoff",
                "--no-wasm-lazy-compilation", ROOT / "bench/selfhost_v8.mjs", wasm]
     scripts = ["scripts/goose_wasm.py", "scripts/run_wasmtime.py", "scripts/run_wasm.mjs",
-               "bench/selfhost_comparison.py", "bench/selfhost_v8.mjs"]
+               "scripts/run_wtime_aot.py", "bench/selfhost_comparison.py", "bench/selfhost_v8.mjs"]
+    selected_engines = tuple(getattr(args, "engines", None) or ENGINES)
+    aot_bin = None
+    aot_report = None
+    if "wtime-aot" in selected_engines:
+        sys.path.insert(0, str(ROOT / "scripts"))
+        import run_wtime_aot as wtime_aot_runner
+        aot_bin, aot_build_ns = wtime_aot_runner.prepare_binary(
+            wasm,
+            backend="rust",
+            cache_dir=stage / "wtime-aot-cache",
+            wtime_aot=getattr(args, "wtime_aot", None),
+            target_cpu=getattr(args, "wtime_aot_target_cpu", "native"),
+            toolchain=getattr(args, "wtime_aot_toolchain", None),
+        )
+        aot_report = {
+            **wtime_aot_runner.wtime_aot_identity(
+                getattr(args, "wtime_aot", None),
+                backend="rust",
+                target_cpu=getattr(args, "wtime_aot_target_cpu", "native"),
+                toolchain=getattr(args, "wtime_aot_toolchain", None),
+            ),
+            "compiled_binary": identity(aot_bin),
+            "compile_ns": aot_build_ns,
+        }
+        print(f"wtime-aot prepared: {aot_build_ns / 1e9:.3f} s ({aot_bin})", flush=True)
     report = {
         "schema": "goose-selfhost-comparison-v1",
         "host": {"platform": platform.platform(), "cpu": args.cpu, "python": sys.version,
                  "cpu_model": next(line.split(":", 1)[1].strip() for line in
                                    Path("/proc/cpuinfo").read_text().splitlines() if line.startswith("model name"))},
         "workloads": WORKLOADS,
+        "engines": list(selected_engines),
         "scripts": {script: identity(ROOT / script) for script in scripts},
         "build": builds,
         "execution": {"warmup": {}, "samples": []},
     }
+    if aot_report is not None:
+        report["wtime_aot"] = aot_report
 
     sys.path.insert(0, str(ROOT / "scripts"))
     import wasmtime
@@ -264,7 +306,8 @@ def measure(args):
         expected = {}
 
         def record(engine_name, workload):
-            sample = trial(engine_name, workload, source, native, args.cpu, run_wasmtime, worker, output)
+            sample = trial(engine_name, workload, source, native, args.cpu, run_wasmtime, worker, output,
+                           aot_bin=aot_bin, stage=stage)
             proof = sample["result"]
             if proof != expected.setdefault(workload, proof):
                 raise RuntimeError(f"{engine_name} {workload} result differs")
@@ -272,14 +315,14 @@ def measure(args):
                 raise RuntimeError(f"{engine_name} emitted a different self-hosted module")
             return sample
 
-        for name in ENGINES:
+        for name in selected_engines:
             timing["warmup"][name] = record(name, "check")
             print(f"warmup {name}: {timing['warmup'][name]['wall_ns'] / 1e9:.3f} s", flush=True)
         for round_id in range(args.rounds):
             samples = []
             for index, workload in enumerate(WORKLOADS):
-                shift = (round_id + index) % len(ENGINES)
-                for name in ENGINES[shift:] + ENGINES[:shift]:
+                shift = (round_id + index) % len(selected_engines)
+                for name in selected_engines[shift:] + selected_engines[:shift]:
                     sample = record(name, workload)
                     samples.append({"engine": name, "workload": workload, **sample})
                     print(f"run {round_id + 1} {workload} {name}: {sample['wall_ns'] / 1e9:.3f} s", flush=True)
@@ -319,6 +362,10 @@ def main():
     command.add_argument("stage", type=lambda path: Path(path).resolve())
     command.add_argument("--cpu", type=int, required=True)
     command.add_argument("--rounds", type=int, default=3)
+    command.add_argument("--engines", nargs="+", choices=ALL_ENGINES, default=list(ENGINES))
+    command.add_argument("--wtime-aot", type=Path, default=None, help="optional path to wtime-aot binary")
+    command.add_argument("--wtime-aot-target-cpu", default="native")
+    command.add_argument("--wtime-aot-toolchain", default=None)
     preparation_options(command)
     command.set_defaults(action=measure)
     args = parser.parse_args()

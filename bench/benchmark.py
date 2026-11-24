@@ -27,6 +27,11 @@ import time
 import process
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "scripts"))
+import run_wtime_aot as wtime_aot_runner
+
+ENGINES = ("v8", "wasmtime", "wtime-aot", "wtime-aot-x64")
+WTIME_AOT_BACKENDS = {"wtime-aot": "rust", "wtime-aot-x64": "x64"}
 WORKLOADS = {
     "integer_mod": {"input": 10000000, "smoke_input": 1000, "description": "dependent i64 recurrence and Euclidean remainder"},
     "recursive_fibonacci": {"input": 35, "smoke_input": 12, "description": "runtime-input recursive Fibonacci"},
@@ -113,19 +118,30 @@ def metadata(args):
     except importlib.metadata.PackageNotFoundError:
         wasmtime_version = "not installed"
     tracked_inputs = [ROOT / "scripts" / "goose_wasm.py", ROOT / "scripts" / "run_wasm.mjs",
-                      ROOT / "scripts" / "run_wasmtime.py", ROOT / "bench" / "host_input.c", Path(__file__),
+                      ROOT / "scripts" / "run_wasmtime.py", ROOT / "scripts" / "run_wtime_aot.py",
+                      ROOT / "bench" / "host_input.c", Path(__file__),
                       Path(process.__file__), ROOT / "selfhost" / "bootstrap.py", ROOT / "toolchain.json",
                       ROOT / "bootstrap" / "seed.json", ROOT / "bootstrap" / "seed.c.gz",
                       ROOT / "bootstrap" / "sources.tar.gz"]
     tracked_inputs += sorted((ROOT / "selfhost").glob("*.goose"))
     tracked_inputs += sorted((ROOT / "native").rglob("*.h"))
     tracked_inputs += sorted((ROOT / "stdlib").rglob("*.goose"))
+    wtime_aot_meta = None
+    selected_engines = getattr(args, "engines", ())
+    if any(e in WTIME_AOT_BACKENDS for e in selected_engines):
+        wtime_aot_meta = wtime_aot_runner.wtime_aot_identity(
+            getattr(args, "wtime_aot", None),
+            backend=WTIME_AOT_BACKENDS[next(e for e in selected_engines if e in WTIME_AOT_BACKENDS)],
+            target_cpu=getattr(args, "wtime_aot_target_cpu", "native"),
+            toolchain=getattr(args, "wtime_aot_toolchain", None),
+        )
     return {"platform": platform.platform(), "machine": platform.machine(), "cpu": cpu,
             "supplied_machine_label": args.machine_label,
             "logical_cpu_count": os.cpu_count(), "cpu_affinity": affinity, "python": sys.version,
             "node": command_version([args.node, "-p", "JSON.stringify(process.versions)"]),
             "native_cc": command_version([args.cc, "--version"]),
             "wasmtime": wasmtime_version,
+            "wtime_aot": wtime_aot_meta,
             "bootstrap_seed_sha256": {path.name: digest(path) for path in tracked_inputs if path.parent == ROOT / "bootstrap"},
             "toolchain_pin": json.loads((ROOT / "toolchain.json").read_text()),
             "wasmtime_config": {"cranelift_opt_level": "speed", "wasm_memory64": True, "wasm_tail_call": True,
@@ -206,7 +222,11 @@ def main():
     parser.add_argument("--smoke", action="store_true", help="small correctness-only workloads; not performance evidence")
     parser.add_argument("--workloads", nargs="+", choices=tuple(WORKLOADS), default=list(WORKLOADS))
     parser.add_argument("--backends", nargs="+", choices=("direct", "native"), default=["direct", "native"])
-    parser.add_argument("--engines", nargs="+", choices=("v8", "wasmtime"), default=["v8", "wasmtime"])
+    parser.add_argument("--engines", nargs="+", choices=ENGINES, default=["v8", "wasmtime"])
+    parser.add_argument("--wtime-aot", type=Path, default=None, help="optional path to wtime-aot binary")
+    parser.add_argument("--wtime-aot-cache", type=Path, default=None, help="cache directory for wtime-aot builds")
+    parser.add_argument("--wtime-aot-target-cpu", default="native")
+    parser.add_argument("--wtime-aot-toolchain", default=None)
     parser.add_argument("--output-dir", type=Path, default=ROOT / "build" / "benchmark")
     args = parser.parse_args()
     if min(args.samples, args.compile_samples) < 1 or min(args.warmups, args.kernel_warmups) < 0:
@@ -216,9 +236,13 @@ def main():
     output.mkdir(parents=True, exist_ok=True)
     report = {"schema": "goose-backend-benchmark-v1", "status": "incomplete", "started_utc": datetime.now(timezone.utc).isoformat(),
               "configuration": vars(args).copy(),
-              "environment": metadata(args), "compile": [], "runtime": [], "warnings": [], "failures": []}
+              "environment": metadata(args), "compile": [], "aot_prepare": [], "runtime": [], "warnings": [], "failures": []}
     report["configuration"]["goose"] = str(args.goose)
     report["configuration"]["output_dir"] = str(output)
+    if args.wtime_aot is not None:
+        report["configuration"]["wtime_aot"] = str(args.wtime_aot)
+    if args.wtime_aot_cache is not None:
+        report["configuration"]["wtime_aot_cache"] = str(args.wtime_aot_cache)
     if args.smoke:
         report["warnings"].append("Smoke mode uses deliberately small workloads and cannot establish a performance ranking.")
     if min(args.samples, args.compile_samples) < 5:
@@ -262,8 +286,34 @@ def main():
                                   "wall_seconds": summary([value["seconds"] for value in values]), "bytes": values[-1]["bytes"],
                                   "samples": values})
     runtime_samples = {}
+    aot_binaries = {}
+    aot_cache = args.wtime_aot_cache or (output / "wtime-aot-cache")
     cells = [(name, backend, engine) for name, backend in artifacts
              for engine in (["native"] if backend == "native" else args.engines)]
+    for name, backend, engine in cells:
+        if engine not in WTIME_AOT_BACKENDS:
+            continue
+        artifact = artifacts[(name, backend)]
+        try:
+            aot_bin, build_ns = wtime_aot_runner.prepare_binary(
+                artifact,
+                backend=WTIME_AOT_BACKENDS[engine],
+                cache_dir=aot_cache,
+                wtime_aot=args.wtime_aot,
+                target_cpu=args.wtime_aot_target_cpu,
+                toolchain=args.wtime_aot_toolchain,
+            )
+            aot_binaries[(name, backend, engine)] = aot_bin
+            report["aot_prepare"].append({
+                "workload": name, "backend": backend, "engine": engine,
+                "aot_backend": WTIME_AOT_BACKENDS[engine],
+                "seconds": build_ns / 1e9, "bytes": aot_bin.stat().st_size,
+                "sha256": digest(aot_bin), "artifact": str(aot_bin),
+            })
+            print(f"AOT {name}/{backend}/{engine}: {build_ns / 1e6:.1f} ms ({aot_bin.stat().st_size} B)", flush=True)
+        except (OSError, RuntimeError, ValueError, subprocess.TimeoutExpired) as error:
+            report["failures"].append(f"aot_prepare {name}/{backend}/{engine}: {error}")
+            print(report["failures"][-1], flush=True)
     for round_number in range(-args.warmups, args.samples):
         shuffled = cells.copy()
         rng.shuffle(shuffled)
@@ -273,6 +323,11 @@ def main():
                 command = [artifact]
             elif engine == "v8":
                 command = [args.node, ROOT / "scripts" / "run_wasm.mjs", artifact]
+            elif engine in WTIME_AOT_BACKENDS:
+                aot_bin = aot_binaries.get((name, backend, engine))
+                if aot_bin is None:
+                    continue
+                command = [aot_bin]
             else:
                 command = [sys.executable, ROOT / "scripts" / "run_wasmtime.py", artifact]
             label = f"warmup{-round_number}" if round_number < 0 else f"sample{round_number}"

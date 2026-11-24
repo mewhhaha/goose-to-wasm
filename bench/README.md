@@ -13,10 +13,10 @@ seven runtime samples for every backend/engine combination. It writes
 The JSON preserves every measurement, hashes, flags, versions, workload input,
 checksum, sample count, median, MAD, quartiles, minimum, and maximum.
 
-| Backend | V8 | Wasmtime | Native process |
-| --- | --- | --- | --- |
-| Direct binary Wasm | Yes | Same module | — |
-| Goose C through native C compiler | — | — | Yes |
+| Backend | V8 | Wasmtime | `wtime-aot` (opt-in) | Native process |
+| --- | --- | --- | --- | --- |
+| Direct binary Wasm | Yes | Same module | Same module (`--engines ... wtime-aot [wtime-aot-x64]`) | — |
+| Goose C through native C compiler | — | — | — | Yes |
 
 Direct output uses memory32. Historical C-to-Wasm measurements used the earlier
 C++ compiler and memory64; they remain in dated evidence. The current compiler
@@ -66,9 +66,13 @@ the optimized whole computation, not the cost of an individual function call.
 # Correctness/CI smoke only: these tiny workloads cannot rank performance.
 python3 bench/benchmark.py --smoke --samples 2 --compile-samples 1 --warmups 1
 
-# Isolate a workload, or select explicit tool executables.
+# Isolate a workload, or select explicit tool executables (including optional wtime-aot).
 python3 bench/benchmark.py --workloads integer_mod \
+  --engines v8 wasmtime wtime-aot \
   --goose build/bin/goose --cc gcc --node node
+
+# Run a single Wasm module directly through wtime-aot (`--backend rust` or `--backend x64`).
+python3 scripts/run_wtime_aot.py path/to/program.wasm --backend rust --timing-json timing.json
 ```
 
 `--kernel-warmups` controls the untimed executions inside each process;
