@@ -358,6 +358,9 @@ struct Program {
     // control is six address-sized words, control_bytes of them.
     wide: bool = false, control_bytes: i64 = 24, control_align: i64 = 4,
     library: bool = false,
+    // c_host: --header or --shared C-host build (checks reachable exports/main/threads
+    // without checking unreached functions; emits goose_init/goose_exit instead of main).
+    c_host: bool = false, shared: bool = false, separate_runtime: bool = false,
     // check_only: --check or --parse, where a program that declares no main
     // is checked on its own (upstream nomain). reachable_program: unreached
     // functions are not checked (the reference checker's

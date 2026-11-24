@@ -132,21 +132,27 @@ static void g_region_stats(void) {
 static GS_NORETURN void g_exit(int64_t code) {
     g_region_stats();gs_exit(code);
 }
-static void g_cleanup(void) {
+G_SHARED int g_runtime_active;
+static void g_runtime_stop(void) {
+    if(!g_runtime_active)return;
+    g_runtime_active=0;
     g_region_stats();
 #if GS_NEED_THREADS
     g_transfer_drop();
 #endif
     gs_release_regions();g_region_pool_release();
+    g_argc=0;g_argv=NULL;
 }
+static void g_cleanup(void) { g_runtime_stop(); }
 static void g_runtime_start(int argc,char **argv,int64_t regions,int64_t worker_regions) {
     // glibc reads the main stack's bounds from /proc/self/maps; read them before
     // any region mapping lengthens it.
+    static int g_atexit_registered;
     g_stack_check_init();
-    g_argc=argc;g_argv=argv;g_region_count=regions;
+    g_argc=argc;g_argv=argv;g_region_count=regions;g_runtime_active=1;
     gs_rt_start(argc,argv,GS_STACK_RESERVE,GS_STACK_GAP,GS_STACK_BUDGET,regions+1,worker_regions+1);
     g_region_pool_begin(regions);
-    atexit(g_cleanup);
+    if(!g_atexit_registered){g_atexit_registered=1;atexit(g_cleanup);}
 }
 static GRegion *g_region_slot(int64_t slot) {
     if(slot<0 || slot>=g_region_count)g_panic("native region plan exhausted");

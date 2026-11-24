@@ -13,10 +13,12 @@ extern "libc.so.6" {
 
 struct DriverOptions {
     source_arg: i64 = -1, output_arg: i64 = -1, stdlib_arg: i64 = -1,
-    stats_arg: i64 = -1, dependencies_arg: i64 = -1, cc_arg: i64 = -1, profile_arg: i64 = -1, region_stats: bool = false, bundled_host: bool = false,
-    target: i64 = 0, optimization: i64 = 0, initial_pages: i64 = 16, maximum_pages: i64 = 256, memory64: bool = false,
+    stats_arg: i64 = -1, dependencies_arg: i64 = -1, cc_arg: i64 = -1, profile_arg: i64 = -1,
+    emit_runtime_arg: i64 = -1, header_arg: i64 = -1,
+    region_stats: bool = false, bundled_host: bool = false,
+    target: i64 = 0, target_set: bool = false, optimization: i64 = 0, initial_pages: i64 = 16, maximum_pages: i64 = 256, memory64: bool = false,
     check: bool = false, parse: bool = false, tokens: bool = false,
-    dump: bool = false, dump_ir: bool = false, run: bool = false, debug: bool = false, library: bool = false, reachable_program: bool = false, expansion_limit: i64 = 100000, stack_reserve: i64 = 0,
+    dump: bool = false, dump_ir: bool = false, run: bool = false, debug: bool = false, library: bool = false, shared: bool = false, standalone: bool = false, reachable_program: bool = false, expansion_limit: i64 = 100000, stack_reserve: i64 = 0,
     help: bool = false, version: bool = false, bad: bool = false,
 }
 fn driver_integer(out: u8[>..]&, value: i64) {
@@ -115,16 +117,25 @@ fn driver_source_path(p: Program&, path: const u8[:]) -> bool {
 }
 // Refuses an output that would replace a source, an embedded file or another
 // output, before anything is written.
-fn driver_outputs_distinct(p: Program&, output: const u8[:], stats: const u8[:], dependencies: const u8[:]) -> bool {
+fn driver_outputs_distinct(p: Program&, output: const u8[:], stats: const u8[:], dependencies: const u8[:], header: const u8[:] = "") -> bool {
     if output.len > 0 && driver_source_path(p, output) { driver_error("output would overwrite a source file"); return false; }
-    if stats.len > 0 && (driver_source_path(p, stats) || output.len > 0 && driver_same_path(stats, output)) {
+    if header.len > 0 && (driver_source_path(p, header) || output.len > 0 && driver_same_path(header, output)) {
+        driver_error("header would overwrite a source file or the output"); return false;
+    }
+    if stats.len > 0 && (driver_source_path(p, stats) || output.len > 0 && driver_same_path(stats, output) ||
+                         header.len > 0 && driver_same_path(stats, header)) {
         driver_error("statistics would overwrite a source file or the output"); return false;
     }
     if dependencies.len > 0 && (driver_source_path(p, dependencies) || output.len > 0 && driver_same_path(dependencies, output) ||
-                                stats.len > 0 && driver_same_path(dependencies, stats)) {
+                                stats.len > 0 && driver_same_path(dependencies, stats) ||
+                                header.len > 0 && driver_same_path(dependencies, header)) {
         driver_error("dependency manifest would overwrite a source file or another output"); return false;
     }
     return true;
+}
+fn driver_ends_with(text: const u8[:], suffix: const u8[:]) -> bool {
+    if text.len < suffix.len { return false; }
+    return same_bytes(text[text.len - suffix.len..], suffix);
 }
 fn driver_options(o: DriverOptions&, arguments: u8[:][:]) {
     var at = 1;
@@ -140,18 +151,19 @@ fn driver_options(o: DriverOptions&, arguments: u8[:][:]) {
         else if same_bytes(a, "--run") { o.run = true; }
         else if same_bytes(a, "--debug") { o.debug = true; }
         else if same_bytes(a, "--library") { o.library = true; }
+        else if same_bytes(a, "--shared") { o.shared = true; }
         else if same_bytes(a, "--wasm-memory64") { o.memory64 = true; }
         else if same_bytes(a, "--wasm-bundled-host") { o.bundled_host = true; }
         else if same_bytes(a, "--wasm-region-stats") { o.region_stats = true; }
         else if same_bytes(a, "--reachable-program") { o.reachable_program = true; }
-        else if same_bytes(a, "--standalone") { /* C output is standalone. */ }
+        else if same_bytes(a, "--standalone") { o.standalone = true; }
         else if same_bytes(a, "-O0") { o.optimization = 0; }
         else if same_bytes(a, "-O1") { o.optimization = 1; }
         else if same_bytes(a, "-O2") { o.optimization = 2; }
         else if same_bytes(a, "-o") || same_bytes(a, "--stdlib") || same_bytes(a, "--wasm-stats") ||
                 same_bytes(a, "--wasm-deps") || same_bytes(a, "--cc") || same_bytes(a, "--target") || same_bytes(a, "--wasm-region-profile") ||
                 same_bytes(a, "--wasm-initial-pages") || same_bytes(a, "--wasm-max-pages") || same_bytes(a, "--expansion-node-limit") ||
-                same_bytes(a, "--stack-reserve") {
+                same_bytes(a, "--stack-reserve") || same_bytes(a, "--emit-runtime") || same_bytes(a, "--header") {
             if at >= arguments.len { driver_error("missing option value"); o.bad = true; break; }
             let v = arguments[at]; at++;
             if same_bytes(a, "-o") { o.output_arg = at - 1; }
@@ -160,7 +172,10 @@ fn driver_options(o: DriverOptions&, arguments: u8[:][:]) {
             else if same_bytes(a, "--wasm-region-profile") { o.profile_arg = at - 1; }
             else if same_bytes(a, "--wasm-deps") { o.dependencies_arg = at - 1; }
             else if same_bytes(a, "--cc") { o.cc_arg = at - 1; }
+            else if same_bytes(a, "--emit-runtime") { o.emit_runtime_arg = at - 1; }
+            else if same_bytes(a, "--header") { o.header_arg = at - 1; }
             else if same_bytes(a, "--target") {
+                o.target_set = true;
                 if same_bytes(v, "wasm-direct") { o.target = 0; }
                 else if same_bytes(v, "native") || same_bytes(v, "c") { o.target = 1; }
                 else { driver_error("target must be wasm-direct, native or c"); o.bad = true; }
@@ -181,6 +196,11 @@ fn driver_options(o: DriverOptions&, arguments: u8[:][:]) {
         } else if a.len > 0 && a[0] == '-' { driver_error("unknown compiler option"); write_stderr(a); write_stderr("\n"); o.bad = true; }
         else if o.source_arg < 0 { o.source_arg = at - 1; }
         else { driver_error("only one root source is accepted"); o.bad = true; }
+    }
+    // --header and --shared target native C by default (upstream C-host interface).
+    if o.header_arg >= 0 || o.shared {
+        if !o.target_set { o.target = 1; }
+        else if o.target != 1 { driver_error("--header and --shared require the native target"); o.bad = true; }
     }
     // A 64-bit memory may declare up to 2^32 pages (2^48 bytes); an engine
     // has its own cap, V8's being 262,144 pages.
@@ -346,7 +366,7 @@ fn driver_exec(command: u8[>..]&) -> i64 {
     return (code >> 8) & 255;
 }
 fn driver_help() {
-    write_stdout("Goose-written compiler (unverified rewrite)\nUsage: goose-selfhost source.goose --target wasm-direct|native -o output [-O0|-O1|-O2]\n  --check --parse --tokens --dump --debug --stdlib DIR --wasm-stats FILE --wasm-deps FILE\n  --wasm-bundled-host  Target the bundled host implementations for recognized imports.\n  --reachable-program  Check only functions a root reaches, and the signatures of the rest.\n  --expansion-node-limit N  Total const for expansion size (default 100000).\n  --stack-reserve SIZE  Address space reserved per data stack in a native program, from 64K to 256T\n                        with a K, M, G or T suffix (default 2G).\n  --run  Build native C with --cc and execute, or execute Wasm with GOOSE_WASM_HOST.\n");
+    write_stdout("Goose-written compiler (unverified rewrite)\nUsage: goose-selfhost source.goose --target wasm-direct|native -o output [-O0|-O1|-O2]\n  --check --parse --tokens --dump --debug --stdlib DIR --wasm-stats FILE --wasm-deps FILE\n  --emit-runtime FILE  Write the standalone native C runtime unit and exit.\n  --header FILE        Emit a C host header (goose_init, goose_exit, exports) and separate-runtime C.\n  --shared             Build or emit a C shared library with exported symbols.\n  --standalone         Embed the native C runtime even when emitting with --header.\n  --wasm-bundled-host  Target the bundled host implementations for recognized imports.\n  --reachable-program  Check only functions a root reaches, and the signatures of the rest.\n  --expansion-node-limit N  Total const for expansion size (default 100000).\n  --stack-reserve SIZE  Address space reserved per data stack in a native program, from 64K to 256T\n                        with a K, M, G or T suffix (default 2G).\n  --run  Build native C with --cc and execute, or execute Wasm with GOOSE_WASM_HOST.\n");
 }
 fn driver_main() -> i64 {
     // Every path lives in one byte table: each array holds its own storage region.
@@ -356,6 +376,12 @@ fn driver_main() -> i64 {
     if o.help { driver_help(); return 0; }
     if o.version { write_stdout("Goose to Wasm (Goose implementation)\n"); return 0; }
     if o.bad { return 2; }
+    if o.emit_runtime_arg >= 0 && o.source_arg < 0 {
+        var runtime_out: u8[>..] = [];
+        generate_c_runtime(runtime_out);
+        if !write_file(arguments[o.emit_runtime_arg], runtime_out) { driver_error("cannot write runtime output"); return 1; }
+        return 0;
+    }
     if o.source_arg < 0 { driver_help(); return 2; }
     let source_start = paths.len; paths.append(arguments[o.source_arg]); let source_end = paths.len;
     let output_start = paths.len;
@@ -364,6 +390,8 @@ fn driver_main() -> i64 {
         if o.target == 0 { paths.append("out.wasm"); } else { paths.append("out.c"); }
     }
     let output_end = paths.len;
+    let header_start = paths.len; if o.header_arg >= 0 { paths.append(arguments[o.header_arg]); } let header_end = paths.len;
+    let runtime_start = paths.len; if o.emit_runtime_arg >= 0 { paths.append(arguments[o.emit_runtime_arg]); } let runtime_end = paths.len;
     let stats_start = paths.len; if o.stats_arg >= 0 { paths.append(arguments[o.stats_arg]); } let stats_end = paths.len;
     let dependency_start = paths.len; if o.dependencies_arg >= 0 { paths.append(arguments[o.dependencies_arg]); } let dependency_end = paths.len;
     let stdlib_start = paths.len;
@@ -407,7 +435,10 @@ fn driver_main() -> i64 {
                       type_properties: type_properties, builtin_symbols: builtin_symbols,
                       type_buckets: type_buckets, type_links: type_links, type_scan_marks: type_scan_marks, type_holds: type_holds,
                       inline_sites: inline_sites, region_profile: region_profile, ident_table: ident_table };
+    let link_shared = o.shared && !driver_ends_with(paths[output_start..output_end], ".c");
     p.optimization = o.optimization; p.debug = o.debug; p.library = o.library;
+    p.c_host = o.header_arg >= 0 || o.shared; p.shared = o.shared;
+    p.separate_runtime = o.header_arg >= 0 && !o.standalone && !link_shared;
     p.check_only = o.check || o.parse; p.reachable_program = o.reachable_program; p.expansion_limit = o.expansion_limit; p.stack_reserve = o.stack_reserve;
     p.initial_pages = o.initial_pages; p.maximum_pages = o.maximum_pages; p.region_stats = o.region_stats; p.bundled_host = o.bundled_host;
     if o.target == 1 { p.pointer_bytes = 8; }
@@ -447,13 +478,35 @@ fn driver_main() -> i64 {
     if o.target == 0 { generate_wasm(p, output); } else { generate_c(p, output); }
     let generated = clock_ns();
     if p.diagnostics.len > 0 { driver_diagnostics(p); return 1; }
-    if !driver_outputs_distinct(p, paths[output_start..output_end], paths[stats_start..stats_end], paths[dependency_start..dependency_end]) { return 1; }
-    if !write_file(paths[output_start..output_end], output) { driver_error("cannot write output"); return 1; }
+    if !driver_outputs_distinct(p, paths[output_start..output_end], paths[stats_start..stats_end], paths[dependency_start..dependency_end], paths[header_start..header_end]) { return 1; }
+    if runtime_end > runtime_start {
+        var runtime_out: u8[>..] = [];
+        generate_c_runtime(runtime_out);
+        if !write_file(paths[runtime_start..runtime_end], runtime_out) { driver_error("cannot write runtime output"); return 1; }
+    }
+    if header_end > header_start {
+        var header_out: u8[>..] = [];
+        generate_c_header(p, header_out);
+        if !write_file(paths[header_start..header_end], header_out) { driver_error("cannot write header output"); return 1; }
+    }
+    if link_shared {
+        var c_path: u8[>..] = []; c_path.append(paths[output_start..output_end]); c_path.append(".goose.c");
+        if !write_file(c_path, output) { driver_error("cannot write temporary C output"); return 1; }
+        var shared_cmd: u8[>..] = [];
+        driver_quote(shared_cmd, paths[cc_start..cc_end]); shared_cmd.append(" -std=gnu11 -O2 -shared -fPIC ");
+        driver_quote(shared_cmd, c_path); shared_cmd.append(" -lm -ldl -pthread -o ");
+        driver_quote(shared_cmd, paths[output_start..output_end]);
+        shared_cmd.append("; s=$?; rm -f "); driver_quote(shared_cmd, c_path); shared_cmd.append("; exit $s");
+        let code = driver_exec(shared_cmd);
+        if code != 0 { return code; }
+    } else {
+        if !write_file(paths[output_start..output_end], output) { driver_error("cannot write output"); return 1; }
+    }
     if stats_end > stats_start && !driver_stats(p, paths[stats_start..stats_end], output.len, parsed - started, checked - parsed, optimized - checked, generated - optimized) {
         driver_error("cannot write statistics"); return 1;
     }
     if dependency_end > dependency_start && !driver_dependencies(p, paths[dependency_start..dependency_end]) { driver_error("cannot write dependency manifest"); return 1; }
-    if !o.run { return 0; }
+    if !o.run || link_shared { return 0; }
     var command: u8[>..] = [];
     if o.target == 1 {
         var binary: u8[>..] = []; binary.append(paths[output_start..output_end]); binary.append(".bin");

@@ -1350,10 +1350,13 @@ fn cc_used_types(p: Program&, used: bool[:], work: i64[>..]&) {
     for n, id in p.nodes { if cc_emittable(p, id) { cc_use_type(p, used, work, n.type_id); } }
     var at = 0;
     while at < work.len {
-        let t = p.types[work[at]]; at++;
+        let current = work[at]; at++;
+        if !cc_concrete(p, current) { continue; }
+        let t = p.types[current];
         if t.kind == TY_REF || t.kind == TY_ARRAY || t.kind == TY_SLICE || t.kind == TY_FN { cc_use_type(p, used, work, t.element); }
         var field = -1;
-        if t.kind == TY_STRUCT || t.kind == TY_ENUM || t.kind == TY_TUPLE || t.kind == TY_FN { field = t.first; }
+        if (t.kind == TY_STRUCT || t.kind == TY_ENUM) && t.declaration >= 0 { field = p.nodes[t.declaration].first; }
+        else if t.kind == TY_TUPLE || t.kind == TY_FN { field = t.first; }
         while field >= 0 {
             if (p.nodes[field].flags & F_PAD) == 0 { cc_use_type(p, used, work, p.nodes[field].type_id); }
             field = p.nodes[field].next;
@@ -1808,6 +1811,7 @@ recursive fn cc_default(p: Program&, f: CcBody&, type_id: i64) -> i64 {
     }
     let result = cc_temp(p, f, type_id); if result < 0 { return -1; }
     let t = p.types[type_id];
+    if t.kind == TY_SLICE { cc_set(f, result); cc_text(f.out, "(GSlice){(GRef)(uintptr_t)&g_empty_byte,0};\n"); return result; }
     if t.kind == TY_ARRAY && t.array_kind == A_FIXED {
         let counter = f.serial; f.serial++;
         cc_id(f.out, "for(int64_t g_i", counter); cc_text(f.out, "=0;"); cc_id(f.out, "g_i", counter); cc_text(f.out, "<"); cc_number(f.out, t.count); cc_text(f.out, ";"); cc_id(f.out, "g_i", counter); cc_text(f.out, "++) {\n");
@@ -2462,6 +2466,9 @@ recursive fn cc_array(p: Program&, f: CcBody&, node: i64) -> i64 {
     if cc_image_type(p, p.nodes[node].type_id) { return cc_image_array(p, f, node, p.nodes[node].type_id); }
     if cc_kind(p, p.nodes[node].type_id) == TY_ARRAY && cc_size_class(p, p.types[p.nodes[node].type_id].element) == 1 { return cc_image_run_array(p, f, node); }
     let n = p.nodes[node]; let t = p.types[n.type_id]; let result = cc_result_temp(p, f, node, n.type_id);
+    if t.kind == TY_SLICE && n.first < 0 && n.right < 0 && n.third < 0 {
+        cc_set(f, result); cc_text(f.out, "(GSlice){(GRef)(uintptr_t)&g_empty_byte,0};\n"); return result;
+    }
     var base: i64 = -1;
     if t.kind == TY_SLICE {
         let raw = f.serial; f.serial++; cc_raw_array(f, "g_array", raw);
@@ -2809,20 +2816,18 @@ recursive fn cc_variable(p: Program&, f: CcBody&, node: i64) {
     let n = p.nodes[node];
     if n.first < 0 {
         if n.symbol >= 0 && (p.symbols[n.symbol].flags & S_GLOBAL) == 0 { cc_seed_symbol(p, f, n.symbol); }
+        if n.right < 0 { return; }
         let type_id = p.symbols[n.symbol].type_id; let keep = f.region_live;
         if cc_direct_symbol(p, f, n.symbol) && cc_region_width(p, type_id) == 0 && !cc_needs_clone(p, type_id, 0) && cc_kind(p, type_id) != TY_TUPLE {
-            var value: i64 = -1;
-            if n.right >= 0 { value = cc_to(p, f, n.right, type_id, true); }
-            else { value = cc_default(p, f, type_id); }
+            let value = cc_to(p, f, n.right, type_id, true);
             if value >= 0 { cc_id(f.out, "g_s", n.symbol); cc_text(f.out, "="); cc_id(f.out, "g_v", value); cc_text(f.out, ";\n"); }
             if !cc_frame_borrows(p, type_id) { cc_restore(f, keep); f.region_live = keep; }
             return;
         }
-        let destination = cc_symbol_ref(p, f, n.symbol, node); var value: i64 = -1;
-        if n.right >= 0 && (cc_region_width(p, type_id) > 0 || cc_result_location(p, type_id)) { cc_construct_into(p, f, n.right, type_id, destination); }
+        let destination = cc_symbol_ref(p, f, n.symbol, node);
+        if cc_region_width(p, type_id) > 0 || cc_result_location(p, type_id) { cc_construct_into(p, f, n.right, type_id, destination); }
         else {
-            if n.right >= 0 { value = cc_to(p, f, n.right, type_id, true); }
-            else { value = cc_default(p, f, type_id); }
+            let value = cc_to(p, f, n.right, type_id, true);
             cc_store(p, f, destination, value, type_id, node, true);
         }
         if !cc_frame_borrows(p, type_id) { cc_restore(f, keep); f.region_live = keep; }
@@ -3118,8 +3123,16 @@ recursive fn cc_pool_builtin(p: Program&, f: CcBody&, node: i64, builtin: i64, a
         let index = cc_to(p, f, f.work[args + 1], TYPE_I64); cc_text(f.out, "g_pool_free("); cc_id(f.out, "g_v", base); cc_text(f.out, ","); cc_id(f.out, "g_v", index);
         cc_text(f.out, ","); cc_location(p, f, node); cc_text(f.out, ");\n"); return -1;
     }
-    let slice_type = cc_slice_type(p, element); var old = -1; var old_len = -1;
-    if builtin != 33 { old = cc_to(p, f, f.work[args + 1], slice_type); }
+    var old = -1; var old_len = -1;
+    if builtin != 33 {
+        var slice_type = p.nodes[f.work[args + 1]].type_id;
+        while cc_kind(p, slice_type) == TY_REF { slice_type = p.types[slice_type].element; }
+        if cc_kind(p, slice_type) != TY_SLICE {
+            if cc_kind(p, n.type_id) == TY_SLICE { slice_type = n.type_id; }
+            else { slice_type = cc_slice_type(p, element); }
+        }
+        old = cc_to(p, f, f.work[args + 1], slice_type);
+    }
     if builtin == 35 {
         cc_text(f.out, "g_pool_slice_free("); cc_id(f.out, "g_v", base); cc_text(f.out, ","); cc_id(f.out, "g_v", old); cc_text(f.out, ","); cc_number(f.out, width);
         cc_text(f.out, ","); cc_location(p, f, node); cc_text(f.out, ");\n"); return -1;
@@ -3892,14 +3905,67 @@ fn cc_statement_extern(p: Program&, out: u8[>..]&, function: i64, name: const u8
     }
     return false;
 }
-fn cc_emit_extern(p: Program&, out: u8[>..]&, function: i64) {
+fn cc_is_builtin_extern(p: Program&, function: i64, name: const u8[:]) -> bool {
+    if (p.nodes[function].flags & F_LOCATED) != 0 { return true; }
+    if cc_runtime_extern(name).len > 0 { return true; }
+    for s in ["gs_f64_digits", "gs_os_read_stdin_max", "gs_rotl32", "gs_rotr32", "gs_rotl64", "gs_rotr64",
+              "gs_byte_swap16", "gs_byte_swap32", "gs_byte_swap64",
+              "gs_f32_from_bits", "gs_f64_from_bits", "gs_f32_to_bits", "gs_f64_to_bits",
+              "gs_os_read_file", "gs_os_list_dir", "gs_os_getenv",
+              "gs_os_write_file", "gs_os_append_file", "gs_os_write_file_atomic",
+              "gs_os_file_exists", "gs_os_is_dir", "gs_os_remove_file", "gs_os_remove_dir", "gs_os_make_dir",
+              "gs_os_rename_file", "gs_os_read_line", "gs_os_read_stdin", "gs_os_resource_dir",
+              "gs_os_write_stdout", "gs_os_write_stderr", "gs_os_flush_stdout",
+              "gs_os_arg_count", "gs_os_arg", "gs_os_time_ns", "gs_os_clock_ns", "gs_os_sleep_ms",
+              "gs_os_random_u64", "gs_trim_memory", "gs_clz", "gs_ctz", "gs_popcount"] {
+        if same_bytes(name, s) { return true; }
+    }
+    return false;
+}
+fn cc_is_direct_foreign(p: Program&, function: i64) -> bool {
+    let n = p.nodes[function];
+    if (n.flags & F_EXTERN) == 0 { return false; }
+    if n.aux >= 0 && n.aux < p.tokens.len && p.tokens[n.aux].kind == T_STRLIT { return false; }
+    let name = cc_extern_name(p, function);
+    if cc_is_builtin_extern(p, function, name) { return false; }
+    for exported, id in p.nodes {
+        if id != function && (exported.flags & F_EXPORT) != 0 && cc_emittable(p, id) && same_bytes(name, cc_extern_name(p, id)) { return false; }
+    }
+    return true;
+}
+fn cc_emit_foreign_params(p: Program&, out: u8[>..]&, function: i64, check_builder: bool = false) {
+    var param = p.nodes[function].first; var index = 0;
+    while param >= 0 {
+        if index > 0 { cc_text(out, ","); }
+        let type_id = p.nodes[param].type_id;
+        if cc_kind(p, type_id) == TY_REF {
+            let element = p.types[type_id].element;
+            if check_builder && cc_owner(p, element) { cc_fail(p, function, "c: foreign builder reference ABI requires a runtime adapter"); }
+            cc_text(out, "void*");
+        } else if cc_kind(p, type_id) == TY_SLICE { cc_text(out, "GForeignSlice"); }
+        else { cc_type(out, type_id); }
+        param = p.nodes[param].next; index++;
+    }
+    if index == 0 { cc_text(out, "void"); }
+}
+fn cc_emit_direct_foreign_decl(p: Program&, out: u8[>..]&, function: i64) {
+    if !cc_is_direct_foreign(p, function) { return; }
+    let result_type = cc_function_result(p, function);
+    cc_text(out, "extern ");
+    if cc_kind(p, result_type) == TY_REF { cc_text(out, "void*"); } else { cc_type(out, result_type); }
+    cc_id(out, " g_ext_", function); cc_text(out, "(");
+    cc_emit_foreign_params(p, out, function, false);
+    cc_text(out, ") __asm__("); cc_bytes(out, cc_extern_name(p, function)); cc_text(out, ");\n");
+}
+fn cc_emit_extern(p: Program&, out: u8[>..]&, function: i64, needs_env: const bool[:]) {
     let name = cc_extern_name(p, function); let result_type = cc_function_result(p, function);
     let value = cc_kind(p, result_type) != TY_VOID;
     for exported, id in p.nodes {
         if id == function || (exported.flags & F_EXPORT) == 0 || !cc_emittable(p, id) { continue; }
         if !same_bytes(name, cc_extern_name(p, id)) { continue; }
         if value && !cc_result_indirect(p, result_type) { cc_text(out, "return "); }
-        cc_id(out, "g_fn", id); cc_text(out, "(NULL,g_base");
+        cc_id(out, "g_fn", id);
+        if needs_env[id] { cc_text(out, "(NULL,g_base"); } else { cc_text(out, "(g_base"); }
         if cc_receives(p, result_type) { cc_text(out, ",g_into"); }
         var param = p.nodes[function].first; var index = 0;
         while param >= 0 { cc_text(out, ","); if cc_indirect(p, p.nodes[param].type_id) { cc_text(out, "&"); } cc_param(p, out, function, index); index++; param = p.nodes[param].next; }
@@ -3979,29 +4045,30 @@ fn cc_emit_extern(p: Program&, out: u8[>..]&, function: i64) {
         cc_param(p, out, function, 0); cc_text(out, ");\n"); return;
     }
     // Foreign C signatures use raw pointers and raw pointer/length slices.
-    // Runtime-owned builder references have a distinct ABI and are rejected.
+    // Plain `extern fn` (without a library string) binds directly to a C symbol
+    // so static/host objects link without -rdynamic; `extern "lib" { ... }`
+    // resolves dynamically through g_external.
     if value && !cc_tuple_channels(p, result_type) && cc_kind(p, result_type) != TY_TUPLE { cc_text(out, "("); cc_type(out, result_type); cc_text(out, ")"); }
-    cc_text(out, "((");
-    if cc_kind(p, result_type) == TY_REF { cc_text(out, "void*"); }
-    else { cc_type(out, result_type); }
-    cc_text(out, " (*) ("); var param = p.nodes[function].first; var index = 0;
-    while param >= 0 {
-        if index > 0 { cc_text(out, ","); }
-        let type_id = p.nodes[param].type_id;
-        if cc_kind(p, type_id) == TY_REF {
-            let element = p.types[type_id].element;
-            if cc_owner(p, element) { cc_fail(p, function, "c: foreign builder reference ABI requires a runtime adapter"); }
-            cc_text(out, "void*");
-        } else if cc_kind(p, type_id) == TY_SLICE { cc_text(out, "GForeignSlice"); }
-        else { cc_type(out, type_id); }
-        param = p.nodes[param].next; index++;
-    }
-    if index == 0 { cc_text(out, "void"); }
-    cc_text(out, "))g_external(");
-    if p.nodes[function].aux >= 0 && p.nodes[function].aux < p.tokens.len && p.tokens[p.nodes[function].aux].kind == T_STRLIT {
+    let has_library = p.nodes[function].aux >= 0 && p.nodes[function].aux < p.tokens.len && p.tokens[p.nodes[function].aux].kind == T_STRLIT;
+    if !has_library {
+        var cp = p.nodes[function].first;
+        while cp >= 0 {
+            let tid = p.nodes[cp].type_id;
+            if cc_kind(p, tid) == TY_REF && cc_owner(p, p.types[tid].element) { cc_fail(p, function, "c: foreign builder reference ABI requires a runtime adapter"); }
+            cp = p.nodes[cp].next;
+        }
+        cc_id(out, "g_ext_", function); cc_text(out, "(");
+    } else {
+        cc_text(out, "((");
+        if cc_kind(p, result_type) == TY_REF { cc_text(out, "void*"); }
+        else { cc_type(out, result_type); }
+        cc_text(out, " (*) (");
+        cc_emit_foreign_params(p, out, function, true);
+        cc_text(out, "))g_external(");
         let t = p.tokens[p.nodes[function].aux]; cc_bytes(out, p.text[t.text_start..t.text_start + t.text_len]);
-    } else { cc_text(out, "NULL"); }
-    cc_text(out, ","); cc_bytes(out, name); cc_text(out, "))("); param = p.nodes[function].first; index = 0;
+        cc_text(out, ","); cc_bytes(out, name); cc_text(out, "))(");
+    }
+    var param = p.nodes[function].first; var index = 0;
     while param >= 0 {
         if index > 0 { cc_text(out, ","); }
         let kind = cc_kind(p, p.nodes[param].type_id);
@@ -4084,6 +4151,7 @@ fn cc_emit_function(p: Program&, out: u8[>..]&, function: i64, plans: RegionFunc
         checked = p.nodes[checked].next;
     }
     if cc_self_run(p, cc_function_result(p, function)) && (n.flags & F_NONLOCAL) != 0 { cc_fail(p, function, "c: nonlocal run results require root capability recovery"); }
+    if (n.flags & F_EXTERN) != 0 { cc_emit_direct_foreign_decl(p, out, function); }
     cc_emit_signature(p, out, function, needs_env); cc_text(out, " {\n"); cc_parameter_aliases(p, out, function);
     if (n.flags & (F_EXTERN | F_EXPORT | F_THREAD)) != 0 {
         var parameter = n.first;
@@ -4099,7 +4167,7 @@ fn cc_emit_function(p: Program&, out: u8[>..]&, function: i64, plans: RegionFunc
         if cc_relative_cell(p, cc_function_result(p, function)) { cc_fail(p, function, "c: encoded foreign reference ABI needs adaptation"); }
         let result = cc_function_result(p, function);
         if cc_tuple_channels(p, result) { cc_type(out, result); cc_text(out, " g_foreign={};\n"); }
-        cc_emit_extern(p, out, function);
+        cc_emit_extern(p, out, function, needs_env);
         if cc_tuple_channels(p, result) {
             var field = p.types[result].first; var ordinal = 0;
             while field >= 0 {
@@ -4224,40 +4292,129 @@ fn cc_emit_function(p: Program&, out: u8[>..]&, function: i64, plans: RegionFunc
     }
     cc_parameter_aliases(p, out, function, true);
 }
-fn cc_emit_export(p: Program&, out: u8[>..]&, function: i64) {
-    let n = p.nodes[function]; if (n.flags & F_EXPORT) == 0 { return; }
+fn cc_export_c_type(p: Program&, out: u8[>..]&, type_id: i64, is_return: bool = false, for_header: bool = false) {
+    let t = p.types[type_id];
+    if t.kind == TY_VOID { cc_text(out, "void"); }
+    else if t.kind == TY_BOOL { cc_text(out, "uint8_t"); }
+    else if t.kind == TY_INT {
+        if (t.flags & TF_UNSIGNED) != 0 { cc_text(out, "uint"); } else { cc_text(out, "int"); }
+        cc_number(out, t.count); cc_text(out, "_t");
+    } else if t.kind == TY_FLOAT {
+        if t.count == 32 { cc_text(out, "float"); } else { cc_text(out, "double"); }
+    } else if t.kind == TY_SLICE {
+        if is_return { cc_text(out, "const uint8_t *"); }
+        else if for_header { cc_text(out, "gs_slice"); }
+        else { cc_text(out, "GForeignSlice"); }
+    } else if t.kind == TY_REF {
+        if (t.flags & TF_CONST) != 0 { cc_text(out, "const void *"); } else { cc_text(out, "void *"); }
+    } else {
+        cc_type(out, type_id);
+    }
+}
+fn cc_emit_export_sig(p: Program&, out: u8[>..]&, function: i64, for_header: bool) {
+    let n = p.nodes[function];
     let result = cc_function_result(p, function);
-    cc_type(out, cc_function_result(p, function)); cc_id(out, " g_export", function); cc_text(out, "(");
+    let return_slice = cc_kind(p, result) == TY_SLICE;
+    cc_export_c_type(p, out, result, true, for_header);
+    if !return_slice && cc_kind(p, result) != TY_REF { cc_text(out, " "); }
+    if for_header { cc_text(out, cc_extern_name(p, function)); }
+    else { cc_id(out, "g_export", function); }
+    cc_text(out, "(");
     var param = n.first; var index = 0;
     while param >= 0 {
-        if index > 0 { cc_text(out, ","); } cc_type(out, p.nodes[param].type_id); cc_text(out, " "); cc_id(out, "g_s", p.nodes[param].symbol);
+        if index > 0 { cc_text(out, ", "); }
+        let pty = p.nodes[param].type_id;
+        cc_export_c_type(p, out, pty, false, for_header);
+        if cc_kind(p, pty) != TY_REF { cc_text(out, " "); }
+        if for_header { cc_id(out, "arg", index); } else { cc_id(out, "g_s", p.nodes[param].symbol); }
         param = p.nodes[param].next; index++;
+    }
+    if return_slice {
+        if index > 0 { cc_text(out, ", "); }
+        cc_text(out, "int64_t *gs_export_len");
+        index++;
     }
     if index == 0 { cc_text(out, "void"); }
-    cc_text(out, ") __asm__("); cc_bytes(out, cc_extern_name(p, function)); cc_text(out, ");\n");
-    cc_type(out, cc_function_result(p, function)); cc_id(out, " g_export", function); cc_text(out, "("); param = n.first; index = 0;
-    while param >= 0 {
-        if index > 0 { cc_text(out, ","); } cc_type(out, p.nodes[param].type_id); cc_text(out, " "); cc_id(out, "g_s", p.nodes[param].symbol);
-        param = p.nodes[param].next; index++;
+    cc_text(out, ")");
+}
+fn cc_emit_export(p: Program&, out: u8[>..]&, function: i64, needs_env: const bool[:]) {
+    let n = p.nodes[function]; if (n.flags & F_EXPORT) == 0 { return; }
+    let result = cc_function_result(p, function);
+    let return_slice = cc_kind(p, result) == TY_SLICE;
+    if p.shared { cc_text(out, "#ifdef _WIN32\n__declspec(dllexport)\n#endif\n"); }
+    cc_emit_export_sig(p, out, function, false);
+    cc_text(out, " __asm__("); cc_bytes(out, cc_extern_name(p, function)); cc_text(out, ");\n");
+    if p.shared { cc_text(out, "#ifdef _WIN32\n__declspec(dllexport)\n#endif\n"); }
+    cc_emit_export_sig(p, out, function, false);
+    cc_text(out, "{\n");
+    if p.c_host { cc_text(out, "if(!g_initialized)gs_panic(\"goose_init must be called before exported functions\");\n"); }
+    else { cc_text(out, "g_initialize();\n"); }
+    if return_slice {
+        cc_text(out, "if(!gs_export_len)gs_panic(\"exported slice length pointer is null\");\n");
+        cc_text(out, "GSlice g_export_slice=");
+    } else {
+        if cc_result_indirect(p, result) { cc_fixed(out, result, "g_export_result", function); }
+        if cc_tuple_channels(p, result) {
+            cc_id(out, "GRef g_export_channels", function); cc_text(out, "[]={"); var field = p.types[result].first; var ordinal = 0;
+            while field >= 0 {
+                if ordinal > 0 { cc_text(out, ","); } cc_text(out, "g_ref(&"); cc_id(out, "g_export_result", function); cc_id(out, ".f", ordinal); cc_text(out, ")");
+                field = p.nodes[field].next; ordinal++;
+            }
+            cc_text(out, "};\n");
+        } else if !cc_result_indirect(p, result) && cc_kind(p, result) != TY_VOID { cc_text(out, "return "); }
+        if cc_region_width(p, result) > 0 { cc_fail(p, function, "c: exported owning results need a caller destination"); }
     }
-    if index == 0 { cc_text(out, "void"); } cc_text(out, "){g_initialize();\n");
-    if cc_result_indirect(p, result) { cc_fixed(out, result, "g_export_result", function); }
-    if cc_tuple_channels(p, result) {
-        cc_id(out, "GRef g_export_channels", function); cc_text(out, "[]={"); var field = p.types[result].first; var ordinal = 0;
-        while field >= 0 {
-            if ordinal > 0 { cc_text(out, ","); } cc_text(out, "g_ref(&"); cc_id(out, "g_export_result", function); cc_id(out, ".f", ordinal); cc_text(out, ")");
-            field = p.nodes[field].next; ordinal++;
+    cc_id(out, "g_fn", function);
+    if needs_env[function] { cc_text(out, "(NULL,g_global_regions"); } else { cc_text(out, "(g_global_regions"); }
+    if !return_slice {
+        if cc_tuple_channels(p, result) { cc_text(out, ","); cc_id(out, "g_export_channels", function); }
+        else if cc_result_indirect(p, result) { cc_text(out, ",&"); cc_id(out, "g_export_result", function); }
+    }
+    var param = n.first;
+    while param >= 0 {
+        cc_text(out, ",");
+        let pty = p.nodes[param].type_id;
+        if cc_kind(p, pty) == TY_REF { cc_text(out, "g_ref((void*)"); cc_id(out, "g_s", p.nodes[param].symbol); cc_text(out, ")"); }
+        else if cc_kind(p, pty) == TY_SLICE { cc_text(out, "(GSlice){g_ref("); cc_id(out, "g_s", p.nodes[param].symbol); cc_text(out, ".data),"); cc_id(out, "g_s", p.nodes[param].symbol); cc_text(out, ".len}"); }
+        else { if cc_indirect(p, pty) { cc_text(out, "&"); } cc_id(out, "g_s", p.nodes[param].symbol); }
+        param = p.nodes[param].next;
+    }
+    cc_text(out, ");");
+    if return_slice {
+        cc_text(out, "*gs_export_len=g_export_slice.len;return (const uint8_t*)g_address(g_export_slice.base);");
+    } else if cc_result_indirect(p, result) {
+        cc_text(out, "return "); cc_id(out, "g_export_result", function); cc_text(out, ";");
+    }
+    cc_text(out, "}\n");
+    if !return_slice && cc_result_indirect(p, result) { cc_undef(out, "g_export_result", function); }
+}
+fn generate_c_runtime(out: u8[>..]&) {
+    cc_text(out, "/* Generated by the Goose compiler (--emit-runtime). Do not edit. */\n#define _GNU_SOURCE 1\n#define G_RUNTIME_UNIT 1\n");
+    cc_text(out, cc_runtime_units);
+    cc_text(out, cc_runtime_header);
+    cc_text(out, cc_runtime_impl);
+    cc_text(out, cc_runtime_threads);
+    cc_text(out, cc_runtime_unit);
+}
+fn generate_c_header(p: Program&, out: u8[>..]&) {
+    cc_text(out, "#pragma once\n#include <stdint.h>\n");
+    var has_slice_param = false;
+    for n, node in p.nodes {
+        if !cc_emittable(p, node) || (n.flags & F_EXPORT) == 0 { continue; }
+        var param = n.first;
+        while param >= 0 {
+            if cc_kind(p, p.nodes[param].type_id) == TY_SLICE { has_slice_param = true; }
+            param = p.nodes[param].next;
         }
-        cc_text(out, "};\n");
-    } else if !cc_result_indirect(p, result) && cc_kind(p, result) != TY_VOID { cc_text(out, "return "); }
-    if cc_region_width(p, cc_function_result(p, function)) > 0 { cc_fail(p, function, "c: exported owning results need a caller destination"); }
-    cc_id(out, "g_fn", function); cc_text(out, "(NULL,g_global_regions");
-    if cc_tuple_channels(p, result) { cc_text(out, ","); cc_id(out, "g_export_channels", function); }
-    else if cc_result_indirect(p, result) { cc_text(out, ",&"); cc_id(out, "g_export_result", function); }
-    param = n.first;
-    while param >= 0 { cc_text(out, ","); if cc_indirect(p, p.nodes[param].type_id) { cc_text(out, "&"); } cc_id(out, "g_s", p.nodes[param].symbol); param = p.nodes[param].next; }
-    cc_text(out, ");"); if cc_result_indirect(p, result) { cc_text(out, "return "); cc_id(out, "g_export_result", function); cc_text(out, ";"); } cc_text(out, "}\n");
-    if cc_result_indirect(p, result) { cc_undef(out, "g_export_result", function); }
+    }
+    if has_slice_param { cc_text(out, "typedef struct { void *data; int64_t len; } gs_slice;\n"); }
+    cc_text(out, "#ifdef __cplusplus\nextern \"C\" {\n#endif\nvoid goose_init(int argc, char **argv);\nvoid goose_exit(void);\n");
+    for n, node in p.nodes {
+        if !cc_emittable(p, node) || (n.flags & F_EXPORT) == 0 { continue; }
+        cc_emit_export_sig(p, out, node, true);
+        cc_text(out, ";\n");
+    }
+    cc_text(out, "#ifdef __cplusplus\n}\n#endif\n");
 }
 fn cc_emittable(p: Program&, function: i64) -> bool {
     let n = p.nodes[function];
@@ -4326,7 +4483,7 @@ fn generate_c(p: Program&, out: u8[>..]&) {
     if p.pointer_bytes != 8 { diagnose_at(p, 0, 0, 0, "c: native layouts require pointer_bytes = 8"); return; }
     cc_collect_captures(p);
     p.unwinding = mark_unwinding_functions(p); let located = mark_located_functions(p);
-    var natural_members = !p.library;
+    var natural_members = !p.library && !p.c_host;
     for node in 0..p.nodes.len {
         let n: const Node& = p.nodes[node];
         if (n.kind == N_FUNCTION || n.kind == N_FUNCTION_VALUE) && (n.flags & F_EXPORT) != 0 { natural_members = false; }
@@ -4357,10 +4514,15 @@ fn generate_c(p: Program&, out: u8[>..]&) {
     // --stack-reserve is written into the C itself, as upstream writes a -D:
     // a run and a build see the same source.
     if p.stack_reserve > 0 { cc_text(out, "#define GS_STACK_RESERVE "); cc_number(out, p.stack_reserve); cc_text(out, "ull\n"); }
+    if p.separate_runtime { cc_text(out, "#define GS_SEPARATE_RUNTIME 1\n"); }
     cc_text(out, cc_runtime_units);
     if threads { cc_text(out, "#define GS_NEED_THREADS 1\n"); } cc_text(out, cc_runtime_header);
-    cc_text(out, "#if !defined(GS_SEPARATE_RUNTIME) || defined(G_RUNTIME_UNIT)\n"); cc_text(out, cc_runtime_impl); cc_text(out, cc_runtime_threads);
-    cc_text(out, "#endif\n#ifdef G_RUNTIME_UNIT\n"); cc_text(out, cc_runtime_unit); cc_text(out, "#else /* program units */\n");
+    if !p.separate_runtime {
+        cc_text(out, "#if !defined(GS_SEPARATE_RUNTIME) || defined(G_RUNTIME_UNIT)\n"); cc_text(out, cc_runtime_impl); cc_text(out, cc_runtime_threads);
+        cc_text(out, "#endif\n#ifdef G_RUNTIME_UNIT\n"); cc_text(out, cc_runtime_unit); cc_text(out, "#else /* program units */\n");
+    } else {
+        cc_text(out, "#ifndef G_RUNTIME_UNIT\n");
+    }
     cc_text(out, cc_runtime); cc_text(out, cc_runtime_relative); cc_text(out, cc_runtime_pools); cc_text(out, cc_runtime_extra);
     if located {
         cc_text(out, "typedef struct { const char *file; int line; } GLoc;\n");
@@ -4422,7 +4584,7 @@ fn generate_c(p: Program&, out: u8[>..]&) {
     for n, node in p.nodes {
         if !cc_emittable(p, node) { continue; }
         guards.push(out.len); owners.push(node); cc_text(out, "#if G_IN_UNIT(   )\n");
-        cc_emit_function(p, out, node, plans, calls, indices, self_images, natural_members, has_self_runs, bindings, packed_structs, field_indices, needs_env); cc_emit_export(p, out, node); cc_text(out, "#endif\n");
+        cc_emit_function(p, out, node, plans, calls, indices, self_images, natural_members, has_self_runs, bindings, packed_structs, field_indices, needs_env); cc_emit_export(p, out, node, needs_env); cc_text(out, "#endif\n");
     }
     var initialization: u8[>..] = []; var exits: CcExit[>..] = []; var work: i64[>..] = []; var temp_regions: i64[>..] = []; var destinations: CcDestination[>..] = []; var receiving: CcReceiving[>..] = []; var indirect: i64[>..] = []; var fills: CcFill[>..] = []; var channels: CcChannels[>..] = []; var cursors: CcCursor[>..] = []; var defers: i64[>..] = []; var sites: i64[>..] = []; var stages: i64[>..] = []; var pub_stack: i64[>..] = [];
     var f = CcBody { out: initialization, exits: exits, work: work, natural_members: natural_members, has_self_runs: has_self_runs, function_index: initializer, calls: calls, indices: indices,
@@ -4465,7 +4627,18 @@ fn generate_c(p: Program&, out: u8[>..]&) {
     for s, symbol in p.symbols {
         if s.owner < 0 && (s.flags & (S_GLOBAL | S_PARAMETER | S_FUNCTION | S_TYPE | S_BUILTIN)) == 0 && cc_storage_binding(p, symbol) && cc_indirect(p, s.type_id) { cc_undef(out, "g_s", symbol); }
     }
-    if !p.library {
+    if p.library || p.c_host {
+        if p.shared { cc_text(out, "#ifdef _WIN32\n__declspec(dllexport)\n#endif\n"); }
+        cc_text(out, "void goose_init(int argc,char **argv){if(g_initialized)return;g_argc=argc;g_argv=argv;g_initialize();");
+        if p.entry >= 0 && cc_emittable(p, p.entry) {
+            cc_id(out, "g_fn", p.entry);
+            if needs_env[p.entry] { cc_text(out, "(NULL,g_global_regions);"); }
+            else { cc_text(out, "(g_global_regions);"); }
+        }
+        cc_text(out, "}\n");
+        if p.shared { cc_text(out, "#ifdef _WIN32\n__declspec(dllexport)\n#endif\n"); }
+        cc_text(out, "void goose_exit(void){if(!g_initialized)return;g_runtime_stop();g_initialized=0;}\n");
+    } else {
         if p.entry < 0 || !cc_emittable(p, p.entry) { diagnose_at(p, 0, 0, 0, "c: program has no checked concrete entry function"); }
         else {
             cc_text(out, "int main(int argc,char **argv){g_argc=argc;g_argv=argv;g_initialize();");

@@ -1494,6 +1494,12 @@ recursive fn check_resolve_type(p: Program&, c: Checker&, syntax: i64) -> i64 {
 recursive fn check_layout_fields(p: Program&, c: Checker&, first: i64, owner: i64) -> i64 {
     var field = first; var size = 0; var index = 0; var variable = false;
     let root = owner >= 0 && p.nodes[owner].kind == N_STRUCT && (p.nodes[owner].flags & F_ROOT) != 0;
+    let parent_scope = c.scope;
+    var owner_fn = -1;
+    if parent_scope >= 0 { owner_fn = c.scopes[parent_scope].function_node; }
+    check_enter(c, owner_fn);
+    let field_scope = c.scope;
+    c.scope = parent_scope;
     while field >= 0 {
         let n = p.nodes[field];
         if root && (n.flags & F_PAD) != 0 {
@@ -1517,7 +1523,8 @@ recursive fn check_layout_fields(p: Program&, c: Checker&, first: i64, owner: i6
             }
             p.nodes[field].integer = size;
             if variable { p.nodes[field].integer = -1; }
-            let symbol = check_declare(p, c, field, c.scope);
+            let symbol = check_declare(p, c, field, field_scope);
+            p.nodes[field].scope = parent_scope;
             // Field ownership is the only change to an indexed hook predicate.
             if symbol >= 0 && symbol < c.format_scan_end && (p.symbols[symbol].owner < 0) != (owner < 0) {
                 c.format_scan_end = 0; c.has_format_hooks = false;
@@ -1581,7 +1588,9 @@ recursive fn check_layout_variant(p: Program&, c: Checker&, type_id: i64) {
     p.types[type_id].size = -1;
     let saved = c.scope;
     if t.pool >= 0 { c.scope = p.nodes[p.types[t.pool].declaration].scope; }
-    check_enter(c, c.function_node);
+    var owner_fn = -1;
+    if c.scope >= 0 { owner_fn = c.scopes[c.scope].function_node; }
+    check_enter(c, owner_fn);
     let size = check_layout_fields(p, c, p.nodes[variant].first, variant);
     check_finish_record_layout(p, type_id, p.nodes[variant].first, size);
     p.nodes[variant].flags |= F_CHECKED; c.scope = saved;
@@ -1627,7 +1636,9 @@ recursive fn check_layout_nominal(p: Program&, c: Checker&, type_id: i64) {
     p.types[type_id].size = -1;
     let saved = c.scope;
     if p.nodes[declaration].scope >= 0 { c.scope = p.nodes[declaration].scope; }
-    check_enter(c, c.function_node); p.nodes[declaration].scope = c.scope;
+    var owner_fn = -1;
+    if c.scope >= 0 { owner_fn = c.scopes[c.scope].function_node; }
+    check_enter(c, owner_fn); p.nodes[declaration].scope = c.scope;
     check_ensure_generics(p, c, declaration);
     if t.kind == TY_STRUCT {
         let size = check_layout_fields(p, c, p.nodes[declaration].first, declaration);
@@ -8084,7 +8095,7 @@ fn check_unreached(p: Program&, c: Checker&, declarations: i64) {
         let kind = p.nodes[s_node].kind; let right = p.nodes[s_node].right; let flags = p.nodes[s_node].flags;
         if kind != N_FUNCTION || right < 0 || (flags & (F_GENERIC | F_THREAD | F_CHECKED)) != 0 { continue; }
         if library_node(p, s_node) { continue; }
-        if p.reachable_program && (flags & F_EXPORT) == 0 { continue; }
+        if (p.reachable_program || p.c_host) && (flags & F_EXPORT) == 0 { continue; }
         var is_spec = false;
         for spec in c.specializations { if spec.original == s_node { is_spec = true; break; } }
         if is_spec { continue; }
@@ -8185,7 +8196,7 @@ fn check_program_types(p: Program&, declarations_only: bool, scope_parents: i64[
         // Checking only, a program that declares no main anywhere is checked on its own.
         var declares_main = false;
         for symbol in p.symbols { if (symbol.flags & S_FUNCTION) != 0 && symbol.owner < 0 && token_is(p, symbol.name_token, "main") { declares_main = true; break; } }
-        if !p.library && !(p.check_only && !declares_main) { diagnose(p, -1, "program requires fn main()"); }
+        if !p.library && !p.c_host && !(p.check_only && !declares_main) { diagnose(p, -1, "program requires fn main()"); }
     } else {
         let main = p.symbols[main_symbol].node;
         if p.nodes[main].first >= 0 || (p.nodes[main].flags & F_GENERIC) != 0 { diagnose(p, p.nodes[main].token, "main must be nongeneric and take no parameters"); }

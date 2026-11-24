@@ -292,27 +292,73 @@ fn cc_frame_borrows(p: Program&, type_id: i64) -> bool {
 fn cc_kind(p: Program&, type_id: i64) -> i64 {
     if type_id < 0 || type_id >= p.types.len { return TY_UNKNOWN; } return p.types[type_id].kind;
 }
-fn cc_concrete(p: Program&, id: i64) -> bool {
-    let kind = cc_kind(p, id);
+recursive fn cc_concrete_walk(p: Program&, id: i64, seen: i32[64]&, seen_len: i64&) -> bool {
+    if id < 0 || id >= p.types.len { return false; }
+    let key = id * 8 + 7;
+    if key < p.type_properties.len && p.type_properties[key] != 0 { return p.type_properties[key] == 2; }
+    let kind = p.types[id].kind;
     if kind == TY_UNKNOWN || kind == TY_GENERIC || kind == TY_NAME { return false; }
+    if kind == TY_VOID || kind == TY_BOOL || kind == TY_INT || kind == TY_FLOAT { return true; }
     let t = p.types[id];
     if kind == TY_ARRAY || kind == TY_SLICE || kind == TY_REF {
-        let element = cc_kind(p, t.element);
-        if element == TY_UNKNOWN || element == TY_GENERIC || element == TY_NAME { return false; }
+        return cc_concrete_walk(p, t.element, seen, seen_len);
+    }
+    if kind == TY_FN {
+        if !cc_concrete_walk(p, t.element, seen, seen_len) { return false; }
+        var param = t.first;
+        while param >= 0 {
+            if !cc_concrete_walk(p, p.nodes[param].type_id, seen, seen_len) { return false; }
+            param = p.nodes[param].next;
+        }
+        return true;
+    }
+    if kind == TY_TUPLE {
+        var part = t.first;
+        while part >= 0 {
+            if !cc_concrete_walk(p, p.nodes[part].type_id, seen, seen_len) { return false; }
+            part = p.nodes[part].next;
+        }
+        return true;
     }
     if kind == TY_STRUCT || kind == TY_ENUM {
         if t.declaration < 0 { return false; }
+        let id32 = id as i32;
+        for i in 0..seen_len { if seen[i] == id32 { return true; } }
+        if seen_len >= 64 { return true; }
+        seen[seen_len] = id32; seen_len += 1;
+        var arg = t.arguments;
+        while arg >= 0 {
+            let at = p.nodes[arg].type_id;
+            if at >= 0 && !cc_concrete_walk(p, at, seen, seen_len) { return false; }
+            arg = p.nodes[arg].next;
+        }
         var field = p.nodes[t.declaration].first;
         while field >= 0 {
-            if p.nodes[field].kind == N_VARIANT && p.nodes[field].type_id < 0 { return false; }
-            if p.nodes[field].kind == N_FIELD && (p.nodes[field].flags & F_PAD) == 0 {
-                let fk = cc_kind(p, p.nodes[field].type_id);
-                if fk == TY_UNKNOWN || fk == TY_GENERIC || fk == TY_NAME { return false; }
+            let n = p.nodes[field];
+            if n.kind == N_VARIANT && n.type_id < 0 { return false; }
+            if (n.kind == N_FIELD && (n.flags & F_PAD) == 0) || n.kind == N_VARIANT {
+                if !cc_concrete_walk(p, n.type_id, seen, seen_len) { return false; }
             }
-            field = p.nodes[field].next;
+            field = n.next;
         }
     }
     return true;
+}
+fn cc_concrete(p: Program&, id: i64) -> bool {
+    if id < 0 || id >= p.types.len { return false; }
+    let key = id * 8 + 7;
+    if key < p.type_properties.len && p.type_properties[key] != 0 { return p.type_properties[key] == 2; }
+    let root_kind = p.types[id].kind;
+    if root_kind == TY_VOID || root_kind == TY_BOOL || root_kind == TY_INT || root_kind == TY_FLOAT { return true; }
+    var ok = false;
+    if root_kind != TY_UNKNOWN && root_kind != TY_GENERIC && root_kind != TY_NAME {
+        var seen: i32[64] = [0; 64];
+        var seen_len: i64 = 0;
+        ok = cc_concrete_walk(p, id, seen, seen_len);
+    }
+    if p.type_properties.len <= key { p.type_properties.resize(p.types.len * 8, 0); }
+    if ok { p.type_properties[key] = 2; } else { p.type_properties[key] = 1; }
+    return ok;
 }
 
 fn cc_indirect(p: Program&, type_id: i64) -> bool {

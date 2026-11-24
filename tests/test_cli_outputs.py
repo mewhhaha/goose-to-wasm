@@ -407,6 +407,221 @@ class StackReserve(unittest.TestCase):
         self.assertIn("missing option value", result.stderr)
 
 
+@unittest.skipUnless(COMPILER.is_file() and (__import__('shutil').which('cc') or __import__('shutil').which('clang') or __import__('shutil').which('gcc')),
+                     "bootstrap the compiler first; needs a C compiler")
+class CHostLibraryBuild(unittest.TestCase):
+    """--emit-runtime, --header, --shared, goose_init/goose_exit, direct host externs, and export-only reachability."""
+
+    def setUp(self):
+        directory = tempfile.TemporaryDirectory()
+        self.addCleanup(directory.cleanup)
+        self.work = Path(directory.name)
+        self.cc = (__import__('shutil').which('clang') or __import__('shutil').which('gcc') or 'cc')
+
+    def test_separate_runtime_header_reinit_and_unreachable_skip(self):
+        rt_c = self.work / "goose_runtime.c"
+        rt_o = self.work / "goose_runtime.o"
+        emit_rt = subprocess.run([str(COMPILER), "--emit-runtime", str(rt_c)],
+                                 stdin=subprocess.DEVNULL, capture_output=True, text=True, timeout=30)
+        self.assertEqual(emit_rt.returncode, 0, emit_rt.stderr)
+        subprocess.run([self.cc, "-std=gnu11", "-D_GNU_SOURCE", "-O2", "-pthread", "-c", str(rt_c), "-o", str(rt_o)],
+                       stdin=subprocess.DEVNULL, check=True, capture_output=True, text=True, timeout=60)
+
+        lib = self.work / "lib.goose"
+        lib.write_text(
+            'extern fn host_add(a: i32, b: i32) -> i32 = "c_host_add";\n'
+            'var counter: i64 = 10;\n'
+            'struct Deferred { label: const u8[:] = default<const u8[:]>(), value: i32 }\n'
+            'fn unreachable_broken() -> i64 { let bad: i64 = "not an int"; return bad; }\n'
+            'fn helper(x: i32) -> i32 {\n'
+            '    var d: Deferred;\n'
+            '    if x > 0 { d = Deferred { label: "pos", value: x }; } else { d = Deferred { label: "neg", value: 0 }; }\n'
+            '    counter += d.value as i64;\n'
+            '    return host_add(d.value, counter as i32);\n'
+            '}\n'
+            'export "demo_entry" fn entry(x: i32) -> i32 { return helper(x); }\n'
+            'export "demo_greeting" fn greeting() -> const u8[:] { return "hello-c-host"; }\n'
+            'export "demo_bump" fn bump(p: i64&) { p += 5; }\n'
+        )
+        prog_c = self.work / "prog.c"
+        prog_h = self.work / "prog.h"
+        emit = subprocess.run([str(COMPILER), "-o", str(prog_c), "--header", str(prog_h), "-O2",
+                               "--stdlib", str(SOURCE_STDLIB), str(lib)],
+                              stdin=subprocess.DEVNULL, capture_output=True, text=True, timeout=60)
+        self.assertEqual(emit.returncode, 0, emit.stderr)
+        header = prog_h.read_text()
+        self.assertIn("void goose_init(int argc, char **argv);", header)
+        self.assertIn("void goose_exit(void);", header)
+        self.assertIn("int32_t demo_entry(int32_t arg0);", header)
+        self.assertIn("const uint8_t *demo_greeting(int64_t *gs_export_len);", header)
+        self.assertIn("#define GS_SEPARATE_RUNTIME 1", prog_c.read_text())
+
+        host_c = self.work / "host.c"
+        host_c.write_text(
+            '#include <stdio.h>\n'
+            '#include "prog.h"\n'
+            'int32_t c_host_add(int32_t a, int32_t b) { return a + b + 100; }\n'
+            'int main(int argc, char **argv) {\n'
+            '    goose_init(argc, argv);\n'
+            '    int32_t v = demo_entry(7);\n'
+            '    int64_t len = 0;\n'
+            '    const uint8_t *msg = demo_greeting(&len);\n'
+            '    int64_t n = 37;\n'
+            '    demo_bump(&n);\n'
+            '    printf("v=%d msg=%.*s len=%lld n=%lld\\n", v, (int)len, (const char*)msg, (long long)len, (long long)n);\n'
+            '    goose_exit();\n'
+            '    goose_init(argc, argv);\n'
+            '    int32_t v2 = demo_entry(1);\n'
+            '    goose_exit();\n'
+            '    printf("v2=%d\\n", v2);\n'
+            '    return 0;\n'
+            '}\n'
+        )
+        host_o = self.work / "host.o"
+        app = self.work / "host_app"
+        subprocess.run([self.cc, "-std=gnu11", "-D_GNU_SOURCE", "-O2", "-pthread", "-c", str(host_c), "-o", str(host_o)],
+                       stdin=subprocess.DEVNULL, check=True, capture_output=True, text=True, timeout=60)
+        # Link without -rdynamic and without -ldl (Blot2 build.py link shape).
+        subprocess.run([self.cc, "-std=gnu11", "-D_GNU_SOURCE", "-O2", "-pthread",
+                        str(prog_c), str(host_o), str(rt_o), "-lm", "-o", str(app)],
+                       stdin=subprocess.DEVNULL, check=True, capture_output=True, text=True, timeout=60)
+        run = subprocess.run([str(app)], stdin=subprocess.DEVNULL, capture_output=True, text=True, timeout=30)
+        self.assertEqual(run.returncode, 0, run.stderr)
+        self.assertEqual(run.stdout, "v=124 msg=hello-c-host len=12 n=42\nv2=112\n")
+
+        # --header --standalone embeds the runtime so no runtime object is linked.
+        sa_c = self.work / "sa.c"
+        sa_h = self.work / "sa.h"
+        sa_app = self.work / "sa_app"
+        subprocess.run([str(COMPILER), "-o", str(sa_c), "--header", str(sa_h), "--standalone", "-O2",
+                        "--stdlib", str(SOURCE_STDLIB), str(lib)],
+                       stdin=subprocess.DEVNULL, check=True, capture_output=True, text=True, timeout=60)
+        subprocess.run([self.cc, "-std=gnu11", "-D_GNU_SOURCE", "-O2", "-pthread",
+                        str(sa_c), str(host_o), "-lm", "-o", str(sa_app)],
+                       stdin=subprocess.DEVNULL, check=True, capture_output=True, text=True, timeout=60)
+        sa_run = subprocess.run([str(sa_app)], stdin=subprocess.DEVNULL, capture_output=True, text=True, timeout=30)
+        self.assertEqual((sa_run.returncode, sa_run.stdout), (0, run.stdout), sa_run.stderr)
+
+        # Calling an export before goose_init aborts cleanly.
+        bad_c = self.work / "bad.c"
+        bad_c.write_text('#include "prog.h"\nint32_t c_host_add(int32_t a, int32_t b) { return a + b; }\nint main(void) { return demo_entry(1); }\n')
+        bad_app = self.work / "bad_app"
+        subprocess.run([self.cc, "-std=gnu11", "-D_GNU_SOURCE", "-O2", "-pthread",
+                        str(prog_c), str(bad_c), str(rt_o), "-lm", "-o", str(bad_app)],
+                       stdin=subprocess.DEVNULL, check=True, capture_output=True, text=True, timeout=60)
+        bad_run = subprocess.run([str(bad_app)], stdin=subprocess.DEVNULL, capture_output=True, text=True, timeout=30)
+        self.assertNotEqual(bad_run.returncode, 0)
+        self.assertIn("goose_init must be called before exported functions", bad_run.stderr)
+
+    def test_shared_library_and_option_errors(self):
+        src = self.work / "mul.goose"
+        src.write_text('export "so_mul" fn mul(a: i64, b: i64) -> i64 { return a * b; }\n')
+        so_path = self.work / "libmul.so"
+        so_h = self.work / "mul.h"
+        built = subprocess.run([str(COMPILER), "--shared", "--header", str(so_h), "--cc", self.cc, "-O2",
+                                "--stdlib", str(SOURCE_STDLIB), "-o", str(so_path), str(src)],
+                               stdin=subprocess.DEVNULL, capture_output=True, text=True, timeout=60)
+        self.assertEqual(built.returncode, 0, built.stderr)
+        loader_c = self.work / "loader.c"
+        loader_c.write_text(
+            '#include <stdio.h>\n#include <dlfcn.h>\n#include <stdint.h>\n'
+            f'int main(int argc, char **argv) {{\n'
+            f'    void *h = dlopen("{so_path}", RTLD_NOW);\n'
+            f'    if (!h) return 2;\n'
+            f'    void (*init)(int, char**) = dlsym(h, "goose_init");\n'
+            f'    void (*fini)(void) = dlsym(h, "goose_exit");\n'
+            f'    int64_t (*mul)(int64_t, int64_t) = dlsym(h, "so_mul");\n'
+            f'    init(argc, argv);\n'
+            f'    printf("%lld\\n", (long long)mul(6, 7));\n'
+            f'    fini();\n'
+            f'    dlclose(h);\n'
+            f'    return 0;\n'
+            f'}}\n'
+        )
+        loader = self.work / "loader"
+        subprocess.run([self.cc, "-std=gnu11", "-O2", str(loader_c), "-ldl", "-o", str(loader)],
+                       stdin=subprocess.DEVNULL, check=True, capture_output=True, text=True, timeout=60)
+        run = subprocess.run([str(loader)], stdin=subprocess.DEVNULL, capture_output=True, text=True, timeout=30)
+        self.assertEqual((run.returncode, run.stdout), (0, "42\n"), run.stderr)
+
+        # Header overwriting source or output is refused, and --header on wasm-direct is refused.
+        for extra, expected in (
+            (["--header", str(src), "-o", str(self.work / "o.c")], "header would overwrite"),
+            (["--header", str(self.work / "same.c"), "-o", str(self.work / "same.c")], "header would overwrite"),
+            (["--target", "wasm-direct", "--header", str(self.work / "w.h"), "-o", str(self.work / "w.wasm")], "require the native target"),
+        ):
+            with self.subTest(extra=extra):
+                res = subprocess.run([str(COMPILER), *extra, "--stdlib", str(SOURCE_STDLIB), str(src)],
+                                     stdin=subprocess.DEVNULL, capture_output=True, text=True, timeout=30)
+                self.assertNotEqual(res.returncode, 0)
+                self.assertIn(expected, res.stderr)
+
+    def test_native_codegen_regressions(self):
+        # Empty slice literals / default<T[:]> fields in recursive functions must
+        # not allocate transient regions; generic struct templates with wrapped
+        # type params (const T&, U[:]) must not emit non-concrete helpers; and
+        # field-only concrete types must be marked used by cc_used_types.
+        src = self.work / "regressions.goose"
+        src.write_text("""\
+struct Scratch {
+    storage: i64[:] = default<i64[:]>(),
+    items: const u8[:] = default<const u8[:]>(),
+}
+recursive fn sum_down(n: i64, extra: const i64[:]) -> i64 {
+    var empty: i64[:] = default<i64[:]>();
+    var scratch = Scratch {..};
+    if n <= 0 { return empty.len + scratch.storage.len + extra.len; }
+    return n + sum_down(n - 1, default<const i64[:]>());
+}
+struct GenericBox<T, U> {
+    owner: const T&,
+    items: const U[:],
+    only_field_slice: i16[:] = default<i16[:]>(),
+}
+fn box_sum<T, U>(owner: const T&, items: const U[:]) -> i64 {
+    var box = GenericBox<T, U> { owner, items, .. };
+    var total: i64 = (box.owner as i64) + box.items.len + box.only_field_slice.len;
+    return total;
+}
+struct PoolItem { tag: i32 = 0, value: i64 = 0 }
+fn unused_const_slice_ref(items: const PoolItem[:]) -> i64 { return items.len; }
+reusable[] var pool_items: PoolItem[>..] = [];
+let epoch: const u8[:] = "ok";
+struct SameNameDefault { epoch: const u8[:] = epoch, count: i64 = 7 }
+fn make_same_name() -> SameNameDefault { return SameNameDefault {..}; }
+fn main() {
+    let x: i32 = 17;
+    let ys: u16[2] = [3, 4];
+    let a = sum_down(5, []);
+    let b = box_sum<i32, u16>(x, ys[..]);
+    var ps = pool_items.alloc_slice(2);
+    ps[0].value = 11;
+    ps = pool_items.realloc_slice(ps, 4);
+    let c = ps.len + ps[0].value;
+    pool_items.free_slice(ps);
+    let reply = make_same_name();
+    print(a, " ", b, " ", c, " ", reply.epoch);
+}
+""")
+        c_out = self.work / "regressions.c"
+        exe = self.work / "regressions"
+        emit = subprocess.run([str(COMPILER), str(src), "--stdlib", str(SOURCE_STDLIB), "--target", "c", "-O2", "-o", str(c_out)],
+                              stdin=subprocess.DEVNULL, capture_output=True, text=True, timeout=60)
+        self.assertEqual(emit.returncode, 0, emit.stderr)
+        subprocess.run([self.cc, "-std=gnu11", "-D_GNU_SOURCE", "-O2", "-pthread", str(c_out), "-lm", "-o", str(exe)],
+                       stdin=subprocess.DEVNULL, check=True, capture_output=True, text=True, timeout=60)
+        run = subprocess.run([str(exe)], stdin=subprocess.DEVNULL, capture_output=True, text=True, timeout=30)
+        self.assertEqual((run.returncode, run.stdout), (0, "15 19 15 ok\n"), run.stderr)
+
+        # Field defaults must not resolve to sibling struct fields.
+        bad_field_ref = self.work / "bad_field_default.goose"
+        bad_field_ref.write_text("struct S { a: i64 = 1, b: i64 = a }\nfn main() { let s = S {..}; print(s.b); }\n")
+        bad_check = subprocess.run([str(COMPILER), str(bad_field_ref), "--stdlib", str(SOURCE_STDLIB), "--check"],
+                                   stdin=subprocess.DEVNULL, capture_output=True, text=True, timeout=30)
+        self.assertNotEqual(bad_check.returncode, 0)
+        self.assertIn("unknown", bad_check.stderr)
+
+
 @unittest.skipUnless(COMPILER.is_file() and __import__('shutil').which('node'), "bootstrap the compiler first; needs node")
 class WasmHostedCompiler(unittest.TestCase):
     """The compiler compiled to direct Wasm, run by scripts/run_wasm.mjs, does what the native one does."""
