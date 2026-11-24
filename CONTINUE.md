@@ -4,18 +4,14 @@ Standing rules are in [AGENTS.md](AGENTS.md). All six items of the Batches 9–1
 
 ## Where it stands (2026-11-24)
 
-- **Qualification gate (Batch 4: class-keyed lifetime checker speedups in `selfhost/checker_lifetimes.goose`, all green):**
-  - Plain upstream C++ Goose check (`build/native/goose check selfhost/main.goose --stdlib stdlib < /dev/null`): **exit 0**.
-  - C bootstrap (`scripts/bootstrap.py --verify`): **fixed point reached** (`9914dd7c…`, executable `066cf2a0…`, `144.7 s`).
-  - Default conformance: **10,697/10,801** (104 recorded gaps in [known-gaps.json](tests/conformance/known-gaps.json), 0 unexpected).
-  - Memory64 conformance: **4,771/4,779** (8 recorded gaps in [known-gaps-memory64.json](tests/conformance/known-gaps-memory64.json), 0 unexpected).
-  - Native runtime checks: **54/54** passed (`12.1 s`).
-  - Unit tests: all passed (`56.7 s`).
-  - `forced0` (`LIFE_CONCRETE_FRAMES = 0`) conformance audit: **100% identical to Batch 1/3** (`126` failing rows on 10,801 frontend rows, **0 new failures**, `13/13` upstream sentinels rejected, `selfhost/main.goose` exit 0).
-  - Frozen Blot2 default-2 GiB check speedups vs Batch 3 (`6ba2365f… → 066cf2a0…`):
-    - `cb1e9e15`: **`23.42 s`** wall / `23.18 s` CPU paired on CPU 7 (vs `84.15 s` / `83.06 s`, **3.59× faster**, max RSS **`3.47 GiB`** vs `3.58 GiB`, `-118 MiB`), exact 1 sound §5.2 diagnostic (`check/check.goose:3422:86`).
-    - `6ad5fbb`: **`88.28 s`** wall / `84.56 s` CPU solo (vs dated `238.16 s`, **2.70× faster**, max RSS `7.74 GiB`), exact 1 sound §5.2 diagnostic (`check/check.goose:3179:86`).
-  - Own-source CPU-7 alternating 5-round timings vs Batch 3 (`6ba2365f… → 066cf2a0…`): `--check` `0.418 s → 0.383 s` (**−8.3%**), `--target c -O2` `0.719 s → 0.712 s` (**−1.0%**, byte-identical `21,910,353 B`), `--target wasm-direct -O2` `0.550 s → 0.528 s` (**−4.0%**, byte-identical `4,046,815 B`). [Evidence](bench/results/2026-11-24/blot2-lifetime-speed/README.md)
+- **Release `v2026.4-1` (qualified, consumer README & benchmarks vs upstream C++ Goose):**
+  - Version string `goose-to-wasm v2026.4-1 (Goose v2026.4)` in `selfhost/driver.goose`, full qualification (`build/qualify-v2026.4-1/summary.json`, `282.6 s`, all stages exit 0: fixed-point C `dbfecfe0…`, executable `139b06db…`, `10,697/10,801` default conformance, `4,771/4,779` memory64, `54/54` native checks, 19/19 unit tests).
+  - Head-to-head CPU-7 benchmarks vs plain upstream C++ Goose (`d5ae5bb`):
+    - `selfhost/main.goose` (~30k LOC): `--check` `0.363 s` vs `3.615 s` (**10.0× faster**; Wasm64-in-Wasmtime `1.090 s`, **3.3×**), emit Wasm64 `0.496 s` / emit C `0.731 s` vs upstream emit C `4.058 s` (**8.2× / 5.6× faster**).
+    - 8 real Goose examples: Direct Wasm `-O2` builds in `2.1–6.9 ms` vs upstream `goose build -O2` `60.4–174.2 ms` (**24×–31× faster**).
+    - Runtime speed: Native `-O2` matches upstream C++ Goose within ~1–3% (`sorting` `35.38 ms` vs `35.48 ms`, `mandelbrot` `2.419 s` vs `2.355 s`); Wasmtime hits `46.50 ms` on `sorting` and `1.974 s` on `mandelbrot`.
+    - Frozen Blot2 default-2 GiB checks: `cb1e9e15` **`22.79 s`** (`3.34 GiB`), `6ad5fbb` **`81.87 s`** (`5.94 GiB`) — vs plain upstream timing out past `180 s` (`--header`) / `240 s` (`check`). [Release evidence & charts](bench/results/2026-11-24/release-v2026.4-1/README.md)
+- **Previous Batch 4 (2026-11-24, `9e1eec0`):** Five profile-driven rounds of class-keyed lifetime checker speedups in `selfhost/checker_lifetimes.goose`, cutting default-2 GiB checks **3.59×** on `cb1e9e15` (`84.15 s → 23.42 s`, `-118 MiB` RSS) and **2.70×** on `6ad5fbb` (`238.16 s → 88.28 s`), with identical `forced0` conformance (`126` fails, 0 new, `13/13` sentinels). [Evidence](bench/results/2026-11-24/blot2-lifetime-speed/README.md)
 - **Previous Batch 3 (2026-11-24, `2f97b6d`):** `l.alts` canonicalization & inter-pass mark-and-compact GC (`life_reclaim_alts`), `opt_replace` exit retargeting fix, and default-2 GiB native Blot2 `6ad5fbb` release build (`22.08 MB`, **9/9** grammar-compatible idiomatic `.blot` benchmarks bit-exact vs Rust). [Evidence](bench/results/2026-11-24/blot2-alts-compaction-and-6ad5fbb/README.md)
 - **Previous Batch 2 (2026-11-24, `29b30c2`):** C-host/library build interface (`--emit-runtime`, `--header`, `--shared`, `--standalone`, `goose_init`, `goose_exit`, direct C `extern fn` linking without `-rdynamic`/`-ldl`, reachable-export checking), 6 native codegen/checker fixes, and end-to-end native Blot2 `cb1e9e15` release build (`10.45 MB`, **18/18** idiomatic `.blot` benchmarks bit-exact vs Rust). [Evidence](bench/results/2026-11-24/blot2-chost-and-native-build/README.md)
 - **Previous Batch 1 (2026-11-24, `5839a70`):** Lifetime checking precision & scalability fixes on both frozen Blot2 snapshots (`cb1e9e15` in `73.50 s` default 2 GiB, `6ad5fbb` in `215.51 s` with `--stack-reserve 8G`, 1 sound §5.2 diagnostic remaining; `forced0` conformance improved `78 → 75` fails, 0 new fails, 13/13 sentinels rejected). [Evidence](bench/results/2026-11-24/blot2-lifetime-fixes/README.md)
