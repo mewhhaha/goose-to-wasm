@@ -1,5 +1,6 @@
 """Exercise fixed-size memory operations and field-load displacements at byte boundaries."""
 import subprocess
+import sys
 import unittest
 
 import wasmtime
@@ -77,6 +78,28 @@ fn main() {
                 self.assertEqual(65536 in loads, folded)
                 output = subprocess.check_output([goose_stats.NODE, goose_stats.ROOT / "scripts/run_wasm.mjs", module], timeout=30)
                 self.assertEqual(output, b"42\n")
+
+    def test_field_load_displacement_memory64(self):
+        source = """struct Large { pad 65536, field: i64 = 42 }
+fn read(record: const Large&) -> i64 { record.field }
+fn main() {
+    let record = Large {};
+    var enabled: u8[>..] = [];
+    enabled.push(1);
+    if enabled[0] == 1 { print(read(record)); }
+}
+"""
+        module, _ = self.compile(2, text=source, flags=("--wasm-memory64", "--wasm-max-pages", "4194304"))
+        code = dict(goose_stats.sections(module.read_bytes()))[10]
+        count, offset = goose_stats.uleb(code, 0)
+        loads = []
+        for _ in range(count):
+            size, start = goose_stats.uleb(code, offset)
+            offset = start + size
+            loads.extend(arg for op, arg in goose_stats.instruction_operands(code[start:offset]) if op == 0x29)
+        self.assertIn(65536, loads)
+        output = subprocess.check_output([sys.executable, goose_stats.ROOT / "scripts/run_wasmtime.py", module], timeout=30)
+        self.assertEqual(output, b"42\n")
 
     def test_vector_copy_and_zero_fill(self):
         source = self.work / "images.goose"
