@@ -1,5 +1,11 @@
 blank_issues_enabled: true
 contact_links:
+  - name: Questions & Discussions
+    url: https://github.com/mewhhaha/goose-to-wasm/discussions
+    about: Ask questions, share ideas, or discuss Goose and WebAssembly integration
   - name: Feature & compatibility tracker
     url: https://github.com/mewhhaha/goose-to-wasm/blob/main/docs/FEATURES.md
     about: Check current upstream Goose feature support and Blot2 compatibility status
+  - name: Report a security vulnerability
+    url: https://github.com/mewhhaha/goose-to-wasm/security/advisories/new
+    about: Report soundness or memory-safety vulnerabilities privately
