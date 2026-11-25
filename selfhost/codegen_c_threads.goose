@@ -10,9 +10,10 @@ fn cc_thread_function(p: Program&, node: i64) -> bool {
 }
 
 fn cc_threads_used(p: Program&) -> bool {
-    for n in p.nodes {
+    for id in 0..p.nodes.len {
+        let n: const Node& = p.nodes[id];
         if n.kind != N_CALL || n.symbol < 0 { continue; }
-        let s = p.symbols[n.symbol];
+        let s: const Symbol& = p.symbols[n.symbol];
         if (s.flags & S_BUILTIN) != 0 && s.index >= 7 && s.index <= 13 { return true; }
     }
     return false;

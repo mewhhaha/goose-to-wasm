@@ -209,14 +209,66 @@ fn driver_options(o: DriverOptions&, arguments: u8[:][:]) {
         driver_error("invalid memory page limits"); o.bad = true;
     }
 }
+fn driver_diag_snippet(p: Program&, d: const Diagnostic&, out: u8[>..]&) {
+    if d.source < 0 || d.source >= p.sources.len { return; }
+    let s: const Source& = p.sources[d.source];
+    let text_start = s.text_start; let text_end = s.text_start + s.text_len;
+    if text_end <= text_start || d.start < text_start || d.start > text_end { return; }
+    if d.start == d.end && d.start == text_start && d.line == 1 && d.column == 1 { return; }
+    var line_start = d.start;
+    if line_start == text_end && line_start > text_start { line_start -= 1; }
+    while line_start > text_start && p.text[line_start - 1] != 10 { line_start -= 1; }
+    var line_end = d.start;
+    if line_end > text_end { line_end = text_end; }
+    while line_end < text_end && p.text[line_end] != 10 { line_end += 1; }
+    if line_end > line_start && p.text[line_end - 1] == 13 { line_end -= 1; }
+    if line_end <= line_start || line_end - line_start > 240 { return; }
+    var num_buf: u8[>..] = []; driver_integer(num_buf, d.line);
+    var gutter = num_buf.len; if gutter < 3 { gutter = 3; }
+    out.push(' ');
+    for pi in num_buf.len..gutter { out.push(' '); }
+    out.append(num_buf); out.append(" | ");
+    var caret_col: i64 = 0; var span_cols: i64 = 0;
+    var span_end = d.end;
+    if span_end <= d.start { span_end = d.start + 1; }
+    if span_end > line_end { span_end = line_end; }
+    for i in line_start..line_end {
+        let ch = p.text[i];
+        var width: i64 = 1;
+        if ch == 9 { out.append("    "); width = 4; } else { out.push(ch); }
+        if i < d.start { caret_col += width; }
+        else if i < span_end { span_cols += width; }
+    }
+    out.push('\n');
+    out.push(' ');
+    for pi in 0..gutter { out.push(' '); }
+    out.append(" | ");
+    for ci in 0..caret_col { out.push(' '); }
+    out.push('^');
+    if span_cols > 1 {
+        for si in 1..span_cols { out.push('~'); }
+    }
+    out.push('\n');
+}
 fn driver_diagnostics(p: Program&) {
     for d in p.diagnostics {
         var line: u8[>..] = [];
         if d.source >= 0 && d.source < p.sources.len {
-            let s = p.sources[d.source]; line.append(p.text[s.path_start..s.path_start + s.path_len]);
+            let s: const Source& = p.sources[d.source]; line.append(p.text[s.path_start..s.path_start + s.path_len]);
         } else { line.append("<source>"); }
         line.push(':'); driver_integer(line, d.line); line.push(':'); driver_integer(line, d.column);
-        line.append(": error: "); line.append(p.messages[d.message_start..d.message_start + d.message_len]); line.push('\n');
+        line.append(": error: ");
+        let msg = p.messages[d.message_start..d.message_start + d.message_len];
+        var split: i64 = -1;
+        for i in 0..msg.len { if msg[i] == 10 { split = i; break; } }
+        if split >= 0 {
+            line.append(msg[0..split]); line.push('\n');
+            driver_diag_snippet(p, d, line);
+            line.append(msg[split + 1..]); line.push('\n');
+        } else {
+            line.append(msg); line.push('\n');
+            driver_diag_snippet(p, d, line);
+        }
         write_stderr(line);
     }
 }
@@ -365,7 +417,7 @@ fn driver_exec(command: u8[>..]&) -> i64 {
     if (code & 127) != 0 { return 128 + (code & 127); }
     return (code >> 8) & 255;
 }
-let GOOSE_TO_WASM_VERSION = "v2026.4-1";
+let GOOSE_TO_WASM_VERSION = "v2026.4-2";
 fn driver_help() {
     write_stdout("goose-to-wasm "); write_stdout(GOOSE_TO_WASM_VERSION); write_stdout(" — fast Goose compiler (direct WebAssembly & native C)\nUsage: goose source.goose [--target wasm-direct|native|c] -o output [-O0|-O1|-O2]\n  --check --parse --tokens --dump --debug --stdlib DIR --wasm-stats FILE --wasm-deps FILE\n  --emit-runtime FILE  Write the standalone native C runtime unit and exit.\n  --header FILE        Emit a C host header (goose_init, goose_exit, exports) and separate-runtime C.\n  --shared             Build or emit a C shared library with exported symbols.\n  --standalone         Embed the native C runtime even when emitting with --header.\n  --wasm-memory64      Target WebAssembly memory64.\n  --wasm-bundled-host  Target the bundled host implementations for recognized imports.\n  --reachable-program  Check only functions a root reaches, and the signatures of the rest.\n  --expansion-node-limit N  Total const for expansion size (default 100000).\n  --stack-reserve SIZE  Address space reserved per data stack in a native program, from 64K to 256T\n                        with a K, M, G or T suffix (default 2G).\n  --run                Build native C with --cc and execute, or execute Wasm with GOOSE_WASM_HOST.\n  --version            Print compiler version.\n");
 }

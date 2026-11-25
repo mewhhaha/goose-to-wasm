@@ -202,26 +202,26 @@ fn check_visible(c: Checker&, scope: i64, current_scope: i64) -> bool {
     }
     return false;
 }
-fn check_integer_bits(type_id: i64) -> i64 {
+inline fn check_integer_bits(type_id: i64) -> i64 {
     if type_id == TYPE_I8 || type_id == TYPE_U8 { return 8; }
     if type_id == TYPE_I16 || type_id == TYPE_U16 { return 16; }
     if type_id == TYPE_I32 || type_id == TYPE_U32 { return 32; }
     return 64;
 }
-fn check_unsigned(type_id: i64) -> bool {
+inline fn check_unsigned(type_id: i64) -> bool {
     return type_id == TYPE_U8 || type_id == TYPE_U16 || type_id == TYPE_U32 || type_id == TYPE_U64;
 }
-fn check_integer(type_id: i64) -> bool { return type_id >= TYPE_I8 && type_id <= TYPE_U64; }
-fn check_float(type_id: i64) -> bool { return type_id == TYPE_F32 || type_id == TYPE_F64; }
-fn check_numeric(type_id: i64) -> bool { return check_integer(type_id) || check_float(type_id); }
-fn check_min(type_id: i64) -> i64 {
+inline fn check_integer(type_id: i64) -> bool { return type_id >= TYPE_I8 && type_id <= TYPE_U64; }
+inline fn check_float(type_id: i64) -> bool { return type_id == TYPE_F32 || type_id == TYPE_F64; }
+inline fn check_numeric(type_id: i64) -> bool { return check_integer(type_id) || check_float(type_id); }
+inline fn check_min(type_id: i64) -> i64 {
     if check_unsigned(type_id) { return 0; }
     if type_id == TYPE_I8 { return -128; }
     if type_id == TYPE_I16 { return -32768; }
     if type_id == TYPE_I32 { return -2147483648; }
     return -9223372036854775808;
 }
-fn check_max(type_id: i64) -> i64 {
+inline fn check_max(type_id: i64) -> i64 {
     if type_id == TYPE_I8 { return 127; }
     if type_id == TYPE_U8 { return 255; }
     if type_id == TYPE_I16 { return 32767; }
@@ -545,7 +545,7 @@ fn check_lookup_name(p: Program&, c: Checker&, node: i64, role: i64 = 0) -> i64 
     }
     return symbol;
 }
-fn check_variable_index(c: Checker&, symbol: i64) -> i64 {
+inline fn check_variable_index(c: Checker&, symbol: i64) -> i64 {
     if symbol < 0 || symbol >= c.variable_lookup.len { return -1; }
     return c.variable_lookup[symbol];
 }
@@ -1369,7 +1369,14 @@ recursive fn check_resolve_type(p: Program&, c: Checker&, syntax: i64) -> i64 {
                     variant = p.nodes[variant].next;
                 }
             }
-            if result < 0 { diagnose(p, n_tok, "unknown enum variant type"); }
+            if result < 0 {
+                var msg: u8[>..] = []; msg.append("unknown enum variant type: `"); msg.append(token_text(p, n_tok)); msg.push('`');
+                if outer >= 0 && p.types[outer].kind == TY_ENUM {
+                    msg.append(" on `"); diag_append_type(p, outer, msg); msg.push('`');
+                    diag_suggest_member(p, p.types[outer].first, token_text(p, n_tok), "variants", msg);
+                }
+                diagnose(p, n_tok, msg);
+            }
         } else {
             let tok_kind = p.tokens[n_tok].kind;
             result = check_primitive_token(tok_kind);
@@ -1398,7 +1405,9 @@ recursive fn check_resolve_type(p: Program&, c: Checker&, syntax: i64) -> i64 {
                         } else if n_first >= 0 { diagnose(p, n_tok, "type does not take generic arguments"); }
                     }
                 } else {
-                    var message: u8[>..] = []; message.append("unknown type: "); message.append(token_text(p, n_tok)); diagnose(p, n_tok, message);
+                    var message: u8[>..] = []; message.append("unknown type: "); message.append(token_text(p, n_tok));
+                    diag_suggest_type(p, c, token_text(p, n_tok), c.scope, message);
+                    diagnose(p, n_tok, message);
                 }
             }
         }
@@ -1911,7 +1920,7 @@ fn check_slot_value(p: Program&, c: Checker&, value: i64, expected: i64, aggrega
         else { diagnose(p, p.nodes[value].token, "non-fixed storage requires explicit copy when passed or stored by value"); }
     }
     if (t.kind == TY_REF || t.kind == TY_SLICE) && (t.flags & TF_CONST) == 0 && check_readonly(p, c, value) {
-        diagnose(p, p.nodes[value].token, "storing a read-only reference or slice requires a const slot");
+        diagnose(p, p.nodes[value].token, "storing a read-only reference or slice requires a const slot\n  help: mark the target field or variable `const` (e.g. `const u8[:]`)");
     }
 }
 recursive fn check_bottom(p: Program&, node: i64) -> bool {
@@ -2577,13 +2586,320 @@ fn check_mark_coercion(p: Program&, expression: i64, expected: i64) {
         node = n.left;
     }
 }
+// Rich error-only diagnostic helpers (never called on valid programs).
+inline fn diag_lower_byte(b: u8) -> u8 {
+    if b >= 'A' && b <= 'Z' { return b + 32; }
+    return b;
+}
+fn diag_edit_distance(a: const u8[:], b: const u8[:], limit: i64) -> i64 {
+    let m = a.len; let n = b.len;
+    if m == 0 || n == 0 || m > 64 || n > 64 { return limit + 1; }
+    var diff = m - n; if diff < 0 { diff = -diff; }
+    if diff > limit { return limit + 1; }
+    var prev2: i64[65] = [0; 65];
+    var prev: i64[65] = [0; 65];
+    var curr: i64[65] = [0; 65];
+    for j in 0..n + 1 { prev[j] = j; prev2[j] = j; }
+    for i in 1..m + 1 {
+        curr[0] = i;
+        var row_min = i;
+        let ca = diag_lower_byte(a[i - 1]);
+        var ca_prev: u8 = 0; if i > 1 { ca_prev = diag_lower_byte(a[i - 2]); }
+        for j in 1..n + 1 {
+            let cb = diag_lower_byte(b[j - 1]);
+            var cost: i64 = 1;
+            if ca == cb { cost = 0; }
+            var best = prev[j] + 1;
+            if curr[j - 1] + 1 < best { best = curr[j - 1] + 1; }
+            if prev[j - 1] + cost < best { best = prev[j - 1] + cost; }
+            if i > 1 && j > 1 && ca == diag_lower_byte(b[j - 2]) && ca_prev == cb {
+                if prev2[j - 2] + 1 < best { best = prev2[j - 2] + 1; }
+            }
+            curr[j] = best;
+            if best < row_min { row_min = best; }
+        }
+        if row_min > limit { return limit + 1; }
+        for j in 0..n + 1 { prev2[j] = prev[j]; prev[j] = curr[j]; }
+    }
+    return prev[n];
+}
+fn diag_consider_symbol(p: Program&, sym_id: i64, want: const u8[:], role: i64, best_tok: i64&, best_dist: i64&) {
+    if sym_id < 0 || sym_id >= p.symbols.len { return; }
+    let s: const Symbol& = p.symbols[sym_id];
+    if s.name_token < 0 || s.name_token >= p.tokens.len { return; }
+    if (s.flags & S_BUILTIN) != 0 { return; }
+    if role == S_TYPE && (s.flags & S_TYPE) == 0 { return; }
+    if role == S_FUNCTION && (s.flags & S_FUNCTION) == 0 { return; }
+    if role == 0 && (s.flags & S_TYPE) != 0 { return; }
+    let cand = token_text(p, s.name_token);
+    if cand.len == 0 || (cand.len >= 2 && cand[0] == '_' && cand[1] == '_') { return; }
+    if same_bytes(cand, want) { return; }
+    var lim = 2; if want.len <= 3 { lim = 1; }
+    let d = diag_edit_distance(want, cand, lim);
+    if d < best_dist { best_dist = d; best_tok = s.name_token; }
+}
+fn diag_suggest_name(p: Program&, c: Checker&, want: const u8[:], scope: i64, role: i64, out: u8[>..]&) -> bool {
+    if want.len < 2 || want.len > 64 { return false; }
+    var best_tok: i64 = -1;
+    var best_dist: i64 = 3;
+    var cur = scope;
+    var steps: i64 = 0;
+    var has_large = false;
+    while cur >= 0 && cur < c.scopes.len && steps < 128 {
+        let sc: const CheckScope& = c.scopes[cur];
+        let cnt = sc.decl_count as i64;
+        if cnt > 0 && cnt <= 4 {
+            for k in 0..cnt {
+                diag_consider_symbol(p, sc.small_decls[k] as i64, want, role, best_tok, best_dist);
+            }
+        } else if cnt > 4 { has_large = true; }
+        cur = sc.parent; steps += 1;
+    }
+    if has_large {
+        for li in 0..c.linked.len {
+            let sym_id = c.linked[li] as i64;
+            let lsc = c.link_scopes[sym_id] as i64;
+            var vis = false;
+            var walk = scope; var wg: i64 = 0;
+            while walk >= 0 && walk < c.scopes.len && wg < 128 {
+                if walk == lsc { vis = true; break; }
+                walk = c.scopes[walk].parent; wg += 1;
+            }
+            if vis { diag_consider_symbol(p, sym_id, want, role, best_tok, best_dist); }
+        }
+    }
+    if best_tok >= 0 {
+        out.append("; did you mean `"); out.append(token_text(p, best_tok)); out.append("`?");
+        return true;
+    }
+    return false;
+}
+fn diag_suggest_type(p: Program&, c: Checker&, want: const u8[:], scope: i64, out: u8[>..]&) -> bool {
+    if want.len < 2 || want.len > 64 { return false; }
+    var lim = 2; if want.len <= 3 { lim = 1; }
+    var best_prim: const u8[:] = ""; var prim_dist: i64 = 3;
+    for prim in ["i8", "i16", "i32", "i64", "u8", "u16", "u32", "u64", "f32", "f64", "bool", "void", "varint"] {
+        let d = diag_edit_distance(want, prim, lim);
+        if d < prim_dist { prim_dist = d; best_prim = prim; }
+    }
+    var best_tok: i64 = -1; var best_dist = prim_dist;
+    var cur = scope; var steps: i64 = 0; var has_large = false;
+    while cur >= 0 && cur < c.scopes.len && steps < 128 {
+        let sc: const CheckScope& = c.scopes[cur];
+        let cnt = sc.decl_count as i64;
+        if cnt > 0 && cnt <= 4 {
+            for k in 0..cnt { diag_consider_symbol(p, sc.small_decls[k] as i64, want, S_TYPE, best_tok, best_dist); }
+        } else if cnt > 4 { has_large = true; }
+        cur = sc.parent; steps += 1;
+    }
+    if has_large {
+        for li in 0..c.linked.len {
+            let sym_id = c.linked[li] as i64;
+            let lsc = c.link_scopes[sym_id] as i64;
+            var vis = false; var walk = scope; var wg: i64 = 0;
+            while walk >= 0 && walk < c.scopes.len && wg < 128 {
+                if walk == lsc { vis = true; break; }
+                walk = c.scopes[walk].parent; wg += 1;
+            }
+            if vis { diag_consider_symbol(p, sym_id, want, S_TYPE, best_tok, best_dist); }
+        }
+    }
+    if best_tok >= 0 {
+        out.append("; did you mean `"); out.append(token_text(p, best_tok)); out.append("`?");
+        return true;
+    }
+    if best_prim.len > 0 {
+        out.append("; did you mean `"); out.append(best_prim); out.append("`?");
+        return true;
+    }
+    return false;
+}
+fn diag_suggest_member(p: Program&, first: i64, want: const u8[:], label: const u8[:], out: u8[>..]&) {
+    var best_tok: i64 = -1; var best_dist: i64 = 3;
+    var lim = 2; if want.len <= 3 { lim = 1; }
+    var at = first; var count: i64 = 0;
+    while at >= 0 {
+        let n: const Node& = p.nodes[at];
+        if (n.flags & F_PAD) == 0 && n.token >= 0 {
+            count += 1;
+            let name = token_text(p, n.token);
+            let d = diag_edit_distance(want, name, lim);
+            if d < best_dist { best_dist = d; best_tok = n.token; }
+        }
+        at = n.next;
+    }
+    if best_tok >= 0 {
+        out.append("; did you mean `"); out.append(token_text(p, best_tok)); out.append("`?");
+        return;
+    }
+    if count > 0 {
+        out.append("\n  note: available "); out.append(label); out.append(": ");
+        at = first; var shown: i64 = 0;
+        while at >= 0 && shown < 8 {
+            let n: const Node& = p.nodes[at];
+            if (n.flags & F_PAD) == 0 && n.token >= 0 {
+                if shown > 0 { out.append(", "); }
+                out.push('`'); out.append(token_text(p, n.token)); out.push('`');
+                shown += 1;
+            }
+            at = n.next;
+        }
+        if count > 8 { out.append(", ..."); }
+    }
+}
+fn diag_append_type(p: Program&, ty: i64, out: u8[>..]&) {
+    if ty < 0 || ty >= p.types.len { out.append("<unknown>"); return; }
+    render_type_name(p, ty, out);
+}
+fn diag_append_fn_sig(p: Program&, fn_node: i64, out: u8[>..]&) {
+    let n: const Node& = p.nodes[fn_node];
+    out.append("fn ");
+    if n.token >= 0 { out.append(token_text(p, n.token)); }
+    if n.third >= 0 {
+        out.push('<'); var gp = n.third; var gi: i64 = 0;
+        while gp >= 0 {
+            if gi > 0 { out.append(", "); }
+            out.append(token_text(p, p.nodes[gp].token));
+            gp = p.nodes[gp].next; gi += 1;
+        }
+        out.push('>');
+    }
+    out.push('(');
+    var param = n.first; var pi: i64 = 0;
+    while param >= 0 {
+        if pi > 0 { out.append(", "); }
+        let pn: const Node& = p.nodes[param];
+        if pn.token >= 0 { out.append(token_text(p, pn.token)); out.append(": "); }
+        diag_append_type(p, pn.type_id, out);
+        if pn.right >= 0 { out.append(" = ..."); }
+        param = pn.next; pi += 1;
+    }
+    out.push(')');
+    if n.type_id >= 0 && p.types[n.type_id].kind == TY_FN {
+        let ret = p.types[n.type_id].element;
+        if ret >= 0 && ret != TYPE_VOID { out.append(" -> "); diag_append_type(p, ret, out); }
+    }
+}
+fn diag_conversion_help(p: Program&, src: i64, dst: i64, out: u8[>..]&) {
+    if src < 0 || dst < 0 || src >= p.types.len || dst >= p.types.len { return; }
+    let st: const Type& = p.types[src]; let dt: const Type& = p.types[dst];
+    if (st.kind == TY_REF || st.kind == TY_SLICE) && st.kind == dt.kind &&
+       (st.flags & TF_CONST) != 0 && (dt.flags & TF_CONST) == 0 {
+        out.append("\n  help: cannot drop `const` when converting to a mutable reference/slice; accept `const` or copy the value");
+        return;
+    }
+    if st.kind == TY_REF && (st.flags & TF_OPTIONAL) != 0 && dt.kind == TY_REF && (dt.flags & TF_OPTIONAL) == 0 {
+        out.append("\n  help: narrow the optional reference first (e.g. `if x != null { ... }`)");
+        return;
+    }
+    if check_numeric(src) && check_numeric(dst) {
+        out.append("\n  help: convert explicitly with `as "); diag_append_type(p, dst, out);
+        out.append("` (or `as! "); diag_append_type(p, dst, out); out.append("` for wrapping/bit cast)");
+        return;
+    }
+    if st.kind == TY_ARRAY && dt.kind == TY_SLICE && (st.flags & TF_CONST) != 0 && (dt.flags & TF_CONST) == 0 {
+        out.append("\n  help: source array is read-only; target slice must be `const`");
+        return;
+    }
+    if st.kind == TY_SLICE && dt.kind == TY_ARRAY {
+        out.append("\n  help: slices do not implicitly convert to owned arrays; copy elements or accept a slice");
+        return;
+    }
+}
+fn diag_call_mismatch(p: Program&, c: Checker&, tok: i64, callee_node: i64, args: CheckList&, candidates: CheckList&, ambiguous: bool) {
+    // Precompute the first incompatible argument per candidate before opening any growable buffer (§7.8).
+    var bad_idx: i64[5] = [-1; 5];
+    var bad_formal: i64[5] = [-1; 5];
+    var bad_arg: i64[5] = [-1; 5];
+    var limit = candidates.count; if limit > 5 { limit = 5; }
+    if !ambiguous {
+        for ci in 0..limit {
+            let sym_id = check_list_at(c, candidates, ci);
+            let fn_node = p.symbols[sym_id].node;
+            if fn_node < 0 { continue; }
+            var min_args: i64 = 0; var max_args: i64 = 0;
+            var f0 = p.nodes[fn_node].first;
+            while f0 >= 0 {
+                if p.nodes[f0].right < 0 { min_args += 1; }
+                max_args += 1; f0 = p.nodes[f0].next;
+            }
+            if args.count >= min_args && args.count <= max_args {
+                var formal = p.nodes[fn_node].first; var idx: i64 = 0;
+                while formal >= 0 && idx < args.count {
+                    let an = check_list_at(c, args, idx);
+                    let ft = p.nodes[formal].type_id; let at = p.nodes[an].type_id;
+                    if ft >= 0 && at >= 0 && !check_has_generic(p, ft, 0) && check_conversion(p, c, an, at, ft) < 0 {
+                        bad_idx[ci] = idx; bad_formal[ci] = formal; bad_arg[ci] = an;
+                        break;
+                    }
+                    formal = p.nodes[formal].next; idx += 1;
+                }
+            }
+        }
+    }
+    var msg: u8[>..] = [];
+    if ambiguous { msg.append("ambiguous call: equally specific overloads match"); }
+    else { msg.append("no overload matches this call's argument types and count"); }
+    let cname = token_text(p, p.nodes[callee_node].token);
+    if cname.len > 0 {
+        msg.append(": `"); msg.append(cname); msg.push('(');
+        for ai in 0..args.count {
+            if ai > 0 { msg.append(", "); }
+            let an = check_list_at(c, args, ai);
+            diag_append_type(p, p.nodes[an].type_id, msg);
+        }
+        msg.append(")`");
+    }
+    if candidates.count == 0 {
+        if cname.len > 0 {
+            msg.append("\n  note: no function named `"); msg.append(cname); msg.append("` is in scope");
+            diag_suggest_name(p, c, cname, c.scope, S_FUNCTION, msg);
+        }
+        diagnose(p, tok, msg); return;
+    }
+    for ci in 0..limit {
+        let sym_id = check_list_at(c, candidates, ci);
+        let fn_node = p.symbols[sym_id].node;
+        if fn_node < 0 { continue; }
+        msg.append("\n  note: candidate `"); diag_append_fn_sig(p, fn_node, msg); msg.append("` at ");
+        format_token_location(p, p.nodes[fn_node].token, msg);
+        if !ambiguous {
+            var min_args: i64 = 0; var max_args: i64 = 0;
+            var formal = p.nodes[fn_node].first;
+            while formal >= 0 {
+                if p.nodes[formal].right < 0 { min_args += 1; }
+                max_args += 1; formal = p.nodes[formal].next;
+            }
+            if args.count < min_args || args.count > max_args {
+                msg.append(" (expects ");
+                if min_args == max_args { msg.format(min_args); }
+                else { msg.format(min_args); msg.append(".."); msg.format(max_args); }
+                msg.append(" args, got "); msg.format(args.count); msg.push(')');
+            } else if bad_idx[ci] >= 0 {
+                let bf = bad_formal[ci]; let ba = bad_arg[ci];
+                msg.append(" (argument "); msg.format(bad_idx[ci] + 1);
+                if p.nodes[bf].token >= 0 { msg.append(" `"); msg.append(token_text(p, p.nodes[bf].token)); msg.push('`'); }
+                msg.append(": got `"); diag_append_type(p, p.nodes[ba].type_id, msg);
+                msg.append("`, expected `"); diag_append_type(p, p.nodes[bf].type_id, msg); msg.append("`)");
+            }
+        }
+    }
+    if candidates.count > 5 {
+        msg.append("\n  note: ... and "); msg.format(candidates.count - 5); msg.append(" more candidate(s)");
+    }
+    diagnose(p, tok, msg);
+}
+
 recursive fn check_expect(p: Program&, c: Checker&, expression: i64, source: i64, expected: i64) -> i64 {
     if expected < 0 || expected == TYPE_VOID { return source; }
     if p.types[expected].kind == TY_REF || p.types[expected].kind == TY_SLICE { p.nodes[expression].flags |= F_REFERENCE_CONTEXT; }
     if check_bottom(p, expression) { return expected; }
     if p.types[expected].kind == TY_INT && p.types[expected].index_type >= 0 {
         if check_conversion(p, c, expression, source, expected) < 0 {
-            diagnose(p, p.nodes[expression].token, "index or bound storage requires a checked value of the same named array"); return source;
+            var msg: u8[>..] = [];
+            msg.append("index or bound storage requires a checked value of the same named array: got `");
+            diag_append_type(p, source, msg); msg.append("`, expected `"); diag_append_type(p, expected, msg); msg.push('`');
+            diagnose(p, p.nodes[expression].token, msg); return source;
         }
         return expected;
     }
@@ -2597,7 +2913,11 @@ recursive fn check_expect(p: Program&, c: Checker&, expression: i64, source: i64
     }
     if source == TYPE_F64 && expected == TYPE_F32 && check_narrow_context_float(p, c, expression) { return expected; }
     if check_conversion(p, c, expression, source, expected) < 0 {
-        diagnose(p, p.nodes[expression].token, "value cannot implicitly convert to the required type"); return source;
+        var msg: u8[>..] = [];
+        msg.append("value cannot implicitly convert to the required type: got `");
+        diag_append_type(p, source, msg); msg.append("`, expected `"); diag_append_type(p, expected, msg); msg.push('`');
+        diag_conversion_help(p, source, expected, msg);
+        diagnose(p, p.nodes[expression].token, msg); return source;
     }
     if source < 0 { return expected; }
     if check_literal_parameter(p, expression) {
@@ -3239,7 +3559,16 @@ recursive fn check_record(p: Program&, c: Checker&, node: i64, expected: i64) ->
             while positional >= 0 && (p.nodes[positional].flags & F_PAD) != 0 { positional = p.nodes[positional].next; }
             field = positional; if positional >= 0 { positional = p.nodes[positional].next; }
         }
-        if field < 0 { diagnose(p, b_tok, "record initializer names no field"); }
+        if field < 0 {
+            var msg: u8[>..] = []; msg.append("record initializer names no field");
+            if b_tok >= 0 {
+                msg.append(": `"); diag_append_type(p, ty, msg); msg.append("` has no field `"); msg.append(token_text(p, b_tok)); msg.push('`');
+                diag_suggest_member(p, first, token_text(p, b_tok), "fields", msg);
+            } else {
+                msg.append(": too many positional initializers for `"); diag_append_type(p, ty, msg); msg.push('`');
+            }
+            diagnose(p, b_tok, msg);
+        }
         else {
             var ui = used.first;
             while ui >= 0 { if c.integer_work[ui].value == field { diagnose(p, b_tok, "field initialized more than once"); } ui = c.integer_work[ui].next; }
@@ -3549,6 +3878,7 @@ fn check_render_parameter(p: Program&, c: Checker&, node: i64, type_id: i64) -> 
     return check_const_type(p, type_id);
 }
 fn check_render_layout(p: Program&, c: Checker&, type_id: i64, token: i64) -> bool {
+    if type_id < 0 && p.diagnostics.len > 0 { return false; }
     var work = CheckList {}; var visited = CheckList {}; check_list_push(c, work, type_id); var at = 0;
     while at < work.count {
         let ty = check_list_at(c, work, at); at += 1;
@@ -5212,9 +5542,9 @@ recursive fn check_call(p: Program&, c: Checker&, node: i64, expected: i64) -> i
             if member && (builtin == 21 || builtin == 22) { diagnose(p, callee_tok, "a property is not callable"); return -1; }
             return check_builtin(p, c, node, builtin);
         }
-        if best < 0 { diagnose(p, n_tok, "no overload matches this call's argument types and count"); return -1; }
+        if best < 0 { diag_call_mismatch(p, c, n_tok, callee_node, args, candidates, false); return -1; }
     }
-    if ambiguous { diagnose(p, n_tok, "ambiguous call: equally specific overloads match"); return -1; }
+    if ambiguous { diag_call_mismatch(p, c, n_tok, callee_node, args, candidates, true); return -1; }
     let contextual = check_context_float_choice(p, c, node, callee_node, args, candidates, choice, expected);
     best = contextual.symbol; best_bindings = contextual.bindings;
     let original = p.symbols[best].node;
@@ -5497,7 +5827,11 @@ fn check_join_type(p: Program&, c: Checker&, left_node: i64, left: i64, right_no
             let l = check_numeric_value_type(p, left_value); let r = check_numeric_value_type(p, right_value);
             if left_node >= 0 && check_conversion(p, c, left_node, left, r) >= 0 { common = r; }
             else if right_node >= 0 && check_conversion(p, c, right_node, right, l) >= 0 { common = l; }
-            else { diagnose(p, token, "control-flow branches produce incompatible integer types"); return -1; }
+            else {
+                var msg: u8[>..] = []; msg.append("control-flow branches produce incompatible integer types: `");
+                diag_append_type(p, left, msg); msg.append("` vs `"); diag_append_type(p, right, msg); msg.push('`');
+                diagnose(p, token, msg); return -1;
+            }
         }
         if adapt && left_node >= 0 { check_expect(p, c, left_node, left, common); }
         if adapt && right_node >= 0 { check_expect(p, c, right_node, right, common); }
@@ -5526,7 +5860,9 @@ fn check_join_type(p: Program&, c: Checker&, left_node: i64, left: i64, right_no
     if right_node >= 0 && check_conversion(p, c, right_node, right, left) >= 0 {
         if adapt { check_expect(p, c, right_node, right, left); } return left;
     }
-    diagnose(p, token, "control-flow branches produce incompatible types"); return -1;
+    var msg: u8[>..] = []; msg.append("control-flow branches produce incompatible types: `");
+    diag_append_type(p, left, msg); msg.append("` vs `"); diag_append_type(p, right, msg); msg.push('`');
+    diagnose(p, token, msg); return -1;
 }
 recursive fn check_predeclare(p: Program&, c: Checker&, first: i64) {
     var node = first;
@@ -5857,7 +6193,11 @@ recursive fn check_expression(p: Program&, c: Checker&, node: i64, expected: i64
         else if p.tokens[tok].kind == T_SELF { diagnose(p, tok, "self requires a relative reference field initializer"); }
         else {
             let symbol = check_lookup_name(p, c, node);
-            if symbol < 0 { diagnose(p, tok, "unknown name"); }
+            if symbol < 0 {
+                var msg: u8[>..] = []; msg.append("unknown name `"); msg.append(token_text(p, tok)); msg.push('`');
+                diag_suggest_name(p, c, token_text(p, tok), c.scope, 0, msg);
+                diagnose(p, tok, msg);
+            }
             else {
                 p.nodes[node].symbol = symbol;
                 let sflags = p.symbols[symbol].flags;
@@ -5876,7 +6216,11 @@ recursive fn check_expression(p: Program&, c: Checker&, node: i64, expected: i64
                     let vi = check_variable_index(c, symbol); check_environment_note(p, c, symbol);
                     if vi >= 0 && c.variables[vi].narrowed >= 0 { result = c.variables[vi].narrowed; }
                     let element_access = path_base && (sflags & S_GLOBAL) == 0 && stype >= 0 && p.types[stype].kind != TY_REF && p.types[stype].kind != TY_SLICE;
-                    if vi >= 0 && !c.variables[vi].assigned && !element_access { diagnose(p, tok, "value is read before it is definitely assigned"); }
+                    if vi >= 0 && !c.variables[vi].assigned && !element_access {
+                        var msg: u8[>..] = []; msg.append("value is read before it is definitely assigned: `");
+                        msg.append(token_text(p, tok)); msg.push('`');
+                        diagnose(p, tok, msg);
+                    }
                     check_capture(p, c, symbol); check_copy_roots(c, node, -symbol - 10);
                 }
             }
@@ -5897,7 +6241,10 @@ recursive fn check_expression(p: Program&, c: Checker&, node: i64, expected: i64
             }
         } else if integer == T_MUL {
             let ty = check_expression(p, c, left, -1);
-            if ty < 0 || p.types[ty].kind != TY_REF { diagnose(p, tok, "dereference requires a reference"); }
+            if ty < 0 || p.types[ty].kind != TY_REF {
+                var msg: u8[>..] = []; msg.append("dereference requires a reference: got `"); diag_append_type(p, ty, msg); msg.push('`');
+                diagnose(p, tok, msg);
+            }
             else { result = p.types[ty].element; check_copy_roots(c, node, left); }
         } else if integer == T_NOT {
             check_condition(p, c, left); result = TYPE_BOOL;
@@ -6000,7 +6347,12 @@ recursive fn check_expression(p: Program&, c: Checker&, node: i64, expected: i64
                             let proof = check_nonnegative_get(c, signed);
                             if proof < -1 { diagnose(p, tok, "comparison with u64 requires the signed side to be known non-negative"); }
                             else { check_nonnegative_rely(p, c, proof, tok); lt = TYPE_U64; rt = TYPE_U64; }
-                        } else { diagnose(p, tok, "numeric operands require compatible types"); }
+                        } else {
+                            var msg: u8[>..] = []; msg.append("numeric operands require compatible types: `");
+                            diag_append_type(p, lt, msg); msg.append("` and `"); diag_append_type(p, rt, msg);
+                            msg.append("`\n  help: convert one operand explicitly with `as ...`");
+                            diagnose(p, tok, msg);
+                        }
                     }
                     if (op == T_BITAND || op == T_BITOR || op == T_XOR || op == T_SHL || op == T_SHR) &&
                        (!check_integer(lt) || !check_integer(rt)) { diagnose(p, tok, "integer operator requires integer operands"); }
@@ -6011,8 +6363,16 @@ recursive fn check_expression(p: Program&, c: Checker&, node: i64, expected: i64
                     if !identity && !null_comparison { aggregate = check_aggregate_operation(p, c, node, lt, rt); }
                     if aggregate != -2 { result = aggregate; }
                     else if comparison && (check_same_type(p, lt, rt) || identity && p.types[lt].kind == TY_REF && p.types[rt].kind == TY_REF && check_same_type(p, p.types[lt].element, p.types[rt].element) || p.nodes[left].kind == N_NULL || p.nodes[right].kind == N_NULL) {
-                        if (op == T_LT || op == T_LTEQ || op == T_GT || op == T_GTEQ) && lt != TYPE_BOOL { diagnose(p, tok, "ordered comparison requires numeric operands"); }
-                    } else { diagnose(p, tok, "operator does not accept these operand types"); }
+                        if (op == T_LT || op == T_LTEQ || op == T_GT || op == T_GTEQ) && lt != TYPE_BOOL {
+                            var msg: u8[>..] = []; msg.append("ordered comparison requires numeric operands: got `");
+                            diag_append_type(p, lt, msg); msg.push('`');
+                            diagnose(p, tok, msg);
+                        }
+                    } else {
+                        var msg: u8[>..] = []; msg.append("operator does not accept these operand types: `");
+                        diag_append_type(p, lt, msg); msg.append("` and `"); diag_append_type(p, rt, msg); msg.push('`');
+                        diagnose(p, tok, msg);
+                    }
                 }
                 if comparison { result = TYPE_BOOL; }
             }
@@ -6048,7 +6408,12 @@ recursive fn check_expression(p: Program&, c: Checker&, node: i64, expected: i64
                 }
                 variant = p.nodes[variant].next;
             }
-            if result < 0 { diagnose(p, tok, "unknown enum variant"); }
+            if result < 0 {
+                var msg: u8[>..] = []; msg.append("unknown enum variant: `"); diag_append_type(p, enum_type, msg);
+                msg.append("` has no variant `"); msg.append(token_text(p, tok)); msg.push('`');
+                diag_suggest_member(p, p.types[enum_type].first, token_text(p, tok), "variants", msg);
+                diagnose(p, tok, msg);
+            }
         } else {
             c.path_base = path_base; var ty = check_single_expression(p, c, left);
             if ty >= 0 && p.types[ty].kind == TY_REF {
@@ -6069,9 +6434,18 @@ recursive fn check_expression(p: Program&, c: Checker&, node: i64, expected: i64
                     if same_name(p, p.nodes[field].token, tok) { result = p.nodes[field].type_id; p.nodes[node].symbol = field; break; }
                     field = p.nodes[field].next;
                 }
-                if result < 0 { diagnose(p, tok, "struct has no field of this name"); }
+                if result < 0 {
+                    var msg: u8[>..] = []; msg.append("struct has no field of this name: `"); diag_append_type(p, ty, msg);
+                    msg.append("` has no field `"); msg.append(token_text(p, tok)); msg.push('`');
+                    diag_suggest_member(p, p.types[ty].first, token_text(p, tok), "fields", msg);
+                    diagnose(p, tok, msg);
+                }
                 check_copy_roots(c, node, left);
-            } else { diagnose(p, tok, "member access requires an aggregate, array or enum type"); }
+            } else {
+                var msg: u8[>..] = []; msg.append("member access requires an aggregate, array or enum type: got `");
+                diag_append_type(p, ty, msg); msg.push('`');
+                diagnose(p, tok, msg);
+            }
         }
     } else if kind == N_INDEX || kind == N_SLICE {
         c.path_base = true; var ty = check_single_expression(p, c, left);
@@ -6079,7 +6453,9 @@ recursive fn check_expression(p: Program&, c: Checker&, node: i64, expected: i64
             let element = p.types[ty].element; check_wrap_unary(p, left, T_MUL, element); ty = element;
         }
         if ty < 0 || p.types[ty].kind != TY_ARRAY && p.types[ty].kind != TY_SLICE {
-            diagnose(p, tok, "index or slice requires an array or slice");
+            var msg: u8[>..] = []; msg.append("index or slice requires an array or slice: got `");
+            diag_append_type(p, ty, msg); msg.push('`');
+            diagnose(p, tok, msg);
         } else {
             let arr_elem = p.types[ty].element; let arr_count = p.types[ty].count;
             let arr_kind = p.types[ty].array_kind; let arr_flags = p.types[ty].flags;

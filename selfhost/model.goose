@@ -307,6 +307,11 @@ struct Type {
     // Wasm emission's memoized layout predicates, keyed by this type's own ID so a
     // copied type never inherits them: (id + 1) << 16 | known/value bit pairs.
     codegen_memo: i64 = 0,
+    // C emission's memoized layout predicates and sizes, keyed by this type's own ID.
+    cc_memo_id: i32 = -1,
+    cc_memo_flags: u32 = 0,
+    cc_frame_size_cache: i64 = -1,
+    cc_region_width_cache: i32 = -1,
 }
 struct Symbol {
     name_token: i64 = -1, type_id: i64 = -1, node: i64 = -1,
@@ -494,7 +499,26 @@ inline fn token_is(p: Program&, token: i64, text: u8[:]) -> bool {
     let value: const Token& = p.tokens[token];
     return same_bytes(p.text[value.start..value.end], text);
 }
-fn diagnose_at(p: Program&, source: i64, start: i64, end: i64, message: u8[:]) {
+fn format_token_location(p: Program&, token: i64, out: u8[>..]&) {
+    if token < 0 || token >= p.tokens.len { out.append("<unknown>"); return; }
+    let t: const Token& = p.tokens[token];
+    if t.source >= 0 && t.source < p.sources.len {
+        let s: const Source& = p.sources[t.source];
+        out.append(p.text[s.path_start..s.path_start + s.path_len]);
+        var line: i64 = 1; var col: i64 = 1;
+        for i in s.text_start..t.start {
+            if p.text[i] == 10 { line += 1; col = 1; } else { col += 1; }
+        }
+        out.push(':'); out.format(line); out.push(':'); out.format(col);
+    } else {
+        out.append("<source>");
+    }
+}
+fn diagnose_at(p: Program&, source: i64, start: i64, end: i64, message: const u8[:]) {
+    for d in p.diagnostics {
+        if d.source == source && d.start == start &&
+           same_bytes(p.messages[d.message_start..d.message_start + d.message_len], message) { return; }
+    }
     var line = 1; var column = 1;
     if source >= 0 && source < p.sources.len {
         let origin = p.sources[source].text_start;
@@ -507,7 +531,7 @@ fn diagnose_at(p: Program&, source: i64, start: i64, end: i64, message: u8[:]) {
     p.diagnostics.push(Diagnostic { source: source, start: start, end: end,
         line: line, column: column, message_start: at, message_len: message.len });
 }
-fn diagnose(p: Program&, token: i64, message: u8[:]) {
+fn diagnose(p: Program&, token: i64, message: const u8[:]) {
     if token >= 0 && token < p.tokens.len {
         let t = p.tokens[token];
         diagnose_at(p, t.source, t.start, t.end, message);

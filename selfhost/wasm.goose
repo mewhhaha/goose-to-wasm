@@ -279,34 +279,39 @@ fn wb_reuse_locals(locals: i64[>..]&, code: u8[>..]&, params: i64, events: WbEve
     let loop_end: i32[:] = s.loop_end[0..max_pos];
     let action: u8[:] = s.action[0..events.len];
     // Action codes: 0 = keep, 1 = local.set -> local.tee, 2 = omit, 3 = local.set -> drop.
-    for event_index in 0..events.len { action[event_index] = 0; }
+    // Fuse action zeroing, optional no_regions folding, and Pass 0 read counting into one scan.
     var any_folded = false;
-    // When the function never acquires a data region, any cg_restore_regions
-    // (local.get mark; global.set 3) is dead; omitting it lets pass 2/2b drop the mark too.
     if no_regions {
+        // When the function never acquires a data region, any cg_restore_regions
+        // (local.get mark; global.set 3) is dead; omitting it lets pass 2/2b drop the mark too.
         for segment in 0..2 {
             var first_event = body_event_count; var limit = events.len;
             if segment != 0 { first_event = 0; limit = body_event_count; }
             var ei = first_event;
-            while ei + 1 < limit {
+            while ei < limit {
                 let e1: const WbEvent& = events[ei];
-                let e2: const WbEvent& = events[ei + 1];
-                if (e1.opcode as i64) == 0x20 && (e2.opcode as i64) == 0x24 && (e2.operand as i64) == 3 &&
-                   (e1.start as i64) + wb_local_len(e1.operand as i64) == (e2.start as i64) {
-                    action[ei] = 2; action[ei + 1] = 2;
-                    any_folded = true;
-                    ei += 2;
-                    continue;
+                let op1 = e1.opcode as i64;
+                if op1 == 0x20 && ei + 1 < limit {
+                    let e2: const WbEvent& = events[ei + 1];
+                    if (e2.opcode as i64) == 0x24 && (e2.operand as i64) == 3 &&
+                       (e1.start as i64) + wb_local_len(e1.operand as i64) == (e2.start as i64) {
+                        action[ei] = 2; action[ei + 1] = 2;
+                        any_folded = true;
+                        ei += 2;
+                        continue;
+                    }
                 }
+                action[ei] = 0;
+                if op1 == 0x20 { reads[e1.operand as i64]++; }
                 ei++;
             }
         }
-    }
-    // Peephole pass 0: count live reads per non-parameter local.
-    for event_index in 0..events.len {
-        if (action[event_index] as i64) == 2 { continue; }
-        let event: const WbEvent& = events[event_index];
-        if (event.opcode as i64) == 0x20 { reads[event.operand as i64]++; }
+    } else {
+        for event_index in 0..events.len {
+            action[event_index] = 0;
+            let event: const WbEvent& = events[event_index];
+            if (event.opcode as i64) == 0x20 { reads[event.operand as i64]++; }
+        }
     }
     // Peephole pass 1: fold adjacent (including nested) local.set L; local.get L
     // pairs into empty (when L has only this read) or local.tee L (when L has more reads).
@@ -348,18 +353,23 @@ fn wb_reuse_locals(locals: i64[>..]&, code: u8[>..]&, params: i64, events: WbEve
     }
     // Peephole pass 2: eliminate writes to locals with zero remaining reads,
     // and drop any immediately preceding recorded global.get (0x23) feeding a dead local.set.
-    for event_index in 0..events.len {
-        let act = action[event_index] as i64;
-        if act == 2 { continue; }
-        let event: const WbEvent& = events[event_index];
-        let op = event.opcode as i64;
-        if op >= 0x20 && op <= 0x22 && reads[event.operand as i64] == 0 {
-            if op == 0x21 && act == 0 { action[event_index] = 3; }
-            else { action[event_index] = 2; }
-            any_folded = true;
+    var any_dead = false;
+    for i in 0..total { if reads[i] == 0 { any_dead = true; break; } }
+    var any_dropped = false;
+    if any_dead {
+        for event_index in 0..events.len {
+            let act = action[event_index] as i64;
+            if act == 2 { continue; }
+            let event: const WbEvent& = events[event_index];
+            let op = event.opcode as i64;
+            if op >= 0x20 && op <= 0x22 && reads[event.operand as i64] == 0 {
+                if op == 0x21 && act == 0 { action[event_index] = 3; any_dropped = true; }
+                else { action[event_index] = 2; }
+                any_folded = true;
+            }
         }
     }
-    if any_folded {
+    if any_dropped {
         for segment in 0..2 {
             var first_event = body_event_count; var limit = events.len;
             if segment != 0 { first_event = 0; limit = body_event_count; }

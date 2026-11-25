@@ -4,6 +4,14 @@ Standing rules are in [AGENTS.md](AGENTS.md). All six items of the Batches 9–1
 
 ## Where it stands (2026-11-24)
 
+- **Release `v2026.4-2` (qualified, C/Wasm/lifetime speedups, exquisite diagnostics, Wasm `env.*` host-import docs & tests):**
+  - Version string `goose-to-wasm v2026.4-2 (Goose v2026.4)` in `selfhost/driver.goose`, full qualification (`build/qualify-v2026.4-2/summary.json`, `262.4 s`, all stages exit 0: fixed-point C `a0ec56f6…`, executable `93731c80…`, `10,697/10,801` default conformance, `5,926/6,022` split-unit native, `4,771/4,779` memory64, `54/54` native checks, `20/20` unit test modules including `tests.test_diagnostics`).
+  - Forced-class (`LIFE_CONCRETE_FRAMES = 0`) soundness audit: exact `126` failing rows on `10,801` (`0` new failures), `13/13` upstream lifetime sentinels rejected, `selfhost/main.goose` exit 0.
+  - Head-to-head CPU-7 benchmarks vs `v2026.4-1` and plain upstream C++ Goose (`d5ae5bb`):
+    - `selfhost/main.goose` (~30k LOC): `--target c -O2` `0.691 s → 0.528 s` (**−23.6%** vs `v1`, **8.5× faster** than upstream's `4.468 s`; C backend alone `332.8 ms → 151.5 ms`, **−54.5% / 2.20×**), emit Wasm64 `0.534 s → 0.519 s` (**8.6× faster** than upstream), `--check` `0.390 s` (**10.5× faster** than upstream's `4.082 s`; Wasmtime Wasm64 `1.007 s`, **4.1×**).
+    - 8 real Goose examples: Direct Wasm `-O2` builds in `1.9–8.4 ms` vs upstream `goose build -O2` `58.6–198.9 ms` (**24×–32× faster**).
+    - Frozen Blot2 default-2 GiB paired CPU-7 checks: `cb1e9e15` **`19.21 s`** (`−3.0%` vs `v1`'s `19.81 s`, `4.4×` vs Batch 3), `6ad5fbb` **`73.63 s`** / `7.41 GiB` RSS (**`−7.2%`**, **`−280 MiB` RSS** vs `v1`'s `79.38 s` / `7.69 GiB`, `3.2×` vs Batch 3). [Release `v2026.4-2` evidence & charts](bench/results/2026-11-24/release-v2026.4-2/README.md)
+  - Diagnostics & host imports: source-line snippets + `^~~~` carets, duplicate/cascade suppression, expected-vs-got types + `help:`, overload candidate signatures with `file:line`, Damerau-Levenshtein typo suggestions, lifetime call stacks + invalidated variable locations, and actionable Wasm `env.<name>` host-import ABI diagnostics + README documentation.
 - **Release `v2026.4-1` (qualified, consumer README & benchmarks vs upstream C++ Goose):**
   - Version string `goose-to-wasm v2026.4-1 (Goose v2026.4)` in `selfhost/driver.goose`, full qualification (`build/qualify-v2026.4-1/summary.json`, `282.6 s`, all stages exit 0: fixed-point C `dbfecfe0…`, executable `139b06db…`, `10,697/10,801` default conformance, `4,771/4,779` memory64, `54/54` native checks, 19/19 unit tests).
   - Head-to-head CPU-7 benchmarks vs plain upstream C++ Goose (`d5ae5bb`):

@@ -39,7 +39,7 @@ UNIT_TESTS = ['tests.test_conformance_runner', 'tests.test_bootstrap_optimizatio
               # Optimizer statistics: an optimization that stops firing changes no output.
               'tests.test_loop_ordinals', 'tests.test_dynamic_remainder', 'tests.test_descending_while',
               'tests.test_zero_stores', 'tests.test_owner_view_host', 'tests.test_ordinary_owner_modes', 'tests.test_aggregate_print', 'tests.test_while_unroll', 'tests.test_fixed_memory_frames', 'tests.test_holder_walks',
-              'tests.test_data_segments', 'tests.test_fixed_memory_ops']
+              'tests.test_data_segments', 'tests.test_fixed_memory_ops', 'tests.test_diagnostics']
 
 
 def run(name, command, log, env=None):

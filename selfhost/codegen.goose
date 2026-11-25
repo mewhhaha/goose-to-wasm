@@ -1,4 +1,5 @@
 import model;
+import checker_rendering;
 import wasm;
 import region_plan;
 
@@ -117,7 +118,7 @@ fn cg_align(value: i64, alignment: i64) -> i64 {
     if alignment <= 1 { return value; }
     return (value + alignment - 1) & (0 - alignment);
 }
-fn cg_fail(p: Program&, node: i64, message: u8[:]) {
+fn cg_fail(p: Program&, node: i64, message: const u8[:]) {
     var token = -1;
     if node >= 0 && node < p.nodes.len { token = p.nodes[node].token; }
     diagnose(p, token, message);
@@ -5982,7 +5983,7 @@ fn cg_collect(p: Program&, m: CgModule&) {
         if (fn_n.flags & F_REACHABLE) == 0 { continue; }
         if (fn_n.flags & F_THREAD) != 0 { cg_fail(p, fnode, "wasm: threads are unsupported by the direct host ABI"); }
         if (fn_n.flags & F_EXTERN) != 0 {
-            if location_extern(p, fnode) { cg_fail(p, fnode, "wasm: the slice pool span tree externs are not supported by the direct Wasm backend; use --target native"); continue; }
+            if location_extern(p, fnode) { cg_fail(p, fnode, "wasm: the slice pool span tree externs are not supported by the direct Wasm backend; use --target native\n  help: compile with `--target native` or `--target c` for slice-pool span-tree externs"); continue; }
             cg_importable(p, fnode);
             extern_fns.push(fnode);
         } else {
@@ -6254,11 +6255,30 @@ fn cg_importable(p: Program&, function: i64) -> bool {
     while param >= 0 {
         let id = p.nodes[param].type_id; let kind = cg_type_kind(p, id);
         let passed = kind == TY_INT || kind == TY_FLOAT || kind == TY_BOOL || kind == TY_SLICE || kind == TY_REF && p.types[id].length_storage < 0;
-        if !passed { cg_fail(p, function, "wasm: host imports accept numeric, bool, slice and reference parameters only"); return false; }
+        if !passed {
+            var msg: u8[>..] = [];
+            msg.append("wasm: host imports accept numeric, bool, slice and reference parameters only: `");
+            msg.append(token_text(p, p.nodes[function].token)); msg.append("` parameter `");
+            msg.append(token_text(p, p.nodes[param].token)); msg.append("` has type `");
+            render_type_name(p, id, msg);
+            msg.append("`\n  help: pass `const T&`, `T&`, or a slice `T[:]` across the Wasm host import `env.");
+            msg.append(token_text(p, p.nodes[function].token)); msg.append("`, or compile with `--target native`");
+            cg_fail(p, param, msg); return false;
+        }
         param = p.nodes[param].next;
     }
     var results: i64[>..] = []; cg_function_results(p, function, results);
-    for id in results { let kind = cg_type_kind(p, id); if kind != TY_INT && kind != TY_FLOAT && kind != TY_BOOL { cg_fail(p, function, "wasm: host imports return numeric and bool values only"); return false; } }
+    for id in results {
+        let kind = cg_type_kind(p, id);
+        if kind != TY_INT && kind != TY_FLOAT && kind != TY_BOOL {
+            var msg: u8[>..] = [];
+            msg.append("wasm: host imports return numeric and bool values only: `");
+            msg.append(token_text(p, p.nodes[function].token)); msg.append("` returns `");
+            render_type_name(p, id, msg);
+            msg.append("`\n  help: return via an out-reference parameter (e.g. `out: T&` or `out: u8[>..]&`), or compile with `--target native`");
+            cg_fail(p, function, msg); return false;
+        }
+    }
     return true;
 }
 // The growable byte array type some host import takes a reference to: what
@@ -6282,12 +6302,29 @@ fn cg_host_reserve_type(p: Program&, m: CgModule&) -> i64 {
 fn cg_exportable(p: Program&, function: i64) -> bool {
     var param = p.nodes[function].first;
     while param >= 0 {
-        let kind = cg_type_kind(p, p.nodes[param].type_id);
-        if kind != TY_INT && kind != TY_FLOAT && kind != TY_BOOL { cg_fail(p, function, "wasm: public exports accept numeric and bool values only"); return false; }
+        let id = p.nodes[param].type_id;
+        let kind = cg_type_kind(p, id);
+        if kind != TY_INT && kind != TY_FLOAT && kind != TY_BOOL {
+            var msg: u8[>..] = [];
+            msg.append("wasm: public exports accept numeric and bool values only: `");
+            msg.append(token_text(p, p.nodes[function].token)); msg.append("` parameter `");
+            msg.append(token_text(p, p.nodes[param].token)); msg.append("` has type `");
+            render_type_name(p, id, msg); msg.push('`');
+            cg_fail(p, param, msg); return false;
+        }
         param = p.nodes[param].next;
     }
     var results: i64[>..] = []; cg_function_results(p, function, results);
-    for id in results { let kind = cg_type_kind(p, id); if kind != TY_INT && kind != TY_FLOAT && kind != TY_BOOL { cg_fail(p, function, "wasm: public exports return numeric and bool values only"); return false; } }
+    for id in results {
+        let kind = cg_type_kind(p, id);
+        if kind != TY_INT && kind != TY_FLOAT && kind != TY_BOOL {
+            var msg: u8[>..] = [];
+            msg.append("wasm: public exports return numeric and bool values only: `");
+            msg.append(token_text(p, p.nodes[function].token)); msg.append("` returns `");
+            render_type_name(p, id, msg); msg.push('`');
+            cg_fail(p, function, msg); return false;
+        }
+    }
     return true;
 }
 // The bundled hosts take byte builders through goose.reserve. Other approved
