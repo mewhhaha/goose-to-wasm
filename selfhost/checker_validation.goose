@@ -123,6 +123,14 @@ recursive fn validation_root(p: Program&, node: i64, depth: i64 = 0) -> Validati
     }
     return ValidationRoot {};
 }
+recursive fn validation_pool_root(p: Program&, pool: i64, depth: i64 = 0) -> ValidationRoot {
+    if pool >= 0 && pool < p.symbols.len && depth < 64 && p.symbols[pool].component_owner >= 0 && p.symbols[pool].component >= 0 {
+        var root = validation_pool_root(p, p.symbols[pool].component_owner, depth + 1);
+        root.path = root.path * 1099511628211 + (p.nodes[p.symbols[pool].component].token + 1) as u64;
+        return root;
+    }
+    return ValidationRoot { symbol: pool };
+}
 recursive fn validation_element_owner(p: Program&, node: i64, depth: i64 = 0) -> ValidationRoot {
     if node < 0 || depth > 64 { return ValidationRoot {}; }
     let n: const Node& = p.nodes[node];
@@ -137,7 +145,7 @@ recursive fn validation_element_owner(p: Program&, node: i64, depth: i64 = 0) ->
             if storage >= 0 && p.types[storage].kind == TY_REF {
                 // An indexed reference slot yields its pointee. Only a
                 // pool-relative reference names the owner syntactically.
-                return ValidationRoot { symbol: p.types[storage].pool };
+                return validation_pool_root(p, p.types[storage].pool);
             }
         }
         return validation_root(p, n.left);
@@ -145,7 +153,7 @@ recursive fn validation_element_owner(p: Program&, node: i64, depth: i64 = 0) ->
     if n.kind == N_MEMBER && n.symbol >= 0 && n.symbol < p.nodes.len && p.nodes[n.symbol].kind == N_FIELD {
         let storage = p.nodes[n.symbol].type_id;
         if storage >= 0 && p.types[storage].kind == TY_REF && p.types[storage].length_storage >= 0 {
-            return ValidationRoot { symbol: p.types[storage].pool };
+            return validation_pool_root(p, p.types[storage].pool);
         }
     }
     if n.kind == N_NAME && n.symbol >= 0 {

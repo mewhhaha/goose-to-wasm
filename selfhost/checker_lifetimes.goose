@@ -1329,7 +1329,7 @@ fn life_effect(p: Program&, l: Lifetimes&, effect: const LifeEffect&) -> i64 {
                 // A store to an exact single root clears all field kills on that root.
                 // Any earlier kind-7 kill on that exact root with no intervening shrink
                 // can never be observed and is marked dead before deduplication.
-                if effect.kind == 4 && (effect.field <= -2 || effect.value.contents != 0) &&
+                if effect.kind == 4 && (effect.field <= -2 || !life_only_static(l, effect.value.contents)) &&
                    l.sets[effect.places].count == 1 && l.alts[l.sets[effect.places].first].exact {
                     let sfloor = l.frames[frame].last_shrink;
                     let eff_root = l.alts[l.sets[effect.places].first].root;
@@ -2821,6 +2821,12 @@ fn life_live_contents(p: Program&, l: Lifetimes&, places: i64) -> i64 {
     let held = life_build_end(l, result);
     if l.class_frames == 0 { return held; }
     return life_fold(l, life_overlay(p, l, places, held));
+}
+fn life_only_static(l: Lifetimes&, set: i64) -> bool {
+    if set == 0 { return true; }
+    let first = l.sets[set].first as i64; let count = l.sets[set].count as i64;
+    for i in 0..count { if l.alts[first + i].root != 0 { return false; } }
+    return true;
 }
 fn life_value_roots(p: Program&, value: const LifeValue&) -> i64 {
     if value.type_id >= 0 && p.types[value.type_id].kind == TY_REF && p.types[value.type_id].length_storage >= 0 { return 0; }
@@ -6273,8 +6279,23 @@ fn life_load(p: Program&, l: Lifetimes&, type_id: i64, places: i64, slot: bool =
     let is_ref = life_tf_is_ref(p, l, type_id);
     let holds = life_tf_holds(p, l, type_id);
     if !holds && !is_ref { return out; }
-    if holds && l.discovery { out.contents = life_contents(p, l, places) as i32; }
-    else if holds { out.contents = life_live_contents(p, l, places) as i32; }
+    if holds && l.discovery {
+        var use_live = false;
+        if l.sets[places].count == 1 && l.frame > 0 && !l.frames[l.frame].recursive_call {
+            let alt: const LifeAlt& = l.alts[l.sets[places].first];
+            let rt: const LifeRoot& = l.roots[alt.root];
+            if alt.exact && rt.frame == l.frame && rt.class_frame < 0 && rt.symbol >= 0 &&
+               (p.symbols[rt.symbol].flags & (S_GLOBAL | S_PARAMETER | S_CAPTURE)) == 0 {
+                use_live = true;
+            }
+        }
+        if use_live {
+            life_note_places_read(l, places);
+            out.contents = life_live_contents(p, l, places) as i32;
+        } else {
+            out.contents = life_contents(p, l, places) as i32;
+        }
+    } else if holds { out.contents = life_live_contents(p, l, places) as i32; }
     if is_ref { out.refs = life_readback(p, l, type_id, places) as i32; }
     if !holds { out.contents = 0; }
     else if !is_ref {
@@ -6485,7 +6506,10 @@ fn life_add_contents(p: Program&, l: Lifetimes&, root: i64, storing: i64, exact:
     if owned != 0 { life_own_effects(p, l, root, owned); }
     if !l.discovery {
         life_set_live_contents(l, root, life_join(l, l.roots[root].live_contents, kept));
-        if storing != 0 { life_clear_kills(l, root); }
+        if !life_only_static(l, storing) { life_clear_kills(l, root); }
+    } else if l.roots[root].class_frame < 0 && l.roots[root].frame > 0 {
+        let joined = life_join(l, l.roots[root].live_contents, kept);
+        l.roots[root].live_contents = joined;
     }
     // Classes need not be disjoint: what is stored through one is kept with
     // it, for the reads through any other that may be the same storage
@@ -9730,6 +9754,7 @@ recursive fn life_eval_variable(p: Program&, l: Lifetimes&, node: i64, n: const 
             if cell >= 0 {
                 if !l.discovery || l.frame == 0 && l.cell_keys[cell].global { life_set_live_refs(l, cell, 0); }
                 if !l.discovery { life_set_live_contents(l, l.cells[cell].root, 0); }
+                else if l.roots[l.cells[cell].root].frame > 0 { l.roots[l.cells[cell].root].live_contents = 0; }
                 let places = life_root_set(l, l.cells[cell].root); var value = aggregate;
                 if aggregate.tuple >= 0 { value = life_item(l, aggregate.tuple, index); }
                 else if initializer >= 0 {
@@ -9807,7 +9832,7 @@ recursive fn life_eval_assign(p: Program&, l: Lifetimes&, node: i64, n: const No
     l.dest_place = outer_place; l.dest_reached = outer_reached;
     let value = life_coerce(p, l, natural, ty); life_pop_holds(l, held); l.future_count = future;
     life_copy(p, l, n.right, ty);
-    if !l.discovery && l.conditional == 0 && !binding && life_value_roots(p, value) == 0 {
+    if !l.discovery && l.conditional == 0 && !binding && life_only_static(l, life_value_roots(p, value)) {
         let left_node: const Node& = p.nodes[n.left];
         if left_node.kind == N_NAME {
             if ty < 0 || life_is_ref(p, ty) || life_tf_holds(p, l, ty) {
@@ -10049,6 +10074,7 @@ recursive fn life_eval_match(p: Program&, l: Lifetimes&, node: i64, n: const Nod
             if !(l.nodes_prepared && symbol < l.sym_flags.len && (l.sym_flags[symbol] & SF_SCALAR_LOCAL) != 0) {
                 pat_cell = life_cell(p, l, symbol);
                 if !l.discovery { life_set_live_refs(l, pat_cell, 0); life_set_live_contents(l, l.cells[pat_cell].root, 0); }
+                else if l.roots[l.cells[pat_cell].root].frame > 0 { l.roots[l.cells[pat_cell].root].live_contents = 0; }
                 var value = source; value.type_id = p.symbols[symbol].type_id as i32;
                 if life_is_ref(p, value.type_id) { value.refs = source.place; }
                 life_copy(p, l, n.left, p.symbols[symbol].type_id);
@@ -10177,6 +10203,15 @@ recursive fn life_eval_loop(p: Program&, l: Lifetimes&, node: i64, n: const Node
             for root in first..first + l.frames[l.island].class_count { life_set_live_contents(l, root, l.roots[root].contents); }
             var typed = l.frames[l.island].typed_first;
             while typed >= 0 { life_set_live_contents(l, typed, l.roots[typed].contents); typed = l.roots[typed].class_next; }
+        }
+    } else {
+        var index = life_next_holder(l, -1);
+        while index >= 0 {
+            let cell: const LifeCell& = l.cells[index];
+            if life_visible(l, index) && !life_in_scope(l, p.symbols[cell.symbol].scope, n.scope) && l.roots[cell.root].frame > 0 {
+                l.roots[cell.root].live_contents = l.roots[cell.root].contents;
+            }
+            index = life_next_holder(l, index);
         }
     }
     let futures = l.future_count;

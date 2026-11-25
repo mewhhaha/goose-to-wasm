@@ -1050,7 +1050,10 @@ fn check_function_syntax(p: Program&, c: Checker&, function_node: i64) {
     var parameter = n.first;
     while parameter >= 0 && !preserve {
         let ty = p.nodes[parameter].type_id;
-        if ty >= 0 && p.types[ty].kind == TY_FN { preserve = true; }
+        if ty >= 0 && (p.types[ty].kind == TY_FN ||
+            (p.types[ty].kind == TY_SLICE || p.types[ty].kind == TY_REF) && (p.types[ty].flags & TF_CONST) == 0) {
+            preserve = true;
+        }
         parameter = p.nodes[parameter].next;
     }
     if !preserve || n.right < 0 { return; }
@@ -4000,7 +4003,24 @@ fn check_mutation_views(p: Program&, c: Checker&, receiver: i64, shrink: bool) {
         }
     }
 }
-recursive fn check_render_hook(p: Program&, c: Checker&, type_id: i64) -> i64 {
+recursive fn check_type_is_generic(p: Program&, ty: i64, depth: i64 = 0) -> bool {
+    if ty < 0 || depth > 32 { return false; }
+    if check_has_generic(p, ty, 0) { return true; }
+    let t = p.types[ty];
+    if t.kind == TY_REF || t.kind == TY_ARRAY || t.kind == TY_SLICE {
+        return check_type_is_generic(p, t.element, depth + 1);
+    }
+    if t.kind == TY_STRUCT || t.kind == TY_ENUM {
+        var arg = t.arguments;
+        while arg >= 0 {
+            if check_type_is_generic(p, p.nodes[arg].type_id, depth + 1) { return true; }
+            arg = p.nodes[arg].next;
+        }
+    }
+    return false;
+}
+recursive fn check_render_hook(p: Program&, c: Checker&, type_id: i64, token: i64) -> i64 {
+    if type_id < 0 || check_type_is_generic(p, type_id) { return -1; }
     let t = p.types[type_id]; var namespace_scope = 0;
     if (t.kind == TY_STRUCT || t.kind == TY_ENUM) && t.declaration >= 0 {
         var scope = p.nodes[t.declaration].scope;
@@ -4016,27 +4036,88 @@ recursive fn check_render_hook(p: Program&, c: Checker&, type_id: i64) -> i64 {
             c.format_symbol_scan += 1;
         }
         let count = c.format_symbols.len;
-        for candidate in 0..count {
-            let index = c.format_symbols[candidate]; let symbol = p.symbols[index];
-            if symbol.scope != scope || symbol.owner >= 0 || (symbol.flags & (S_FUNCTION | S_BUILTIN)) != S_FUNCTION || symbol.node < 0 || !token_is(p, symbol.name_token, "format") { continue; }
-            let n = p.nodes[symbol.node];
-            if n.kind != N_FUNCTION || n.origin >= 0 || n.third >= 0 || n.first < 0 { continue; }
-            let first = n.first; let second = p.nodes[first].next;
-            if second < 0 || p.nodes[second].next >= 0 || p.nodes[first].left < 0 || p.nodes[second].left < 0 { continue; }
-            check_prepare_function(p, c, symbol.node);
-            if (p.nodes[symbol.node].flags & F_GENERIC) != 0 { continue; }
-            let output = p.nodes[first].type_id;
-            if output < 0 || p.types[output].kind != TY_REF || (p.types[output].flags & TF_OPTIONAL) != 0 { continue; }
-            let array = p.types[output].element;
-            if array < 0 || p.types[array].kind != TY_ARRAY || p.types[array].array_kind != A_GROW || p.types[array].element != TYPE_U8 { continue; }
-            var value = p.nodes[second].type_id;
-            if value >= 0 && p.types[value].kind == TY_REF && (p.types[value].flags & TF_OPTIONAL) == 0 && p.types[value].length_storage < 0 { value = p.types[value].element; }
-            if value >= 0 && t.kind == TY_SLICE && (p.types[value].flags & TF_CONST) != (t.flags & TF_CONST) { continue; }
-            if value >= 0 && check_operation_same(p, value, type_id) { return index; }
+        // Pass 0 checks non-generic format overloads; pass 1 checks generic
+        // struct/enum patterns (such as Box<T> or const Opt<T>&), excluding
+        // bare type variables, arrays/slices of T, non-generic types, and
+        // optional references.
+        var pass = 0;
+        while pass < 2 {
+            if pass == 1 && t.kind != TY_STRUCT && t.kind != TY_ENUM { break; }
+            for candidate in 0..count {
+                let index = c.format_symbols[candidate]; let symbol = p.symbols[index];
+                if symbol.scope != scope || symbol.owner >= 0 || (symbol.flags & (S_FUNCTION | S_BUILTIN)) != S_FUNCTION || symbol.node < 0 || !token_is(p, symbol.name_token, "format") { continue; }
+                let n = p.nodes[symbol.node];
+                if n.kind != N_FUNCTION || n.origin >= 0 || n.first < 0 { continue; }
+                if pass == 0 && n.third >= 0 { continue; }
+                if pass == 1 && n.third < 0 { continue; }
+                let first = n.first; let second = p.nodes[first].next;
+                if second < 0 || p.nodes[second].next >= 0 || p.nodes[first].left < 0 || p.nodes[second].left < 0 { continue; }
+                check_prepare_function(p, c, symbol.node);
+                let output = p.nodes[first].type_id;
+                if output < 0 || p.types[output].kind != TY_REF || (p.types[output].flags & TF_OPTIONAL) != 0 { continue; }
+                let array = p.types[output].element;
+                if array < 0 || p.types[array].kind != TY_ARRAY || p.types[array].array_kind != A_GROW || p.types[array].element != TYPE_U8 { continue; }
+                var value = p.nodes[second].type_id;
+                if value >= 0 && p.types[value].kind == TY_REF && (p.types[value].flags & TF_OPTIONAL) == 0 && p.types[value].length_storage < 0 { value = p.types[value].element; }
+                if value < 0 { continue; }
+                if pass == 0 {
+                    if (p.nodes[symbol.node].flags & F_GENERIC) != 0 { continue; }
+                    if t.kind == TY_SLICE && (p.types[value].flags & TF_CONST) != (t.flags & TF_CONST) { continue; }
+                    if check_operation_same(p, value, type_id) { return index; }
+                } else {
+                    if (p.types[value].kind != TY_STRUCT && p.types[value].kind != TY_ENUM) || p.types[value].kind != t.kind { continue; }
+                    if !check_type_is_generic(p, value) { continue; }
+                    var bindings = CheckList {};
+                    if !check_unify(p, c, value, type_id, bindings) { continue; }
+                    var all_bound = true;
+                    var gp = p.nodes[symbol.node].third;
+                    while gp >= 0 {
+                        var found = false;
+                        for bi in 0..bindings.count {
+                            if check_binding_at(c, bindings, bi).parameter == gp { found = true; break; }
+                        }
+                        if !found { all_bound = false; break; }
+                        gp = p.nodes[gp].next;
+                    }
+                    if !all_bound { continue; }
+                    let substituted = check_substitute(p, c, value, bindings);
+                    if substituted < 0 || !check_operation_same(p, substituted, type_id) { continue; }
+                    let spec = check_specialize_function(p, c, symbol.node, bindings, token);
+                    if spec >= 0 { return spec; }
+                }
+            }
+            pass += 1;
         }
         if namespace_scope == 0 { break; } round += 1;
     }
     return -1;
+}
+recursive fn check_populate_render_hooks(p: Program&, c: Checker&, type_id: i64, token: i64, depth: i64 = 0) {
+    if type_id < 0 || depth > 64 { return; }
+    while c.render_hooks.len <= type_id { c.render_hooks.push(-2); }
+    if c.render_hooks[type_id] != -2 { return; }
+    c.render_hooks[type_id] = -1;
+    let hook = check_render_hook(p, c, type_id, token);
+    c.render_hooks[type_id] = hook;
+    let t = p.types[type_id];
+    if hook >= 0 && !(t.kind == TY_STRUCT && t.pool >= 0) { return; }
+    if t.kind == TY_REF || t.kind == TY_ARRAY || t.kind == TY_SLICE {
+        check_populate_render_hooks(p, c, t.element, token, depth + 1);
+    } else if t.kind == TY_STRUCT || t.kind == TY_ENUM {
+        var field = t.first;
+        while field >= 0 {
+            if t.kind == TY_ENUM {
+                var part = p.nodes[field].first;
+                while part >= 0 {
+                    check_populate_render_hooks(p, c, p.nodes[part].type_id, token, depth + 1);
+                    part = p.nodes[part].next;
+                }
+            } else if (p.nodes[field].flags & F_PAD) == 0 {
+                check_populate_render_hooks(p, c, p.nodes[field].type_id, token, depth + 1);
+            }
+            field = p.nodes[field].next;
+        }
+    }
 }
 fn check_render_has_hook(p: Program&, hooks: const i64[:], type_id: i64) -> bool {
     if type_id < 0 { return false; }
@@ -4067,7 +4148,8 @@ fn check_render_parameter(p: Program&, c: Checker&, node: i64, type_id: i64) -> 
     if p.types[type_id].kind == TY_REF { return type_id; }
     // A helper for a by-value hook takes its own copy. A const-reference
     // hook needs only a read-only borrow of the original argument.
-    let hook = c.render_hooks[type_id];
+    var hook = -1;
+    if type_id >= 0 && type_id < c.render_hooks.len { hook = c.render_hooks[type_id]; }
     var flags = 0;
     if hook >= 0 {
         let formal = p.nodes[p.nodes[p.symbols[hook].node].first].next;
@@ -4138,9 +4220,10 @@ recursive fn check_lower_rendering(p: Program&, c: Checker&, node: i64, builtin:
     if !hooks_exist && !wasm_default { return -2; }
     var first = 0; if builtin == 2 { first = 1; }
     for index in first..args.count { let argument = check_list_at(c, args, index); if !check_render_layout(p, c, p.nodes[argument].type_id, p.nodes[argument].token) { return -1; } }
-    while c.render_hooks.len < p.types.len {
-        let type_id = c.render_hooks.len; c.render_hooks.push(-1);
-        if check_has_format_hooks(p, c) { let hook = check_render_hook(p, c, type_id); c.render_hooks[type_id] = hook; }
+    if check_has_format_hooks(p, c) {
+        for index in first..args.count {
+            check_populate_render_hooks(p, c, p.nodes[check_list_at(c, args, index)].type_id, p.nodes[node].token);
+        }
     }
     for index in first..args.count {
         let argument = check_list_at(c, args, index); var path = CheckList {}; var recurring = CheckList {};

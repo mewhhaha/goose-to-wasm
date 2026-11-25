@@ -450,6 +450,255 @@ fn main() {
 
 
 @unittest.skipUnless(COMPILER.is_file(), "bootstrap the compiler first")
+class PostPinUpstreamParity(unittest.TestCase):
+    """Regression coverage for post-pin upstream Goose language, checker, and stdlib parity fixes."""
+
+    def setUp(self):
+        directory = tempfile.TemporaryDirectory()
+        self.addCleanup(directory.cleanup)
+        self.work = Path(directory.name)
+
+    def _run_both_backends(self, name: str, source_text: str, expected: str):
+        src = self.work / f"{name}.goose"
+        src.write_text(source_text)
+        compiler = COMPILER.resolve()
+        for opt in ("-O0", "-O2"):
+            with self.subTest(case=name, backend="native", opt=opt):
+                ran = subprocess.run(
+                    [compiler, src, "--target", "native", opt, "--run", "--stdlib", SOURCE_STDLIB],
+                    cwd=self.work, stdin=subprocess.DEVNULL, capture_output=True, text=True, timeout=30,
+                )
+                self.assertEqual((ran.returncode, ran.stdout), (0, expected), ran.stderr)
+            with self.subTest(case=name, backend="wasm-direct", opt=opt):
+                wasm = self.work / f"{name}{opt}.wasm"
+                built = subprocess.run(
+                    [compiler, src, "--target", "wasm-direct", opt, "--stdlib", SOURCE_STDLIB, "-o", wasm],
+                    stdin=subprocess.DEVNULL, capture_output=True, text=True, timeout=30,
+                )
+                self.assertEqual(built.returncode, 0, built.stderr)
+                host_cmd = [RUST_HOST, wasm] if RUST_HOST.is_file() else [sys.executable, ROOT / "scripts/run_wasmtime.py", wasm]
+                ran = subprocess.run(host_cmd, stdin=subprocess.DEVNULL, capture_output=True, text=True, timeout=30)
+                self.assertEqual((ran.returncode, ran.stdout), (0, expected), ran.stderr)
+
+    def _expect_rejected(self, name: str, source_text: str, needle: str):
+        src = self.work / f"neg_{name}.goose"
+        src.write_text(source_text)
+        res = subprocess.run(
+            [COMPILER.resolve(), src, "--target", "native", "--check", "--stdlib", SOURCE_STDLIB],
+            stdin=subprocess.DEVNULL, capture_output=True, text=True, timeout=30,
+        )
+        self.assertEqual(res.returncode, 1, f"{name} unexpectedly accepted")
+        self.assertIn(needle, res.stderr)
+
+    def test_deprecated_modifier_and_contextual_name(self):
+        source = """\
+deprecated "use next_val" fn old_val(x: i64) -> i64 { return x + 1; }
+deprecated fn bare_val() -> i64 { return 2; }
+fn main() {
+    deprecated "use kept" fn inner() -> i64 { return 3; }
+    let deprecated = 4;
+    print(old_val(1), " ", bare_val(), " ", inner(), " ", deprecated);
+}
+"""
+        self._run_both_backends("deprecated", source, "2 2 3 4\n")
+        self._expect_rejected("defer_deprecated", "fn main() { defer deprecated fn f() {} }\n", "defer takes a statement or a block")
+
+    def test_const_polymorphic_trailing_block_preservation(self):
+        source = """\
+fn each_byte<F>(s: u8[:]) {
+    for b in s { F(b); }
+}
+fn emit(s: u8[:]) {
+    var total = 0;
+    each_byte(s) { total += it as i64; };
+    print(total);
+}
+fn main() {
+    var mut_buf: u8[>..] = [1, 2, 3];
+    emit(mut_buf[..]);
+    emit("AB");
+}
+"""
+        self._run_both_backends("const_poly_trailing", source, "6\n131\n")
+
+    def test_generic_format_hooks_and_non_hooks(self):
+        source = """\
+struct Tag<T> { _: bool = false }
+struct Box<T> { v: T }
+struct Big<T> { v: T, s: u8[>..] }
+enum Opt<T> { Some { v: T }, None }
+struct Pt { x: i32 }
+
+fn tag_size(t: Tag<u32>) -> i64 { return 4; }
+fn format<T>(out: u8[>..]&, t: Tag<T>) { format(out, "tag=", tag_size(t)); }
+fn format<T>(out: u8[>..]&, b: Box<T>) { format(out, "Box(", b.v, ")"); }
+fn format(out: u8[>..]&, b: Box<bool>) { out.append("BoolBox"); }
+fn format<T>(out: u8[>..]&, b: Big<T>&) { format(out, "Big(", b.v, ",", b.s.len, ")"); }
+fn format<T>(out: u8[>..]&, o: const Opt<T>&) {
+    match o { Some s => format(out, "Some(", s.v, ")"), None => out.append("None") }
+}
+fn format<T>(out: u8[>..]&, v: T) { out.push('!'); }
+fn format<T>(out: u8[>..]&, a: T[]) { out.push('#'); }
+fn format<T>(out: u8[>..]&, p: Pt) { out.push('?'); }
+fn format<T>(out: u8[>..]&, b: Box<T>?) { out.push('o'); }
+
+fn main() {
+    var big = Big<i64> { 5, [] };
+    big.s.push(9);
+    let some: Opt<i32> = Opt<i32>.Some { 4 };
+    let none: Opt<i32> = Opt<i32>.None {};
+    let opt_box: Box<i32>? = null;
+    var xs: i32[] = [1, 2];
+    print(Tag<u32> {}, " ", Box<i32> { 3 }, " ", Box<bool> { true }, " ", Box<Box<i32>> { Box<i32> { 7 } });
+    print(big, " ", some, " ", none, " ", Pt { 1 }, " ", xs, " ", opt_box);
+}
+"""
+        self._run_both_backends(
+            "generic_format_hooks",
+            source,
+            "tag=4 Box(3) BoolBox Box(Box(7))\nBig(5,1) Some(4) None Pt { 1 } [1, 2] null\n",
+        )
+
+    def test_root_component_pool_index_of(self):
+        source = """\
+struct Item { n: i64 }
+root struct Pool {
+    items: Item[>..],
+}
+var P: Pool;
+struct Link { target: Item&<u32 in P.items> }
+fn main() {
+    P.items.push(Item { 10 });
+    P.items.push(Item { 20 });
+    var links: (Item&<u32 in P.items>)[>..] = [];
+    links.push(P.items[1]);
+    let holder = Link { P.items[1] };
+    let i1 = P.items.index_of(links[0]);
+    let i2 = P.items.index_of(holder.target);
+    let r .= holder.target;
+    let i3 = P.items.index_of(r);
+    print(i1, " ", i2, " ", i3, " ", P.items[i1].n);
+}
+"""
+        self._run_both_backends("root_component_index_of", source, "1 1 1 20\n")
+
+    def test_emptied_static_fields_and_holder_param_stores_later(self):
+        emptied_source = """\
+struct Msg { tag: const u8[:] = "", payload: const u8[:] = "", first: (u8&)? = null }
+fn reset_fields(buf: u8[>..]&, out: Msg&, data: const u8[:]) {
+    out.tag = "";
+    out.payload = "";
+    out.first .= null;
+    buf.clear();
+    buf.append(data);
+    out.tag = buf[..1];
+    out.payload = buf[1..];
+    out.first .= buf[0];
+}
+fn reset_whole(buf: u8[>..]&, out: Msg&, data: const u8[:]) {
+    out = Msg {};
+    buf.clear();
+    buf.append(data);
+    out.payload = buf[..];
+}
+fn main() {
+    var buf: u8[>..] = [];
+    var m = Msg {};
+    for i in 2 {
+        reset_fields(buf, m, "abc");
+        reset_whole(buf, m, "xy");
+    }
+    print(m.payload);
+    m = Msg {};
+    buf.clear();
+    print(m.tag, "ok");
+}
+"""
+        self._run_both_backends("emptied_static", emptied_source, "xy\nok\n")
+
+        holder_source = """\
+struct Row { v: const u8[:] }
+fn put(out: Row[>..]&, x: Row) { out.push(x); }
+fn main() {
+    var k: u8[>..] = [];
+    k.push('k');
+    var out: Row[>..] = [];
+    var n = 0;
+    if n == 0 {
+        var a: u8[>..] = [];
+        a.push('a');
+        var rows: Row[>..] = [];
+        rows.push(Row { k[..] });
+        put(out, rows[0]);
+        rows.push(Row { a[..] });
+        a.clear();
+        print(out[0].v);
+    }
+}
+"""
+        self._run_both_backends("holder_stores_later", holder_source, "k\n")
+
+        # Soundness negatives must remain rejected.
+        self._expect_rejected(
+            "holder_push_before_put",
+            """\
+struct Row { v: const u8[:] }
+fn put(out: Row[>..]&, x: Row) { out.push(x); }
+fn main() {
+    var out: Row[>..] = [];
+    var n = 0;
+    if n == 0 {
+        var a: u8[>..] = [];
+        a.push('a');
+        var rows: Row[>..] = [];
+        rows.push(Row { a[..] });
+        put(out, rows[0]);
+    }
+    print(out[0].v);
+}
+""",
+            "stored reference does not outlive",
+        )
+        self._expect_rejected(
+            "holder_push_in_loop",
+            """\
+struct Row { v: const u8[:] }
+fn put(out: Row[>..]&, x: Row) { out.push(x); }
+fn main() {
+    var out: Row[>..] = [];
+    var rows: Row[>..] = [];
+    for i in 0..2 {
+        var a: u8[>..] = [];
+        a.push('a');
+        put(out, rows[0]);
+        rows.push(Row { a[..] });
+    }
+    print(out[0].v);
+}
+""",
+            "stored reference does not outlive",
+        )
+        self._expect_rejected(
+            "emptied_missed_field",
+            """\
+struct Msg { tag: const u8[:] = "", body: const u8[:] = "" }
+fn clear_partial(buf: u8[>..]&, out: Msg&) {
+    out.tag = "";
+    buf.clear();
+}
+fn main() {
+    var buf: u8[>..] = [];
+    buf.append("hi");
+    var m = Msg { buf[..], buf[..] };
+    clear_partial(buf, m);
+    print(m.body);
+}
+""",
+            "array shrink invalidates",
+        )
+
+
+@unittest.skipUnless(COMPILER.is_file(), "bootstrap the compiler first")
 class StackReserve(unittest.TestCase):
     """--stack-reserve writes GS_STACK_RESERVE into the generated C, as upstream's does."""
     REFUSAL = "--stack-reserve takes a size from 64 KB to 256 TB"

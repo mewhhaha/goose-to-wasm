@@ -88,6 +88,19 @@ fn parse_checkfree(p: Program&, c: ParseCursor&) -> bool {
     let next = parse_ahead(p, c);
     return parse_word(p, c, "checkfree") && (next == T_FN || next == T_RECURSIVE || next == T_THREADFN || next == T_SIMD || next == T_EXTERN || next == T_IDENT);
 }
+fn parse_deprecated(p: Program&, c: ParseCursor&) -> bool {
+    if !parse_word(p, c, "deprecated") { return false; }
+    var at = c.at + 1;
+    while at < c.end && p.tokens[at].kind < 0 { at++; }
+    if at < c.end && p.tokens[at].kind == T_STRLIT {
+        at++;
+        while at < c.end && p.tokens[at].kind < 0 { at++; }
+    }
+    if at >= c.end { return false; }
+    let kind = p.tokens[at].kind;
+    if kind == T_FN || kind == T_RECURSIVE || kind == T_THREADFN || kind == T_SIMD || kind == T_EXTERN || kind == T_EXPORT { return true; }
+    return kind == T_IDENT && (token_is(p, at, "inline") || token_is(p, at, "checkfree"));
+}
 fn parse_qualified(p: Program&, c: ParseCursor&, declaration: bool = false) -> i64 {
     let start = c.at;
     let absolute = parse_accept(p, c, T_COLONCOLON);
@@ -792,6 +805,10 @@ recursive fn parse_function_value(p: Program&, c: ParseCursor&) -> i64 {
 recursive fn parse_function(p: Program&, c: ParseCursor&, nested: bool, inherited_extern: bool = false, library: i64 = -1) -> i64 {
     let start = c.at; var flags: i64 = 0; var symbol: i64 = -1;
     if inherited_extern { flags |= F_EXTERN; }
+    if parse_deprecated(p, c) {
+        parse_next(p, c);
+        parse_accept(p, c, T_STRLIT);
+    }
     if parse_checkfree(p, c) { flags |= F_CHECKFREE; parse_next(p, c); }
     if parse_accept(p, c, T_EXPORT) {
         flags |= F_EXPORT;
@@ -943,7 +960,7 @@ fn parse_assignment(kind: i64) -> bool {
 }
 fn parse_function_start(p: Program&, c: ParseCursor&) -> bool {
     let kind = parse_kind(p, c);
-    return kind == T_FN || kind == T_RECURSIVE || kind == T_THREADFN || kind == T_EXTERN || kind == T_EXPORT || kind == T_SIMD || parse_inline(p, c) || parse_checkfree(p, c);
+    return kind == T_FN || kind == T_RECURSIVE || kind == T_THREADFN || kind == T_EXTERN || kind == T_EXPORT || kind == T_SIMD || parse_inline(p, c) || parse_checkfree(p, c) || parse_deprecated(p, c);
 }
 // A library function body is skipped to its matching brace and kept as a
 // placeholder block; parse_deferred_body parses it when the checker needs it.
