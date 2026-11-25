@@ -17,14 +17,30 @@ Compile Goose directly to **WebAssembly in milliseconds** — with no C compiler
 
 Grab a bundle from [Releases](https://github.com/mewhhaha/goose-to-wasm/releases/tag/v2026.4-1):
 
-- **Linux x64 (native PGO `goosew` compiler + stdlib):** `goose-to-wasm-v2026.4-1-linux-x64.tar.gz`
-- **Portable WebAssembly (macOS / Windows / Linux via Node or Wasmtime):** `goose-to-wasm-v2026.4-1-wasm.tar.gz`
+- **Linux x64 (`goosew` + stdlib):** `goose-to-wasm-v2026.4-1-linux-x64.tar.gz`
+- **macOS Apple Silicon (`goosew` + stdlib):** `goose-to-wasm-v2026.4-1-macos-arm64.tar.gz`
+- **macOS Intel (`goosew` + stdlib):** `goose-to-wasm-v2026.4-1-macos-x64.tar.gz`
+- **Windows x64 (standalone `goosew.exe` + stdlib):** `goose-to-wasm-v2026.4-1-windows-x64.zip`
+- **Portable WebAssembly compiler (Wasm64 `goosew.wasm` + stdlib):** `goose-to-wasm-v2026.4-1-wasm.tar.gz` (or standalone `goosew-v2026.4-1-wasm64.wasm`)
 
 ```sh
+# Linux / macOS
 tar -xzf goose-to-wasm-v2026.4-1-linux-x64.tar.gz
 export PATH="$PWD/goose-to-wasm-v2026.4-1-linux-x64/bin:$PATH"
 goosew --version
 # goose-to-wasm v2026.4-1 (Goose v2026.4)
+```
+
+```powershell
+# Windows (PowerShell)
+Expand-Archive goose-to-wasm-v2026.4-1-windows-x64.zip -DestinationPath .
+$env:PATH = "$PWD\goose-to-wasm-v2026.4-1-windows-x64\bin;$env:PATH"
+goosew --version
+```
+
+```sh
+# Portable Wasm64 compiler (runs anywhere Wasmtime runs)
+python3 scripts/run_wasmtime.py goosew-v2026.4-1-wasm64.wasm -- --version
 ```
 
 > **Binary name (`goosew`):** The compiler binary is named `goosew` so it does not collide with the upstream C++ `goose` compiler (or other `goose` CLIs) on your `PATH`. If you want to invoke it as `goose`, rename or symlink it (e.g. `ln -s "$(command -v goosew)" ~/.local/bin/goose`).

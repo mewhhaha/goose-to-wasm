@@ -22,7 +22,9 @@
    (mark_located_functions); a wrong tree that passes them hands out wrong
    spans, which slice_pool checks against its length. New nodes start zeroed,
    as a pushed `node { .. }` would. */
+#ifndef _WIN32
 #include <sys/mman.h>
+#endif
 #define G_SPC_NODE 512
 #define G_SPC_LEAF ((G_SPC_NODE - 16) / 16)
 #define G_SPC_FAN ((G_SPC_NODE - 16) / 24)
@@ -498,7 +500,10 @@ static int64_t g_slice_pool_regrow(GRef nodes, GRef tree, int64_t len, int64_t i
 
 /* Returns pages to the OS, which reads them back as zeros; 0 means it refused. */
 static int g_spc_discard(uintptr_t start, size_t len) {
-#if defined(__APPLE__)
+#if defined(_WIN32)
+    return VirtualFree((void *)start, len, MEM_DECOMMIT) != 0 &&
+           VirtualAlloc((void *)start, len, MEM_COMMIT, PAGE_READWRITE) != NULL;
+#elif defined(__APPLE__)
     return mmap((void *)start, len, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS | MAP_FIXED, -1, 0) != MAP_FAILED;
 #else
     return madvise((void *)start, len, MADV_DONTNEED) == 0;
@@ -518,8 +523,13 @@ static int g_spc_discard(uintptr_t start, size_t len) {
 static uint8_t g_slice_pool_trim(GRef nodes, GRef tree, GSlice items, int64_t elem, const GLoc *at) {
     GSpcPath p;
     GSpcNodes ns;
+#ifdef _WIN32
+    SYSTEM_INFO si; GetSystemInfo(&si);
+    uintptr_t page = (uintptr_t)si.dwPageSize, data;
+#else
     long size = sysconf(_SC_PAGESIZE);
     uintptr_t page = size > 0 ? (uintptr_t)size : 0, data;
+#endif
     int64_t count, visits = 0, l = 0;
     int ok = 1;
     g_spc_start(&p, &ns, nodes, tree, at);

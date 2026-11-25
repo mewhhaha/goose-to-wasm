@@ -1,0 +1,260 @@
+name: Release binaries
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release tag to build and attach assets to (e.g. v2026.4-1)'
+        required: true
+        type: string
+      prerelease:
+        description: 'Mark release as prerelease (when creating a new release)'
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ github.event.inputs.tag || github.ref_name }}
+  cancel-in-progress: false
+
+jobs:
+  build-linux-x64:
+    name: Linux x64 + Portable Wasm64
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Read engine pin
+        id: pins
+        run: |
+          python - <<'PYTHON'
+          import json, os
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as output:
+              print('node=' + json.load(open('toolchain.json'))['node'], file=output)
+          PYTHON
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ steps.pins.outputs.node }}
+      - name: Install toolchain and Wasmtime
+        run: |
+          pick() { command -v "$1" || ls /usr/bin/"$1"-[0-9]* 2>/dev/null | sort -V | tail -n 1; }
+          if [ -z "$(pick clang)" ]; then
+            for attempt in 1 2 3; do
+              sudo apt-get update && sudo apt-get install -y clang && break
+              sleep 20
+            done
+          fi
+          echo "CC=$(pick clang)" >> "$GITHUB_ENV"
+          "$(pick clang)" --version
+          python -m pip install -r requirements.txt
+      - name: Bootstrap and verify fixed-point Linux binary
+        run: python scripts/bootstrap.py --verify --cc "$CC"
+      - name: Smoke-test Linux binary and build portable Wasm64 compiler
+        env:
+          TAG: ${{ github.event.inputs.tag || github.ref_name }}
+        run: |
+          set -euo pipefail
+          build/bin/goosew --version
+          build/bin/goosew --check examples/sorting.goose
+          build/bin/goosew examples/squares.goose -O2 -o /tmp/squares.wasm
+          test "$(node scripts/run_wasm.mjs /tmp/squares.wasm)" = "sum=140"
+          build/bin/goosew examples/squares.goose --target native -O2 --cc "$CC" --run > /tmp/native.out
+          test "$(cat /tmp/native.out)" = "sum=140"
+
+          # Build portable Wasm64 compiler binary
+          build/bin/goosew selfhost/main.goose --stdlib stdlib --target wasm-direct --wasm-memory64 -O2 -o /tmp/goosew.wasm
+          python scripts/run_wasmtime.py /tmp/goosew.wasm -- --version
+          python scripts/run_wasmtime.py /tmp/goosew.wasm -- examples/squares.goose --stdlib stdlib --target wasm-direct -O2 -o /tmp/squares-wasm.wasm
+          test "$(node scripts/run_wasm.mjs /tmp/squares-wasm.wasm)" = "sum=140"
+
+          mkdir -p dist
+
+          # Linux x64 bundle
+          LINUX_DIR="goose-to-wasm-${TAG}-linux-x64"
+          mkdir -p "/tmp/${LINUX_DIR}/bin"
+          cp build/bin/goosew "/tmp/${LINUX_DIR}/bin/goosew"
+          cp -r build/bin/stdlib "/tmp/${LINUX_DIR}/bin/stdlib"
+          cp LICENSE README.md "/tmp/${LINUX_DIR}/"
+          tar -czf "dist/${LINUX_DIR}.tar.gz" -C /tmp "${LINUX_DIR}"
+
+          # Portable Wasm64 compiler bundle + standalone .wasm
+          WASM_DIR="goose-to-wasm-${TAG}-wasm"
+          mkdir -p "/tmp/${WASM_DIR}/bin" "/tmp/${WASM_DIR}/scripts"
+          cp /tmp/goosew.wasm "/tmp/${WASM_DIR}/bin/goosew.wasm"
+          cp -r build/bin/stdlib "/tmp/${WASM_DIR}/bin/stdlib"
+          cp scripts/run_wasmtime.py scripts/run_wasm.mjs "/tmp/${WASM_DIR}/scripts/"
+          cp LICENSE README.md "/tmp/${WASM_DIR}/"
+          tar -czf "dist/${WASM_DIR}.tar.gz" -C /tmp "${WASM_DIR}"
+          cp /tmp/goosew.wasm "dist/goosew-${TAG}-wasm64.wasm"
+          ls -lh dist/
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-linux-and-wasm
+          path: dist/*
+
+  build-macos:
+    name: macOS ${{ matrix.arch }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: arm64
+            runner: macos-15
+          - arch: x64
+            runner: macos-15-intel
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Read engine pin
+        id: pins
+        run: |
+          python3 - <<'PYTHON'
+          import json, os
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as output:
+              print('node=' + json.load(open('toolchain.json'))['node'], file=output)
+          PYTHON
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ steps.pins.outputs.node }}
+      - name: Bootstrap and verify fixed-point macOS binary
+        run: |
+          clang --version
+          python3 scripts/bootstrap.py --verify --cc clang
+      - name: Smoke-test and package macOS binary
+        env:
+          TAG: ${{ github.event.inputs.tag || github.ref_name }}
+          ARCH: ${{ matrix.arch }}
+        run: |
+          set -euo pipefail
+          file build/bin/goosew
+          build/bin/goosew --version
+          build/bin/goosew --check examples/sorting.goose
+          build/bin/goosew examples/squares.goose -O2 -o /tmp/squares.wasm
+          test "$(node scripts/run_wasm.mjs /tmp/squares.wasm)" = "sum=140"
+          build/bin/goosew examples/squares.goose --target native -O2 -o /tmp/squares.c
+          clang -std=gnu11 -O2 /tmp/squares.c -lm -lpthread -o /tmp/squares
+          test "$(/tmp/squares)" = "sum=140"
+
+          mkdir -p dist
+          PKG="goose-to-wasm-${TAG}-macos-${ARCH}"
+          mkdir -p "/tmp/${PKG}/bin"
+          cp build/bin/goosew "/tmp/${PKG}/bin/goosew"
+          cp -r build/bin/stdlib "/tmp/${PKG}/bin/stdlib"
+          cp LICENSE README.md "/tmp/${PKG}/"
+          tar -czf "dist/${PKG}.tar.gz" -C /tmp "${PKG}"
+          ls -lh dist/
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-macos-${{ matrix.arch }}
+          path: dist/*
+
+  build-windows-x64:
+    name: Windows x64
+    runs-on: windows-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Read engine pin
+        id: pins
+        run: |
+          python - <<'PYTHON'
+          import json, os
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as output:
+              print('node=' + json.load(open('toolchain.json'))['node'], file=output)
+          PYTHON
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ steps.pins.outputs.node }}
+      - uses: msys2/setup-msys2@v2
+        with:
+          msystem: CLANG64
+          update: false
+          install: mingw-w64-clang-x86_64-clang
+      - name: Add CLANG64 toolchain to PATH
+        shell: pwsh
+        run: echo "C:\msys64\clang64\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+      - name: Bootstrap and verify fixed-point Windows binary
+        shell: pwsh
+        run: |
+          clang --version
+          python scripts/bootstrap.py --verify --cc clang
+      - name: Smoke-test and package Windows binary
+        shell: pwsh
+        env:
+          TAG: ${{ github.event.inputs.tag || github.ref_name }}
+        run: |
+          $ErrorActionPreference = "Stop"
+          $dlls = llvm-objdump -p build\bin\goosew.exe | Select-String "DLL Name:"
+          Write-Host ($dlls -join "`n")
+          if ($dlls -match "msys-|libwinpthread|libgcc|libstdc\+\+") {
+            throw "Unexpected non-system DLL dependency in goosew.exe"
+          }
+          .\build\bin\goosew.exe --version
+          .\build\bin\goosew.exe --check examples\sorting.goose
+          .\build\bin\goosew.exe examples\squares.goose -O2 -o "$env:TEMP\squares.wasm"
+          $wasmOut = (node scripts\run_wasm.mjs "$env:TEMP\squares.wasm").Trim()
+          if ($wasmOut -ne "sum=140") { throw "Unexpected wasm output: $wasmOut" }
+          .\build\bin\goosew.exe examples\squares.goose --target native -O2 -o "$env:TEMP\squares.c"
+          clang -std=gnu11 -O2 "$env:TEMP\squares.c" -lm -o "$env:TEMP\squares.exe"
+          $nativeOut = (& "$env:TEMP\squares.exe").Trim()
+          if ($nativeOut -ne "sum=140") { throw "Unexpected native output: $nativeOut" }
+
+          New-Item -ItemType Directory -Force -Path dist | Out-Null
+          $pkg = "goose-to-wasm-$($env:TAG)-windows-x64"
+          $stage = Join-Path $env:TEMP $pkg
+          if (Test-Path $stage) { Remove-Item -Recurse -Force $stage }
+          New-Item -ItemType Directory -Force -Path (Join-Path $stage "bin") | Out-Null
+          Copy-Item build\bin\goosew.exe (Join-Path $stage "bin\goosew.exe")
+          Copy-Item -Recurse build\bin\stdlib (Join-Path $stage "bin\stdlib")
+          Copy-Item LICENSE, README.md $stage
+          Compress-Archive -Path $stage -DestinationPath "dist\$pkg.zip" -Force
+          Get-ChildItem dist
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-windows-x64
+          path: dist/*
+
+  publish:
+    name: Publish release assets
+    needs: [build-linux-x64, build-macos, build-windows-x64]
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+      - name: Assemble assets, checksums, and publish release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ github.event.inputs.tag || github.ref_name }}
+          PRERELEASE: ${{ github.event.inputs.prerelease || 'false' }}
+        run: |
+          set -euo pipefail
+          mkdir -p dist
+          find artifacts -type f -exec cp {} dist/ \;
+          (cd dist && sha256sum $(ls -1 | sort) > SHA256SUMS.txt)
+          cat dist/SHA256SUMS.txt
+
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" dist/* --clobber
+          else
+            EXTRA=""
+            if [ "$PRERELEASE" = "true" ]; then EXTRA="--prerelease"; fi
+            gh release create "$TAG" dist/* --title "Goose to Wasm ${TAG}" --generate-notes $EXTRA
+          fi

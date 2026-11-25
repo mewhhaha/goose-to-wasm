@@ -1,5 +1,9 @@
 /* Native frame adapters over the pinned plain-C Goose region runtime. */
+#ifndef _WIN32
+#ifndef _GNU_SOURCE
 #define _GNU_SOURCE 1
+#endif
+#endif
 #include <stddef.h>
 #include <stdint.h>
 #include <inttypes.h>
@@ -11,12 +15,24 @@
 #include <limits.h>
 #include <setjmp.h>
 #include <time.h>
+#include <errno.h>
+#ifdef _WIN32
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+#include <windows.h>
+#define flockfile(f) _lock_file(f)
+#define funlockfile(f) _unlock_file(f)
+#else
 #include <unistd.h>
 #include <sys/stat.h>
 #include <dirent.h>
 #include <dlfcn.h>
-#include <errno.h>
 #include <pthread.h>
+#ifdef __APPLE__
+#include <mach-o/dyld.h>
+#endif
+#endif
 /* Mutable native state is G_SHARED (units.h): this unit's own in a single
    unit, defined by unit 0 and declared by the others in a split program. */
 #ifndef G_SHARED
@@ -68,10 +84,22 @@ static GS_NORETURN GS_NOINLINE __attribute__((cold)) void g_panic_at(const char 
 }
 G_SHARED GS_TLS uintptr_t g_native_stack_low;
 static GS_NOINLINE __attribute__((cold)) void g_stack_check_init(void) {
+#if defined(_WIN32)
+    MEMORY_BASIC_INFORMATION mbi;
+    if(!VirtualQuery(&mbi,&mbi,sizeof mbi)) gs_panic("cannot inspect native stack");
+    g_native_stack_low=(uintptr_t)mbi.AllocationBase;
+#elif defined(__APPLE__)
+    pthread_t self=pthread_self();
+    void *top=pthread_get_stackaddr_np(self);
+    size_t bytes=pthread_get_stacksize_np(self);
+    if(!top || !bytes) gs_panic("cannot inspect native stack");
+    g_native_stack_low=(uintptr_t)top-bytes;
+#else
     pthread_attr_t attributes;void *base;size_t bytes;
     if(pthread_getattr_np(pthread_self(),&attributes)) gs_panic("cannot inspect native stack");
     int status=pthread_attr_getstack(&attributes,&base,&bytes);pthread_attr_destroy(&attributes);
     if(status) gs_panic("cannot inspect native stack");g_native_stack_low=(uintptr_t)base;
+#endif
 }
 #if defined(__linux__) && defined(__x86_64__) && !defined(__TINYC__) && defined(__has_builtin)
 #if __has_builtin(__builtin_stack_address)
@@ -666,6 +694,68 @@ static inline void g_print_text(GArray *out,const char *s) { g_print_bytes(out,s
 static char *g_path(GSlice p) { if(p.len<0 || p.len>=4096) return NULL; char *s=g_alloc((size_t)p.len+1); if(p.len) memcpy(s,g_address(p.base),(size_t)p.len); if(memchr(s,0,(size_t)p.len)) return NULL; return s; }
 static int g_os_read_file(GSlice path,GRef out) { char *s=g_path(path); if(!s) return 0; FILE *f=fopen(s,"rb"); if(!f) return 0; GArray a; memcpy(&a,g_address(out),sizeof a); unsigned char b[16384]; size_t n; while((n=fread(b,1,sizeof b,f))) g_bytes(&a,b,(int64_t)n); int ok=!ferror(f); fclose(f); memcpy(g_address(out),&a,sizeof a); return ok; }
 static int g_os_write_file(GSlice path,GSlice data,const char *mode) { char *s=g_path(path); if(!s) return 0; FILE *f=fopen(s,mode); if(!f) return 0; int ok=fwrite(g_address(data.base),1,(size_t)data.len,f)==(size_t)data.len; return fclose(f)==0 && ok; }
+#ifdef _WIN32
+static int g_os_write_atomic(GSlice path,GSlice data) {
+    char *s=g_path(path); if(!s) return 0;
+    size_t n=strlen(s); char *tmp=g_alloc(n+48);
+    static volatile LONG64 g_tmp_seq;
+    unsigned long long seq=(unsigned long long)InterlockedIncrement64(&g_tmp_seq);
+    snprintf(tmp,n+48,"%s.tmp-%lu-%llu",s,(unsigned long)GetCurrentProcessId(),seq);
+    FILE *f=fopen(tmp,"wb"); if(!f) return 0;
+    int ok=fwrite(g_address(data.base),1,(size_t)data.len,f)==(size_t)data.len;
+    if(fflush(f)) ok=0;
+    if(fclose(f)) ok=0;
+    if(ok) {
+        ok=0;
+        for(DWORD wait=0;;wait=wait?wait*2:1) {
+            if(MoveFileExA(tmp,s,MOVEFILE_REPLACE_EXISTING|MOVEFILE_WRITE_THROUGH)) { ok=1; break; }
+            DWORD e=GetLastError(),a=GetFileAttributesA(s);
+            if((e!=ERROR_ACCESS_DENIED && e!=ERROR_SHARING_VIOLATION) || wait>512 ||
+               (a!=INVALID_FILE_ATTRIBUTES && (a&(FILE_ATTRIBUTE_DIRECTORY|FILE_ATTRIBUTE_READONLY)))) break;
+            Sleep(wait);
+        }
+    }
+    if(!ok) DeleteFileA(tmp);
+    return ok;
+}
+static int g_os_kind(GSlice path) { char *s=g_path(path); if(!s) return 0; DWORD a=GetFileAttributesA(s); if(a==INVALID_FILE_ATTRIBUTES) return 0; return (a&FILE_ATTRIBUTE_DIRECTORY)?2:1; }
+static int g_os_line(GRef out) { GArray a; memcpy(&a,g_address(out),sizeof a); int c; int any=0; while((c=fgetc(stdin))!=EOF) { any=1; if(c==10) break; unsigned char b=(unsigned char)c; g_bytes(&a,&b,1); } if(a.len && a.data[a.len-1]==13) a.len--; memcpy(g_address(out),&a,sizeof a); return any; }
+static void g_os_stdin(GRef out) { GArray a; memcpy(&a,g_address(out),sizeof a); unsigned char b[16384]; size_t n; while((n=fread(b,1,sizeof b,stdin))) g_bytes(&a,b,(int64_t)n); memcpy(g_address(out),&a,sizeof a); }
+static void g_os_arg(int64_t i,GRef out) { if(i<0 || i>=g_argc) return; GArray a; memcpy(&a,g_address(out),sizeof a); g_bytes(&a,g_argv[i],(int64_t)strlen(g_argv[i])); memcpy(g_address(out),&a,sizeof a); }
+static int g_os_env(GSlice name,GRef out) { char *n=g_path(name); const char *v=NULL; if(n) v=getenv(n); if(!v) return 0; GArray a; memcpy(&a,g_address(out),sizeof a); g_bytes(&a,v,(int64_t)strlen(v)); memcpy(g_address(out),&a,sizeof a); return 1; }
+static int64_t g_os_time(int monotonic) {
+    if(monotonic) { LARGE_INTEGER f,c; if(!QueryPerformanceFrequency(&f) || !QueryPerformanceCounter(&c)) return 0; return (int64_t)((double)c.QuadPart*(1000000000.0/(double)f.QuadPart)); }
+    FILETIME ft; GetSystemTimeAsFileTime(&ft);
+    uint64_t t=((uint64_t)ft.dwHighDateTime<<32)|ft.dwLowDateTime;
+    return (int64_t)(t-116444736000000000ULL)*100;
+}
+static void g_os_sleep(int64_t ms) { if(ms<=0) return; while(ms>0) { DWORD part=ms>0x7fffffff?0x7fffffff:(DWORD)ms; Sleep(part); ms-=part; } }
+static uint64_t g_os_random(void) {
+    static volatile LONG64 g_rng_seq;
+    uint64_t n=(uint64_t)g_os_time(0)^(uint64_t)g_os_time(1)^(uint64_t)GetCurrentProcessId()^(uint64_t)(uintptr_t)&n^(uint64_t)InterlockedIncrement64(&g_rng_seq);
+    n+=UINT64_C(0x9e3779b97f4a7c15); n^=n>>30; n*=UINT64_C(0xbf58476d1ce4e5b9); n^=n>>27; n*=UINT64_C(0x94d049bb133111eb); return n^(n>>31);
+}
+static int g_sort_names(const void *a,const void *b) { return strcmp(*(const char *const *)a,*(const char *const *)b); }
+static int g_os_list(GSlice path,GRef out) {
+    char *s=g_path(path); if(!s || !s[0]) return 0;
+    size_t len=strlen(s); char *pat=g_alloc(len+4); memcpy(pat,s,len);
+    if(pat[len-1]!='/' && pat[len-1]!='\\' && pat[len-1]!=':') pat[len++]='\\';
+    pat[len++]='*'; pat[len]=0;
+    WIN32_FIND_DATAA e; HANDLE h=FindFirstFileA(pat,&e);
+    if(h==INVALID_HANDLE_VALUE) return GetLastError()==ERROR_FILE_NOT_FOUND && g_os_kind(path)==2;
+    char **names=NULL; size_t n=0,cap=0;
+    do {
+        if(!strcmp(e.cFileName,".") || !strcmp(e.cFileName,"..") || strchr(e.cFileName,10)) continue;
+        if(n==cap) { cap=cap*2+16; names=realloc(names,cap*sizeof *names); if(!names) gs_panic("out of memory"); }
+        size_t nl=strlen(e.cFileName)+1; names[n]=malloc(nl); if(!names[n]) gs_panic("out of memory"); memcpy(names[n],e.cFileName,nl); n++;
+    } while(FindNextFileA(h,&e));
+    FindClose(h);
+    qsort(names,n,sizeof *names,g_sort_names);
+    GArray a; memcpy(&a,g_address(out),sizeof a);
+    for(size_t i=0;i<n;i++) { g_bytes(&a,names[i],(int64_t)strlen(names[i])); g_bytes(&a,"\n",1); free(names[i]); }
+    free(names); memcpy(g_address(out),&a,sizeof a); return 1;
+}
+#else
 static int g_os_write_atomic(GSlice path,GSlice data) { char *s=g_path(path); if(!s) return 0; size_t n=strlen(s); char *tmp=g_alloc(n+16); memcpy(tmp,s,n); memcpy(tmp+n,".tmp-XXXXXX",12); int fd=mkstemp(tmp); if(fd<0) return 0; FILE *f=fdopen(fd,"wb"); if(!f) { close(fd); unlink(tmp); return 0; } int ok=fwrite(g_address(data.base),1,(size_t)data.len,f)==(size_t)data.len; if(fflush(f)||fsync(fd)) ok=0; if(fclose(f)) ok=0; if(ok && rename(tmp,s)) ok=0; if(!ok) unlink(tmp); return ok; }
 static int g_os_kind(GSlice path) { char *s=g_path(path); struct stat st; if(!s || stat(s,&st)) return 0; if(S_ISDIR(st.st_mode)) return 2; return 1; }
 static int g_os_line(GRef out) { GArray a; memcpy(&a,g_address(out),sizeof a); int c; int any=0; while((c=fgetc(stdin))!=EOF) { any=1; if(c==10) break; unsigned char b=(unsigned char)c; g_bytes(&a,&b,1); } if(a.len && a.data[a.len-1]==13) a.len--; memcpy(g_address(out),&a,sizeof a); return any; }
@@ -677,3 +767,5 @@ static void g_os_sleep(int64_t ms) { if(ms<0) return; struct timespec t={ms/1000
 static uint64_t g_os_random(void) { uint64_t n=0; FILE *f=fopen("/dev/urandom","rb"); if(f) { if(fread(&n,1,sizeof n,f)!=sizeof n) n=0; fclose(f); } if(!n) n=(uint64_t)g_os_time(0)^(uint64_t)(uintptr_t)&n; n^=n>>30; n*=UINT64_C(0xbf58476d1ce4e5b9); n^=n>>27; n*=UINT64_C(0x94d049bb133111eb); return n^(n>>31); }
 static int g_sort_names(const void *a,const void *b) { return strcmp(*(const char *const *)a,*(const char *const *)b); }
 static int g_os_list(GSlice path,GRef out) { char *s=g_path(path); if(!s) return 0; DIR *d=opendir(s); if(!d) return 0; char **names=NULL; size_t n=0,cap=0; struct dirent *e; while((e=readdir(d))) { if(!strcmp(e->d_name,".") || !strcmp(e->d_name,"..") || strchr(e->d_name,10)) continue; if(n==cap) { cap=cap*2+16; names=realloc(names,cap*sizeof *names); if(!names) gs_panic("out of memory"); } names[n]=strdup(e->d_name); n++; } closedir(d); qsort(names,n,sizeof *names,g_sort_names); GArray a; memcpy(&a,g_address(out),sizeof a); for(size_t i=0;i<n;i++) { g_bytes(&a,names[i],(int64_t)strlen(names[i])); g_bytes(&a,"\n",1); free(names[i]); } free(names); memcpy(g_address(out),&a,sizeof a); return 1; }
+#endif
+

@@ -4774,7 +4774,7 @@ fn generate_c(p: Program&, out: u8[>..]&) {
         if (symbol.flags & S_GLOBAL) != 0 && symbol.component_owner < 0 { global_count += cc_region_width(p, symbol.type_id); if cc_pool_mode(p, s) > 0 { global_count++; } }
     }
     let threads = cc_threads_used(p); let images = cc_images_used(p, threads); let begin = out.len;
-    cc_text(out, "#define _GNU_SOURCE 1\n");
+    cc_text(out, "#ifndef _WIN32\n#define _GNU_SOURCE 1\n#endif\n");
     // --stack-reserve is written into the C itself, as upstream writes a -D:
     // a run and a build see the same source.
     if p.stack_reserve > 0 { cc_text(out, "#define GS_STACK_RESERVE "); cc_number(out, p.stack_reserve); cc_text(out, "ull\n"); }
@@ -4787,7 +4787,7 @@ fn generate_c(p: Program&, out: u8[>..]&) {
     } else {
         cc_text(out, "#ifndef G_RUNTIME_UNIT\n");
     }
-    cc_text(out, cc_runtime); cc_text(out, cc_runtime_relative); cc_text(out, cc_runtime_pools); cc_text(out, cc_runtime_extra);
+    cc_text(out, cc_runtime); cc_text(out, cc_runtime_relative); cc_text(out, cc_runtime_pools); cc_text(out, cc_runtime_extra); cc_text(out, "\n");
     if located {
         cc_text(out, "typedef struct { const char *file; int line; } GLoc;\n");
         for id in emittable { if (p.nodes[id].flags & (F_EXTERN | F_LOCATED)) == (F_EXTERN | F_LOCATED) { cc_text(out, cc_runtime_slice_pool); break; } }
@@ -4987,22 +4987,66 @@ static GS_INLINE unsigned char *g_nullable_address(GRef r) { if(!r)return NULL;r
 static GS_INLINE double g_float_literal(uint64_t bits) { double v; memcpy(&v,&bits,sizeof v); return v; }
 static GS_INLINE int64_t g_clz(uint64_t x) { if(!x) return 64; return __builtin_clzll(x); }
 static GS_INLINE int64_t g_ctz(uint64_t x) { if(!x) return 64; return __builtin_ctzll(x); }
+#ifdef _WIN32
+static int g_os_path_op(GSlice path,int op) { char *s=g_path(path); if(!s) return 0; if(op==0) return DeleteFileA(s)!=0; if(op==1) return RemoveDirectoryA(s)!=0; if(CreateDirectoryA(s,NULL)) return 1; return g_os_kind(path)==2; }
+static int g_os_rename(GSlice from,GSlice to) { char *a=g_path(from),*b=g_path(to); if(!a || !b) return 0; return MoveFileExA(a,b,MOVEFILE_REPLACE_EXISTING)!=0; }
+static int g_os_resource(GRef out) { char path[4096]; DWORD n=GetModuleFileNameA(NULL,path,(DWORD)sizeof path); if(!n || n>=(DWORD)sizeof path) return 0; while(n>0 && path[n-1]!=92 && path[n-1]!='/') n--; if(!n) return 0; GArray a; memcpy(&a,g_address(out),sizeof a); g_bytes(&a,path,(int64_t)n); memcpy(g_address(out),&a,sizeof a); return 1; }
+static int g_trim_memory(void) { return gs_trim_memory(); }
+typedef struct { void *data; int64_t len; } GForeignSlice;
+static GForeignSlice g_foreign_slice(GSlice s) { GForeignSlice r={g_address(s.base),s.len}; return r; }
+static void *g_external(const char *library,const char *name) {
+    void *p=NULL;
+    if(!library || !strcmp(library,"libc.so.6")) {
+        HMODULE h=GetModuleHandleA(NULL); if(h) p=(void *)GetProcAddress(h,name);
+        if(!p) { h=GetModuleHandleA("ucrtbase.dll"); if(!h) h=LoadLibraryA("ucrtbase.dll"); if(h) p=(void *)GetProcAddress(h,name); }
+        if(!p) { h=GetModuleHandleA("msvcrt.dll"); if(!h) h=LoadLibraryA("msvcrt.dll"); if(h) p=(void *)GetProcAddress(h,name); }
+    } else {
+        HMODULE h=LoadLibraryA(library);
+        if(!h) { char msg[512]; snprintf(msg,sizeof msg,"cannot load %s: Windows error %lu",library,(unsigned long)GetLastError()); g_panic(msg); }
+        p=(void *)GetProcAddress(h,name);
+    }
+    if(!p) { char msg[512]; snprintf(msg,sizeof msg,"undefined symbol: %s",name); g_panic(msg); }
+    return p;
+}
+#else
 static int g_os_path_op(GSlice path,int op) { char *s=g_path(path); if(!s) return 0; if(op==0) return unlink(s)==0; if(op==1) return rmdir(s)==0; if(mkdir(s,0777)==0) return 1; return errno==EEXIST && g_os_kind(path)==2; }
 static int g_os_rename(GSlice from,GSlice to) { char *a=g_path(from),*b=g_path(to); if(!a || !b) return 0; return rename(a,b)==0; }
-static int g_os_resource(GRef out) { char path[4096]; ssize_t n=readlink("/proc/self/exe",path,sizeof path); if(n<=0 || n==(ssize_t)sizeof path) return 0; while(n>0 && path[n-1]!='/') n--; if(!n) return 0; GArray a; memcpy(&a,g_address(out),sizeof a); g_bytes(&a,path,n); memcpy(g_address(out),&a,sizeof a); return 1; }
+static int g_os_resource(GRef out) {
+    char path[4096]; ssize_t n=0;
+#ifdef __APPLE__
+    uint32_t cap=(uint32_t)sizeof path;
+    if(_NSGetExecutablePath(path,&cap)!=0) return 0;
+    char *resolved=realpath(path,NULL);
+    if(!resolved) return 0;
+    size_t rl=strlen(resolved);
+    if(rl>=sizeof path) { free(resolved); return 0; }
+    memcpy(path,resolved,rl+1); free(resolved); n=(ssize_t)rl;
+#else
+    n=readlink("/proc/self/exe",path,sizeof path);
+    if(n<=0 || n==(ssize_t)sizeof path) return 0;
+#endif
+    while(n>0 && path[n-1]!='/') n--; if(!n) return 0; GArray a; memcpy(&a,g_address(out),sizeof a); g_bytes(&a,path,n); memcpy(g_address(out),&a,sizeof a); return 1;
+}
 static int g_trim_memory(void) { return gs_trim_memory(); }
 typedef struct { void *data; int64_t len; } GForeignSlice;
 static GForeignSlice g_foreign_slice(GSlice s) { GForeignSlice r={g_address(s.base),s.len}; return r; }
 #if defined(__GLIBC__)
 #include <gnu/lib-names.h>
 #endif
-static void *g_external(const char *library,const char *name) { void *handle=RTLD_DEFAULT; if(library) { handle=dlopen(library,RTLD_NOW|RTLD_LOCAL); if(!handle) g_panic(dlerror()); } void *p=dlsym(handle,name); if(p) return p;
+static void *g_external(const char *library,const char *name) { void *handle=RTLD_DEFAULT;
+#ifdef __APPLE__
+    if(library && strcmp(library,"libc.so.6")!=0) { handle=dlopen(library,RTLD_NOW|RTLD_LOCAL); if(!handle) g_panic(dlerror()); }
+#else
+    if(library) { handle=dlopen(library,RTLD_NOW|RTLD_LOCAL); if(!handle) g_panic(dlerror()); }
+#endif
+    void *p=dlsym(handle,name); if(p) return p;
     char message[512]; const char *error=dlerror(); snprintf(message,sizeof message,"%s",error?error:"undefined symbol");
 #if defined(__GLIBC__) && defined(LIBM_SO)
     /* Linkers that default to --as-needed drop -lm when no call reaches it directly. */
     if(!library) { void *math=dlopen(LIBM_SO,RTLD_NOW|RTLD_GLOBAL); if(math) p=dlsym(math,name); }
 #endif
     if(!p) g_panic(message); return p; }
+#endif
 """;
 
 fn cc_literal_array_args(p: Program&, out: u8[>..]&, type_id: i64, width: bool = true) {

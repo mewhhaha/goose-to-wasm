@@ -140,7 +140,16 @@ def main():
                       input_sha256={str(p): digest(p) for p in [Path(__file__), seed / 'seed.json', compressed, bundle, cc]})
         report['cc_version'] = command([cc, '--version'], 'cc-version').stdout.decode(errors='replace')
         report['cc_target'] = command([cc, '-dumpmachine'], 'cc-target').stdout.decode().strip()
-        base_flags = ['-std=gnu11', '-O2', '-lm', '-ldl', '-pthread']
+        target_lower = report['cc_target'].lower()
+        is_windows = sys.platform == 'win32' or 'windows' in target_lower or 'mingw' in target_lower
+        is_macos = sys.platform == 'darwin' or 'darwin' in target_lower or 'apple' in target_lower
+        if is_windows:
+            base_flags = ['-std=gnu11', '-O2', '-lm']
+        elif is_macos:
+            base_flags = ['-std=gnu11', '-O2', '-lm', '-lpthread']
+        else:
+            base_flags = ['-std=gnu11', '-O2', '-lm', '-ldl', '-pthread']
+        exe_suffix = '.exe' if is_windows else ''
         clang = re.search(r'\bclang version (\d+)\.', report['cc_version'])
         identity = {'clang_major': None, 'target': report['cc_target'],
                     'base_flags': base_flags, 'c_basename': 'seed.c'}
@@ -293,7 +302,7 @@ def main():
             reuse(recipe, c_hash, executable, row, lambda: command(argv, name, cwd=stage) is not None)
             return row
 
-        seed_executable = out / 'seed'
+        seed_executable = out / ('seed' + exe_suffix)
         if args.reuse_toolchain:
             reused = reuse_toolchain(args.reuse_toolchain, seed_executable)
             report['reused_toolchain'] = reused
@@ -301,7 +310,7 @@ def main():
                                            reused['compiler']: reused['compiler_sha256']})
         else:
             actual_build = build(c_source, seed_executable, 'build-seed', pin.get('goose_optimization', 0))
-        executable = out / 'goosew'
+        executable = out / ('goosew' + exe_suffix)
         if args.seed_only:
             shutil.copyfile(seed_executable, executable)
             executable.chmod(0o755)
@@ -365,14 +374,14 @@ def main():
                 if digest(generated) != digest(following):
                     # A changed backend can legitimately emit different C from
                     # the older seed. Compare two generations of that backend.
-                    second = out / 'next-generation'
+                    second = out / ('next-generation' + exe_suffix)
                     actual_build = build(following, second, 'build-next-generation', args.optimization)
                     third = out / 'third-generation.c'
                     command([second, *invocation, '-o', third], 'verify-next-generation')
                     report['third_generation_c_sha256'] = digest(third)
                     if digest(following) != digest(third):
                         raise RuntimeError('self-hosted C output differs between generations')
-                    pending = out / '.verified-goosew'
+                    pending = out / ('.verified-goosew' + exe_suffix)
                     shutil.copyfile(second, pending)
                     pending.chmod(0o755)
                     pending.replace(executable)

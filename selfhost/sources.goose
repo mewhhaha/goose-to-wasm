@@ -30,7 +30,8 @@ fn source_normalize(path: const u8[:], out: u8[>..]&) {
         if length == 2 && path[start] == '.' && path[start + 1] == '.' {
             if starts.len > 0 {
                 let last = starts.len - 1;
-                if sizes[last] != 2 || path[starts[last]] != '.' || path[starts[last] + 1] != '.' {
+                if (last > 0 || sizes[0] != 2 || path[starts[0] + 1] != ':') &&
+                   (sizes[last] != 2 || path[starts[last]] != '.' || path[starts[last] + 1] != '.') {
                     starts.pop(); sizes.pop(); continue;
                 }
             }
