@@ -1,6 +1,8 @@
 #!/usr/bin/env node
 // Minimal Node/V8 host for the direct compiler's documented scalar ABI.
-import { readFileSync, writeFileSync, appendFileSync, statSync } from "node:fs";
+import { readFileSync, writeFileSync, appendFileSync, statSync, unlinkSync, renameSync, mkdirSync, rmdirSync, readdirSync } from "node:fs";
+import { dirname, resolve as resolvePath, sep as pathSep } from "node:path";
+import { randomBytes } from "node:crypto";
 import { pathToFileURL } from "node:url";
 import { Worker, isMainThread, parentPort, workerData } from "node:worker_threads";
 import v8 from "node:v8";
@@ -119,7 +121,7 @@ class ProgramExit extends Error {
 // sees exactly those bytes. Scalar imports read tokens from a byte-for-byte
 // latin1 view, split on ASCII whitespace as the C++ host splits them.
 // `programArguments` are what the program's os.arg sees, the program first.
-export async function runModule(bytes, input = "", programArguments = ["program"]) {
+export async function runModule(bytes, input = "", programArguments = ["program"], resourceDir = null) {
   const stdin = Buffer.from(input);
   const tokens = stdin.toString("latin1").split(/[ \t\n\r\f\v]+/).filter(Boolean);
   let cursor = 0;
@@ -251,9 +253,55 @@ export async function runModule(bytes, input = "", programArguments = ["program"
       // buffers as print.
       gs_os_read_file: sliced("sr", (path, control) => tried(() => { appendBytes(control, readFileSync(path.toString("utf8"))); return true; })),
       gs_os_write_file: sliced("ss", (path, data) => tried(() => { writeFileSync(path.toString("utf8"), data); return true; })),
+      gs_os_write_file_atomic: sliced("ss", (path, data) => tried(() => {
+        const target = path.toString("utf8");
+        const tmp = `${target}.tmp-${process.pid}-${randomBytes(6).toString("hex")}`;
+        try {
+          writeFileSync(tmp, data);
+          renameSync(tmp, target);
+        } catch (err) {
+          try { unlinkSync(tmp); } catch {}
+          throw err;
+        }
+        return true;
+      })),
       gs_os_append_file: sliced("ss", (path, data) => tried(() => { appendFileSync(path.toString("utf8"), data); return true; })),
       gs_os_file_exists: sliced("s", (path) => tried(() => statSync(path.toString("utf8")).isFile())),
+      gs_os_remove_file: sliced("s", (path) => tried(() => { unlinkSync(path.toString("utf8")); return true; })),
+      gs_os_rename_file: sliced("ss", (from, to) => tried(() => { renameSync(from.toString("utf8"), to.toString("utf8")); return true; })),
+      gs_os_make_dir: sliced("s", (path) => tried(() => {
+        const target = path.toString("utf8");
+        try { mkdirSync(target); return true; }
+        catch (err) { return err && err.code === "EEXIST" && statSync(target).isDirectory(); }
+      })),
       gs_os_is_dir: sliced("s", (path) => tried(() => statSync(path.toString("utf8")).isDirectory())),
+      gs_os_remove_dir: sliced("s", (path) => tried(() => { rmdirSync(path.toString("utf8")); return true; })),
+      gs_os_list_dir: sliced("sr", (path, control) => tried(() => {
+        const names = readdirSync(path.toString("utf8")).filter((name) => !name.includes("\n")).sort();
+        appendBytes(control, Buffer.from(names.map((name) => `${name}\n`).join("")));
+        return true;
+      })),
+      gs_os_read_line: (control) => {
+        if (stdinPosition >= stdin.length) return 0;
+        const nl = stdin.indexOf(10, stdinPosition);
+        let line;
+        if (nl < 0) {
+          line = stdin.subarray(stdinPosition);
+          stdinPosition = stdin.length;
+        } else {
+          line = stdin.subarray(stdinPosition, nl);
+          stdinPosition = nl + 1;
+        }
+        if (line.length > 0 && line[line.length - 1] === 13) line = line.subarray(0, line.length - 1);
+        appendBytes(control, line);
+        return 1;
+      },
+      gs_os_read_stdin: (control) => {
+        if (stdinPosition < stdin.length) {
+          appendBytes(control, stdin.subarray(stdinPosition));
+          stdinPosition = stdin.length;
+        }
+      },
       gs_os_write_stdout: sliced("s", (text) => { chunks.push(text); }),
       gs_os_write_stderr: sliced("s", (text) => { errors.push(text); }),
       gs_os_flush_stdout: () => {},
@@ -268,9 +316,19 @@ export async function runModule(bytes, input = "", programArguments = ["program"
         appendBytes(control, Buffer.from(value));
         return 1;
       }),
-      gs_os_resource_dir: () => 0,
+      gs_os_resource_dir: (control) => {
+        if (!resourceDir) return 0;
+        const text = resourceDir.endsWith(pathSep) ? resourceDir : resourceDir + pathSep;
+        appendBytes(control, Buffer.from(text));
+        return 1;
+      },
       gs_os_clock_ns: () => process.hrtime.bigint(),
       gs_os_time_ns: () => BigInt(Date.now()) * 1000000n,
+      gs_os_sleep_ms: (ms) => {
+        const delay = Number(BigInt.asIntN(64, ms));
+        if (delay > 0) Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, delay);
+      },
+      gs_os_random_u64: () => randomBytes(8).readBigInt64LE(0),
       // std's byte-set searches: a set's members are its first 256 bytes.
       gs_find_any: sliced("sr", (data, set) => {
         const members = byteSet(set);
@@ -279,6 +337,7 @@ export async function runModule(bytes, input = "", programArguments = ["program"
       }),
       gs_find_pair: sliced("srrr", (data, first, distance, second) => {
         const a = byteSet(first), b = byteSet(second), d = Number(distance);
+        if (d < 0 || d >= data.length) return -1n;
         for (let i = 0; i + d < data.length; i++) if (a[data[i]] && b[data[i + d]]) return BigInt(i);
         return -1n;
       }),
@@ -406,9 +465,10 @@ async function main() {
     if (args.length !== 2 || args[0] !== "--timing-json") throw new Error("unknown runner arguments");
     timingPath = args[1];
   }
-  const result = !hosted ? await runModule(readFileSync(module), readFileSync(0)) : await new Promise((resolve, reject) => {
+  const resourceDir = dirname(resolvePath(module));
+  const result = !hosted ? await runModule(readFileSync(module), readFileSync(0), programArguments, resourceDir) : await new Promise((resolve, reject) => {
     const worker = new Worker(new URL(import.meta.url), {
-      workerData: { module, input: readFileSync(0), programArguments },
+      workerData: { module, input: readFileSync(0), programArguments, resourceDir },
       resourceLimits: { stackSizeMb: STACK_MB },
     });
     worker.once("message", resolve);
@@ -422,7 +482,7 @@ async function main() {
 }
 
 if (!isMainThread && workerData && workerData.module) {
-  runModule(readFileSync(workerData.module), Buffer.from(workerData.input), workerData.programArguments)
+  runModule(readFileSync(workerData.module), Buffer.from(workerData.input), workerData.programArguments, workerData.resourceDir)
     .then((result) => parentPort.postMessage(result));
 } else if (isMainThread && process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   main().catch((error) => { process.stderr.write(`direct Wasm host: ${error.message}\n`); process.exitCode = 1; });

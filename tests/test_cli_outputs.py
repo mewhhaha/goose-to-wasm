@@ -1235,5 +1235,222 @@ fn main() {
                 self.assertEqual((checked.returncode, checked.stdout, checked.stderr), (0, b"", b""))
 
 
+@unittest.skipUnless(COMPILER.is_file(), "bootstrap the compiler first")
+class AuditRegressionTests(unittest.TestCase):
+    def setUp(self):
+        directory = tempfile.TemporaryDirectory()
+        self.addCleanup(directory.cleanup)
+        self.work = Path(directory.name)
+
+    def _compile(self, source: Path, target: str, opt: str, out: Path, *extra: str):
+        return subprocess.run(
+            list(map(str, [COMPILER, source, "--stdlib", SOURCE_STDLIB, "--target", target, opt, *extra, "-o", out])),
+            cwd=ROOT, stdin=subprocess.DEVNULL, capture_output=True, text=True, timeout=60,
+        )
+
+    def _run_wasm(self, host: str, module: Path, *extra: str, stdin: bytes = b""):
+        if host == "wasmtime":
+            command = [sys.executable, ROOT / "scripts/run_wasmtime.py", module, *extra]
+        elif host == "v8":
+            command = ["node", ROOT / "scripts/run_wasm.mjs", module, *extra]
+        elif host == "rust":
+            command = [RUST_HOST, module, *extra]
+        else:
+            raise AssertionError(host)
+        return subprocess.run(list(map(str, command)), cwd=ROOT, input=stdin, capture_output=True, timeout=60)
+
+    def test_u64_for_range_and_count_loops(self):
+        source = self.work / "u64_loops.goose"
+        source.write_text("""\
+fn rt_range(lo: u64, hi: u64) -> i64 {
+    var c: i64 = 0;
+    for i in lo..hi {
+        c += 1;
+        if c == 3 { break; }
+    }
+    return c;
+}
+fn rt_count(n: u64) -> i64 {
+    var c: i64 = 0;
+    for i in n {
+        c += 1;
+        if c == 4 { break; }
+    }
+    return c;
+}
+fn main() {
+    var c1: i64 = 0;
+    for i in (0 as u64)..(18446744073709551615 as u64) {
+        c1 += 1;
+        if c1 == 3 { break; }
+    }
+    var c2: i64 = 0;
+    for i in (18446744073709551613 as u64)..(18446744073709551615 as u64) {
+        c2 += 1;
+    }
+    print(c1, " ", c2, " ", rt_range(0, 18446744073709551615), " ", rt_count(18446744073709551615));
+}
+""")
+        for opt in ("-O0", "-O2"):
+            with self.subTest(target="native", opt=opt):
+                ran = subprocess.run(
+                    list(map(str, [COMPILER, source, "--stdlib", SOURCE_STDLIB, "--target", "native", opt, "--run"])),
+                    cwd=self.work, stdin=subprocess.DEVNULL, capture_output=True, text=True, timeout=60,
+                )
+                self.assertEqual((ran.returncode, ran.stdout), (0, "3 2 3 4\n"), ran.stderr)
+            for tag, flags in (("wasm32", ()), ("wasm64", ("--wasm-memory64",))):
+                with self.subTest(target=tag, opt=opt):
+                    module = self.work / f"u64_{tag}_{opt}.wasm"
+                    built = self._compile(source, "wasm-direct", opt, module, *flags)
+                    self.assertEqual(built.returncode, 0, built.stderr)
+                    ran = self._run_wasm("wasmtime", module)
+                    self.assertEqual((ran.returncode, ran.stdout), (0, b"3 2 3 4\n"), ran.stderr)
+
+    def test_narrow_signed_min_div_neg_one(self):
+        source = self.work / "narrow_div.goose"
+        source.write_text("""\
+fn rt_i8(a: i8, b: i8) -> i8 { return a / b; }
+fn rt_i16(a: i16, b: i16) -> i16 { return a / b; }
+fn rt_i32(a: i32, b: i32) -> i32 { return a / b; }
+fn main() {
+    let a: i8 = (-128 as i8) / (-1 as i8);
+    let b: i16 = (-32768 as i16) / (-1 as i16);
+    let c: i32 = (-2147483648 as i32) / (-1 as i32);
+    print(a == (-128 as i8), " ", a, " ", b == (-32768 as i16), " ", b, " ",
+          c == (-2147483648 as i32), " ", c, " ",
+          rt_i8(-128 as i8, -1 as i8), " ", rt_i16(-32768 as i16, -1 as i16), " ",
+          rt_i32(-2147483648 as i32, -1 as i32));
+}
+""")
+        expected = "true -128 true -32768 true -2147483648 -128 -32768 -2147483648\n"
+        for opt in ("-O0", "-O2"):
+            with self.subTest(target="native", opt=opt):
+                ran = subprocess.run(
+                    list(map(str, [COMPILER, source, "--stdlib", SOURCE_STDLIB, "--target", "native", opt, "--run"])),
+                    cwd=self.work, stdin=subprocess.DEVNULL, capture_output=True, text=True, timeout=60,
+                )
+                self.assertEqual((ran.returncode, ran.stdout), (0, expected), ran.stderr)
+            with self.subTest(target="wasm-direct", opt=opt):
+                module = self.work / f"ndiv_{opt}.wasm"
+                built = self._compile(source, "wasm-direct", opt, module)
+                self.assertEqual(built.returncode, 0, built.stderr)
+                ran = self._run_wasm("wasmtime", module)
+                self.assertEqual((ran.returncode, ran.stdout.decode()), (0, expected), ran.stderr)
+
+        debug_src = self.work / "narrow_div_dbg.goose"
+        debug_src.write_text("fn main() { let a: i8 = (-128 as i8) / (-1 as i8); print(a); }\n")
+        ran_native = subprocess.run(
+            list(map(str, [COMPILER, debug_src, "--stdlib", SOURCE_STDLIB, "--target", "native", "--debug", "-O2", "--run"])),
+            cwd=self.work, stdin=subprocess.DEVNULL, capture_output=True, text=True, timeout=60,
+        )
+        self.assertNotEqual(ran_native.returncode, 0)
+        dbg_wasm = self.work / "narrow_div_dbg.wasm"
+        built_dbg = self._compile(debug_src, "wasm-direct", "-O2", dbg_wasm, "--debug")
+        self.assertEqual(built_dbg.returncode, 0, built_dbg.stderr)
+        ran_wasm = self._run_wasm("wasmtime", dbg_wasm)
+        self.assertNotEqual(ran_wasm.returncode, 0)
+
+    def test_invalid_trailing_block_rejected_without_ice(self):
+        cases = [
+            ("untyped", "fn helper(F) { F(1); }\nfn main() { helper() { x => print(x); } }\n"),
+            ("fn_type", "fn helper(f: fn(i64)) { f(1); }\nfn main() { helper() { x => print(x); } }\n"),
+        ]
+        for name, code in cases:
+            source = self.work / f"tb_{name}.goose"
+            source.write_text(code)
+            for mode in (["--check"], ["--target", "native", "-O2", "-o", str(self.work / f"{name}.c")],
+                         ["--target", "wasm-direct", "-O2", "-o", str(self.work / f"{name}.wasm")]):
+                with self.subTest(name=name, mode=mode[0]):
+                    res = subprocess.run(
+                        list(map(str, [COMPILER, source, "--stdlib", SOURCE_STDLIB, *mode])),
+                        cwd=ROOT, stdin=subprocess.DEVNULL, capture_output=True, text=True, timeout=30,
+                    )
+                    self.assertEqual(res.returncode, 1, res.stderr)
+                    self.assertIn("no overload matches", res.stderr)
+                    self.assertNotIn("out of bounds", res.stderr)
+
+    def test_driver_default_run_shared_and_option_diagnostic(self):
+        ran = subprocess.run(
+            list(map(str, [COMPILER, "examples/squares.goose", "--stdlib", SOURCE_STDLIB, "-o", self.work / "squares.wasm", "--run"])),
+            cwd=ROOT, stdin=subprocess.DEVNULL, capture_output=True, text=True, timeout=60,
+        )
+        self.assertEqual((ran.returncode, ran.stdout), (0, "sum=140\n"), ran.stderr)
+        missing_host = subprocess.run(
+            list(map(str, [COMPILER, ROOT / "examples/squares.goose", "--stdlib", SOURCE_STDLIB, "--run"])),
+            cwd=self.work, stdin=subprocess.DEVNULL, capture_output=True, text=True, timeout=60,
+        )
+        self.assertEqual(missing_host.returncode, 1)
+        self.assertIn("GOOSE_WASM_HOST", missing_host.stderr)
+        lib = self.work / "libsq.so"
+        shared = subprocess.run(
+            list(map(str, [COMPILER, "examples/squares.goose", "--stdlib", SOURCE_STDLIB, "--target", "native", "--shared", "-o", lib])),
+            cwd=ROOT, stdin=subprocess.DEVNULL, capture_output=True, text=True, timeout=60,
+        )
+        self.assertEqual(shared.returncode, 0, shared.stderr)
+        self.assertTrue(lib.is_file())
+        self.assertFalse(Path(str(lib) + ".goose.c").exists())
+        bad = subprocess.run(
+            list(map(str, [COMPILER, "examples/squares.goose", "--expansion-node-limit", "abc"])),
+            cwd=ROOT, stdin=subprocess.DEVNULL, capture_output=True, text=True, timeout=30,
+        )
+        self.assertEqual(bad.returncode, 2)
+        self.assertIn("invalid expansion node limit", bad.stderr)
+
+    def test_wasm_hosts_os_externs_resource_dir_and_find_pair(self):
+        source = self.work / "os_host_parity.goose"
+        source.write_text("""\
+import os;
+import std;
+extern fn raw_find_pair(s: const u8[:], a: const ByteSet&, d: i64, b: const ByteSet&) -> i64 = "gs_find_pair";
+fn main() {
+    let a = args();
+    var line: u8[>..] = [];
+    let got_line = read_line(line);
+    var rest: u8[>..] = [];
+    read_stdin(rest);
+    var rdir: u8[>..] = [];
+    let has_rdir = resource_dir(rdir);
+    let base = a[1];
+    var sub: u8[>..] = [];
+    sub.append(base); sub.append("/d");
+    let mk1 = make_dir(sub[..]);
+    let mk2 = make_dir(sub[..]);
+    let isd = is_dir(sub[..]);
+    var fa: u8[>..] = []; fa.append(sub[..]); fa.append("/b.txt");
+    var fb: u8[>..] = []; fb.append(sub[..]); fb.append("/a.txt");
+    let wa = write_file_atomic(fa[..], "hello");
+    let rn = rename_file(fa[..], fb[..]);
+    var listing: u8[>..] = [];
+    let ld = list_dir(sub[..], listing);
+    var content: u8[>..] = [];
+    let rf = read_file(fb[..], content);
+    let df = delete_file(fb[..]);
+    let dd = delete_dir(sub[..]);
+    sleep_ms(1);
+    let r1 = random_seed();
+    let r2 = random_seed();
+    let set_a = byte_set("a");
+    let fp_neg = raw_find_pair("abca", set_a, -1, set_a);
+    let fp_big = raw_find_pair("abca", set_a, 99, set_a);
+    let fp_ok = find_pair("abca", set_a, 3, set_a);
+    print(a.len, "|", got_line, "|", line, "|", rest, "|", has_rdir && rdir.len > 0, "|",
+          mk1, mk2, isd, wa, rn, ld, rf, df, dd, "|", listing, "|", content, "|", r1 != r2, "|",
+          fp_neg, ",", fp_big, ",", fp_ok);
+}
+""")
+        hosts = ["wasmtime", "v8"] + (["rust"] if RUST_HOST.is_file() else [])
+        expected = b"2|true|first line|rest!|true|truetruetruetruetruetruetruetruetrue|a.txt\n|hello|true|-1,-1,0\n"
+        for tag, flags in (("wasm32", ()), ("wasm64", ("--wasm-memory64",))):
+            module = self.work / f"os_{tag}.wasm"
+            built = self._compile(source, "wasm-direct", "-O2", module, *flags)
+            self.assertEqual(built.returncode, 0, built.stderr)
+            for host in hosts:
+                with self.subTest(tag=tag, host=host):
+                    sub = self.work / f"dir_{tag}_{host}"
+                    sub.mkdir()
+                    ran = self._run_wasm(host, module, "--", str(sub), stdin=b"first line\r\nrest!")
+                    self.assertEqual((ran.returncode, ran.stdout), (0, expected), ran.stderr)
+
+
 if __name__ == "__main__":
     unittest.main()

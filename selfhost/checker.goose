@@ -5223,6 +5223,7 @@ recursive fn check_choose_call(p: Program&, c: Checker&, callee_node: i64, args:
             parameter = p.nodes[parameter].next;
         }
         var written = min(args.count, parameter_count);
+        while written > 0 && p.nodes[check_list_at(c, args, written - 1)].kind == N_FUNCTION_VALUE { written -= 1; }
         while written > required {
             let actual = p.nodes[check_list_at(c, args, written - 1)].type_id;
             if actual < 0 || p.types[actual].kind != TY_FN { break; }

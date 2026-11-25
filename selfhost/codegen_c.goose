@@ -2185,10 +2185,13 @@ recursive fn cc_loop(p: Program&, f: CcBody&, node: i64) -> i64 {
         var count_type = iterable.type_id; var start = -1;
         while cc_kind(p, count_type) == TY_REF { count_type = p.types[count_type].element; }
         if iterable.kind == N_RANGE {
-            counter = cc_to(p, f, iterable.left, TYPE_I64); end = cc_to(p, f, iterable.right, TYPE_I64);
+            var loop_ty: i64 = TYPE_I64;
+            if p.nodes[iterable.left].type_id == TYPE_U64 || p.nodes[iterable.right].type_id == TYPE_U64 { loop_ty = TYPE_U64; }
+            counter = cc_to(p, f, iterable.left, loop_ty); end = cc_to(p, f, iterable.right, loop_ty);
             // A range's index counts iterations from 0 (upstream §6.5), not the value.
-            if index_binding >= 0 { start = cc_temp(p, f, TYPE_I64); cc_set(f, start); cc_id(f.out, "g_v", counter); cc_text(f.out, ";\n"); }
+            if index_binding >= 0 { start = cc_temp(p, f, loop_ty); cc_set(f, start); cc_id(f.out, "g_v", counter); cc_text(f.out, ";\n"); }
         } else if cc_kind(p, count_type) == TY_INT {
+            var loop_ty: i64 = TYPE_I64; if count_type == TYPE_U64 { loop_ty = TYPE_U64; }
             if cc_kind(p, iterable.type_id) == TY_REF {
                 var place = cc_base_place(p, f, n.left);
                 while cc_kind(p, place.type_id) == TY_REF {
@@ -2196,9 +2199,9 @@ recursive fn cc_loop(p: Program&, f: CcBody&, node: i64) -> i64 {
                     place = CcPlace { type_id: p.types[place.type_id].element, address: address };
                 }
                 let value = cc_read(p, f, place, count_type, n.left);
-                end = cc_convert(p, f, value, count_type, TYPE_I64, n.left);
-            } else { end = cc_to(p, f, n.left, TYPE_I64); }
-            counter = cc_temp(p, f, TYPE_I64);
+                end = cc_convert(p, f, value, count_type, loop_ty, n.left);
+            } else { end = cc_to(p, f, n.left, loop_ty); }
+            counter = cc_temp(p, f, loop_ty);
         } else {
             if cc_kind(p, array) == TY_REF { array = p.types[array].element; }
             base = cc_base(p, f, n.left); counter = cc_temp(p, f, TYPE_I64); end = cc_temp(p, f, TYPE_I64);
@@ -2995,7 +2998,11 @@ recursive fn cc_record(p: Program&, f: CcBody&, node: i64) -> i64 {
 recursive fn cc_variable(p: Program&, f: CcBody&, node: i64) {
     let n: const Node& = p.nodes[node];
     if n.first < 0 {
-        if n.symbol >= 0 && (p.symbols[n.symbol].flags & S_GLOBAL) == 0 { cc_seed_symbol(p, f, n.symbol); }
+        if n.symbol < 0 {
+            if n.right >= 0 { cc_expr(p, f, n.right); }
+            return;
+        }
+        if (p.symbols[n.symbol].flags & S_GLOBAL) == 0 { cc_seed_symbol(p, f, n.symbol); }
         if n.right < 0 { return; }
         let type_id = p.symbols[n.symbol].type_id; let keep = f.region_live;
         if cc_direct_symbol(p, f, n.symbol) && cc_region_width(p, type_id) == 0 && !cc_needs_clone(p, type_id, 0) && cc_kind(p, type_id) != TY_TUPLE {
@@ -4988,9 +4995,9 @@ static GS_INLINE double g_float_literal(uint64_t bits) { double v; memcpy(&v,&bi
 static GS_INLINE int64_t g_clz(uint64_t x) { if(!x) return 64; return __builtin_clzll(x); }
 static GS_INLINE int64_t g_ctz(uint64_t x) { if(!x) return 64; return __builtin_ctzll(x); }
 #ifdef _WIN32
-static int g_os_path_op(GSlice path,int op) { char *s=g_path(path); if(!s) return 0; if(op==0) return DeleteFileA(s)!=0; if(op==1) return RemoveDirectoryA(s)!=0; if(CreateDirectoryA(s,NULL)) return 1; return g_os_kind(path)==2; }
-static int g_os_rename(GSlice from,GSlice to) { char *a=g_path(from),*b=g_path(to); if(!a || !b) return 0; return MoveFileExA(a,b,MOVEFILE_REPLACE_EXISTING)!=0; }
-static int g_os_resource(GRef out) { char path[4096]; DWORD n=GetModuleFileNameA(NULL,path,(DWORD)sizeof path); if(!n || n>=(DWORD)sizeof path) return 0; while(n>0 && path[n-1]!=92 && path[n-1]!='/') n--; if(!n) return 0; GArray a; memcpy(&a,g_address(out),sizeof a); g_bytes(&a,path,(int64_t)n); memcpy(g_address(out),&a,sizeof a); return 1; }
+static int g_os_path_op(GSlice path,int op) { wchar_t w[4096]; if(g_wpath(path,w)<0) return 0; if(op==0) return DeleteFileW(w)!=0; if(op==1) return RemoveDirectoryW(w)!=0; if(CreateDirectoryW(w,NULL)) return 1; return g_os_kind(path)==2; }
+static int g_os_rename(GSlice from,GSlice to) { wchar_t a[4096],b[4096]; if(g_wpath(from,a)<0 || g_wpath(to,b)<0) return 0; return MoveFileExW(a,b,MOVEFILE_REPLACE_EXISTING|MOVEFILE_WRITE_THROUGH)!=0; }
+static int g_os_resource(GRef out) { wchar_t path[4096]; DWORD n=GetModuleFileNameW(NULL,path,4096); if(!n || n>=4096) return 0; while(n>0 && path[n-1]!=92 && path[n-1]!='/') n--; if(!n) return 0; GArray a; memcpy(&a,g_address(out),sizeof a); int ok=g_wappend(&a,path,(int)n); memcpy(g_address(out),&a,sizeof a); return ok; }
 static int g_trim_memory(void) { return gs_trim_memory(); }
 typedef struct { void *data; int64_t len; } GForeignSlice;
 static GForeignSlice g_foreign_slice(GSlice s) { GForeignSlice r={g_address(s.base),s.len}; return r; }

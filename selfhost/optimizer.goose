@@ -613,7 +613,10 @@ fn opt_fold_binary(p: Program&, o: Optimizer&, node: i64) {
                 if op == T_DIV { result = ((a as! u64) / (b as! u64)) as! i64; }
                 else { result = ((a as! u64) % (b as! u64)) as! i64; }
             } else {
-                if op == T_DIV { result = a / b; } else { result = a % b; }
+                if op == T_DIV {
+                    if p.debug && a == check_min(n.type_id) && b == -1 { return; }
+                    result = opt_wrap((a / b) as! u64, n.type_id);
+                } else { result = a % b; }
             }
         } else if op == T_BITAND { result = a & b; }
         else if op == T_BITOR { result = a | b; }
@@ -802,8 +805,14 @@ recursive fn opt_node(p: Program&, o: Optimizer&, node: i64, depth: i64) {
     } else if n.kind == N_FOR && n.left >= 0 && p.nodes[n.left].kind == N_RANGE {
         let range: const Node& = p.nodes[n.left];
         if p.nodes[range.left].kind == N_INTEGER && p.nodes[range.right].kind == N_INTEGER &&
-           p.nodes[range.left].integer >= p.nodes[range.right].integer && (range.flags & F_INCLUSIVE) == 0 {
-            opt_empty(p, node); o.folded += 1;
+           (range.flags & F_INCLUSIVE) == 0 {
+            let lo = p.nodes[range.left].integer; let hi = p.nodes[range.right].integer;
+            let empty = if check_unsigned(p.nodes[range.left].type_id) || check_unsigned(p.nodes[range.right].type_id) {
+                (lo as! u64) >= (hi as! u64)
+            } else {
+                lo >= hi
+            };
+            if empty { opt_empty(p, node); o.folded += 1; }
         }
     } else if n.kind == N_INDEX && n.right >= 0 {
         o.has_index = true;

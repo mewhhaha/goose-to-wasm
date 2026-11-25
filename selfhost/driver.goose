@@ -209,7 +209,11 @@ fn driver_options(o: DriverOptions&, arguments: u8[:][:]) {
                 } else { o.stack_reserve = size; }
             } else {
                 let number, ok = driver_number(v);
-                if !ok { driver_error("invalid page count"); o.bad = true; }
+                if !ok {
+                    if same_bytes(a, "--expansion-node-limit") { driver_error("invalid expansion node limit"); }
+                    else { driver_error("invalid page count"); }
+                    o.bad = true;
+                }
                 else if same_bytes(a, "--expansion-node-limit") { o.expansion_limit = number; }
                 else if same_bytes(a, "--wasm-initial-pages") { o.initial_pages = number; }
                 else { o.maximum_pages = number; }
@@ -370,8 +374,16 @@ fn driver_diagnostics(p: Program&, o: const DriverOptions&) {
         } else { line.append("<source>"); }
         line.push(':'); driver_integer(line, d.line); line.push(':'); driver_integer(line, d.column);
         line.append(": ");
-        driver_ansi(line, color, "1;31");
-        line.append("error:");
+        if d.severity == 0 {
+            driver_ansi(line, color, "1;33");
+            line.append("warning:");
+        } else if d.severity == 2 {
+            driver_ansi(line, color, "1;36");
+            line.append("note:");
+        } else {
+            driver_ansi(line, color, "1;31");
+            line.append("error:");
+        }
         driver_ansi(line, color, "0");
         line.push(' ');
         let msg = p.messages[d.message_start..d.message_start + d.message_len];
@@ -493,7 +505,32 @@ fn driver_stats(p: Program&, path: const u8[:], bytes: i64, parsing: i64, checki
     out.append("],\"cache_complete\":false}\n");
     return write_file(path, out);
 }
-fn driver_quote(out: u8[>..]&, value: const u8[:]) {
+fn driver_is_windows() -> bool {
+    var dir: u8[>..] = [];
+    if resource_dir(dir) {
+        if dir.len >= 2 && dir[1] == ':' { return true; }
+        for ch in dir { if ch == '\\' { return true; } }
+    }
+    var os_name: u8[>..] = [];
+    return env("OS", os_name) && same_bytes(os_name, "Windows_NT");
+}
+fn driver_is_macos(win: bool) -> bool {
+    return !win && is_dir("/System/Library");
+}
+fn driver_link_flags(out: u8[>..]&, win: bool, mac: bool) {
+    if win { out.append(" -lm"); }
+    else if mac { out.append(" -lm -lpthread"); }
+    else { out.append(" -lm -ldl -pthread"); }
+}
+fn driver_quote(out: u8[>..]&, value: const u8[:], win: bool = false) {
+    if win {
+        out.push('"');
+        for byte in value {
+            if byte == '"' { out.append("\\\""); } else { out.push(byte); }
+        }
+        out.push('"');
+        return;
+    }
     out.push(39);
     for byte in value {
         if byte == 39 { out.append("'\\''"); } else { out.push(byte); }
@@ -514,7 +551,7 @@ fn driver_units(output: const u8[:]) -> i64 {
 }
 // One shell command: the runtime unit and every program unit compile at
 // once, and link when all of them have.
-fn driver_split_build(command: u8[>..]&, cc: const u8[:], source: const u8[:], binary: const u8[:], units: i64) {
+fn driver_split_build(command: u8[>..]&, cc: const u8[:], source: const u8[:], binary: const u8[:], units: i64, mac: bool) {
     var objects: u8[>..] = [];
     for index in 0..units + 1 {
         let unit = index - 1;
@@ -530,10 +567,17 @@ fn driver_split_build(command: u8[>..]&, cc: const u8[:], source: const u8[:], b
     command.append("s=0; for p in");
     for index in 0..units + 1 { command.append(" $p"); driver_integer(command, index); }
     command.append("; do wait $p || s=1; done; [ $s = 0 ] && "); driver_quote(command, cc);
-    command.append(" -std=gnu11 -O2"); command.append(objects); command.append(" -lm -ldl -pthread -o "); driver_quote(command, binary);
+    command.append(" -std=gnu11 -O2"); command.append(objects); driver_link_flags(command, false, mac); command.append(" -o "); driver_quote(command, binary);
     command.append("; s=$?; rm -f"); command.append(objects); command.append("; exit $s");
 }
-fn driver_exec(command: u8[>..]&) -> i64 {
+fn driver_exec(command: u8[>..]&, win: bool = false) -> i64 {
+    if win {
+        // cmd.exe /c strips one leading and one trailing quote when the command starts with '"'.
+        var wrapped: u8[>..] = []; wrapped.push('"'); wrapped.append(command); wrapped.push('"'); wrapped.push(0);
+        let code = driver_system(wrapped[0]) as i64;
+        if code < 0 { return 1; }
+        return code;
+    }
     command.push(0); let code = driver_system(command[0]) as i64;
     if code < 0 { return 1; }
     if (code & 127) != 0 { return 128 + (code & 127); }
@@ -575,10 +619,14 @@ fn driver_main() -> i64 {
         resource_dir(paths); paths.append("stdlib");
     }
     let stdlib_end = paths.len;
+    let win = driver_is_windows();
+    let mac = driver_is_macos(win);
     let cc_start = paths.len;
     if o.cc_arg >= 0 { paths.append(arguments[o.cc_arg]); }
     else { env("CC", paths); }
-    if paths.len == cc_start { paths.append("cc"); }
+    if paths.len == cc_start {
+        if win { paths.append("clang"); } else { paths.append("cc"); }
+    }
     let cc_end = paths.len;
     var text: u8[>..] = []; var messages: u8[>..] = []; var sources: Source[>..] = [];
     var tokens: Token[>..] = []; var nodes: Node[>..] = []; var types: Type[>..] = [];
@@ -669,11 +717,15 @@ fn driver_main() -> i64 {
         var c_path: u8[>..] = []; c_path.append(paths[output_start..output_end]); c_path.append(".goose.c");
         if !write_file(c_path, output) { driver_error("cannot write temporary C output"); return 1; }
         var shared_cmd: u8[>..] = [];
-        driver_quote(shared_cmd, paths[cc_start..cc_end]); shared_cmd.append(" -std=gnu11 -O2 -shared -fPIC ");
-        driver_quote(shared_cmd, c_path); shared_cmd.append(" -lm -ldl -pthread -o ");
-        driver_quote(shared_cmd, paths[output_start..output_end]);
-        shared_cmd.append("; s=$?; rm -f "); driver_quote(shared_cmd, c_path); shared_cmd.append("; exit $s");
-        let code = driver_exec(shared_cmd);
+        driver_quote(shared_cmd, paths[cc_start..cc_end], win);
+        shared_cmd.append(" -std=gnu11 -O2 -shared ");
+        if !win { shared_cmd.append("-fPIC "); }
+        driver_quote(shared_cmd, c_path, win);
+        driver_link_flags(shared_cmd, win, mac);
+        shared_cmd.append(" -o ");
+        driver_quote(shared_cmd, paths[output_start..output_end], win);
+        let code = driver_exec(shared_cmd, win);
+        delete_file(c_path);
         if code != 0 { return code; }
     } else {
         if !write_file(paths[output_start..output_end], output) { driver_error("cannot write output"); return 1; }
@@ -685,27 +737,44 @@ fn driver_main() -> i64 {
     if !o.run || link_shared { return 0; }
     var command: u8[>..] = [];
     if o.target == 1 {
-        var binary: u8[>..] = []; binary.append(paths[output_start..output_end]); binary.append(".bin");
-        let units = driver_units(output);
-        if units > 1 { driver_split_build(command, paths[cc_start..cc_end], paths[output_start..output_end], binary, units); }
+        var binary: u8[>..] = []; binary.append(paths[output_start..output_end]);
+        if win { binary.append(".exe"); } else { binary.append(".bin"); }
+        let units = if win { 1 } else { driver_units(output) };
+        if units > 1 { driver_split_build(command, paths[cc_start..cc_end], paths[output_start..output_end], binary, units, mac); }
         else {
-            driver_quote(command, paths[cc_start..cc_end]); command.append(" -std=gnu11 -O2 "); driver_quote(command, paths[output_start..output_end]);
-            command.append(" -lm -ldl -pthread -o "); driver_quote(command, binary);
+            driver_quote(command, paths[cc_start..cc_end], win); command.append(" -std=gnu11 -O2 ");
+            driver_quote(command, paths[output_start..output_end], win);
+            driver_link_flags(command, win, mac); command.append(" -o "); driver_quote(command, binary, win);
         }
-        let code = driver_exec(command); if code != 0 { return code; }
+        let code = driver_exec(command, win); if code != 0 { return code; }
         command.clear();
-        var has_sep = false;
-        for ch in binary { if ch == '/' || ch == '\\' { has_sep = true; break; } }
-        if !has_sep {
-            var exec_path: u8[>..] = []; exec_path.append("./"); exec_path.append(binary);
-            driver_quote(command, exec_path);
+        if win {
+            driver_quote(command, binary, true);
         } else {
-            driver_quote(command, binary);
+            var has_sep = false;
+            for ch in binary { if ch == '/' || ch == '\\' { has_sep = true; break; } }
+            if !has_sep {
+                var exec_path: u8[>..] = []; exec_path.append("./"); exec_path.append(binary);
+                driver_quote(command, exec_path);
+            } else {
+                driver_quote(command, binary);
+            }
         }
     } else {
         var host: u8[>..] = [];
-        if !env("GOOSE_WASM_HOST", host) { host.append("build/bin/goose-wasmtime"); }
-        driver_quote(command, host); command.push(' '); driver_quote(command, paths[output_start..output_end]);
+        if env("GOOSE_WASM_HOST", host) && host.len > 0 {
+            driver_quote(command, host, win); command.push(' '); driver_quote(command, paths[output_start..output_end], win);
+        } else if file_exists("build/bin/goose-wasmtime") {
+            driver_quote(command, "build/bin/goose-wasmtime", win); command.push(' '); driver_quote(command, paths[output_start..output_end], win);
+        } else if file_exists("host/rust/target/release/goose-wasmtime") {
+            driver_quote(command, "host/rust/target/release/goose-wasmtime", win); command.push(' '); driver_quote(command, paths[output_start..output_end], win);
+        } else if file_exists("scripts/run_wasm.mjs") {
+            driver_quote(command, "node", win); command.push(' '); driver_quote(command, "scripts/run_wasm.mjs", win);
+            command.push(' '); driver_quote(command, paths[output_start..output_end], win);
+        } else {
+            driver_error("no Wasm runner found for --run; set GOOSE_WASM_HOST or pass --target c --run");
+            return 1;
+        }
     }
-    return driver_exec(command);
+    return driver_exec(command, win);
 }

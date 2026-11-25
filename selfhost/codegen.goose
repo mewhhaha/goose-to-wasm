@@ -5133,6 +5133,7 @@ recursive fn cg_expr_body(p: Program&, m: CgModule&, f: CgBody&, node: i64) {
                 }
             }
         }
+        if sym < 0 { cg_fail(p, node, "wasm: unresolved name symbol"); return; }
         cg_symbol_address(p, m, f, sym, node);
         let stored = p.symbols[sym].type_id;
         if stored >= 0 && p.types[stored].kind == TY_INT && p.types[stored].storage == 1 { cg_load_fixed(p, f.code, TYPE_I64, 0); return; }

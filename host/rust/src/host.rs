@@ -9,10 +9,12 @@
 use std::collections::HashSet;
 use std::ffi::OsStr;
 use std::fs;
-use std::io::Write;
+use std::io::{Read, Write};
 use std::ops::Range;
 use std::os::unix::ffi::{OsStrExt, OsStringExt};
-use std::time::{SystemTime, UNIX_EPOCH};
+use std::path::PathBuf;
+use std::sync::atomic::{AtomicU64, Ordering};
+use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
 use wasmtime::{Caller, Error, Extern, ExternType, Func, Linker, Memory, Module, Result, Val, ValType};
 
@@ -30,6 +32,7 @@ pub struct Host {
     pub out: Vec<u8>,
     pub err: Vec<u8>,
     pub(crate) arguments: Vec<Vec<u8>>,
+    pub(crate) resource_dir: Option<Vec<u8>>,
     memory: Option<Memory>,
     /// The module's exported `goose.reserve`, once looked for.
     reserve: Option<Option<Func>>,
@@ -45,6 +48,7 @@ impl Host {
             out: Vec::new(),
             err: Vec::new(),
             arguments,
+            resource_dir: None,
             memory: None,
             reserve: None,
             blot: crate::blot::BlotState::new(),
@@ -171,16 +175,32 @@ fn handler_for(module: &str, name: &str) -> Option<Handler> {
         // files (the compiler itself among them).
         ("env", "gs_os_read_file") => os_read_file,
         ("env", "gs_os_write_file") => |caller, values| os_write_file(caller, values, false),
+        ("env", "gs_os_write_file_atomic") => os_write_file_atomic,
         ("env", "gs_os_append_file") => |caller, values| os_write_file(caller, values, true),
         ("env", "gs_os_file_exists") => |caller, values| os_stat(caller, values, |kind| kind.is_file()),
+        ("env", "gs_os_remove_file") => os_remove_file,
+        ("env", "gs_os_rename_file") => os_rename_file,
+        ("env", "gs_os_make_dir") => os_make_dir,
         ("env", "gs_os_is_dir") => |caller, values| os_stat(caller, values, |kind| kind.is_dir()),
+        ("env", "gs_os_remove_dir") => os_remove_dir,
+        ("env", "gs_os_list_dir") => os_list_dir,
+        ("env", "gs_os_read_line") => os_read_line,
+        ("env", "gs_os_read_stdin") => os_read_stdin,
         ("env", "gs_os_write_stdout") => |caller, values| os_write(caller, values, false),
         ("env", "gs_os_write_stderr") => |caller, values| os_write(caller, values, true),
         ("env", "gs_os_arg_count") => |caller, _| Ok(Out::Integer(caller.data().arguments.len() as i64)),
         ("env", "gs_os_arg") => os_arg,
         ("env", "gs_os_getenv") => os_getenv,
-        ("env", "gs_os_resource_dir") => |_, _| Ok(Out::Integer(0)),
+        ("env", "gs_os_resource_dir") => os_resource_dir,
         ("env", "gs_os_time_ns") => |_, _| Ok(Out::Integer(wall_ns())),
+        ("env", "gs_os_sleep_ms") => |_, values| {
+            let ms = integer(values, 0)?;
+            if ms > 0 {
+                std::thread::sleep(Duration::from_millis(ms as u64));
+            }
+            Ok(Out::Nothing)
+        },
+        ("env", "gs_os_random_u64") => |_, _| Ok(Out::Integer(random_u64() as i64)),
         ("env", "gs_find_any") => find_any,
         ("env", "gs_find_pair") => find_pair,
         // No process can be started from here: libc's system fails.
@@ -447,6 +467,170 @@ fn os_getenv(caller: &mut Caller<'_, Host>, values: &[Val]) -> Result<Out> {
     }
 }
 
+fn os_write_file_atomic(caller: &mut Caller<'_, Host>, values: &[Val]) -> Result<Out> {
+    static NEXT_TMP: AtomicU64 = AtomicU64::new(1);
+    let mut arguments = Arguments::new(values, 2);
+    let (path_pointer, path_length) = arguments.slice()?;
+    let (pointer, length) = arguments.slice()?;
+    let data = memory(caller)?.data(&*caller);
+    let path = &data[span(data.len(), path_pointer, path_length)?];
+    let contents = &data[span(data.len(), pointer, length)?];
+    if path.contains(&0) {
+        return Err(failure("embedded null byte"));
+    }
+    let target = PathBuf::from(OsStr::from_bytes(path));
+    let mut tmp = target.as_os_str().to_os_string();
+    tmp.push(format!(".tmp-{}-{}", std::process::id(), NEXT_TMP.fetch_add(1, Ordering::Relaxed)));
+    let tmp_path = PathBuf::from(tmp);
+    let ok = fs::OpenOptions::new()
+        .write(true)
+        .create_new(true)
+        .open(&tmp_path)
+        .and_then(|mut file| {
+            file.write_all(contents)?;
+            file.sync_all()
+        })
+        .and_then(|()| fs::rename(&tmp_path, &target))
+        .is_ok();
+    if !ok {
+        let _ = fs::remove_file(&tmp_path);
+    }
+    Ok(Out::Integer(ok.into()))
+}
+
+fn os_remove_file(caller: &mut Caller<'_, Host>, values: &[Val]) -> Result<Out> {
+    let (pointer, length) = Arguments::new(values, 1).slice()?;
+    let path = read_bytes(caller, pointer, length)?;
+    if path.contains(&0) {
+        return Ok(Out::Integer(0));
+    }
+    Ok(Out::Integer(fs::remove_file(OsStr::from_bytes(&path)).is_ok().into()))
+}
+
+fn os_rename_file(caller: &mut Caller<'_, Host>, values: &[Val]) -> Result<Out> {
+    let mut arguments = Arguments::new(values, 2);
+    let (a_ptr, a_len) = arguments.slice()?;
+    let (b_ptr, b_len) = arguments.slice()?;
+    let src = read_bytes(caller, a_ptr, a_len)?;
+    let dst = read_bytes(caller, b_ptr, b_len)?;
+    if src.contains(&0) || dst.contains(&0) {
+        return Ok(Out::Integer(0));
+    }
+    Ok(Out::Integer(fs::rename(OsStr::from_bytes(&src), OsStr::from_bytes(&dst)).is_ok().into()))
+}
+
+fn os_make_dir(caller: &mut Caller<'_, Host>, values: &[Val]) -> Result<Out> {
+    let (pointer, length) = Arguments::new(values, 1).slice()?;
+    let path_bytes = read_bytes(caller, pointer, length)?;
+    if path_bytes.contains(&0) {
+        return Ok(Out::Integer(0));
+    }
+    let path = OsStr::from_bytes(&path_bytes);
+    let ok = match fs::create_dir(path) {
+        Ok(()) => true,
+        Err(error) if error.kind() == std::io::ErrorKind::AlreadyExists => fs::metadata(path).is_ok_and(|m| m.is_dir()),
+        Err(_) => false,
+    };
+    Ok(Out::Integer(ok.into()))
+}
+
+fn os_remove_dir(caller: &mut Caller<'_, Host>, values: &[Val]) -> Result<Out> {
+    let (pointer, length) = Arguments::new(values, 1).slice()?;
+    let path = read_bytes(caller, pointer, length)?;
+    if path.contains(&0) {
+        return Ok(Out::Integer(0));
+    }
+    Ok(Out::Integer(fs::remove_dir(OsStr::from_bytes(&path)).is_ok().into()))
+}
+
+fn os_list_dir(caller: &mut Caller<'_, Host>, values: &[Val]) -> Result<Out> {
+    let mut arguments = Arguments::new(values, 2);
+    let (pointer, length) = arguments.slice()?;
+    let control = arguments.integer()?;
+    let path = read_bytes(caller, pointer, length)?;
+    if path.contains(&0) {
+        return Ok(Out::Integer(0));
+    }
+    match fs::read_dir(OsStr::from_bytes(&path)) {
+        Ok(entries) => {
+            let mut names: Vec<Vec<u8>> = Vec::new();
+            for item in entries {
+                let Ok(entry) = item else { continue };
+                let name = entry.file_name().into_vec();
+                if !name.contains(&b'\n') {
+                    names.push(name);
+                }
+            }
+            names.sort();
+            let mut out = Vec::new();
+            for name in names {
+                out.extend_from_slice(&name);
+                out.push(b'\n');
+            }
+            append_bytes(caller, control, &out)?;
+            Ok(Out::Integer(1))
+        }
+        Err(_) => Ok(Out::Integer(0)),
+    }
+}
+
+fn os_read_line(caller: &mut Caller<'_, Host>, values: &[Val]) -> Result<Out> {
+    let control = integer(values, 0)?;
+    let line = {
+        let host = caller.data_mut();
+        if host.input_position >= host.input.len() {
+            return Ok(Out::Integer(0));
+        }
+        let rest = &host.input[host.input_position..];
+        let (mut slice, consumed) = match rest.iter().position(|&b| b == b'\n') {
+            Some(at) => (&rest[..at], at + 1),
+            None => (rest, rest.len()),
+        };
+        if slice.ends_with(b"\r") {
+            slice = &slice[..slice.len() - 1];
+        }
+        let owned = slice.to_vec();
+        host.input_position += consumed;
+        owned
+    };
+    append_bytes(caller, control, &line)?;
+    Ok(Out::Integer(1))
+}
+
+fn os_read_stdin(caller: &mut Caller<'_, Host>, values: &[Val]) -> Result<Out> {
+    let control = integer(values, 0)?;
+    let rest = {
+        let host = caller.data_mut();
+        if host.input_position >= host.input.len() {
+            return Ok(Out::Nothing);
+        }
+        let owned = host.input[host.input_position..].to_vec();
+        host.input_position = host.input.len();
+        owned
+    };
+    append_bytes(caller, control, &rest)?;
+    Ok(Out::Nothing)
+}
+
+fn os_resource_dir(caller: &mut Caller<'_, Host>, values: &[Val]) -> Result<Out> {
+    let control = integer(values, 0)?;
+    let Some(dir) = caller.data().resource_dir.clone() else {
+        return Ok(Out::Integer(0));
+    };
+    append_bytes(caller, control, &dir)?;
+    Ok(Out::Integer(1))
+}
+
+fn random_u64() -> u64 {
+    let mut buf = [0u8; 8];
+    if let Ok(mut f) = fs::File::open("/dev/urandom") {
+        if f.read_exact(&mut buf).is_ok() {
+            return u64::from_le_bytes(buf);
+        }
+    }
+    wall_ns() as u64 ^ (u64::from(std::process::id()) << 32)
+}
+
 /// Appends to the growable byte array whose control is at `control`: the
 /// module's exported `goose.reserve(control, count) -> address` makes the
 /// room, as a push in the program would (it grows memory, moves the array's
@@ -518,27 +702,15 @@ fn find_pair(caller: &mut Caller<'_, Host>, values: &[Val]) -> Result<Out> {
     let text = &data[span(data.len(), pointer, length)?];
     let first = &data[span(data.len(), first, 256)?];
     let second = &data[span(data.len(), second, 256)?];
-    if let Ok(distance) = usize::try_from(distance) {
-        let found = (0..text.len().saturating_sub(distance))
-            .find(|&index| first[usize::from(text[index])] != 0 && second[usize::from(text[index + distance])] != 0);
-        return Ok(Out::Integer(found.map_or(-1, |index| index as i64)));
-    }
-    // A negative distance, which std never passes: Python's indexing, where
-    // an index before the start counts from the end.
-    let (count, distance) = (text.len() as i128, i128::from(distance));
-    let at = |index: i128| -> Result<u8> {
-        let index = if index < 0 { index + count } else { index };
-        if index < 0 || index >= count {
-            return Err(failure("index out of range"));
-        }
-        Ok(text[index as usize])
+    let Ok(distance) = usize::try_from(distance) else {
+        return Ok(Out::Integer(-1));
     };
-    for index in 0..count - distance {
-        if first[usize::from(at(index)?)] != 0 && second[usize::from(at(index + distance)?)] != 0 {
-            return Ok(Out::Integer(index as i64));
-        }
+    if distance >= text.len() {
+        return Ok(Out::Integer(-1));
     }
-    Ok(Out::Integer(-1))
+    let found = (0..text.len() - distance)
+        .find(|&index| first[usize::from(text[index])] != 0 && second[usize::from(text[index + distance])] != 0);
+    Ok(Out::Integer(found.map_or(-1, |index| index as i64)))
 }
 
 // The WASI subset of the C oracle's standalone profile: 64-bit pointers and

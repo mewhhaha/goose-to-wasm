@@ -197,6 +197,55 @@ class WtimeHostExecutionTests(unittest.TestCase):
                 self.assertEqual(payload_wt.read_text(), "hello-wtime")
             self.assertTrue(cache.is_file())
 
+    def test_wasm32_and_wasm64_args_floats_and_os_externs(self):
+        code = (
+            "import os;\n"
+            "import std;\n"
+            'extern fn raw_find_pair(s: const u8[:], a: const ByteSet&, d: i64, b: const ByteSet&) -> i64 = "gs_find_pair";\n'
+            "fn main() {\n"
+            "    let a = args();\n"
+            "    var line: u8[>..] = [];\n"
+            "    let got_line = read_line(line);\n"
+            "    var rest: u8[>..] = [];\n"
+            "    read_stdin(rest);\n"
+            "    var rdir: u8[>..] = [];\n"
+            "    let has_rdir = resource_dir(rdir);\n"
+            "    let base = a[1];\n"
+            "    var sub: u8[>..] = [];\n"
+            '    sub.append(base); sub.append("/d");\n'
+            "    let mk = make_dir(sub[..]);\n"
+            "    var fa: u8[>..] = []; fa.append(sub[..]); fa.append(\"/b.txt\");\n"
+            "    var fb: u8[>..] = []; fb.append(sub[..]); fb.append(\"/a.txt\");\n"
+            '    let wa = write_file_atomic(fa[..], "ok");\n'
+            "    let rn = rename_file(fa[..], fb[..]);\n"
+            "    var listing: u8[>..] = [];\n"
+            "    let ld = list_dir(sub[..], listing);\n"
+            "    let df = delete_file(fb[..]);\n"
+            "    let dd = delete_dir(sub[..]);\n"
+            '    let set_a = byte_set("a");\n'
+            '    let fp_neg = raw_find_pair("abca", set_a, -1, set_a);\n'
+            '    let fp_ok = find_pair("abca", set_a, 3, set_a);\n'
+            "    let fz: f64 = 0.0; let fnz: f64 = -0.0; let f1: f64 = 1.0;\n"
+            "    let f32_p1: f32 = 0.1; let f32_nz: f32 = -0.0;\n"
+            '    print(a.len, "|", got_line, "|", line, "|", rest, "|", has_rdir && rdir.len > 0, "|",\n'
+            '          mk, wa, rn, ld, df, dd, "|", listing, "|", fp_neg, ",", fp_ok, "|",\n'
+            '          fz, " ", fnz, " ", f1, " ", f32_p1, " ", f32_nz);\n'
+            "}\n"
+        )
+        expected = "2|true|hello|world|true|truetruetruetruetruetrue|a.txt\n|-1,0|0.0 -0.0 1.0 0.1 -0.0\n"
+        for memory64 in (False, True):
+            wasm = self._compile(code, memory64=memory64)
+            sub = self.work / f"wtime_{memory64}"
+            sub.mkdir()
+            run = subprocess.run(
+                [str(WTIME_HOST), str(wasm), "--", str(sub)],
+                input="hello\r\nworld",
+                capture_output=True,
+                text=True,
+            )
+            self.assertEqual(run.returncode, 0, f"memory64={memory64}: {run.stderr}")
+            self.assertEqual(run.stdout, expected)
+
 
 if __name__ == "__main__":
     unittest.main()

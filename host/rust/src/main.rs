@@ -12,7 +12,7 @@ use std::path::PathBuf;
 use std::process::exit;
 
 use goose_wasmtime::pytext::normalized_path;
-use goose_wasmtime::run::{bytes_of, create_config, os_error_text, path_of, read_file, run_module_entry, Outcome, HOSTED_STACK_BYTES};
+use goose_wasmtime::run::{bytes_of, create_config, os_error_text, path_of, read_file, run_module_entry_with_resource_dir, Outcome, HOSTED_STACK_BYTES};
 
 const USAGE: &str = "usage: goose-wasmtime module.wasm [--entry name] [--timing-json path] [--cache path | --no-cache] [-- program arguments]";
 
@@ -103,10 +103,29 @@ fn read_stdin() -> Result<Vec<u8>, String> {
     Ok(input)
 }
 
+fn module_resource_dir(module: &PathBuf) -> Option<Vec<u8>> {
+    let resolved = std::fs::canonicalize(module).ok()?;
+    let parent = resolved.parent()?;
+    let mut bytes = bytes_of(parent);
+    if !bytes.ends_with(b"/") {
+        bytes.push(b'/');
+    }
+    Some(bytes)
+}
+
 fn run(options: &Options) -> Result<i64, String> {
+    let resource_dir = module_resource_dir(&options.module);
     let outcome = if options.arguments.is_none() && options.entry.is_none() {
         let data = read_file(&options.module)?;
-        run_module_entry(&data, read_stdin()?, vec![b"program".to_vec()], &create_config(false), options.cache.as_deref(), None)?
+        run_module_entry_with_resource_dir(
+            &data,
+            read_stdin()?,
+            vec![b"program".to_vec()],
+            &create_config(false),
+            options.cache.as_deref(),
+            None,
+            resource_dir,
+        )?
     } else {
         // On a thread whose stack holds the Wasm stack the config allows.
         let hosted = || -> Result<Outcome, String> {
@@ -115,13 +134,14 @@ fn run(options: &Options) -> Result<i64, String> {
             if let Some(arguments) = &options.arguments {
                 program.extend(arguments.iter().cloned());
             }
-            run_module_entry(
+            run_module_entry_with_resource_dir(
                 &data,
                 read_stdin()?,
                 program,
                 &create_config(true),
                 options.cache.as_deref(),
                 options.entry.as_deref(),
+                resource_dir.clone(),
             )
         };
         std::thread::scope(|scope| {

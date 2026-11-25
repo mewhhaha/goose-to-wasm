@@ -207,7 +207,8 @@ def prepare_module(data: bytes, artifact: Path) -> PreparedModule:
 
 def run_module(data: bytes, stdin: bytes | str, *, timing: bool = True,
                prepared: PreparedModule | None = None, arguments: list[str] | None = None,
-               config=None, cache: Path | None = None, invoke_start=None) -> dict:
+               config=None, cache: Path | None = None, invoke_start=None,
+               resource_dir: Path | None = None) -> dict:
     """Run a module; `stdin` is bytes as given, or a string as its UTF-8 bytes.
 
     fd_read sees exactly those bytes. Scalar imports read tokens from a
@@ -308,15 +309,87 @@ def run_module(data: bytes, stdin: bytes | str, *, timing: bool = True,
             return tried(action)
         return call
 
+    def write_file_atomic(_caller, path, data):
+        def action():
+            target = os.fsdecode(path)
+            tmp = f"{target}.tmp-{os.getpid()}-{os.urandom(6).hex()}"
+            try:
+                with open(tmp, "wb") as stream:
+                    stream.write(data)
+                    stream.flush()
+                    os.fsync(stream.fileno())
+                os.replace(tmp, target)
+            except BaseException:
+                try:
+                    os.unlink(tmp)
+                except OSError:
+                    pass
+                raise
+            return True
+        return tried(action)
+
+    def make_dir(_caller, path):
+        def action():
+            target = os.fsdecode(path)
+            try:
+                os.mkdir(target)
+                return True
+            except FileExistsError:
+                return os.path.isdir(target)
+        return tried(action)
+
+    def list_dir(caller, path, control):
+        def action():
+            names = sorted(name for name in os.listdir(os.fsdecode(path)) if "\n" not in name)
+            payload = "".join(name + "\n" for name in names).encode("utf-8", errors="surrogateescape")
+            append_bytes(caller, control, payload)
+            return True
+        return tried(action)
+
+    def read_line(caller, control):
+        nonlocal input_position
+        if input_position >= len(input_bytes):
+            return 0
+        nl = input_bytes.find(b"\n", input_position)
+        if nl < 0:
+            line = input_bytes[input_position:]
+            input_position = len(input_bytes)
+        else:
+            line = input_bytes[input_position:nl]
+            input_position = nl + 1
+        if line.endswith(b"\r"):
+            line = line[:-1]
+        append_bytes(caller, control, line)
+        return 1
+
+    def read_stdin(caller, control):
+        nonlocal input_position
+        if input_position < len(input_bytes):
+            append_bytes(caller, control, input_bytes[input_position:])
+            input_position = len(input_bytes)
+
     def program_argument(caller, index, control):
         if 0 <= index < len(program_arguments):
             append_bytes(caller, control, os.fsencode(program_arguments[index]))
 
     def environment_variable(caller, name, control):
-        value = os.environb.get(name)
+        if hasattr(os, "environb"):
+            value = os.environb.get(name)
+        else:
+            raw = os.environ.get(name.decode("utf-8", errors="surrogateescape"))
+            value = None if raw is None else raw.encode("utf-8")
         if value is None:
             return 0
         append_bytes(caller, control, value)
+        return 1
+
+    def resource_dir_host(caller, control):
+        if resource_dir is None:
+            return 0
+        text = str(resource_dir)
+        if not text.endswith(os.sep):
+            text += os.sep
+        append_bytes(caller, control, os.fsencode(text))
         return 1
 
     # std's byte-set searches: a set's members are its first 256 bytes.
@@ -328,6 +401,8 @@ def run_module(data: bytes, stdin: bytes | str, *, timing: bool = True,
         return -1
 
     def find_pair(caller, data, first, distance, second):
+        if distance < 0 or distance >= len(data):
+            return -1
         address = lambda value: value if value >= 0 else value & 0xffffffff
         a, b = memory_bytes(caller, address(first), 256), memory_bytes(caller, address(second), 256)
         for index in range(len(data) - distance):
@@ -440,18 +515,28 @@ def run_module(data: bytes, stdin: bytes | str, *, timing: bool = True,
         # (the compiler itself among them), as scripts/run_wasm.mjs has them.
         ("env", "gs_os_read_file"): (sliced("sr", read_file), True),
         ("env", "gs_os_write_file"): (sliced("ss", write_file("wb")), True),
+        ("env", "gs_os_write_file_atomic"): (sliced("ss", write_file_atomic), True),
         ("env", "gs_os_append_file"): (sliced("ss", write_file("ab")), True),
         ("env", "gs_os_file_exists"): (sliced("s", lambda _c, path: tried(lambda: os.path.isfile(path))), True),
+        ("env", "gs_os_remove_file"): (sliced("s", lambda _c, path: tried(lambda: (os.unlink(os.fsdecode(path)), True)[1])), True),
+        ("env", "gs_os_rename_file"): (sliced("ss", lambda _c, src, dst: tried(lambda: (os.replace(os.fsdecode(src), os.fsdecode(dst)), True)[1])), True),
+        ("env", "gs_os_make_dir"): (sliced("s", make_dir), True),
         ("env", "gs_os_is_dir"): (sliced("s", lambda _c, path: tried(lambda: os.path.isdir(path))), True),
+        ("env", "gs_os_remove_dir"): (sliced("s", lambda _c, path: tried(lambda: (os.rmdir(os.fsdecode(path)), True)[1])), True),
+        ("env", "gs_os_list_dir"): (sliced("sr", list_dir), True),
+        ("env", "gs_os_read_line"): (read_line, True),
+        ("env", "gs_os_read_stdin"): (read_stdin, True),
         ("env", "gs_os_write_stdout"): (sliced("s", lambda _c, text: chunks.append(text)), True),
         ("env", "gs_os_write_stderr"): (sliced("s", lambda _c, text: errors.append(text)), True),
         ("env", "gs_os_flush_stdout"): (lambda: None, False),
         ("env", "gs_os_arg_count"): (lambda: len(program_arguments), False),
         ("env", "gs_os_arg"): (program_argument, True),
         ("env", "gs_os_getenv"): (sliced("sr", environment_variable), True),
-        ("env", "gs_os_resource_dir"): (lambda _control: 0, False),
+        ("env", "gs_os_resource_dir"): (resource_dir_host, True),
         ("env", "gs_os_clock_ns"): (time.perf_counter_ns, False),
         ("env", "gs_os_time_ns"): (time.time_ns, False),
+        ("env", "gs_os_sleep_ms"): (lambda ms: time.sleep(ms / 1000.0) if ms > 0 else None, False),
+        ("env", "gs_os_random_u64"): (lambda: struct.unpack("<q", os.urandom(8))[0], False),
         ("env", "gs_find_any"): (sliced("sr", find_any), True),
         ("env", "gs_find_pair"): (sliced("srrr", find_pair), True),
         # No process can be started from here: libc's system fails.
@@ -582,8 +667,10 @@ def main() -> int:
         own, program_arguments = own[:at], own[at + 1:]
     args = parser.parse_args(own)
     try:
+        mod_dir = args.module.resolve().parent
         if program_arguments is None:
-            result = run_module(args.module.read_bytes(), sys.stdin.buffer.read(), timing=args.timing_json is not None, cache=args.cache)
+            result = run_module(args.module.read_bytes(), sys.stdin.buffer.read(), timing=args.timing_json is not None,
+                                cache=args.cache, resource_dir=mod_dir)
         else:
             # On a thread whose stack holds the Wasm stack the config allows.
             outcome: dict = {}
@@ -592,11 +679,17 @@ def main() -> int:
                 try:
                     outcome["result"] = run_module(
                         args.module.read_bytes(), sys.stdin.buffer.read(), timing=args.timing_json is not None,
-                        arguments=[str(args.module)] + program_arguments, config=create_hosted_config(), cache=args.cache)
+                        arguments=[str(args.module)] + program_arguments, config=create_hosted_config(),
+                        cache=args.cache, resource_dir=mod_dir)
                 except BaseException as failure:
                     outcome["failure"] = failure
 
-            threading.stack_size(HOSTED_STACK_BYTES + (64 << 20))
+            for stack_bytes in (HOSTED_STACK_BYTES + (64 << 20), 64 << 20, 16 << 20):
+                try:
+                    threading.stack_size(stack_bytes)
+                    break
+                except (ValueError, RuntimeError):
+                    continue
             thread = threading.Thread(target=hosted)
             thread.start()
             thread.join()

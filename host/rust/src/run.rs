@@ -96,7 +96,21 @@ pub fn run_module_entry(
     cache: Option<&Path>,
     entry: Option<&str>,
 ) -> std::result::Result<Outcome, String> {
-    let mut host = Some(Host::new(stdin, arguments));
+    run_module_entry_with_resource_dir(data, stdin, arguments, config, cache, entry, None)
+}
+
+pub fn run_module_entry_with_resource_dir(
+    data: &[u8],
+    stdin: Vec<u8>,
+    arguments: Vec<Vec<u8>>,
+    config: &Config,
+    cache: Option<&Path>,
+    entry: Option<&str>,
+    resource_dir: Option<Vec<u8>>,
+) -> std::result::Result<Outcome, String> {
+    let mut initial = Host::new(stdin, arguments);
+    initial.resource_dir = resource_dir;
+    let mut host = Some(initial);
     let mut store: Option<Store<Host>> = None;
     let mut instance: Option<Instance> = None;
     let started = Instant::now();

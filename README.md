@@ -177,7 +177,7 @@ Releases are versioned **`v<goose-version>-<n>`** (currently **`v2026.4-1`**), s
 - [Native Rust Wasmtime host](host/rust/README.md) — fast parallel Cranelift JIT, `.cwasm` caching, `--entry`, and Blot2 `env.blot_*` support
 - [Safe-Rust `wtime` host](host/wtime/README.md) — `#![forbid(unsafe_code)]` runner for Direct Goose Wasm32/Wasm64 and Blot2
 - [Compatibility tracker](docs/FEATURES.md) — feature-by-feature status vs upstream Goose & Blot2
-- [Self-hosted compiler & bootstrap](selfhost/README.md) — architecture, Snapshot 68 seed & fixed-point verification
+- [Self-hosted compiler & bootstrap](selfhost/README.md) — architecture, Snapshot 69 seed & fixed-point verification
 - [Conformance & qualification](tests/README.md) — test suites and qualification gates
 - [Examples](examples/README.md) — runnable Goose sample programs
 - [Contributing](CONTRIBUTING.md) · [Code of Conduct](CODE_OF_CONDUCT.md) · [Security policy](SECURITY.md) — local verification, PR workflow, and approval-gated CI

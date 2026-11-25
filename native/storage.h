@@ -21,6 +21,11 @@
 #define WIN32_LEAN_AND_MEAN
 #endif
 #include <windows.h>
+#include <fcntl.h>
+#include <io.h>
+#ifndef WC_ERR_INVALID_CHARS
+#define WC_ERR_INVALID_CHARS 0x80
+#endif
 #define flockfile(f) _lock_file(f)
 #define funlockfile(f) _unlock_file(f)
 #else
@@ -692,37 +697,78 @@ static uint64_t g_float_wrap(double a) { if(a!=a)return 0;if(!isfinite(a)) g_pan
 static inline void g_print_bytes(GArray *out,const void *p,int64_t n) { if(out) g_bytes(out,p,n); else if(n) fwrite(p,1,(size_t)n,stdout); }
 static inline void g_print_text(GArray *out,const char *s) { g_print_bytes(out,s,(int64_t)strlen(s)); }
 static char *g_path(GSlice p) { if(p.len<0 || p.len>=4096) return NULL; char *s=g_alloc((size_t)p.len+1); if(p.len) memcpy(s,g_address(p.base),(size_t)p.len); if(memchr(s,0,(size_t)p.len)) return NULL; return s; }
-static int g_os_read_file(GSlice path,GRef out) { char *s=g_path(path); if(!s) return 0; FILE *f=fopen(s,"rb"); if(!f) return 0; GArray a; memcpy(&a,g_address(out),sizeof a); unsigned char b[16384]; size_t n; while((n=fread(b,1,sizeof b,f))) g_bytes(&a,b,(int64_t)n); int ok=!ferror(f); fclose(f); memcpy(g_address(out),&a,sizeof a); return ok; }
-static int g_os_write_file(GSlice path,GSlice data,const char *mode) { char *s=g_path(path); if(!s) return 0; FILE *f=fopen(s,mode); if(!f) return 0; int ok=fwrite(g_address(data.base),1,(size_t)data.len,f)==(size_t)data.len; return fclose(f)==0 && ok; }
 #ifdef _WIN32
+static int g_wpath(GSlice p,wchar_t *buf) {
+    if(p.len<0 || p.len>=4096) return -1;
+    const char *src=p.len?(const char*)g_address(p.base):"";
+    if(p.len && memchr(src,0,(size_t)p.len)) return -1;
+    int n=0;
+    if(p.len) { n=MultiByteToWideChar(CP_UTF8,MB_ERR_INVALID_CHARS,src,(int)p.len,buf,4095); if(n<=0) return -1; }
+    buf[n]=0; return n;
+}
+static int g_wappend(GArray *a,const wchar_t *w,int n) {
+    if(n<=0) return 1;
+    int k=WideCharToMultiByte(CP_UTF8,WC_ERR_INVALID_CHARS,w,n,NULL,0,NULL,NULL);
+    if(k<=0) return 0;
+    char *s=(char*)malloc((size_t)k); if(!s) gs_panic("out of memory");
+    int ok=WideCharToMultiByte(CP_UTF8,WC_ERR_INVALID_CHARS,w,n,s,k,NULL,NULL)==k;
+    if(ok) g_bytes(a,s,(int64_t)k);
+    free(s); return ok;
+}
+static int g_os_read_file(GSlice path,GRef out) { wchar_t w[4096]; if(g_wpath(path,w)<0) return 0; FILE *f=_wfopen(w,L"rb"); if(!f) return 0; GArray a; memcpy(&a,g_address(out),sizeof a); unsigned char b[16384]; size_t n; while((n=fread(b,1,sizeof b,f))) g_bytes(&a,b,(int64_t)n); int ok=!ferror(f); fclose(f); memcpy(g_address(out),&a,sizeof a); return ok; }
+static int g_os_write_file(GSlice path,GSlice data,const char *mode) { wchar_t w[4096]; if(g_wpath(path,w)<0) return 0; FILE *f=_wfopen(w,(mode&&mode[0]=='a')?L"ab":L"wb"); if(!f) return 0; int ok=fwrite(g_address(data.base),1,(size_t)data.len,f)==(size_t)data.len; return fclose(f)==0 && ok; }
 static int g_os_write_atomic(GSlice path,GSlice data) {
-    char *s=g_path(path); if(!s) return 0;
-    size_t n=strlen(s); char *tmp=g_alloc(n+48);
+    wchar_t w[4096],tmp[4160]; if(g_wpath(path,w)<=0) return 0;
     static volatile LONG64 g_tmp_seq;
     unsigned long long seq=(unsigned long long)InterlockedIncrement64(&g_tmp_seq);
-    snprintf(tmp,n+48,"%s.tmp-%lu-%llu",s,(unsigned long)GetCurrentProcessId(),seq);
-    FILE *f=fopen(tmp,"wb"); if(!f) return 0;
+    int n=swprintf(tmp,4160,L"%ls.tmp-%lu-%llu",w,(unsigned long)GetCurrentProcessId(),seq);
+    if(n<=0 || n>=4160) return 0;
+    FILE *f=_wfopen(tmp,L"wb"); if(!f) return 0;
     int ok=fwrite(g_address(data.base),1,(size_t)data.len,f)==(size_t)data.len;
     if(fflush(f)) ok=0;
     if(fclose(f)) ok=0;
     if(ok) {
         ok=0;
         for(DWORD wait=0;;wait=wait?wait*2:1) {
-            if(MoveFileExA(tmp,s,MOVEFILE_REPLACE_EXISTING|MOVEFILE_WRITE_THROUGH)) { ok=1; break; }
-            DWORD e=GetLastError(),a=GetFileAttributesA(s);
+            if(MoveFileExW(tmp,w,MOVEFILE_REPLACE_EXISTING|MOVEFILE_WRITE_THROUGH)) { ok=1; break; }
+            DWORD e=GetLastError(),a=GetFileAttributesW(w);
             if((e!=ERROR_ACCESS_DENIED && e!=ERROR_SHARING_VIOLATION) || wait>512 ||
                (a!=INVALID_FILE_ATTRIBUTES && (a&(FILE_ATTRIBUTE_DIRECTORY|FILE_ATTRIBUTE_READONLY)))) break;
             Sleep(wait);
         }
     }
-    if(!ok) DeleteFileA(tmp);
+    if(!ok) DeleteFileW(tmp);
     return ok;
 }
-static int g_os_kind(GSlice path) { char *s=g_path(path); if(!s) return 0; DWORD a=GetFileAttributesA(s); if(a==INVALID_FILE_ATTRIBUTES) return 0; return (a&FILE_ATTRIBUTE_DIRECTORY)?2:1; }
-static int g_os_line(GRef out) { GArray a; memcpy(&a,g_address(out),sizeof a); int c; int any=0; while((c=fgetc(stdin))!=EOF) { any=1; if(c==10) break; unsigned char b=(unsigned char)c; g_bytes(&a,&b,1); } if(a.len && a.data[a.len-1]==13) a.len--; memcpy(g_address(out),&a,sizeof a); return any; }
-static void g_os_stdin(GRef out) { GArray a; memcpy(&a,g_address(out),sizeof a); unsigned char b[16384]; size_t n; while((n=fread(b,1,sizeof b,stdin))) g_bytes(&a,b,(int64_t)n); memcpy(g_address(out),&a,sizeof a); }
-static void g_os_arg(int64_t i,GRef out) { if(i<0 || i>=g_argc) return; GArray a; memcpy(&a,g_address(out),sizeof a); g_bytes(&a,g_argv[i],(int64_t)strlen(g_argv[i])); memcpy(g_address(out),&a,sizeof a); }
-static int g_os_env(GSlice name,GRef out) { char *n=g_path(name); const char *v=NULL; if(n) v=getenv(n); if(!v) return 0; GArray a; memcpy(&a,g_address(out),sizeof a); g_bytes(&a,v,(int64_t)strlen(v)); memcpy(g_address(out),&a,sizeof a); return 1; }
+static int g_os_kind(GSlice path) { wchar_t w[4096]; if(g_wpath(path,w)<0) return 0; DWORD a=GetFileAttributesW(w); if(a==INVALID_FILE_ATTRIBUTES) return 0; return (a&FILE_ATTRIBUTE_DIRECTORY)?2:1; }
+static void g_os_stdin_binary(void) { static int done; if(!done) { done=1; _setmode(_fileno(stdin),_O_BINARY); } }
+static int g_os_line(GRef out) { g_os_stdin_binary(); GArray a; memcpy(&a,g_address(out),sizeof a); int c; int any=0; while((c=fgetc(stdin))!=EOF) { any=1; if(c==10) break; unsigned char b=(unsigned char)c; g_bytes(&a,&b,1); } if(a.len && a.data[a.len-1]==13) a.len--; memcpy(g_address(out),&a,sizeof a); return any; }
+static void g_os_stdin(GRef out) { g_os_stdin_binary(); GArray a; memcpy(&a,g_address(out),sizeof a); unsigned char b[16384]; size_t n; while((n=fread(b,1,sizeof b,stdin))) g_bytes(&a,b,(int64_t)n); memcpy(g_address(out),&a,sizeof a); }
+static void g_os_arg(int64_t i,GRef out) {
+    if(i<0 || i>=g_argc) return;
+    GArray a; memcpy(&a,g_address(out),sizeof a);
+    const char *arg=g_argv[i];
+    int wn=MultiByteToWideChar(CP_ACP,0,arg,-1,NULL,0);
+    wchar_t *w=wn>0?(wchar_t*)malloc((size_t)wn*sizeof *w):NULL;
+    int ok=w && MultiByteToWideChar(CP_ACP,0,arg,-1,w,wn)==wn && g_wappend(&a,w,wn-1);
+    free(w);
+    if(!ok) g_bytes(&a,arg,(int64_t)strlen(arg));
+    memcpy(g_address(out),&a,sizeof a);
+}
+static int g_os_env(GSlice name,GRef out) {
+    wchar_t nm[4096]; if(g_wpath(name,nm)<0) return 0;
+    wchar_t small[512],*v=small; DWORD cap=512,len;
+    for(;;) {
+        SetLastError(0); len=GetEnvironmentVariableW(nm,v,cap);
+        if(len<cap) break;
+        if(v!=small) free(v);
+        cap=len; v=(wchar_t*)malloc((size_t)cap*sizeof *v); if(!v) return 0;
+    }
+    int ok=len>0 || GetLastError()!=ERROR_ENVVAR_NOT_FOUND;
+    if(ok) { GArray a; memcpy(&a,g_address(out),sizeof a); ok=g_wappend(&a,v,(int)len); memcpy(g_address(out),&a,sizeof a); }
+    if(v!=small) free(v);
+    return ok?1:0;
+}
 static int64_t g_os_time(int monotonic) {
     if(monotonic) { LARGE_INTEGER f,c; if(!QueryPerformanceFrequency(&f) || !QueryPerformanceCounter(&c)) return 0; return (int64_t)((double)c.QuadPart*(1000000000.0/(double)f.QuadPart)); }
     FILETIME ft; GetSystemTimeAsFileTime(&ft);
@@ -737,18 +783,21 @@ static uint64_t g_os_random(void) {
 }
 static int g_sort_names(const void *a,const void *b) { return strcmp(*(const char *const *)a,*(const char *const *)b); }
 static int g_os_list(GSlice path,GRef out) {
-    char *s=g_path(path); if(!s || !s[0]) return 0;
-    size_t len=strlen(s); char *pat=g_alloc(len+4); memcpy(pat,s,len);
-    if(pat[len-1]!='/' && pat[len-1]!='\\' && pat[len-1]!=':') pat[len++]='\\';
-    pat[len++]='*'; pat[len]=0;
-    WIN32_FIND_DATAA e; HANDLE h=FindFirstFileA(pat,&e);
+    wchar_t pat[4100]; int len=g_wpath(path,pat); if(len<=0) return 0;
+    if(pat[len-1]!=L'/' && pat[len-1]!=L'\\' && pat[len-1]!=L':') pat[len++]=L'\\';
+    pat[len++]=L'*'; pat[len]=0;
+    WIN32_FIND_DATAW e; HANDLE h=FindFirstFileW(pat,&e);
     if(h==INVALID_HANDLE_VALUE) return GetLastError()==ERROR_FILE_NOT_FOUND && g_os_kind(path)==2;
     char **names=NULL; size_t n=0,cap=0;
     do {
-        if(!strcmp(e.cFileName,".") || !strcmp(e.cFileName,"..") || strchr(e.cFileName,10)) continue;
+        if((e.cFileName[0]==L'.' && (!e.cFileName[1] || (e.cFileName[1]==L'.' && !e.cFileName[2])))) continue;
+        int k=WideCharToMultiByte(CP_UTF8,WC_ERR_INVALID_CHARS,e.cFileName,-1,NULL,0,NULL,NULL);
+        if(k<=1) continue;
+        char *u=(char*)malloc((size_t)k); if(!u) gs_panic("out of memory");
+        if(WideCharToMultiByte(CP_UTF8,WC_ERR_INVALID_CHARS,e.cFileName,-1,u,k,NULL,NULL)!=k || strchr(u,10)) { free(u); continue; }
         if(n==cap) { cap=cap*2+16; names=realloc(names,cap*sizeof *names); if(!names) gs_panic("out of memory"); }
-        size_t nl=strlen(e.cFileName)+1; names[n]=malloc(nl); if(!names[n]) gs_panic("out of memory"); memcpy(names[n],e.cFileName,nl); n++;
-    } while(FindNextFileA(h,&e));
+        names[n++]=u;
+    } while(FindNextFileW(h,&e));
     FindClose(h);
     qsort(names,n,sizeof *names,g_sort_names);
     GArray a; memcpy(&a,g_address(out),sizeof a);
@@ -756,6 +805,8 @@ static int g_os_list(GSlice path,GRef out) {
     free(names); memcpy(g_address(out),&a,sizeof a); return 1;
 }
 #else
+static int g_os_read_file(GSlice path,GRef out) { char *s=g_path(path); if(!s) return 0; FILE *f=fopen(s,"rb"); if(!f) return 0; GArray a; memcpy(&a,g_address(out),sizeof a); unsigned char b[16384]; size_t n; while((n=fread(b,1,sizeof b,f))) g_bytes(&a,b,(int64_t)n); int ok=!ferror(f); fclose(f); memcpy(g_address(out),&a,sizeof a); return ok; }
+static int g_os_write_file(GSlice path,GSlice data,const char *mode) { char *s=g_path(path); if(!s) return 0; FILE *f=fopen(s,mode); if(!f) return 0; int ok=fwrite(g_address(data.base),1,(size_t)data.len,f)==(size_t)data.len; return fclose(f)==0 && ok; }
 static int g_os_write_atomic(GSlice path,GSlice data) { char *s=g_path(path); if(!s) return 0; size_t n=strlen(s); char *tmp=g_alloc(n+16); memcpy(tmp,s,n); memcpy(tmp+n,".tmp-XXXXXX",12); int fd=mkstemp(tmp); if(fd<0) return 0; FILE *f=fdopen(fd,"wb"); if(!f) { close(fd); unlink(tmp); return 0; } int ok=fwrite(g_address(data.base),1,(size_t)data.len,f)==(size_t)data.len; if(fflush(f)||fsync(fd)) ok=0; if(fclose(f)) ok=0; if(ok && rename(tmp,s)) ok=0; if(!ok) unlink(tmp); return ok; }
 static int g_os_kind(GSlice path) { char *s=g_path(path); struct stat st; if(!s || stat(s,&st)) return 0; if(S_ISDIR(st.st_mode)) return 2; return 1; }
 static int g_os_line(GRef out) { GArray a; memcpy(&a,g_address(out),sizeof a); int c; int any=0; while((c=fgetc(stdin))!=EOF) { any=1; if(c==10) break; unsigned char b=(unsigned char)c; g_bytes(&a,&b,1); } if(a.len && a.data[a.len-1]==13) a.len--; memcpy(g_address(out),&a,sizeof a); return any; }

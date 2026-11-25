@@ -7,7 +7,9 @@
 //!               [--max-instructions N] [--max-memory-mb N] [--timing-json PATH]
 //!               [-- program arguments...]
 
-use std::collections::HashMap;
+mod float;
+
+use std::collections::{HashMap, HashSet};
 use std::ffi::OsStr;
 use std::fs::{self, File, OpenOptions};
 use std::io::{self, Read, Seek, SeekFrom, Write};
@@ -51,6 +53,7 @@ struct HostState {
     memory: Option<Memory>,
     reserve_fn: Option<Func>,
     args: Vec<Vec<u8>>,
+    resource_dir: Option<Vec<u8>>,
     start_instant: Instant,
     next_owner: AtomicU64,
     next_fd: i32,
@@ -63,11 +66,12 @@ struct HostState {
 }
 
 impl HostState {
-    fn new(args: Vec<Vec<u8>>) -> Self {
+    fn new(args: Vec<Vec<u8>>, resource_dir: Option<Vec<u8>>) -> Self {
         Self {
             memory: None,
             reserve_fn: None,
             args,
+            resource_dir,
             start_instant: Instant::now(),
             next_owner: AtomicU64::new(1),
             next_fd: 3,
@@ -174,27 +178,6 @@ fn path_from_bytes(bytes: &[u8]) -> PathBuf {
     PathBuf::from(OsStr::from_bytes(bytes))
 }
 
-fn format_float_goose(val: f64) -> String {
-    if val.is_nan() {
-        return "nan".to_string();
-    }
-    if val.is_infinite() {
-        return if val.is_sign_negative() {
-            "-inf".to_string()
-        } else {
-            "inf".to_string()
-        };
-    }
-    if val == 0.0 {
-        return if val.is_sign_negative() {
-            "-0".to_string()
-        } else {
-            "0".to_string()
-        };
-    }
-    format!("{val}")
-}
-
 fn pure_frexp(x: f64) -> (f64, i32) {
     if x == 0.0 || !x.is_finite() {
         return (x, 0);
@@ -294,7 +277,7 @@ fn dispatch_import(
     state: &Arc<Mutex<HostState>>,
     params: &[ValType],
 ) -> Result<Out, Error> {
-    let wide = params.iter().any(|p| *p == ValType::I64);
+    let header_wide = params.last() == Some(&ValType::I64);
     match (module, name) {
         // --- goose.* core host ---
         ("goose", "write") => {
@@ -314,15 +297,11 @@ fn dispatch_import(
             Ok(Out::Void)
         }
         ("goose", "print_f64") => {
-            let _ = write!(io::stdout(), "{}", format_float_goose(arg_f64(args, 0)?));
+            let _ = write!(io::stdout(), "{}", float::f64_text(arg_f64(args, 0)?));
             Ok(Out::Void)
         }
         ("goose", "print_f32") => {
-            let _ = write!(
-                io::stdout(),
-                "{}",
-                format_float_goose(f64::from(arg_f32(args, 0)?))
-            );
+            let _ = write!(io::stdout(), "{}", float::f32_text(arg_f32(args, 0)?));
             Ok(Out::Void)
         }
         ("goose", "print_bool") => {
@@ -340,7 +319,7 @@ fn dispatch_import(
         ("goose", "format_f64") => {
             let mem = mem_of(state)?;
             let ptr = arg_u64(args, 0)?;
-            let text = format_float_goose(arg_f64(args, 1)?);
+            let text = float::f64_text(arg_f64(args, 1)?);
             let bytes = text.as_bytes();
             if bytes.len() > 32 {
                 return Err(host_err("formatted float exceeds host buffer"));
@@ -351,7 +330,7 @@ fn dispatch_import(
         ("goose", "format_f32") => {
             let mem = mem_of(state)?;
             let ptr = arg_u64(args, 0)?;
-            let text = format_float_goose(f64::from(arg_f32(args, 1)?));
+            let text = float::f32_text(arg_f32(args, 1)?);
             let bytes = text.as_bytes();
             if bytes.len() > 32 {
                 return Err(host_err("formatted float exceeds host buffer"));
@@ -445,7 +424,7 @@ fn dispatch_import(
                 .get(idx)
                 .cloned()
                 .unwrap_or_default();
-            reserve_and_append(caller, state, header, &data, wide)?;
+            reserve_and_append(caller, state, header, &data, header_wide)?;
             Ok(Out::Void)
         }
         ("env", "gs_os_read_file") => {
@@ -456,7 +435,7 @@ fn dispatch_import(
             let path_bytes = caller.store().read_memory(mem, ptr, len)?;
             match fs::read(path_from_bytes(&path_bytes)) {
                 Ok(data) => {
-                    reserve_and_append(caller, state, header, &data, is_wide)?;
+                    reserve_and_append(caller, state, header, &data, header_wide)?;
                     Ok(Out::Int(1))
                 }
                 Err(_) => Ok(Out::Int(0)),
@@ -482,17 +461,140 @@ fn dispatch_import(
                 .is_ok();
             Ok(Out::Int(if ok { 1 } else { 0 }))
         }
+        ("env", "gs_os_write_file_atomic") => {
+            let mem = mem_of(state)?;
+            let is_wide = args.len() > 2;
+            let (p_ptr, p_len) = read_slice_arg(args, 0, is_wide)?;
+            let (d_ptr, d_len) = read_slice_arg(args, if is_wide { 2 } else { 1 }, is_wide)?;
+            let path_bytes = caller.store().read_memory(mem, p_ptr, p_len)?;
+            let data = caller.store().read_memory(mem, d_ptr, d_len)?;
+            let target = path_from_bytes(&path_bytes);
+            let seq = state.lock().unwrap().next_owner.fetch_add(1, Ordering::Relaxed);
+            let mut tmp = target.as_os_str().to_os_string();
+            tmp.push(format!(".tmp-{}-{seq}", std::process::id()));
+            let tmp_path = PathBuf::from(tmp);
+            let ok = OpenOptions::new()
+                .write(true)
+                .create_new(true)
+                .open(&tmp_path)
+                .and_then(|mut f| {
+                    f.write_all(&data)?;
+                    f.sync_all()
+                })
+                .and_then(|()| fs::rename(&tmp_path, &target))
+                .is_ok();
+            if !ok {
+                let _ = fs::remove_file(&tmp_path);
+            }
+            Ok(Out::Int(if ok { 1 } else { 0 }))
+        }
         ("env", "gs_os_file_exists") => {
             let mem = mem_of(state)?;
             let (ptr, len) = read_slice_arg(args, 0, args.len() > 1)?;
             let path = path_from_bytes(&caller.store().read_memory(mem, ptr, len)?);
             Ok(Out::Int(if path.is_file() { 1 } else { 0 }))
         }
+        ("env", "gs_os_remove_file") => {
+            let mem = mem_of(state)?;
+            let (ptr, len) = read_slice_arg(args, 0, args.len() > 1)?;
+            let path = path_from_bytes(&caller.store().read_memory(mem, ptr, len)?);
+            Ok(Out::Int(if fs::remove_file(&path).is_ok() { 1 } else { 0 }))
+        }
+        ("env", "gs_os_rename_file") => {
+            let mem = mem_of(state)?;
+            let is_wide = args.len() > 2;
+            let (a_ptr, a_len) = read_slice_arg(args, 0, is_wide)?;
+            let (b_ptr, b_len) = read_slice_arg(args, if is_wide { 2 } else { 1 }, is_wide)?;
+            let src = path_from_bytes(&caller.store().read_memory(mem, a_ptr, a_len)?);
+            let dst = path_from_bytes(&caller.store().read_memory(mem, b_ptr, b_len)?);
+            Ok(Out::Int(if fs::rename(&src, &dst).is_ok() { 1 } else { 0 }))
+        }
+        ("env", "gs_os_make_dir") => {
+            let mem = mem_of(state)?;
+            let (ptr, len) = read_slice_arg(args, 0, args.len() > 1)?;
+            let path = path_from_bytes(&caller.store().read_memory(mem, ptr, len)?);
+            let ok = match fs::create_dir(&path) {
+                Ok(()) => true,
+                Err(e) if e.kind() == io::ErrorKind::AlreadyExists => path.is_dir(),
+                Err(_) => false,
+            };
+            Ok(Out::Int(if ok { 1 } else { 0 }))
+        }
         ("env", "gs_os_is_dir") => {
             let mem = mem_of(state)?;
             let (ptr, len) = read_slice_arg(args, 0, args.len() > 1)?;
             let path = path_from_bytes(&caller.store().read_memory(mem, ptr, len)?);
             Ok(Out::Int(if path.is_dir() { 1 } else { 0 }))
+        }
+        ("env", "gs_os_remove_dir") => {
+            let mem = mem_of(state)?;
+            let (ptr, len) = read_slice_arg(args, 0, args.len() > 1)?;
+            let path = path_from_bytes(&caller.store().read_memory(mem, ptr, len)?);
+            Ok(Out::Int(if fs::remove_dir(&path).is_ok() { 1 } else { 0 }))
+        }
+        ("env", "gs_os_list_dir") => {
+            let mem = mem_of(state)?;
+            let is_wide = args.len() > 2;
+            let (ptr, len) = read_slice_arg(args, 0, is_wide)?;
+            let header = arg_u64(args, if is_wide { 2 } else { 1 })?;
+            let path = path_from_bytes(&caller.store().read_memory(mem, ptr, len)?);
+            match fs::read_dir(&path) {
+                Ok(rd) => {
+                    let mut names: Vec<Vec<u8>> = Vec::new();
+                    for item in rd {
+                        let Ok(entry) = item else { continue };
+                        let b = entry.file_name().into_vec();
+                        if !b.contains(&b'\n') {
+                            names.push(b);
+                        }
+                    }
+                    names.sort();
+                    let mut out = Vec::new();
+                    for name in names {
+                        out.extend_from_slice(&name);
+                        out.push(b'\n');
+                    }
+                    reserve_and_append(caller, state, header, &out, header_wide)?;
+                    Ok(Out::Int(1))
+                }
+                Err(_) => Ok(Out::Int(0)),
+            }
+        }
+        ("env", "gs_os_read_line") => {
+            let header = arg_u64(args, 0)?;
+            let mut stdin = io::stdin().lock();
+            let mut line = Vec::new();
+            let mut byte = [0u8; 1];
+            let mut got_any = false;
+            loop {
+                match stdin.read(&mut byte) {
+                    Ok(0) => break,
+                    Ok(_) => {
+                        got_any = true;
+                        if byte[0] == b'\n' {
+                            break;
+                        }
+                        line.push(byte[0]);
+                    }
+                    Err(e) if e.kind() == io::ErrorKind::Interrupted => continue,
+                    Err(_) => break,
+                }
+            }
+            if !got_any {
+                return Ok(Out::Int(0));
+            }
+            if line.last() == Some(&b'\r') {
+                line.pop();
+            }
+            reserve_and_append(caller, state, header, &line, header_wide)?;
+            Ok(Out::Int(1))
+        }
+        ("env", "gs_os_read_stdin") => {
+            let header = arg_u64(args, 0)?;
+            let mut data = Vec::new();
+            let _ = io::stdin().lock().read_to_end(&mut data);
+            reserve_and_append(caller, state, header, &data, header_wide)?;
+            Ok(Out::Void)
         }
         ("env", "gs_os_getenv") => {
             let mem = mem_of(state)?;
@@ -502,13 +604,51 @@ fn dispatch_import(
             let key = caller.store().read_memory(mem, ptr, len)?;
             match std::env::var_os(OsStr::from_bytes(&key)) {
                 Some(val) => {
-                    reserve_and_append(caller, state, header, val.as_bytes(), is_wide)?;
+                    reserve_and_append(caller, state, header, val.as_bytes(), header_wide)?;
                     Ok(Out::Int(1))
                 }
                 None => Ok(Out::Int(0)),
             }
         }
-        ("env", "gs_os_resource_dir") => Ok(Out::Int(0)),
+        ("env", "gs_os_resource_dir") => {
+            let header = arg_u64(args, 0)?;
+            let dir = state.lock().unwrap().resource_dir.clone();
+            if let Some(bytes) = dir {
+                reserve_and_append(caller, state, header, &bytes, header_wide)?;
+                Ok(Out::Int(1))
+            } else {
+                Ok(Out::Int(0))
+            }
+        }
+        ("env", "gs_find_any") => {
+            let mem = mem_of(state)?;
+            let is_wide = args.len() > 2;
+            let (ptr, len) = read_slice_arg(args, 0, is_wide)?;
+            let set_ptr = arg_u64(args, if is_wide { 2 } else { 1 })?;
+            let data = caller.store().read_memory(mem, ptr, len)?;
+            let table = caller.store().read_memory(mem, set_ptr, 256)?;
+            let found = data.iter().position(|&b| table[usize::from(b)] != 0);
+            Ok(Out::Int(found.map_or(-1, |i| i as i64)))
+        }
+        ("env", "gs_find_pair") => {
+            let mem = mem_of(state)?;
+            let is_wide = args.len() > 4;
+            let (ptr, len) = read_slice_arg(args, 0, is_wide)?;
+            let base = if is_wide { 2 } else { 1 };
+            let first_ptr = arg_u64(args, base)?;
+            let distance = arg_i64(args, base + 1)?;
+            let second_ptr = arg_u64(args, base + 2)?;
+            if distance < 0 || (distance as usize) >= len {
+                return Ok(Out::Int(-1));
+            }
+            let d = distance as usize;
+            let data = caller.store().read_memory(mem, ptr, len)?;
+            let first = caller.store().read_memory(mem, first_ptr, 256)?;
+            let second = caller.store().read_memory(mem, second_ptr, 256)?;
+            let found = (0..data.len() - d)
+                .find(|&i| first[usize::from(data[i])] != 0 && second[usize::from(data[i + d])] != 0);
+            Ok(Out::Int(found.map_or(-1, |i| i as i64)))
+        }
         ("env", "gs_os_clock_ns" | "bench_clock" | "blot_clock_ns" | "blot_thread_cpu_ns") => {
             let elapsed = state.lock().unwrap().start_instant.elapsed().as_nanos() as i64;
             Ok(Out::Int(elapsed))
@@ -1135,13 +1275,31 @@ fn run_module(opts: &Options) -> Result<i32, String> {
         .map_err(|e| format!("wtime compile error: {e}"))?;
     let compile_ns = t0.elapsed().as_nanos() as u64;
 
-    let state = Arc::new(Mutex::new(HostState::new(opts.program_args.clone())));
+    let resource_dir = fs::canonicalize(&opts.module)
+        .ok()
+        .and_then(|p| {
+            p.parent().map(|d| {
+                let mut bytes = d.as_os_str().as_bytes().to_vec();
+                if !bytes.ends_with(b"/") {
+                    bytes.push(b'/');
+                }
+                bytes
+            })
+        });
+    let state = Arc::new(Mutex::new(HostState::new(
+        opts.program_args.clone(),
+        resource_dir,
+    )));
     let mut store = Store::new(&engine);
     let mut linker = Linker::new(&engine);
 
+    let mut defined: HashSet<(String, String)> = HashSet::new();
     for (imp_mod, imp_name, _ty_idx, func_ty) in module.function_imports() {
         let mod_str = imp_mod.to_string();
         let name_str = imp_name.to_string();
+        if !defined.insert((mod_str.clone(), name_str.clone())) {
+            continue;
+        }
         let params = func_ty.params.clone();
         let results = func_ty.results.clone();
         let st = Arc::clone(&state);
