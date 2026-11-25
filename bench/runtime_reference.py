@@ -554,7 +554,7 @@ def parser():
     result.add_argument("--native-compilers", nargs="+", choices=("gcc", "clang"), default=["gcc", "clang"])
     result.add_argument("--native-levels", nargs="+", type=int, choices=(2, 3), default=[2, 3])
     result.add_argument("--march", nargs="+", choices=("generic", "native"), default=["generic", "native"])
-    result.add_argument("--goose", type=Path, default=ROOT/"build/bin/goose")
+    result.add_argument("--goose", type=Path, default=ROOT/"build/bin/goosew")
     result.add_argument("--host", type=Path, default=ROOT/"build/bin/goose-wasmtime")
     result.add_argument("--cc", default="gcc")
     result.add_argument("--clang", default="clang-23")

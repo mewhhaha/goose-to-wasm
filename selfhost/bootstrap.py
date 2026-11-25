@@ -301,7 +301,7 @@ def main():
                                            reused['compiler']: reused['compiler_sha256']})
         else:
             actual_build = build(c_source, seed_executable, 'build-seed', pin.get('goose_optimization', 0))
-        executable = out / 'goose'
+        executable = out / 'goosew'
         if args.seed_only:
             shutil.copyfile(seed_executable, executable)
             executable.chmod(0o755)
@@ -372,7 +372,7 @@ def main():
                     report['third_generation_c_sha256'] = digest(third)
                     if digest(following) != digest(third):
                         raise RuntimeError('self-hosted C output differs between generations')
-                    pending = out / '.verified-goose'
+                    pending = out / '.verified-goosew'
                     shutil.copyfile(second, pending)
                     pending.chmod(0o755)
                     pending.replace(executable)

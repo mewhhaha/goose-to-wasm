@@ -384,7 +384,7 @@ def main() -> int:
     parser.add_argument("--cpu", type=int)
     parser.add_argument("--seed", type=int, default=20261107)
     parser.add_argument("--output-dir", type=Path, required=True)
-    parser.add_argument("--goose", type=Path, default=ROOT / "build/bin/goose")
+    parser.add_argument("--goose", type=Path, default=ROOT / "build/bin/goosew")
     parser.add_argument("--stdlib", type=Path, default=ROOT / "build/bin/stdlib")
     parser.add_argument("--upstream-goose", type=Path, required=True)
     parser.add_argument("--upstream-stdlib", type=Path, required=True)

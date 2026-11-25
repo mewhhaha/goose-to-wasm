@@ -211,7 +211,7 @@ def render(report):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--goose", type=Path, default=ROOT / "build" / "bin" / "goose")
+    parser.add_argument("--goose", type=Path, default=ROOT / "build" / "bin" / "goosew")
     parser.add_argument("--cc", default=os.environ.get("CC", "cc"))
     parser.add_argument("--node", default="node")
     parser.add_argument("--machine-label", help="optional independently observed hardware description, recorded as supplied")

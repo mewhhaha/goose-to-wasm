@@ -170,7 +170,7 @@ def main():
     manifest = json.loads(CATALOG.read_text())
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("examples", nargs="*")
-    parser.add_argument("--goose", type=Path, default=ROOT / "build/bin/goose")
+    parser.add_argument("--goose", type=Path, default=ROOT / "build/bin/goosew")
     parser.add_argument("--stdlib", type=Path, help="Goose library for every measured build")
     parser.add_argument("--cc", default=os.environ.get("CC", "gcc"))
     parser.add_argument("--node", default="node")

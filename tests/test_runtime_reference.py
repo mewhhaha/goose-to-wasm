@@ -127,7 +127,7 @@ class RuntimeReference(unittest.TestCase):
     def test_optimizer_command_retains_standard_simd_and_memory_width(self):
         import wasmtime
         with tempfile.TemporaryDirectory() as name:
-            directory=Path(name); compiler=directory/"bin/goose"
+            directory=Path(name); compiler=directory/"bin/goosew"
             (compiler.parent/"include").mkdir(parents=True)
             (compiler.parent/"include/goose.h").write_text("")
             raw=directory/"simd.wasm"
@@ -183,7 +183,7 @@ class RuntimeReference(unittest.TestCase):
     def test_goose_compiler_metadata_and_seed_are_pinned(self):
         with tempfile.TemporaryDirectory() as name:
             root = Path(name); installed = root/"installed"; (installed/"bin").mkdir(parents=True)
-            compiler = installed/"bin/goose"; compiler.write_text("compiler")
+            compiler = installed/"bin/goosew"; compiler.write_text("compiler")
             (root/"selfhost").mkdir(); source = root/"selfhost/main.goose"; source.write_text("fn main() {}")
             (root/"stdlib").mkdir(); library = root/"stdlib/std.goose"; library.write_text("// library")
             (root/"bootstrap").mkdir()

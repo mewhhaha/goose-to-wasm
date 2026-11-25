@@ -102,7 +102,7 @@ fn driver_size(text: const u8[:]) -> i64, bool {
     if !ok || n > (9223372036854775807 >> shift) { return 0, false; }
     return n << shift, true;
 }
-fn driver_error(message: const u8[:]) { write_stderr("goose: "); write_stderr(message); write_stderr("\n"); }
+fn driver_error(message: const u8[:]) { write_stderr("goosew: "); write_stderr(message); write_stderr("\n"); }
 // Paths compare in the normalized form sources are recorded in; an absolute
 // spelling of a relative path is not recognized without a filesystem query.
 fn driver_same_path(a: const u8[:], b: const u8[:]) -> bool {
@@ -539,9 +539,9 @@ fn driver_exec(command: u8[>..]&) -> i64 {
     if (code & 127) != 0 { return 128 + (code & 127); }
     return (code >> 8) & 255;
 }
-let GOOSE_TO_WASM_VERSION = "v2026.4-6";
+let GOOSE_TO_WASM_VERSION = "v2026.4-1";
 fn driver_help() {
-    write_stdout("goose-to-wasm "); write_stdout(GOOSE_TO_WASM_VERSION); write_stdout(" — fast Goose compiler (direct WebAssembly & native C)\nUsage: goose source.goose [--target wasm-direct|native|c] -o output [-O0|-O1|-O2]\n  --check --parse --tokens --dump --debug --stdlib DIR --wasm-stats FILE --wasm-deps FILE\n  --error-format text|json  Diagnostic output format (default text).\n  --color auto|always|never Colorize text diagnostics (default auto; respects NO_COLOR).\n  --emit-runtime FILE  Write the standalone native C runtime unit and exit.\n  --header FILE        Emit a C host header (goose_init, goose_exit, exports) and separate-runtime C.\n  --shared             Build or emit a C shared library with exported symbols.\n  --standalone         Embed the native C runtime even when emitting with --header.\n  --wasm-memory64      Target WebAssembly memory64.\n  --wasm-bundled-host  Target the bundled host implementations for recognized imports.\n  --reachable-program  Check only functions a root reaches, and the signatures of the rest.\n  --expansion-node-limit N  Total const for expansion size (default 100000).\n  --stack-reserve SIZE  Address space reserved per data stack in a native program, from 64K to 256T\n                        with a K, M, G or T suffix (default 2G).\n  --run                Build native C with --cc and execute, or execute Wasm with GOOSE_WASM_HOST.\n  --version            Print compiler version.\n");
+    write_stdout("goose-to-wasm "); write_stdout(GOOSE_TO_WASM_VERSION); write_stdout(" — fast Goose compiler (direct WebAssembly & native C)\nUsage: goosew source.goose [--target wasm-direct|native|c] -o output [-O0|-O1|-O2]\n  --check --parse --tokens --dump --debug --stdlib DIR --wasm-stats FILE --wasm-deps FILE\n  --error-format text|json  Diagnostic output format (default text).\n  --color auto|always|never Colorize text diagnostics (default auto; respects NO_COLOR).\n  --emit-runtime FILE  Write the standalone native C runtime unit and exit.\n  --header FILE        Emit a C host header (goose_init, goose_exit, exports) and separate-runtime C.\n  --shared             Build or emit a C shared library with exported symbols.\n  --standalone         Embed the native C runtime even when emitting with --header.\n  --wasm-memory64      Target WebAssembly memory64.\n  --wasm-bundled-host  Target the bundled host implementations for recognized imports.\n  --reachable-program  Check only functions a root reaches, and the signatures of the rest.\n  --expansion-node-limit N  Total const for expansion size (default 100000).\n  --stack-reserve SIZE  Address space reserved per data stack in a native program, from 64K to 256T\n                        with a K, M, G or T suffix (default 2G).\n  --run                Build native C with --cc and execute, or execute Wasm with GOOSE_WASM_HOST.\n  --version            Print compiler version.\n");
 }
 fn driver_main() -> i64 {
     // Every path lives in one byte table: each array holds its own storage region.

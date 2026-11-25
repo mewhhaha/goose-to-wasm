@@ -34,7 +34,7 @@ goose-wtime module.wasm [--entry NAME] [--execution decoded|compact|register] \
 ## Example: running Blot2 Wasm64 on `wtime`
 
 ```sh
-goose compiler-goose/src/main.goose --stdlib blot-stdlib \
+goosew compiler-goose/src/main.goose --stdlib blot-stdlib \
       --target wasm-direct --wasm-memory64 --wasm-max-pages 65536 \
       --library --reachable-program --expansion-node-limit 1000000 -O2 \
       -o build/blot2-wasm64.wasm

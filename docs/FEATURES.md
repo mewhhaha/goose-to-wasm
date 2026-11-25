@@ -43,7 +43,7 @@ workload=$(mktemp -d "$repo/build/blot2-6ad5fbb.XXXXXX")
 git -C ../blot2 archive 6ad5fbb -- compiler-goose/src | tar -x -C "$workload"
 (
   cd "$workload/compiler-goose/src"
-  "$repo/build/dev/bin/goose" main.goose --stdlib "$repo/stdlib" \
+  "$repo/build/dev/bin/goosew" main.goose --stdlib "$repo/stdlib" \
     --reachable-program --expansion-node-limit 1000000 --check
 )
 ```

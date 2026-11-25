@@ -111,7 +111,7 @@ def main():
         save()
         print('bootstrap failed; see', stage['log'])
         return 1
-    compiler = out / 'bootstrap/bin/goose'
+    compiler = out / 'bootstrap/bin/goosew'
     report = json.loads((out / 'bootstrap/bootstrap/report.json').read_text())
     summary['bootstrap'] = {key: report.get(key) for key in ('fixed_point', 'generated_c_sha256', 'next_generation_c_sha256',
                                                              'third_generation_c_sha256', 'executable_sha256', 'profile_used')}

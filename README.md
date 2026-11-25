@@ -4,7 +4,7 @@
 
 Compile Goose directly to **WebAssembly in milliseconds** — with no C compiler in your dev loop — and compile the exact same code to **native binaries or C libraries** when you ship.
 
-- **Latest release:** [`v2026.4-6`](https://github.com/mewhhaha/goose-to-wasm/releases/tag/v2026.4-6) (tracks upstream Goose `v2026.4`)
+- **Latest release:** [`v2026.4-1`](https://github.com/mewhhaha/goose-to-wasm/releases/tag/v2026.4-1) (tracks upstream Goose `v2026.4`, installs binary **`goosew`**)
 - **Everyday builds:** **23×–26× faster** than upstream C++ Goose (`2–7 ms` vs `51–177 ms` at `-O2`)
 - **Large projects:** **8×–10× faster** checks and builds on our own ~32k-LOC compiler, and **5×–16× faster** edit-compile-run turnaround on [`mewhhaha/blot2`](https://github.com/mewhhaha/blot2) (`6.2 s` vs `31–99 s`)
 - **Compatibility:** `10,799 / 10,801` conformance rows (`99.98%` — **6,022 / 6,022** native / **100%** of upstream C++ Goose tests, 2 documented frozen wasm32 contract gaps; `4,773 / 4,779` memory64) · [Feature & compatibility tracker](docs/FEATURES.md)
@@ -13,19 +13,21 @@ Compile Goose directly to **WebAssembly in milliseconds** — with no C compiler
 
 ## Quick Start
 
-### Option 1: Download a prebuilt release (`v2026.4-6`)
+### Option 1: Download a prebuilt release (`v2026.4-1`)
 
-Grab a bundle from [Releases](https://github.com/mewhhaha/goose-to-wasm/releases/tag/v2026.4-6):
+Grab a bundle from [Releases](https://github.com/mewhhaha/goose-to-wasm/releases/tag/v2026.4-1):
 
-- **Linux x64 (native PGO compiler + stdlib):** `goose-to-wasm-v2026.4-6-linux-x64.tar.gz`
-- **Portable WebAssembly (macOS / Windows / Linux via Node or Wasmtime):** `goose-to-wasm-v2026.4-6-wasm.tar.gz`
+- **Linux x64 (native PGO `goosew` compiler + stdlib):** `goose-to-wasm-v2026.4-1-linux-x64.tar.gz`
+- **Portable WebAssembly (macOS / Windows / Linux via Node or Wasmtime):** `goose-to-wasm-v2026.4-1-wasm.tar.gz`
 
 ```sh
-tar -xzf goose-to-wasm-v2026.4-6-linux-x64.tar.gz
-export PATH="$PWD/goose-to-wasm-v2026.4-6-linux-x64/bin:$PATH"
-goose --version
-# goose-to-wasm v2026.4-6 (Goose v2026.4)
+tar -xzf goose-to-wasm-v2026.4-1-linux-x64.tar.gz
+export PATH="$PWD/goose-to-wasm-v2026.4-1-linux-x64/bin:$PATH"
+goosew --version
+# goose-to-wasm v2026.4-1 (Goose v2026.4)
 ```
+
+> **Binary name (`goosew`):** The compiler binary is named `goosew` so it does not collide with the upstream C++ `goose` compiler (or other `goose` CLIs) on your `PATH`. If you want to invoke it as `goose`, rename or symlink it (e.g. `ln -s "$(command -v goosew)" ~/.local/bin/goose`).
 
 ### Option 2: Build from source (~29 s)
 
@@ -40,19 +42,19 @@ export PATH="$PWD/build/bin:$PATH"
 
 ```sh
 # 1. Fast type & lifetime check (supports --error-format=json & --color)
-goose --check examples/sorting.goose
+goosew --check examples/sorting.goose
 
 # 2. Instant dev compile & run via Direct Wasm (2–7 ms, no C toolchain)
-goose examples/squares.goose -O2 -o squares.wasm
+goosew examples/squares.goose -O2 -o squares.wasm
 node scripts/run_wasm.mjs squares.wasm
 # sum=140
 
 # 3. Ship a native binary (via C)
-goose examples/squares.goose --target c -O2 --run
+goosew examples/squares.goose --target c -O2 --run
 
 # 4. Embed in a C/C++/Rust host (exports + C header, no -rdynamic/-ldl)
-goose --emit-runtime goose_runtime.c
-goose app.goose --header app.h -O2 -o app.c
+goosew --emit-runtime goose_runtime.c
+goosew app.goose --header app.h -O2 -o app.c
 ```
 
 See the [full CLI & build guide](docs/GUIDE.md) for `--shared`, `--wasm-memory64`, `--library`, `--reachable-program`, `--stack-reserve`, `--error-format`, `--color`, and Binaryen compaction.
@@ -74,13 +76,13 @@ On larger Goose projects, combining `--check` and Direct Wasm (`--wasm-memory64`
 ![Large real-world Goose codebases: our own compiler and mewhhaha/blot2](bench/results/2026-11-25/release-v2026.4-5/large_codebase_turnaround.svg)
 
 - **Example 1 — This compiler ([`selfhost/`](selfhost/README.md), ~32k LOC):**
-  `goose --check selfhost/main.goose` finishes in **`0.43 s`** (**10.2× faster** than upstream's `4.38 s`), and emitting `-O2` Direct Wasm64 takes **`0.57 s`** (**8.2× faster** than upstream's `4.71 s` C emit). Even running **as portable WebAssembly** inside Wasmtime, it checks itself in **`1.11–1.39 s`** and self-compiles bit-identically in **`1.78 s`**.
+  `goosew --check selfhost/main.goose` finishes in **`0.43 s`** (**10.2× faster** than upstream's `4.38 s`), and emitting `-O2` Direct Wasm64 takes **`0.57 s`** (**8.2× faster** than upstream's `4.71 s` C emit). Even running **as portable WebAssembly** inside Wasmtime, it checks itself in **`1.11–1.39 s`** and self-compiles bit-identically in **`1.78 s`**.
 - **Example 2 — [`mewhhaha/blot2`](https://github.com/mewhhaha/blot2) (~135k-LOC compiler written in Goose):**
   Blot2 uses 57 native `env.blot_*` POSIX/fd/directory/atomic/copy host functions and builds as a library entry point (`blot_goose_main`). With Direct Wasm64 and [`goose-wasmtime`](host/rust/README.md) (or safe-Rust [`goose-wtime`](host/wtime/README.md)), it compiles and runs **byte-identically** to native `blotc-goose` (**16/16** compiling idiomatic `.blot` benchmarks match SHA-256) in **`6.2 s`** total (`3.8 s` Wasm64 `-O0` emit + `2.4 s` parallel JIT + run) vs **`30.6 s`** (`-O0` C) / **`98.8 s`** (`-O2` C) — and warm cached `.cwasm` runs compile `.blot` programs in **`142–213 ms`**:
 
   ```sh
   # Compile Blot2 directly to Wasm64 (~3.8 s at -O0, ~4.6 s at -O2)
-  goose compiler-goose/src/main.goose --stdlib blot-stdlib \
+  goosew compiler-goose/src/main.goose --stdlib blot-stdlib \
     --target wasm-direct --wasm-memory64 --wasm-max-pages 65536 \
     --library --reachable-program --expansion-node-limit 1000000 -O0 -o blot2.wasm
 
@@ -152,13 +154,13 @@ app.goose:3:19: error: no overload matches this call's argument types and count:
 
 ## Compatibility & Documentation
 
-Releases are versioned **`v<goose-version>-<n>`** (currently **`v2026.4-6`**), tracking plain upstream C++ Goose (`aardappel/goose`) as the language reference (`10,799 / 10,801` conformance rows passing, `99.98%` — `6,022 / 6,022` native / **100%** of pinned upstream Goose tests).
+Releases are versioned **`v<goose-version>-<n>`** (currently **`v2026.4-1`**), tracking plain upstream C++ Goose (`aardappel/goose`) as the language reference (`10,799 / 10,801` conformance rows passing, `99.98%` — `6,022 / 6,022` native / **100%** of pinned upstream Goose tests).
 
 - [Guide & CLI options](docs/GUIDE.md) — flags, targets, compaction, and host options
 - [Native Rust Wasmtime host](host/rust/README.md) — fast parallel Cranelift JIT, `.cwasm` caching, `--entry`, and Blot2 `env.blot_*` support
 - [Safe-Rust `wtime` host](host/wtime/README.md) — `#![forbid(unsafe_code)]` runner for Direct Goose Wasm32/Wasm64 and Blot2
 - [Compatibility tracker](docs/FEATURES.md) — feature-by-feature status vs upstream Goose & Blot2
-- [Self-hosted compiler & bootstrap](selfhost/README.md) — architecture, Snapshot 65 seed & fixed-point verification
+- [Self-hosted compiler & bootstrap](selfhost/README.md) — architecture, Snapshot 66 seed & fixed-point verification
 - [Conformance & qualification](tests/README.md) — test suites and qualification gates
 - [Examples](examples/README.md) — runnable Goose sample programs
 - [Contributing](CONTRIBUTING.md) · [Security policy](SECURITY.md) — local verification, PR workflow, and approval-gated CI

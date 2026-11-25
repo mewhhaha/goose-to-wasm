@@ -25,8 +25,8 @@ import selfhost_comparison as selfhost_mod
 
 def _find_goose_compiler() -> Path | None:
     for candidate in (
-        ROOT / "build" / "bin" / "goose",
-        ROOT / "build" / "dev" / "bin" / "goose",
+        ROOT / "build" / "bin" / "goosew",
+        ROOT / "build" / "dev" / "bin" / "goosew",
         ROOT / "build" / "native" / "goose",
     ):
         if candidate.is_file():

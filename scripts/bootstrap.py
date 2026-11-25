@@ -62,9 +62,9 @@ def main():
         report = json.loads((stage / 'report.json').read_text())
         install = build / 'bin'
         install.mkdir(exist_ok=True)
-        pending = install / '.goose.new'
-        shutil.copy2(stage / 'goose', pending)
-        pending.replace(install / 'goose')
+        pending = install / '.goosew.new'
+        shutil.copy2(stage / 'goosew', pending)
+        pending.replace(install / 'goosew')
         pending_library = install / '.stdlib.new'
         if pending_library.exists():
             shutil.rmtree(pending_library)
@@ -74,7 +74,7 @@ def main():
             shutil.rmtree(library)
         pending_library.rename(library)
         metadata = {'schema': 'goose-toolchain-v2', 'implementation': 'goose',
-                    'compiler': str(install / 'goose'), 'compiler_sha256': report['executable_sha256'],
+                    'compiler': str(install / 'goosew'), 'compiler_sha256': report['executable_sha256'],
                     'source_sha256': report['source_sha256'], 'stdlib_sha256': report['stdlib_sha256'],
                     'asset_sha256': report['asset_sha256'],
                     'cc': report['cc'], 'cc_sha256': report['cc_sha256'],
@@ -87,7 +87,7 @@ def main():
         if 'reused_toolchain' in report:
             metadata['reused_toolchain'] = report['reused_toolchain']
         (build / 'toolchain.json').write_text(json.dumps(metadata, indent=2) + '\n')
-    print(install / 'goose')
+    print(install / 'goosew')
     return 0
 
 

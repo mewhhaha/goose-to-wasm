@@ -295,7 +295,7 @@ def summarize(out):
 def main(argv=None):
     ap = argparse.ArgumentParser(description='Run upstream Goose tests against this compiler and classify the results.')
     ap.add_argument('--upstream', help='path to an upstream Goose checkout (its test/, stdlib/ and samples/ are used); required unless --summarize')
-    ap.add_argument('--compiler', default=str(ROOT / 'build/bin/goose'), help='goose compiler binary (default: %(default)s)')
+    ap.add_argument('--compiler', default=str(ROOT / 'build/bin/goosew'), help='goose compiler binary (default: %(default)s)')
     ap.add_argument('--output-dir', required=True, help='where results, logs and the stdlib/test copy are written')
     ap.add_argument('--pin', default=PIN_DEFAULT, help='upstream commit the corpus is diffed against (default: %(default)s, the conformance pin in tests/conformance/cases.json)')
     ap.add_argument('--jobs', type=int, default=4, help='parallel test jobs (default: %(default)s)')

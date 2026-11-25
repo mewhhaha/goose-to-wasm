@@ -22,7 +22,7 @@ ROOT = Path(__file__).resolve().parents[3]
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("sources", nargs="+", type=Path)
-    parser.add_argument("--compiler", type=Path, default=ROOT / "build/q-m64/bootstrap/bin/goose")
+    parser.add_argument("--compiler", type=Path, default=ROOT / "build/q-m64/bootstrap/bin/goosew")
     parser.add_argument("--host", type=Path, default=ROOT / "host/rust/target/release/goose-wasmtime")
     parser.add_argument("--work", type=Path, required=True, help="directory for the compiled modules")
     parser.add_argument("--stdin", default="", help="the programs' input")

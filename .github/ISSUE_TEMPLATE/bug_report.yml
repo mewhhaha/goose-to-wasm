@@ -21,14 +21,14 @@ body:
     id: command
     attributes:
       label: Command & target
-      placeholder: "goose repro.goose --target wasm-direct -O2 -o repro.wasm"
+      placeholder: "goosew repro.goose --target wasm-direct -O2 -o repro.wasm"
     validations:
       required: true
   - type: input
     id: version
     attributes:
       label: Compiler version & platform
-      description: Output of `goose --version` and your OS/arch.
-      placeholder: "goose-to-wasm v2026.4-6 (Goose v2026.4), Linux x86_64"
+      description: Output of `goosew --version` and your OS/arch.
+      placeholder: "goose-to-wasm v2026.4-1 (Goose v2026.4), Linux x86_64"
     validations:
       required: true

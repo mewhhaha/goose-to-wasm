@@ -674,7 +674,7 @@ def main():
     parser.add_argument("command", choices=("catalog", "fetch", "check", "measure"))
     parser.add_argument("--upstream", type=Path, default=ROOT / "build" / "langarena-upstream")
     parser.add_argument("--output-dir", type=Path)
-    parser.add_argument("--goose", type=Path, default=ROOT / "build" / "bin" / "goose")
+    parser.add_argument("--goose", type=Path, default=ROOT / "build" / "bin" / "goosew")
     parser.add_argument("--cc", default=os.environ.get("CC", "cc"))
     parser.add_argument("--node", default="node")
     parser.add_argument("--machine-label")

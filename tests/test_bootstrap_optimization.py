@@ -197,7 +197,7 @@ class BootstrapOptimizationTests(unittest.TestCase):
             prefix = b'plain:'
             if actual['profile_used']:
                 prefix = b'profile:'
-            self.assertEqual((output / 'goose').read_bytes()[:len(prefix)], prefix)
+            self.assertEqual((output / 'goosew').read_bytes()[:len(prefix)], prefix)
             self.assertEqual(report['profile_used'], actual['profile_used'])
             self.assertEqual(report['executable_c_sha256'], actual['c_sha256'])
             self.assertEqual(report['goose_optimization'], actual['goose_optimization'])
@@ -246,7 +246,7 @@ class BootstrapOptimizationTests(unittest.TestCase):
             self.assertEqual(first['executable_sha256'], second['executable_sha256'])
             self.assertEqual(first['generated_c_sha256'], second['generated_c_sha256'])
             self.assertEqual(len(initial), 3)
-            self.assertEqual([Path(command[0]).name for command in warmed], ['goose', 'next-generation'])
+            self.assertEqual([Path(command[0]).name for command in warmed], ['goosew', 'next-generation'])
             self.assertTrue(second['fixed_point'])
             self.assertFalse(first['seed_emission_cache']['hit'])
             self.assertTrue(second['seed_emission_cache']['hit'])
@@ -349,7 +349,7 @@ class BootstrapOptimizationTests(unittest.TestCase):
         self.assertNotIn('build-seed', report['builds'])
         self.assertTrue(report['profile_used'])
         self.assertTrue(report['fixed_point'])
-        self.assertEqual([Path(argv[0]).name for argv in emissions], ['seed', 'goose'])
+        self.assertEqual([Path(argv[0]).name for argv in emissions], ['seed', 'goosew'])
 
     def test_reused_toolchain_rejects_unverified_and_mismatched_compilers(self):
         for metadata, failure in [({'fixed_point': False}, 'requires a verified'),
@@ -431,7 +431,7 @@ class BootstrapOptimizationTests(unittest.TestCase):
                 def run(argv, **kwargs):
                     captured.append(argv)
                     stage = Path(argv[argv.index('--output-dir') + 1]); stage.mkdir(parents=True)
-                    (stage / 'goose').write_bytes(b'fake executable\n')
+                    (stage / 'goosew').write_bytes(b'fake executable\n')
                     report = dict(executable_sha256=sha(b'fake executable\n'), source_sha256={},
                                   stdlib_sha256={}, asset_sha256={}, cc='fake cc', cc_sha256='cc hash', seed_c_sha256='seed hash')
                     report.update(profile_used=True, executable_c_sha256='actual C',
@@ -465,7 +465,7 @@ class BootstrapOptimizationTests(unittest.TestCase):
                 self.assertTrue(metadata['profile_used'])
                 self.assertEqual(metadata['executable_c_sha256'], 'actual C')
                 self.assertEqual(metadata['executable_build']['profile_sha256'], 'actual profile')
-                self.assertTrue((build / 'bin/goose').is_file())
+                self.assertTrue((build / 'bin/goosew').is_file())
                 self.assertTrue((build / 'bin/stdlib/base.goose').is_file())
 
 

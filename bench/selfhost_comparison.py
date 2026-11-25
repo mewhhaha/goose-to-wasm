@@ -348,7 +348,7 @@ def main():
     sub = parser.add_subparsers(required=True)
     command = sub.add_parser("build")
     command.add_argument("stage", type=lambda path: Path(path).resolve())
-    command.add_argument("--emitter", type=Path, default=ROOT / "build/bin/goose")
+    command.add_argument("--emitter", type=Path, default=ROOT / "build/bin/goosew")
     command.add_argument("--commit", default="HEAD")
     command.add_argument("--build-source", type=lambda path: Path(path).resolve(), metavar="DIR",
                          help="build from a previous stage's frozen source directory to retain native diagnostic paths")

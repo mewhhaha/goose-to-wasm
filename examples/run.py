@@ -41,7 +41,7 @@ def main():
     assert names and len(names) == len(set(names))
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("names", nargs="*", help="example names; omit to check the complete catalog")
-    parser.add_argument("--goose", type=Path, default=ROOT / "build/bin/goose")
+    parser.add_argument("--goose", type=Path, default=ROOT / "build/bin/goosew")
     parser.add_argument("--backends", nargs="+", choices=("direct", "native"), default=["direct"])
     parser.add_argument("--engines", nargs="+", choices=("v8", "wasmtime"), default=["v8", "wasmtime"])
     parser.add_argument("--levels", nargs="+", type=int, choices=(0, 1, 2), default=[2])

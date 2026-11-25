@@ -6,7 +6,7 @@ From the repository root, with a C compiler and Node installed:
 python3 -m venv .venv
 .venv/bin/python -m pip install -r requirements.txt
 .venv/bin/python scripts/bootstrap.py --verify
-.venv/bin/python tests/conformance.py --compiler build/bin/goose \
+.venv/bin/python tests/conformance.py --compiler build/bin/goosew \
   --output-dir build/conformance --known-gaps tests/conformance/known-gaps.json
 ```
 

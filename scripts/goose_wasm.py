@@ -165,7 +165,7 @@ def compile_native(args, cc, generated, text, artifact, stage, report):
 def build(args):
     started = time.perf_counter()
     source = args.source.resolve(strict=True)
-    compiler = Path(args.goose or args.build_dir / 'bin/goose').resolve(strict=True)
+    compiler = Path(args.goose or args.build_dir / 'bin/goosew').resolve(strict=True)
     output = args.output.resolve()
     library = args.stdlib or compiler.parent / 'stdlib'
     protected = {source, compiler, *(p.resolve() for p in args.c_source), *(p.resolve() for p in args.include)}

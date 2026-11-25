@@ -10,7 +10,7 @@ import tempfile
 import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
-COMPILER = Path(os.environ.get("GOOSE_COMPILER", ROOT / "build/bin/goose")).resolve()
+COMPILER = Path(os.environ.get("GOOSE_COMPILER", ROOT / "build/bin/goosew")).resolve()
 STDLIB = Path(os.environ.get("GOOSE_STDLIB", COMPILER.parent / "stdlib")).resolve()
 WASMTIME_HOST = ROOT / "host/rust/target/release/goose-wasmtime"
 

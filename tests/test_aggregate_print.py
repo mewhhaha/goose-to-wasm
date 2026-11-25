@@ -9,7 +9,7 @@ import tempfile
 import unittest
 
 ROOT=Path(__file__).resolve().parents[1]
-GOOSE=Path(os.environ.get('GOOSE_COMPILER',ROOT/'build/bin/goose')).resolve()
+GOOSE=Path(os.environ.get('GOOSE_COMPILER',ROOT/'build/bin/goosew')).resolve()
 
 
 class AggregatePrint(unittest.TestCase):

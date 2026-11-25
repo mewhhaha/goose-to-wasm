@@ -13,7 +13,7 @@ import tempfile
 import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
-COMPILER = Path(os.environ.get('GOOSE_COMPILER', ROOT / 'build/bin/goose')).resolve()
+COMPILER = Path(os.environ.get('GOOSE_COMPILER', ROOT / 'build/bin/goosew')).resolve()
 STDLIB = ROOT / "stdlib"
 SOURCE = ROOT / "tests/fixtures/contracts/slice-pool/direct_externs.goose"
 

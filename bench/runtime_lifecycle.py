@@ -114,7 +114,7 @@ def metadata(args, example_report, examples):
 
 def report_compiler_path(report_path):
     report = json.loads(Path(report_path).read_text())
-    return report.get("configuration", {}).get("goose", ROOT / "build/bin/goose")
+    return report.get("configuration", {}).get("goose", ROOT / "build/bin/goosew")
 
 
 def choose_artifacts(report, names):

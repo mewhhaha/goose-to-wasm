@@ -275,7 +275,7 @@ engine startup measurements, and compare interleaved runtime samples:
 
 ```sh
 python bench/langarena.py measure --tracks adapted --backends direct \
-  --goose /path/to/baseline/bin/goose --skip-edits \
+  --goose /path/to/baseline/bin/goosew --skip-edits \
   --compile-samples 5 --runtime-samples 5 \
   --output-dir build/performance/baseline
 python bench/langarena.py measure --tracks adapted --backends direct \

@@ -9,7 +9,7 @@ import unittest
 from tests import goose_stats
 
 ROOT = Path(__file__).resolve().parents[1]
-COMPILER = Path(os.environ.get("GOOSE_COMPILER", ROOT / "build/bin/goose")).resolve()
+COMPILER = Path(os.environ.get("GOOSE_COMPILER", ROOT / "build/bin/goosew")).resolve()
 STDLIB = Path(os.environ.get("GOOSE_STDLIB", COMPILER.parent / "stdlib")).resolve()
 ROWS = "var rows:u8[>..]=[1,77,51];\n"
 READ = 'print(rows.len," ",rows[0]);'

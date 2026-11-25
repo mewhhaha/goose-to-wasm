@@ -371,7 +371,7 @@ the program as its arguments. The two Wasmtime hosts print the same bytes,
 errors included; the Rust one starts in 0.04 s where Python takes 0.2 s.
 
 ```sh
-goose selfhost/main.goose --stdlib stdlib --target wasm-direct -O2 --wasm-memory64 --wasm-max-pages 4194304 -o goose64.wasm
+goosew selfhost/main.goose --stdlib stdlib --target wasm-direct -O2 --wasm-memory64 --wasm-max-pages 4194304 -o goose64.wasm
 host/rust/target/release/goose-wasmtime goose64.wasm --cache goose64.cwasm -- program.goose --stdlib stdlib -o program.wasm
 ```
 
@@ -383,7 +383,7 @@ The recorded 64-bit self-check under V8 fit in 16 GiB with equal regions. The
 32-bit module needed a region profile. [Measurements and profile](../bench/results/2026-11-17/lifetime-compact-reads/README.md)
 
 ```sh
-build/bin/goose selfhost/main.goose --stdlib stdlib --target wasm-direct -O2 \
+build/bin/goosew selfhost/main.goose --stdlib stdlib --target wasm-direct -O2 \
   --wasm-memory64 --wasm-max-pages 262144 -o build/goose-v8.wasm
 node scripts/run_wasm.mjs build/goose-v8.wasm -- selfhost/main.goose --stdlib stdlib --check
 ```

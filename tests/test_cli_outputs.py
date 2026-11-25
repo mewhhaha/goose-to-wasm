@@ -44,7 +44,7 @@ def declared_locals(module):
                 cursor += length
         at += size
     return counts
-COMPILER = Path(__import__('os').environ.get('GOOSE_COMPILER', ROOT / 'build/bin/goose'))
+COMPILER = Path(__import__('os').environ.get('GOOSE_COMPILER', ROOT / 'build/bin/goosew'))
 STDLIB = ROOT / "build/bin/stdlib"
 # The stdlib in the tree: what the compiler's own sources and the examples import.
 SOURCE_STDLIB = ROOT / "stdlib"

@@ -69,7 +69,7 @@ python3 bench/benchmark.py --smoke --samples 2 --compile-samples 1 --warmups 1
 # Isolate a workload, or select explicit tool executables (including optional wtime-aot).
 python3 bench/benchmark.py --workloads integer_mod \
   --engines v8 wasmtime wtime-aot \
-  --goose build/bin/goose --cc gcc --node node
+  --goose build/bin/goosew --cc gcc --node node
 
 # Run a single Wasm module directly through wtime-aot (`--backend rust` or `--backend x64`).
 python3 scripts/run_wtime_aot.py path/to/program.wasm --backend rust --timing-json timing.json
@@ -110,7 +110,7 @@ that included the C++ compiler.
 ```sh
 python3 bench/compare_compilers.py \
   --parent /path/to/previous/goose --parent-source /path/to/previous/selfhost \
-  --candidate build/bin/goose --candidate-source selfhost \
+  --candidate build/bin/goosew --candidate-source selfhost \
   --samples 31 --output-dir build/compiler-comparison
 ```
 

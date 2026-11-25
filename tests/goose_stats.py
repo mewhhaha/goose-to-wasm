@@ -8,7 +8,7 @@ import subprocess
 import tempfile
 
 ROOT = Path(__file__).resolve().parents[1]
-GOOSE = Path(os.environ.get("GOOSE_COMPILER", ROOT / "build/bin/goose")).resolve()
+GOOSE = Path(os.environ.get("GOOSE_COMPILER", ROOT / "build/bin/goosew")).resolve()
 NODE = "node"
 CC = "cc"
 

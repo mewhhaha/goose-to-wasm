@@ -85,7 +85,7 @@ def retained_assembly_calls(n: int) -> int:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--goose", type=Path, default=ROOT / "build/bin/goose")
+    parser.add_argument("--goose", type=Path, default=ROOT / "build/bin/goosew")
     parser.add_argument("--cc", default="gcc")
     parser.add_argument("--input", type=int, default=35)
     parser.add_argument("--samples", type=int, default=7)

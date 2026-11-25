@@ -10,7 +10,7 @@ python scripts/goose_wasm.py build examples/squares.goose -o build/squares.wasm
 node scripts/run_wasm.mjs build/squares.wasm
 ```
 
-The example prints `sum=140`. Bootstrap installs the Goose compiler and standard library in `build/bin`. It uses the checked-in C seed and verifies generated C across compiler generations. See [bootstrap details](../selfhost/README.md).
+The example prints `sum=140`. Bootstrap installs the `goosew` compiler and standard library in `build/bin` (named `goosew` to avoid colliding with upstream C++ `goose`; symlink or rename it if you prefer `goose`). It uses the checked-in C seed and verifies generated C across compiler generations. See [bootstrap details](../selfhost/README.md).
 
 To distribute a smaller Wasm module, install Binaryen (`wasm-opt` on your path) and compact the emitted file.
 

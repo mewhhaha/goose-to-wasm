@@ -16,7 +16,7 @@ import tempfile
 import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
-COMPILER = Path(os.environ.get('GOOSE_COMPILER', ROOT / 'build/bin/goose')).resolve()
+COMPILER = Path(os.environ.get('GOOSE_COMPILER', ROOT / 'build/bin/goosew')).resolve()
 STDLIB = COMPILER.parent / "stdlib"
 OWNER = ROOT / "tests/fixtures/contracts/root-struct/owner.goose"
 SLICE_POOL = ROOT / "tests/fixtures/contracts/slice-pool/spans.goose"

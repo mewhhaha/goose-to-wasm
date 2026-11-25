@@ -22,7 +22,7 @@ python3 scripts/bootstrap.py --verify
 python3 -m unittest discover -s tests
 
 # Full conformance suite against pinned contracts
-python3 tests/conformance.py --compiler build/bin/goose --output-dir build/conformance \
+python3 tests/conformance.py --compiler build/bin/goosew --output-dir build/conformance \
   --levels 0 2 --known-gaps tests/conformance/known-gaps.json
 
 # Full qualification gate (bootstrap + conformance + native checks + memory64 + unit tests)
