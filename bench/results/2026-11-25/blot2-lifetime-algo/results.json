@@ -1,0 +1,332 @@
+{
+  "date": "2026-11-25",
+  "pin_cpu": 7,
+  "host": "Linux-7.3.5-2-cachyos-x86_64-with-glibc2.44",
+  "uname": "Linux cachyos-x8664 7.3.5-2-cachyos #1 SMP PREEMPT_DYNAMIC Fri, 20 Nov 2026 07:37:39 +0000 x86_64 ",
+  "clang": "clang version 23.1.5",
+  "base_head": "87c11409ddac37a8bc45e18b950552f25f7f1eab",
+  "compilers": {
+    "v2026.4-2": {
+      "path": "build/qualify-v2026.4-2/bootstrap/bin/goose",
+      "sha256": "93731c80475d80fc3e1fe1a904368c254cae5d795b7ea038f713a2022a5f0efc"
+    },
+    "blot2-algo": {
+      "path": "build/qualify-blot2-algo/bootstrap/bin/goose",
+      "sha256": "aae458fabec9ebd91fd04e0b0470e3fa7f57acf6724ad1c5f9390f6b0b7771ce",
+      "fixed_point_c_sha256": "e150c7511c657b16db7626b35d1590c1ffcbc320696d6b428770872eb84083b6"
+    }
+  },
+  "selfhost": {
+    "check": {
+      "label": "--check",
+      "v2026.4-2": {
+        "median_wall_s": 0.3436,
+        "median_cpu_s": 0.3415,
+        "median_rss_gib": 0.2416,
+        "walls_s": [
+          0.3734,
+          0.3417,
+          0.3447,
+          0.3405,
+          0.3436
+        ],
+        "cpus_s": [
+          0.3707,
+          0.3395,
+          0.3428,
+          0.3385,
+          0.3415
+        ],
+        "max_rss_kib": [
+          253232,
+          253304,
+          253376,
+          253392,
+          253400
+        ],
+        "rc": 0,
+        "error_count": 0,
+        "first_line": ""
+      },
+      "blot2-algo": {
+        "median_wall_s": 0.2981,
+        "median_cpu_s": 0.2964,
+        "median_rss_gib": 0.2398,
+        "walls_s": [
+          0.3222,
+          0.2912,
+          0.2996,
+          0.2935,
+          0.2981
+        ],
+        "cpus_s": [
+          0.3201,
+          0.2895,
+          0.2979,
+          0.2915,
+          0.2964
+        ],
+        "max_rss_kib": [
+          251600,
+          251372,
+          251600,
+          251456,
+          251376
+        ],
+        "rc": 0,
+        "error_count": 0,
+        "first_line": ""
+      },
+      "speedup_wall": 1.153,
+      "outputs": {}
+    },
+    "emit_c": {
+      "label": "--target c -O2",
+      "v2026.4-2": {
+        "median_wall_s": 0.5654,
+        "median_cpu_s": 0.555,
+        "median_rss_gib": 0.3342,
+        "walls_s": [
+          0.5234,
+          0.529,
+          0.5654,
+          0.587,
+          0.6081
+        ],
+        "cpus_s": [
+          0.5206,
+          0.5192,
+          0.555,
+          0.5768,
+          0.5975
+        ],
+        "max_rss_kib": [
+          350408,
+          350168,
+          350388,
+          350472,
+          350192
+        ],
+        "rc": 0,
+        "error_count": 0,
+        "first_line": ""
+      },
+      "blot2-algo": {
+        "median_wall_s": 0.5675,
+        "median_cpu_s": 0.5562,
+        "median_rss_gib": 0.3332,
+        "walls_s": [
+          0.4653,
+          0.4808,
+          0.5675,
+          0.6211,
+          0.5685
+        ],
+        "cpus_s": [
+          0.4629,
+          0.4713,
+          0.5562,
+          0.6097,
+          0.5579
+        ],
+        "max_rss_kib": [
+          349432,
+          349520,
+          349404,
+          349408,
+          349496
+        ],
+        "rc": 0,
+        "error_count": 0,
+        "first_line": ""
+      },
+      "speedup_wall": 0.996,
+      "outputs": {
+        "v2": {
+          "bytes": 24229189,
+          "sha256": "0dd547390ee80120b2caa673f662228e1a04578f5a711e76b9189e24348ee1c9"
+        },
+        "new": {
+          "bytes": 24229189,
+          "sha256": "0dd547390ee80120b2caa673f662228e1a04578f5a711e76b9189e24348ee1c9"
+        }
+      }
+    },
+    "emit_wasm64": {
+      "label": "--target wasm-direct --wasm-memory64 -O2",
+      "v2026.4-2": {
+        "median_wall_s": 0.5606,
+        "median_cpu_s": 0.5543,
+        "median_rss_gib": 0.3055,
+        "walls_s": [
+          0.5625,
+          0.5496,
+          0.5643,
+          0.5606,
+          0.5447
+        ],
+        "cpus_s": [
+          0.5594,
+          0.5446,
+          0.5587,
+          0.5543,
+          0.5393
+        ],
+        "max_rss_kib": [
+          320240,
+          320284,
+          320312,
+          320364,
+          320400
+        ],
+        "rc": 0,
+        "error_count": 0,
+        "first_line": ""
+      },
+      "blot2-algo": {
+        "median_wall_s": 0.5038,
+        "median_cpu_s": 0.4979,
+        "median_rss_gib": 0.3028,
+        "walls_s": [
+          0.5273,
+          0.5018,
+          0.5347,
+          0.5038,
+          0.4842
+        ],
+        "cpus_s": [
+          0.5242,
+          0.4962,
+          0.5294,
+          0.4979,
+          0.4794
+        ],
+        "max_rss_kib": [
+          317668,
+          317548,
+          317424,
+          317576,
+          317520
+        ],
+        "rc": 0,
+        "error_count": 0,
+        "first_line": ""
+      },
+      "speedup_wall": 1.113,
+      "outputs": {
+        "v2": {
+          "bytes": 5147372,
+          "sha256": "04c01f4343771586ca9ded64301e01a15e003579ecbe627b331a6769741bf44e"
+        },
+        "new": {
+          "bytes": 5147372,
+          "sha256": "04c01f4343771586ca9ded64301e01a15e003579ecbe627b331a6769741bf44e"
+        }
+      }
+    }
+  },
+  "blot2": {
+    "cb1e9e15": {
+      "v2026.4-2": {
+        "median_wall_s": 19.8059,
+        "median_cpu_s": 19.7227,
+        "median_rss_gib": 3.5305,
+        "walls_s": [
+          19.8059,
+          19.8302,
+          19.1759
+        ],
+        "cpus_s": [
+          19.7227,
+          19.7413,
+          19.0964
+        ],
+        "max_rss_kib": [
+          3701892,
+          3701964,
+          3702028
+        ],
+        "rc": 1,
+        "error_count": 1,
+        "first_line": "check/check.goose:3422:86: error: reference into grow-shrink elements cannot be stored in a field, element, or global"
+      },
+      "blot2-algo": {
+        "median_wall_s": 6.8284,
+        "median_cpu_s": 6.7975,
+        "median_rss_gib": 2.0638,
+        "walls_s": [
+          6.9789,
+          6.8284,
+          6.6167
+        ],
+        "cpus_s": [
+          6.9496,
+          6.7975,
+          6.5885
+        ],
+        "max_rss_kib": [
+          2164108,
+          2163940,
+          2164068
+        ],
+        "rc": 1,
+        "error_count": 1,
+        "first_line": "check/check.goose:3422:86: error: reference into grow-shrink elements cannot be stored in a field, element, or global"
+      },
+      "speedup_wall": 2.901,
+      "speedup_cpu": 2.901,
+      "rss_delta_mib": -1501.9
+    },
+    "6ad5fbb": {
+      "v2026.4-2": {
+        "median_wall_s": 70.6067,
+        "median_cpu_s": 70.3074,
+        "median_rss_gib": 7.8851,
+        "walls_s": [
+          74.4308,
+          70.6067,
+          70.4239
+        ],
+        "cpus_s": [
+          74.1163,
+          70.3074,
+          70.1001
+        ],
+        "max_rss_kib": [
+          8268084,
+          8266648,
+          8329172
+        ],
+        "rc": 1,
+        "error_count": 1,
+        "first_line": "check/check.goose:3179:86: error: reference into grow-shrink elements cannot be stored in a field, element, or global"
+      },
+      "blot2-algo": {
+        "median_wall_s": 17.4326,
+        "median_cpu_s": 17.2553,
+        "median_rss_gib": 4.7975,
+        "walls_s": [
+          17.4326,
+          17.1271,
+          17.4462
+        ],
+        "cpus_s": [
+          17.3538,
+          17.053,
+          17.2553
+        ],
+        "max_rss_kib": [
+          5030580,
+          5030688,
+          5030552
+        ],
+        "rc": 1,
+        "error_count": 1,
+        "first_line": "check/check.goose:3179:86: error: reference into grow-shrink elements cannot be stored in a field, element, or global"
+      },
+      "speedup_wall": 4.05,
+      "speedup_cpu": 4.075,
+      "rss_delta_mib": -3161.7
+    }
+  }
+}

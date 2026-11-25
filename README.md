@@ -68,9 +68,13 @@ All measurements below compare qualified **`goose-to-wasm v2026.4-2`** (`93731c8
 
 ### 1. Large-project compile & check speed
 
-On the compiler's own ~30k-LOC codebase (`selfhost/main.goose`), `v2026.4-2` checks in **`0.39 s`** (**10.5× faster** than upstream C++ Goose's `4.08 s`), emits portable `-O2` WebAssembly in **`0.52 s`** (**8.6× faster** than upstream's `4.47 s` C emit), and emits `-O2` C in **`0.53 s`** (**8.5× faster** than upstream, and **−23.6% faster** than `v2026.4-1`'s `0.69 s` thanks to a **2.2× faster** C backend). Running **as portable WebAssembly** inside Wasmtime, it checks in `1.01 s` (**4.1× faster**) and self-compiles in `1.35 s` (**3.3× faster**). On the much larger class-keyed Blot2 compiler snapshots (`cb1e9e15` and `6ad5fbb`), `v2026.4-2` completes lifetime checking inside the default 2 GiB stack reserve in **`19.2 s`** (**−3.0%** vs `v2026.4-1`) and **`73.6 s`** (**−7.2%** and **−280 MiB** RSS vs `v2026.4-1`), while plain upstream C++ Goose timed out past `180 s` (`--header`) and `240 s` (`check`) in the pinned reference run.
+On the compiler's own ~30k-LOC codebase (`selfhost/main.goose`), `v2026.4-2` checks in **`0.39 s`** (**10.5× faster** than upstream C++ Goose's `4.08 s`), emits portable `-O2` WebAssembly in **`0.52 s`** (**8.6× faster** than upstream's `4.47 s` C emit), and emits `-O2` C in **`0.53 s`** (**8.5× faster** than upstream, and **−23.6% faster** than `v2026.4-1`'s `0.69 s` thanks to a **2.2× faster** C backend). Running **as portable WebAssembly** inside Wasmtime, it checks in `1.01 s` (**4.1× faster**) and self-compiles in `1.35 s` (**3.3× faster**).
+
+On `main` (post-`v2026.4-2`), a 7-round algorithmic redesign of the class-keyed lifetime checker further cuts `selfhost/main.goose --check` to **`0.30 s`** (**1.15× faster** than `v2026.4-2`'s `0.34 s` paired on CPU 7) and Wasm64 `-O2` emission to **`0.50 s`** (**1.11× faster**), while slashing the much larger frozen Blot2 compiler checks inside the default 2 GiB stack reserve to **`6.83 s` / `2.06 GiB` RSS** on `cb1e9e15` (**2.90× faster** and **−41.5% RSS** vs `v2026.4-2`'s `19.81 s` / `3.53 GiB`) and **`17.43 s` / `4.80 GiB` RSS** on `6ad5fbb` (**4.05× faster** and **−39.2% RSS** vs `v2026.4-2`'s `70.61 s` / `7.89 GiB`), where plain upstream C++ Goose timed out past `180 s` (`--header`) and `240 s` (`check`) in separate dated reference runs. [Blot2 lifetime checker redesign report & raw JSON](bench/results/2026-11-25/blot2-lifetime-algo/README.md)
 
 ![Compiler turnaround: goose-to-wasm v2026.4-2 vs v2026.4-1 & upstream C++ Goose](bench/results/2026-11-24/release-v2026.4-2/compile_turnaround_vs_goose.svg)
+
+![Blot2 lifetime checker redesign: main vs v2026.4-2, Batch 3 & upstream C++ Goose](bench/results/2026-11-25/blot2-lifetime-algo/blot2_turnaround_vs_v2.svg)
 
 ### 2. Everyday edit-compile turnaround (8 real programs)
 
@@ -166,6 +170,7 @@ Releases are versioned as **`v<goose-version>-<n>`** (currently **`v2026.4-2`**)
 
 All dated compiler, runtime, Wasmtime, `wtime-aot`, native C codegen, and Blot2 studies live under [`bench/results/`](bench/results/):
 
+- [Blot2 lifetime checker algorithmic redesign — 2.90× `cb1e9e15` (`6.83 s`), 4.05× `6ad5fbb` (`17.43 s`), −40% RSS (2026-11-25)](bench/results/2026-11-25/blot2-lifetime-algo/README.md)
 - [Release `v2026.4-2` head-to-head vs `v2026.4-1` & upstream C++ Goose (2026-11-24)](bench/results/2026-11-24/release-v2026.4-2/README.md)
 - [Release `v2026.4-1` head-to-head vs upstream C++ Goose (2026-11-24)](bench/results/2026-11-24/release-v2026.4-1/README.md)
 - [Blot2 class-keyed lifetime checker speedups — 3.6× `cb1e9e15`, 2.7× `6ad5fbb` (2026-11-24)](bench/results/2026-11-24/blot2-lifetime-speed/README.md)
