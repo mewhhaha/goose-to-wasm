@@ -19,6 +19,7 @@ struct DriverOptions {
     target: i64 = 0, target_set: bool = false, optimization: i64 = 0, initial_pages: i64 = 16, maximum_pages: i64 = 256, memory64: bool = false,
     check: bool = false, parse: bool = false, tokens: bool = false,
     dump: bool = false, dump_ir: bool = false, run: bool = false, debug: bool = false, library: bool = false, shared: bool = false, standalone: bool = false, reachable_program: bool = false, expansion_limit: i64 = 100000, stack_reserve: i64 = 0,
+    error_format: i64 = 0, color: i64 = 0,
     help: bool = false, version: bool = false, bad: bool = false,
 }
 fn driver_integer(out: u8[>..]&, value: i64) {
@@ -137,6 +138,21 @@ fn driver_ends_with(text: const u8[:], suffix: const u8[:]) -> bool {
     if text.len < suffix.len { return false; }
     return same_bytes(text[text.len - suffix.len..], suffix);
 }
+fn driver_starts_with(text: const u8[:], prefix: const u8[:]) -> bool {
+    if text.len < prefix.len { return false; }
+    return same_bytes(text[0..prefix.len], prefix);
+}
+fn driver_set_error_format(o: DriverOptions&, v: const u8[:]) {
+    if same_bytes(v, "text") { o.error_format = 0; }
+    else if same_bytes(v, "json") { o.error_format = 1; }
+    else { driver_error("--error-format must be text or json"); o.bad = true; }
+}
+fn driver_set_color(o: DriverOptions&, v: const u8[:]) {
+    if same_bytes(v, "auto") { o.color = 0; }
+    else if same_bytes(v, "always") { o.color = 1; }
+    else if same_bytes(v, "never") { o.color = 2; }
+    else { driver_error("--color must be auto, always or never"); o.bad = true; }
+}
 fn driver_options(o: DriverOptions&, arguments: u8[:][:]) {
     var at = 1;
     while at < arguments.len {
@@ -160,10 +176,13 @@ fn driver_options(o: DriverOptions&, arguments: u8[:][:]) {
         else if same_bytes(a, "-O0") { o.optimization = 0; }
         else if same_bytes(a, "-O1") { o.optimization = 1; }
         else if same_bytes(a, "-O2") { o.optimization = 2; }
+        else if driver_starts_with(a, "--error-format=") { driver_set_error_format(o, a[15..]); }
+        else if driver_starts_with(a, "--color=") { driver_set_color(o, a[8..]); }
         else if same_bytes(a, "-o") || same_bytes(a, "--stdlib") || same_bytes(a, "--wasm-stats") ||
                 same_bytes(a, "--wasm-deps") || same_bytes(a, "--cc") || same_bytes(a, "--target") || same_bytes(a, "--wasm-region-profile") ||
                 same_bytes(a, "--wasm-initial-pages") || same_bytes(a, "--wasm-max-pages") || same_bytes(a, "--expansion-node-limit") ||
-                same_bytes(a, "--stack-reserve") || same_bytes(a, "--emit-runtime") || same_bytes(a, "--header") {
+                same_bytes(a, "--stack-reserve") || same_bytes(a, "--emit-runtime") || same_bytes(a, "--header") ||
+                same_bytes(a, "--error-format") || same_bytes(a, "--color") {
             if at >= arguments.len { driver_error("missing option value"); o.bad = true; break; }
             let v = arguments[at]; at++;
             if same_bytes(a, "-o") { o.output_arg = at - 1; }
@@ -174,6 +193,8 @@ fn driver_options(o: DriverOptions&, arguments: u8[:][:]) {
             else if same_bytes(a, "--cc") { o.cc_arg = at - 1; }
             else if same_bytes(a, "--emit-runtime") { o.emit_runtime_arg = at - 1; }
             else if same_bytes(a, "--header") { o.header_arg = at - 1; }
+            else if same_bytes(a, "--error-format") { driver_set_error_format(o, v); }
+            else if same_bytes(a, "--color") { driver_set_color(o, v); }
             else if same_bytes(a, "--target") {
                 o.target_set = true;
                 if same_bytes(v, "wasm-direct") { o.target = 0; }
@@ -209,7 +230,20 @@ fn driver_options(o: DriverOptions&, arguments: u8[:][:]) {
         driver_error("invalid memory page limits"); o.bad = true;
     }
 }
-fn driver_diag_snippet(p: Program&, d: const Diagnostic&, out: u8[>..]&) {
+fn driver_ansi(out: u8[>..]&, color: bool, code: const u8[:]) {
+    if !color { return; }
+    out.push(27); out.push('['); out.append(code); out.push('m');
+}
+fn driver_use_color(o: const DriverOptions&) -> bool {
+    if o.color == 1 { return true; }
+    if o.color == 2 { return false; }
+    var buf: u8[>..] = [];
+    if env("NO_COLOR", buf) { return false; }
+    buf.clear();
+    if env("CLICOLOR_FORCE", buf) && buf.len > 0 && !same_bytes(buf, "0") { return true; }
+    return false;
+}
+fn driver_diag_snippet(p: Program&, d: const Diagnostic&, out: u8[>..]&, color: bool) {
     if d.source < 0 || d.source >= p.sources.len { return; }
     let s: const Source& = p.sources[d.source];
     let text_start = s.text_start; let text_end = s.text_start + s.text_len;
@@ -225,9 +259,11 @@ fn driver_diag_snippet(p: Program&, d: const Diagnostic&, out: u8[>..]&) {
     if line_end <= line_start || line_end - line_start > 240 { return; }
     var num_buf: u8[>..] = []; driver_integer(num_buf, d.line);
     var gutter = num_buf.len; if gutter < 3 { gutter = 3; }
+    driver_ansi(out, color, "1;34");
     out.push(' ');
     for pi in num_buf.len..gutter { out.push(' '); }
     out.append(num_buf); out.append(" | ");
+    driver_ansi(out, color, "0");
     var caret_col: i64 = 0; var span_cols: i64 = 0;
     var span_end = d.end;
     if span_end <= d.start { span_end = d.start + 1; }
@@ -240,34 +276,120 @@ fn driver_diag_snippet(p: Program&, d: const Diagnostic&, out: u8[>..]&) {
         else if i < span_end { span_cols += width; }
     }
     out.push('\n');
+    driver_ansi(out, color, "1;34");
     out.push(' ');
     for pi in 0..gutter { out.push(' '); }
     out.append(" | ");
+    driver_ansi(out, color, "0");
     for ci in 0..caret_col { out.push(' '); }
+    driver_ansi(out, color, "1;31");
     out.push('^');
     if span_cols > 1 {
         for si in 1..span_cols { out.push('~'); }
     }
+    driver_ansi(out, color, "0");
     out.push('\n');
 }
-fn driver_diagnostics(p: Program&) {
+fn driver_diag_notes(out: u8[>..]&, tail: const u8[:], color: bool) {
+    if !color { out.append(tail); out.push('\n'); return; }
+    var pos: i64 = 0;
+    while pos <= tail.len {
+        var nl = pos;
+        while nl < tail.len && tail[nl] != 10 { nl += 1; }
+        let seg = tail[pos..nl];
+        if driver_starts_with(seg, "  note:") {
+            out.append("  "); driver_ansi(out, true, "1;36"); out.append("note:"); driver_ansi(out, true, "0");
+            out.append(seg[7..]);
+        } else if driver_starts_with(seg, "  help:") {
+            out.append("  "); driver_ansi(out, true, "1;32"); out.append("help:"); driver_ansi(out, true, "0");
+            out.append(seg[7..]);
+        } else {
+            out.append(seg);
+        }
+        out.push('\n');
+        pos = nl + 1;
+    }
+}
+fn driver_diagnostics_json(p: Program&) {
+    var out: u8[>..] = [];
+    out.push('[');
+    for d, di in p.diagnostics {
+        if di > 0 { out.push(','); }
+        out.append("{\"severity\":");
+        if d.severity == 0 { driver_json(out, "warning"); }
+        else if d.severity == 2 { driver_json(out, "note"); }
+        else { driver_json(out, "error"); }
+        out.append(",\"file\":");
+        var base: i64 = 0;
+        if d.source >= 0 && d.source < p.sources.len {
+            let s: const Source& = p.sources[d.source];
+            driver_json(out, p.text[s.path_start..s.path_start + s.path_len]);
+            base = s.text_start;
+        } else { driver_json(out, "<source>"); }
+        var rel_start = d.start - base; if rel_start < 0 { rel_start = 0; }
+        var rel_end = d.end - base; if rel_end < rel_start { rel_end = rel_start; }
+        out.append(",\"line\":"); driver_integer(out, d.line);
+        out.append(",\"column\":"); driver_integer(out, d.column);
+        out.append(",\"start\":"); driver_integer(out, rel_start);
+        out.append(",\"end\":"); driver_integer(out, rel_end);
+        let msg = p.messages[d.message_start..d.message_start + d.message_len];
+        var split: i64 = -1;
+        for i in 0..msg.len { if msg[i] == 10 { split = i; break; } }
+        out.append(",\"message\":");
+        if split >= 0 { driver_json(out, msg[0..split]); } else { driver_json(out, msg); }
+        out.append(",\"notes\":[");
+        if split >= 0 {
+            var pos = split + 1;
+            var ncount: i64 = 0;
+            while pos <= msg.len {
+                var nl = pos;
+                while nl < msg.len && msg[nl] != 10 { nl += 1; }
+                var line_start = pos;
+                if line_start + 2 <= nl && msg[line_start] == ' ' && msg[line_start + 1] == ' ' { line_start += 2; }
+                if nl > line_start {
+                    if ncount > 0 { out.push(','); }
+                    driver_json(out, msg[line_start..nl]);
+                    ncount += 1;
+                }
+                pos = nl + 1;
+            }
+        }
+        out.append("]}");
+    }
+    out.append("]\n");
+    write_stderr(out);
+}
+fn driver_diagnostics(p: Program&, o: const DriverOptions&) {
+    if o.error_format == 1 { driver_diagnostics_json(p); return; }
+    let color = driver_use_color(o);
     for d in p.diagnostics {
         var line: u8[>..] = [];
+        driver_ansi(line, color, "1");
         if d.source >= 0 && d.source < p.sources.len {
             let s: const Source& = p.sources[d.source]; line.append(p.text[s.path_start..s.path_start + s.path_len]);
         } else { line.append("<source>"); }
         line.push(':'); driver_integer(line, d.line); line.push(':'); driver_integer(line, d.column);
-        line.append(": error: ");
+        line.append(": ");
+        driver_ansi(line, color, "1;31");
+        line.append("error:");
+        driver_ansi(line, color, "0");
+        line.push(' ');
         let msg = p.messages[d.message_start..d.message_start + d.message_len];
         var split: i64 = -1;
         for i in 0..msg.len { if msg[i] == 10 { split = i; break; } }
         if split >= 0 {
-            line.append(msg[0..split]); line.push('\n');
-            driver_diag_snippet(p, d, line);
-            line.append(msg[split + 1..]); line.push('\n');
+            driver_ansi(line, color, "1");
+            line.append(msg[0..split]);
+            driver_ansi(line, color, "0");
+            line.push('\n');
+            driver_diag_snippet(p, d, line, color);
+            driver_diag_notes(line, msg[split + 1..], color);
         } else {
-            line.append(msg); line.push('\n');
-            driver_diag_snippet(p, d, line);
+            driver_ansi(line, color, "1");
+            line.append(msg);
+            driver_ansi(line, color, "0");
+            line.push('\n');
+            driver_diag_snippet(p, d, line, color);
         }
         write_stderr(line);
     }
@@ -419,7 +541,7 @@ fn driver_exec(command: u8[>..]&) -> i64 {
 }
 let GOOSE_TO_WASM_VERSION = "v2026.4-3";
 fn driver_help() {
-    write_stdout("goose-to-wasm "); write_stdout(GOOSE_TO_WASM_VERSION); write_stdout(" — fast Goose compiler (direct WebAssembly & native C)\nUsage: goose source.goose [--target wasm-direct|native|c] -o output [-O0|-O1|-O2]\n  --check --parse --tokens --dump --debug --stdlib DIR --wasm-stats FILE --wasm-deps FILE\n  --emit-runtime FILE  Write the standalone native C runtime unit and exit.\n  --header FILE        Emit a C host header (goose_init, goose_exit, exports) and separate-runtime C.\n  --shared             Build or emit a C shared library with exported symbols.\n  --standalone         Embed the native C runtime even when emitting with --header.\n  --wasm-memory64      Target WebAssembly memory64.\n  --wasm-bundled-host  Target the bundled host implementations for recognized imports.\n  --reachable-program  Check only functions a root reaches, and the signatures of the rest.\n  --expansion-node-limit N  Total const for expansion size (default 100000).\n  --stack-reserve SIZE  Address space reserved per data stack in a native program, from 64K to 256T\n                        with a K, M, G or T suffix (default 2G).\n  --run                Build native C with --cc and execute, or execute Wasm with GOOSE_WASM_HOST.\n  --version            Print compiler version.\n");
+    write_stdout("goose-to-wasm "); write_stdout(GOOSE_TO_WASM_VERSION); write_stdout(" — fast Goose compiler (direct WebAssembly & native C)\nUsage: goose source.goose [--target wasm-direct|native|c] -o output [-O0|-O1|-O2]\n  --check --parse --tokens --dump --debug --stdlib DIR --wasm-stats FILE --wasm-deps FILE\n  --error-format text|json  Diagnostic output format (default text).\n  --color auto|always|never Colorize text diagnostics (default auto; respects NO_COLOR).\n  --emit-runtime FILE  Write the standalone native C runtime unit and exit.\n  --header FILE        Emit a C host header (goose_init, goose_exit, exports) and separate-runtime C.\n  --shared             Build or emit a C shared library with exported symbols.\n  --standalone         Embed the native C runtime even when emitting with --header.\n  --wasm-memory64      Target WebAssembly memory64.\n  --wasm-bundled-host  Target the bundled host implementations for recognized imports.\n  --reachable-program  Check only functions a root reaches, and the signatures of the rest.\n  --expansion-node-limit N  Total const for expansion size (default 100000).\n  --stack-reserve SIZE  Address space reserved per data stack in a native program, from 64K to 256T\n                        with a K, M, G or T suffix (default 2G).\n  --run                Build native C with --cc and execute, or execute Wasm with GOOSE_WASM_HOST.\n  --version            Print compiler version.\n");
 }
 fn driver_main() -> i64 {
     // Every path lives in one byte table: each array holds its own storage region.
@@ -463,7 +585,7 @@ fn driver_main() -> i64 {
     var symbols: Symbol[>..] = []; var diagnostics: Diagnostic[>..] = [];
     var type_properties: i64[>..] = []; var builtin_symbols: i64[>..] = [];
     var type_buckets: TypeBucket[>..] = []; var type_links: TypeLink[>..] = []; var type_scan_marks: i64[>..] = []; var type_holds: i64[>..] = [];
-    var inline_sites: InlineSite[>..] = []; var region_profile: i64[>..] = [];
+    var inline_sites: InlineSite[>..] = []; var instantiation_stack: InstantiationSite[>..] = []; var region_profile: i64[>..] = [];
     var ident_table: i32[>..] = [];
     // A region profile is lines of "index bytes", as a host writes them
     // (GOOSE_REGION_PROFILE): what each data region was seen to need.
@@ -487,7 +609,7 @@ fn driver_main() -> i64 {
                       nodes: nodes, types: types, symbols: symbols, diagnostics: diagnostics,
                       type_properties: type_properties, builtin_symbols: builtin_symbols,
                       type_buckets: type_buckets, type_links: type_links, type_scan_marks: type_scan_marks, type_holds: type_holds,
-                      inline_sites: inline_sites, region_profile: region_profile, ident_table: ident_table };
+                      inline_sites: inline_sites, instantiation_stack: instantiation_stack, region_profile: region_profile, ident_table: ident_table };
     let link_shared = o.shared && !driver_ends_with(paths[output_start..output_end], ".c");
     p.optimization = o.optimization; p.debug = o.debug; p.library = o.library;
     p.c_host = o.header_arg >= 0 || o.shared; p.shared = o.shared;
@@ -498,7 +620,7 @@ fn driver_main() -> i64 {
     else if o.memory64 { p.pointer_bytes = 8; p.wide = true; p.control_bytes = 48; p.control_align = 8; }
     initialize_types(p);
     let started = clock_ns(); load_sources(p, paths[source_start..source_end], paths[stdlib_start..stdlib_end], o.tokens); let parsed = clock_ns();
-    if p.diagnostics.len > 0 { driver_diagnostics(p); return 1; }
+    if p.diagnostics.len > 0 { driver_diagnostics(p, o); return 1; }
     if o.tokens {
         driver_tokens(p);
         return 0;
@@ -506,16 +628,16 @@ fn driver_main() -> i64 {
     if o.dump { let s = p.sources[0]; write_stdout(p.text[s.text_start..s.text_start + s.text_len]); return 0; }
     if o.parse {
         check_program(p, true);
-        if p.diagnostics.len > 0 { driver_diagnostics(p); return 1; }
+        if p.diagnostics.len > 0 { driver_diagnostics(p, o); return 1; }
         return 0;
     }
     check_program(p); let checked = clock_ns();
     if o.dump_ir {
         driver_ir(p);
-        if p.diagnostics.len > 0 { driver_diagnostics(p); return 1; }
+        if p.diagnostics.len > 0 { driver_diagnostics(p, o); return 1; }
         return 0;
     }
-    if p.diagnostics.len > 0 { driver_diagnostics(p); return 1; }
+    if p.diagnostics.len > 0 { driver_diagnostics(p, o); return 1; }
     // Checking ends with the checker, as upstream `goose check` does; the
     // optimizer only prepares code generation and reports nothing.
     if o.check {
@@ -526,11 +648,11 @@ fn driver_main() -> i64 {
         return 0;
     }
     optimize_program(p); let optimized = clock_ns();
-    if p.diagnostics.len > 0 { driver_diagnostics(p); return 1; }
+    if p.diagnostics.len > 0 { driver_diagnostics(p, o); return 1; }
     var output: u8[>..] = [];
     if o.target == 0 { generate_wasm(p, output); } else { generate_c(p, output); }
     let generated = clock_ns();
-    if p.diagnostics.len > 0 { driver_diagnostics(p); return 1; }
+    if p.diagnostics.len > 0 { driver_diagnostics(p, o); return 1; }
     if !driver_outputs_distinct(p, paths[output_start..output_end], paths[stats_start..stats_end], paths[dependency_start..dependency_end], paths[header_start..header_end]) { return 1; }
     if runtime_end > runtime_start {
         var runtime_out: u8[>..] = [];
@@ -570,7 +692,15 @@ fn driver_main() -> i64 {
             command.append(" -lm -ldl -pthread -o "); driver_quote(command, binary);
         }
         let code = driver_exec(command); if code != 0 { return code; }
-        command.clear(); driver_quote(command, binary);
+        command.clear();
+        var has_sep = false;
+        for ch in binary { if ch == '/' || ch == '\\' { has_sep = true; break; } }
+        if !has_sep {
+            var exec_path: u8[>..] = []; exec_path.append("./"); exec_path.append(binary);
+            driver_quote(command, exec_path);
+        } else {
+            driver_quote(command, binary);
+        }
     } else {
         var host: u8[>..] = [];
         if !env("GOOSE_WASM_HOST", host) { host.append("build/bin/goose-wasmtime"); }

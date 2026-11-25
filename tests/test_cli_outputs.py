@@ -96,6 +96,10 @@ class OutputCollisions(unittest.TestCase):
         for name in ("m.wasm", "s.json", "d.json"):
             self.assertTrue((self.work / name).stat().st_size > 0)
 
+    def test_run_native_without_output_flag(self):
+        result = self.build("--run", target="native")
+        self.assertEqual((result.returncode, result.stdout), (0, "41\n"), result.stderr)
+
 
 @unittest.skipUnless(COMPILER.is_file(), "bootstrap the compiler first")
 class InliningBudget(unittest.TestCase):

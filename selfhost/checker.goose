@@ -633,7 +633,14 @@ fn check_declare(p: Program&, c: Checker&, node: i64, scope: i64) -> i64 {
             (flags & (S_GLOBAL | S_FUNCTION | S_TYPE)) != 0 && (old.flags & (S_GLOBAL | S_FUNCTION | S_TYPE)) != 0 &&
             (flags & (S_FUNCTION | S_TYPE)) != (old.flags & (S_FUNCTION | S_TYPE));
         if !namespace_merge && !namespace_apart && !overload && !separate_global_roles {
-            diagnose(p, n_token, "duplicate declaration in this scope"); break;
+            let prev_tok = old.name_token;
+            var msg: u8[>..] = [];
+            msg.append("duplicate declaration in this scope: `"); msg.append(token_text(p, n_token)); msg.push('`');
+            if prev_tok >= 0 && prev_tok < p.tokens.len {
+                msg.append("\n  note: previously declared at ");
+                format_token_location(p, prev_tok, msg);
+            }
+            diagnose(p, n_token, msg); break;
         }
         collision = old.next;
     }
@@ -1801,7 +1808,9 @@ recursive fn check_nominal_instance(p: Program&, c: Checker&, declaration: i64, 
         p.nodes[binding].type_id = b.value; check_declare(p, c, binding, c.scope);
     }
     p.nodes[copy].scope = c.scope;
+    push_instantiation(p, declaration, token);
     check_layout_nominal(p, c, ty);
+    pop_instantiation(p);
     c.scope = saved; c.inference_depth -= 1; c.type_chain = saved_chain;
     return ty;
 }
@@ -3571,7 +3580,14 @@ recursive fn check_record(p: Program&, c: Checker&, node: i64, expected: i64) ->
         }
         else {
             var ui = used.first;
-            while ui >= 0 { if c.integer_work[ui].value == field { diagnose(p, b_tok, "field initialized more than once"); } ui = c.integer_work[ui].next; }
+            while ui >= 0 {
+                if c.integer_work[ui].value == field {
+                    var msg: u8[>..] = [];
+                    msg.append("field initialized more than once: `"); msg.append(token_text(p, p.nodes[field].token)); msg.push('`');
+                    diagnose(p, b_tok, msg);
+                }
+                ui = c.integer_work[ui].next;
+            }
             if (b_flags & F_DEFAULT) == 0 {
                 check_list_push(c, used, field);
                 if b_tok >= 0 {
@@ -3601,6 +3617,7 @@ recursive fn check_record(p: Program&, c: Checker&, node: i64, expected: i64) ->
     p.nodes[node].right = source_order;
     // Put every supplied or omitted initializer in place before checking any.
     var ordered = -1; var last = -1; var field = first;
+    var missing_count: i64 = 0; var missing_toks: i64[8] = [-1; 8];
     while field >= 0 {
         let f_flags = p.nodes[field].flags; let f_right = p.nodes[field].right;
         let f_type_id = p.nodes[field].type_id; let f_tok = p.nodes[field].token; let f_next = p.nodes[field].next;
@@ -3614,7 +3631,8 @@ recursive fn check_record(p: Program&, c: Checker&, node: i64, expected: i64) ->
         if (f_flags & F_PAD) == 0 {
             if init < 0 {
                 if f_right < 0 && (n_flags & F_DEFAULT) == 0 && !(f_type_id >= 0 && p.types[f_type_id].kind == TY_REF && (p.types[f_type_id].flags & TF_OPTIONAL) != 0) {
-                    diagnose(p, n_tok, "record literal leaves a field without an initializer");
+                    if missing_count < 8 { missing_toks[missing_count] = f_tok; }
+                    missing_count += 1;
                 } else {
                     var value = -1;
                     if f_right >= 0 { var bindings = CheckList {}; value = check_clone(p, c, f_right, bindings); }
@@ -3628,6 +3646,22 @@ recursive fn check_record(p: Program&, c: Checker&, node: i64, expected: i64) ->
             }
         }
         field = f_next;
+    }
+    if missing_count > 0 {
+        var missing_msg: u8[>..] = [];
+        missing_msg.append("record literal leaves a field without an initializer: `");
+        diag_append_type(p, ty, missing_msg);
+        missing_msg.append("` is missing ");
+        var shown = missing_count; if shown > 8 { shown = 8; }
+        for mi in 0..shown {
+            if mi > 0 { missing_msg.append(", "); }
+            missing_msg.push('`'); missing_msg.append(token_text(p, missing_toks[mi])); missing_msg.push('`');
+        }
+        if missing_count > 8 {
+            missing_msg.append(", ... ("); missing_msg.format(missing_count - 8); missing_msg.append(" more)");
+        }
+        missing_msg.append("\n  help: provide initializers for the missing field(s) or add default values");
+        diagnose(p, n_tok, missing_msg);
     }
     if last >= 0 { p.nodes[last].next = -1; }
     p.nodes[node].first = ordered; p.nodes[node].last = last;
@@ -4667,7 +4701,9 @@ recursive fn check_specialize_function(p: Program&, c: Checker&, original: i64, 
         check_declare(p, c, binding, c.scope);
     }
     p.nodes[copy].scope = c.scope;
+    push_instantiation(p, original, token);
     check_prepare_function(p, c, copy); check_mark_literal_parameters(p, c, original, copy, bindings); check_function(p, c, copy);
+    pop_instantiation(p);
     p.nodes[original].flags |= p.nodes[copy].flags & (F_CAPTURE | F_NONLOCAL);
     if p.nodes[original].captures < 0 { p.nodes[original].captures = p.nodes[copy].captures; }
     c.scope = saved; c.inference_depth -= 1;
@@ -5558,7 +5594,10 @@ recursive fn check_call(p: Program&, c: Checker&, node: i64, expected: i64) -> i
     if best < 0 { return -1; }
     let function_node = p.symbols[best].node;
     p.nodes[node].symbol = best; p.nodes[callee_node].symbol = best;
+    let lib_inst = (p.nodes[function_node].flags & (F_CHECKED | F_GENERIC)) == 0 && library_node(p, function_node);
+    if lib_inst { push_instantiation(p, function_node, n_tok); }
     check_function(p, c, function_node);
+    if lib_inst { pop_instantiation(p); }
     var formal = p.nodes[function_node].first; var index = 0; var last = -1;
     while formal >= 0 {
         var value = -1;
@@ -6936,7 +6975,14 @@ recursive fn check_match(p: Program&, c: Checker&, node: i64, expected: i64) -> 
                 if pat.type_id >= 0 && p.types[pat.type_id].kind == TY_STRUCT && p.types[pat.type_id].pool >= 0 && p.types[p.types[pat.type_id].pool].declaration != p.types[source].declaration { diagnose(p, pat.token, "const for variant pattern belongs to a different enum type"); }
                 var variant = p.types[source].first;
                 while variant >= 0 { if same_name(p, p.nodes[variant].token, pat.token) { break; } variant = p.nodes[variant].next; }
-                if variant < 0 { diagnose(p, pat.token, "match pattern names no variant of this enum"); }
+                if variant < 0 {
+                    var msg: u8[>..] = [];
+                    msg.append("match pattern names no variant of this enum: `");
+                    diag_append_type(p, source, msg);
+                    msg.append("` has no variant `"); msg.append(token_text(p, pat.token)); msg.push('`');
+                    diag_suggest_member(p, p.types[source].first, token_text(p, pat.token), "variants", msg);
+                    diagnose(p, pat.token, msg);
+                }
                 else {
                     let tag = p.nodes[variant].integer;
                     for previous_index in 0..tags.count { let previous = check_list_at(c, tags, previous_index); if previous == tag { diagnose(p, pat.token, "duplicate enum match pattern"); } }
@@ -7028,7 +7074,36 @@ recursive fn check_match(p: Program&, c: Checker&, node: i64, expected: i64) -> 
     // Integer patterns always retain an explicit default arm, including a
     // complete finite-width partition. Enum wildcards may be empty after
     // specialization and remain valid generic code.
-    if !exhaustive { diagnose(p, n.token, "match does not cover every possible value"); }
+    if !exhaustive {
+        var msg: u8[>..] = [];
+        msg.append("match does not cover every possible value");
+        if enum_match {
+            var v = p.types[source].first; var missing: i64 = 0;
+            while v >= 0 {
+                let tag = p.nodes[v].integer;
+                var covered = false;
+                for ti in 0..tags.count {
+                    if check_list_at(c, tags, ti) == tag { covered = true; break; }
+                }
+                if !covered {
+                    if missing == 0 { msg.append(": missing variant(s): "); }
+                    else if missing < 8 { msg.append(", "); }
+                    if missing < 8 {
+                        msg.push('`'); msg.append(token_text(p, p.nodes[v].token)); msg.push('`');
+                    }
+                    missing += 1;
+                }
+                v = p.nodes[v].next;
+            }
+            if missing > 8 {
+                msg.append(", ... ("); msg.format(missing - 8); msg.append(" more)");
+            }
+            msg.append("\n  help: add the missing arm(s) or a wildcard `_ => ...`");
+        } else {
+            msg.append("\n  help: integer match requires a wildcard arm `_ => ...`");
+        }
+        diagnose(p, n.token, msg);
+    }
     if any_reachable {
         // Meet the reachable arms' states from the state before the match.
         check_flow_undo(c, mark);
@@ -7144,7 +7219,14 @@ recursive fn check_return_value(p: Program&, c: Checker&, node: i64) {
     if forward_tuple && converted_first >= 0 { actual = p.nodes[converted_first].type_id; }
     if expected >= 0 && !check_same_type(p, expected, actual) {
         if n_first < 0 || !single_return || check_conversion(p, c, n_first, actual, expected) < 0 {
-            diagnose(p, n_tok, "return values do not match the function result signature");
+            var msg: u8[>..] = [];
+            msg.append("return values do not match the function result signature: got `");
+            diag_append_type(p, actual, msg);
+            msg.append("`, expected `");
+            diag_append_type(p, expected, msg);
+            msg.push('`');
+            diag_conversion_help(p, actual, expected, msg);
+            diagnose(p, n_tok, msg);
         }
     }
     // An exit only reaches a target being checked: its join is that check's end.
@@ -7450,7 +7532,15 @@ fn check_assignment_target(p: Program&, c: Checker&, target: i64, value: i64, re
     if n_kind == N_NAME && root >= 0 && !through_ref {
         let s_flags = p.symbols[root].flags; let s_ty = p.symbols[root].type_id; let vi = check_variable_index(c, root);
         if (s_flags & S_MUTABLE) == 0 && (vi < 0 || c.variables[vi].maybeassigned) {
-            diagnose(p, n_tok, "let binding cannot be assigned again");
+            var msg: u8[>..] = [];
+            msg.append("let binding cannot be assigned again: `"); msg.append(token_text(p, n_tok)); msg.push('`');
+            let decl_tok = p.symbols[root].name_token;
+            if decl_tok >= 0 && decl_tok < p.tokens.len {
+                msg.append("\n  note: `"); msg.append(token_text(p, decl_tok)); msg.append("` declared at ");
+                format_token_location(p, decl_tok, msg);
+            }
+            msg.append("\n  help: declare `"); msg.append(token_text(p, n_tok)); msg.append("` with `var` to allow reassignment");
+            diagnose(p, n_tok, msg);
         }
         check_note_effect(c, root, 6);
         if vi >= 0 {

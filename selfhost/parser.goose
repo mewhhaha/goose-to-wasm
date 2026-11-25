@@ -43,6 +43,24 @@ fn parse_expect(p: Program&, c: ParseCursor&, kind: i64, message: const u8[:]) -
     if !parse_accept(p, c, kind) { parse_error(p, c, message); }
     return token;
 }
+fn parse_expect_close(p: Program&, c: ParseCursor&, kind: i64, open_token: i64, message: const u8[:]) -> i64 {
+    let token = c.at;
+    if !parse_accept(p, c, kind) {
+        c.failed = true;
+        if !c.tentative {
+            if open_token >= 0 && open_token < p.tokens.len && open_token != c.at {
+                var full: u8[>..] = [];
+                full.append(message);
+                full.append("\n  note: opening delimiter at ");
+                format_token_location(p, open_token, full);
+                diagnose(p, c.at, full);
+            } else {
+                diagnose(p, c.at, message);
+            }
+        }
+    }
+    return token;
+}
 fn parse_node(p: Program&, kind: i64, token: i64) -> i64 {
     return new_node(p, kind, token);
 }
@@ -103,7 +121,20 @@ fn parse_angle_end(p: Program&, c: ParseCursor&) {
 fn parse_duplicate(p: Program&, c: ParseCursor&, first: i64, token: i64) {
     var id = first;
     while id >= 0 {
-        if same_name(p, p.nodes[id].token, token) { parse_error(p, c, "duplicate declaration name"); return; }
+        if same_name(p, p.nodes[id].token, token) {
+            c.failed = true;
+            if !c.tentative {
+                var msg: u8[>..] = [];
+                msg.append("duplicate declaration name: `"); msg.append(token_text(p, token)); msg.push('`');
+                let prev = p.nodes[id].token;
+                if prev >= 0 && prev < p.tokens.len {
+                    msg.append("\n  note: previously declared at ");
+                    format_token_location(p, prev, msg);
+                }
+                diagnose(p, token, msg);
+            }
+            return;
+        }
         id = p.nodes[id].next;
     }
 }
@@ -125,24 +156,25 @@ recursive fn parse_type(p: Program&, c: ParseCursor&) -> i64 {
     var id: i64 = -1;
     let kind = parse_kind(p, c);
     if kind == T_LPAREN {
-        parse_next(p, c);
+        let open = parse_next(p, c);
         let saved = c.for_binding; c.for_binding = false;
         id = parse_type(p, c); c.for_binding = saved;
-        parse_expect(p, c, T_RPAREN, "expected ) after type");
+        parse_expect_close(p, c, T_RPAREN, open, "expected ) after type");
     } else if kind == T_FN {
         parse_next(p, c);
         id = parse_node(p, N_TYPE_FN, token);
-        if parse_accept(p, c, T_LPAREN) {
+        if parse_kind(p, c) == T_LPAREN {
+            let open = parse_next(p, c);
             p.nodes[id].flags |= F_EXPLICIT_PARAMS;
             let args = parse_type_list(p, c, T_RPAREN);
             p.nodes[id].first = args;
-            parse_expect(p, c, T_RPAREN, "expected ) after function argument types");
+            parse_expect_close(p, c, T_RPAREN, open, "expected ) after function argument types");
             if parse_accept(p, c, T_ARROW) {
-                let multiple = parse_accept(p, c, T_LPAREN);
                 var results: i64 = -1;
-                if multiple {
+                if parse_kind(p, c) == T_LPAREN {
+                    let ropen = parse_next(p, c);
                     results = parse_type_list(p, c, T_RPAREN);
-                    parse_expect(p, c, T_RPAREN, "expected ) after function result types");
+                    parse_expect_close(p, c, T_RPAREN, ropen, "expected ) after function result types");
                 } else { results = parse_type(p, c); }
                 p.nodes[id].left = results;
             }
@@ -204,7 +236,7 @@ recursive fn parse_type(p: Program&, c: ParseCursor&) -> i64 {
                 let size = parse_subexpr(p, c, false); p.nodes[array].right = size;
                 p.nodes[array].integer = A_FIXED;
             }
-            parse_expect(p, c, T_RBRACKET, "expected ] after array type"); id = array;
+            parse_expect_close(p, c, T_RBRACKET, at, "expected ] after array type"); id = array;
         } else if postfix == T_BITAND || postfix == T_QUESTION {
             let at = parse_next(p, c);
             if postfix == T_QUESTION && p.nodes[id].kind == N_TYPE_REF {
@@ -337,7 +369,7 @@ recursive fn parse_record(p: Program&, c: ParseCursor&, type_node: i64, fragment
         if c.at == at { parse_error(p, c, "record initializer made no progress"); break; }
         if !parse_accept(p, c, T_COMMA) { break; }
     }
-    parse_expect(p, c, T_RCURLY, "expected } after record literal");
+    parse_expect_close(p, c, T_RCURLY, token, "expected } after record literal");
     if !expanded && named > 0 && positional > 0 { parse_error(p, c, "record literal mixes named and positional initializers"); }
     p.nodes[id].first = first; p.nodes[id].last = last; return id;
 }
@@ -357,10 +389,10 @@ recursive fn parse_type_arguments(p: Program&, c: ParseCursor&, call_only: bool 
     c.tentative = saved.tentative; c.failed = saved.failed; return arguments;
 }
 recursive fn parse_call(p: Program&, c: ParseCursor&, callee: i64) -> i64 {
-    parse_expect(p, c, T_LPAREN, "expected ( in call");
+    let open = parse_expect(p, c, T_LPAREN, "expected ( in call");
     let token = p.nodes[callee].token;
     let arguments = parse_expr_list(p, c, T_RPAREN);
-    parse_expect(p, c, T_RPAREN, "expected ) after call arguments");
+    parse_expect_close(p, c, T_RPAREN, open, "expected ) after call arguments");
     let call = parse_node(p, N_CALL, token);
     p.nodes[call].left = callee; p.nodes[call].first = arguments;
     if parse_kind(p, c) == T_LCURLY && !c.no_record {
@@ -389,7 +421,7 @@ recursive fn parse_postfix(p: Program&, c: ParseCursor&) -> i64 {
                     high = parse_subexpr(p, c, false);
                 }
             } else if flags != 0 { parse_error(p, c, "^ bounds are only valid in slices"); }
-            parse_expect(p, c, T_RBRACKET, "expected ] after index or slice");
+            parse_expect_close(p, c, T_RBRACKET, token, "expected ] after index or slice");
             let id = parse_node(p, node_kind, token);
             p.nodes[id].left = value; p.nodes[id].right = low; p.nodes[id].third = high; p.nodes[id].flags = flags; value = id;
         } else if kind == T_DOT {
@@ -469,7 +501,7 @@ recursive fn parse_primary(p: Program&, c: ParseCursor&) -> i64 {
     }
     if kind == T_LPAREN {
         parse_next(p, c); let id = parse_subexpr(p, c, false);
-        parse_expect(p, c, T_RPAREN, "expected ) after expression"); return id;
+        parse_expect_close(p, c, T_RPAREN, token, "expected ) after expression"); return id;
     }
     if kind == T_LBRACKET {
         parse_next(p, c); let id = parse_node(p, N_ARRAY, token);
@@ -488,7 +520,7 @@ recursive fn parse_primary(p: Program&, c: ParseCursor&) -> i64 {
             }
         }
         p.nodes[id].first = first; p.nodes[id].last = last;
-        parse_expect(p, c, T_RBRACKET, "expected ] after array literal"); return id;
+        parse_expect_close(p, c, T_RBRACKET, token, "expected ] after array literal"); return id;
     }
     parse_error(p, c, "expected an expression");
     return parse_node(p, N_EMPTY, parse_next(p, c));
@@ -627,8 +659,8 @@ recursive fn parse_arms(p: Program&, c: ParseCursor&, owner: i64) {
 recursive fn parse_match(p: Program&, c: ParseCursor&) -> i64 {
     let token = parse_next(p, c); let value = parse_subexpr(p, c, true);
     let id = parse_node(p, N_MATCH, token); p.nodes[id].left = value;
-    parse_expect(p, c, T_LCURLY, "expected { after match value"); parse_arms(p, c, id);
-    parse_expect(p, c, T_RCURLY, "expected } after match arms");
+    let open = parse_expect(p, c, T_LCURLY, "expected { after match value"); parse_arms(p, c, id);
+    parse_expect_close(p, c, T_RCURLY, open, "expected } after match arms");
     if p.nodes[id].first < 0 { parse_error(p, c, "match must have at least one arm"); } return id;
 }
 recursive fn parse_const_for(p: Program&, c: ParseCursor&, context: i64) -> i64 {
@@ -646,8 +678,9 @@ recursive fn parse_const_for(p: Program&, c: ParseCursor&, context: i64) -> i64 
     p.nodes[id].first = first; p.nodes[id].last = last; parse_angle_end(p, c);
     parse_expect(p, c, T_IN, "expected in after const for bindings");
     var source: i64 = -1; var source_kind = 0;
-    if parse_accept(p, c, T_LBRACKET) {
-        source = parse_expr_list(p, c, T_RBRACKET); parse_expect(p, c, T_RBRACKET, "expected ] after const for constants");
+    if parse_kind(p, c) == T_LBRACKET {
+        let open = parse_next(p, c);
+        source = parse_expr_list(p, c, T_RBRACKET); parse_expect_close(p, c, T_RBRACKET, open, "expected ] after const for constants");
     } else {
         if parse_word(p, c, "fields") { source_kind = 1; }
         else if parse_word(p, c, "types") { source_kind = 2; }
@@ -666,7 +699,7 @@ recursive fn parse_const_for(p: Program&, c: ParseCursor&, context: i64) -> i64 
     if context == 1 { body = parse_record(p, c, -1, true); }
     else if context == 2 {
         let open = parse_expect(p, c, T_LCURLY, "expected { before const for arms"); body = parse_node(p, N_MATCH, open);
-        parse_arms(p, c, body); parse_expect(p, c, T_RCURLY, "expected } after const for arms");
+        parse_arms(p, c, body); parse_expect_close(p, c, T_RCURLY, open, "expected } after const for arms");
     } else { body = parse_block(p, c); }
     p.nodes[id].right = body; return id;
 }
@@ -696,7 +729,7 @@ recursive fn parse_const_if_branch(p: Program&, c: ParseCursor&, context: i64) -
     if context == 1 { return parse_record(p, c, -1, true); }
     if context == 2 {
         let open = parse_expect(p, c, T_LCURLY, "expected { before const if arms"); let body = parse_node(p, N_MATCH, open);
-        parse_arms(p, c, body); parse_expect(p, c, T_RCURLY, "expected } after const if arms"); return body;
+        parse_arms(p, c, body); parse_expect_close(p, c, T_RCURLY, open, "expected } after const if arms"); return body;
     }
     return parse_block(p, c);
 }
@@ -780,9 +813,9 @@ recursive fn parse_function(p: Program&, c: ParseCursor&, nested: bool, inherite
     p.nodes[id].scope = c.namespace_token; p.nodes[id].integer = symbol;
     if library >= 0 { p.nodes[id].aux = library; }
     let generic = parse_generics(p, c); p.nodes[id].third = generic;
-    parse_expect(p, c, T_LPAREN, "expected ( after function name");
+    let open = parse_expect(p, c, T_LPAREN, "expected ( after function name");
     let params = parse_parameters(p, c, T_RPAREN, true); p.nodes[id].first = params;
-    parse_expect(p, c, T_RPAREN, "expected ) after function parameters");
+    parse_expect_close(p, c, T_RPAREN, open, "expected ) after function parameters");
     if parse_accept(p, c, T_ARROW) {
         var first: i64 = -1; var last: i64 = -1;
         loop {
@@ -884,21 +917,22 @@ recursive fn parse_aggregate(p: Program&, c: ParseCursor&) -> i64 {
     var node_kind = N_STRUCT; if kind == T_ENUM { node_kind = N_ENUM; }
     let id = parse_node(p, node_kind, p.nodes[name].token); p.nodes[id].scope = c.namespace_token;
     let generic = parse_generics(p, c); p.nodes[id].third = generic;
-    parse_expect(p, c, T_LCURLY, "expected { in aggregate declaration");
+    let open = parse_expect(p, c, T_LCURLY, "expected { in aggregate declaration");
     if kind == T_STRUCT { parse_fields(p, c, id); }
     else {
         while parse_kind(p, c) != T_RCURLY && parse_kind(p, c) != T_EOF {
             let at = c.at; let token = parse_expect(p, c, T_IDENT, "expected enum variant name");
             parse_duplicate(p, c, p.nodes[id].first, token); let variant = parse_node(p, N_VARIANT, token);
-            if parse_accept(p, c, T_LCURLY) {
+            if parse_kind(p, c) == T_LCURLY {
+                let vopen = parse_next(p, c);
                 p.nodes[variant].flags |= F_EXPLICIT_PARAMS; parse_fields(p, c, variant);
-                parse_expect(p, c, T_RCURLY, "expected } after variant fields");
+                parse_expect_close(p, c, T_RCURLY, vopen, "expected } after variant fields");
             }
             append_child(p, id, variant);
             if c.at == at || !parse_accept(p, c, T_COMMA) { break; }
         }
     }
-    parse_expect(p, c, T_RCURLY, "expected } after aggregate declaration");
+    parse_expect_close(p, c, T_RCURLY, open, "expected } after aggregate declaration");
     c.namespace_token = saved_namespace; return id;
 }
 fn parse_assignment(kind: i64) -> bool {
@@ -1043,7 +1077,18 @@ recursive fn parse_block_body(p: Program&, c: ParseCursor&, body_node: i64) {
             if parse_kind(p, c) != T_RCURLY { parse_resync(p, c, false); }
         }
     }
-    parse_error(p, c, "expected } before end of file");
+    let open_tok = p.nodes[body_node].token;
+    if open_tok >= 0 && open_tok < p.tokens.len && p.tokens[open_tok].kind == T_LCURLY {
+        c.failed = true;
+        if !c.tentative {
+            var full: u8[>..] = [];
+            full.append("expected } before end of file\n  note: opening `{` at ");
+            format_token_location(p, open_tok, full);
+            diagnose(p, c.at, full);
+        }
+    } else {
+        parse_error(p, c, "expected } before end of file");
+    }
     c.statement = statement; c.ended = ended; c.no_record = restricted;
 }
 recursive fn parse_top(p: Program&, c: ParseCursor&) -> i64 {

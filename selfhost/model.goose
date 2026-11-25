@@ -339,6 +339,8 @@ struct TypeLink { next: i64 = -1, hash: i64 = 0 }
 // Inliner::AtCallSite), nodes first until end: a failed check at one reports
 // the line of site, the program's call into the library (location_token).
 struct InlineSite { first: i64 = 0, end: i64 = 0, site: i64 = -1 }
+// Active generic/stdlib instantiation frames for diagnostics (upstream 2b509397).
+struct InstantiationSite { decl_node: i64 = -1, call_token: i64 = -1 }
 struct Program {
     text: u8[>..]&, messages: u8[>..]&, sources: Source[>..]&,
     tokens: Token[>..]&, nodes: Node[>..]&, types: Type[>..]&,
@@ -387,6 +389,8 @@ struct Program {
     leaving_marked: bool = false,
     // Library code inlined into the program's code, in ascending first.
     inline_sites: InlineSite[>..]&,
+    // Active generic/stdlib instantiation call stack for diagnostic notes.
+    instantiation_stack: InstantiationSite[>..]&, instantiation_depth: i64 = 0,
     // Direct Wasm data regions: region_profile[i] is the bytes region i was
     // seen to need (--wasm-region-profile), the weight of its share of memory;
     // region_stats makes the module keep each region's high-water mark.
@@ -514,10 +518,53 @@ fn format_token_location(p: Program&, token: i64, out: u8[>..]&) {
         out.append("<source>");
     }
 }
+fn push_instantiation(p: Program&, decl_node: i64, call_token: i64) {
+    let site = InstantiationSite { decl_node: decl_node, call_token: call_token };
+    if p.instantiation_depth < p.instantiation_stack.len { p.instantiation_stack[p.instantiation_depth] = site; }
+    else { p.instantiation_stack.push(site); }
+    p.instantiation_depth += 1;
+}
+fn pop_instantiation(p: Program&) {
+    if p.instantiation_depth > 0 { p.instantiation_depth -= 1; }
+}
 fn diagnose_at(p: Program&, source: i64, start: i64, end: i64, message: const u8[:]) {
+    var full: u8[>..] = [];
+    full.append(message);
+    if p.instantiation_depth > 0 {
+        var shown: i64 = 0;
+        var prev_tok: i64 = -1;
+        var idx = p.instantiation_depth;
+        while idx > 0 && shown < 8 {
+            idx -= 1;
+            let frame = p.instantiation_stack[idx];
+            let ctok = frame.call_token;
+            if ctok < 0 || ctok >= p.tokens.len || ctok == prev_tok { continue; }
+            let ct = p.tokens[ctok];
+            if ct.source == source && ct.start == start { continue; }
+            prev_tok = ctok;
+            full.append("\n  note: while instantiating ");
+            var named = false;
+            var is_type = false;
+            if frame.decl_node >= 0 && frame.decl_node < p.nodes.len {
+                let dn_kind = p.nodes[frame.decl_node].kind;
+                let dn_tok = p.nodes[frame.decl_node].token;
+                if dn_kind == N_STRUCT || dn_kind == N_ENUM { is_type = true; }
+                if dn_kind == N_FUNCTION_VALUE {
+                    full.append("function value"); named = true;
+                } else if dn_tok >= 0 && dn_tok < p.tokens.len && p.tokens[dn_tok].kind == T_IDENT {
+                    full.push('`'); full.append(token_text(p, dn_tok)); full.push('`');
+                    named = true;
+                }
+            }
+            if !named { full.append("declaration"); }
+            if is_type { full.append(" referenced at "); } else { full.append(" called from "); }
+            format_token_location(p, ctok, full);
+            shown += 1;
+        }
+    }
     for d in p.diagnostics {
         if d.source == source && d.start == start &&
-           same_bytes(p.messages[d.message_start..d.message_start + d.message_len], message) { return; }
+           same_bytes(p.messages[d.message_start..d.message_start + d.message_len], full) { return; }
     }
     var line = 1; var column = 1;
     if source >= 0 && source < p.sources.len {
@@ -527,9 +574,9 @@ fn diagnose_at(p: Program&, source: i64, start: i64, end: i64, message: const u8
         }
     }
     let at = p.messages.len;
-    p.messages.append(message);
+    p.messages.append(full);
     p.diagnostics.push(Diagnostic { source: source, start: start, end: end,
-        line: line, column: column, message_start: at, message_len: message.len });
+        line: line, column: column, message_start: at, message_len: full.len });
 }
 fn diagnose(p: Program&, token: i64, message: const u8[:]) {
     if token >= 0 && token < p.tokens.len {
