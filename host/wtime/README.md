@@ -1,11 +1,11 @@
 # goose-wtime
 
-A thin `#![forbid(unsafe_code)]` Rust host for direct Goose WebAssembly (wasm32 and `--wasm-memory64`) on [`wtime`](https://github.com/mewhhaha/wtime) (`wtime-runtime` 0.1.2).
+A thin `#![forbid(unsafe_code)]` Rust host for direct Goose WebAssembly (wasm32 and `--wasm-memory64`) on [`wtime`](https://github.com/mewhhaha/wtime) (`wtime-runtime` 0.1.3).
 
 It binds:
 - Standard direct-Goose `goose.*` imports (`write`, `print_*`, `newline`, `abort`, `exit`, `format_f64`) and pure-Rust math imports (`frexp`, `ldexp`, `gs_*`, `acosh`, `asinh`, `atanh`, `sinh`, `tanh`, `exp2`).
 - Goose OS imports (`env.gs_os_*`).
-- Blot2's `env.blot_*` POSIX/fd/directory/args/env/clock/bit/atomic surface, allowing frozen Blot2 compiled directly to Wasm64 (`--library --reachable-program --target wasm-direct --wasm-memory64`) to run unmodified under `wtime`.
+- Blot2's `env.blot_*` POSIX/fd/directory/args/env/clock/bit/atomic/copy (`blot_copy_u8`, `blot_copy_u32`) surface, allowing archived Blot2 (`cb1e9e15` and `98f277f2`) compiled directly to Wasm64 (`--library --reachable-program --target wasm-direct --wasm-memory64`) to run unmodified under `wtime`.
 
 ## Build
 

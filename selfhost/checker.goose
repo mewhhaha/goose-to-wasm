@@ -632,7 +632,8 @@ fn check_declare(p: Program&, c: Checker&, node: i64, scope: i64) -> i64 {
         let separate_global_roles = (scope == 0 || scope >= 0 && c.scopes[scope].namespace_node >= 0) &&
             (flags & (S_GLOBAL | S_FUNCTION | S_TYPE)) != 0 && (old.flags & (S_GLOBAL | S_FUNCTION | S_TYPE)) != 0 &&
             (flags & (S_FUNCTION | S_TYPE)) != (old.flags & (S_FUNCTION | S_TYPE));
-        if !namespace_merge && !namespace_apart && !overload && !separate_global_roles {
+        let discard = n_kind == N_BINDING && token_is(p, n_token, "_");
+        if !discard && !namespace_merge && !namespace_apart && !overload && !separate_global_roles {
             let prev_tok = old.name_token;
             var msg: u8[>..] = [];
             msg.append("duplicate declaration in this scope: `"); msg.append(token_text(p, n_token)); msg.push('`');

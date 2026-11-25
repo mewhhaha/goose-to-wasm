@@ -29,15 +29,26 @@ pub struct Host {
     input_position: usize,
     pub out: Vec<u8>,
     pub err: Vec<u8>,
-    arguments: Vec<Vec<u8>>,
+    pub(crate) arguments: Vec<Vec<u8>>,
     memory: Option<Memory>,
     /// The module's exported `goose.reserve`, once looked for.
     reserve: Option<Option<Func>>,
+    pub(crate) blot: crate::blot::BlotState,
 }
 
 impl Host {
     pub fn new(input: Vec<u8>, arguments: Vec<Vec<u8>>) -> Host {
-        Host { input, token_at: 0, input_position: 0, out: Vec::new(), err: Vec::new(), arguments, memory: None, reserve: None }
+        Host {
+            input,
+            token_at: 0,
+            input_position: 0,
+            out: Vec::new(),
+            err: Vec::new(),
+            arguments,
+            memory: None,
+            reserve: None,
+            blot: crate::blot::BlotState::new(),
+        }
     }
 
     /// The next token of the input, split on ASCII whitespace.
@@ -86,13 +97,14 @@ pub fn failure(text: impl Into<String>) -> Error {
 }
 
 /// What an import gives back, before the type the module declared for it.
-enum Out {
+pub(crate) enum Out {
     Nothing,
     Integer(i64),
     Float(f64),
+    Float32(f32),
 }
 
-type Handler = for<'a, 'b> fn(&'a mut Caller<'b, Host>, &[Val]) -> Result<Out>;
+pub(crate) type Handler = for<'a, 'b> fn(&'a mut Caller<'b, Host>, &[Val]) -> Result<Out>;
 
 /// Defines every import of `module`, each with the type declared for it.
 pub fn define_imports(linker: &mut Linker<Host>, module: &Module) -> Result<()> {
@@ -115,6 +127,8 @@ pub fn define_imports(linker: &mut Linker<Host>, module: &Module) -> Result<()> 
                 (Out::Integer(value), [ValType::I64]) => results[0] = Val::I64(value),
                 (Out::Float(value), [ValType::F64]) => results[0] = Val::F64(value.to_bits()),
                 (Out::Float(value), [ValType::F32]) => results[0] = Val::F32((value as f32).to_bits()),
+                (Out::Float32(value), [ValType::F32]) => results[0] = Val::F32(value.to_bits()),
+                (Out::Float32(value), [ValType::F64]) => results[0] = Val::F64(f64::from(value).to_bits()),
                 _ => return Err(failure("host import result does not fit its declared type")),
             }
             Ok(())
@@ -205,7 +219,7 @@ fn handler_for(module: &str, name: &str) -> Option<Handler> {
         ("wasi_snapshot_preview1", "fd_seek") => {
             |_, values| Ok(Out::Integer(if (0..=2).contains(&integer(values, 0)?) { 70 } else { 8 }))
         }
-        _ => return None,
+        _ => return crate::blot::handler_for(module, name),
     };
     Some(handler)
 }
@@ -217,7 +231,7 @@ fn value(values: &[Val], index: usize) -> Result<&Val> {
 }
 
 /// An integer argument as a signed number, an i32 widened.
-fn integer(values: &[Val], index: usize) -> Result<i64> {
+pub(crate) fn integer(values: &[Val], index: usize) -> Result<i64> {
     match value(values, index)? {
         Val::I32(value) => Ok(i64::from(*value)),
         Val::I64(value) => Ok(*value),
@@ -225,7 +239,7 @@ fn integer(values: &[Val], index: usize) -> Result<i64> {
     }
 }
 
-fn float(values: &[Val], index: usize) -> Result<f64> {
+pub(crate) fn float(values: &[Val], index: usize) -> Result<f64> {
     match value(values, index)? {
         Val::F32(bits) => Ok(f64::from(f32::from_bits(*bits))),
         Val::F64(bits) => Ok(f64::from_bits(*bits)),
@@ -283,7 +297,7 @@ fn address(value: i64) -> i128 {
 
 // Memory.
 
-fn memory(caller: &mut Caller<'_, Host>) -> Result<Memory> {
+pub(crate) fn memory(caller: &mut Caller<'_, Host>) -> Result<Memory> {
     if let Some(memory) = caller.data().memory {
         return Ok(memory);
     }
@@ -297,7 +311,7 @@ fn memory(caller: &mut Caller<'_, Host>) -> Result<Memory> {
 }
 
 /// The bytes of a memory of `size` bytes that `length` bytes at `pointer` are.
-fn span(size: usize, pointer: i128, length: i128) -> Result<Range<usize>> {
+pub(crate) fn span(size: usize, pointer: i128, length: i128) -> Result<Range<usize>> {
     if pointer < 0 || length < 0 {
         return Err(failure("negative host address"));
     }
@@ -307,12 +321,12 @@ fn span(size: usize, pointer: i128, length: i128) -> Result<Range<usize>> {
     Ok(pointer as usize..(pointer + length) as usize)
 }
 
-fn read_bytes(caller: &mut Caller<'_, Host>, pointer: i128, length: i128) -> Result<Vec<u8>> {
+pub(crate) fn read_bytes(caller: &mut Caller<'_, Host>, pointer: i128, length: i128) -> Result<Vec<u8>> {
     let data = memory(caller)?.data(&*caller);
     Ok(data[span(data.len(), pointer, length)?].to_vec())
 }
 
-fn write_bytes(caller: &mut Caller<'_, Host>, pointer: i128, bytes: &[u8]) -> Result<()> {
+pub(crate) fn write_bytes(caller: &mut Caller<'_, Host>, pointer: i128, bytes: &[u8]) -> Result<()> {
     let data = memory(caller)?.data_mut(&mut *caller);
     let range = span(data.len(), pointer, bytes.len() as i128)?;
     data[range].copy_from_slice(bytes);

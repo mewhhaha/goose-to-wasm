@@ -557,6 +557,31 @@ fn dispatch_import(
         ("env", "blot_f32_mul_add") => Ok(Out::F32(
             arg_f32(args, 0)?.mul_add(arg_f32(args, 1)?, arg_f32(args, 2)?),
         )),
+        ("env", "blot_copy_u32") => {
+            let mem = mem_of(state)?;
+            let dst = arg_u64(args, 0)?;
+            let src = arg_u64(args, 1)?;
+            let count = arg_u64(args, 2)? as usize;
+            if count > 0 {
+                let bytes = count
+                    .checked_mul(4)
+                    .ok_or_else(|| host_err("blot_copy_u32 size overflow"))?;
+                let data = caller.store().read_memory(mem, src, bytes)?;
+                caller.store().write_memory(mem, dst, &data)?;
+            }
+            Ok(Out::Void)
+        }
+        ("env", "blot_copy_u8") => {
+            let mem = mem_of(state)?;
+            let dst = arg_u64(args, 0)?;
+            let src = arg_u64(args, 1)?;
+            let count = arg_u64(args, 2)? as usize;
+            if count > 0 {
+                let data = caller.store().read_memory(mem, src, count)?;
+                caller.store().write_memory(mem, dst, &data)?;
+            }
+            Ok(Out::Void)
+        }
         ("env", "blot_platform_is_linux") => Ok(Out::Int(if cfg!(target_os = "linux") { 1 } else { 0 })),
         ("env", "blot_process_id") => Ok(Out::Int(i64::from(std::process::id()))),
         ("env", "blot_thread_id") => Ok(Out::Int(i64::from(std::process::id()))),

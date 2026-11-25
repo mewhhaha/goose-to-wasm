@@ -12,12 +12,13 @@ use std::path::PathBuf;
 use std::process::exit;
 
 use goose_wasmtime::pytext::normalized_path;
-use goose_wasmtime::run::{bytes_of, create_config, os_error_text, path_of, read_file, run_module, Outcome, HOSTED_STACK_BYTES};
+use goose_wasmtime::run::{bytes_of, create_config, os_error_text, path_of, read_file, run_module_entry, Outcome, HOSTED_STACK_BYTES};
 
-const USAGE: &str = "usage: goose-wasmtime module.wasm [--timing-json path] [--cache path | --no-cache] [-- program arguments]";
+const USAGE: &str = "usage: goose-wasmtime module.wasm [--entry name] [--timing-json path] [--cache path | --no-cache] [-- program arguments]";
 
 struct Options {
     module: PathBuf,
+    entry: Option<String>,
     timing_json: Option<PathBuf>,
     cache: Option<PathBuf>,
     /// What follows `--`: the program's arguments after its own name.
@@ -39,7 +40,7 @@ fn options() -> Options {
         own.pop();
         rest
     });
-    let (mut module, mut timing_json, mut cache) = (None, None, None);
+    let (mut module, mut entry, mut timing_json, mut cache) = (None, None, None, None);
     let mut no_cache = false;
     let mut unrecognized: Vec<String> = Vec::new();
     let mut own = own.into_iter();
@@ -59,14 +60,16 @@ fn options() -> Options {
         // A long option may be shortened to any prefix only it has.
         let named = |option: &[u8]| name.len() > 2 && option.starts_with(name);
         if (name == b"-h" || named(b"--help")) && value.is_none() {
-            println!("{USAGE}\n\nRun direct Goose WebAssembly with Wasmtime. Stdin is the program's input.\n\n  --timing-json path  write engine timings to this file\n  --cache path        keep the compiled module in this file and reuse it for the same module bytes");
+            println!("{USAGE}\n\nRun direct Goose WebAssembly with Wasmtime. Stdin is the program's input.\n\n  --entry name        invoke this exported function after _start\n  --timing-json path  write engine timings to this file\n  --cache path        keep the compiled module in this file and reuse it for the same module bytes");
             exit(0);
         }
         if name == b"--no-cache" && value.is_none() {
             no_cache = true;
             continue;
         }
-        let slot = if named(b"--timing-json") {
+        let slot = if named(b"--entry") {
+            &mut entry
+        } else if named(b"--timing-json") {
             &mut timing_json
         } else if named(b"--cache") {
             &mut cache
@@ -90,7 +93,8 @@ fn options() -> Options {
         usage_error(&format!("unrecognized arguments: {}", unrecognized.join(" ")));
     }
     let path = |spelling: Vec<u8>| path_of(normalized_path(&spelling));
-    Options { module: path(module), timing_json: timing_json.map(path), cache: cache.map(path), arguments }
+    let entry = entry.map(|bytes| String::from_utf8_lossy(&bytes).into_owned());
+    Options { module: path(module), entry, timing_json: timing_json.map(path), cache: cache.map(path), arguments }
 }
 
 fn read_stdin() -> Result<Vec<u8>, String> {
@@ -100,28 +104,34 @@ fn read_stdin() -> Result<Vec<u8>, String> {
 }
 
 fn run(options: &Options) -> Result<i64, String> {
-    let outcome = match &options.arguments {
-        None => {
+    let outcome = if options.arguments.is_none() && options.entry.is_none() {
+        let data = read_file(&options.module)?;
+        run_module_entry(&data, read_stdin()?, vec![b"program".to_vec()], &create_config(false), options.cache.as_deref(), None)?
+    } else {
+        // On a thread whose stack holds the Wasm stack the config allows.
+        let hosted = || -> Result<Outcome, String> {
             let data = read_file(&options.module)?;
-            run_module(&data, read_stdin()?, vec![b"program".to_vec()], &create_config(false), options.cache.as_deref())?
-        }
-        Some(arguments) => {
-            // On a thread whose stack holds the Wasm stack the config allows.
-            let hosted = || -> Result<Outcome, String> {
-                let data = read_file(&options.module)?;
-                let mut program = vec![bytes_of(&options.module)];
+            let mut program = vec![bytes_of(&options.module)];
+            if let Some(arguments) = &options.arguments {
                 program.extend(arguments.iter().cloned());
-                run_module(&data, read_stdin()?, program, &create_config(true), options.cache.as_deref())
-            };
-            std::thread::scope(|scope| {
-                std::thread::Builder::new()
-                    .stack_size(HOSTED_STACK_BYTES + (64 << 20))
-                    .spawn_scoped(scope, hosted)
-                    .map_err(|_| "can't start new thread".to_string())?
-                    .join()
-                    .unwrap_or_else(|_| Err("the host thread panicked".to_string()))
-            })?
-        }
+            }
+            run_module_entry(
+                &data,
+                read_stdin()?,
+                program,
+                &create_config(true),
+                options.cache.as_deref(),
+                options.entry.as_deref(),
+            )
+        };
+        std::thread::scope(|scope| {
+            std::thread::Builder::new()
+                .stack_size(HOSTED_STACK_BYTES + (64 << 20))
+                .spawn_scoped(scope, hosted)
+                .map_err(|_| "can't start new thread".to_string())?
+                .join()
+                .unwrap_or_else(|_| Err("the host thread panicked".to_string()))
+        })?
     };
     // A reader that has gone away is not this program's failure.
     let mut stdout = std::io::stdout().lock();

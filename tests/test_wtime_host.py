@@ -11,6 +11,7 @@ ROOT = Path(__file__).resolve().parents[1]
 COMPILER = Path(os.environ.get("GOOSE_COMPILER", ROOT / "build/bin/goose"))
 STDLIB = ROOT / "stdlib"
 WTIME_HOST = ROOT / "host/wtime/target/release/goose-wtime"
+RUST_HOST = ROOT / "host/rust/target/release/goose-wasmtime"
 
 
 @unittest.skipUnless(COMPILER.is_file(), "bootstrap the compiler first")
@@ -131,6 +132,8 @@ class WtimeHostExecutionTests(unittest.TestCase):
             'extern fn argument_count() -> i64 = "blot_argument_count";\n'
             'extern fn argument_size(index: i64) -> i64 = "blot_argument_size";\n'
             'extern fn argument_copy(index: i64, out: u8&, capacity: u64) -> i64 = "blot_argument_copy";\n'
+            'extern fn copy_u8(dst: u8&, src: const u8&, count: u64) = "blot_copy_u8";\n'
+            'extern fn copy_u32(dst: u32&, src: const u8&, count: u64) = "blot_copy_u32";\n'
             'extern fn open_write(path: const u8&, exclusive: bool) -> i32 = "blot_open_write";\n'
             'extern fn write_fd(fd: i32, first: const u8&, count: u64) -> i64 = "blot_write";\n'
             'extern fn close_fd(fd: i32) -> i32 = "blot_close";\n'
@@ -148,7 +151,14 @@ class WtimeHostExecutionTests(unittest.TestCase):
             '    let wfd = open_write(path[0], false);\n'
             '    if wfd < 0 { return 4; }\n'
             '    let msg: u8[>..] = "hello-wtime";\n'
-            '    if write_fd(wfd, msg[0], msg.len as u64) != msg.len { return 5; }\n'
+            '    var dup: u8[>..] = [];\n'
+            '    dup.resize(msg.len, 0);\n'
+            '    copy_u8(dup[0], msg[0], msg.len as u64);\n'
+            '    var raw_u32: u8[4] = [0x78, 0x56, 0x34, 0x12];\n'
+            '    var out_u32: u32[1] = [0];\n'
+            '    copy_u32(out_u32[0], raw_u32[0], 1);\n'
+            '    if out_u32[0] != 0x12345678 { return 9; }\n'
+            '    if write_fd(wfd, dup[0], dup.len as u64) != dup.len { return 5; }\n'
             '    if close_fd(wfd) != 0 { return 6; }\n'
             '    let rfd = open_read(path[0]);\n'
             '    if rfd < 0 { return 7; }\n'
@@ -171,6 +181,21 @@ class WtimeHostExecutionTests(unittest.TestCase):
         self.assertEqual(run.returncode, 0, run.stderr)
         self.assertEqual(run.stdout.strip(), "hello-wtime")
         self.assertEqual(payload_file.read_text(), "hello-wtime")
+
+        if RUST_HOST.is_file():
+            payload_wt = self.work / "probe-wasmtime.txt"
+            cache = self.work / "probe.cwasm"
+            for attempt in range(2):
+                run_wt = subprocess.run(
+                    [str(RUST_HOST), str(wasm), "--entry", "probe_main", "--cache", str(cache), "--", str(payload_wt)],
+                    stdin=subprocess.DEVNULL,
+                    capture_output=True,
+                    text=True,
+                )
+                self.assertEqual(run_wt.returncode, 0, f"attempt={attempt}: {run_wt.stderr}")
+                self.assertEqual(run_wt.stdout.strip(), "hello-wtime")
+                self.assertEqual(payload_wt.read_text(), "hello-wtime")
+            self.assertTrue(cache.is_file())
 
 
 if __name__ == "__main__":

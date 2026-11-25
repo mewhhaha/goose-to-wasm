@@ -343,6 +343,43 @@ fn main() {
                  "    var e = Engine { reflections: arr };\n"
                  "    print(finish(e));\n",
              ), "reference into grow-shrink elements cannot be stored"),
+            ("folded globals shrink does not false-positive against disjoint class parameter target",
+             wrap(
+                 "\n".join(f"var gbuf_{i}: u8[>..<] = [{i}];" for i in range(20)) + "\n"
+                 "struct Job { code: i64 = 0 }\n"
+                 "fn pick_buf(i: i64) -> u8[>..<]& {\n"
+                 + "".join(f"    if i == {i} {{ return gbuf_{i}; }}\n" for i in range(19))
+                 + "    return gbuf_19;\n"
+                 "}\n"
+                 "fn run_work(i: i64) -> i64 {\n"
+                 "    pick_buf(i).clear();\n"
+                 "    return 7;\n"
+                 "}\n"
+                 "fn execute_job(job: Job&, i: i64) {\n"
+                 "    job.code = run_work(i);\n"
+                 "}\n",
+                 "    var j = Job { .. };\n"
+                 "    execute_job(j, 3);\n"
+                 "    print(j.code);\n",
+             ), ""),
+            ("negative: folded globals shrink still rejects overlapping class parameter target",
+             wrap(
+                 "struct Job { code: i64 = 0 }\n"
+                 + "\n".join(f"var gjobs_{i}: Job[>..<] = [Job {{ code: {i} }}];" for i in range(20)) + "\n"
+                 "fn pick_jobs(i: i64) -> Job[>..<]& {\n"
+                 + "".join(f"    if i == {i} {{ return gjobs_{i}; }}\n" for i in range(19))
+                 + "    return gjobs_19;\n"
+                 "}\n"
+                 "fn run_work(i: i64) -> i64 {\n"
+                 "    pick_jobs(i).clear();\n"
+                 "    return 7;\n"
+                 "}\n"
+                 "fn execute_job(job: Job&, i: i64) {\n"
+                 "    job.code = run_work(i);\n"
+                 "}\n",
+                 "    execute_job(gjobs_3[0], 3);\n"
+                 "    print(gjobs_3.len);\n",
+             ), "array shrink invalidates a value still needed by the enclosing expression"),
         ]
         with tempfile.TemporaryDirectory() as directory:
             source = Path(directory) / "main.goose"
@@ -356,6 +393,60 @@ fn main() {
                         self.assertIn(error, result.stderr)
                     else:
                         self.assertEqual(result.returncode, 0, result.stderr)
+
+    def test_multi_discard_bindings(self):
+        # Multiple `_` bindings in local declarations and `for` loops match
+        # upstream Goose semantics across both backends; duplicate `_`
+        # parameters, globals, and undeclared `_` assignment stay rejected.
+        source_text = """\
+fn triple() -> i64, i64, i64 { return 10, 20, 30; }
+fn pair() -> i64, i64 { return 40, 50; }
+fn main() {
+    let a, _, _ = triple();
+    var _, _ = pair();
+    let _ = 1;
+    let _ = 2;
+    let xs: i64[3] = [1, 2, 3];
+    var count = 0;
+    for _, _ in xs { count += 1; }
+    print(a + count);
+}
+"""
+        with tempfile.TemporaryDirectory() as directory:
+            work = Path(directory)
+            src = work / "discard.goose"
+            src.write_text(source_text)
+            for opt in ("-O0", "-O2"):
+                with self.subTest(backend="native", opt=opt):
+                    ran = subprocess.run(
+                        [COMPILER, src, "--target", "native", opt, "--run", "--stdlib", SOURCE_STDLIB],
+                        cwd=work, stdin=subprocess.DEVNULL, capture_output=True, text=True, timeout=30,
+                    )
+                    self.assertEqual((ran.returncode, ran.stdout), (0, "13\n"), ran.stderr)
+                with self.subTest(backend="wasm-direct", opt=opt):
+                    wasm = work / f"discard{opt}.wasm"
+                    built = subprocess.run(
+                        [COMPILER, src, "--target", "wasm-direct", opt, "--stdlib", SOURCE_STDLIB, "-o", wasm],
+                        stdin=subprocess.DEVNULL, capture_output=True, text=True, timeout=30,
+                    )
+                    self.assertEqual(built.returncode, 0, built.stderr)
+                    host_cmd = [RUST_HOST, wasm] if RUST_HOST.is_file() else [sys.executable, ROOT / "scripts/run_wasmtime.py", wasm]
+                    ran = subprocess.run(host_cmd, stdin=subprocess.DEVNULL, capture_output=True, text=True, timeout=30)
+                    self.assertEqual((ran.returncode, ran.stdout), (0, "13\n"), ran.stderr)
+
+            for name, bad in (
+                ("duplicate param", "fn f(_: i64, _: i64) {}\nfn main() { f(1, 2); }\n"),
+                ("duplicate global", "let _ = 1;\nlet _ = 2;\nfn main() {}\n"),
+                ("undeclared assign", "fn pair() -> i64, i64 { return 1, 2; }\nfn main() { var a = 0; a, _ = pair(); }\n"),
+            ):
+                with self.subTest(negative=name):
+                    bad_src = work / f"{name.replace(' ', '_')}.goose"
+                    bad_src.write_text(bad)
+                    res = subprocess.run(
+                        [COMPILER, bad_src, "--target", "native", "--check", "--stdlib", SOURCE_STDLIB],
+                        stdin=subprocess.DEVNULL, capture_output=True, text=True, timeout=30,
+                    )
+                    self.assertEqual(res.returncode, 1, res.stderr)
 
 
 @unittest.skipUnless(COMPILER.is_file(), "bootstrap the compiler first")

@@ -4634,7 +4634,13 @@ recursive fn life_alias_deep(p: Program&, l: Lifetimes&, a: LifeAlt, b: LifeAlt)
             else { bty = l.roots[b.root].class_pointee; }
         }
         if bty >= 0 && !life_globals_contain(p, l, bty) { return false; }
-        if a.target_type >= 0 && l.roots[b.root].class_frame < 0 && l.roots[b.root].type_id >= 0 && !life_contains_memo(p, l, l.roots[b.root].type_id, a.target_type as i64) { return false; }
+        if a.target_type >= 0 {
+            if l.roots[b.root].class_frame < 0 {
+                if l.roots[b.root].type_id >= 0 && !life_contains_memo(p, l, l.roots[b.root].type_id, a.target_type as i64) { return false; }
+            } else if bty >= 0 && !life_contains_memo(p, l, bty, a.target_type as i64) && !life_contains_memo(p, l, a.target_type as i64, bty) {
+                return false;
+            }
+        }
     }
     if life_is_global_bound(l, b) && !b.byteview && a.exact && !a.byteview && a.root != 0 {
         var aty = a.target_type as i64;
@@ -4644,7 +4650,13 @@ recursive fn life_alias_deep(p: Program&, l: Lifetimes&, a: LifeAlt, b: LifeAlt)
             else { aty = l.roots[a.root].class_pointee; }
         }
         if aty >= 0 && !life_globals_contain(p, l, aty) { return false; }
-        if b.target_type >= 0 && l.roots[a.root].class_frame < 0 && l.roots[a.root].type_id >= 0 && !life_contains_memo(p, l, l.roots[a.root].type_id, b.target_type as i64) { return false; }
+        if b.target_type >= 0 {
+            if l.roots[a.root].class_frame < 0 {
+                if l.roots[a.root].type_id >= 0 && !life_contains_memo(p, l, l.roots[a.root].type_id, b.target_type as i64) { return false; }
+            } else if aty >= 0 && !life_contains_memo(p, l, aty, b.target_type as i64) && !life_contains_memo(p, l, b.target_type as i64, aty) {
+                return false;
+            }
+        }
     }
     if !a.exact && l.roots[a.root].depth >= l.roots[b.root].depth { return true; }
     if !b.exact && l.roots[b.root].depth >= l.roots[a.root].depth { return true; }
@@ -4816,7 +4828,13 @@ fn life_alias(p: Program&, l: Lifetimes&, a: LifeAlt, b: LifeAlt) -> bool {
             else { bty = l.roots[b.root].class_pointee; }
         }
         if bty >= 0 && !life_globals_contain(p, l, bty) { return false; }
-        if a.target_type >= 0 && l.roots[b.root].class_frame < 0 && l.roots[b.root].type_id >= 0 && !life_contains_memo(p, l, l.roots[b.root].type_id, a.target_type as i64) { return false; }
+        if a.target_type >= 0 {
+            if l.roots[b.root].class_frame < 0 {
+                if l.roots[b.root].type_id >= 0 && !life_contains_memo(p, l, l.roots[b.root].type_id, a.target_type as i64) { return false; }
+            } else if bty >= 0 && !life_contains_memo(p, l, bty, a.target_type as i64) && !life_contains_memo(p, l, a.target_type as i64, bty) {
+                return false;
+            }
+        }
     }
     if life_is_global_bound(l, b) && !b.byteview && a.exact && !a.byteview && a.root != 0 {
         var aty = a.target_type as i64;
@@ -4826,7 +4844,13 @@ fn life_alias(p: Program&, l: Lifetimes&, a: LifeAlt, b: LifeAlt) -> bool {
             else { aty = l.roots[a.root].class_pointee; }
         }
         if aty >= 0 && !life_globals_contain(p, l, aty) { return false; }
-        if b.target_type >= 0 && l.roots[a.root].class_frame < 0 && l.roots[a.root].type_id >= 0 && !life_contains_memo(p, l, l.roots[a.root].type_id, b.target_type as i64) { return false; }
+        if b.target_type >= 0 {
+            if l.roots[a.root].class_frame < 0 {
+                if l.roots[a.root].type_id >= 0 && !life_contains_memo(p, l, l.roots[a.root].type_id, b.target_type as i64) { return false; }
+            } else if aty >= 0 && !life_contains_memo(p, l, aty, b.target_type as i64) && !life_contains_memo(p, l, b.target_type as i64, aty) {
+                return false;
+            }
+        }
     }
     if !a.exact && l.roots[a.root].depth >= l.roots[b.root].depth { return true; }
     if !b.exact && l.roots[b.root].depth >= l.roots[a.root].depth { return true; }
@@ -5337,7 +5361,11 @@ fn life_shrink_places(p: Program&, l: Lifetimes&, places: i64, array_type: i64) 
         let a = l.alts[first + i];
         if a.root == 0 { drop = true; break; }
         if !a.byteview {
-            if life_is_global_bound(l, a) && !life_globals_contain(p, l, array_type) { drop = true; break; }
+            if life_is_global_bound(l, a) {
+                if !life_globals_contain(p, l, array_type) { drop = true; break; }
+                if a.target_type < 0 { drop = true; break; }
+                if a.target_type >= 0 && !life_contains_memo(p, l, a.target_type as i64, array_type) && !life_contains_memo(p, l, array_type, a.target_type as i64) { drop = true; break; }
+            }
             if a.exact {
                 if a.target_type >= 0 && !life_contains_memo(p, l, a.target_type as i64, array_type) && !life_contains_memo(p, l, array_type, a.target_type as i64) { drop = true; break; }
                 if l.roots[a.root].class_frame < 0 {
@@ -5353,7 +5381,11 @@ fn life_shrink_places(p: Program&, l: Lifetimes&, places: i64, array_type: i64) 
         var a = l.alts[first + i];
         if a.root == 0 { continue; }
         if !a.byteview {
-            if life_is_global_bound(l, a) && !life_globals_contain(p, l, array_type) { continue; }
+            if life_is_global_bound(l, a) {
+                if !life_globals_contain(p, l, array_type) { continue; }
+                if a.target_type >= 0 && !life_contains_memo(p, l, a.target_type as i64, array_type) && !life_contains_memo(p, l, array_type, a.target_type as i64) { continue; }
+                if a.target_type < 0 { a.target_type = array_type as i32; }
+            }
             if a.exact {
                 if a.target_type >= 0 && !life_contains_memo(p, l, a.target_type as i64, array_type) && !life_contains_memo(p, l, array_type, a.target_type as i64) { continue; }
                 if l.roots[a.root].class_frame < 0 {

@@ -581,7 +581,8 @@ recursive fn parse_for(p: Program&, c: ParseCursor&) -> i64 {
         let binding = parse_node(p, N_BINDING, name);
         if i == 0 && byref { p.nodes[binding].flags |= F_REFERENCE; }
         if parse_accept(p, c, T_COLON) { let type_node = parse_type(p, c); p.nodes[binding].left = type_node; }
-        parse_duplicate(p, c, first, name); parse_link(p, first, last, binding);
+        if !token_is(p, name, "_") { parse_duplicate(p, c, first, name); }
+        parse_link(p, first, last, binding);
         if i != 0 || !parse_accept(p, c, T_COMMA) { break; }
     }
     c.for_binding = saved;
@@ -869,7 +870,8 @@ recursive fn parse_variable(p: Program&, c: ParseCursor&, global: bool) -> i64 {
         let at = c.at; let name = parse_qualified(p, c, global);
         if !global && p.nodes[name].aux != 1 { parse_error(p, c, "local variables cannot declare a namespace"); }
         let binding = parse_node(p, N_BINDING, p.nodes[name].token); p.nodes[binding].scope = c.namespace_token;
-        parse_duplicate(p, c, first, p.nodes[name].token); parse_link(p, first, last, binding); names++;
+        if global || !token_is(p, p.nodes[name].token, "_") { parse_duplicate(p, c, first, p.nodes[name].token); }
+        parse_link(p, first, last, binding); names++;
         if c.at == at || !parse_accept(p, c, T_COMMA) { break; }
     }
     let id = parse_node(p, N_VARIABLE, p.nodes[first].token); p.nodes[id].scope = c.namespace_token;

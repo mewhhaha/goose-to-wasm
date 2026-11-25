@@ -12,14 +12,14 @@ dependencies = [
 
 [[package]]
 name = "wtime-decode"
-version = "0.1.2"
+version = "0.1.3"
 dependencies = [
  "wtime-types",
 ]
 
 [[package]]
 name = "wtime-runtime"
-version = "0.1.2"
+version = "0.1.3"
 dependencies = [
  "wtime-types",
  "wtime-validate",
@@ -27,11 +27,11 @@ dependencies = [
 
 [[package]]
 name = "wtime-types"
-version = "0.1.2"
+version = "0.1.3"
 
 [[package]]
 name = "wtime-validate"
-version = "0.1.2"
+version = "0.1.3"
 dependencies = [
  "wtime-decode",
  "wtime-types",

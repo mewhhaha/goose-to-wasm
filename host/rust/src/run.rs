@@ -85,11 +85,23 @@ pub fn run_module(
     config: &Config,
     cache: Option<&Path>,
 ) -> std::result::Result<Outcome, String> {
+    run_module_entry(data, stdin, arguments, config, cache, None)
+}
+
+pub fn run_module_entry(
+    data: &[u8],
+    stdin: Vec<u8>,
+    arguments: Vec<Vec<u8>>,
+    config: &Config,
+    cache: Option<&Path>,
+    entry: Option<&str>,
+) -> std::result::Result<Outcome, String> {
     let mut host = Some(Host::new(stdin, arguments));
     let mut store: Option<Store<Host>> = None;
     let mut instance: Option<Instance> = None;
     let started = Instant::now();
     let mut instantiated = started;
+    let mut return_code: i64 = 0;
     let result = (|| -> Result<()> {
         let engine = Engine::new(config)?;
         let store = store.insert(Store::new(&engine, host.take().expect("the host state is unused")));
@@ -118,13 +130,26 @@ pub fn run_module(
             call(store, set, &limits)?;
         }
         instantiated = Instant::now();
-        let start = export(store, "_start")?;
-        call(store, start, &[])?;
+        if let Some(entry_name) = entry {
+            if let Some(Extern::Func(start)) = instance.get_export(&mut *store, "_start") {
+                call(store, start, &[])?;
+            }
+            let func = export(store, entry_name)?;
+            let values = call(store, func, &[])?;
+            return_code = match values.first() {
+                Some(Val::I32(code)) => i64::from(*code),
+                Some(Val::I64(code)) => *code,
+                _ => 0,
+            };
+        } else {
+            let start = export(store, "_start")?;
+            call(store, start, &[])?;
+        }
         Ok(())
     })();
     let ended = Instant::now();
     let (exit_code, error) = match result {
-        Ok(()) => (0, String::new()),
+        Ok(()) => (return_code, String::new()),
         Err(error) => describe(&error),
     };
     let (mut stdout, mut errors) = (Vec::new(), Vec::new());
