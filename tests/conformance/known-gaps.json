@@ -1,6 +1,6 @@
 {
  "schema": "goose-conformance-known-gaps-v1",
- "note": "Rows that fail on the qualified compiler: six invalid programs accepted, 52 runtime contracts refused during compilation, and 2 rows of the harvested upstream-differential contracts (wasm32 4-byte pointer overlap under frozen named-result aliasing), whose cause is listed under \"causes\". tests/conformance.py --known-gaps fails on any other failure and on a recorded gap that passes.",
+ "note": "Rows that fail on the qualified compiler: six invalid programs accepted, 28 runtime contracts refused during compilation, and 2 rows of the harvested upstream-differential contracts (wasm32 4-byte pointer overlap under frozen named-result aliasing), whose cause is listed under \"causes\". tests/conformance.py --known-gaps fails on any other failure and on a recorded gap that passes.",
  "causes": {
   "corpus/contracts/upstream-differential/harvest/packed_layout_boundaries/5e21f78e5a/wasm-direct": "Open: direct Wasm (wasm32) builds a multiple-result return over a returned local that a later result reads through a reference, so `return E.New { 0x0102030405060708 }, kept` gives 16909060 for kept where 64-bit upstream, native C, and --wasm-memory64 give 0 (24 frozen direct-Wasm corpus contracts under array-image/enum-image/packed-record currently assert upstream's aliased named-result behavior, so changing life_named_results_into requires re-pinning those contracts)."
  },
@@ -11,30 +11,6 @@
   ],
   [
    "corpus/contracts/upstream-differential/harvest/packed_layout_boundaries/5e21f78e5a/wasm-direct",
-   2
-  ],
-  [
-   "upstream/codegen/frame_pool_references",
-   0
-  ],
-  [
-   "upstream/codegen/frame_pool_references",
-   2
-  ],
-  [
-   "upstream/codegen/recursive_dispatch_fixed_variant",
-   0
-  ],
-  [
-   "upstream/codegen/recursive_dispatch_fixed_variant",
-   2
-  ],
-  [
-   "upstream/codegen/scalar_struct_equality",
-   0
-  ],
-  [
-   "upstream/codegen/scalar_struct_equality",
    2
   ],
   [
@@ -94,14 +70,6 @@
    2
   ],
   [
-   "upstream/lifetimes/cycle_read_through_context",
-   0
-  ],
-  [
-   "upstream/lifetimes/cycle_read_through_context",
-   2
-  ],
-  [
    "upstream/lifetimes/for_sequence_shrinks",
    0
   ],
@@ -179,70 +147,6 @@
   ],
   [
    "upstream/stdlib/stdlib_regex",
-   2
-  ],
-  [
-   "upstream/stdlib/stdlib_relative_elements",
-   0
-  ],
-  [
-   "upstream/stdlib/stdlib_relative_elements",
-   2
-  ],
-  [
-   "upstream/storage/global_var_reads",
-   0
-  ],
-  [
-   "upstream/storage/global_var_reads",
-   2
-  ],
-  [
-   "upstream/storage/relative_destination_results",
-   0
-  ],
-  [
-   "upstream/storage/relative_destination_results",
-   2
-  ],
-  [
-   "upstream/storage/resizable_adt_payload_links",
-   0
-  ],
-  [
-   "upstream/storage/resizable_adt_payload_links",
-   2
-  ],
-  [
-   "upstream/storage/self_relative_adt_payloads",
-   0
-  ],
-  [
-   "upstream/storage/self_relative_adt_payloads",
-   2
-  ],
-  [
-   "upstream/storage/serialize",
-   0
-  ],
-  [
-   "upstream/storage/serialize",
-   2
-  ],
-  [
-   "upstream/storage/serialize_image_checks",
-   0
-  ],
-  [
-   "upstream/storage/serialize_image_checks",
-   2
-  ],
-  [
-   "upstream/typing/typecheck",
-   0
-  ],
-  [
-   "upstream/typing/typecheck",
    2
   ]
  ]

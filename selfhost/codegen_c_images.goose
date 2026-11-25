@@ -34,7 +34,9 @@ recursive fn ci_direct(p: Program&, id: i64, static_views: bool = false) -> bool
     if static_views && (t.kind == TY_SLICE || t.kind == TY_REF && t.length_storage < 0) { return true; }
     if cc_relative_cell(p, id) { return true; }
     if t.kind == TY_VOID || t.kind == TY_INT || t.kind == TY_FLOAT || t.kind == TY_BOOL { return true; }
-    if t.kind == TY_ARRAY { return t.array_kind == A_FIXED && ci_direct(p, t.element, static_views); }
+    if t.kind == TY_ARRAY {
+        return (t.array_kind == A_FIXED || t.array_kind == A_LIMITED && t.count >= 0) && ci_direct(p, t.element, static_views);
+    }
     if (t.kind == TY_STRUCT && t.declaration >= 0) || t.kind == TY_TUPLE {
         var field = t.first; if t.kind == TY_STRUCT { field = p.nodes[t.declaration].first; }
         while field >= 0 {
@@ -252,9 +254,27 @@ fn ci_emit_type(p: Program&, out: u8[>..]&, id: i64, static_views: bool = false)
 }
 fn cc_image_emit(p: Program&, out: u8[>..]&, used: const bool[:]) {
     cc_index_lengths(p, out);
+    out.append("""
+typedef struct {
+    const uint8_t *base, *end;
+    const uint8_t *starts;
+    int64_t stride, element;
+    int links;
+} GImageCheck;
+static int g_image_link(const GImageCheck *run,const uint8_t *cell,int64_t offset,
+                        int tag_width,int64_t tag) {
+    int64_t origin=cell-run->base-tag_width;
+    if(origin<0 || offset < -origin || offset>=run->end-run->base-origin)return 0;
+    int64_t target=origin+offset;
+    if(run->stride ? target%run->stride : !GS_BM_GET(run->starts,target))return 0;
+    if(!tag_width)return 1;
+    if(run->end-run->base-target<tag_width)return 0;
+    return g_read_length(run->base+target,tag_width)==(uint64_t)tag;
+}
+""");
     for t, id in p.types {
         if !used[id] || !cc_concrete(p, id) { continue; }
-        if ci_verifiable(p, id) { out.format("static const uint8_t *g_image_check_", id, "(const uint8_t*,const uint8_t*);\n"); }
+        if ci_verifiable(p, id) { out.format("static const uint8_t *g_image_check_", id, "(const uint8_t*,const uint8_t*,const GImageCheck*);\n"); }
         out.format("static int64_t g_image_size_", id, "(GRef);\n",
             "static const uint8_t *g_image_skip_", id, "(const uint8_t*);\n",
             "static uint8_t *g_image_write_", id, "(uint8_t*,GRef);\n",
@@ -268,12 +288,14 @@ fn ci_verifiable(p: Program&, id: i64) -> bool {
     let root = p.types[id];
     if root.kind == TY_INT { return root.index_type < 0 || ci_index_global(p, id); }
     if root.kind == TY_BOOL || root.kind == TY_FLOAT { return true; }
-    if root.kind == TY_REF || root.kind == TY_SLICE || root.kind == TY_FN || root.kind == TY_VOID { return false; }
+    if root.kind == TY_REF { return root.length_storage >= 0 && root.pool < 0; }
+    if root.kind == TY_SLICE || root.kind == TY_FN || root.kind == TY_VOID { return false; }
     var work: i64[>..] = [id]; var seen: bool[>..] = []; seen.resize(p.types.len, false);
     while work.len > 0 {
         let current = work.pop(); if current < 0 || seen[current] { continue; } seen[current] = true; let t = p.types[current];
         if t.kind == TY_INT { if t.index_type >= 0 && !ci_index_global(p, current) { return false; } continue; }
         if t.kind == TY_BOOL || t.kind == TY_FLOAT { continue; }
+        if t.kind == TY_REF && t.length_storage >= 0 && t.pool < 0 { continue; }
         if t.kind == TY_ARRAY {
             if t.array_kind != A_FIXED && t.array_kind != A_VAR && t.array_kind != A_LIMITED { return false; }
             work.push(t.element); continue;
@@ -293,7 +315,7 @@ fn ci_verifiable(p: Program&, id: i64) -> bool {
 }
 recursive fn ci_min_bytes(p: Program&, id: i64) -> i64 {
     let t = p.types[id];
-    if t.kind == TY_INT && t.storage != 0 { return 1; }
+    if t.kind == TY_INT && t.storage != 0 || t.kind == TY_REF && t.length_storage == 0 { return 1; }
     if t.kind == TY_ARRAY {
         if t.array_kind == A_FIXED { return t.count * ci_min_bytes(p, t.element); }
         if t.array_kind == A_LIMITED { if t.count < 0 { return 8; } return ci_prefix(p, id) + t.count * ci_min_bytes(p, t.element); }
@@ -321,8 +343,25 @@ recursive fn ci_min_bytes(p: Program&, id: i64) -> i64 {
 }
 fn ci_verify_type(p: Program&, out: u8[>..]&, id: i64) {
     let t = p.types[id]; if !ci_verifiable(p, id) { return; }
-    out.format("static const uint8_t *g_image_check_", id, "(const uint8_t *image,const uint8_t *end){\n");
-    if t.kind == TY_INT && t.storage != 0 {
+    out.format("static const uint8_t *g_image_check_", id, "(const uint8_t *image,const uint8_t *end,const GImageCheck *run){\n");
+    if t.kind == TY_REF {
+        if t.length_storage == 0 {
+            out.append("int64_t offset;int64_t width=gs_zig_check(image,end,&offset);if(!width)return NULL;\n");
+        } else {
+            out.format("int64_t width=", t.length_storage, ";if(end-image<width)return NULL;int", t.length_storage * 8,
+                "_t stored;memcpy(&stored,image,(size_t)width);int64_t offset=stored;\n");
+        }
+        out.append("if(run->links");
+        if (t.flags & TF_OPTIONAL) != 0 { out.append(" && offset"); }
+        out.append("){int tag_width=0;int64_t tag=0;\n");
+        let pointee = p.types[t.element];
+        if pointee.kind == TY_STRUCT && pointee.pool >= 0 && p.types[pointee.pool].kind == TY_ENUM {
+            let parent = p.types[pointee.pool];
+            out.format("if(run->element==", parent.declaration, "){tag_width=", parent.length_storage,
+                ";tag=", p.nodes[pointee.declaration].integer, ";}\n");
+        }
+        out.append("if(!g_image_link(run,image,offset,tag_width,tag))return NULL;}return image+width;\n");
+    } else if t.kind == TY_INT && t.storage != 0 {
         out.append("int64_t value;int64_t bytes=gs_zig_check(image,end,&value);if(!bytes)return NULL;\n");
         if t.index_type >= 0 {
             out.append("if(value<0 || (uint64_t)value"); if (t.flags & F_BOUND_TYPE) != 0 { out.append(">"); } else { out.append(">="); }
@@ -345,7 +384,7 @@ fn ci_verify_type(p: Program&, out: u8[>..]&, id: i64) {
         while field >= 0 {
             let n = p.nodes[field];
             if (n.flags & F_PAD) != 0 { out.format("if(end-image<", n.aux, ")return NULL;image+=", n.aux, ";\n"); }
-            else { out.format("image=g_image_check_", n.type_id, "(image,end);if(!image)return NULL;\n"); }
+            else { out.format("image=g_image_check_", n.type_id, "(image,end,run);if(!image)return NULL;\n"); }
             field = n.next;
         }
         out.append("return image;\n");
@@ -355,7 +394,7 @@ fn ci_verify_type(p: Program&, out: u8[>..]&, id: i64) {
         var variant = p.nodes[t.declaration].first;
         while variant >= 0 {
             out.format("case ", p.nodes[variant].integer, ":image=g_image_check_", p.nodes[variant].type_id, "(image,");
-            if (t.flags & F_VARIABLE_MODE) == 0 { out.append("limit"); } else { out.append("end"); } out.append(");break;\n"); variant = p.nodes[variant].next;
+            if (t.flags & F_VARIABLE_MODE) == 0 { out.append("limit"); } else { out.append("end"); } out.append(",run);break;\n"); variant = p.nodes[variant].next;
         }
         out.append("default:return NULL;}if(!image)return NULL;\n");
         if (t.flags & F_VARIABLE_MODE) == 0 { out.append("return limit;\n"); } else { out.append("return image;\n"); }
@@ -373,7 +412,9 @@ fn ci_verify_type(p: Program&, out: u8[>..]&, id: i64) {
         }
         var minimum = ci_min_bytes(p, t.element); if minimum < 1 { minimum = 1; }
         if t.array_kind == A_VAR { out.format("if(count>(end-image)/", minimum, ")return NULL;\n"); }
-        out.format("for(int64_t i=0;i<count;i++){image=g_image_check_", t.element, "(image,end);if(!image)return NULL;}\n");
+        out.format("for(int64_t i=0;i<count;i++){image=g_image_check_", t.element, "(image,");
+        if t.array_kind == A_LIMITED { out.append("limit"); } else { out.append("end"); }
+        out.append(",run);if(!image)return NULL;}\n");
         if t.array_kind == A_LIMITED { out.append("return limit;\n"); } else { out.append("return image;\n"); }
     }
     out.append("}\n");

@@ -208,14 +208,10 @@ fn cc_image_constructible(p: Program&, id: i64) -> bool {
     let root = p.types[id];
     if root.kind == TY_REF { return root.length_storage < 0 || cc_packed_pool_ref(p, id); }
     if root.kind != TY_ARRAY && root.kind != TY_STRUCT && root.kind != TY_ENUM { return true; }
-    let relative_cells = cc_variable_enum_image(p, id);
     var work: i64[>..] = [id]; var seen: bool[>..] = []; seen.resize(p.types.len, false);
     while work.len > 0 {
         let current = work.pop(); if current < 0 || seen[current] { continue; } seen[current] = true; let t = p.types[current];
-        if t.kind == TY_REF {
-            if t.length_storage >= 0 && !(relative_cells && t.length_storage > 0) { return false; }
-            continue;
-        }
+        if t.kind == TY_REF { continue; }
         if t.kind == TY_ARRAY {
             if t.array_kind != A_FIXED && t.array_kind != A_VAR && t.array_kind != A_LIMITED { return false; }
             if cc_fixed_storage(p, t.element) { continue; }

@@ -791,6 +791,26 @@ fn check_type_property_scan(p: Program&, ty: i64, property: i64, complete: bool&
     }
     return result;
 }
+// The image verifier can prove element starts and the tag of an ADT variant.
+recursive fn check_image_links(p: Program&, type_id: i64, element: i64) -> bool {
+    if type_id < 0 || check_type_property(p, type_id, 6) == 0 { return true; }
+    let t: const Type& = p.types[type_id];
+    if t.kind == TY_REF {
+        if t.element < 0 { return false; }
+        if check_same_type(p, t.element, element) { return true; }
+        let pointee: const Type& = p.types[t.element];
+        let root: const Type& = p.types[element];
+        return pointee.kind == TY_STRUCT && pointee.pool >= 0 && root.kind == TY_ENUM &&
+            p.types[pointee.pool].declaration == root.declaration;
+    }
+    if t.kind == TY_ARRAY { return check_image_links(p, t.element, element); }
+    var field = t.first;
+    while field >= 0 {
+        if !check_image_links(p, p.nodes[field].type_id, element) { return false; }
+        field = p.nodes[field].next;
+    }
+    return true;
+}
 inline fn check_contains_refs(p: Program&, ty: i64, depth: i64) -> bool {
     if ty < 12 { return false; }
     return check_type_property(p, ty, 1) != 0;
@@ -1575,6 +1595,21 @@ recursive fn check_layout_fields(p: Program&, c: Checker&, first: i64, owner: i6
                 let constant = check_constant(p, c, n.right, 0);
                 if constant.valid { bytes = constant.value; }
                 else { diagnose(p, n.token, "padding size must be a constant integer"); }
+            }
+            if (n.flags & F_DEFAULT) != 0 && !variable {
+                var following = n.next;
+                while following >= 0 && (p.nodes[following].flags & F_PAD) != 0 { following = p.nodes[following].next; }
+                if following >= 0 {
+                    let next_type = check_resolve_type(p, c, p.nodes[following].left);
+                    if next_type >= 0 {
+                        let t: const Type& = p.types[next_type];
+                        var alignment = 1;
+                        if (t.kind == TY_INT || t.kind == TY_FLOAT) && t.storage == 0 { alignment = t.size; }
+                        else if t.kind == TY_REF && t.length_storage > 0 { alignment = t.length_storage; }
+                        else if t.kind == TY_SLICE || t.kind == TY_REF && t.length_storage < 0 { alignment = p.pointer_bytes; }
+                        bytes = check_align(size, alignment) - size;
+                    }
+                }
             }
             if bytes < 0 { diagnose(p, n.token, "padding size must be nonnegative"); bytes = 0; }
             p.nodes[field].integer = size; p.nodes[field].aux = bytes; size += bytes;
@@ -4406,7 +4441,16 @@ recursive fn check_builtin(p: Program&, c: Checker&, node: i64, builtin: i64) ->
         let bytes = check_array_receiver(p, c, check_list_at(c, args, 0), false);
         if bytes >= 0 && p.types[bytes].element != TYPE_U8 { diagnose(p, n.token, "from_bytes requires bytes"); }
         let destination = p.types[type_argument];
-        if destination.kind != TY_ARRAY || destination.array_kind != A_GROW && destination.array_kind != A_GROWSHRINK && destination.array_kind != A_VAR { diagnose(p, n.token, "from_bytes constructs only a resizable or variable array"); }
+        if destination.kind != TY_ARRAY || destination.array_kind != A_GROW && destination.array_kind != A_GROWSHRINK && destination.array_kind != A_VAR {
+            diagnose(p, n.token, "from_bytes constructs only a resizable or variable array");
+        } else {
+            let element = destination.element;
+            if check_type_property(p, element, 5) != 0 || root_struct_type(p, element) || check_size_class(p, element, 0) >= 2 {
+                diagnose(p, n.token, "from_bytes requires a contiguous image without external references");
+            } else if !check_image_links(p, element, element) {
+                diagnose(p, n.token, "from_bytes requires relative references to point at an element of the array or one of its variants");
+            }
+        }
         result = check_builtin_pair(p, type_argument, n.token); check_add_root(c, node, -2);
     } else if builtin == 36 || builtin == 37 {
         // The call's base file name and 1-based line; written in a parameter
@@ -4480,6 +4524,10 @@ recursive fn check_builtin(p: Program&, c: Checker&, node: i64, builtin: i64) ->
             }
             let shrink = builtin == 26 || builtin == 27 || builtin == 28 || builtin == 29 || builtin == 32 || builtin == 34 || builtin == 35;
             check_mutation_views(p, c, check_list_at(c, args, 0), shrink);
+            // A verified image may contain links to elements in the removed suffix.
+            if array_kind == A_GROWSHRINK && shrink && builtin != 29 && check_type_property(p, element, 6) != 0 {
+                diagnose(p, n.token, "cannot partially shrink an array whose elements contain self-relative references");
+            }
             if builtin == 24 || builtin == 30 || builtin == 31 {
                 if element < 0 {
                     let value = check_list_at(c, args, 1);
@@ -4983,6 +5031,11 @@ fn check_argument_inference(p: Program&, c: Checker&, node: i64, formal: i64, fu
         let n = p.nodes[node];
         if (n.kind == N_IF || n.kind == N_MATCH || n.kind == N_BLOCK || n.kind == N_LOOP) && p.types[actual].kind == TY_REF && (p.types[actual].flags & TF_OPTIONAL) == 0 {
             return p.types[actual].element;
+        }
+        if p.types[actual].kind == TY_REF && p.types[actual].length_storage >= 0 {
+            let loaded = check_loaded_type(p, actual);
+            if p.types[actual].pool < 0 && check_readonly(p, c, node) { return check_const_type(p, loaded); }
+            return loaded;
         }
         // A non-fixed lvalue binds an untyped block parameter by reference (§4.1).
         if p.types[actual].kind != TY_REF && check_size_class(p, actual, 0) > 0 && check_addressable(p, node) {
@@ -6294,17 +6347,18 @@ fn check_top_const_same(p: Program&, a: i64, b: i64) -> bool {
     if at.kind == TY_SLICE && bt.kind == TY_SLICE { return at.element == bt.element && at.count == bt.count && (at.flags & ~TF_CONST) == (bt.flags & ~TF_CONST); }
     return check_operation_same(p, a, b);
 }
-fn check_operation_parameter(p: Program&, c: Checker&, node: i64, type_id: i64) -> i64 {
+fn check_operation_parameter(p: Program&, c: Checker&, node: i64, type_id: i64, comparison: bool) -> i64 {
     if p.types[type_id].kind == TY_REF { return type_id; }
-    if check_size_class(p, type_id, 0) > 0 && check_addressable(p, node) {
-        var flags = 0; if check_readonly(p, c, node) { flags |= TF_CONST; }
+    let borrow = comparison && check_type_property(p, type_id, 6) != 0;
+    if (borrow || check_size_class(p, type_id, 0) > 0) && check_addressable(p, node) {
+        let flags = if borrow || check_readonly(p, c, node) { TF_CONST } else { 0 };
         return check_type(p, TY_REF, type_id, 0, -1, flags);
     }
     return type_id;
 }
 recursive fn check_lower_operation(p: Program&, c: Checker&, node: i64, left_type: i64, right_type: i64, result_type: i64, op: i64) -> i64 {
-    let original = p.nodes[node]; var left_formal = check_operation_parameter(p, c, original.left, left_type); var right_formal = -1;
-    if right_type >= 0 { right_formal = check_operation_parameter(p, c, original.right, right_type); }
+    let original = p.nodes[node]; var left_formal = check_operation_parameter(p, c, original.left, left_type, op == T_EQ); var right_formal = -1;
+    if right_type >= 0 { right_formal = check_operation_parameter(p, c, original.right, right_type, op == T_EQ); }
     if op == T_EQ && right_type >= 0 {
         let left = operation_value_type(p, left_type); let right = operation_value_type(p, right_type);
         let a = p.types[left]; let b = p.types[right];

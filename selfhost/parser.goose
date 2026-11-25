@@ -898,6 +898,7 @@ recursive fn parse_fields(p: Program&, c: ParseCursor&, owner: i64) {
         if parse_accept(p, c, T_PAD) {
             field = parse_node(p, N_FIELD, at); p.nodes[field].flags |= F_PAD;
             if parse_kind(p, c) == T_INTLIT { let size = parse_next(p, c); p.nodes[field].integer = p.tokens[size].integer; }
+            else { p.nodes[field].flags |= F_DEFAULT; }
         } else {
             let constq = parse_accept(p, c, T_CONST); let immutable = constq || parse_accept(p, c, T_LET);
             let name = parse_expect(p, c, T_IDENT, "expected field name");

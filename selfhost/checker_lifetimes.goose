@@ -204,8 +204,8 @@ struct LifeAtomSlot { key: i64 = -1, alt: i32 = -1, set: i32 = -1 }
 struct LifeCellKey { root: i32, depth: i32, type_id: i32, element: i32, global: bool }
 // The candidates a global container's read-back finds for one pointee type
 // (life_global_candidates): a span of candidate_alts, made at a global_epoch
-// and for a depth.
-struct LifeGlobalCandidates { epoch: i64 = -1, depth: i64 = 0, first: i64 = 0, count: i64 = 0 }
+// and for a depth and whether later global declarations are included.
+struct LifeGlobalCandidates { epoch: i64 = -1, depth: i64 = 0, first: i64 = 0, count: i64 = 0, all_globals: bool = false }
 // A join of two sets and its result (life_join).
 struct LifeJoin { a: i32 = -1, b: i32 = -1, set: i32 = -1 }
 // The contents of a set of places (life_contents) as of contents_stamp
@@ -2452,7 +2452,7 @@ fn life_cell(p: Program&, l: Lifetimes&, symbol: i64) -> i64 {
         let one: u64 = 1; l.holder_bits[index >> 6] |= one << (index & 63);
     }
     l.cell_keys.push(LifeCellKey { root: root as i32, depth: depth as i32, type_id: type_id as i32, element: element as i32, global: (p.symbols[symbol].flags & S_GLOBAL) != 0 });
-    if (p.symbols[symbol].flags & S_GLOBAL) != 0 { l.global_cells.push(index); }
+    if (p.symbols[symbol].flags & S_GLOBAL) != 0 { l.global_cells.push(index); l.global_epoch += 1; }
     if frame == 0 && depth > 0 { l.deep_cells.push(index); }
     l.cell_slots[slot] = index as i32;
     l.symbol_cells[symbol] = index as i32; l.frames[frame].first_cell = index;
@@ -3009,7 +3009,8 @@ fn life_fresh(p: Program&, node: i64) -> bool {
         if n.kind == N_MATCH { var arm = n.first; while arm >= 0 { work.push(p.nodes[arm].right); arm = p.nodes[arm].next; } continue; }
         if n.kind == N_CALL && n.symbol >= 0 {
             let symbol: const Symbol& = p.symbols[n.symbol];
-            if (symbol.flags & S_BUILTIN) != 0 && symbol.index == 14 { continue; }
+            // default and from_bytes build their value results at the receiver.
+            if (symbol.flags & S_BUILTIN) != 0 && (symbol.index == 14 || symbol.index == 18) { continue; }
             if (symbol.flags & (S_BUILTIN | S_EXTERN)) == 0 && !life_is_ref(p, n.type_id) { continue; }
         }
         return false;
@@ -5734,11 +5735,11 @@ fn life_coerce(p: Program&, l: Lifetimes&, value: LifeValue, expected: i64) -> L
     out.type_id = expected as i32;
     return out;
 }
-fn life_candidates(p: Program&, l: Lifetimes&, pointee: i64, depth: i64, globals: bool, out: LifeBuild&) {
-    // The live global cells are the live cells life_candidates keeps when
-    // globals is set, in the same order.
+fn life_candidates(p: Program&, l: Lifetimes&, pointee: i64, depth: i64, globals: bool, out: LifeBuild&, all_globals: bool = false) {
+    // The global list is in the same order as the ordinary live-cell scan.
+    // A global var read in a function also includes later declarations.
     var listed = 0; var index = -1;
-    if globals { while listed < l.global_cells.len && !l.cells[l.global_cells[listed]].live { listed += 1; } if listed < l.global_cells.len { index = l.global_cells[listed]; } }
+    if globals { while listed < l.global_cells.len && !all_globals && !l.cells[l.global_cells[listed]].live { listed += 1; } if listed < l.global_cells.len { index = l.global_cells[listed]; } }
     else { index = life_next_live(l, -1); }
     while index >= 0 {
         let key: const LifeCellKey& = l.cell_keys[index];
@@ -5754,26 +5755,26 @@ fn life_candidates(p: Program&, l: Lifetimes&, pointee: i64, depth: i64, globals
             }
         }
         if globals {
-            listed += 1; while listed < l.global_cells.len && !l.cells[l.global_cells[listed]].live { listed += 1; }
+            listed += 1; while listed < l.global_cells.len && !all_globals && !l.cells[l.global_cells[listed]].live { listed += 1; }
             index = -1; if listed < l.global_cells.len { index = l.global_cells[listed]; }
         } else { index = life_next_live(l, index); }
     }
 }
 // The candidates life_build_drop would list for life_candidates over the
 // global cells, appended to scratch. They change only with global_epoch.
-fn life_global_candidates(p: Program&, l: Lifetimes&, pointee: i64, depth: i64) {
+fn life_global_candidates(p: Program&, l: Lifetimes&, pointee: i64, depth: i64, all_globals: bool = false) {
     while l.global_candidates.len <= pointee { l.global_candidates.push(LifeGlobalCandidates {}); }
     let memo = l.global_candidates[pointee];
-    if memo.epoch == l.global_epoch && memo.depth == depth {
+    if memo.epoch == l.global_epoch && memo.depth == depth && memo.all_globals == all_globals {
         for at in memo.first..memo.first + memo.count { l.scratch.push(l.candidate_alts[at]); }
         return;
     }
     let start = l.scratch.len;
-    var candidates = LifeBuild {}; life_candidates(p, l, pointee, depth, true, candidates); life_build_drop(l, candidates);
+    var candidates = LifeBuild {}; life_candidates(p, l, pointee, depth, true, candidates, all_globals); life_build_drop(l, candidates);
     if l.candidate_epoch != l.global_epoch { l.candidate_alts.clear(); l.candidate_epoch = l.global_epoch; }
     let first = l.candidate_alts.len;
     for at in start..l.scratch.len { l.candidate_alts.push(l.scratch[at]); }
-    l.global_candidates[pointee] = LifeGlobalCandidates { epoch: l.global_epoch, depth: depth, first: first, count: l.scratch.len - start };
+    l.global_candidates[pointee] = LifeGlobalCandidates { epoch: l.global_epoch, depth: depth, first: first, count: l.scratch.len - start, all_globals: all_globals };
 }
 fn life_class_candidates(p: Program&, l: Lifetimes&, owner: i64, pointee: i64) -> i64 {
     var through_parameter = false; var ci = l.frames[l.frame].first_parameter;
@@ -6418,7 +6419,7 @@ fn life_bind(p: Program&, l: Lifetimes&, node: i64, cell: i64, value: const Life
     } else {
         l.offer_count += 1;
     }
-    if !l.discovery {
+    if !l.discovery || l.frame == 0 && l.cell_keys[cell].global {
         life_set_live_refs(l, cell, life_join(l, l.cells[cell].live_refs, kept));
     }
 }
@@ -9174,6 +9175,37 @@ recursive fn life_eval_void(p: Program&, l: Lifetimes&, node: i64) {
     life_eval(p, l, cur);
 }
 
+fn life_global_var_read(p: Program&, l: Lifetimes&, cell: i64, type_id: i64) -> i64 {
+    let t: const Type& = p.types[type_id]; let root = l.cells[cell].root;
+    if t.kind == TY_REF && t.length_storage >= 0 {
+        return life_pool_places(p, l, t.pool);
+    }
+    // A body may run after any binding of this global. As with a reference
+    // loaded from a global container, use the owners its type can point into.
+    var at = l.sets[l.cells[cell].refs].first; var byteview = false;
+    while at >= 0 {
+        if l.alts[at].byteview { byteview = true; break; }
+        at = l.alts[at].next;
+    }
+    let start = l.scratch.len;
+    if !byteview { life_global_candidates(p, l, t.element, 0, true); }
+    var result = LifeBuild {}; let end = l.scratch.len;
+    for i in start..end {
+        var owner = l.scratch[i];
+        if owner.exact && life_gs_contains(p, l, life_alt_type(p, l, owner), t.element, false) { continue; }
+        if owner.root == 0 && (t.flags & TF_CONST) == 0 { continue; }
+        owner.from = root; owner.slotread = true;
+        life_build_add_alt(l, result, owner);
+    }
+    if !byteview && (t.flags & TF_CONST) != 0 && life_same(p, t.element, TYPE_U8) {
+        life_build_add(l, result, life_root_set(l, 0));
+    }
+    let refs = life_build_end(l, result); l.scratch.resize(start);
+    if refs != 0 { return life_fold(l, refs); }
+    // With no exact owners, use the global as a lifetime bound. Byte views
+    // may reach storage of any type, subject to the same slot-read rule.
+    return life_single(l, root, false, root, true, byteview, t.element);
+}
 recursive fn life_eval(p: Program&, l: Lifetimes&, node: i64, destination: i64 = 0, selected_result: i64 = -1) -> LifeValue {
     if node < 0 { return LifeValue {}; }
     let n: const Node& = p.nodes[node];
@@ -9197,8 +9229,17 @@ recursive fn life_eval(p: Program&, l: Lifetimes&, node: i64, destination: i64 =
                 out.contents = l.roots[root].contents as i32;
             }
         } else {
-            if (p.symbols[n.symbol].flags & (S_GLOBAL | S_MUTABLE)) != (S_GLOBAL | S_MUTABLE) { out.refs = l.cells[cell].live_refs; }
+            out.refs = l.cells[cell].live_refs;
             if holds { out.contents = l.roots[root].live_contents as i32; }
+        }
+        if l.cell_keys[cell].global && life_tf_is_ref(p, l, p.symbols[n.symbol].type_id) {
+            let ty = p.symbols[n.symbol].type_id;
+            if l.frame > 0 && (p.symbols[n.symbol].flags & S_MUTABLE) != 0 && (life_plain_ref(p, ty) || p.types[ty].pool >= 0) {
+                out.refs = life_global_var_read(p, l, cell, ty) as i32;
+            } else {
+                if l.frame == 0 { out.refs = l.cells[cell].live_refs; }
+                if life_plain_ref(p, ty) { out.refs = life_mark_slotread(l, out.refs) as i32; }
+            }
         }
         if holds && n.type_id >= 0 && p.types[n.type_id].kind == TY_REF {
             if l.discovery { out.contents = life_contents(p, l, out.refs) as i32; } else { out.contents = life_live_contents(p, l, out.refs) as i32; }
@@ -9208,7 +9249,7 @@ recursive fn life_eval(p: Program&, l: Lifetimes&, node: i64, destination: i64 =
             // A global also holds what the island stored outside it.
             if l.island > 0 && l.cell_keys[cell].global && l.frames[l.island].class_stored != 0 {
                 let cs = l.frames[l.island].class_stored;
-                if life_tf_is_ref(p, l, n.type_id) { out.refs = life_join(l, out.refs, cs) as i32; out.contents = life_join(l, out.contents, cs) as i32; }
+                if life_tf_is_ref(p, l, n.type_id) { out.contents = life_join(l, out.contents, cs) as i32; }
                 else if holds { out.contents = life_join(l, out.contents, life_referable(p, l, cs, n.type_id)) as i32; }
             }
         }
@@ -9384,7 +9425,8 @@ recursive fn life_eval_variable(p: Program&, l: Lifetimes&, node: i64, n: const 
         } else {
             let cell = life_cell(p, l, symbol);
             if cell >= 0 {
-                if !l.discovery { life_set_live_refs(l, cell, 0); life_set_live_contents(l, l.cells[cell].root, 0); }
+                if !l.discovery || l.frame == 0 && l.cell_keys[cell].global { life_set_live_refs(l, cell, 0); }
+                if !l.discovery { life_set_live_contents(l, l.cells[cell].root, 0); }
                 let places = life_root_set(l, l.cells[cell].root); var value = aggregate;
                 if aggregate.tuple >= 0 { value = life_item(l, aggregate.tuple, index); }
                 else if initializer >= 0 {
