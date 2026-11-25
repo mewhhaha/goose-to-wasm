@@ -1,0 +1,18 @@
+name: Feature or compatibility request
+description: Request support for an upstream Goose feature, host integration, or CLI improvement
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: summary
+    attributes:
+      label: Feature or compatibility gap
+      description: Describe what you need and, if applicable, link the upstream Goose feature or test.
+    validations:
+      required: true
+  - type: textarea
+    id: example
+    attributes:
+      label: Example usage
+      description: Show how you expect to write or invoke it.
+    validations:
+      required: false

@@ -1,0 +1,80 @@
+name: Qualification pipeline
+
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Read engine pin
+        id: pins
+        run: |
+          python - <<'PYTHON'
+          import json, os
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as output:
+              print('node=' + json.load(open('toolchain.json'))['node'], file=output)
+          PYTHON
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ steps.pins.outputs.node }}
+      - name: Install C compiler and runtime tools
+        run: |
+          # The runner image ships versioned Clang; apt is the fallback, retried
+          # because its mirrors fail transiently.
+          pick() { command -v "$1" || ls /usr/bin/"$1"-[0-9]* 2>/dev/null | sort -V | tail -n 1; }
+          if [ -z "$(pick clang)" ] || [ -z "$(pick clang++)" ]; then
+            for attempt in 1 2 3; do
+              sudo apt-get update && sudo apt-get install -y clang && break
+              sleep 20
+            done
+          fi
+          echo "CC=$(pick clang)" >> "$GITHUB_ENV"
+          echo "CXX=$(pick clang++)" >> "$GITHUB_ENV"
+          "$(pick clang)" --version
+          python -m pip install -r requirements.txt
+      - name: Build Goose and verify self-hosting
+        id: compiler
+        run: python scripts/bootstrap.py --verify
+      - name: Build Wasmtime host
+        run: python scripts/build_wasmtime_host.py --cxx "$CXX"
+      - name: Native runtime checks
+        run: python native/tests/check.py --output build/native-checks
+      - name: Restore native contract builds
+        uses: actions/cache@v4
+        with:
+          path: build/native-cache
+          key: native-cache-v1-${{ runner.os }}-${{ github.run_id }}
+          restore-keys: native-cache-v1-${{ runner.os }}-
+      - name: Source and output contracts
+        run: >-
+          python tests/conformance.py --compiler build/bin/goose
+          --output-dir build/conformance --levels 0 2 --timeout 20
+          --known-gaps tests/conformance/known-gaps.json
+          --native-cache build/native-cache --prune-native-cache
+      - name: Curated WebAssembly contracts on V8
+        if: ${{ !cancelled() && steps.compiler.outcome == 'success' }}
+        run: >-
+          python tests/conformance.py --compiler build/bin/goose
+          --output-dir build/conformance-v8 --filter corpus/ --levels 0 2 --engine v8 --timeout 20
+          --known-gaps tests/conformance/known-gaps.json
+      - name: Publish qualification evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: qualification-linux-x64
+          if-no-files-found: warn
+          path: |
+            build/bootstrap/
+            build/toolchain.json
+            build/conformance/report.json
+            build/conformance-v8/report.json
+            build/bin/goose-wasmtime.json

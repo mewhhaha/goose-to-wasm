@@ -1,0 +1,34 @@
+name: Bug report
+description: Report a compiler bug, crash, miscompilation, or upstream Goose incompatibility
+labels: ["bug"]
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: What happened?
+      description: Describe the bug and what you expected instead.
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Minimal Goose reproduction
+      description: Paste a small self-contained `.goose` program that triggers the issue.
+      render: text
+    validations:
+      required: true
+  - type: input
+    id: command
+    attributes:
+      label: Command & target
+      placeholder: "goose repro.goose --target wasm-direct -O2 -o repro.wasm"
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Compiler version & platform
+      description: Output of `goose --version` and your OS/arch.
+      placeholder: "goose-to-wasm v2026.4-6 (Goose v2026.4), Linux x86_64"
+    validations:
+      required: true

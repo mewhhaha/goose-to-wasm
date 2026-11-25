@@ -4,6 +4,9 @@
 __pycache__/
 *.py[cod]
 *.tmp
+*.profraw
+*.cwasm
+.DS_Store
 /host/rust/target/
 /host/wtime/target/
 /.claude/worktrees/
