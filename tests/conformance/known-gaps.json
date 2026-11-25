@@ -1,6 +1,6 @@
 {
  "schema": "goose-conformance-known-gaps-v1",
- "note": "Rows that fail on the qualified compiler: six invalid programs accepted, 84 runtime contracts refused during compilation, and 2 rows of the harvested upstream-differential contracts (wasm32 4-byte pointer overlap under frozen named-result aliasing), whose cause is listed under \"causes\". tests/conformance.py --known-gaps fails on any other failure and on a recorded gap that passes.",
+ "note": "Rows that fail on the qualified compiler: six invalid programs accepted, 52 runtime contracts refused during compilation, and 2 rows of the harvested upstream-differential contracts (wasm32 4-byte pointer overlap under frozen named-result aliasing), whose cause is listed under \"causes\". tests/conformance.py --known-gaps fails on any other failure and on a recorded gap that passes.",
  "causes": {
   "corpus/contracts/upstream-differential/harvest/packed_layout_boundaries/5e21f78e5a/wasm-direct": "Open: direct Wasm (wasm32) builds a multiple-result return over a returned local that a later result reads through a reference, so `return E.New { 0x0102030405060708 }, kept` gives 16909060 for kept where 64-bit upstream, native C, and --wasm-memory64 give 0 (24 frozen direct-Wasm corpus contracts under array-image/enum-image/packed-record currently assert upstream's aliased named-result behavior, so changing life_named_results_into requires re-pinning those contracts)."
  },
@@ -14,22 +14,6 @@
    2
   ],
   [
-   "upstream/codegen/codegen_exec",
-   0
-  ],
-  [
-   "upstream/codegen/codegen_exec",
-   2
-  ],
-  [
-   "upstream/codegen/discarded_resizable_results",
-   0
-  ],
-  [
-   "upstream/codegen/discarded_resizable_results",
-   2
-  ],
-  [
    "upstream/codegen/frame_pool_references",
    0
   ],
@@ -38,43 +22,11 @@
    2
   ],
   [
-   "upstream/codegen/initializer_nested_fns",
-   0
-  ],
-  [
-   "upstream/codegen/initializer_nested_fns",
-   2
-  ],
-  [
    "upstream/codegen/recursive_dispatch_fixed_variant",
    0
   ],
   [
    "upstream/codegen/recursive_dispatch_fixed_variant",
-   2
-  ],
-  [
-   "upstream/codegen/reference_element_results",
-   0
-  ],
-  [
-   "upstream/codegen/reference_element_results",
-   2
-  ],
-  [
-   "upstream/codegen/reference_type_arguments",
-   0
-  ],
-  [
-   "upstream/codegen/reference_type_arguments",
-   2
-  ],
-  [
-   "upstream/codegen/render_adt_self_references",
-   0
-  ],
-  [
-   "upstream/codegen/render_adt_self_references",
    2
   ],
   [
@@ -222,38 +174,6 @@
    2
   ],
   [
-   "upstream/lifetimes/tree_copied_from_struct",
-   0
-  ],
-  [
-   "upstream/lifetimes/tree_copied_from_struct",
-   2
-  ],
-  [
-   "upstream/lifetimes/tree_in_struct_rerun",
-   0
-  ],
-  [
-   "upstream/lifetimes/tree_in_struct_rerun",
-   2
-  ],
-  [
-   "upstream/stdlib/stdlib_csv",
-   0
-  ],
-  [
-   "upstream/stdlib/stdlib_csv",
-   2
-  ],
-  [
-   "upstream/stdlib/stdlib_dictionary_refs",
-   0
-  ],
-  [
-   "upstream/stdlib/stdlib_dictionary_refs",
-   2
-  ],
-  [
    "upstream/stdlib/stdlib_regex",
    0
   ],
@@ -275,14 +195,6 @@
   ],
   [
    "upstream/storage/global_var_reads",
-   2
-  ],
-  [
-   "upstream/storage/pool_branch_values",
-   0
-  ],
-  [
-   "upstream/storage/pool_branch_values",
    2
   ],
   [
@@ -323,46 +235,6 @@
   ],
   [
    "upstream/storage/serialize_image_checks",
-   2
-  ],
-  [
-   "upstream/typing/adt_self_references",
-   0
-  ],
-  [
-   "upstream/typing/adt_self_references",
-   2
-  ],
-  [
-   "upstream/typing/branch_slice_joins",
-   0
-  ],
-  [
-   "upstream/typing/branch_slice_joins",
-   2
-  ],
-  [
-   "upstream/typing/const_params",
-   0
-  ],
-  [
-   "upstream/typing/const_params",
-   2
-  ],
-  [
-   "upstream/typing/param_default_joins",
-   0
-  ],
-  [
-   "upstream/typing/param_default_joins",
-   2
-  ],
-  [
-   "upstream/typing/param_defaults",
-   0
-  ],
-  [
-   "upstream/typing/param_defaults",
    2
   ],
   [

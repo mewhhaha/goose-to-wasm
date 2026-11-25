@@ -248,6 +248,8 @@ let F_RESULT_TEMP: i64 = 2199023255552;
 let F_DEFERRED: i64 = 4398046511104;
 // A `root struct` declaration: independently stored fields under one owner.
 let F_ROOT: i64 = 8796093022208;
+// An array-only branch join still awaiting a slice destination.
+let F_ARRAY_JOIN: i64 = 17592186044416;
 let TF_UNSIGNED: i64 = 1;
 let TF_OPTIONAL: i64 = 2;
 let TF_CONST: i64 = 4;

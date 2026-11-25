@@ -87,7 +87,7 @@ fn validation_fresh_local(p: Program&, expression: i64, owner: i64) -> bool {
     return validation_contains_binding(p, owner, n.symbol);
 }
 fn validation_control_value(p: Program&, expression: i64, owner: i64) {
-    if expression < 0 || owner < 0 || (p.nodes[owner].flags & F_REFERENCE_CONTEXT) != 0 { return; }
+    if expression < 0 || owner < 0 || p.nodes[owner].type_id == TYPE_VOID || (p.nodes[owner].flags & F_REFERENCE_CONTEXT) != 0 { return; }
     if p.nodes[expression].kind == N_NAME && (p.nodes[expression].flags & F_RETURN_MOVE) != 0 { return; }
     if validation_storage_value(p, expression) && !validation_fresh_local(p, expression, owner) {
         diagnose(p, p.nodes[expression].token, "non-fixed storage requires explicit copy in a control-flow value");
@@ -701,6 +701,9 @@ fn check_validate_program(p: Program&) {
         }
         if kind == N_TYPE_ARRAY && tid >= 0 && tid < elem_bad.len && elem_bad[tid] { validation_element_layout(p, tid, tok); }
         if (flags & F_CHECKED) == 0 || tid < 0 { continue; }
+        if (flags & F_ARRAY_JOIN) != 0 {
+            diagnose(p, tok, "control-flow branches produce incompatible array types without a slice destination");
+        }
         if tid < elem_bad.len && elem_bad[tid] { validation_element_layout(p, tid, tok); }
         if p.types[tid].kind == TY_FN &&
            (kind == N_BLOCK || kind == N_IF || kind == N_LOOP || kind == N_MATCH) {

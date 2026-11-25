@@ -178,6 +178,8 @@ fn ci_emit_type(p: Program&, out: u8[>..]&, id: i64, static_views: bool = false)
             if operation == 0 { out.append("GImage value;memcpy(&value,g_address(source),sizeof value);return g_image_span(value);\n"); }
             else if operation == 2 { out.append("GImage value;memcpy(&value,g_address(source),sizeof value);int64_t bytes=g_image_span(value);if(bytes)memmove(image,value.base,(size_t)bytes);return image+bytes;\n"); }
             else { out.format("const uint8_t *end=g_image_skip_", id, "(image);g_image_copy_into(dest,(GImage){(uint8_t*)image,(uint8_t*)end,NULL});return end;\n"); }
+        } else if t.kind == TY_REF && t.length_storage == 0 && operation == 1 {
+            out.append("return image+gs_uleb_size(image);\n");
         } else if direct {
             let bytes = cc_frame_size(p, id);
             if operation == 0 { out.format("return ", bytes, ";\n"); }

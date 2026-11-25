@@ -153,7 +153,8 @@ fn cc_flat_relative_image(p: Program&, id: i64) -> bool {
             if (n.flags & F_PAD) != 0 { continue; }
             let t: const Type& = p.types[n.type_id];
             if t.kind == TY_REF && t.length_storage >= 0 && t.pool >= 0 {
-                if !cc_fixed_storage(p, t.element) || cc_region_width(p, t.element) != 0 || cc_frame_size(p, t.element) != p.types[t.element].size { ok = false; break; }
+                if !cc_image_type(p, t.element) &&
+                   (!cc_fixed_storage(p, t.element) || cc_region_width(p, t.element) != 0 || cc_frame_size(p, t.element) != p.types[t.element].size) { ok = false; break; }
                 relative = true;
             } else if t.kind != TY_INT && t.kind != TY_BOOL { ok = false; break; }
         }
@@ -196,15 +197,25 @@ fn cc_physical_cell_width(p: Program&, id: i64) -> i64 {
     if t.kind == TY_INT && t.storage != 0 { return 0; }
     return t.size;
 }
+inline fn cc_packed_pool_ref(p: Program&, id: i64) -> bool {
+    return id >= 0 && p.types[id].kind == TY_REF && p.types[id].length_storage == 0 && p.types[id].pool >= 0;
+}
+fn cc_variable_enum_image(p: Program&, id: i64) -> bool {
+    return cc_kind(p, id) == TY_ENUM && cc_image_type(p, id);
+}
 fn cc_image_constructible(p: Program&, id: i64) -> bool {
     if cc_bounded_relative_image(p, id) { return true; }
     let root = p.types[id];
-    if root.kind == TY_REF { return root.length_storage < 0; }
+    if root.kind == TY_REF { return root.length_storage < 0 || cc_packed_pool_ref(p, id); }
     if root.kind != TY_ARRAY && root.kind != TY_STRUCT && root.kind != TY_ENUM { return true; }
+    let relative_cells = cc_variable_enum_image(p, id);
     var work: i64[>..] = [id]; var seen: bool[>..] = []; seen.resize(p.types.len, false);
     while work.len > 0 {
         let current = work.pop(); if current < 0 || seen[current] { continue; } seen[current] = true; let t = p.types[current];
-        if t.kind == TY_REF { if t.length_storage >= 0 { return false; } continue; }
+        if t.kind == TY_REF {
+            if t.length_storage >= 0 && !(relative_cells && t.length_storage > 0) { return false; }
+            continue;
+        }
         if t.kind == TY_ARRAY {
             if t.array_kind != A_FIXED && t.array_kind != A_VAR && t.array_kind != A_LIMITED { return false; }
             if cc_fixed_storage(p, t.element) { continue; }
