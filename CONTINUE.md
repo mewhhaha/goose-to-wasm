@@ -2,8 +2,15 @@
 
 Standing rules are in [AGENTS.md](AGENTS.md). All six items of the Batches 9–13 runtime-performance campaign are complete, qualified, measured, and pushed to `origin/main` (compiler at `949c5c0`, with all five reader suites and `bench/charts/*.svg` refreshed in the follow-up commit).
 
-## Where it stands (2026-11-24)
+## Where it stands (2026-11-25)
 
+- **Release `v2026.4-3` (qualified, 7-round class-keyed lifetime checker algorithmic redesign):**
+  - Version string `goose-to-wasm v2026.4-3 (Goose v2026.4)` in `selfhost/driver.goose`, full qualification (`build/qualify-v2026.4-3/summary.json`, `269.2 s`, all stages exit 0: upstream C++ Goose check exit 0, fixed-point C `00ffd1ea…`, executable `209831db…`, `10,697/10,801` default conformance, `4,771/4,779` memory64, `54/54` native checks, `10,061/10,061` byte-identical equivalence vs `v2026.4-2`, `20/20` unit test modules).
+  - Forced-class (`LIFE_CONCRETE_FRAMES = 0`) soundness audit: `10,675/10,801` passed (`126` failing rows, `0` newly failing / `0` newly passing vs baseline), `selfhost/main.goose --check` exit 0.
+  - Head-to-head CPU-7 benchmarks vs `v2026.4-2` and plain upstream C++ Goose (`d5ae5bb`):
+    - `selfhost/main.goose` (~30k LOC): `--check` **`0.297 s`** (**−17.0%** vs `v2`'s `0.358 s`, **14.0× faster** than upstream's `4.139 s`), emit Wasm64 `-O2` **`0.482 s`** (**9.2× faster**), emit C `-O2` **`0.506 s`** (**8.8× faster**); portable Wasm64 in Wasmtime checks in **`0.886 s`** (**4.7×**) and emits bit-identical Wasm64 in **`1.284 s`** (**3.5×**).
+    - 8 real Goose examples: Direct Wasm `-O2` builds in `2.1–7.7 ms` vs upstream `goose build -O2` `53.5–179.3 ms` (**22×–29× faster**).
+    - Frozen Blot2 default-2 GiB paired CPU-7 checks (3 rounds each): `cb1e9e15` **`6.52 s` / `2.06 GiB` RSS** (**2.96× faster**, **−41.5% RSS** vs `v2`'s `19.27 s` / `3.53 GiB`), `6ad5fbb` **`16.98 s` / `4.80 GiB` RSS** (**4.32× faster**, **−37.4% RSS** vs `v2`'s `73.43 s` / `7.66 GiB`). [Release `v2026.4-3` evidence & charts](bench/results/2026-11-25/release-v2026.4-3/README.md) · [Algorithmic redesign report](bench/results/2026-11-25/blot2-lifetime-algo/README.md)
 - **Release `v2026.4-2` (qualified, C/Wasm/lifetime speedups, exquisite diagnostics, Wasm `env.*` host-import docs & tests):**
   - Version string `goose-to-wasm v2026.4-2 (Goose v2026.4)` in `selfhost/driver.goose`, full qualification (`build/qualify-v2026.4-2/summary.json`, `262.4 s`, all stages exit 0: fixed-point C `a0ec56f6…`, executable `93731c80…`, `10,697/10,801` default conformance, `5,926/6,022` split-unit native, `4,771/4,779` memory64, `54/54` native checks, `20/20` unit test modules including `tests.test_diagnostics`).
   - Forced-class (`LIFE_CONCRETE_FRAMES = 0`) soundness audit: exact `126` failing rows on `10,801` (`0` new failures), `13/13` upstream lifetime sentinels rejected, `selfhost/main.goose` exit 0.

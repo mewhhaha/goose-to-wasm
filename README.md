@@ -4,27 +4,27 @@
 
 Goose to Wasm compiles Goose directly to **WebAssembly** in milliseconds — with no C compiler in your inner loop — and compiles the same code to **native binaries or C libraries** when you are ready to ship.
 
-- **Version:** [`v2026.4-2`](https://github.com/mewhhaha/goose-to-wasm/releases/tag/v2026.4-2) (targets upstream Goose `v2026.4`, revision `2`)
+- **Version:** [`v2026.4-3`](https://github.com/mewhhaha/goose-to-wasm/releases/tag/v2026.4-3) (targets upstream Goose `v2026.4`, revision `3`)
 - **Compatibility:** `10,697 / 10,801` conformance rows (`99.0%`) · [Feature & compatibility tracker](docs/FEATURES.md)
-- **Turnaround vs upstream C++ Goose:** **10.5× faster** `--check` on a 30k-LOC codebase (`0.39 s` vs `4.08 s`), **8.5×–8.6× faster** `-O2` C and Wasm emission (`0.52–0.53 s` vs `4.47 s`), **24×–32× faster** `-O2` builds to runnable WebAssembly (`1.9–8.4 ms` vs `59–199 ms`), and native `-O2` binaries matching upstream C++ Goose within ~1–4%.
+- **Turnaround vs upstream C++ Goose:** **14.0× faster** `--check` on a 30k-LOC codebase (`0.30 s` vs `4.14 s`), **8.8×–9.2× faster** `-O2` C and Wasm emission (`0.48–0.51 s` vs `4.44 s`), **22×–29× faster** `-O2` builds to runnable WebAssembly (`2.1–7.7 ms` vs `54–179 ms`), **`6.5 s` / `17.0 s`** lifetime checks on frozen Blot2 compiler snapshots (**2.96×–4.32× faster** and **−37% to −42% RSS** vs `v2026.4-2`, where upstream times out past `180–240 s`), and native `-O2` binaries matching upstream C++ Goose within ~1–4%.
 - **Agent- & human-friendly diagnostics:** Source-line snippets with exact `^~~~` carets, `got` vs `expected` types with `help:` fixes, overload candidate signatures with `file:line`, Damerau-Levenshtein `"did you mean ...?"` suggestions, and lifetime call stacks.
 
 ---
 
 ## Quick Start
 
-### Option 1: Download a prebuilt release (`v2026.4-2`)
+### Option 1: Download a prebuilt release (`v2026.4-3`)
 
-Grab the prebuilt bundle from [Releases](https://github.com/mewhhaha/goose-to-wasm/releases/tag/v2026.4-2):
+Grab the prebuilt bundle from [Releases](https://github.com/mewhhaha/goose-to-wasm/releases/tag/v2026.4-3):
 
-- **Linux x64 (native compiler + stdlib):** `goose-to-wasm-v2026.4-2-linux-x64.tar.gz`
-- **Portable WebAssembly (macOS / Windows / Linux via Node or Wasmtime):** `goose-to-wasm-v2026.4-2-wasm.tar.gz`
+- **Linux x64 (native compiler + stdlib):** `goose-to-wasm-v2026.4-3-linux-x64.tar.gz`
+- **Portable WebAssembly (macOS / Windows / Linux via Node or Wasmtime):** `goose-to-wasm-v2026.4-3-wasm.tar.gz`
 
 ```sh
-tar -xzf goose-to-wasm-v2026.4-2-linux-x64.tar.gz
-export PATH="$PWD/goose-to-wasm-v2026.4-2-linux-x64/bin:$PATH"
+tar -xzf goose-to-wasm-v2026.4-3-linux-x64.tar.gz
+export PATH="$PWD/goose-to-wasm-v2026.4-3-linux-x64/bin:$PATH"
 goose --version
-# goose-to-wasm v2026.4-2 (Goose v2026.4)
+# goose-to-wasm v2026.4-3 (Goose v2026.4)
 ```
 
 ### Option 2: Build from source
@@ -64,29 +64,29 @@ See the [full CLI & build guide](docs/GUIDE.md) for `--shared`, `--wasm-memory64
 
 ## Benchmarks vs Upstream C++ Goose
 
-All measurements below compare qualified **`goose-to-wasm v2026.4-2`** (`93731c80…`) against **`v2026.4-1`** (`139b06db…`) and plain upstream C++ Goose (`d5ae5bb`, `GOOSE_CC=clang`, pre-warmed `GOOSE_HOME` runtime cache) across 5 alternating rounds pinned to CPU 7 (`clang 23.1.5`, `wasmtime 50.0.1`, `node v26.5.0`). [Full methodology, scripts, and raw JSON](bench/results/2026-11-24/release-v2026.4-2/README.md)
+All measurements below compare qualified **`goose-to-wasm v2026.4-3`** (`209831db…`) against **`v2026.4-2`** (`93731c80…`) and plain upstream C++ Goose (`d5ae5bb`, `GOOSE_CC=clang`, pre-warmed `GOOSE_HOME` runtime cache) across 5 alternating rounds pinned to CPU 7 (`clang 23.1.5`, `wasmtime 50.0.1`, `node v26.5.0`). [Full methodology, scripts, and raw JSON](bench/results/2026-11-25/release-v2026.4-3/README.md)
 
 ### 1. Large-project compile & check speed
 
-On the compiler's own ~30k-LOC codebase (`selfhost/main.goose`), `v2026.4-2` checks in **`0.39 s`** (**10.5× faster** than upstream C++ Goose's `4.08 s`), emits portable `-O2` WebAssembly in **`0.52 s`** (**8.6× faster** than upstream's `4.47 s` C emit), and emits `-O2` C in **`0.53 s`** (**8.5× faster** than upstream, and **−23.6% faster** than `v2026.4-1`'s `0.69 s` thanks to a **2.2× faster** C backend). Running **as portable WebAssembly** inside Wasmtime, it checks in `1.01 s` (**4.1× faster**) and self-compiles in `1.35 s` (**3.3× faster**).
+On the compiler's own ~30k-LOC codebase (`selfhost/main.goose`), `v2026.4-3` checks in **`0.30 s`** (**14.0× faster** than upstream C++ Goose's `4.14 s` and **−17.0%** vs `v2026.4-2`'s `0.36 s`), emits portable `-O2` WebAssembly in **`0.48 s`** (**9.2× faster** than upstream's `4.44 s` C emit), and emits `-O2` C in **`0.51 s`** (**8.8× faster** than upstream). Running **as portable WebAssembly** inside Wasmtime, it checks in **`0.89 s`** (**4.7× faster**) and self-compiles bit-identical Wasm64 in **`1.28 s`** (**3.5× faster**).
 
-On `main` (post-`v2026.4-2`), a 7-round algorithmic redesign of the class-keyed lifetime checker further cuts `selfhost/main.goose --check` to **`0.30 s`** (**1.15× faster** than `v2026.4-2`'s `0.34 s` paired on CPU 7) and Wasm64 `-O2` emission to **`0.50 s`** (**1.11× faster**), while slashing the much larger frozen Blot2 compiler checks inside the default 2 GiB stack reserve to **`6.83 s` / `2.06 GiB` RSS** on `cb1e9e15` (**2.90× faster** and **−41.5% RSS** vs `v2026.4-2`'s `19.81 s` / `3.53 GiB`) and **`17.43 s` / `4.80 GiB` RSS** on `6ad5fbb` (**4.05× faster** and **−39.2% RSS** vs `v2026.4-2`'s `70.61 s` / `7.89 GiB`), where plain upstream C++ Goose timed out past `180 s` (`--header`) and `240 s` (`check`) in separate dated reference runs. [Blot2 lifetime checker redesign report & raw JSON](bench/results/2026-11-25/blot2-lifetime-algo/README.md)
+On the much larger class-keyed frozen Blot2 compiler snapshots inside the default 2 GiB stack reserve, `v2026.4-3`'s 7-round algorithmic lifetime-checker redesign cuts checking to **`6.52 s` / `2.06 GiB` RSS** on `cb1e9e15` (**2.96× faster** and **−41.5% RSS** vs `v2026.4-2`'s `19.27 s` / `3.53 GiB`) and **`16.98 s` / `4.80 GiB` RSS** on `6ad5fbb` (**4.32× faster** and **−37.4% RSS** vs `v2026.4-2`'s `73.43 s` / `7.66 GiB`), where plain upstream C++ Goose timed out past `180 s` (`--header`) and `240 s` (`check`) in separate dated reference runs. [Algorithmic design & ablation notes](bench/results/2026-11-25/blot2-lifetime-algo/README.md)
 
-![Compiler turnaround: goose-to-wasm v2026.4-2 vs v2026.4-1 & upstream C++ Goose](bench/results/2026-11-24/release-v2026.4-2/compile_turnaround_vs_goose.svg)
+![Compiler turnaround: goose-to-wasm v2026.4-3 vs v2026.4-2 & upstream C++ Goose](bench/results/2026-11-25/release-v2026.4-3/compile_turnaround_vs_goose.svg)
 
-![Blot2 lifetime checker redesign: main vs v2026.4-2, Batch 3 & upstream C++ Goose](bench/results/2026-11-25/blot2-lifetime-algo/blot2_turnaround_vs_v2.svg)
+![Blot2 lifetime checker in v2026.4-3 vs v2026.4-2, Batch 3 & upstream C++ Goose](bench/results/2026-11-25/release-v2026.4-3/blot2_vs_v2.svg)
 
 ### 2. Everyday edit-compile turnaround (8 real programs)
 
-Because Direct Wasm skips the C compiler and linker completely, compiling real Goose programs (`squares`, `sieve`, `sudoku`, `vm`, `life`, `tour`, `maze`, `sorting`) to optimized `-O2` runnable WebAssembly takes **`1.9–8.4 ms`** — **24×–32× faster** than upstream `goose build -O2` (`59–199 ms`). Type and lifetime checking alone takes **`1.6–5.1 ms`** vs `1.9–24.4 ms` upstream (up to **4.8× faster** on `sorting`).
+Because Direct Wasm skips the C compiler and linker completely, compiling real Goose programs (`squares`, `sieve`, `sudoku`, `vm`, `life`, `tour`, `maze`, `sorting`) to optimized `-O2` runnable WebAssembly takes **`2.1–7.7 ms`** — **22×–29× faster** than upstream `goose build -O2` (`54–179 ms`). Type and lifetime checking alone takes **`1.7–4.5 ms`** vs `1.8–19.8 ms` upstream (up to **4.3× faster** on `sorting`).
 
-![Everyday dev turnaround on 8 Goose programs: Direct Wasm vs upstream C++ Goose](bench/results/2026-11-24/release-v2026.4-2/dev_build_examples_vs_goose.svg)
+![Everyday dev turnaround on 8 Goose programs: Direct Wasm vs upstream C++ Goose](bench/results/2026-11-25/release-v2026.4-3/dev_build_examples_vs_goose.svg)
 
 ### 3. Runtime performance of compiled programs
 
-Fast compilation does not trade away production speed. Native `-O2` executables emitted by `v2026.4-2` match upstream C++ Goose closely (`sieve` `2.16 ms` vs `2.13 ms`, `mandelbrot` `2.62 s` vs `2.59 s`, `sorting` `37.5 ms` vs `35.7 ms`, all bit-exact). Direct Wasm modules run near-native in Wasmtime (`47.1 ms` on `sorting`, **`2.01 s`** on `mandelbrot`).
+Fast compilation does not trade away production speed. Native `-O2` executables emitted by `v2026.4-3` match upstream C++ Goose closely (`sieve` `2.08 ms` vs `2.09 ms`, `mandelbrot` `2.38 s` vs `2.35 s`, `sorting` `37.7 ms` vs `36.0 ms`, all bit-exact). Direct Wasm modules run near-native in Wasmtime (`46.1 ms` on `sorting`, **`1.96 s`** on `mandelbrot`, **`0.92 ms`** on `sieve`, **`0.97 ms`** on `maze`).
 
-![Compiled program runtime: goose-to-wasm v2026.4-2 vs upstream C++ Goose](bench/results/2026-11-24/release-v2026.4-2/runtime_vs_goose.svg)
+![Compiled program runtime: goose-to-wasm v2026.4-3 vs upstream C++ Goose](bench/results/2026-11-25/release-v2026.4-3/runtime_vs_goose.svg)
 
 ---
 
@@ -143,8 +143,8 @@ Lifetime errors include the offending source span, the invalidated variable and 
 | | Direct Wasm (`--target wasm-direct`, default) | Native C (`--target c` / `--backend native`) |
 |---|---|---|
 | **Best for** | Instant edit-run dev loops, browser/sandboxed tools, custom Wasm host embedders | Maximum runtime speed, CLI tools, servers, C-host libraries |
-| **Build time (examples)** | **2–8 ms** (zero C toolchain required) | `140–450 ms` (cached runtime + Clang/GCC) |
-| **Build time (30k LOC)** | **0.52 s** | **`0.53 s`** C emit + parallel C compile |
+| **Build time (examples)** | **2–8 ms** (zero C toolchain required) | `139–448 ms` (cached runtime + Clang/GCC) |
+| **Build time (30k LOC)** | **0.48 s** | **`0.51 s`** C emit + parallel C compile |
 | **Runtime speed** | Near-native in Wasmtime / `wtime-aot`; runs anywhere with Node or a browser | Matches upstream C++ Goose `-O2` within ~1–4% |
 | **Features** | Full core language, root structs, `defer`, `const if`, `env.*` host imports, memory32 & memory64 | Everything in Direct Wasm plus threads, `slice_pool`, `--header`, `--shared` |
 
@@ -152,7 +152,7 @@ Lifetime errors include the offending source span, the invalidated variable and 
 
 ## Compatibility & Versioning
 
-Releases are versioned as **`v<goose-version>-<n>`** (currently **`v2026.4-2`**) so you can see which upstream Goose release is tracked while we ship incremental compiler, diagnostic, and performance updates (`-1`, `-2`, `-3`, ...).
+Releases are versioned as **`v<goose-version>-<n>`** (currently **`v2026.4-3`**) so you can see which upstream Goose release is tracked while we ship incremental compiler, diagnostic, and performance updates (`-1`, `-2`, `-3`, ...).
 
 - **Reference:** Plain upstream C++ Goose (`aardappel/goose`) is the language reference.
 - **What works:** Core Goose language, generics, root structs, `defer`, `const if`, lifetime checking, stdlib (`std`, `os`, `json`, `math`, `binary`, `base64`, `vec`, `mat`, `quat`, `ascii`, `slice_pool` native, threads native), Wasm `env.*` host imports, and the C-host `--header` / `--shared` / `--emit-runtime` interface (used end-to-end to build the Blot2 compiler).
@@ -170,7 +170,8 @@ Releases are versioned as **`v<goose-version>-<n>`** (currently **`v2026.4-2`**)
 
 All dated compiler, runtime, Wasmtime, `wtime-aot`, native C codegen, and Blot2 studies live under [`bench/results/`](bench/results/):
 
-- [Blot2 lifetime checker algorithmic redesign — 2.90× `cb1e9e15` (`6.83 s`), 4.05× `6ad5fbb` (`17.43 s`), −40% RSS (2026-11-25)](bench/results/2026-11-25/blot2-lifetime-algo/README.md)
+- [Release `v2026.4-3` head-to-head vs `v2026.4-2` & upstream C++ Goose (2026-11-25)](bench/results/2026-11-25/release-v2026.4-3/README.md)
+- [Blot2 lifetime checker algorithmic redesign — 7 rounds & ablations (2026-11-25)](bench/results/2026-11-25/blot2-lifetime-algo/README.md)
 - [Release `v2026.4-2` head-to-head vs `v2026.4-1` & upstream C++ Goose (2026-11-24)](bench/results/2026-11-24/release-v2026.4-2/README.md)
 - [Release `v2026.4-1` head-to-head vs upstream C++ Goose (2026-11-24)](bench/results/2026-11-24/release-v2026.4-1/README.md)
 - [Blot2 class-keyed lifetime checker speedups — 3.6× `cb1e9e15`, 2.7× `6ad5fbb` (2026-11-24)](bench/results/2026-11-24/blot2-lifetime-speed/README.md)
