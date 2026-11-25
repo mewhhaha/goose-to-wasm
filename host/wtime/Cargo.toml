@@ -1,0 +1,10 @@
+[package]
+name = "goose-wtime"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.99"
+description = "Thin safe-Rust wtime host wrapper for Direct Goose Wasm32/Wasm64 and Blot2 Wasm64 modules"
+
+[dependencies]
+wtime-runtime = { path = "../../../wtime/crates/wtime-runtime", features = ["compact-executor", "register-executor"] }
+wtime-types = { path = "../../../wtime/crates/wtime-types" }

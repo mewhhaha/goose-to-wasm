@@ -8660,7 +8660,7 @@ fn check_program_types(p: Program&, declarations_only: bool, scope_parents: i64[
             if main_symbol >= 0 { diagnose(p, n.token, "main cannot be overloaded"); }
             main_symbol = i;
         }
-        if (n.flags & F_EXPORT) != 0 || p.library && (n.flags & F_GENERIC) == 0 { check_function(p, c, s.node); }
+        if (n.flags & F_EXPORT) != 0 || p.library && !p.reachable_program && (n.flags & F_GENERIC) == 0 { check_function(p, c, s.node); }
     }
     if main_symbol < 0 {
         // Checking only, a program that declares no main anywhere is checked on its own.
