@@ -7,7 +7,7 @@ Compile Goose directly to **WebAssembly in milliseconds** — with no C compiler
 - **Latest release:** [`v2026.4-5`](https://github.com/mewhhaha/goose-to-wasm/releases/tag/v2026.4-5) (tracks upstream Goose `v2026.4`)
 - **Everyday builds:** **23×–26× faster** than upstream C++ Goose (`2–7 ms` vs `51–177 ms` at `-O2`)
 - **Large projects:** **8×–10× faster** checks and builds on our own ~32k-LOC compiler, and **5×–16× faster** edit-compile-run turnaround on [`mewhhaha/blot2`](https://github.com/mewhhaha/blot2) (`6.2 s` vs `31–99 s`)
-- **Compatibility:** `10,709 / 10,801` conformance rows (`99.15%`, 92 recorded gaps; `4,773 / 4,779` memory64) · [Feature & compatibility tracker](docs/FEATURES.md)
+- **Compatibility:** `10,799 / 10,801` conformance rows (`99.98%` — **6,022 / 6,022** native / **100%** of upstream C++ Goose tests, 2 documented frozen wasm32 contract gaps; `4,773 / 4,779` memory64) · [Feature & compatibility tracker](docs/FEATURES.md)
 
 ---
 

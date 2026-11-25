@@ -4992,8 +4992,10 @@ recursive fn cg_slice(p: Program&, m: CgModule&, f: CgBody&, node: i64) {
     }
     else { cg_get(f, view); ws_count(f.code); }
     let end = cg_save(f, 0x7e);
-    cg_get(f, start); cg_get(f, end); wb_byte(f.code, 0x56);
-    cg_get(f, end); cg_get(f, view); ws_count(f.code); wb_byte(f.code, 0x56); wb_byte(f.code, 0x72); cg_trap_if(p, m, f, node, "slice bounds out of range");
+    if (n.flags & F_BOUNDS_PROVEN) == 0 {
+        cg_get(f, start); cg_get(f, end); wb_byte(f.code, 0x56);
+        cg_get(f, end); cg_get(f, view); ws_count(f.code); wb_byte(f.code, 0x56); wb_byte(f.code, 0x72); cg_trap_if(p, m, f, node, "slice bounds out of range");
+    }
     if p.types[p.types[id].element].storage == 1 {
         cg_get(f, view); ws_ptr(f.code); let base = cg_save(f, wa()); let pointer = cg_walk_elements(p, m, f, base, start, node); cg_get(f, pointer); wa_extend(f.code);
     } else {

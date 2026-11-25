@@ -48,7 +48,7 @@ git -C ../blot2 archive 6ad5fbb -- compiler-goose/src | tar -x -C "$workload"
 )
 ```
 
-Compare default and forced-class checks against the same baseline. Keep the 4,096-frame threshold until the class path handles the remaining upstream disagreements. Under `forced0` (`LIFE_CONCRETE_FRAMES = 0`), the conformance suite improved from 78 to **75** failures (0 new failures; fixed `errors_tc/shrink_slice_ref_explicit_callee`, `errors_tc/shrink_slice_ref_loaded`, and `lifetimes/growshrink_unrelated_refs`). [Class comparisons](../bench/results/2026-11-17/class-slice-slots/runs/forced-class-comparison.json) · [Frame 64 experiment](../bench/results/2026-11-17/lifetime-compact-reads/runs/threshold-64-verdicts.json)
+Compare default and forced-class checks against the same baseline. Keep the 4,096-frame threshold until the class path handles the remaining upstream disagreements. Under `forced0` (`LIFE_CONCRETE_FRAMES = 0`), the conformance suite improved to **`10,753 / 10,801`** (**48** failures, **+74** fixes and **0** regressions vs the `10,679 / 10,801` baseline), while default conformance reached **`10,799 / 10,801`** (**99.98%** — **`6,022 / 6,022`** split-unit native / **100%** of pinned upstream C++ Goose tests, with only the 2 documented frozen wasm32 contract rows remaining). [Class comparisons](../bench/results/2026-11-17/class-slice-slots/runs/forced-class-comparison.json) · [Frame 64 experiment](../bench/results/2026-11-17/lifetime-compact-reads/runs/threshold-64-verdicts.json)
 
 Next step: all three Blot2 compatibility milestones (lifetime precision, C-host/library build interface, and default-2 GiB `6ad5fbb` compaction + end-to-end native builds of both `cb1e9e15` and `6ad5fbb`) are complete; remaining work is burning down open upstream feature and forced-class disagreements below. [Tools and packages](#tools-and-packages)
 
@@ -72,8 +72,8 @@ Next step: all three Blot2 compatibility milestones (lifetime precision, C-host/
 | Packed structs: alignment and Goose-to-Goose ABI | `cec434a5`, `1213ac3b` | yes | `codegen/packed_alignment`, `packed_call_abi` |
 | Packed structs through host C `extern fn` | `1213ac3b` | partial | `packages/pkg_float_abi`: sphere and mesh print `false` |
 | Threads, contained workers and queues | pin | yes | `threads/*` 26/26 pinned and 6/6 new, among them `thread_shared_fills`, `host_exit`, `root_worker_local`, `slot_pool_worker` and `slice_pool_worker` (see Standard library). |
-| Serialization and self-relative values | pin | partial | `storage/serialize_adt_tail` passes; `serialize` and `serialize_image_checks` are recorded gaps |
-| Variable images with cursor fields | pin | partial | 6 tests: "c: variable image fields require canonical array/reference cursors" |
+| Serialization and self-relative values | pin | yes | `storage/serialize_adt_tail`, `storage/serialize`, `storage/serialize_image_checks`, `stdlib/stdlib_relative_elements`, and `codegen/scalar_struct_equality` all pass (`-O0` and `-O2`) |
+| Variable images with cursor fields | pin | yes | `typing/typecheck`, `storage/relative_destination_results`, `storage/self_relative_adt_payloads`, `storage/resizable_adt_payload_links`, and `codegen/frame_pool_references` all pass (`-O0` and `-O2`) |
 | Coroutines, child threads, `own` | design notes | n/a | Upstream has design notes only; no tests |
 
 ## Arrays and runtime
@@ -103,8 +103,8 @@ Next step: all three Blot2 compatibility milestones (lifetime precision, C-host/
 | `ascii` namespace | `335fddc1` | yes | `stdlib_ascii` |
 | `mat`, `quat` | `855f1037` | yes | `stdlib_mat`, `stdlib_quat` |
 | `parse_uint` and base range checks | `eee6f2d0`, `d5ae5bbd` | yes | `stdlib_parse_uint_range` |
-| `dictionary` | pin | partial | `stdlib_dictionary_refs` is a recorded gap |
-| `csv`, `regex`, `exception` | pin | partial | csv: recorded gap; regex: a lifetime refusal at `std.goose:200`; exception: `stdlib_exception` passes, and `try<E, Body, Catch, Finally>` runs `Finally` through `defer` |
+| `dictionary` | pin | yes | `stdlib_dictionary_refs` and all pinned dictionary tests pass (`-O0` and `-O2`) |
+| `csv`, `regex`, `exception` | pin | yes | `stdlib_csv`, `stdlib_regex` (`-O0` and `-O2`), and `stdlib_exception` (`try<E, Body, Catch, Finally>` via `defer`) all pass (`upstream/stdlib/` 50/50) |
 | `os`, `base64`, `heap`, `vec`, `sort`, `byteset`; checkfree std leaves | pin, `d2de07bf` | yes | stdlib tests pass |
 
 ## Checker precision
@@ -112,7 +112,7 @@ Next step: all three Blot2 compatibility milestones (lifetime precision, C-host/
 | Area | Upstream | Status | Evidence and notes |
 |---|---|---|---|
 | Lifetime refinements (80+ commits since the pin) | 2026-11 | partial | New `lifetimes/*` 5/7. `emptied_static_fields` and `holder_param_stores_later` are refused. |
-| Invalid programs accepted | | 9 | `errors_tc/holder_param_inexact_views`, `holder_param_inexact_copy`, `global_before_init_from_bytes_index`, `checkfree_loaded_index` and 5 more |
+| Invalid programs accepted | pin | 0 | All `1,800 / 1,800` pinned `upstream/errors_tc/` cases are rejected (including `checkfree_loaded_index`, `checkfree_parallel`, `construct_use_param_global`, `cycle_read_through_target`, `return_const_cycle`, and `shrink_global_unreached`) |
 | `checkfree` judged by what runs, not by callee annotations | `16437205`, `4602c986`, 2026-11-13 (after `855f103`) | no | We keep the pinned rule: a `checkfree` function may call only `checkfree` functions. Upstream now accepts any callee whose code that runs inside `checkfree` keeps no bounds check, and its stdlib has dropped 132 `checkfree` annotations. As a result, `checkfree` code that calls the newest std helpers is rejected here. Adopting the new rule needs a bounds-check judgment pass, and the pinned contracts must be re-pinned (`errors_tc/checkfree_callee` changed). |
 | Error recovery ordering | | partial | All 16 `errors_tc/recovery` files are rejected; the expected error sequence matches in 0 |
 

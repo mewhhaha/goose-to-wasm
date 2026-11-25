@@ -3453,6 +3453,12 @@ recursive fn check_array(p: Program&, c: Checker&, node: i64, expected: i64) -> 
         if constant.valid {
             if constant.value < 0 { diagnose(p, n_tok, "array repetition count must be nonnegative"); }
             count = constant.value;
+            if p.nodes[n_right].kind != N_INTEGER {
+                let literal = operation_integer(p, count, p.nodes[n_right].token);
+                p.nodes[literal].type_id = TYPE_I64;
+                p.nodes[literal].flags |= F_CHECKED;
+                p.nodes[node].right = literal;
+            }
         } else { count = -1; diagnose(p, n_tok, "array repetition count must be a compile-time integer constant"); }
         if check_list_count(p, n_first) != 1 { diagnose(p, n_tok, "array repetition requires one element"); }
     }
@@ -4059,8 +4065,20 @@ fn check_render_has_hook(p: Program&, hooks: const i64[:], type_id: i64) -> bool
 }
 fn check_render_parameter(p: Program&, c: Checker&, node: i64, type_id: i64) -> i64 {
     if p.types[type_id].kind == TY_REF { return type_id; }
+    // A helper for a by-value hook takes its own copy. A const-reference
+    // hook needs only a read-only borrow of the original argument.
+    let hook = c.render_hooks[type_id];
+    var flags = 0;
+    if hook >= 0 {
+        let formal = p.nodes[p.nodes[p.symbols[hook].node].first].next;
+        let parameter = p.nodes[formal].type_id;
+        if p.types[parameter].kind != TY_REF && p.types[parameter].kind != TY_SLICE { return parameter; }
+        flags = p.types[parameter].flags & TF_CONST;
+    } else if p.types[type_id].kind == TY_INT || p.types[type_id].kind == TY_FLOAT || p.types[type_id].kind == TY_BOOL {
+        return type_id;
+    }
     if check_addressable(p, node) && check_operation_same(p, check_storage_type(p, node), type_id) {
-        var flags = 0; if check_borrow_readonly(p, c, node) { flags |= TF_CONST; }
+        if check_borrow_readonly(p, c, node) { flags |= TF_CONST; }
         return render_reference(p, type_id, flags);
     }
     return check_const_type(p, type_id);

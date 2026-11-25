@@ -3997,10 +3997,32 @@ recursive fn cc_expr(p: Program&, f: CcBody&, node: i64) -> i64 {
         if n.third >= 0 { high = cc_to(p, f, n.third, TYPE_I64); }
         if (n.flags & F_FROM_END) != 0 { cc_set(f, low); cc_id(f.out, "g_v", length); cc_text(f.out, "-"); cc_id(f.out, "g_v", low); cc_text(f.out, ";\n"); }
         if (n.flags & F_TO_END) != 0 { cc_set(f, high); cc_id(f.out, "g_v", length); cc_text(f.out, "-"); cc_id(f.out, "g_v", high); cc_text(f.out, ";\n"); }
-        cc_text(f.out, "if("); cc_id(f.out, "g_v", low); cc_text(f.out, "<0||"); cc_id(f.out, "g_v", high); cc_text(f.out, "<"); cc_id(f.out, "g_v", low);
-        if high != length { cc_text(f.out, "||"); cc_id(f.out, "g_v", high); cc_text(f.out, ">"); cc_id(f.out, "g_v", length); }
-        cc_text(f.out, ")g_panic(\"slice bounds out of range\");\n");
-        let result = cc_temp(p, f, n.type_id); cc_set(f, result); cc_text(f.out, "(GSlice){g_element("); cc_id(f.out, "g_v", base); cc_text(f.out, ","); cc_array_args(p, f.out, array); cc_text(f.out, ","); cc_id(f.out, "g_v", low); cc_text(f.out, ",1),"); cc_id(f.out, "g_v", high); cc_text(f.out, "-"); cc_id(f.out, "g_v", low); cc_text(f.out, "};\n"); return result;
+        if (n.flags & F_BOUNDS_PROVEN) == 0 {
+            cc_text(f.out, "if("); cc_id(f.out, "g_v", low); cc_text(f.out, "<0||"); cc_id(f.out, "g_v", high); cc_text(f.out, "<"); cc_id(f.out, "g_v", low);
+            if high != length { cc_text(f.out, "||"); cc_id(f.out, "g_v", high); cc_text(f.out, ">"); cc_id(f.out, "g_v", length); }
+            cc_text(f.out, ")g_panic(\"slice bounds out of range\");\n");
+        }
+        let proven = (n.flags & F_BOUNDS_PROVEN) != 0;
+        var view = -1;
+        if proven && cc_owner(p, array) {
+            // g_view also supplies a non-null base for a never-grown array.
+            view = cc_temp(p, f, n.type_id);
+            cc_set(f, view); cc_text(f.out, "g_view("); cc_id(f.out, "g_v", base);
+            cc_text(f.out, ","); cc_array_args(p, f.out, array); cc_text(f.out, ");\n");
+        }
+        let result = cc_temp(p, f, n.type_id); cc_set(f, result); cc_text(f.out, "(GSlice){");
+        if view >= 0 {
+            cc_id(f.out, "g_v", view); cc_text(f.out, ".base+(uintptr_t)"); cc_id(f.out, "g_v", low);
+            cc_text(f.out, "*"); cc_number(f.out, cc_frame_size(p, p.types[array].element));
+        } else {
+            if proven { cc_text(f.out, "g_element_unchecked("); } else { cc_text(f.out, "g_element("); }
+            cc_id(f.out, "g_v", base); cc_text(f.out, ","); cc_array_args(p, f.out, array);
+            cc_text(f.out, ","); cc_id(f.out, "g_v", low);
+            if !proven { cc_text(f.out, ",1"); }
+            cc_text(f.out, ")");
+        }
+        cc_text(f.out, ","); cc_id(f.out, "g_v", high); cc_text(f.out, "-"); cc_id(f.out, "g_v", low);
+        cc_text(f.out, "};\n"); return result;
     }
     if n.kind == N_IF {
         let condition = cc_truth(p, f, n.left); var result = -1;
@@ -5185,7 +5207,13 @@ fn cc_sites(p: Program&, out: u8[>..]&, sites: const i64[:]) {
     cc_text(out, "};\n");
 }
 recursive fn cc_cast(p: Program&, f: CcBody&, node: i64) -> i64 {
-    let n = p.nodes[node]; var target = p.types[n.type_id];
+    let n = p.nodes[node];
+    // A nonlocal exit in the operand has no value to convert.
+    if n.type_id < 0 && cc_diverges(p, n.left) {
+        cc_expr(p, f, n.left);
+        return -1;
+    }
+    var target = p.types[n.type_id];
     if n.right >= 0 && cc_kind(p, p.nodes[n.right].type_id) == TY_INT && p.types[p.nodes[n.right].type_id].index_type >= 0 {
         target = p.types[p.nodes[n.right].type_id];
     }

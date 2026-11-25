@@ -134,7 +134,9 @@ recursive fn validation_element_owner(p: Program&, node: i64, depth: i64 = 0) ->
         while array >= 0 && p.types[array].kind == TY_REF { array = p.types[array].element; }
         if array >= 0 && (p.types[array].kind == TY_ARRAY || p.types[array].kind == TY_SLICE) {
             let storage = p.types[array].element;
-            if storage >= 0 && p.types[storage].kind == TY_REF && p.types[storage].length_storage >= 0 {
+            if storage >= 0 && p.types[storage].kind == TY_REF {
+                // An indexed reference slot yields its pointee. Only a
+                // pool-relative reference names the owner syntactically.
                 return ValidationRoot { symbol: p.types[storage].pool };
             }
         }
