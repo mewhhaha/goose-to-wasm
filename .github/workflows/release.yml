@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: 'Release tag to build and attach assets to (e.g. v2026.4-1)'
+        description: 'Release tag to build and attach assets to (e.g. v2026.4-2)'
         required: true
         type: string
       prerelease:
@@ -67,7 +67,8 @@ jobs:
           build/bin/goosew --check examples/sorting.goose
           build/bin/goosew examples/squares.goose -O2 -o /tmp/squares.wasm
           test "$(node scripts/run_wasm.mjs /tmp/squares.wasm)" = "sum=140"
-          build/bin/goosew examples/squares.goose --target native -O2 --cc "$CC" --run > /tmp/native.out
+          test "$(build/bin/goosew examples/squares.goose -O2 -o /tmp/squares-run.wasm --run)" = "sum=140"
+          build/bin/goosew examples/squares.goose --target native -O2 --cc "$CC" -o /tmp/squares.c --run > /tmp/native.out
           test "$(cat /tmp/native.out)" = "sum=140"
 
           # Build portable Wasm64 compiler binary
@@ -144,9 +145,8 @@ jobs:
           build/bin/goosew --check examples/sorting.goose
           build/bin/goosew examples/squares.goose -O2 -o /tmp/squares.wasm
           test "$(node scripts/run_wasm.mjs /tmp/squares.wasm)" = "sum=140"
-          build/bin/goosew examples/squares.goose --target native -O2 -o /tmp/squares.c
-          clang -std=gnu11 -O2 /tmp/squares.c -lm -lpthread -o /tmp/squares
-          test "$(/tmp/squares)" = "sum=140"
+          test "$(build/bin/goosew examples/squares.goose -O2 -o /tmp/squares-run.wasm --run)" = "sum=140"
+          test "$(build/bin/goosew examples/squares.goose --target native -O2 -o /tmp/squares.c --run)" = "sum=140"
 
           mkdir -p dist
           PKG="goose-to-wasm-${TAG}-macos-${ARCH}"
@@ -222,10 +222,13 @@ jobs:
           .\build\bin\goosew.exe examples\squares.goose -O2 -o "$env:TEMP\squares.wasm"
           $wasmOut = (node scripts\run_wasm.mjs "$env:TEMP\squares.wasm").Trim()
           if ($wasmOut -ne "sum=140") { throw "Unexpected wasm output: $wasmOut" }
-          .\build\bin\goosew.exe examples\squares.goose --target native -O2 -o "$env:TEMP\squares.c"
-          clang -std=gnu11 -O2 "$env:TEMP\squares.c" -lm -o "$env:TEMP\squares.exe"
-          $nativeOut = (& "$env:TEMP\squares.exe").Trim()
-          if ($nativeOut -ne "sum=140") { throw "Unexpected native output: $nativeOut" }
+          $wasmRunOut = (.\build\bin\goosew.exe examples\squares.goose -O2 -o "$env:TEMP\squares-run.wasm" --run).Trim()
+          if ($wasmRunOut -ne "sum=140") { throw "Unexpected default --run output: $wasmRunOut" }
+          $nativeRunOut = (.\build\bin\goosew.exe examples\squares.goose --target native -O2 -o "$env:TEMP\squares.c" --run).Trim()
+          if ($nativeRunOut -ne "sum=140") { throw "Unexpected native --run output: $nativeRunOut" }
+          python -c 'import os, pathlib; q = chr(34); p = "caf" + chr(233) + ".txt"; pathlib.Path(os.environ["TEMP"], "utf8_probe.goose").write_text(f"import os;\nfn main() {{ let p = {q}{p}{q}; let ok = write_file(p, {q}hi{q}); var out: u8[>..] = []; let rd = read_file(p, out); let rm = delete_file(p); print(ok, rd, rm, out); }}\n", encoding="utf-8")'
+          $utf8Out = (.\build\bin\goosew.exe "$env:TEMP\utf8_probe.goose" --target native -O2 -o "$env:TEMP\utf8_probe.c" --run).Trim()
+          if ($utf8Out -ne "truetruetruehi") { throw "Unexpected UTF-16 Win32 output: $utf8Out" }
 
           New-Item -ItemType Directory -Force -Path dist | Out-Null
           $pkg = "goose-to-wasm-$($env:TAG)-windows-x64"
