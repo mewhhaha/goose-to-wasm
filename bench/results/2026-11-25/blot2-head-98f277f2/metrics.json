@@ -1,0 +1,182 @@
+{
+  "goose_sha256": "a78e2c43725b9df68a1a95e3adc6446e49e8a93370cbba15b9be02540fc7f163",
+  "check_unmodified_pin7": {
+    "median_s": 4.1902,
+    "runs_s": [
+      3.9194,
+      4.4716,
+      4.1902
+    ],
+    "max_rss_mib": 1313.7
+  },
+  "check_patched_pin7": {
+    "median_s": 3.2841,
+    "runs_s": [
+      3.3388,
+      3.2841,
+      3.2601
+    ],
+    "max_rss_mib": 1317.8
+  },
+  "upstream_check_pin7": {
+    "median_s": 10.729,
+    "runs_s": [
+      10.7232,
+      10.7681,
+      10.729
+    ],
+    "max_rss_mib": 1662.6
+  },
+  "emit_wasm64_O0_pin7": {
+    "median_s": 3.8382,
+    "runs_s": [
+      3.7732,
+      3.8382,
+      3.8545
+    ],
+    "max_rss_mib": 1400.5
+  },
+  "emit_wasm64_O2_pin7": {
+    "median_s": 4.5807,
+    "runs_s": [
+      4.6384,
+      4.5807,
+      4.5618
+    ],
+    "max_rss_mib": 1512.2
+  },
+  "wasm_o0_bytes": 22823941,
+  "wasm_o2_bytes": 33310623,
+  "wasmtime_cold_O0_unpinned": {
+    "median_s": 2.4044,
+    "runs_s": [
+      2.4044,
+      2.307,
+      2.5352
+    ],
+    "max_rss_mib": 1257.4
+  },
+  "wasmtime_cold_O0_timing_last": {
+    "engine": "Wasmtime",
+    "wasmtime": "50.0.1",
+    "optimization": "cranelift speed",
+    "compile_instantiate_ns": 2370396301,
+    "start_function_ns": 122772626,
+    "engine_total_ns": 2493168927
+  },
+  "wasmtime_cold_O0_pin7": {
+    "median_s": 16.7726,
+    "runs_s": [
+      16.7726
+    ],
+    "max_rss_mib": 700.0
+  },
+  "wasmtime_warm_O0_fib_pin7": {
+    "median_s": 0.1648,
+    "runs_s": [
+      0.169,
+      0.1648,
+      0.1581
+    ],
+    "max_rss_mib": 78.5
+  },
+  "wasmtime_warm_O0_mat_pin7": {
+    "median_s": 0.2127,
+    "runs_s": [
+      0.2147,
+      0.21,
+      0.2127
+    ],
+    "max_rss_mib": 81.4
+  },
+  "wasmtime_cold_O2_unpinned": {
+    "median_s": 4.5291,
+    "runs_s": [
+      4.5291,
+      4.5963,
+      4.4618
+    ],
+    "max_rss_mib": 2226.3
+  },
+  "wasmtime_cold_O2_timing_last": {
+    "engine": "Wasmtime",
+    "wasmtime": "50.0.1",
+    "optimization": "cranelift speed",
+    "compile_instantiate_ns": 4240194856,
+    "start_function_ns": 124408257,
+    "engine_total_ns": 4364603113
+  },
+  "wasmtime_cold_O2_pin7": {
+    "median_s": 25.2455,
+    "runs_s": [
+      25.2455
+    ],
+    "max_rss_mib": 988.5
+  },
+  "wasmtime_warm_O2_fib_pin7": {
+    "median_s": 0.142,
+    "runs_s": [
+      0.141,
+      0.1433,
+      0.142
+    ],
+    "max_rss_mib": 97.0
+  },
+  "wasmtime_warm_O2_mat_pin7": {
+    "median_s": 0.1964,
+    "runs_s": [
+      0.1961,
+      0.1964,
+      0.1984
+    ],
+    "max_rss_mib": 100.2
+  },
+  "native_blotc_fib_pin7": {
+    "median_s": 0.0124,
+    "runs_s": [
+      0.0135,
+      0.0124,
+      0.0118
+    ],
+    "max_rss_mib": 23.2
+  },
+  "wtime_decoded_fib_pin7": {
+    "median_s": 8.5934,
+    "runs_s": [
+      8.5934
+    ],
+    "max_rss_mib": 836.8
+  },
+  "wtime_decoded_timing": {
+    "engine": "wtime",
+    "compile_ns": 654983411,
+    "instantiate_ns": 1551811,
+    "run_ns": 7846971242
+  },
+  "wtime_compact_fib_pin7": {
+    "median_s": 8.2935,
+    "runs_s": [
+      8.2935
+    ],
+    "max_rss_mib": 838.0
+  },
+  "wtime_compact_timing": {
+    "engine": "wtime",
+    "compile_ns": 596037180,
+    "instantiate_ns": 1502841,
+    "run_ns": 7605855473
+  },
+  "wtime_register_fib_pin7": {
+    "median_s": 3.7333,
+    "runs_s": [
+      3.7333
+    ],
+    "max_rss_mib": 892.0
+  },
+  "wtime_register_timing": {
+    "engine": "wtime",
+    "compile_ns": 593910162,
+    "instantiate_ns": 1858750,
+    "run_ns": 3045960613
+  }
+}
