@@ -112,11 +112,11 @@ On larger Goose projects, combining `--check` and Direct Wasm (`--wasm-memory64`
 
 ### 3. Production runtime speed
 
-Fast dev builds do not trade away runtime speed. Native `-O2` binaries match or edge out upstream C++ Goose (all bit-exact), and Direct Wasm modules run near-native in Wasmtime:
+Fast dev builds do not trade away runtime speed. Native `-O2` binaries match or edge out upstream C++ Goose (all bit-exact), and Direct Wasm modules run near-native in Wasmtime or ahead-of-time via [`wtime-aot`](https://github.com/mewhhaha/wtime) (`--backend x64` zero-LLVM static binaries compile in **`4.7–16.4 ms`** and beat native `-O2` on `life`, `sieve`, and `maze`; `--backend rust` `#![forbid(unsafe_code)]` beats native `-O2` on `life` and `mandelbrot`):
 
-![Compiled program runtime: Goose to Wasm vs upstream C++ Goose](bench/results/2026-11-25/release-v2026.4-5/runtime_speed.svg)
+![Compiled program runtime: Goose to Wasm Native -O2, Wasmtime, and wtime-aot vs upstream C++ Goose](bench/results/2026-11-25/runtime-with-wtime/runtime_speed.svg)
 
-*Pinned CPU-7 methodology, scripts, and raw JSON: [Release `v2026.4-5` chart provenance](bench/results/2026-11-25/release-v2026.4-5/README.md) · [Baseline `v2026.4-4` full suite](bench/results/2026-11-25/release-v2026.4-4/README.md) · [Blot2 HEAD `98f277f2` turnaround study](bench/results/2026-11-25/blot2-head-98f277f2/README.md).*
+*Pinned CPU-7 methodology, scripts, and raw JSON: [Production runtime with `wtime-aot` (`v0.1.5`)](bench/results/2026-11-25/runtime-with-wtime/README.md) · [Release `v2026.4-5` chart provenance](bench/results/2026-11-25/release-v2026.4-5/README.md) · [Baseline `v2026.4-4` full suite](bench/results/2026-11-25/release-v2026.4-4/README.md) · [Blot2 HEAD `98f277f2` turnaround study](bench/results/2026-11-25/blot2-head-98f277f2/README.md).*
 
 ---
 
@@ -186,6 +186,7 @@ Releases are versioned **`v<goose-version>-<n>`** (currently **`v2026.4-1`**), s
 
 All dated compiler, runtime, Wasmtime, `wtime`, native C codegen, and Blot2 studies live under [`bench/results/`](bench/results/):
 
+- [Production runtime speed with `wtime-aot` `v0.1.5` (`x64` & safe Rust) (2026-11-25)](bench/results/2026-11-25/runtime-with-wtime/README.md)
 - [Release `v2026.4-5` qualification & chart provenance (2026-11-25)](bench/results/2026-11-25/release-v2026.4-5/README.md)
 - [Blot2 HEAD `98f277f2` Direct Wasm64 + fast `goose-wasmtime` & `goose-wtime` turnaround (2026-11-25)](bench/results/2026-11-25/blot2-head-98f277f2/README.md)
 - [Release `v2026.4-4` head-to-head vs `v2026.4-3` & upstream C++ Goose (2026-11-25)](bench/results/2026-11-25/release-v2026.4-4/README.md)
