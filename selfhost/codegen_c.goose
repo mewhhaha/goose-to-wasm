@@ -2506,18 +2506,25 @@ recursive fn cc_array(p: Program&, f: CcBody&, node: i64) -> i64 {
     var capacity = length;
     if n.third >= 0 { capacity = cc_to(p, f, n.third, TYPE_I64); }
     if length < 0 || capacity < 0 { return -1; }
-    if cc_owner(p, n.type_id) || t.kind == TY_SLICE {
+    let defer_reserve = n.right >= 0 && n.first >= 0 && (t.kind == TY_SLICE || t.array_kind == A_GROW || t.array_kind == A_GROWSHRINK);
+    if (cc_owner(p, n.type_id) || t.kind == TY_SLICE) && !defer_reserve {
         cc_text(f.out, "g_reserve("); cc_id(f.out, "g_v", base); cc_text(f.out, ","); cc_literal_array_args(p, f.out, n.type_id); cc_text(f.out, ",");
         cc_id(f.out, "g_v", capacity);
         cc_text(f.out, ");\n");
     }
     if cc_relative_fields(p, t.element) || (n.flags & F_DEFAULT) != 0 && cc_field_defaults(p, t.element) {
-        if t.kind == TY_SLICE || t.array_kind != A_FIXED {
+        if !defer_reserve && (t.kind == TY_SLICE || t.array_kind != A_FIXED) {
             cc_text(f.out, "g_reserve("); cc_id(f.out, "g_v", base); cc_text(f.out, ","); cc_literal_array_args(p, f.out, n.type_id); cc_text(f.out, ","); cc_id(f.out, "g_v", length); cc_text(f.out, ");\n");
         }
         let fill_mark = f.fills.len;
         if n.right >= 0 && n.first >= 0 {
+            if defer_reserve && t.array_kind != A_FIXED {
+                cc_text(f.out, "g_set_len("); cc_id(f.out, "g_v", base); cc_text(f.out, ","); cc_literal_array_args(p, f.out, n.type_id, false); cc_text(f.out, ","); cc_id(f.out, "g_v", length); cc_text(f.out, ");\n");
+            }
             if (n.flags & F_DEFAULT) == 0 { cc_freeze_fill(p, f, n.first, t.element); }
+            if defer_reserve {
+                cc_text(f.out, "g_reserve("); cc_id(f.out, "g_v", base); cc_text(f.out, ","); cc_literal_array_args(p, f.out, n.type_id); cc_text(f.out, ","); cc_id(f.out, "g_v", capacity); cc_text(f.out, ");\n");
+            }
             let counter = f.serial; f.serial++;
             cc_id(f.out, "for(int64_t g_i", counter); cc_text(f.out, "=0;"); cc_id(f.out, "g_i", counter); cc_text(f.out, "<"); cc_id(f.out, "g_v", length); cc_text(f.out, ";"); cc_id(f.out, "g_i", counter); cc_text(f.out, "++){\n");
             let target = cc_array_slot(p, f, base, n.type_id, counter); cc_construct_into(p, f, n.first, t.element, target); cc_text(f.out, "}\n");
@@ -2539,6 +2546,9 @@ recursive fn cc_array(p: Program&, f: CcBody&, node: i64) -> i64 {
     }
     if n.right >= 0 && n.first >= 0 {
         let value = cc_to(p, f, n.first, t.element, true); if value < 0 { return -1; }
+        if defer_reserve {
+            cc_text(f.out, "g_reserve("); cc_id(f.out, "g_v", base); cc_text(f.out, ","); cc_literal_array_args(p, f.out, n.type_id); cc_text(f.out, ","); cc_id(f.out, "g_v", capacity); cc_text(f.out, ");\n");
+        }
         if cc_kind(p, t.element) == TY_INT || cc_kind(p, t.element) == TY_BOOL || cc_kind(p, t.element) == TY_FLOAT {
             let initializer: const Node& = p.nodes[n.first]; let width = cc_frame_size(p, t.element);
             cc_text(f.out, "if("); cc_id(f.out, "g_v", length); cc_text(f.out, ">0){\n");

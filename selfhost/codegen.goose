@@ -1821,15 +1821,25 @@ recursive fn cg_array_literal(p: Program&, m: CgModule&, f: CgBody&, node: i64) 
     cg_get(f, destination); cg_clear_bytes(p, f, cg_size(p, id));
     var count = 0; var child = n.first;
     while child >= 0 { count++; child = p.nodes[child].next; }
+    var fill_value = -1; let each = cg_fill_each(p, node, element);
     var count_local = -1;
     if n.right >= 0 {
         cg_to(p, m, f, n.right, TYPE_U64); let count64 = cg_save(f, 0x7e);
-        cg_get(f, count64); wb_i64(f.code, wn_limit()); wb_byte(f.code, 0x56); cg_trap_if(p, m, f, node, "array repetition count out of range");
+        if n.first >= 0 && !cg_has_relative(p, element) && !each && !cg_wide {
+            cg_get(f, count64); wb_i64(f.code, wn_limit()); wb_byte(f.code, 0x56);
+            cg_begin(f, 0x04, 0x40);
+            var vt = element; if p.types[element].storage == 1 { vt = TYPE_I64; }
+            cg_to(p, m, f, n.first, vt);
+            if !cg_diverges(p, n.first) { wb_byte(f.code, 0x1a); }
+            cg_abort(p, m, f, node, "array repetition count out of range");
+            cg_end(f);
+        } else {
+            cg_get(f, count64); wb_i64(f.code, wn_limit()); wb_byte(f.code, 0x56); cg_trap_if(p, m, f, node, "array repetition count out of range");
+        }
         cg_get(f, count64); wa_wrap(f.code); count_local = cg_save(f, wa());
     }
     else { wa_const(f.code, count); count_local = cg_save(f, wa()); }
     cg_check_array_length(p, m, f, id, count_local, node);
-    var fill_value = -1; let each = cg_fill_each(p, node, element);
     if n.right >= 0 && n.first >= 0 && !cg_has_relative(p, element) && !each {
         var value_type = element; if p.types[element].storage == 1 { value_type = TYPE_I64; }
         cg_to(p, m, f, n.first, value_type); fill_value = cg_save(f, cg_wasm_type(p, value_type));
@@ -1841,11 +1851,11 @@ recursive fn cg_array_literal(p: Program&, m: CgModule&, f: CgBody&, node: i64) 
             cg_to(p, m, f, n.third, TYPE_U64); let capacity64 = cg_save(f, 0x7e);
             cg_get(f, capacity64); wb_i64(f.code, wn_limit()); wb_byte(f.code, 0x56); cg_trap_if(p, m, f, node, "array capacity out of range");
             cg_get(f, capacity64); wa_wrap(f.code); capacity = cg_save(f, wa());
-            cg_get(f, count_local); cg_get(f, capacity); wa_op(f.code, 0x4b); cg_trap_if(p, m, f, node, "array capacity exceeded");
+            cg_get(f, count_local); cg_get(f, capacity); wa_op(f.code, 0x4b); cg_trap_if(p, m, f, node, "limited array capacity exceeded");
         }
         base = cg_owner_image(p, m, f, id, destination, count_local, capacity, node);
     } else {
-        cg_get(f, count_local); wa_const(f.code, p.types[id].count); wa_op(f.code, 0x4b); cg_trap_if(p, m, f, node, "array capacity exceeded");
+        cg_get(f, count_local); wa_const(f.code, p.types[id].count); wa_op(f.code, 0x4b); cg_trap_if(p, m, f, node, "limited array capacity exceeded");
         if p.types[id].array_kind == A_LIMITED {
             cg_get(f, destination); cg_get(f, count_local); cg_length_store(p, f, id);
             cg_get(f, destination); wa_const(f.code, cg_static_prefix(p, id)); wa_op(f.code, 0x6a); base = cg_save(f, wa());
@@ -2066,7 +2076,7 @@ recursive fn cg_literal_at(p: Program&, m: CgModule&, f: CgBody&, node: i64, id:
         if n.kind == N_RECORD { cg_record_fields(p, m, f, id, destination, node, captured, in_place); }
         else {
             let count = cg_literal_count(p, m, f, node, captured); cg_check_array_length(p, m, f, id, count, node);
-            cg_get(f, count); wa_const(f.code, p.types[id].count); wa_op(f.code, 0x4b); cg_trap_if(p, m, f, node, "array capacity exceeded");
+            cg_get(f, count); wa_const(f.code, p.types[id].count); wa_op(f.code, 0x4b); cg_trap_if(p, m, f, node, "limited array capacity exceeded");
             if !in_place { cg_get(f, destination); cg_clear_bytes(p, f, cg_size(p, id)); } var data = destination;
             if p.types[id].array_kind == A_LIMITED { cg_get(f, destination); cg_get(f, count); cg_length_store(p, f, id); cg_get(f, destination); wa_const(f.code, cg_static_prefix(p, id)); wa_op(f.code, 0x6a); data = cg_save(f, wa()); }
             cg_literal_elements(p, m, f, node, p.types[id].element, data, count, captured, in_place);
@@ -2293,7 +2303,7 @@ recursive fn cg_region_limited_assignment(p: Program&, m: CgModule&, f: CgBody&,
     let temporary = cg_temporary_destination(p, m, f, id, node); cg_construct_array(p, m, f, p.nodes[node].right, temporary);
     if cg_diverges(p, p.nodes[node].right) { return; }
     let source = f.construction_destinations[temporary].header; cg_owner_read_length(p, m, f, source, node); let count = cg_save(f, wa());
-    cg_owner_read_capacity(p, m, f, header); let capacity = cg_save(f, wa()); cg_get(f, count); cg_get(f, capacity); wa_op(f.code, 0x4b); cg_trap_if(p, m, f, node, "array capacity exceeded");
+    cg_owner_read_capacity(p, m, f, header); let capacity = cg_save(f, wa()); cg_get(f, count); cg_get(f, capacity); wa_op(f.code, 0x4b); cg_trap_if(p, m, f, node, "limited array capacity exceeded");
     cg_owner_read_base(p, m, f, source, node); let source_base = cg_save(f, wa()); cg_owner_read_base(p, m, f, header, node); let base = cg_save(f, wa());
     let element = p.types[id].element; var bytes = -1;
     if p.types[element].storage == 1 {
@@ -2354,7 +2364,7 @@ recursive fn cg_assign(p: Program&, m: CgModule&, f: CgBody&, node: i64) {
     if (n.integer == T_ASSIGN || n.integer == T_DOTASSIGN) && cg_owner(p, id) && p.types[id].array_kind == A_LIMITED {
         cg_expr(p, m, f, n.right); cg_pack_view(p, m, f, p.nodes[n.right].type_id, node); let view = cg_save(f, ws());
         cg_get(f, view); ws_len(f.code); let count = cg_save(f, wa());
-        cg_get(f, count); cg_owner_read_capacity(p, m, f, address); wa_op(f.code, 0x4b); cg_trap_if(p, m, f, node, "array capacity exceeded");
+        cg_get(f, count); cg_owner_read_capacity(p, m, f, address); wa_op(f.code, 0x4b); cg_trap_if(p, m, f, node, "limited array capacity exceeded");
         cg_owner_read_base(p, m, f, address, node); cg_get(f, view); ws_ptr(f.code); cg_get(f, count); wa_const(f.code, cg_size(p, p.types[id].element)); wa_op(f.code, 0x6c); wb_copy(f.code);
         cg_owner_set_length(p, m, f, address, count, node); return;
     }
@@ -4219,11 +4229,11 @@ recursive fn cg_pool_builtin(p: Program&, m: CgModule&, f: CgBody&, node: i64, b
 }
 fn cg_array_reserve(p: Program&, m: CgModule&, f: CgBody&, id: i64, base: i64, count: i64, node: i64) {
     if !cg_owner(p, id) {
-        cg_get(f, count); wa_const(f.code, p.types[id].count); wa_op(f.code, 0x4b); cg_trap_if(p, m, f, node, "array capacity exceeded"); return;
+        cg_get(f, count); wa_const(f.code, p.types[id].count); wa_op(f.code, 0x4b); cg_trap_if(p, m, f, node, "limited array capacity exceeded"); return;
     }
     cg_owner_read_capacity(p, m, f, base); let old_capacity = cg_save(f, wa());
     cg_get(f, count); cg_get(f, old_capacity); wa_op(f.code, 0x4b); cg_begin(f, 0x04, 0x40);
-    if p.types[id].array_kind != A_GROW && p.types[id].array_kind != A_GROWSHRINK { cg_abort(p, m, f, node, "array capacity exceeded"); }
+    if p.types[id].array_kind != A_GROW && p.types[id].array_kind != A_GROWSHRINK { cg_abort(p, m, f, node, "limited array capacity exceeded"); }
     cg_get(f, old_capacity); wa_extend(f.code); wb_i64(f.code, 2); wb_byte(f.code, 0x7e); cg_get(f, count); wa_extend(f.code);
     cg_get(f, old_capacity); wa_extend(f.code); wb_i64(f.code, 2); wb_byte(f.code, 0x7e); cg_get(f, count); wa_extend(f.code); wb_byte(f.code, 0x56); wb_byte(f.code, 0x1b);
     let capacity64 = cg_save(f, 0x7e);
@@ -4258,7 +4268,7 @@ recursive fn cg_append_relative_literal(p: Program&, m: CgModule&, f: CgBody&, n
     if region && grow {
         let bytes = cg_region_array_bytes(p, m, f, id, added, node); top = cg_region_reserve(p, m, f, header, bytes, node); destination = cg_region_cursor(f, header);
     } else {
-        if region { cg_get(f, count); cg_owner_read_capacity(p, m, f, header); wa_op(f.code, 0x4b); cg_trap_if(p, m, f, node, "array capacity exceeded"); }
+        if region { cg_get(f, count); cg_owner_read_capacity(p, m, f, header); wa_op(f.code, 0x4b); cg_trap_if(p, m, f, node, "limited array capacity exceeded"); }
         else { cg_array_reserve(p, m, f, id, header, count, node); }
         cg_array_element(p, m, f, id, header, old); destination = cg_save(f, wa());
     }
@@ -4297,7 +4307,7 @@ recursive fn cg_region_array_builtin(p: Program&, m: CgModule&, f: CgBody&, node
         if grow {
             wb_i64(f.code, stride); let bytes = cg_save(f, 0x7e); reserved = cg_region_reserve_at(p, m, f, header, bytes, node); destination = reserved.cursor;
         } else {
-            cg_get(f, count); cg_owner_read_capacity(p, m, f, header); wa_op(f.code, 0x4b); cg_trap_if(p, m, f, node, "array capacity exceeded");
+            cg_get(f, count); cg_owner_read_capacity(p, m, f, header); wa_op(f.code, 0x4b); cg_trap_if(p, m, f, node, "limited array capacity exceeded");
             cg_array_element(p, m, f, id, header, old); destination = cg_save(f, wa());
         }
         if direct { cg_fixed_to(p, m, f, arg, element, destination); if cg_diverges(p, arg) { return; } }
@@ -4326,7 +4336,7 @@ recursive fn cg_region_array_builtin(p: Program&, m: CgModule&, f: CgBody&, node
         cg_get(f, wide); wb_i64(f.code, wn_limit()); wb_byte(f.code, 0x56); cg_trap_if(p, m, f, node, "data region exhausted"); cg_get(f, wide); wa_wrap(f.code); let count = cg_save(f, wa());
         var destination = -1; var reserved = CgReserved { cursor: -1, limit: -1, top: -1 };
         if grow { let bytes = cg_region_array_bytes(p, m, f, id, added, node); reserved = cg_region_reserve_at(p, m, f, header, bytes, node); destination = reserved.cursor; }
-        else { cg_get(f, count); cg_owner_read_capacity(p, m, f, header); wa_op(f.code, 0x4b); cg_trap_if(p, m, f, node, "array capacity exceeded"); cg_array_element(p, m, f, id, header, old); destination = cg_save(f, wa()); }
+        else { cg_get(f, count); cg_owner_read_capacity(p, m, f, header); wa_op(f.code, 0x4b); cg_trap_if(p, m, f, node, "limited array capacity exceeded"); cg_array_element(p, m, f, id, header, old); destination = cg_save(f, wa()); }
         cg_get(f, destination); cg_get(f, view); ws_ptr(f.code); cg_get(f, added); cg_scale_index(f, cg_size(p, element)); wb_copy(f.code);
         if grow { cg_region_publish_at(f, reserved.limit, reserved.top); } cg_owner_set_length(p, m, f, header, count, node); return;
     }
@@ -4346,7 +4356,7 @@ recursive fn cg_region_array_builtin(p: Program&, m: CgModule&, f: CgBody&, node
         cg_get(f, count); cg_get(f, old); wa_op(f.code, 0x6b); let added = cg_save(f, wa()); var destination = -1;
         var reserved = CgReserved { cursor: -1, limit: -1, top: -1 };
         if grow { let bytes = cg_region_array_bytes(p, m, f, id, added, node); reserved = cg_region_reserve_at(p, m, f, header, bytes, node); destination = reserved.cursor; }
-        else { cg_get(f, count); cg_owner_read_capacity(p, m, f, header); wa_op(f.code, 0x4b); cg_trap_if(p, m, f, node, "array capacity exceeded"); cg_array_element(p, m, f, id, header, old); destination = cg_save(f, wa()); }
+        else { cg_get(f, count); cg_owner_read_capacity(p, m, f, header); wa_op(f.code, 0x4b); cg_trap_if(p, m, f, node, "limited array capacity exceeded"); cg_array_element(p, m, f, id, header, old); destination = cg_save(f, wa()); }
         wa_const(f.code, 0); let index = cg_save(f, wa()); let done = cg_begin(f, 0x02, 0x40); let again = cg_begin(f, 0x03, 0x40);
         cg_get(f, index); cg_get(f, added); wa_op(f.code, 0x4f); cg_branch(p, f, done, true);
         cg_get(f, destination); cg_get(f, index); cg_scale_index(f, cg_size(p, element)); wa_op(f.code, 0x6a); let location = cg_save(f, wa()); cg_get(f, fill); cg_write_value(p, m, f, element, location, node);
@@ -7880,7 +7890,7 @@ recursive fn cg_array_from_view(p: Program&, m: CgModule&, f: CgBody&, to: i64, 
     var pointer = destination;
     if cg_owner(p, to) { pointer = cg_owner_image(p, m, f, to, destination, count, count, node);
     } else {
-        cg_get(f, count); wa_const(f.code, p.types[to].count); wa_op(f.code, 0x4b); cg_trap_if(p, m, f, node, "array capacity exceeded");
+        cg_get(f, count); wa_const(f.code, p.types[to].count); wa_op(f.code, 0x4b); cg_trap_if(p, m, f, node, "limited array capacity exceeded");
         if p.types[to].array_kind == A_LIMITED { cg_get(f, destination); cg_get(f, count); cg_length_store(p, f, to); }
         cg_get(f, destination); wa_const(f.code, cg_static_prefix(p, to)); wa_op(f.code, 0x6a); pointer = cg_save(f, wa());
     }
@@ -8545,10 +8555,27 @@ recursive fn cg_construct_array(p: Program&, m: CgModule&, f: CgBody&, node: i64
         if target.elements || p.types[id].array_kind == A_GROW || p.types[id].array_kind == A_GROWSHRINK { f.raw_node = node; }
         cg_expr(p, m, f, node); wb_byte(f.code, 0x1a);
     } else if n.kind == N_ARRAY || n.kind == N_FILL {
+        let each = cg_fill_each(p, node, element);
         var count = 0; var child = n.first; while child >= 0 { count += 1; child = p.nodes[child].next; }
         var count_local = -1;
         if n.right >= 0 {
-            cg_to(p, m, f, n.right, TYPE_U64); let wide = cg_save(f, 0x7e); cg_get(f, wide); wb_i64(f.code, wn_limit()); wb_byte(f.code, 0x56); cg_trap_if(p, m, f, node, "array repetition count out of range");
+            cg_to(p, m, f, n.right, TYPE_U64); let wide = cg_save(f, 0x7e);
+            if n.first >= 0 && !each && !cg_wide {
+                cg_get(f, wide); wb_i64(f.code, wn_limit()); wb_byte(f.code, 0x56);
+                cg_begin(f, 0x04, 0x40);
+                // Count exceeds 32-bit length: evaluate v once (§4.2) in case v exits before trapping.
+                if !cg_has_owner(p, element) && cg_has_relative(p, element) {
+                    let m0 = f.work.len; cg_capture_literal(p, m, f, n.first, element); f.work.resize(m0);
+                } else {
+                    var vt = element; if p.types[element].storage == 1 { vt = TYPE_I64; }
+                    cg_to(p, m, f, n.first, vt);
+                    if !cg_diverges(p, n.first) { wb_byte(f.code, 0x1a); }
+                }
+                cg_abort(p, m, f, node, "array repetition count out of range");
+                cg_end(f);
+            } else {
+                cg_get(f, wide); wb_i64(f.code, wn_limit()); wb_byte(f.code, 0x56); cg_trap_if(p, m, f, node, "array repetition count out of range");
+            }
             cg_get(f, wide); wa_wrap(f.code); count_local = cg_save(f, wa());
         } else { wa_const(f.code, count); count_local = cg_save(f, wa()); }
         cg_check_array_length(p, m, f, id, count_local, node);
@@ -8556,7 +8583,7 @@ recursive fn cg_construct_array(p: Program&, m: CgModule&, f: CgBody&, node: i64
         if n.third >= 0 {
             cg_to(p, m, f, n.third, TYPE_U64); let wide = cg_save(f, 0x7e); cg_get(f, wide); wb_i64(f.code, wn_limit()); wb_byte(f.code, 0x56); cg_trap_if(p, m, f, node, "array capacity out of range");
             cg_get(f, wide); wa_wrap(f.code); capacity = cg_save(f, wa());
-            cg_get(f, count_local); cg_get(f, capacity); wa_op(f.code, 0x4b); cg_trap_if(p, m, f, node, "array capacity exceeded");
+            cg_get(f, count_local); cg_get(f, capacity); wa_op(f.code, 0x4b); cg_trap_if(p, m, f, node, "limited array capacity exceeded");
         }
         let pointer = cg_region_array_prefix(p, m, f, id, header, count_local, capacity, node);
         if !cg_has_owner(p, element) && cg_has_relative(p, element) {
@@ -8566,7 +8593,7 @@ recursive fn cg_construct_array(p: Program&, m: CgModule&, f: CgBody&, node: i64
             if !cg_diverges(p, node) { cg_region_publish(f, header, top); }
             cg_close_constructor(f, target.construction, !control, saved_node, saved_destination, saved_raw); return;
         }
-        var fill = -1; let each = cg_fill_each(p, node, element);
+        var fill = -1;
         if n.right >= 0 && n.first >= 0 {
             var value_type = element; if p.types[element].storage == 1 { value_type = TYPE_I64; }
             if !each {
@@ -8623,7 +8650,7 @@ recursive fn cg_construct_array(p: Program&, m: CgModule&, f: CgBody&, node: i64
         var capacity = count; var pointer = -1; let existing_limited = p.types[id].array_kind == A_LIMITED && target.lifetime == CG_EXISTING;
         if existing_limited {
             cg_owner_read_capacity(p, m, f, header); capacity = cg_save(f, wa());
-            cg_get(f, count); cg_get(f, capacity); wa_op(f.code, 0x4b); cg_trap_if(p, m, f, node, "array capacity exceeded");
+            cg_get(f, count); cg_get(f, capacity); wa_op(f.code, 0x4b); cg_trap_if(p, m, f, node, "limited array capacity exceeded");
             cg_owner_read_base(p, m, f, header, node); pointer = cg_save(f, wa());
         } else {
             if p.types[id].array_kind == A_LIMITED && source_capacity >= 0 { capacity = source_capacity; }

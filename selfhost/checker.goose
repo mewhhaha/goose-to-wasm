@@ -1562,7 +1562,9 @@ recursive fn check_layout_fields(p: Program&, c: Checker&, first: i64, owner: i6
             }
             index += 1;
         }
-        if size > p.maximum_pages * 65536 { diagnose(p, n.token, "aggregate layout exceeds configured memory"); }
+        var layout_limit = p.maximum_pages * 65536;
+        if p.pointer_bytes == 8 && !p.wide { layout_limit = 281474976710656; }
+        if size > layout_limit { diagnose(p, n.token, "aggregate layout exceeds configured memory"); }
         field = n.next;
     }
     if variable { p.nodes[owner].flags |= F_VARIABLE_MODE; }
@@ -3525,12 +3527,14 @@ recursive fn check_record(p: Program&, c: Checker&, node: i64, expected: i64) ->
                     v = p.nodes[v].next;
                 }
             }
-        } else {
+        } else if name_left < 0 {
             let symbol = check_lookup_name(p, c, n_left, S_TYPE);
             var declaration = -1; if symbol >= 0 { declaration = p.symbols[symbol].node; }
             if declaration >= 0 && p.nodes[declaration].kind == N_STRUCT && p.nodes[declaration].third >= 0 && name_first < 0 {
                 ty = check_infer_record_type(p, c, declaration, node, expected);
             } else { ty = check_resolve_type(p, c, n_left); }
+        } else {
+            ty = check_resolve_type(p, c, n_left);
         }
     }
     if ty < 0 || p.types[ty].kind != TY_STRUCT && p.types[ty].kind != TY_ENUM {
