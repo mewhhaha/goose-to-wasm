@@ -1,0 +1,368 @@
+{
+  "timestamp": "2026-11-26T20:52:55+0100",
+  "workload": "flat_multi_100k_o0",
+  "nopgo": {
+    "label": "batch3c-nopgo",
+    "compiler": "/home/mewhhaha/src/goose-to-wasm/build/qualify-batch3c/bootstrap/bin/goosew",
+    "loc": 98749,
+    "jobs": {
+      "1": {
+        "jobs": 1,
+        "median_wall_ms": 168.55,
+        "min_wall_ms": 159.73,
+        "walls_ms": [
+          171.23,
+          169.95,
+          159.73,
+          163.67,
+          168.55
+        ],
+        "wall_loc_per_sec": 585890,
+        "compile_loc_per_sec": 613119,
+        "stages_ms": {
+          "parse_ms": 28.18,
+          "typecheck_ms": 76.64,
+          "lifetime_ms": 3.6,
+          "optimize_ms": 13.59,
+          "backend_ms": 42.65,
+          "typecheck_excl_life_ms": 73.04,
+          "compile_ms": 161.06,
+          "other_ms": 7.49
+        },
+        "out_sha256": "5d5090f0743990970b09bbea1895757cc099069350476ee4d11544726bd8837b"
+      },
+      "2": {
+        "jobs": 2,
+        "median_wall_ms": 103.2,
+        "min_wall_ms": 96.65,
+        "walls_ms": [
+          104.32,
+          103.2,
+          98.21,
+          96.65,
+          113.42
+        ],
+        "wall_loc_per_sec": 956877,
+        "compile_loc_per_sec": 1043858,
+        "stages_ms": {
+          "parse_ms": 28.86,
+          "typecheck_ms": 27.49,
+          "lifetime_ms": 4.06,
+          "optimize_ms": 10.55,
+          "backend_ms": 27.7,
+          "typecheck_excl_life_ms": 23.43,
+          "compile_ms": 94.6,
+          "other_ms": 8.6
+        },
+        "out_sha256": "5d5090f0743990970b09bbea1895757cc099069350476ee4d11544726bd8837b"
+      },
+      "4": {
+        "jobs": 4,
+        "median_wall_ms": 80.12,
+        "min_wall_ms": 75.05,
+        "walls_ms": [
+          80.12,
+          75.75,
+          75.05,
+          82.68,
+          81.83
+        ],
+        "wall_loc_per_sec": 1232585,
+        "compile_loc_per_sec": 1434263,
+        "stages_ms": {
+          "parse_ms": 23.63,
+          "typecheck_ms": 21.74,
+          "lifetime_ms": 4.03,
+          "optimize_ms": 6.55,
+          "backend_ms": 16.93,
+          "typecheck_excl_life_ms": 17.71,
+          "compile_ms": 68.85,
+          "other_ms": 11.27
+        },
+        "out_sha256": "5d5090f0743990970b09bbea1895757cc099069350476ee4d11544726bd8837b"
+      },
+      "6": {
+        "jobs": 6,
+        "median_wall_ms": 73.42,
+        "min_wall_ms": 67.14,
+        "walls_ms": [
+          67.14,
+          74.73,
+          80.37,
+          73.42,
+          70.07
+        ],
+        "wall_loc_per_sec": 1344948,
+        "compile_loc_per_sec": 1519683,
+        "stages_ms": {
+          "parse_ms": 21.78,
+          "typecheck_ms": 21.4,
+          "lifetime_ms": 3.81,
+          "optimize_ms": 5.52,
+          "backend_ms": 16.28,
+          "typecheck_excl_life_ms": 17.59,
+          "compile_ms": 64.98,
+          "other_ms": 8.44
+        },
+        "out_sha256": "5d5090f0743990970b09bbea1895757cc099069350476ee4d11544726bd8837b"
+      },
+      "8": {
+        "jobs": 8,
+        "median_wall_ms": 72.27,
+        "min_wall_ms": 70.33,
+        "walls_ms": [
+          72.29,
+          72.27,
+          72.02,
+          70.33,
+          73.0
+        ],
+        "wall_loc_per_sec": 1366332,
+        "compile_loc_per_sec": 1565457,
+        "stages_ms": {
+          "parse_ms": 23.08,
+          "typecheck_ms": 20.78,
+          "lifetime_ms": 3.98,
+          "optimize_ms": 4.88,
+          "backend_ms": 14.34,
+          "typecheck_excl_life_ms": 16.8,
+          "compile_ms": 63.08,
+          "other_ms": 9.19
+        },
+        "out_sha256": "5d5090f0743990970b09bbea1895757cc099069350476ee4d11544726bd8837b"
+      },
+      "10": {
+        "jobs": 10,
+        "median_wall_ms": 69.36,
+        "min_wall_ms": 67.13,
+        "walls_ms": [
+          71.02,
+          69.36,
+          68.15,
+          70.44,
+          67.13
+        ],
+        "wall_loc_per_sec": 1423782,
+        "compile_loc_per_sec": 1619367,
+        "stages_ms": {
+          "parse_ms": 23.18,
+          "typecheck_ms": 21.07,
+          "lifetime_ms": 3.75,
+          "optimize_ms": 4.16,
+          "backend_ms": 12.57,
+          "typecheck_excl_life_ms": 17.32,
+          "compile_ms": 60.98,
+          "other_ms": 8.38
+        },
+        "out_sha256": "5d5090f0743990970b09bbea1895757cc099069350476ee4d11544726bd8837b"
+      },
+      "12": {
+        "jobs": 12,
+        "median_wall_ms": 72.44,
+        "min_wall_ms": 68.78,
+        "walls_ms": [
+          73.76,
+          71.54,
+          73.19,
+          68.78,
+          72.44
+        ],
+        "wall_loc_per_sec": 1363216,
+        "compile_loc_per_sec": 1566450,
+        "stages_ms": {
+          "parse_ms": 23.4,
+          "typecheck_ms": 22.79,
+          "lifetime_ms": 3.83,
+          "optimize_ms": 4.52,
+          "backend_ms": 12.33,
+          "typecheck_excl_life_ms": 18.96,
+          "compile_ms": 63.04,
+          "other_ms": 9.4
+        },
+        "out_sha256": "5d5090f0743990970b09bbea1895757cc099069350476ee4d11544726bd8837b"
+      }
+    }
+  },
+  "pgo": {
+    "label": "batch3c-pgo",
+    "compiler": "/home/mewhhaha/src/goose-to-wasm/build/pgo-batch3c/goosew_pgo",
+    "loc": 98749,
+    "jobs": {
+      "1": {
+        "jobs": 1,
+        "median_wall_ms": 162.62,
+        "min_wall_ms": 157.91,
+        "walls_ms": [
+          157.91,
+          189.19,
+          174.59,
+          161.57,
+          162.62
+        ],
+        "wall_loc_per_sec": 607249,
+        "compile_loc_per_sec": 628214,
+        "stages_ms": {
+          "parse_ms": 26.55,
+          "typecheck_ms": 71.95,
+          "lifetime_ms": 3.56,
+          "optimize_ms": 14.54,
+          "backend_ms": 44.15,
+          "typecheck_excl_life_ms": 68.39,
+          "compile_ms": 157.19,
+          "other_ms": 5.43
+        },
+        "out_sha256": "5d5090f0743990970b09bbea1895757cc099069350476ee4d11544726bd8837b"
+      },
+      "2": {
+        "jobs": 2,
+        "median_wall_ms": 108.75,
+        "min_wall_ms": 106.73,
+        "walls_ms": [
+          108.75,
+          126.67,
+          107.71,
+          106.73,
+          122.0
+        ],
+        "wall_loc_per_sec": 908015,
+        "compile_loc_per_sec": 975395,
+        "stages_ms": {
+          "parse_ms": 33.12,
+          "typecheck_ms": 27.77,
+          "lifetime_ms": 3.84,
+          "optimize_ms": 11.59,
+          "backend_ms": 28.76,
+          "typecheck_excl_life_ms": 23.93,
+          "compile_ms": 101.24,
+          "other_ms": 7.51
+        },
+        "out_sha256": "5d5090f0743990970b09bbea1895757cc099069350476ee4d11544726bd8837b"
+      },
+      "4": {
+        "jobs": 4,
+        "median_wall_ms": 75.47,
+        "min_wall_ms": 71.68,
+        "walls_ms": [
+          71.68,
+          75.8,
+          72.43,
+          75.47,
+          77.87
+        ],
+        "wall_loc_per_sec": 1308432,
+        "compile_loc_per_sec": 1458411,
+        "stages_ms": {
+          "parse_ms": 23.47,
+          "typecheck_ms": 22.17,
+          "lifetime_ms": 3.67,
+          "optimize_ms": 6.49,
+          "backend_ms": 15.58,
+          "typecheck_excl_life_ms": 18.5,
+          "compile_ms": 67.71,
+          "other_ms": 7.76
+        },
+        "out_sha256": "5d5090f0743990970b09bbea1895757cc099069350476ee4d11544726bd8837b"
+      },
+      "6": {
+        "jobs": 6,
+        "median_wall_ms": 73.97,
+        "min_wall_ms": 70.03,
+        "walls_ms": [
+          74.72,
+          70.03,
+          73.97,
+          76.06,
+          73.61
+        ],
+        "wall_loc_per_sec": 1335072,
+        "compile_loc_per_sec": 1501658,
+        "stages_ms": {
+          "parse_ms": 23.65,
+          "typecheck_ms": 21.2,
+          "lifetime_ms": 3.81,
+          "optimize_ms": 5.65,
+          "backend_ms": 15.26,
+          "typecheck_excl_life_ms": 17.39,
+          "compile_ms": 65.76,
+          "other_ms": 8.21
+        },
+        "out_sha256": "5d5090f0743990970b09bbea1895757cc099069350476ee4d11544726bd8837b"
+      },
+      "8": {
+        "jobs": 8,
+        "median_wall_ms": 70.84,
+        "min_wall_ms": 69.01,
+        "walls_ms": [
+          69.01,
+          69.2,
+          70.84,
+          72.44,
+          72.08
+        ],
+        "wall_loc_per_sec": 1393944,
+        "compile_loc_per_sec": 1584802,
+        "stages_ms": {
+          "parse_ms": 23.46,
+          "typecheck_ms": 19.97,
+          "lifetime_ms": 3.64,
+          "optimize_ms": 4.96,
+          "backend_ms": 13.92,
+          "typecheck_excl_life_ms": 16.33,
+          "compile_ms": 62.31,
+          "other_ms": 8.53
+        },
+        "out_sha256": "5d5090f0743990970b09bbea1895757cc099069350476ee4d11544726bd8837b"
+      },
+      "10": {
+        "jobs": 10,
+        "median_wall_ms": 71.73,
+        "min_wall_ms": 69.59,
+        "walls_ms": [
+          69.59,
+          71.73,
+          70.92,
+          73.39,
+          75.43
+        ],
+        "wall_loc_per_sec": 1376714,
+        "compile_loc_per_sec": 1589649,
+        "stages_ms": {
+          "parse_ms": 22.76,
+          "typecheck_ms": 21.64,
+          "lifetime_ms": 4.09,
+          "optimize_ms": 4.73,
+          "backend_ms": 12.99,
+          "typecheck_excl_life_ms": 17.55,
+          "compile_ms": 62.12,
+          "other_ms": 9.61
+        },
+        "out_sha256": "5d5090f0743990970b09bbea1895757cc099069350476ee4d11544726bd8837b"
+      },
+      "12": {
+        "jobs": 12,
+        "median_wall_ms": 72.24,
+        "min_wall_ms": 70.49,
+        "walls_ms": [
+          77.0,
+          70.98,
+          76.27,
+          72.24,
+          70.49
+        ],
+        "wall_loc_per_sec": 1366919,
+        "compile_loc_per_sec": 1531942,
+        "stages_ms": {
+          "parse_ms": 24.98,
+          "typecheck_ms": 22.12,
+          "lifetime_ms": 3.91,
+          "optimize_ms": 4.59,
+          "backend_ms": 12.77,
+          "typecheck_excl_life_ms": 18.21,
+          "compile_ms": 64.46,
+          "other_ms": 7.78
+        },
+        "out_sha256": "5d5090f0743990970b09bbea1895757cc099069350476ee4d11544726bd8837b"
+      }
+    }
+  }
+}
