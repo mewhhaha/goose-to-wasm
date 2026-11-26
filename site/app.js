@@ -566,6 +566,38 @@ function resetSource() {
   if (!$("source").hidden) loadSource();
 }
 
+const GOOSE_KEYWORDS = new Set([
+  "as", "break", "case", "const", "continue", "default", "defer", "else", "enum", "extern",
+  "false", "fn", "for", "from", "guard", "if", "import", "in", "let", "match", "namespace",
+  "null", "return", "struct", "true", "type", "union", "var", "while", "block", "assert",
+]);
+const GOOSE_TYPES = new Set([
+  "bool", "i8", "i16", "i32", "i64", "u8", "u16", "u32", "u64", "f32", "f64",
+  "int2", "int3", "int4", "float2", "float3", "float4", "mat4", "void",
+]);
+const GOOSE_TOKEN = /(\/\/.*$)|("(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*')|(\b0x[0-9a-fA-F_]+\b|\b\d+(?:\.\d+)?(?:[eE][+-]?\d+)?\b)|(\b[A-Za-z_][A-Za-z0-9_]*\b)/g;
+
+function highlightGooseLine(line) {
+  const fragment = document.createDocumentFragment();
+  let last = 0;
+  for (const match of line.matchAll(GOOSE_TOKEN)) {
+    if (match.index > last) fragment.append(document.createTextNode(line.slice(last, match.index)));
+    const [text, comment, str, num, ident] = match;
+    let cls;
+    if (comment) cls = "tok-co";
+    else if (str) cls = "tok-st";
+    else if (num) cls = "tok-nu";
+    else if (ident) {
+      if (GOOSE_KEYWORDS.has(ident)) cls = "tok-kw";
+      else if (GOOSE_TYPES.has(ident)) cls = "tok-ty";
+    }
+    fragment.append(cls ? element("span", text, cls) : document.createTextNode(text));
+    last = match.index + text.length;
+  }
+  if (last < line.length) fragment.append(document.createTextNode(line.slice(last)));
+  return fragment;
+}
+
 async function loadSource() {
   if (!selected || sourceText !== undefined || sourceRequest) return;
   const request = new AbortController();
@@ -583,7 +615,7 @@ async function loadSource() {
       const row = element("code", undefined, "source-line");
       const number = element("span", i + 1, "line-number");
       number.setAttribute("aria-hidden", "true");
-      row.append(number, document.createTextNode(line));
+      row.append(number, highlightGooseLine(line));
       listing.append(row);
     });
     $("source-code").replaceChildren(listing);
@@ -668,10 +700,10 @@ function screenshotCanvas() {
   const height = Math.max(...surfaces.map((surface) => surface.height)) + 44;
   const composite = makeCanvas("Stage screenshot", width, height);
   const context = composite.getContext("2d");
-  context.fillStyle = "#101016";
+  context.fillStyle = "#f6f8fa";
   context.fillRect(0, 0, width, height);
-  context.fillStyle = "#f3eff5";
-  context.font = "16px system-ui";
+  context.fillStyle = "#1f2328";
+  context.font = "600 15px -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif";
   let x = gap;
   for (const surface of surfaces) {
     context.fillText(surface.getAttribute("aria-label"), x, 24, surface.width);
@@ -759,6 +791,7 @@ try {
   manifest = await (await fetchAsset("./manifest.json")).json();
   $("repository").href = manifest.upstreamRepo;
   $("repository").title = `Upstream revision ${manifest.upstreamRev}`;
+  if ($("build-rev")) $("build-rev").textContent = manifest.upstreamRev.slice(0, 8);
   renderGallery();
   window.addEventListener("hashchange", selectHash);
   selectHash();

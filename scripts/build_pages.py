@@ -119,12 +119,20 @@ def build(args, scratch):
     if output.exists():
         shutil.rmtree(output)
 
-    for directory in ("host/web", "wasm", "samples", "data"):
+    for directory in ("host/web", "wasm", "samples", "data", "assets"):
         (output / directory).mkdir(parents=True)
     for name in ("index.html", "styles.css", "app.js"):
         shutil.copyfile(site / name, output / name)
     for source in [*sorted(host.glob("*.js")), host / "package.json"]:
         shutil.copyfile(source, output / "host/web" / source.name)
+    logo_dir = samples.parent / "docs" / "logo"
+    for src_name, dst_name in (
+        ("logo_black_fg_trans_bg.png", "goose-logo.png"),
+        ("logo_black_fg_white_bg_square.png", "goose-favicon.png"),
+    ):
+        logo_src = logo_dir / src_name
+        if logo_src.is_file():
+            shutil.copyfile(logo_src, output / "assets" / dst_name)
     (output / ".nojekyll").touch()
     shutil.copyfile(samples / "data" / WAD, output / "data" / WAD)
 
