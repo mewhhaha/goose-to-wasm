@@ -319,7 +319,6 @@ fn gp_grow_parse_imports(arr: ParseImportRec[>..]&, new_len: i64) {
     while arr.len < new_len { arr.push(ParseImportRec {}); }
 }
 struct ParseSpmdFile {
-    seen_index: i64 = -1,
     path_start: i64 = 0, path_len: i64 = 0,
     raw_start: i64 = 0, raw_len: i64 = 0,
     library: bool = false,
@@ -329,6 +328,7 @@ struct ParseSpmdFile {
     import_start: i64 = 0, import_cap: i64 = 0,
     import_bytes_start: i64 = 0, import_bytes_cap: i64 = 0,
     // Phase 1 worker outputs.
+    w_text_start: i64 = 0, w_tok_off: i64 = 0, w_node_off: i64 = 0,
     status: i64 = PARSE_SPMD_PENDING, root: i64 = -1,
     tok_count: i64 = 0, node_count: i64 = 0, str_count: i64 = 0,
     ident_count: i64 = 0, import_count: i64 = 0,
@@ -337,11 +337,6 @@ struct ParseSpmdFile {
     install_ok: bool = false, source_id: i64 = -1,
     p_text_base: i64 = 0, p_str_base: i64 = 0,
     p_tok_base: i64 = 0, p_node_base: i64 = 0,
-}
-struct ParseWorkerRec {
-    file_idx: i64 = 0, w_text_start: i64 = 0, w_str_off: i64 = 0,
-    w_tok_off: i64 = 0, w_node_off: i64 = 0,
-    raw_len: i64 = 0, tok_count: i64 = 0, node_count: i64 = 0, str_count: i64 = 0,
 }
 struct ParseSpmdCtx {
     p: Program&,
@@ -388,7 +383,7 @@ fn source_spmd_resolve_import(file_path: const u8[:], file_library: bool,
     return false;
 }
 
-fn source_spmd_add_file(ctx: const ParseSpmdCtx&, seen_index: i64, path: const u8[:], library: bool) -> bool {
+fn source_spmd_add_file(ctx: const ParseSpmdCtx&, path: const u8[:], library: bool) -> bool {
     if ctx.files.len >= PARSE_SPMD_MAX_FILES { return false; }
     var path_copy: u8[>..] = [];
     path_copy.append(path);
@@ -411,7 +406,7 @@ fn source_spmd_add_file(ctx: const ParseSpmdCtx&, seen_index: i64, path: const u
     let import_bytes_start = ctx.import_bytes.len;
     gp_grow_u8(ctx.import_bytes, import_bytes_start + import_bytes_cap);
     ctx.files.push(ParseSpmdFile {
-        seen_index: seen_index, path_start: p_start, path_len: p_len,
+        path_start: p_start, path_len: p_len,
         raw_start: raw_start, raw_len: raw_len, library: library,
         ident_start: ident_start, ident_cap: ident_cap,
         import_start: import_start, import_cap: import_cap,
@@ -552,7 +547,7 @@ fn source_spmd_midpoint(ctx: const ParseSpmdCtx&, reps: ParseIdentRep[>..]&) {
             let seen_i = source_spmd_find_seen(ctx.p, ctx.seen, norm_buf);
             if seen_i >= 0 && ctx.seen[seen_i].source != -1 { continue; }
             if source_spmd_find_file(ctx, norm_buf) >= 0 { continue; }
-            if !source_spmd_add_file(ctx, seen_i, norm_buf, imp_lib) {
+            if !source_spmd_add_file(ctx, norm_buf, imp_lib) {
                 ctx.phase = PARSE_PHASE_ABORT;
                 return;
             }
@@ -699,7 +694,6 @@ fn gp_parse_spmd_range(ctx: const ParseSpmdCtx&, out: i64[:], worker_id: i64, wo
         inline_sites: w_inline_sites, instantiation_stack: w_instantiation_stack,
         region_profile: w_region_profile, ident_table: w_ident_table,
     };
-    var w_my_files: ParseWorkerRec[>..] = [];
     var w_htab: i32[>..] = [];
     var imp_name: u8[>..] = [];
     var reps: ParseIdentRep[>..] = [];
@@ -798,7 +792,8 @@ fn gp_parse_spmd_range(ctx: const ParseSpmdCtx&, out: i64[:], worker_id: i64, wo
                     let ent = idents[u];
                     if ent.hash == h && (ent.rel_end - ent.rel_start) as i64 == tlen {
                         let rs = w_text_start + ent.rel_start as i64;
-                        if same_bytes(text[rs..rs + tlen], text[tstart..tend]) {
+                        // FNV-1a is injective for one-byte spellings.
+                        if tlen == 1 || same_bytes(text[rs..rs + tlen], text[tstart..tend]) {
                             tok.text_start = u as i32;
                             break;
                         }
@@ -811,11 +806,9 @@ fn gp_parse_spmd_range(ctx: const ParseSpmdCtx&, out: i64[:], worker_id: i64, wo
                 ctx.files[fi].status = PARSE_SPMD_FALLBACK;
                 continue;
             }
-            w_my_files.push(ParseWorkerRec {
-                file_idx: fi, w_text_start: w_text_start, w_str_off: w_str_off,
-                w_tok_off: w_tok_off, w_node_off: w_node_off,
-                raw_len: f.raw_len, tok_count: tok_count, node_count: node_count, str_count: str_count,
-            });
+            ctx.files[fi].w_text_start = w_text_start;
+            ctx.files[fi].w_tok_off = w_tok_off;
+            ctx.files[fi].w_node_off = w_node_off;
             ctx.files[fi].root = root - w_node_off;
             ctx.files[fi].tok_count = tok_count;
             ctx.files[fi].node_count = node_count;
@@ -832,25 +825,25 @@ fn gp_parse_spmd_range(ctx: const ParseSpmdCtx&, out: i64[:], worker_id: i64, wo
 
         if ctx.phase == PARSE_PHASE_INSTALL {
             // Phase 2: parallel relocation and copy directly into final Program slices.
-            for rec in w_my_files {
-                let f = ctx.files[rec.file_idx];
-                if !f.install_ok { continue; }
-                let delta_text = f.p_text_base - rec.w_text_start;
-                let delta_str = f.p_str_base - rec.w_str_off;
-                let delta_tok = f.p_tok_base - rec.w_tok_off;
-                let delta_node = f.p_node_base - rec.w_node_off;
-                let str_count = rec.str_count;
+            for f in ctx.files {
+                if !f.install_ok || (worker_count > 1 && f.worker != worker_id) { continue; }
+                let w_str_off = f.w_text_start + f.raw_len;
+                let delta_text = f.p_text_base - f.w_text_start;
+                let delta_str = f.p_str_base - w_str_off;
+                let delta_tok = f.p_tok_base - f.w_tok_off;
+                let delta_node = f.p_node_base - f.w_node_off;
+                let str_count = f.str_count;
                 if str_count > 0 {
                     let dst_str: u8[:] = ctx.p.text[f.p_str_base..f.p_str_base + str_count];
-                    let src_str: const u8[:] = w_text[rec.w_str_off..rec.w_str_off + str_count];
+                    let src_str: const u8[:] = w_text[w_str_off..w_str_off + str_count];
                     dst_str.move_from(src_str);
                 }
                 let sid = f.source_id;
                 let istart = f.ident_start;
-                let str_split = rec.w_str_off;
-                let tok_count = rec.tok_count;
+                let str_split = w_str_off;
+                let tok_count = f.tok_count;
                 let dst_toks: Token[:] = ctx.p.tokens[f.p_tok_base..f.p_tok_base + tok_count];
-                let src_toks: const Token[:] = w_tokens[rec.w_tok_off..rec.w_tok_off + tok_count];
+                let src_toks: const Token[:] = w_tokens[f.w_tok_off..f.w_tok_off + tok_count];
                 let ident_slice: const ParseUniqueIdent[:] = ctx.ident_slab[istart..istart + f.ident_count];
                 for tok, ti in src_toks {
                     var dt = tok;
@@ -868,14 +861,19 @@ fn gp_parse_spmd_range(ctx: const ParseSpmdCtx&, out: i64[:], worker_id: i64, wo
                     }
                     dst_toks[ti] = dt;
                 }
-                let node_count = rec.node_count;
+                let node_count = f.node_count;
                 let dst_nodes: Node[:] = ctx.p.nodes[f.p_node_base..f.p_node_base + node_count];
-                let src_nodes: const Node[:] = w_nodes[rec.w_node_off..rec.w_node_off + node_count];
+                let src_nodes: const Node[:] = w_nodes[f.w_node_off..f.w_node_off + node_count];
                 for node, ni in src_nodes {
                     var dn = node;
                     parse_rebase_node(dn, delta_tok, delta_node);
                     dst_nodes[ni] = dn;
                 }
+            }
+            // A negative grow length records dead native worker storage.
+            if worker_id != 0 {
+                gp_grow_tokens(w_tokens, -1);
+                gp_grow_nodes(w_nodes, -1);
             }
             break;
         }
@@ -915,7 +913,7 @@ fn source_parse_wave_spmd(p: Program&, pending: SourceRequest[>..]&, seen: Sourc
         if req.source >= 0 || seen[req.index].source != -1 { continue; }
         let path = p.text[req.start..req.start + req.length];
         if source_spmd_find_file(ctx, path) >= 0 { continue; }
-        if !source_spmd_add_file(ctx, req.index, path, req.library) { return false; }
+        if !source_spmd_add_file(ctx, path, req.library) { return false; }
     }
     if files.len < 2 { return false; }
     round_end = files.len;

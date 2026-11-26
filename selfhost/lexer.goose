@@ -291,24 +291,30 @@ fn lex_skeleton(p: Program&, l: LexCursor&, token: i64) {
 // Lexes l's range, then appends its end-of-file token.
 fn lex_tokens(p: Program&, l: LexCursor&) {
     let source_id = l.source;
+    let raw: const u8[:] = p.text[..l.end];
     loop {
-        let c = lex_peek(p, l);
+        if l.at >= raw.len {
+            p.tokens.push(Token { kind: T_EOF as i16, source: source_id as i32,
+                start: l.at as i32, end: l.at as i32, line: l.line as i32, column: l.column as i32 });
+            return;
+        }
+        let c = raw[l.at];
         if c == ' ' || c == '\t' || c == '\r' {
             var at = l.at + 1;
-            while at < l.end { let d = p.text[at]; if d != ' ' && d != '\t' && d != '\r' { break; } at++; }
+            while at < raw.len { let d = raw[at]; if d != ' ' && d != '\t' && d != '\r' { break; } at++; }
             l.column += at - l.at; l.at = at; continue;
         }
         if c == '\n' { l.at++; l.line++; l.column = 1; continue; }
         if c == '/' && lex_peek(p, l, 1) == '/' {
             var at = l.at + 2;
-            while at < l.end && p.text[at] != '\n' { at++; }
+            while at < raw.len && raw[at] != '\n' { at++; }
             l.column += at - l.at; l.at = at; continue;
         }
         if c == '/' && lex_peek(p, l, 1) == '*' {
             let start = l.at;
             lex_take(p, l); lex_take(p, l);
             var depth = 1;
-            while l.at < l.end && depth > 0 {
+            while l.at < raw.len && depth > 0 {
                 if lex_peek(p, l) == '/' && lex_peek(p, l, 1) == '*' {
                     lex_take(p, l); lex_take(p, l); depth++;
                 } else if lex_peek(p, l) == '*' && lex_peek(p, l, 1) == '/' {
@@ -323,24 +329,19 @@ fn lex_tokens(p: Program&, l: LexCursor&) {
             }
             continue;
         }
-        if l.at >= l.end {
-            p.tokens.push(Token { kind: T_EOF as i16, source: source_id as i32,
-                start: l.at as i32, end: l.at as i32, line: l.line as i32, column: l.column as i32 });
-            return;
-        }
         if lex_alpha(c) {
             let start = l.at; let col = l.column;
             var h: u32 = (2166136261 ^ (c as u32)) * 16777619;
             var at = start + 1;
-            while at < l.end {
-                let d = p.text[at];
+            while at < raw.len {
+                let d = raw[at];
                 if LEX_IDENT[d] == 0 { break; }
                 h = (h ^ (d as u32)) * 16777619;
                 at++;
             }
             var kw = T_IDENT;
             let kslot = (((h as u64 * 3005) as! u32) >> 25) as i64;
-            if LEX_KW_HASH[kslot] == h { kw = lex_keyword(p.text[start..at]); }
+            if LEX_KW_HASH[kslot] == h { kw = lex_keyword(raw[start..at]); }
             l.column += at - start; l.at = at;
             let token_id = p.tokens.len;
             let hash: i64 = if kw == T_IDENT { h } else { 0 };
@@ -376,15 +377,15 @@ fn lex_tokens(p: Program&, l: LexCursor&) {
             var at = start + 1;
             var bits: u64 = (c - 48) as u64;
             var simple = true;
-            if c == '0' && at < l.end && (p.text[at] == 'x' || p.text[at] == 'X') { simple = false; }
+            if c == '0' && at < raw.len && (raw[at] == 'x' || raw[at] == 'X') { simple = false; }
             if simple {
-                while at < l.end {
-                    let d = p.text[at];
+                while at < raw.len {
+                    let d = raw[at];
                     if d >= '0' && d <= '9' {
                         if at - start >= 18 { simple = false; break; }
                         bits = bits * 10 + (d - 48) as u64;
                         at++;
-                    } else if d == '_' || d == 'e' || d == 'E' || d == '.' && at + 1 < l.end && p.text[at + 1] >= '0' && p.text[at + 1] <= '9' {
+                    } else if d == '_' || d == 'e' || d == 'E' || d == '.' && at + 1 < raw.len && raw[at + 1] >= '0' && raw[at + 1] <= '9' {
                         simple = false; break;
                     } else {
                         break;

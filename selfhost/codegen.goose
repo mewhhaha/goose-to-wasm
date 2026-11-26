@@ -1,4 +1,5 @@
 import model;
+import parallel;
 import checker_rendering;
 import wasm;
 import region_plan;
@@ -283,17 +284,11 @@ fn cg_tee(f: CgBody&, wasm_type: i64) -> i64 {
 }
 fn cg_get(f: CgBody&, slot: i64) {
     if slot >= f.params { cg_record(f, 0x20, slot); }
-    f.code.push(0x20);
-    if (slot as! u64) < 128 { f.code.push(slot as u8); }
-    else if (slot as! u64) < 16384 { f.code.push(((slot & 127) | 128) as u8); f.code.push((slot >> 7) as u8); }
-    else { wb_u(f.code, slot); }
+    wb_op(f.code, 0x20, slot);
 }
 fn cg_set(f: CgBody&, slot: i64) {
     if slot >= f.params { cg_record(f, 0x21, slot); }
-    f.code.push(0x21);
-    if (slot as! u64) < 128 { f.code.push(slot as u8); }
-    else if (slot as! u64) < 16384 { f.code.push(((slot & 127) | 128) as u8); f.code.push((slot >> 7) as u8); }
-    else { wb_u(f.code, slot); }
+    wb_op(f.code, 0x21, slot);
 }
 // 64-bit memory (docs/TARGET.md). With cg_wide an address is an i64 and a
 // slice a v128 of pointer and count; without it they are what they always
@@ -498,6 +493,9 @@ fn cg_defer_bytes(m: CgModule&, kind: u8, bytes: u8[:]) -> i64 {
     m.batch.payload_len += bytes.len;
     return request;
 }
+let CG_PAD_U32: u8[5] = [0x80, 0x80, 0x80, 0x80, 0];
+let CG_PAD_I64: u8[10] = [0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0];
+let CG_PAD_SLICE64: u8[8] = [0, 0, 0, 0, 0, 0, 0, 0];
 fn cg_deferred_immediate(m: CgModule&, f: CgBody&, request: i64, encoding: u8) {
     var width = 5;
     if encoding == CG_ENC_I64 || encoding == CG_ENC_SLICE32 { width = 10; }
@@ -507,12 +505,9 @@ fn cg_deferred_immediate(m: CgModule&, f: CgBody&, request: i64, encoding: u8) {
     if index == m.batch.fixups.len { m.batch.fixups.push(item); }
     else { m.batch.fixups[index] = item; }
     m.batch.fixups_len++;
-    if encoding == CG_ENC_SLICE64 {
-        for _ in 0..width { f.code.push(0); }
-    } else {
-        for _ in 0..width - 1 { f.code.push(0x80); }
-        f.code.push(0);
-    }
+    if encoding == CG_ENC_SLICE64 { f.code.append(CG_PAD_SLICE64); }
+    else if width == 10 { f.code.append(CG_PAD_I64); }
+    else { f.code.append(CG_PAD_U32); }
 }
 fn cg_data_reference(m: CgModule&, bytes: u8[:]) -> i64 {
     if m.batch.active { return cg_defer_bytes(m, CG_REQ_DATA, bytes); }
@@ -697,8 +692,11 @@ fn cg_checked_results(p: Program&, function: i64, out: i64[>..]&) -> bool {
     cg_result_types(p, p.types[type_id].element, out);
     return true;
 }
-fn cg_make_signature(p: Program&, m: CgModule&, function: i64, closure: bool, sroa_ret: i64 = 0) -> i64 {
-    var args: u8[>..] = []; var results: u8[>..] = []; var types: i64[>..] = [];
+struct CgSignatureScratch { args: u8[>..]&, results: u8[>..]&, types: i64[>..]&, bytes: u8[>..]& }
+fn cg_make_signature(p: Program&, m: CgModule&, function: i64, closure: bool, scratch: CgSignatureScratch&, sroa_ret: i64 = 0) -> i64 {
+    let args: u8[>..]& = scratch.args; args.clear();
+    let results: u8[>..]& = scratch.results; results.clear();
+    let types: i64[>..]& = scratch.types; types.clear();
     if closure { args.push(wa() as u8); }
     // A host cannot take a v128: an import takes a wide slice as its pointer
     // and its count, two i64 (cg_import_arguments).
@@ -728,7 +726,9 @@ fn cg_make_signature(p: Program&, m: CgModule&, function: i64, closure: bool, sr
         }
     }
     if !closure && (p.nodes[function].flags & F_LOCATED) != 0 { args.push(0x7f); }
-    return cg_signature(m, args, results);
+    scratch.bytes.clear();
+    wb_signature(scratch.bytes, args, results);
+    return cg_intern_signature(m, scratch.bytes);
 }
 inline fn cg_convert(p: Program&, m: CgModule&, f: CgBody&, from: i64, to: i64, node: i64) {
     if from == to { return; }
@@ -6039,7 +6039,7 @@ fn cg_finish_body(p: Program&, m: CgModule&, f: CgBody&, slots: CgSlot[>..]&, sc
     scratch.code.append(scratch.body); scratch.body.clear();
     if m.scalar { wb_compact_body(scratch.body, scratch.locals, scratch.code, f.params); }
     else {
-        wb_reuse_body(scratch.body, scratch.locals, scratch.code, f.params, scratch.events, body_event_count, prelude_bytes, f.acquisitions == 0, scratch.reuse, m.batch.fixups[..m.batch.fixups_len]);
+        wb_reuse_body(scratch.body, scratch.locals, scratch.code, f.params, scratch.events, body_event_count, prelude_bytes, m.regions_enabled && f.acquisitions == 0, scratch.reuse, m.batch.fixups[..m.batch.fixups_len]);
     }
 }
 fn cg_emit_array_helper(p: Program&, m: CgModule&, out: u8[>..]&, helper: i64) {
@@ -6836,10 +6836,11 @@ recursive fn cg_collect_capture_edges(p: Program&, edges: CgCaptureEdge[>..]&, f
     child = n.third; while child >= 0 { cg_collect_capture_edges(p, edges, function, child); child = p.nodes[child].next; }
     child = n.first; while child >= 0 { cg_collect_capture_edges(p, edges, function, child); child = p.nodes[child].next; }
 }
-fn cg_propagate_captures(p: Program&, m: CgModule&) {
+fn cg_propagate_captures(p: Program&, m: CgModule&, edges: CgCaptureEdge[>..]&, collected: bool) {
     if m.captures.len == 0 { return; }
-    var edges: CgCaptureEdge[>..] = [];
-    for item in m.functions { if !item.elements { cg_collect_capture_edges(p, edges, item.node, p.nodes[item.node].right); } }
+    if !collected {
+        for item in m.functions { if !item.elements { cg_collect_capture_edges(p, edges, item.node, p.nodes[item.node].right); } }
+    }
     loop {
         let previous = m.captures.len;
         for index in 0..edges.len {
@@ -7063,6 +7064,7 @@ let CG_SCAN_EDGE: i64 = 7;
 let CG_SCAN_REGION_NO: i64 = 8;
 let CG_SCAN_PRINT_NO: i64 = 10;
 let CG_SCAN_PRINT_YES: i64 = 11;
+let CG_SCAN_CAPTURE_EDGE: i64 = 12;
 
 struct CgScanPatch { packed: i64 = 0 }
 struct CgScanResult {
@@ -7077,10 +7079,11 @@ struct CgScanBucket {
 }
 struct CgScanBatch {
     checked: const i64[:], indices: const i32[:],
-    type_reg: const u8[:], buckets: CgScanBucket[:], check_regions: bool, region_ok: bool,
+    type_reg: const u8[:], buckets: CgScanBucket[:], check_regions: bool, region_ok: bool, collect_edges: bool,
 }
 struct CgPrescan {
     helpers: CgHelperDemand,
+    capture_edges: CgCaptureEdge[>..]&, collect_edges: bool = false,
     arena_edges: i32[>..]&,
     fn_edge_start: i32[>..]&,
     fn_edge_count: i32[>..]&,
@@ -7151,10 +7154,35 @@ fn cg_prescan_type_reg(p: Program&, ps: CgPrescan&, tid: i64) -> u8 {
     ps.type_reg[tid] = code;
     return code;
 }
+inline fn cg_scan_capture_edge(ps: CgPrescan&, target: i64) {
+    if ps.worker { cg_scan_patch(ps, CG_SCAN_CAPTURE_EDGE, target); }
+    else { ps.capture_edges.push(CgCaptureEdge { function: ps.cur_fn_node, target: target }); }
+}
+fn cg_scan_capture_node(p: Program&, ps: CgPrescan&, node: i64, kind: i64) {
+    let n: const Node& = p.nodes[node];
+    if (kind == N_CALL || kind == N_NAME) && n.symbol >= 0 && (p.symbols[n.symbol].flags & S_FUNCTION) != 0 {
+        cg_scan_capture_edge(ps, p.symbols[n.symbol].node);
+    }
+    if kind == N_CALL && (n.flags & F_DISPATCH) != 0 {
+        var arm = n.third;
+        while arm >= 0 {
+            let symbol = p.nodes[arm].symbol;
+            if symbol >= 0 { cg_scan_capture_edge(ps, p.symbols[symbol].node); }
+            arm = p.nodes[arm].next;
+        }
+    }
+}
+fn cg_scan_pruned_capture_tree(p: Program&, ps: CgPrescan&, node: i64) {
+    var edges: CgCaptureEdge[>..] = [];
+    cg_collect_capture_edges(p, edges, ps.cur_fn_node, node);
+    for edge in edges { cg_scan_capture_edge(ps, edge.target); }
+}
 recursive fn cg_prescan_node(p: Program&, m: CgModule&, ps: CgPrescan&, node: i64, mark_val: bool, primary: bool, reg_owns: bool&, reg_may: bool&) {
     if node < 0 || ps.overflow { return; }
     let n: const Node& = p.nodes[node];
     let kind = n.kind;
+    let capture_edges = ps.collect_edges && ps.cur_captures;
+    if capture_edges && kind == N_CALL { cg_scan_capture_node(p, ps, node, kind); }
     if primary && ps.batch && ps.cur_fn_idx >= 0 {
         ps.emit_nodes++;
         if kind == N_LOOP || kind == N_WHILE || kind == N_BLOCK && (n.flags & F_EARLY) != 0 { cg_scan_print(p, m, ps, node); }
@@ -7162,6 +7190,10 @@ recursive fn cg_prescan_node(p: Program&, m: CgModule&, ps: CgPrescan&, node: i6
     }
     if kind == N_INTEGER || kind == N_FLOAT || kind == N_BOOL || kind == N_NULL || kind == N_EMPTY || kind == N_CONTINUE ||
        kind == N_PATTERN || kind == N_STRUCT || kind == N_ENUM || kind == N_ALIAS || kind == N_IMPORT || kind == N_FUNCTION {
+        if capture_edges && kind != N_PATTERN && kind != N_FUNCTION &&
+           (n.left >= 0 || n.right >= 0 || n.third >= 0 || n.first >= 0) {
+            cg_scan_pruned_capture_tree(p, ps, node);
+        }
         if primary && ps.cur_region && ps.region_ok {
             let tid = n.type_id;
             if tid >= 13 && cg_prescan_type_reg(p, ps, tid) == 1 { ps.region_ok = false; }
@@ -7175,6 +7207,10 @@ recursive fn cg_prescan_node(p: Program&, m: CgModule&, ps: CgPrescan&, node: i6
         return;
     }
     if kind == N_NAME {
+        if capture_edges {
+            if n.left >= 0 || n.right >= 0 || n.third >= 0 || n.first >= 0 { cg_scan_pruned_capture_tree(p, ps, node); }
+            else { cg_scan_capture_node(p, ps, node, kind); }
+        }
         let sym = n.symbol;
         if sym >= 0 && sym < p.symbols.len {
             let s: const Symbol& = p.symbols[sym];
@@ -7421,10 +7457,11 @@ fn cg_prescan_serial(p: Program&, m: CgModule&, ps: CgPrescan&, function: i64, i
 fn cg_prescan_range(p: Program&, m: CgModule&, scan: CgScanBatch&, begin: i64, end: i64) {
     var local: CgModule = m;
     local.batch.active = true; // Print predicates read the memo without filling it.
+    var unused_captures: CgCaptureEdge[>..] = [];
     var unused_edges: i32[>..] = []; var unused_reusable: bool[>..] = []; var unused_types: u8[>..] = [];
     for b in begin..end {
         let bucket: CgScanBucket& = scan.buckets[b];
-        var ps = CgPrescan { helpers: CgHelperDemand {},
+        var ps = CgPrescan { helpers: CgHelperDemand {}, capture_edges: unused_captures, collect_edges: scan.collect_edges,
             arena_edges: unused_edges, fn_edge_start: unused_edges, fn_edge_count: unused_edges,
             fn_reusable: unused_reusable, type_reg: unused_types, cached_types: scan.type_reg,
             patches: bucket.patches, effect_cap: bucket.effect_cap, worker: true, region_ok: scan.region_ok, batch: true };
@@ -7455,6 +7492,7 @@ fn cg_scan_apply_patch(p: Program&, m: CgModule&, ps: CgPrescan&, function: i64,
     else if tag == CG_SCAN_NO_SROA { p.symbols[index].flags |= CG_NO_SROA; }
     else if tag == CG_SCAN_CAPTURE { cg_capture_add(m, function, index); }
     else if tag == CG_SCAN_EDGE { ps.arena_edges.push(index as i32); }
+    else if tag == CG_SCAN_CAPTURE_EDGE { ps.capture_edges.push(CgCaptureEdge { function: function, target: index }); }
     else { m.region_memo[index] = (m.region_memo[index] & 3) | (((tag - CG_SCAN_PRINT_NO + 1) * 4) as u8); }
 }
 fn cg_scan_merge_helpers(dest: CgHelperDemand&, src: CgHelperDemand) {
@@ -7478,13 +7516,17 @@ fn cg_scan_merge(p: Program&, m: CgModule&, ps: CgPrescan&, scan: CgScanBatch&) 
         let bucket: const CgScanBucket& = scan.buckets[b];
         if bucket.unsafe_ref_cast { m.ref_cast_scan = 2; }
         let serial = !bucket.ok || ps.region_ok && scan.check_regions && !bucket.region_log_ok;
+        if serial {
+            for i in 0..bucket.results.len {
+                let ci = bucket.first + i;
+                cg_prescan_serial(p, m, ps, scan.checked[ci], scan.indices[ci]);
+            }
+            continue;
+        }
         var at = 0; var region_at = bucket.effect_cap;
         for result, i in bucket.results {
             let ci = bucket.first + i;
             let function = scan.checked[ci]; let index = scan.indices[ci] as i64;
-            if serial {
-                cg_prescan_serial(p, m, ps, function, index); continue;
-            }
             let edge_start = ps.arena_edges.len;
             for patch in bucket.patches[at..result.patch_end] { cg_scan_apply_patch(p, m, ps, function, patch.packed); }
             at = result.patch_end;
@@ -7505,10 +7547,6 @@ fn cg_scan_merge(p: Program&, m: CgModule&, ps: CgPrescan&, scan: CgScanBatch&) 
     }
 }
 fn cg_prescan_parallel(p: Program&, m: CgModule&, ps: CgPrescan&, checked: const i64[:], indices: const i32[:]) {
-    // The pool helpers disable data regions. For large type tables first
-    // look for that proof in the normal scan, before classifying every
-    // type and allocating per-node region patches.
-    if ps.region_ok && p.types.len >= 16384 && cg_prescan_batch(p, m, ps, checked, indices, false, true) { return; }
     // Without any supported owner-producing type, the region plan cannot
     // be enabled by a body. Skip its otherwise dense stream of node memos.
     var regions = false;
@@ -7522,6 +7560,12 @@ fn cg_prescan_parallel(p: Program&, m: CgModule&, ps: CgPrescan&, checked: const
         for function, ci in checked { cg_prescan_serial(p, m, ps, function, indices[ci]); }
     }
 }
+fn gp_grow_cg_scan_results(arr: CgScanResult[>..]&, new_len: i64) {
+    while arr.len < new_len { arr.push(CgScanResult {}); }
+}
+fn gp_grow_cg_scan_patches(arr: CgScanPatch[>..]&, new_len: i64) {
+    while arr.len < new_len { arr.push(CgScanPatch {}); }
+}
 fn cg_prescan_batch(p: Program&, m: CgModule&, ps: CgPrescan&, checked: const i64[:], indices: const i32[:], regions: bool, require_pool: bool) -> bool {
     let length = checked.len;
     let count = min(length, p.jobs * 2);
@@ -7529,8 +7573,8 @@ fn cg_prescan_batch(p: Program&, m: CgModule&, ps: CgPrescan&, checked: const i6
     let effect_cap = 1024 + p.nodes.len / count / effect_divisor;
     var capacity = effect_cap;
     if regions { capacity += 512 + p.nodes.len * 2 / count; }
-    var results: CgScanResult[>..] = []; results.resize(length, CgScanResult {});
-    var patches: CgScanPatch[>..] = []; patches.resize(count * capacity, CgScanPatch {});
+    var results: CgScanResult[>..] = []; gp_grow_cg_scan_results(results, length);
+    var patches: CgScanPatch[>..] = []; gp_grow_cg_scan_patches(patches, count * capacity);
     var buckets: CgScanBucket[>..] = [];
     for b in 0..count {
         let first = b * length / count;
@@ -7539,7 +7583,7 @@ fn cg_prescan_batch(p: Program&, m: CgModule&, ps: CgPrescan&, checked: const i6
     }
     var cached_types: u8[>..] = [];
     if regions { cached_types.append(ps.type_reg); }
-    var scan = CgScanBatch { checked: checked, indices: indices, type_reg: cached_types, buckets: buckets, check_regions: regions, region_ok: ps.region_ok };
+    var scan = CgScanBatch { checked: checked, indices: indices, type_reg: cached_types, buckets: buckets, check_regions: regions, region_ok: ps.region_ok, collect_edges: ps.collect_edges };
     var unused_body: u8[>..] = []; var unused_calls: RegionCall[>..] = [];
     var unused_reqs: CgDeferredReq[>..] = []; var unused_results: WasmBodyResult[>..] = []; var unused_fixups: CgFixup[>..] = [];
     var dispatch: WasmBatchOut[>..] = [];
@@ -7547,8 +7591,7 @@ fn cg_prescan_batch(p: Program&, m: CgModule&, ps: CgPrescan&, checked: const i6
         dispatch.push(WasmBatchOut { first: 0, results: unused_results, body: unused_body, region_calls: unused_calls,
             reqs: unused_reqs, payload: unused_body, fixups: unused_fixups });
     }
-    var no_slots: CgSlot[>..] = [];
-    let ctx = WasmBatchCtx { program: p, module: m, scan: scan, empty_slots: no_slots };
+    let ctx = WasmBatchCtx { program: p, module: m, scan: scan };
     cg_type_memos_frozen = true;
     let dispatched = gp_wasm_dispatch(p.jobs, ctx, dispatch);
     cg_type_memos_frozen = false;
@@ -7561,6 +7604,9 @@ fn cg_prescan_batch(p: Program&, m: CgModule&, ps: CgPrescan&, checked: const i6
             if pool { break; }
         }
         if !pool { return false; }
+        // This scan proved the module uses pool helpers, which disable the
+        // data-region plan. A serial fallback needs only the other effects.
+        ps.region_ok = false;
     }
     cg_scan_merge(p, m, ps, scan);
     return true;
@@ -7605,13 +7651,31 @@ inline fn cg_binding_head(m: CgModule&, index: i64) -> i64 {
     if item.elements { return m.functions[cg_function(m, item.symbol)].first_binding; }
     return item.first_binding;
 }
+fn cg_check_region_inputs(p: Program&, m: CgModule&, ps: CgPrescan&) {
+    for s_id in 0..p.symbols.len {
+        let symbol: const Symbol& = p.symbols[s_id];
+        if symbol.owner >= 0 && (p.nodes[symbol.owner].flags & F_REACHABLE) == 0 { continue; }
+        if symbol.node >= 0 && (p.nodes[symbol.node].kind == N_FIELD || p.nodes[symbol.node].kind == N_VARIANT) { continue; }
+        if symbol.type_id >= 0 && (symbol.flags & (S_FUNCTION | S_TYPE | S_BUILTIN)) == 0 {
+            if !cg_region_type_supported(p, symbol.type_id) { ps.region_ok = false; }
+            if cg_has_owner(p, symbol.type_id) { ps.region_owns = true; }
+        }
+    }
+    for index in 0..m.functions.len {
+        let fnode = m.functions[index].node;
+        let result = cg_result_type(p, fnode);
+        if !cg_region_type_supported(p, result) { ps.region_ok = false; }
+        if cg_region_owned_result(p, result) { ps.region_owns = true; }
+    }
+}
 fn cg_collect(p: Program&, m: CgModule&) {
     cg_root_layouts(p);
     for host in 0..9 { m.imports.push(CgImport { signature: cg_host_signature(m, host), host: host }); }
     var checked_fns: i64[>..] = [];
-    var loc_candidates = false;
+    var loc_candidates = false; var may_capture = false;
     for i in 0..p.symbols.len {
         let symbol: const Symbol& = p.symbols[i];
+        if (symbol.flags & S_CAPTURE) != 0 { may_capture = true; }
         m.globals.push(-1); m.global_regions.push(-1);
         if (symbol.flags & S_GLOBAL) != 0 && symbol.type_id >= 0 && symbol.component_owner < 0 {
             m.next_data = cg_align(m.next_data, p.types[symbol.type_id].align); m.globals[i] = m.next_data; m.next_data += cg_slot_size(p, symbol.type_id);
@@ -7659,35 +7723,27 @@ fn cg_collect(p: Program&, m: CgModule&) {
     var fn_edge_count: i32[>..] = []; fn_edge_count.resize(ordinary_count, 0);
     var fn_reusable: bool[>..] = []; fn_reusable.resize(ordinary_count, false);
     var type_reg: u8[>..] = []; type_reg.resize(p.types.len, 0);
-    var no_patches: CgScanPatch[>..] = [];
+    var no_patches: CgScanPatch[>..] = []; var capture_edges: CgCaptureEdge[>..] = [];
     var ps = CgPrescan {
-        helpers: CgHelperDemand {},
+        helpers: CgHelperDemand {}, capture_edges: capture_edges, collect_edges: may_capture && p.jobs > 1 && ordinary_count >= 64,
         arena_edges: arena_edges,
         fn_edge_start: fn_edge_start,
         fn_edge_count: fn_edge_count,
         fn_reusable: fn_reusable,
         type_reg: type_reg, cached_types: type_reg, patches: no_patches, batch: p.jobs > 1 && ordinary_count >= 32,
     };
-    for s_id in 0..p.symbols.len {
-        let symbol: const Symbol& = p.symbols[s_id];
-        if symbol.owner >= 0 && (p.nodes[symbol.owner].flags & F_REACHABLE) == 0 { continue; }
-        if symbol.node >= 0 && (p.nodes[symbol.node].kind == N_FIELD || p.nodes[symbol.node].kind == N_VARIANT) { continue; }
-        if symbol.type_id >= 0 && (symbol.flags & (S_FUNCTION | S_TYPE | S_BUILTIN)) == 0 {
-            if !cg_region_type_supported(p, symbol.type_id) { ps.region_ok = false; }
-            if cg_has_owner(p, symbol.type_id) { ps.region_owns = true; }
-        }
-    }
     for index in 0..ordinary_count {
         let fnode = m.functions[index].node;
         m.functions[index].arena_local = cg_scalar_results(p, fnode) && (p.nodes[fnode].flags & F_NONLOCAL) == 0;
-        let result = cg_result_type(p, fnode);
-        if !cg_region_type_supported(p, result) { ps.region_ok = false; }
-        if cg_region_owned_result(p, result) { ps.region_owns = true; }
     }
-    if p.jobs > 1 && ordinary_count >= 64 {
-        cg_prescan_parallel(p, m, ps, checked_fns, checked_fn_idx);
-    } else {
-        for ci in 0..checked_fns.len { cg_prescan_serial(p, m, ps, checked_fns[ci], checked_fn_idx[ci]); }
+    let parallel = p.jobs > 1 && ordinary_count >= 64;
+    // A successful pool probe makes the type walk for the disabled
+    // data-region plan unnecessary. Its other effects retain scan order.
+    let pooled = parallel && p.types.len >= 16384 && cg_prescan_batch(p, m, ps, checked_fns, checked_fn_idx, false, true);
+    if !pooled {
+        cg_check_region_inputs(p, m, ps);
+        if parallel { cg_prescan_parallel(p, m, ps, checked_fns, checked_fn_idx); }
+        else { for ci in 0..checked_fns.len { cg_prescan_serial(p, m, ps, checked_fns[ci], checked_fn_idx[ci]); } }
     }
     var reg_may = false;
     ps.cur_fn_node = -1;
@@ -7715,10 +7771,13 @@ fn cg_collect(p: Program&, m: CgModule&) {
         }
     }
     p.unwinding = m.nonlocal_returns && mark_unwinding_functions(p);
+    var sig_args: u8[>..] = []; var sig_results: u8[>..] = [];
+    var sig_types: i64[>..] = []; var sig_bytes: u8[>..] = [];
+    var sig_scratch = CgSignatureScratch { args: sig_args, results: sig_results, types: sig_types, bytes: sig_bytes };
     for ei in 0..extern_fns.len {
         let fnode = extern_fns[ei];
         if cg_intrinsic(p, fnode) == 0 {
-            m.imports.push(CgImport { symbol: p.nodes[fnode].symbol, signature: cg_make_signature(p, m, fnode, false) });
+            m.imports.push(CgImport { symbol: p.nodes[fnode].symbol, signature: cg_make_signature(p, m, fnode, false, sig_scratch) });
         }
     }
     for index in 0..ordinary_count {
@@ -7766,7 +7825,7 @@ fn cg_collect(p: Program&, m: CgModule&) {
         let first = m.functions_by_symbol[m.functions[index].symbol].first as i64;
         if first >= 0 { m.functions[index].arena_local = m.functions[first].arena_local; }
     }
-    cg_propagate_captures(p, m);
+    cg_propagate_captures(p, m, capture_edges, ps.collect_edges);
     for capture in m.captures { p.symbols[capture.symbol].flags |= CG_ADDRESS_TAKEN; }
     m.start = m.imports.len + m.functions.len; m.allocator = m.start + 1; m.float_wrap = m.start + 2;
     if m.pool_global < 0 { m.regions_enabled = ps.region_ok && ps.region_owns; }
@@ -7796,10 +7855,10 @@ fn cg_collect(p: Program&, m: CgModule&) {
             if cg_type_kind(p, ret_ty) == TY_STRUCT { sroa_ret = cg_sroa_struct(p, ret_ty); }
         }
         m.functions[i].sroa_return = sroa_ret as i32;
-        let sig = cg_make_signature(p, m, fnode, false, sroa_ret);
+        let sig = cg_make_signature(p, m, fnode, false, sig_scratch, sroa_ret);
         m.functions[i].signature = sig;
         if (p.nodes[fnode].flags & F_VALUE_USED) != 0 {
-            let csig = cg_make_signature(p, m, fnode, true);
+            let csig = cg_make_signature(p, m, fnode, true, sig_scratch);
             m.functions[i].closure_signature = csig;
             m.functions[i].table_index = m.thunk_count;
             m.thunk_count += 1;
@@ -8179,7 +8238,7 @@ let WASM_FALLBACK: u8 = 0;
 let WASM_OK: u8 = 1;
 struct WasmBodyResult {
     status: u8 = WASM_FALLBACK, maps_headers: bool = false, region_own: i64 = 0,
-    body_len: i64 = 0, calls_len: i64 = 0, reqs_len: i64 = 0, payload_len: i64 = 0, fixups_len: i64 = 0,
+    body_len: i64 = 0, packed_len: i64 = 0, calls_len: i64 = 0, reqs_len: i64 = 0, payload_len: i64 = 0, fixups_len: i64 = 0,
 }
 // The main thread owns all backing storage. Each bucket packs successful
 // functions into its disjoint slices in ascending function order.
@@ -8188,7 +8247,10 @@ struct WasmBatchOut {
     body: u8[:], region_calls: RegionCall[:], reqs: CgDeferredReq[:],
     payload: u8[:], fixups: CgFixup[:],
 }
-struct WasmBatchCtx { program: Program&, module: CgModule&, scan: CgScanBatch&? = null, empty_slots: const CgSlot[:] }
+struct CgPackBatch { destination: u8[:], offsets: const i64[:] }
+struct WasmBatchCtx {
+    program: Program&, module: CgModule&, scan: CgScanBatch&? = null, pack: CgPackBatch&? = null,
+}
 
 fn gp_wasm_dispatch(jobs: i64, ctx: const WasmBatchCtx&, out: WasmBatchOut[:]) -> bool {
     gp_wasm_range(ctx, out, 0, out.len);
@@ -8197,6 +8259,8 @@ fn gp_wasm_dispatch(jobs: i64, ctx: const WasmBatchCtx&, out: WasmBatchOut[:]) -
 fn gp_wasm_range(ctx: const WasmBatchCtx&, out: WasmBatchOut[:], begin: i64, end: i64) {
     let scan = ctx.scan;
     if scan != null { cg_prescan_range(ctx.program, ctx.module, scan, begin, end); return; }
+    let pack = ctx.pack;
+    if pack != null { cg_pack_wasm_range(out, pack, begin, end); return; }
     // Copy the module header. Its shared tables are read-only during emission.
     var m: CgModule = ctx.module;
     var parameter_uses: CgParameterUse[>..] = [];
@@ -8204,7 +8268,7 @@ fn gp_wasm_range(ctx: const WasmBatchCtx&, out: WasmBatchOut[:], begin: i64, end
     var fixups: CgFixup[>..] = []; var calls: RegionCall[>..] = [];
     m.batch = CgBatchScratch { active: true, parameter_uses: parameter_uses, reqs: reqs, payload: payload, fixups: fixups, calls: calls };
     var unused: u8[>..] = [];
-    cg_emit_user_bodies(ctx.program, m, unused, out, begin, end, ctx.empty_slots);
+    cg_emit_user_bodies(ctx.program, m, unused, out, begin, end);
 }
 struct WasmBatchCursor { body: i64 = 0, calls: i64 = 0, reqs: i64 = 0, payload: i64 = 0, fixups: i64 = 0 }
 
@@ -8214,7 +8278,7 @@ fn cg_save_wasm_body(batch: CgBatchScratch&, bucket: WasmBatchOut&, index: i64, 
        batch.reqs_len > bucket.reqs.len - cursor.reqs ||
        batch.payload_len > bucket.payload.len - cursor.payload ||
        batch.fixups_len > bucket.fixups.len - cursor.fixups {
-        bucket.results[index].status = WASM_FALLBACK;
+        bucket.results[index] = WasmBodyResult {};
         return;
     }
     copy_into(bucket.body[cursor.body..cursor.body + body.len], body);
@@ -8227,13 +8291,11 @@ fn cg_save_wasm_body(batch: CgBatchScratch&, bucket: WasmBatchOut&, index: i64, 
     cursor.body += body.len; cursor.calls += batch.calls_len;
     cursor.reqs += batch.reqs_len; cursor.payload += batch.payload_len; cursor.fixups += batch.fixups_len;
 }
-fn cg_replay_wasm_body(m: CgModule&, bucket: WasmBatchOut&, index: i64, result: WasmBodyResult, cursor: WasmBatchCursor&, bodies: u8[>..]&, patched: u8[>..]&, resolved: i64[>..]&) {
-    let body = bucket.body[cursor.body..cursor.body + result.body_len];
-    let reqs = bucket.reqs[cursor.reqs..cursor.reqs + result.reqs_len];
+fn cg_resolve_wasm_requests(m: CgModule&, reqs: CgDeferredReq[:], payload: u8[:], resolved: i64[>..]&) {
     resolved.clear();
     for req in reqs {
-        let start = cursor.payload + req.payload_start;
-        let bytes = bucket.payload[start..start + req.payload_len];
+        let start = req.payload_start;
+        let bytes = payload[start..start + req.payload_len];
         var value = 0;
         if req.kind == CG_REQ_SIGNATURE { value = cg_intern_signature(m, bytes); }
         else {
@@ -8242,6 +8304,18 @@ fn cg_replay_wasm_body(m: CgModule&, bucket: WasmBatchOut&, index: i64, result: 
         }
         resolved.push(value);
     }
+}
+fn cg_note_wasm_body(m: CgModule&, bucket: WasmBatchOut&, index: i64, result: WasmBodyResult, cursor: WasmBatchCursor&) {
+    m.region_functions[index].own = result.region_own;
+    m.region_calls.append(bucket.region_calls[cursor.calls..cursor.calls + result.calls_len]);
+    if result.maps_headers { m.maps_headers = true; }
+    cursor.body += result.body_len; cursor.calls += result.calls_len;
+    cursor.reqs += result.reqs_len; cursor.payload += result.payload_len; cursor.fixups += result.fixups_len;
+}
+fn cg_replay_wasm_body(m: CgModule&, bucket: WasmBatchOut&, index: i64, result: WasmBodyResult, cursor: WasmBatchCursor&, bodies: u8[>..]&, patched: u8[>..]&, resolved: i64[>..]&) {
+    let body = bucket.body[cursor.body..cursor.body + result.body_len];
+    let reqs = bucket.reqs[cursor.reqs..cursor.reqs + result.reqs_len];
+    cg_resolve_wasm_requests(m, reqs, bucket.payload[cursor.payload..cursor.payload + result.payload_len], resolved);
     if result.fixups_len == 0 { wb_u(bodies, body.len); wb_raw(bodies, body); }
     else {
         patched.clear(); var copied = 0;
@@ -8258,16 +8332,81 @@ fn cg_replay_wasm_body(m: CgModule&, bucket: WasmBatchOut&, index: i64, result: 
         wb_raw(patched, body[copied..]);
         wb_u(bodies, patched.len); wb_raw(bodies, patched);
     }
-    m.region_functions[index].own = result.region_own;
-    m.region_calls.append(bucket.region_calls[cursor.calls..cursor.calls + result.calls_len]);
-    if result.maps_headers { m.maps_headers = true; }
-    cursor.body += result.body_len; cursor.calls += result.calls_len;
-    cursor.reqs += result.reqs_len; cursor.payload += result.payload_len; cursor.fixups += result.fixups_len;
+    cg_note_wasm_body(m, bucket, index, result, cursor);
 }
-fn cg_emit_user_bodies(p: Program&, m: CgModule&, bodies: u8[>..]&, buckets: WasmBatchOut[:], begin: i64, end: i64, empty_slots: const CgSlot[:] = []) {
+fn cg_pack_wasm_range(buckets: WasmBatchOut[:], pack: CgPackBatch&, begin: i64, end: i64) {
+    for b in begin..end {
+        let bucket: const WasmBatchOut& = buckets[b];
+        var at = pack.offsets[b];
+        var raw = 0; var next_fixup = 0;
+        for result in bucket.results {
+            wb_slice_u(pack.destination, at, result.packed_len);
+            let raw_start = raw; let raw_end = raw_start + result.body_len;
+            let fixup_end = next_fixup + result.fixups_len;
+            while next_fixup < fixup_end {
+                let fixup = bucket.fixups[next_fixup];
+                let length = raw_start + fixup.raw_off - raw;
+                copy_into(pack.destination[at..at + length], bucket.body[raw..raw + length]);
+                at += length; raw += length + fixup.dummy_len; next_fixup++;
+                // Replay has replaced the request index with the resolved immediate.
+                let value = fixup.req_idx;
+                if fixup.enc_kind == CG_ENC_U32 { wb_slice_u(pack.destination, at, value); }
+                else if fixup.enc_kind == CG_ENC_SLICE64 {
+                    for part in 0..8 { pack.destination[at] = ((value >> (part * 8)) & 255) as u8; at++; }
+                } else { wb_slice_s(pack.destination, at, value); }
+            }
+            let length = raw_end - raw;
+            copy_into(pack.destination[at..at + length], bucket.body[raw..raw_end]);
+            at += length; raw = raw_end;
+        }
+    }
+}
+fn cg_prepare_packed_wasm(m: CgModule&, buckets: WasmBatchOut[:], offsets: i64[>..]&) {
+    var resolved: i64[>..] = []; var total = 0;
+    for b in 0..buckets.len {
+        let bucket: WasmBatchOut& = buckets[b];
+        offsets.push(total);
+        var cursor = WasmBatchCursor {};
+        for i in 0..bucket.results.len {
+            let result = bucket.results[i];
+            let reqs = bucket.reqs[cursor.reqs..cursor.reqs + result.reqs_len];
+            cg_resolve_wasm_requests(m, reqs, bucket.payload[cursor.payload..cursor.payload + result.payload_len], resolved);
+            var packed = result.body_len;
+            for f in cursor.fixups..cursor.fixups + result.fixups_len {
+                let fixup: CgFixup& = bucket.fixups[f];
+                var value = resolved[fixup.req_idx]; var width = 8;
+                if fixup.enc_kind == CG_ENC_U32 { width = wb_u_width(value); }
+                else if fixup.enc_kind != CG_ENC_SLICE64 {
+                    if fixup.enc_kind == CG_ENC_I32 { value = (value as! u32) as! i32; }
+                    else if fixup.enc_kind == CG_ENC_SLICE32 { value |= reqs[fixup.req_idx].payload_len << 32; }
+                    width = wb_s_width(value);
+                }
+                fixup.req_idx = value;
+                packed += width - fixup.dummy_len;
+            }
+            bucket.results[i].packed_len = packed;
+            total += packed + wb_u_width(packed);
+            cg_note_wasm_body(m, bucket, bucket.first + i, result, cursor);
+        }
+    }
+    offsets.push(total);
+}
+fn cg_pack_wasm_bodies(p: Program&, m: CgModule&, buckets: WasmBatchOut[:], bodies: u8[>..]&) -> bool {
+    for bucket in buckets {
+        for result in bucket.results { if result.status != WASM_OK { return false; } }
+    }
+    var offsets: i64[>..] = [];
+    cg_prepare_packed_wasm(m, buckets, offsets);
+    gp_grow_u8(bodies, offsets[offsets.len - 1]);
+    var pack = CgPackBatch { destination: bodies, offsets: offsets };
+    let ctx = WasmBatchCtx { program: p, module: m, pack: pack };
+    gp_wasm_dispatch(p.jobs, ctx, buckets);
+    return true;
+}
+
+fn cg_emit_user_bodies(p: Program&, m: CgModule&, bodies: u8[>..]&, buckets: WasmBatchOut[:], begin: i64, end: i64, packed: bool = false) {
     var slots: CgSlot[>..] = [];
-    if m.batch.active { slots.append(empty_slots); }
-    else { slots.resize(p.symbols.len, CgSlot {}); }
+    slots.resize(p.symbols.len, CgSlot {});
     var sc_events: WbEvent[>..] = []; var sc_code: u8[>..] = []; var sc_body: u8[>..] = []; var sc_locals: i64[>..] = [];
     var sc_addresses: CgFrameAddress[>..] = []; var sc_labels: i64[>..] = []; var sc_exits: CgExit[>..] = [];
     var sc_results: i64[>..] = []; var sc_destinations: i64[>..] = []; var sc_work: i64[>..] = []; var sc_raw_slots: i64[>..] = [];
@@ -8305,12 +8444,12 @@ fn cg_emit_user_bodies(p: Program&, m: CgModule&, bodies: u8[>..]&, buckets: Was
         }
         return;
     }
-    if buckets.len == 0 {
+    if !packed && buckets.len == 0 {
         for item, index in m.functions {
             cg_emit_function(p, m, item.node, index, item.elements, slots, emit_scratch);
             wb_u(bodies, body.len); wb_raw(bodies, body);
         }
-    } else {
+    } else if !packed {
         var patched: u8[>..] = []; var resolved: i64[>..] = [];
         for b in 0..buckets.len {
             let bucket: WasmBatchOut& = buckets[b];
@@ -8330,19 +8469,16 @@ fn cg_emit_user_bodies(p: Program&, m: CgModule&, bodies: u8[>..]&, buckets: Was
     wb_u(bodies, body.len); wb_raw(bodies, body);
 }
 
-fn cg_warm_wasm_memos(p: Program&, m: CgModule&) {
+fn cg_warm_wasm_memos(p: Program&) {
     for id in 0..p.types.len {
         let kind = p.types[id].kind;
         if kind == TY_STRUCT { cg_has_owner(p, id); }
         if kind == TY_ARRAY || kind == TY_STRUCT || kind == TY_ENUM { cg_has_relative(p, id); }
     }
-    // The prescan already filled the print predicates and most region
-    // predicates of the emitted functions. Fill the remaining region entries
-    // only for modules that use them.
-    if m.regions_enabled {
-        for bits, node in m.region_memo { if (bits & 3) == 0 { cg_may_region(p, m, node); } }
-    }
+    // Node memos from prescan are read-only during emission. A remaining
+    // miss is computed by cg_may_region in the worker without a write.
 }
+
 struct WasmBatchPlan { first: i64, end: i64, body: i64, calls: i64, reqs: i64, payload: i64 }
 
 fn cg_plan_wasm_batches(p: Program&, m: CgModule&, plan: WasmBatchPlan[>..]&, total: WasmBatchCursor&) {
@@ -8382,17 +8518,29 @@ fn cg_plan_wasm_batches(p: Program&, m: CgModule&, plan: WasmBatchPlan[>..]&, to
         first = end;
     }
 }
+fn gp_grow_cg_body_results(arr: WasmBodyResult[>..]&, new_len: i64) {
+    while arr.len < new_len { arr.push(WasmBodyResult {}); }
+}
+fn gp_grow_cg_calls(arr: RegionCall[>..]&, new_len: i64) {
+    while arr.len < new_len { arr.push(RegionCall { caller: 0, callee: 0, live: 0 }); }
+}
+fn gp_grow_cg_reqs(arr: CgDeferredReq[>..]&, new_len: i64) {
+    while arr.len < new_len { arr.push(CgDeferredReq { kind: 0, payload_start: 0, payload_len: 0 }); }
+}
+fn gp_grow_cg_fixups(arr: CgFixup[>..]&, new_len: i64) {
+    while arr.len < new_len { arr.push(CgFixup { raw_off: 0, dummy_len: 0, req_idx: 0, enc_kind: 0 }); }
+}
 fn cg_emit_parallel(p: Program&, m: CgModule&, bodies: u8[>..]&) {
     var plan: WasmBatchPlan[>..] = []; var total = WasmBatchCursor {};
     cg_plan_wasm_batches(p, m, plan, total);
-    // Resize on main so every backing page has been written before a
-    // worker can reach it. No worker can grow or shrink these allocations.
-    var records: WasmBodyResult[>..] = []; records.resize(m.functions.len, WasmBodyResult {});
-    var body: u8[>..] = []; body.resize(total.body, 0);
-    var calls: RegionCall[>..] = []; calls.resize(total.calls, RegionCall { caller: 0, callee: 0, live: 0 });
-    var reqs: CgDeferredReq[>..] = []; reqs.resize(total.reqs, CgDeferredReq { kind: 0, payload_start: 0, payload_len: 0 });
-    var payload: u8[>..] = []; payload.resize(total.payload, 0);
-    var fixups: CgFixup[>..] = []; fixups.resize(total.reqs, CgFixup { raw_off: 0, dummy_len: 0, req_idx: 0, enc_kind: 0 });
+    // Reserve on main, including page commitment on fault-based runtimes.
+    // Workers write every result and each exported prefix before replay.
+    var records: WasmBodyResult[>..] = []; gp_grow_cg_body_results(records, m.functions.len);
+    var body: u8[>..] = []; gp_grow_u8(body, total.body);
+    var calls: RegionCall[>..] = []; gp_grow_cg_calls(calls, total.calls);
+    var reqs: CgDeferredReq[>..] = []; gp_grow_cg_reqs(reqs, total.reqs);
+    var payload: u8[>..] = []; gp_grow_u8(payload, total.payload);
+    var fixups: CgFixup[>..] = []; gp_grow_cg_fixups(fixups, total.reqs);
     var buckets: WasmBatchOut[>..] = [];
     var cursor = WasmBatchCursor {};
     for part in plan {
@@ -8402,13 +8550,15 @@ fn cg_emit_parallel(p: Program&, m: CgModule&, bodies: u8[>..]&) {
             fixups: fixups[cursor.reqs..cursor.reqs + part.reqs] });
         cursor.body += part.body; cursor.calls += part.calls; cursor.reqs += part.reqs; cursor.payload += part.payload;
     }
-    var empty_slots: CgSlot[>..] = []; empty_slots.resize(p.symbols.len, CgSlot {});
-    let ctx = WasmBatchCtx { program: p, module: m, empty_slots: empty_slots };
-    cg_warm_wasm_memos(p, m);
+    let ctx = WasmBatchCtx { program: p, module: m };
+    cg_warm_wasm_memos(p);
     cg_type_memos_frozen = true;
     let dispatched = gp_wasm_dispatch(p.jobs, ctx, buckets);
     cg_type_memos_frozen = false;
-    if dispatched { cg_emit_user_bodies(p, m, bodies, buckets, 0, 0); }
+    if dispatched {
+        let packed = cg_pack_wasm_bodies(p, m, buckets, bodies);
+        cg_emit_user_bodies(p, m, bodies, buckets, 0, 0, packed);
+    }
     else { cg_emit_user_bodies(p, m, bodies, buckets[..0], 0, 0); }
 }
 
@@ -8489,11 +8639,14 @@ fn generate_wasm(p: Program&, out: u8[>..]&) {
         }
     }
     let total_bodies = body_count + m.abort_helpers.len;
-    var code: u8[>..] = []; wb_u(code, total_bodies); wb_raw(code, bodies);
+    var code: u8[>..] = [];
     cg_bound_regions(p, m); cg_layout_regions(p, m);
     if m.next_data >= m.stack_limit { cg_fail(p, -1, "wasm: static storage overlaps the activation arena"); }
     if p.diagnostics.len > 0 { return; }
-    if p.bundled_host && m.ordinary_owners && !m.scalar && !m.maps_headers { cg_strip_publications(m, code); }
+    if p.bundled_host && m.ordinary_owners && !m.scalar && !m.maps_headers {
+        wb_u(code, total_bodies); wb_raw(code, bodies);
+        cg_strip_publications(m, code);
+    }
     var empty: u8[>..] = []; var one_i32: u8[>..] = [0x7f]; var one_i64: u8[>..] = [0x7e]; var one_f64: u8[>..] = [0x7c];
     let start_signature = cg_signature(m, empty, empty); var allocator_signature = -1; var wrap_signature = -1; var header_signature = -1; var prefix_signature = -1; var append_signature = -1;
     // The helpers take and return addresses and address-sized numbers: the
@@ -8576,7 +8729,8 @@ fn generate_wasm(p: Program&, out: u8[>..]&) {
         wb_u(section, 1); wb_u(section, 0); wb_i32(section, 0); wb_byte(section, 0x0b); wb_u(section, m.thunk_count);
         for item in m.functions { if item.table_index >= 0 { wb_u(section, item.thunk); } } wb_section(out, 9, section); section.clear();
     }
-    wb_section(out, 10, code);
+    if code.len > 0 { wb_section(out, 10, code); }
+    else { wb_counted_section(out, 10, total_bodies, bodies); }
     wb_u(section, m.segments.len);
     for segment in m.segments {
         wb_u(section, 0); wa_const(section, segment.address); wb_byte(section, 0x0b); wb_u(section, segment.count); wb_raw(section, m.data[segment.start..segment.start + segment.count]);

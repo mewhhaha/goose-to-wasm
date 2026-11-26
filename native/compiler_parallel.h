@@ -2,6 +2,9 @@
    Built over the pinned Goose runtime thread API (gs_thread_start,
    gs_thread_wait, gs_hardware_threads) so native/runtime files stay untouched. */
 #if GS_NEED_THREADS
+#ifdef __linux__
+#include <sys/mman.h>
+#endif
 #ifndef G_SHARED
 #define G_SHARED static
 #endif
@@ -50,6 +53,7 @@ typedef struct {
     int spmd_mode;
     int64_t spmd_count;
     int64_t spmd_done;
+    int spmd_discard;
     int64_t worker_regions;
     int64_t spawned;
     int64_t worker_ids[G_CPOOL_MAX_WORKERS];
@@ -102,8 +106,53 @@ static void g_cpool_barrier(void) {
     g_cp_mutex_unlock(&g_cpool.barrier_lock);
 }
 
+#ifdef __linux__
+typedef struct {
+    GRegion *region;
+    uintptr_t start, end;
+} GPoolScratch;
+
+G_SHARED GS_TLS GPoolScratch g_cpool_scratch[2];
+G_SHARED GS_TLS unsigned g_cpool_scratch_count;
+
+/* The parser passes its two private arrays after installing all their records.
+   Keep their populated extents before the callback restores the region tops. */
+static void g_cpool_note_scratch(GRef ref, int64_t width, int64_t len) {
+    if (width <= 0 || len < ((2u << 20) + width - 1) / width ||
+        g_cpool_scratch_count == sizeof g_cpool_scratch / sizeof *g_cpool_scratch) return;
+    GArray a;
+    memcpy(&a, g_address(ref), sizeof a);
+    if (!a.region || a.data == &g_empty_byte) return;
+    uintptr_t start = (uintptr_t)a.data;
+    uintptr_t base = (uintptr_t)a.region->base;
+    if (start < base || start - base > a.region->usable ||
+        (uint64_t)len > (a.region->usable - (start - base)) / (uint64_t)width) return;
+    g_cpool_scratch[g_cpool_scratch_count++] =
+        (GPoolScratch){a.region, start, start + (size_t)len * (size_t)width};
+}
+
+static void g_cpool_discard_scratch(void) {
+    long size = sysconf(_SC_PAGESIZE);
+    if (size > 0) {
+        uintptr_t page = (uintptr_t)size;
+        for (unsigned i = 0; i < g_cpool_scratch_count; i++) {
+            GPoolScratch a = g_cpool_scratch[i];
+            uintptr_t live = (uintptr_t)a.region->stack.top;
+            uintptr_t start = a.start > live ? a.start : live;
+            start = (start + page - 1) / page * page;
+            uintptr_t end = a.end / page * page;
+            if (start < end) (void)madvise((void *)start, end - start, MADV_DONTNEED);
+        }
+    }
+    g_cpool_scratch_count = 0;
+}
+#endif
+
 static void g_cpool_grow_array(GRef ref, int64_t width, int64_t new_len) {
     int64_t old_len = g_len(ref, 3, -1, 0);
+#ifdef __linux__
+    if (new_len == -1) g_cpool_note_scratch(ref, width, old_len);
+#endif
     if (new_len <= old_len) return;
     g_reserve(ref, 3, -1, 0, width, new_len);
     g_set_len(ref, 3, -1, 0, new_len);
@@ -176,6 +225,17 @@ static void g_cpool_worker_entry(uint8_t *arg) {
             if (g_cpool.spmd_done >= g_cpool.max_workers && g_cpool.active == 0) {
                 g_cp_cond_broadcast(&g_cpool.done_cv);
             }
+#ifdef __linux__
+            if (g_cpool_scratch_count) {
+                g_cpool.spmd_discard = 1;
+                // Let all workers finish installing before invalidating pages.
+                while (g_cpool.in_flight && g_cpool.generation == seen_gen)
+                    g_cp_cond_wait(&g_cpool.work_cv, &g_cpool.lock);
+                g_cp_mutex_unlock(&g_cpool.lock);
+                g_cpool_discard_scratch();
+                continue;
+            }
+#endif
         } else {
             for (;;) {
                 int64_t end = 0;
@@ -300,6 +360,7 @@ static uint8_t g_cpool_run_spmd(int64_t jobs, int64_t max_threads, int64_t main_
     g_cpool.spmd_mode = 1;
     g_cpool.spmd_count = participants;
     g_cpool.spmd_done = 0;
+    g_cpool.spmd_discard = 0;
     g_cpool.barrier_arrived = 0;
     g_cpool.in_flight = 1;
     g_cpool.fn = fn;
@@ -324,6 +385,7 @@ static uint8_t g_cpool_run_spmd(int64_t jobs, int64_t max_threads, int64_t main_
     g_cpool.fn = NULL;
     g_cpool.pkt = NULL;
     g_cpool.max_workers = 0;
+    if (g_cpool.spmd_discard) g_cp_cond_broadcast(&g_cpool.work_cv);
     g_cp_mutex_unlock(&g_cpool.lock);
     return 1;
 }

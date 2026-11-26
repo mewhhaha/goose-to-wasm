@@ -8078,6 +8078,7 @@ let CHECK_BODY_CALL: i64 = 3;
 let CHECK_BODY_RETURN: i64 = 4;
 // Private patch bit, removed before writing Node.flags.
 let CHECK_BODY_NONCONSTANT: i64 = 1 << 62;
+let CHECK_BODY_PATCHED: i64 = 1 << 61;
 
 struct CheckBodyPatch {
     flags: i64 = 0, type_id: i32 = -1, scope: i32 = -1, symbol: i32 = -1,
@@ -8093,18 +8094,51 @@ fn gp_grow_check_events(arr: CheckBodyEvent[>..]&, new_len: i64) {
     while arr.len < new_len { arr.push(CheckBodyEvent { kind: 0, node: 0, scope: -1 }); }
 }
 
+// A frame's slots are contiguous only when it declares them all before
+// calling another function. Return nodes still follow the DFS event order.
+struct CheckBodyInstall {
+    function_node: i64 = -1, root_scope: i64 = -1, root_depth: i64 = 0,
+    scope_base: i64 = 0, symbol_base: i64 = 0, variable_base: i64 = 0,
+    flow_base: i64 = 0, first_slot: i64 = 0, previous: i64 = -1,
+}
+struct CheckBodySlots { scope: i64, symbol: i64, variable: i64, flow: i64, node: i64 }
+struct CheckInstallTables {
+    scopes: CheckScope[:], symbols: Symbol[:], variables: CheckVariable[:], variable_lookup: i64[:],
+}
+fn gp_grow_check_scopes(arr: CheckScope[>..]&, new_len: i64) {
+    while arr.len < new_len { arr.push(CheckScope { parent: -1, function_node: -1 }); }
+}
+fn gp_grow_check_symbols(arr: Symbol[>..]&, new_len: i64) {
+    while arr.len < new_len { arr.push(Symbol {}); }
+}
+fn gp_grow_check_variables(arr: CheckVariable[>..]&, new_len: i64) {
+    while arr.len < new_len { arr.push(CheckVariable { symbol: -1 }); }
+}
+fn gp_grow_check_variable_lookup(arr: i64[>..]&, new_len: i64) {
+    while arr.len < new_len { arr.push(-1); }
+}
+
+fn gp_grow_check_proofs(arr: i64[>..]&, new_len: i64) {
+    while arr.len < new_len { arr.push(-2); }
+}
+
 struct CheckBatchOut {
     function_node: i64 = -1, base: i64 = 0,
     patches: CheckBodyPatch[:], events: CheckBodyEvent[:],
     apply_nodes: Node[:], apply_proofs: i64[:],
     patch_count: i64 = 0, proof_count: i64 = 0, event_count: i64 = 0,
-    first_call: i64 = -1, status: i64 = 0, returns: bool = false,
+    first_step: i64 = -1, last_step: i64 = -1, seen_call: bool = false,
+    scope_count: i64 = 0, local_count: i64 = 0, installable: bool = true,
+    status: i64 = 0, returns: bool = false,
     validation_end: i64 = 0, checked_checkfree: bool = false,
+    tables: CheckInstallTables, batches: CheckBodyBatch[:],
 }
 struct CheckBodyBatch {
     base: i64, patch_at: i64, event_at: i64,
-    patch_count: i64, proof_count: i64, event_count: i64,
-    first_call: i64, status: i64, returns: bool,
+    function_node: i64, patch_cap: i64, event_cap: i64,
+    patch_count: i64 = 0, proof_count: i64 = 0, event_count: i64 = 0,
+    first_step: i64 = -1, scope_count: i64 = 0, local_count: i64 = 0, installable: bool = false,
+    status: i64 = 0, returns: bool = false, install: CheckBodyInstall = CheckBodyInstall {},
 }
 struct CheckBatchCtx {
     program: const Program&, mode: i64 = 0, elem_bad: const bool[:],
@@ -8113,6 +8147,8 @@ struct CheckBatchCtx {
     scopes: const CheckScope[:], names: const i32[:],
     link_scopes: const i32[:], hashes: const i32[:],
     functions: const i32[:], fixed_arrays: const i32[:], value_types: const bool[:],
+    install_batches: const CheckBodyBatch[:], install_pending: const i32[:],
+    install_proof_start: i64 = -1,
 }
 struct CheckBodyState {
     scope: i64 = -1, local_count: i64 = 0,
@@ -8129,6 +8165,7 @@ inline fn check_body_patchable(out: const CheckBatchOut&, node: i64) -> bool {
 inline fn check_body_patch(out: CheckBatchOut&, node: i64, patch: CheckBodyPatch) {
     let index = node - out.base;
     out.patches[index] = patch;
+    out.patches[index].flags |= CHECK_BODY_PATCHED;
     if index >= out.patch_count { out.patch_count = index + 1; }
     if patch.proof != -2 && index >= out.proof_count { out.proof_count = index + 1; }
 }
@@ -8136,9 +8173,15 @@ fn check_body_event(out: CheckBatchOut&, kind: i64, node: i64, scope: i64, value
     let at = out.event_count;
     if at >= out.events.len { return -1; }
     out.events[at] = CheckBodyEvent { kind: kind as i32, node: node as i32, scope: scope as i32, value: value as i32 };
-    if kind == CHECK_BODY_CALL {
-        out.events[at].mapped = out.first_call as i32;
-        out.first_call = at;
+    if kind == CHECK_BODY_CALL || kind == CHECK_BODY_RETURN {
+        if out.last_step < 0 { out.first_step = at; }
+        else { out.events[out.last_step].mapped = at as i32; }
+        out.last_step = at;
+        if kind == CHECK_BODY_CALL { out.seen_call = true; }
+    } else {
+        if out.seen_call { out.installable = false; }
+        if kind == CHECK_BODY_SCOPE { out.scope_count += 1; }
+        else { out.local_count += 1; }
     }
     out.event_count = at + 1;
     return at;
@@ -8503,8 +8546,9 @@ recursive fn check_body_expr(ctx: const CheckBatchCtx&, out: CheckBatchOut&, sta
             dest = place.type_id as i64; place.proof = -2;
             check_body_patch(out, n.left, place);
         } else { dest = check_body_expr(ctx, out, state, n.left, -1); }
+        if !check_body_scalar(dest) { return -1; }
         let symbol = check_body_write_root(ctx, out, n.left);
-        if symbol > -10 || !check_body_scalar(dest) || check_body_expr(ctx, out, state, n.right, dest) != dest { return -1; }
+        if symbol > -10 || check_body_expr(ctx, out, state, n.right, dest) != dest { return -1; }
         // These writes touch initialized locals owned by this function.
         // They do not contribute to any caller's flow or effect summary.
         ty = TYPE_VOID;
@@ -8656,12 +8700,15 @@ fn check_validate_parallel(p: Program&, c: Checker&) -> bool {
         let first = count * i / chunks;
         let end = count * (i + 1) / chunks;
         outputs.push(CheckBatchOut { base: first, patches: patches[..], events: events[..],
-            apply_nodes: p.nodes[..0], apply_proofs: c.node_nonnegative[..0], validation_end: end });
+            apply_nodes: p.nodes[..0], apply_proofs: c.node_nonnegative[..0], validation_end: end,
+            tables: CheckInstallTables { scopes: c.scopes[..0], symbols: p.symbols[..0],
+                variables: c.variables[..0], variable_lookup: c.variable_lookup[..0] }, batches: c.batch_out[..0] });
     }
     let ctx = CheckBatchCtx { program: p, mode: 1, elem_bad: elem_bad[..],
         nodes: p.nodes[..], types: p.types[..], symbols: p.symbols[..], tokens: p.tokens[..], text: p.text[..],
         scopes: c.scopes[..], names: c.name_table[..], link_scopes: c.link_scopes[..], hashes: c.name_hashes[..],
-        functions: c.batch_index[..], fixed_arrays: c.batch_index[..0], value_types: elem_bad[..0] };
+        functions: c.batch_index[..], fixed_arrays: c.batch_index[..0], value_types: elem_bad[..0],
+        install_batches: c.batch_out[..0], install_pending: c.batch_pending_apply[..0] };
     gp_check_dispatch(p.jobs, ctx, outputs[..]);
     var checked_checkfree = false;
     for out in outputs {
@@ -8704,6 +8751,29 @@ fn check_validate_types(p: Program&) {
     check_validate_type_uses(p);
 }
 
+fn check_body_precheck_range(ctx: const CheckBatchCtx&, bucket: CheckBatchOut&) {
+    for i in bucket.base..bucket.validation_end {
+        let item: CheckBodyBatch& = bucket.batches[i];
+        var work = CheckBatchOut { function_node: item.function_node, base: item.base,
+            patches: bucket.patches[item.patch_at..item.patch_at + item.patch_cap],
+            events: bucket.events[item.event_at..item.event_at + item.event_cap],
+            apply_nodes: bucket.apply_nodes, apply_proofs: bucket.apply_proofs,
+            tables: bucket.tables, batches: bucket.batches[..0] };
+        // A zero flag marks an unwritten patch. Other fields are assigned as
+        // a whole when the worker visits the node.
+        for at in 0..work.patches.len { work.patches[at].flags = 0; }
+        var state = CheckBodyState {};
+        let result = ctx.types[ctx.nodes[item.function_node].type_id].element;
+        if check_body_expr(ctx, work, state, item.base, TYPE_VOID) < 0 ||
+            state.reachable && result != TYPE_VOID { continue; }
+        item.patch_count = work.patch_count; item.proof_count = work.proof_count;
+        item.event_count = work.event_count; item.first_step = work.first_step;
+        item.scope_count = work.scope_count; item.local_count = work.local_count;
+        item.installable = work.installable; item.returns = state.returns;
+        item.status = CHECK_BODY_PENDING;
+    }
+}
+
 fn gp_check_range(ctx: const CheckBatchCtx&, out: CheckBatchOut[:], begin: i64, end: i64) {
     if ctx.mode == 1 {
         for i in begin..end { check_validate_range(ctx, out[i]); }
@@ -8711,24 +8781,11 @@ fn gp_check_range(ctx: const CheckBatchCtx&, out: CheckBatchOut[:], begin: i64, 
     }
     if ctx.mode == 2 {
         for i in begin..end {
-            let row: const CheckBatchOut& = out[i];
-            check_body_apply(out[i].apply_nodes, out[i].apply_proofs, row.patches, row.events);
+            check_body_install_range(ctx, out[i]);
         }
         return;
     }
-    for i in begin..end {
-        // Native growth reserves the slab without initializing its contents.
-        // Replay visits holes in the patch window; events initialize on append.
-        for at in 0..out[i].patches.len { out[i].patches[at] = CheckBodyPatch {}; }
-        var state = CheckBodyState {};
-        let function = out[i].function_node;
-        let result = ctx.types[ctx.nodes[function].type_id].element;
-        // The body itself checks its termination against the result type.
-        if check_body_expr(ctx, out[i], state, ctx.nodes[function].right, TYPE_VOID) < 0 ||
-            state.reachable && result != TYPE_VOID { continue; }
-        out[i].returns = state.returns;
-        out[i].status = CHECK_BODY_PENDING;
-    }
+    for i in begin..end { check_body_precheck_range(ctx, out[i]); }
 }
 fn gp_check_dispatch(jobs: i64, ctx: const CheckBatchCtx&, out: CheckBatchOut[:]) -> bool {
     gp_check_range(ctx, out, 0, out.len);
@@ -8822,44 +8879,42 @@ fn check_body_batch_start(p: Program&, c: Checker&, declarations: i64, wait_for_
     // The high half sorts by body base. Fence every speculative window at
     // the next base, so both node patches and proof writes are disjoint.
     candidates[..].sort();
-    var capacities: i64[>..] = [];
     var patch_total = 0; var event_total = 0;
     for candidate, i in candidates {
         let body = candidate >> 32;
+        let node = candidate & 4294967295;
         var cap = p.nodes[body].last - body + 32;
         if cap < 32 { cap = 32; } else if cap > 1024 { cap = 1024; }
         var limit = p.nodes.len;
         if i + 1 < candidates.len { limit = candidates[i + 1] >> 32; }
         if cap > limit - body { cap = limit - body; }
         if i > 0 && (candidates[i - 1] >> 32) == body { cap = 0; }
-        capacities.push(cap);
-        patch_total += cap;
-        event_total += cap / 5 + 8;
+        let events = cap / 5 + 8;
+        c.batch_index[p.nodes[node].symbol] = i as i32;
+        c.batch_out.push(CheckBodyBatch { base: body, patch_at: patch_total, event_at: event_total,
+            function_node: node, patch_cap: cap, event_cap: events });
+        patch_total += cap; event_total += events;
     }
-    // Main reserves the backing arrays before workers receive disjoint views.
+    // Main reserves the backing arrays before workers receive their views.
     gp_grow_check_patches(c.batch_patches, patch_total);
     gp_grow_check_events(c.batch_events, event_total);
     var outputs: CheckBatchOut[>..] = [];
-    var patch_at = 0; var event_at = 0;
-    for candidate, i in candidates {
-        let node = candidate & 4294967295;
-        let cap = capacities[i]; let events = cap / 5 + 8;
-        c.batch_index[p.nodes[node].symbol] = i as i32;
-        outputs.push(CheckBatchOut { function_node: node, base: candidate >> 32,
-            patches: c.batch_patches[patch_at..patch_at + cap], events: c.batch_events[event_at..event_at + events],
-            apply_nodes: p.nodes[..0], apply_proofs: c.node_nonnegative[..0] });
-        patch_at += cap; event_at += events;
+    let buckets = p.jobs * 4;
+    for i in 0..buckets {
+        outputs.push(CheckBatchOut { base: candidates.len * i / buckets,
+            patches: c.batch_patches[..], events: c.batch_events[..],
+            apply_nodes: p.nodes[..0], apply_proofs: c.node_nonnegative[..0],
+            validation_end: candidates.len * (i + 1) / buckets,
+            tables: CheckInstallTables { scopes: c.scopes[..0], symbols: p.symbols[..0],
+                variables: c.variables[..0], variable_lookup: c.variable_lookup[..0] },
+            batches: c.batch_out[..] });
     }
     let ctx = CheckBatchCtx { program: p, elem_bad: values[..0], nodes: p.nodes[..], types: p.types[..], symbols: p.symbols[..], tokens: p.tokens[..], text: p.text[..],
         scopes: c.scopes[..], names: c.name_table[..], link_scopes: c.link_scopes[..], hashes: c.name_hashes[..],
-        functions: c.batch_index[..], fixed_arrays: arrays[..], value_types: values[..] };
+        functions: c.batch_index[..], fixed_arrays: arrays[..], value_types: values[..],
+        install_batches: c.batch_out[..0], install_pending: c.batch_pending_apply[..0] };
     gp_check_dispatch(p.jobs, ctx, outputs[..]);
-    patch_at = 0; event_at = 0;
-    for out in outputs {
-        c.batch_out.push(CheckBodyBatch { base: out.base, patch_at: patch_at, event_at: event_at,
-            patch_count: out.patch_count, proof_count: out.proof_count, event_count: out.event_count, first_call: out.first_call, status: out.status, returns: out.returns });
-        patch_at += out.patches.len; event_at += out.events.len;
-    }
+
 }
 
 recursive fn check_body_batch_ready(c: Checker&, index: i64) -> bool {
@@ -8867,15 +8922,17 @@ recursive fn check_body_batch_ready(c: Checker&, index: i64) -> bool {
     if status != CHECK_BODY_PENDING { return status == CHECK_BODY_READY; }
     c.batch_out[index].status = CHECK_BODY_VISITING;
     let base = c.batch_out[index].event_at;
-    var at = c.batch_out[index].first_call;
+    var at = c.batch_out[index].first_step;
     while at >= 0 {
         let e = c.batch_events[base + at];
         at = e.mapped as i64;
+        if e.kind as i64 != CHECK_BODY_CALL { continue; }
         let target = c.batch_index[e.scope as i64] as i64;
         if target == -2 { continue; }
         if target < 0 || !check_body_batch_ready(c, target) {
             c.batch_out[index].status = CHECK_BODY_FALLBACK; return false;
         }
+        if !c.batch_out[target].installable { c.batch_out[index].installable = false; }
     }
     c.batch_out[index].status = CHECK_BODY_READY;
     return true;
@@ -8887,9 +8944,9 @@ inline fn check_body_relocate(c: Checker&, base: i64, id: i64) -> i64 {
 fn check_body_apply(nodes: Node[:], proofs: i64[:], patches: const CheckBodyPatch[:], events: const CheckBodyEvent[:]) {
     for i in 0..nodes.len {
         let patch: const CheckBodyPatch& = patches[i];
-        if patch.flags == 0 && patch.type_id == -1 && patch.symbol == -1 && patch.scope == -1 { continue; }
+        if (patch.flags & CHECK_BODY_PATCHED) == 0 { continue; }
         let n: Node& = nodes[i];
-        n.flags |= patch.flags & ~CHECK_BODY_NONCONSTANT;
+        n.flags |= patch.flags & ~(CHECK_BODY_NONCONSTANT | CHECK_BODY_PATCHED);
         if patch.type_id >= 0 { n.type_id = patch.type_id; }
         if patch.scope >= 0 { n.scope = events[patch.scope].mapped; }
         if patch.symbol != -1 {
@@ -8986,44 +9043,204 @@ recursive fn check_body_commit(p: Program&, c: Checker&, id: i64, index: i64) {
     c.need_path = path;
     c.batch_committed += 1;
 }
-// Publish body writes before serial code that inspects a callee's AST,
-// clones syntax, or traverses checked bodies. Headers and summaries are
-// already available to ordinary calls during DFS.
+// Only call and return events affect allocation order across frames. The
+// planner runs a closed, ready graph while the serial checker is suspended.
+recursive fn check_body_plan(p: Program&, c: Checker&, id: i64, index: i64, slots: CheckBodySlots&) {
+    let out = c.batch_out[index];
+    let root = p.nodes[id].scope;
+    let prior = c.scopes[root].first_variable;
+    c.batch_out[index].install = CheckBodyInstall { function_node: id, root_scope: root,
+        root_depth: c.scopes[root].depth, scope_base: slots.scope, symbol_base: slots.symbol,
+        variable_base: slots.variable, flow_base: slots.flow, first_slot: check_list_count(p, p.nodes[id].first), previous: prior };
+    slots.scope += out.scope_count;
+    slots.symbol += out.local_count;
+    slots.variable += out.local_count;
+    slots.flow += out.local_count;
+    if out.local_count > 0 { c.scopes[root].first_variable = slots.variable - 1; }
+    let path = c.need_path;
+    c.need_path = c.need_frames.len;
+    c.need_frames.push(CheckNeedFrame { function_node: id, parent: path });
+    p.nodes[id].flags |= F_REACHABLE;
+    var at = out.first_step;
+    while at >= 0 {
+        let e: CheckBodyEvent& = c.batch_events[out.event_at + at];
+        at = e.mapped as i64;
+        let node = e.node as i64;
+        if e.kind as i64 == CHECK_BODY_RETURN {
+            e.scope = slots.node as i32;
+            slots.node += 1;
+        } else if (p.nodes[node].flags & F_CHECKED) != 0 {
+            p.nodes[node].flags |= F_REACHABLE;
+            c.need_edges.push(CheckNeedEdge { function_node: node, token: e.value as i64, path: c.need_path });
+        } else { check_body_plan(p, c, node, c.batch_index[e.scope as i64] as i64, slots); }
+    }
+    c.need_path = path;
+    p.nodes[id].flags |= F_CHECKED;
+    if out.returns { p.nodes[id].flags |= F_RETURNS; }
+    if out.proof_count > 0 && out.base + out.proof_count > c.batch_proof_end {
+        c.batch_proof_end = out.base + out.proof_count;
+    }
+    c.batch_pending_apply.push(index as i32);
+    c.batch_committed += 1;
+}
+
+fn check_body_install(tokens: const Token[:], row: CheckBatchOut&, out: const CheckBodyBatch&) {
+    let events = row.events[out.event_at..out.event_at + out.event_count];
+    let patches = row.patches[out.patch_at..out.patch_at + out.patch_count];
+    let nodes = row.apply_nodes[out.base..out.base + out.patch_count];
+    let install = out.install;
+    if install.function_node >= 0 {
+        let scopes = row.tables.scopes[install.scope_base..install.scope_base + out.scope_count];
+        let symbols = row.tables.symbols[install.symbol_base..install.symbol_base + out.local_count];
+        let variables = row.tables.variables[install.variable_base..install.variable_base + out.local_count];
+        let lookup = row.tables.variable_lookup[install.symbol_base..install.symbol_base + out.local_count];
+        var scope_count = 0; var local_count = 0;
+        var previous = install.previous;
+        for e, i in events {
+            if e.kind as i64 == CHECK_BODY_SCOPE {
+                var parent = install.root_scope;
+                var depth = install.root_depth;
+                if e.scope >= 0 {
+                    parent = events[e.scope].mapped as i64;
+                    depth = scopes[parent - install.scope_base].depth;
+                }
+                if e.value != 1 { depth += 1; }
+                scopes[scope_count] = CheckScope { parent: parent, function_node: install.function_node, depth: depth, frame_root: install.root_scope };
+                events[i].mapped = (install.scope_base + scope_count) as i32;
+                scope_count += 1;
+            } else if e.kind as i64 == CHECK_BODY_LOCAL {
+                let local_node = e.node as i64 - out.base;
+                let n: Node& = nodes[local_node];
+                let token = n.token as i64;
+                let scope = events[e.scope].mapped;
+                let symbol = install.symbol_base + local_count;
+                let variable = install.variable_base + local_count;
+                var flags = 0;
+                if (n.flags & F_VAR) != 0 { flags = S_MUTABLE; }
+                symbols[local_count] = Symbol { name_token: token, type_id: patches[local_node].type_id as i64,
+                    node: e.node as i64, scope: scope as i64, slot: install.first_slot + local_count,
+                    flags: flags, owner: install.function_node };
+                n.scope = scope;
+                let local: CheckScope& = scopes[(scope as i64) - install.scope_base];
+                local.decl_count = 1; local.small_decls[0] = symbol as i32;
+                local.small_hashes[0] = tokens[token].integer as! i32;
+                var proof = e.value as i64;
+                if proof <= -10 { proof = events[-proof - 10].mapped as i64; }
+                variables[local_count] = CheckVariable { symbol: symbol, assigned: true, maybeassigned: true,
+                    readonly: n.kind == N_BINDING, next_frame: previous, nonnegative: proof, born: install.flow_base + local_count + 1 };
+                lookup[local_count] = variable;
+                events[i].mapped = symbol as i32;
+                previous = variable; local_count += 1;
+            } else if e.kind as i64 == CHECK_BODY_RETURN {
+                row.apply_nodes[e.scope] = Node { kind: N_TYPE_ARG as i32,
+                    token: nodes[(e.node as i64) - out.base].token, type_id: e.value };
+            }
+        }
+    }
+    var first = 0; var end = 0;
+    if out.proof_count > 0 { first = out.base; end = first + out.proof_count; }
+    check_body_apply(nodes, row.apply_proofs[first..end], patches, events);
+}
+
+fn check_body_install_range(ctx: const CheckBatchCtx&, row: CheckBatchOut&) {
+    if ctx.install_proof_start >= 0 {
+        // Pending bodies are sorted by base. Give each bucket the new
+        // proof rows for its bodies, including gaps and the initial prefix.
+        let old_len = ctx.install_proof_start;
+        let new_len = row.apply_proofs.len;
+        var first = old_len;
+        var end = new_len;
+        if row.base > 0 {
+            first = ctx.install_batches[ctx.install_pending[row.base]].base;
+            if first < old_len { first = old_len; }
+            if first > new_len { first = new_len; }
+        }
+        if row.validation_end < ctx.install_pending.len {
+            end = ctx.install_batches[ctx.install_pending[row.validation_end]].base;
+            if end < old_len { end = old_len; }
+            if end > new_len { end = new_len; }
+        }
+        let proofs = row.apply_proofs[first..end];
+        for i in 0..proofs.len { proofs[i] = -2; }
+    }
+    for at in row.base..row.validation_end {
+        check_body_install(ctx.tokens, row, ctx.install_batches[ctx.install_pending[at] as i64]);
+    }
+}
+
+// Publish before cloning or inspecting checked bodies. The full installer
+// also uses this barrier before returning from a closed replay to DFS.
 fn check_body_flush(p: Program&, c: Checker&) {
     let count = c.batch_pending_apply.len;
     if count == 0 { return; }
-    if c.batch_proof_end > c.node_nonnegative.len { c.node_nonnegative.resize(c.batch_proof_end, -2); }
-    if count < 32 {
+    let old_len = c.node_nonnegative.len;
+    var proof_start = -1;
+    if c.batch_proof_end > old_len {
+        if count >= 32 && p.jobs > 1 && c.batch_proof_end - old_len >= 16384 {
+            c.batch_pending_apply[..].sort();
+            gp_grow_check_proofs(c.node_nonnegative, c.batch_proof_end);
+            proof_start = old_len;
+        } else { c.node_nonnegative.resize(c.batch_proof_end, -2); }
+    }
+    var row = CheckBatchOut { patches: c.batch_patches[..], events: c.batch_events[..],
+        apply_nodes: p.nodes[..], apply_proofs: c.node_nonnegative[..],
+        tables: CheckInstallTables { scopes: c.scopes[..], symbols: p.symbols[..],
+            variables: c.variables[..], variable_lookup: c.variable_lookup[..] }, batches: c.batch_out[..0] };
+    let tokens = p.tokens[..];
+    if count < 32 || p.jobs <= 1 {
         for index in c.batch_pending_apply {
-            let out = c.batch_out[index as i64];
-            var first = 0; var end = 0;
-            if out.proof_count > 0 { first = out.base; end = first + out.proof_count; }
-            check_body_apply(p.nodes[out.base..out.base + out.patch_count], c.node_nonnegative[first..end],
-                c.batch_patches[out.patch_at..out.patch_at + out.patch_count], c.batch_events[out.event_at..out.event_at + out.event_count]);
+            check_body_install(tokens, row, c.batch_out[index]);
         }
     } else {
         var outputs: CheckBatchOut[>..] = [];
-        for index in c.batch_pending_apply {
-            let out = c.batch_out[index as i64];
-            var first = 0; var end = 0;
-            if out.proof_count > 0 { first = out.base; end = first + out.proof_count; }
-            outputs.push(CheckBatchOut {
-                patches: c.batch_patches[out.patch_at..out.patch_at + out.patch_count],
-                events: c.batch_events[out.event_at..out.event_at + out.event_count],
-                apply_nodes: p.nodes[out.base..out.base + out.patch_count], apply_proofs: c.node_nonnegative[first..end],
-            });
+        var buckets = p.jobs;
+        if proof_start < 0 { buckets *= 2; }
+        if buckets > count { buckets = count; }
+        // Each index occurs once. Body windows were fenced at precheck, and
+        // the planner gave each install its own symbol, scope and flow rows.
+        for i in 0..buckets {
+            row.base = count * i / buckets;
+            row.validation_end = count * (i + 1) / buckets;
+            outputs.push(row);
         }
-        // Only the mutable, non-overlapping output slices are used in mode 2.
         var empty: bool[>..] = [];
         let ctx = CheckBatchCtx { program: p, mode: 2, elem_bad: empty[..],
-            nodes: p.nodes[..0], types: p.types[..0], symbols: p.symbols[..0], tokens: p.tokens[..0], text: p.text[..0],
+            nodes: p.nodes[..0], types: p.types[..0], symbols: p.symbols[..0], tokens: tokens, text: p.text[..0],
             scopes: c.scopes[..0], names: c.name_table[..0], link_scopes: c.link_scopes[..0], hashes: c.name_hashes[..0],
-            functions: c.batch_index[..0], fixed_arrays: c.batch_index[..0], value_types: empty[..] };
+            functions: c.batch_index[..0], fixed_arrays: c.batch_index[..0], value_types: empty[..],
+            install_batches: c.batch_out[..], install_pending: c.batch_pending_apply[..], install_proof_start: proof_start };
         gp_check_dispatch(p.jobs, ctx, outputs[..]);
     }
     c.batch_pending_apply.clear();
     c.batch_proof_end = 0;
 }
+
+fn check_body_commit_root(p: Program&, c: Checker&, id: i64, index: i64) {
+    let out: const CheckBodyBatch& = c.batch_out[index];
+    var at = out.first_step;
+    if out.installable && !c.optional_globals && c.needs.len == 0 {
+        while at >= 0 {
+            let e: const CheckBodyEvent& = c.batch_events[out.event_at + at];
+            at = e.mapped as i64;
+            if e.kind as i64 != CHECK_BODY_CALL || (p.nodes[e.node].flags & F_CHECKED) != 0 { continue; }
+            let start_symbol = p.symbols.len;
+            var slots = CheckBodySlots { scope: c.scopes.len, symbol: start_symbol,
+                variable: c.variables.len, flow: c.flow_clock, node: p.nodes.len };
+            check_body_plan(p, c, id, index, slots);
+            if c.variable_lookup.len < start_symbol { c.variable_lookup.resize(start_symbol, -1); }
+            gp_grow_nodes(p.nodes, slots.node);
+            gp_grow_check_scopes(c.scopes, slots.scope);
+            gp_grow_check_symbols(p.symbols, slots.symbol);
+            gp_grow_check_variables(c.variables, slots.variable);
+            gp_grow_check_variable_lookup(c.variable_lookup, slots.symbol);
+            c.flow_clock = slots.flow;
+            check_body_flush(p, c);
+            return;
+        }
+    }
+    check_body_commit(p, c, id, index);
+}
+
 fn check_body_batch_stats(p: Program&, c: Checker&) {
     var setting: u8[>..] = [];
     if !env("GOOSE_CHECK_BATCH_STATS", setting) { return; }
@@ -9061,7 +9278,7 @@ recursive fn check_function(p: Program&, c: Checker&, function_node: i64) {
     if n_right < 0 { p.nodes[function_node].flags |= F_CHECKED; return; }
     if !c.in_unreached && c.parameter_default_contexts.len == 0 && n_sym >= 0 && n_sym < c.batch_index.len {
         let batch = c.batch_index[n_sym] as i64;
-        if batch >= 0 && check_body_batch_ready(c, batch) { check_body_commit(p, c, function_node, batch); return; }
+        if batch >= 0 && check_body_batch_ready(c, batch) { check_body_commit_root(p, c, function_node, batch); return; }
     }
     check_body_flush(p, c);
     check_function_syntax(p, c, function_node);

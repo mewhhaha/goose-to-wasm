@@ -46,25 +46,60 @@ fn wb_section(out: u8[>..]&, kind: i64, payload: u8[:]) {
     wb_raw(out, payload);
 }
 
+inline fn wb_u_width(value: i64) -> i64 {
+    if (value as! u64) < 128 { return 1; }
+    if (value as! u64) < 16384 { return 2; }
+    var width = 2; var rest = (value as! u64) >> 14;
+    while rest != 0 { width++; rest >>= 7; }
+    return width;
+}
+inline fn wb_s_width(value: i64) -> i64 {
+    if value >= -64 && value < 64 { return 1; }
+    if value >= -8192 && value < 8192 { return 2; }
+    var width = 3; var rest = value >> 14;
+    while rest < -64 || rest >= 64 { width++; rest >>= 7; }
+    return width;
+}
+fn wb_counted_section(out: u8[>..]&, kind: i64, count: i64, payload: u8[:]) {
+    wb_byte(out, kind);
+    wb_u(out, payload.len + wb_u_width(count));
+    wb_u(out, count);
+    wb_raw(out, payload);
+}
+inline fn wb_slice_u(out: u8[:], at: i64&, value: i64) {
+    var remaining = value as! u64;
+    while remaining >= 128 {
+        out[at] = ((remaining & 127) | 128) as u8; at++; remaining >>= 7;
+    }
+    out[at] = remaining as u8; at++;
+}
+inline fn wb_slice_s(out: u8[:], at: i64&, value: i64) {
+    var remaining = value;
+    while remaining < -64 || remaining >= 64 {
+        out[at] = ((remaining & 127) | 128) as u8; at++; remaining >>= 7;
+    }
+    out[at] = (remaining & 127) as u8; at++;
+}
+
+inline fn wb_pair(out: u8[>..]&, first: u8, second: u8) {
+    let bytes: u8[2] = [first, second];
+    out.append(bytes);
+}
 inline fn wb_op(out: u8[>..]&, opcode: i64, argument: i64) {
+    if (argument as! u64) < 128 { wb_pair(out, (opcode & 255) as u8, argument as u8); return; }
     out.push((opcode & 255) as u8);
-    if (argument as! u64) < 128 { out.push(argument as u8); }
-    else if (argument as! u64) < 16384 { out.push(((argument & 127) | 128) as u8); out.push((argument >> 7) as u8); }
+    if (argument as! u64) < 16384 { out.push(((argument & 127) | 128) as u8); out.push((argument >> 7) as u8); }
     else { wb_u(out, argument); }
 }
-
 inline fn wb_i32(out: u8[>..]&, value: i64) {
-    out.push(0x41);
     // Wasm's i32 immediate is signed even when its value is an address.
     let v = (value as! u32) as! i32;
-    if v >= -64 && v < 64 { out.push((v & 127) as u8); }
-    else { wb_s(out, v); }
+    if v >= -64 && v < 64 { wb_pair(out, 0x41, (v & 127) as u8); }
+    else { out.push(0x41); wb_s(out, v); }
 }
-
 inline fn wb_i64(out: u8[>..]&, value: i64) {
-    out.push(0x42);
-    if value >= -64 && value < 64 { out.push((value & 127) as u8); }
-    else { wb_s(out, value); }
+    if value >= -64 && value < 64 { wb_pair(out, 0x42, (value & 127) as u8); }
+    else { out.push(0x42); wb_s(out, value); }
 }
 
 fn wb_f32(out: u8[>..]&, value: f64) {
