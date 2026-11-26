@@ -605,6 +605,18 @@ fn opt_temporary(p: Program&, o: Optimizer&, owner: i64, scope: i64, token: i64,
     p.nodes[node].scope = scope; p.nodes[node].flags = F_CHECKED;
     return node;
 }
+fn opt_is_parallel_hook(p: Program&, symbol: i64) -> bool {
+    let tok = p.symbols[symbol].name_token;
+    if tok < 0 || tok >= p.tokens.len { return false; }
+    let t: const Token& = p.tokens[tok];
+    let len = t.end - t.start;
+    if len < 15 || p.text[t.start] != 'g' || p.text[t.start + 1] != 'p' || p.text[t.start + 2] != '_' { return false; }
+    let name = p.text[t.start..t.end];
+    return same_bytes(name, "gp_native_available") || same_bytes(name, "gp_default_jobs") ||
+           same_bytes(name, "gp_parse_dispatch") || same_bytes(name, "gp_wasm_dispatch") ||
+           same_bytes(name, "gp_opt_collect_dispatch") || same_bytes(name, "gp_opt_body_dispatch") ||
+           same_bytes(name, "gp_check_dispatch");
+}
 recursive fn opt_try_inline(p: Program&, o: Optimizer&, node: i64) -> bool {
     if o.current_function < 0 { return false; }
     let strict = (p.nodes[o.current_function].flags & F_RECURSIVE) != 0;
@@ -614,6 +626,7 @@ recursive fn opt_try_inline(p: Program&, o: Optimizer&, node: i64) -> bool {
     let sym_flags = p.symbols[call_symbol].flags;
     let callee_node = p.symbols[call_symbol].node;
     if (sym_flags & (S_BUILTIN | S_EXTERN)) != 0 || callee_node < 0 { return false; }
+    if opt_is_parallel_hook(p, call_symbol) { return false; }
     // Inlining an explicitly inline checkfree helper lets the same bounds
     // analysis use the caller's length facts at every optimization level.
     if p.optimization <= 0 && ((p.nodes[callee_node].flags & (F_INLINE | F_CHECKFREE)) != (F_INLINE | F_CHECKFREE) ||

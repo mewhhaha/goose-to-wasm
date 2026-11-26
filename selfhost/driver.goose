@@ -1,4 +1,5 @@
 import model;
+import parallel;
 import sources;
 import checker;
 import optimizer;
@@ -16,7 +17,7 @@ struct DriverOptions {
     stats_arg: i64 = -1, dependencies_arg: i64 = -1, cc_arg: i64 = -1, profile_arg: i64 = -1,
     emit_runtime_arg: i64 = -1, header_arg: i64 = -1,
     region_stats: bool = false, bundled_host: bool = false,
-    target: i64 = 0, target_set: bool = false, optimization: i64 = 0, initial_pages: i64 = 16, maximum_pages: i64 = 256, memory64: bool = false,
+    target: i64 = 0, target_set: bool = false, optimization: i64 = 0, jobs: i64 = 0, initial_pages: i64 = 16, maximum_pages: i64 = 256, memory64: bool = false,
     check: bool = false, parse: bool = false, tokens: bool = false,
     dump: bool = false, dump_ir: bool = false, run: bool = false, debug: bool = false, library: bool = false, shared: bool = false, standalone: bool = false, reachable_program: bool = false, expansion_limit: i64 = 100000, stack_reserve: i64 = 0,
     error_format: i64 = 0, color: i64 = 0,
@@ -189,6 +190,12 @@ fn driver_set_color(o: DriverOptions&, v: const u8[:]) {
     else if same_bytes(v, "never") { o.color = 2; }
     else { driver_error("--color must be auto, always or never"); o.bad = true; }
 }
+fn driver_set_jobs(o: DriverOptions&, v: const u8[:]) {
+    if same_bytes(v, "auto") { o.jobs = 0; return; }
+    let n, ok = driver_number(v);
+    if !ok || n < 1 || n > 64 { driver_error("--jobs must be auto or a number from 1 to 64"); o.bad = true; return; }
+    o.jobs = n;
+}
 fn driver_options(o: DriverOptions&, arguments: u8[:][:]) {
     var at = 1;
     while at < arguments.len {
@@ -214,11 +221,13 @@ fn driver_options(o: DriverOptions&, arguments: u8[:][:]) {
         else if same_bytes(a, "-O2") { o.optimization = 2; }
         else if driver_starts_with(a, "--error-format=") { driver_set_error_format(o, a[15..]); }
         else if driver_starts_with(a, "--color=") { driver_set_color(o, a[8..]); }
+        else if driver_starts_with(a, "--jobs=") { driver_set_jobs(o, a[7..]); }
+        else if driver_starts_with(a, "-j=") { driver_set_jobs(o, a[3..]); }
         else if same_bytes(a, "-o") || same_bytes(a, "--stdlib") || same_bytes(a, "--wasm-stats") ||
                 same_bytes(a, "--wasm-deps") || same_bytes(a, "--cc") || same_bytes(a, "--target") || same_bytes(a, "--wasm-region-profile") ||
                 same_bytes(a, "--wasm-initial-pages") || same_bytes(a, "--wasm-max-pages") || same_bytes(a, "--expansion-node-limit") ||
                 same_bytes(a, "--stack-reserve") || same_bytes(a, "--emit-runtime") || same_bytes(a, "--header") ||
-                same_bytes(a, "--error-format") || same_bytes(a, "--color") {
+                same_bytes(a, "--error-format") || same_bytes(a, "--color") || same_bytes(a, "--jobs") || same_bytes(a, "-j") {
             if at >= arguments.len { driver_error("missing option value"); o.bad = true; break; }
             let v = arguments[at]; at++;
             if same_bytes(a, "-o") { o.output_arg = at - 1; }
@@ -231,6 +240,7 @@ fn driver_options(o: DriverOptions&, arguments: u8[:][:]) {
             else if same_bytes(a, "--header") { o.header_arg = at - 1; }
             else if same_bytes(a, "--error-format") { driver_set_error_format(o, v); }
             else if same_bytes(a, "--color") { driver_set_color(o, v); }
+            else if same_bytes(a, "--jobs") || same_bytes(a, "-j") { driver_set_jobs(o, v); }
             else if same_bytes(a, "--target") {
                 o.target_set = true;
                 if same_bytes(v, "wasm-direct") { o.target = 0; }
@@ -621,7 +631,7 @@ fn driver_exec(command: u8[>..]&, win: bool = false) -> i64 {
 }
 let GOOSE_TO_WASM_VERSION = "v2026.4-3";
 fn driver_help() {
-    write_stdout("goose-to-wasm "); write_stdout(GOOSE_TO_WASM_VERSION); write_stdout(" — fast Goose compiler (direct WebAssembly & native C)\nUsage: goosew source.goose [--target wasm-direct|native|c] -o output [-O0|-O1|-O2]\n  --check --parse --tokens --dump --debug --stdlib DIR --wasm-stats FILE --wasm-deps FILE\n  --error-format text|json  Diagnostic output format (default text).\n  --color auto|always|never Colorize text diagnostics (default auto; respects NO_COLOR).\n  --emit-runtime FILE  Write the standalone native C runtime unit and exit.\n  --header FILE        Emit a C host header (goose_init, goose_exit, exports) and separate-runtime C.\n  --shared             Build or emit a C shared library with exported symbols.\n  --standalone         Embed the native C runtime even when emitting with --header.\n  --wasm-memory64      Target WebAssembly memory64.\n  --wasm-bundled-host  Target the bundled host implementations for recognized imports.\n  --reachable-program  Check only functions a root reaches, and the signatures of the rest.\n  --expansion-node-limit N  Total const for expansion size (default 100000).\n  --stack-reserve SIZE  Address space reserved per data stack in a native program, from 64K to 256T\n                        with a K, M, G or T suffix (default 2G).\n  --run                Build native C with --cc and execute, or execute Wasm with GOOSE_WASM_HOST.\n  --version            Print compiler version.\n");
+    write_stdout("goose-to-wasm "); write_stdout(GOOSE_TO_WASM_VERSION); write_stdout(" — fast Goose compiler (direct WebAssembly & native C)\nUsage: goosew source.goose [--target wasm-direct|native|c] -o output [-O0|-O1|-O2]\n  --check --parse --tokens --dump --debug --stdlib DIR --wasm-stats FILE --wasm-deps FILE\n  --jobs N|auto, -j N       Worker thread count for parallel compilation (default auto).\n  --error-format text|json  Diagnostic output format (default text).\n  --color auto|always|never Colorize text diagnostics (default auto; respects NO_COLOR).\n  --emit-runtime FILE  Write the standalone native C runtime unit and exit.\n  --header FILE        Emit a C host header (goose_init, goose_exit, exports) and separate-runtime C.\n  --shared             Build or emit a C shared library with exported symbols.\n  --standalone         Embed the native C runtime even when emitting with --header.\n  --wasm-memory64      Target WebAssembly memory64.\n  --wasm-bundled-host  Target the bundled host implementations for recognized imports.\n  --reachable-program  Check only functions a root reaches, and the signatures of the rest.\n  --expansion-node-limit N  Total const for expansion size (default 100000).\n  --stack-reserve SIZE  Address space reserved per data stack in a native program, from 64K to 256T\n                        with a K, M, G or T suffix (default 2G).\n  --run                Build native C with --cc and execute, or execute Wasm with GOOSE_WASM_HOST.\n  --version            Print compiler version.\n");
 }
 fn driver_main() -> i64 {
     // Every path lives in one byte table: each array holds its own storage region.
@@ -695,7 +705,7 @@ fn driver_main() -> i64 {
                       type_buckets: type_buckets, type_links: type_links, type_scan_marks: type_scan_marks, type_holds: type_holds,
                       inline_sites: inline_sites, instantiation_stack: instantiation_stack, region_profile: region_profile, ident_table: ident_table };
     let link_shared = o.shared && !driver_ends_with(paths[output_start..output_end], ".c");
-    p.optimization = o.optimization; p.debug = o.debug; p.library = o.library;
+    p.optimization = o.optimization; p.jobs = gp_effective_jobs(o.jobs); p.debug = o.debug; p.library = o.library;
     p.c_host = o.header_arg >= 0 || o.shared; p.shared = o.shared;
     p.separate_runtime = o.header_arg >= 0 && !o.standalone && !link_shared;
     p.check_only = o.check || o.parse; p.reachable_program = o.reachable_program; p.expansion_limit = o.expansion_limit; p.stack_reserve = o.stack_reserve;

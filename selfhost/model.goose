@@ -360,7 +360,7 @@ struct Program {
     // analysis only adds types and nodes, so an answer stays valid.
     type_holds: i64[>..]&,
     entry: i64 = -1, first_decl_source: i64 = -1, initial_pages: i64 = 16, maximum_pages: i64 = 256,
-    optimization: i64 = 0, debug: bool = false,
+    optimization: i64 = 0, jobs: i64 = 1, debug: bool = false,
     pointer_bytes: i64 = 4,
     // wide: the direct Wasm target with 64-bit memory (--wasm-memory64).
     // pointer_bytes is 8 there as on the native target; a growable array's

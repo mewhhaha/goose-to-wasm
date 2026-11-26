@@ -20,6 +20,7 @@ let cc_runtime_slice_pool = embed_file("../native/slice_pool.h");
 let cc_runtime_images = embed_file("../native/images.h");
 let cc_runtime_runs = embed_file("../native/runs.h");
 let cc_runtime_workers = embed_file("../native/threads.h");
+let cc_runtime_compiler_parallel = embed_file("../native/compiler_parallel.h");
 // A nonlocal return that defer bodies may run on (§6.6, §7.9): it lands in
 // each cleanup frame on its way to the target, which runs its function's
 // bodies and resumes it (cc_cleanup_open).
@@ -4400,7 +4401,70 @@ fn cc_local_initialized(p: Program&, f: CcBody&, id: i64) -> bool {
     if symbol.scope >= 0 { return true; }
     return !life_may_reach_local(p, declaration.right, id);
 }
-fn cc_emit_function(p: Program&, out: u8[>..]&, function: i64, plans: RegionFunction[>..]&, calls: RegionCall[>..]&, indices: const i32[>..]&, self_images: bool&, natural_members: bool, has_self_runs: bool, owners: const SymbolOwners&, packed_structs: const bool[>..]&, field_indices: const i32[>..]&, needs_env: const bool[>..]&, exports: const i64[:], sc: CcBodyScratch&) {
+fn cc_compiler_parallel_used(p: Program&) -> bool {
+    for s in p.symbols {
+        if (s.flags & S_GLOBAL) == 0 || s.name_token < 0 || s.name_token >= p.tokens.len { continue; }
+        let t: const Token& = p.tokens[s.name_token];
+        if t.end - t.start == 27 && same_bytes(p.text[t.start..t.end], "GP_COMPILER_PARALLEL_MARKER") { return true; }
+    }
+    return false;
+}
+fn cc_parallel_builtin_kind(p: Program&, function: i64, needs_env: const bool[:]) -> i64 {
+    let n: const Node& = p.nodes[function];
+    if n.kind != N_FUNCTION || n.first >= 0 || n.symbol < 0 || needs_env[function] { return 0; }
+    if (n.flags & (F_EXTERN | F_EXPORT | F_LOCATED | F_NONLOCAL)) != 0 { return 0; }
+    let tok = p.symbols[n.symbol].name_token;
+    if tok < 0 || tok >= p.tokens.len { return 0; }
+    let name = token_text(p, tok);
+    let result = cc_function_result(p, function);
+    if same_bytes(name, "gp_native_available") && cc_kind(p, result) == TY_BOOL { return 1; }
+    if same_bytes(name, "gp_default_jobs") && cc_kind(p, result) == TY_INT && p.types[result].count == 64 && (p.types[result].flags & TF_UNSIGNED) == 0 { return 2; }
+    return 0;
+}
+fn cc_parallel_range_name(name: const u8[:]) -> const u8[:] {
+    if same_bytes(name, "gp_parse_dispatch") { return "gp_parse_range"; }
+    if same_bytes(name, "gp_wasm_dispatch") { return "gp_wasm_range"; }
+    if same_bytes(name, "gp_opt_collect_dispatch") { return "gp_opt_collect_range"; }
+    if same_bytes(name, "gp_opt_body_dispatch") { return "gp_opt_body_range"; }
+    if same_bytes(name, "gp_check_dispatch") { return "gp_check_range"; }
+    return "";
+}
+fn cc_parallel_find_range(p: Program&, emittable: const i64[:], needs_env: const bool[:], dispatch_node: i64) -> i64 {
+    let dn: const Node& = p.nodes[dispatch_node];
+    if dn.kind != N_FUNCTION || dn.symbol < 0 || needs_env[dispatch_node] { return -1; }
+    if (dn.flags & (F_EXTERN | F_EXPORT | F_LOCATED | F_NONLOCAL)) != 0 { return -1; }
+    if cc_kind(p, cc_function_result(p, dispatch_node)) != TY_BOOL { return -1; }
+    let tok = p.symbols[dn.symbol].name_token;
+    if tok < 0 || tok >= p.tokens.len { return -1; }
+    let want = cc_parallel_range_name(token_text(p, tok));
+    if want.len == 0 { return -1; }
+    let p0 = dn.first; if p0 < 0 { return -1; }
+    let p1 = p.nodes[p0].next; if p1 < 0 { return -1; }
+    let p2 = p.nodes[p1].next; if p2 < 0 || p.nodes[p2].next >= 0 { return -1; }
+    let t0 = p.nodes[p0].type_id; let t1 = p.nodes[p1].type_id; let t2 = p.nodes[p2].type_id;
+    if cc_kind(p, t0) != TY_INT || p.types[t0].count != 64 || (p.types[t0].flags & TF_UNSIGNED) != 0 { return -1; }
+    if cc_kind(p, t1) != TY_REF || cc_relative_cell(p, t1) || cc_flat_image_reference(p, t1) || cc_run_reference(p, t1) { return -1; }
+    if cc_kind(p, t2) != TY_SLICE { return -1; }
+    for candidate in emittable {
+        let rn: const Node& = p.nodes[candidate];
+        if rn.kind != N_FUNCTION || rn.symbol < 0 || needs_env[candidate] { continue; }
+        if (rn.flags & (F_EXTERN | F_EXPORT | F_LOCATED | F_NONLOCAL)) != 0 { continue; }
+        if cc_kind(p, cc_function_result(p, candidate)) != TY_VOID { continue; }
+        let rtok = p.symbols[rn.symbol].name_token;
+        if rtok < 0 || rtok >= p.tokens.len || !same_bytes(token_text(p, rtok), want) { continue; }
+        let r0 = rn.first; if r0 < 0 { continue; }
+        let r1 = p.nodes[r0].next; if r1 < 0 { continue; }
+        let r2 = p.nodes[r1].next; if r2 < 0 { continue; }
+        let r3 = p.nodes[r2].next; if r3 < 0 || p.nodes[r3].next >= 0 { continue; }
+        let rt2 = p.nodes[r2].type_id; let rt3 = p.nodes[r3].type_id;
+        if p.nodes[r0].type_id != t1 || p.nodes[r1].type_id != t2 { continue; }
+        if cc_kind(p, rt2) != TY_INT || p.types[rt2].count != 64 || (p.types[rt2].flags & TF_UNSIGNED) != 0 { continue; }
+        if cc_kind(p, rt3) != TY_INT || p.types[rt3].count != 64 || (p.types[rt3].flags & TF_UNSIGNED) != 0 { continue; }
+        return candidate;
+    }
+    return -1;
+}
+fn cc_emit_function(p: Program&, out: u8[>..]&, function: i64, plans: RegionFunction[>..]&, calls: RegionCall[>..]&, indices: const i32[>..]&, self_images: bool&, natural_members: bool, has_self_runs: bool, owners: const SymbolOwners&, packed_structs: const bool[>..]&, field_indices: const i32[>..]&, needs_env: const bool[>..]&, exports: const i64[:], sc: CcBodyScratch&, parallel_pool: bool = false, parallel_range: i64 = -1) {
     let n: const Node& = p.nodes[function]; var checked = n.first; var signature_fixed = false;
     while checked >= 0 {
         let type_id = p.nodes[checked].type_id;
@@ -4412,6 +4476,18 @@ fn cc_emit_function(p: Program&, out: u8[>..]&, function: i64, plans: RegionFunc
     if cc_self_run(p, cc_function_result(p, function)) && (n.flags & F_NONLOCAL) != 0 { cc_fail(p, function, "c: nonlocal run results require root capability recovery"); }
     if (n.flags & F_EXTERN) != 0 { cc_emit_direct_foreign_decl(p, out, function, exports); }
     cc_emit_signature(p, out, function, needs_env); cc_text(out, " {\n"); cc_parameter_aliases(p, out, function);
+    if parallel_pool {
+        let pb = cc_parallel_builtin_kind(p, function, needs_env);
+        if pb == 1 { cc_text(out, "return 1;\n}\n"); cc_parameter_aliases(p, out, function, true); return; }
+        if pb == 2 { cc_text(out, "return g_cpool_default_jobs();\n}\n"); cc_parameter_aliases(p, out, function, true); return; }
+        if parallel_range >= 0 {
+            let p0 = n.first; let p1 = p.nodes[p0].next; let p2 = p.nodes[p1].next;
+            cc_text(out, "if("); cc_id(out, "g_s", p.nodes[p0].symbol); cc_text(out, ">1 && "); cc_id(out, "g_s", p.nodes[p2].symbol);
+            cc_text(out, ".len>1){GPoolCall2 g_pkt={"); cc_id(out, "g_s", p.nodes[p1].symbol); cc_text(out, ","); cc_id(out, "g_s", p.nodes[p2].symbol);
+            cc_text(out, "};if(g_cpool_run("); cc_id(out, "g_s", p.nodes[p0].symbol); cc_text(out, ","); cc_id(out, "g_s", p.nodes[p2].symbol);
+            cc_text(out, ".len,g_base,g_cpool_thunk_"); cc_number(out, parallel_range); cc_text(out, ",&g_pkt))return 1;}\n");
+        }
+    }
     if (n.flags & (F_EXTERN | F_EXPORT | F_THREAD)) != 0 {
         var parameter = n.first;
         while parameter >= 0 {
@@ -4780,14 +4856,15 @@ fn generate_c(p: Program&, out: u8[>..]&) {
         let symbol: const Symbol& = p.symbols[s];
         if (symbol.flags & S_GLOBAL) != 0 && symbol.component_owner < 0 { global_count += cc_region_width(p, symbol.type_id); if cc_pool_mode(p, s) > 0 { global_count++; } }
     }
-    let threads = cc_threads_used(p); let images = cc_images_used(p, threads); let begin = out.len;
+    let threads = cc_threads_used(p); let parallel_pool = cc_compiler_parallel_used(p); let need_threads = threads || parallel_pool;
+    let images = cc_images_used(p, threads); let begin = out.len;
     cc_text(out, "#ifndef _WIN32\n#define _GNU_SOURCE 1\n#endif\n");
     // --stack-reserve is written into the C itself, as upstream writes a -D:
     // a run and a build see the same source.
     if p.stack_reserve > 0 { cc_text(out, "#define GS_STACK_RESERVE "); cc_number(out, p.stack_reserve); cc_text(out, "ull\n"); }
     if p.separate_runtime { cc_text(out, "#define GS_SEPARATE_RUNTIME 1\n"); }
     cc_text(out, cc_runtime_units);
-    if threads { cc_text(out, "#define GS_NEED_THREADS 1\n"); } cc_text(out, cc_runtime_header);
+    if need_threads { cc_text(out, "#define GS_NEED_THREADS 1\n"); } cc_text(out, cc_runtime_header);
     if !p.separate_runtime {
         cc_text(out, "#if !defined(GS_SEPARATE_RUNTIME) || defined(G_RUNTIME_UNIT)\n"); cc_text(out, cc_runtime_impl); cc_text(out, cc_runtime_threads);
         cc_text(out, "#endif\n#ifdef G_RUNTIME_UNIT\n"); cc_text(out, cc_runtime_unit); cc_text(out, "#else /* program units */\n");
@@ -4807,7 +4884,8 @@ fn generate_c(p: Program&, out: u8[>..]&) {
         has_self_runs = true;
         if used[id] { cc_text(out, cc_runtime_runs); break; }
     }
-    if threads { cc_text(out, cc_runtime_workers); }
+    if need_threads { cc_text(out, cc_runtime_workers); }
+    if parallel_pool { cc_text(out, cc_runtime_compiler_parallel); }
     cc_text(out, "G_FN void g_initialize(void);G_SHARED int g_initialized;G_SHARED int64_t g_global_regions;\n"); cc_pool_origins(p, out); cc_emit_types(p, out, used, packed_structs);
     for id in 0..p.types.len {
         if !used[id] { continue; }
@@ -4853,10 +4931,29 @@ fn generate_c(p: Program&, out: u8[>..]&) {
     index_symbol_owners(p, bindings);
     var initialization: u8[>..] = []; var exits: CcExit[>..] = []; var work: i64[>..] = []; var temp_regions: i64[>..] = []; var destinations: CcDestination[>..] = []; var receiving: CcReceiving[>..] = []; var indirect: i64[>..] = []; var fills: CcFill[>..] = []; var channels: CcChannels[>..] = []; var cursors: CcCursor[>..] = []; var defers: i64[>..] = []; var sites: i64[>..] = []; var stages: i64[>..] = []; var pub_stack: i64[>..] = [];
     var scratch = CcBodyScratch { body: initialization, exits: exits, work: work, temp_regions: temp_regions, destinations: destinations, receiving: receiving, indirect: indirect, fills: fills, channels: channels, cursors: cursors, defers: defers, sites: sites, stages: stages, pub_stack: pub_stack };
+    var parallel_ranges: i64[>..] = [];
+    if parallel_pool {
+        parallel_ranges.resize(p.nodes.len, -1);
+        var emitted_thunks: i64[>..] = [];
+        for node in emittable {
+            let target = cc_parallel_find_range(p, emittable, needs_env, node);
+            if target < 0 { continue; }
+            parallel_ranges[node] = target;
+            var dup = false;
+            for seen in emitted_thunks { if seen == target { dup = true; break; } }
+            if !dup {
+                emitted_thunks.push(target);
+                cc_text(out, "static void g_cpool_thunk_"); cc_number(out, target);
+                cc_text(out, "(int64_t g_base,const void *g_raw,int64_t g_begin,int64_t g_end){const GPoolCall2 *g_call=(const GPoolCall2*)g_raw;g_fn");
+                cc_number(out, target); cc_text(out, "(g_base,g_call->ctx,g_call->out,g_begin,g_end);}\n");
+            }
+        }
+    }
     let functions = out.len; var guards: i64[>..] = []; var owners: i64[>..] = [];
     for node in emittable {
         guards.push(out.len); owners.push(node); cc_text(out, "#if G_IN_UNIT(   )\n");
-        cc_emit_function(p, out, node, plans, calls, indices, self_images, natural_members, has_self_runs, bindings, packed_structs, field_indices, needs_env, exports, scratch); cc_emit_export(p, out, node, needs_env); cc_text(out, "#endif\n");
+        var pr: i64 = -1; if parallel_pool { pr = parallel_ranges[node]; }
+        cc_emit_function(p, out, node, plans, calls, indices, self_images, natural_members, has_self_runs, bindings, packed_structs, field_indices, needs_env, exports, scratch, parallel_pool, pr); cc_emit_export(p, out, node, needs_env); cc_text(out, "#endif\n");
     }
     initialization.clear(); exits.clear(); work.clear(); temp_regions.clear(); destinations.clear(); receiving.clear(); indirect.clear(); fills.clear(); channels.clear(); cursors.clear(); defers.clear(); sites.clear(); stages.clear(); pub_stack.clear();
     var f = CcBody { out: initialization, exits: exits, work: work, natural_members: natural_members, has_self_runs: has_self_runs, function_index: initializer, calls: calls, indices: indices,
@@ -4889,8 +4986,11 @@ fn generate_c(p: Program&, out: u8[>..]&) {
     cc_text(out, "G_FN void g_initialize(void){if(g_initialized)return;g_initialized=1;g_global_regions="); cc_number(out, global_count);
     if threads { cc_text(out, ";g_worker_regions="); cc_number(out, bound); }
     cc_text(out, ";g_runtime_start(g_argc,g_argv,"); cc_number(out, bound); cc_text(out, ",");
-    var worker_bound = 0; if threads { worker_bound = bound + snapshots; } cc_number(out, worker_bound);
+    var worker_bound = 0; if threads { worker_bound = bound + snapshots; }
+    if parallel_pool && bound > worker_bound { worker_bound = bound; }
+    cc_number(out, worker_bound);
     cc_text(out, ");int64_t g_base=g_global_regions;\n");
+    if parallel_pool { cc_text(out, "g_cpool_init("); cc_number(out, worker_bound); cc_text(out, ");\n"); }
     if threads { cc_text(out, "gs_gl=&g_main_globals;\n"); cc_thread_emit_queues(p, out, true); }
     cc_text(out, "GWatermark g_watermarks["); cc_number(out, f.region_peak + 1); cc_text(out, "];GActivation g_activation;\n");
     cc_text(out, "g_activation_enter(&g_activation,g_base,"); cc_number(out, f.region_peak); cc_text(out, ",g_watermarks);\n");
@@ -4909,7 +5009,9 @@ fn generate_c(p: Program&, out: u8[>..]&) {
         }
         cc_text(out, "}\n");
         if p.shared { cc_text(out, "#ifdef _WIN32\n__declspec(dllexport)\n#endif\n"); }
-        cc_text(out, "void goose_exit(void){if(!g_initialized)return;g_runtime_stop();g_initialized=0;}\n");
+        cc_text(out, "void goose_exit(void){if(!g_initialized)return;");
+        if parallel_pool { cc_text(out, "g_cpool_shutdown();"); }
+        cc_text(out, "g_runtime_stop();g_initialized=0;}\n");
     } else {
         if p.entry < 0 || !cc_emittable(p, p.entry) { diagnose_at(p, 0, 0, 0, "c: program has no checked concrete entry function"); }
         else {

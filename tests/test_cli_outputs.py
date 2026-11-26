@@ -1944,5 +1944,144 @@ fn main() {
                 self.assertEqual(res.returncode, 0, f"{name} rejected:\n{res.stderr}")
 
 
+@unittest.skipUnless(COMPILER.is_file(), "bootstrap the compiler first")
+class ParallelJobsAndPool(unittest.TestCase):
+    def setUp(self):
+        directory = tempfile.TemporaryDirectory()
+        self.addCleanup(directory.cleanup)
+        self.work = Path(directory.name)
+
+    def test_jobs_cli_options(self):
+        src = self.work / "main.goose"
+        src.write_text("fn main() { print(42); }\n")
+        outputs = []
+        for args in (["--jobs", "1"], ["--jobs=4"], ["--jobs", "auto"], ["-j", "2"], ["-j=auto"]):
+            out = self.work / f"out_{len(outputs)}.wasm"
+            res = subprocess.run(
+                list(map(str, [COMPILER, src, "--stdlib", STDLIB, *args, "-o", out])),
+                stdin=subprocess.DEVNULL, capture_output=True, text=True, timeout=30,
+            )
+            self.assertEqual(res.returncode, 0, f"{args}: {res.stderr}")
+            outputs.append(out.read_bytes())
+        for blob in outputs[1:]:
+            self.assertEqual(blob, outputs[0])
+        for bad in (["--jobs", "0"], ["--jobs=0"], ["--jobs", "65"], ["--jobs=abc"], ["-j", "0"]):
+            res = subprocess.run(
+                list(map(str, [COMPILER, src, "--stdlib", STDLIB, *bad, "--check"])),
+                stdin=subprocess.DEVNULL, capture_output=True, text=True, timeout=30,
+            )
+            self.assertEqual(res.returncode, 2, f"expected exit 2 for {bad}, got {res.returncode}: {res.stderr}")
+            self.assertIn("--jobs", res.stderr)
+
+    def test_compiler_pool_monolithic_split_and_wasm(self):
+        prog = """\
+let GP_COMPILER_PARALLEL_MARKER: i64 = 1;
+fn gp_native_available() -> bool { return false; }
+fn gp_default_jobs() -> i64 { return 1; }
+struct Ctx { items: const i64[:] }
+struct Out { sum: i64 = 0, scratch_sum: i64 = 0 }
+fn gp_parse_range(ctx: const Ctx&, out: Out[:], begin: i64, end: i64) {
+    var local: i64[>..] = [];
+    for i in begin..end {
+        local.clear();
+        let x = ctx.items[i];
+        var s: i64 = 0;
+        for k in 0..8 {
+            let v = (x * 13 + k * 7) ^ (i * 3);
+            local.push(v);
+            s += v;
+        }
+        var check: i64 = 0;
+        for v in local { check += v; }
+        out[i].sum = s;
+        out[i].scratch_sum = check;
+    }
+}
+fn gp_parse_dispatch(jobs: i64, ctx: const Ctx&, out: Out[:]) -> bool {
+    gp_parse_range(ctx, out, 0, out.len);
+    return true;
+}
+fn main() {
+    if GP_COMPILER_PARALLEL_MARKER == 0 { return; }
+    var items: i64[>..] = [];
+    var outs: Out[>..] = [];
+    for i in 0..256 { items.push(i * 17 + 5); outs.push(Out {}); }
+    let ctx = Ctx { items: items };
+    let jobs = if gp_native_available() { 8 } else { 1 };
+    let ok = gp_parse_dispatch(jobs, ctx, outs);
+    var total: i64 = 0;
+    var ok_all = ok && gp_default_jobs() >= 1;
+    for o in outs {
+        if o.sum != o.scratch_sum { ok_all = false; }
+        total += o.sum;
+    }
+    print(if ok_all { total } else { -1 });
+}
+"""
+        src = self.work / "pool_test.goose"
+        src.write_text(prog)
+        c_file = self.work / "pool_test.c"
+        wasm_file = self.work / "pool_test.wasm"
+        res_c = subprocess.run(
+            list(map(str, [COMPILER, src, "--stdlib", STDLIB, "--target", "native", "-O2", "-o", c_file])),
+            stdin=subprocess.DEVNULL, capture_output=True, text=True, timeout=60,
+        )
+        self.assertEqual(res_c.returncode, 0, res_c.stderr)
+        c_text = c_file.read_text()
+        self.assertIn("g_cpool_init(", c_text)
+        self.assertIn("g_cpool_run(", c_text)
+        self.assertIn("g_cpool_thunk_", c_text)
+
+        # Monolithic native build & run
+        cc = __import__("os").environ.get("CC", "clang")
+        mono_bin = self.work / "pool_mono"
+        flags = ["-std=gnu11", "-O2", "-lm", "-ldl", "-pthread"]
+        if sys.platform == "darwin":
+            flags = ["-std=gnu11", "-O2", "-lm", "-lpthread"]
+        elif sys.platform == "win32":
+            flags = ["-std=gnu11", "-O2", "-lm"]
+        comp = subprocess.run([cc, flags[0], flags[1], str(c_file), *flags[2:], "-o", str(mono_bin)],
+                              stdin=subprocess.DEVNULL, capture_output=True, text=True, timeout=60)
+        self.assertEqual(comp.returncode, 0, comp.stderr)
+        run_mono = subprocess.run([str(mono_bin)], stdin=subprocess.DEVNULL, capture_output=True, text=True, timeout=30)
+        self.assertEqual(run_mono.returncode, 0, run_mono.stderr)
+        expected = run_mono.stdout.strip()
+        self.assertNotEqual(expected, "-1")
+        self.assertTrue(expected.lstrip("-").isdigit(), repr(expected))
+
+        # Split-unit native build (3 units + runtime unit) & run
+        marker = "\n#else /* program units */\n"
+        cut = c_text.find(marker)
+        self.assertGreater(cut, 0)
+        rt_c = self.work / "rt.c"
+        rt_c.write_text(c_text[:cut + 1] + "#endif\n")
+        objs = [self.work / "rt.o"]
+        r = subprocess.run([cc, flags[0], flags[1], "-DG_RUNTIME_UNIT", "-c", str(rt_c), "-o", str(objs[0])],
+                           stdin=subprocess.DEVNULL, capture_output=True, text=True, timeout=60)
+        self.assertEqual(r.returncode, 0, r.stderr)
+        for u in range(3):
+            obj = self.work / f"u{u}.o"
+            objs.append(obj)
+            r = subprocess.run([cc, flags[0], flags[1], "-DG_UNITS=3", f"-DG_UNIT={u}", "-c", str(c_file), "-o", str(obj)],
+                               stdin=subprocess.DEVNULL, capture_output=True, text=True, timeout=60)
+            self.assertEqual(r.returncode, 0, r.stderr)
+        split_bin = self.work / "pool_split"
+        r = subprocess.run([cc, flags[0], flags[1], *map(str, objs), *flags[2:], "-o", str(split_bin)],
+                           stdin=subprocess.DEVNULL, capture_output=True, text=True, timeout=60)
+        self.assertEqual(r.returncode, 0, r.stderr)
+        run_split = subprocess.run([str(split_bin)], stdin=subprocess.DEVNULL, capture_output=True, text=True, timeout=30)
+        self.assertEqual((run_split.returncode, run_split.stdout.strip()), (0, expected), run_split.stderr)
+
+        # Direct Wasm build & run (single-threaded fallback, zero extra imports)
+        res_w = subprocess.run(
+            list(map(str, [COMPILER, src, "--stdlib", STDLIB, "--target", "wasm-direct", "-O2", "-o", wasm_file])),
+            stdin=subprocess.DEVNULL, capture_output=True, text=True, timeout=60,
+        )
+        self.assertEqual(res_w.returncode, 0, res_w.stderr)
+        if RUST_HOST.is_file():
+            run_w = subprocess.run([str(RUST_HOST), str(wasm_file)], stdin=subprocess.DEVNULL, capture_output=True, text=True, timeout=30)
+            self.assertEqual((run_w.returncode, run_w.stdout.strip()), (0, expected), run_w.stderr)
+
+
 if __name__ == "__main__":
     unittest.main()
