@@ -190,6 +190,7 @@ struct LifeFuture { node: i64, frame: i64, scope: i64, loop_scope: i64 = -1, las
 struct LifeFutureExit { frame: i64 = -1, scope: i64 = -1, before: i64 = 0 }
 struct LifeDefer { node: i32, scope: i32, frame: i32 }
 struct LifeDeferTarget { node: i32, defer_mark: i32 }
+struct LifeSpanSlot { start: i32 = -1, last: i32 = -1, body: i32 = -1 }
 // A question a shrink check has asked of a live cell, and its answer
 // (life_shrink_array): a reference's pointee type and what it refers to, or
 // a holder's type, place and contents.
@@ -411,7 +412,7 @@ struct Lifetimes {
     walk_seen: LifeWalkSlot[>..]&, walk_seen_count: i64 = 0, walk_gen: i64 = 0, walk_elems: LifeWalkElem[>..]&, last_walk_global: bool = false,
     shrink_safe: LifeWalkSlot[>..]&, shrink_safe_count: i64 = 0, shrink_safe_gen: i64 = 0, shrink_safe_global: bool = true,
     global_shrinks: LifeGlobalShrink[>..]&,
-    global_future_mark: i64[>..]&, future_global_gen: i64 = 0, last_future_nodes: i64[>..]&,
+    global_future_mark: i64[>..]&, future_global_gen: i64 = 0, last_future_nodes: i64[>..]&, last_future_lasts: i64[>..]&,
     shrink_clean: LifeShrinkClean[>..]&, global_shrink_clean: LifeGlobalShrinkClean[>..]&, shrink_ov: LifeOvSlot[>..]&,
     type_flags: u8[>..]&, sym_flags: u8[>..]&, node_flags: u8[>..]&, scope_has_cell: u8[>..]&, hold_flags: u8[>..]&,
     dep_roots: i64[>..]&, dep_callees: i64[>..]&, dep_callee_stamps: i64[>..]&,
@@ -495,7 +496,7 @@ struct Lifetimes {
     chk_saw_unsealed: bool = false, in_class_check: bool = false, chk_dep_overflow: bool = false, chk_island: i64 = -1,
     held_own_memo: LifeHeldOwn[>..]&, held_own_recorded: i64 = 0,
     type_exact_canon: i32[>..]&,
-    node_body: i32[>..]&, body_work: i64[>..]&, body_reached: i64[>..]&,
+    node_body: i32[>..]&, span_slots: LifeSpanSlot[>..]&, span_count: i64 = 0, body_work: i64[>..]&, body_reached: i64[>..]&,
     local_holder_bits: u64[>..]&, local_holder_words: u64[>..]&,
     contains_seen: i32[>..]&, contains_seen_gen: i32 = 0,
     outer_type_seen: i32[>..]&, outer_type_seen_gen: i32 = 0,
@@ -3451,10 +3452,39 @@ fn life_body_build(p: Program&, l: Lifetimes&, start: i64) -> i64 {
     l.body_work.resize(cbase);
     return life_body_build_one(p, l, start);
 }
+inline fn life_span_hash(start: i64, last: i64, mask: i64) -> i64 {
+    var h = (start as! u64) * 11400714819323198485 ^ (last as! u64) * 14029467366897019727;
+    h ^= h >> 29; return (h & (mask as! u64)) as i64;
+}
+fn life_span_rehash(l: Lifetimes&) {
+    var size: i64 = 256; while size <= 2 * (l.span_count + 1) { size <<= 1; }
+    var old: LifeSpanSlot[>..] = []; old.append(l.span_slots);
+    l.span_slots.clear(); l.span_slots.resize(size, LifeSpanSlot {});
+    let mask = size - 1;
+    for s in old {
+        if s.start < 0 { continue; }
+        var slot = life_span_hash(s.start as i64, s.last as i64, mask);
+        while l.span_slots[slot].start >= 0 { slot = (slot + 1) & mask; }
+        l.span_slots[slot] = s;
+    }
+}
 fn life_body_span(p: Program&, l: Lifetimes&, start: i64, last: i64) -> i64 {
     if last < 0 { return life_body(p, l, start); }
     if l.node_body.len < p.nodes.len { l.node_body.resize(p.nodes.len, -1); }
-    return life_body_build_one(p, l, start, last);
+    if 2 * (l.span_count + 1) >= l.span_slots.len { life_span_rehash(l); }
+    let mask = l.span_slots.len - 1;
+    let s32 = start as i32; let l32 = last as i32;
+    var slot = life_span_hash(start, last, mask);
+    loop {
+        let e: const LifeSpanSlot& = l.span_slots[slot];
+        if e.start < 0 { break; }
+        if e.start == s32 && e.last == l32 { return e.body as i64; }
+        slot = (slot + 1) & mask;
+    }
+    let body = life_body_build_one(p, l, start, last);
+    l.span_slots[slot] = LifeSpanSlot { start: s32, last: l32, body: body as i32 };
+    l.span_count += 1;
+    return body;
 }
 inline fn life_body(p: Program&, l: Lifetimes&, start: i64) -> i64 {
     if start < l.node_body.len {
@@ -5022,21 +5052,30 @@ fn life_walk_set_add(table: LifeWalkSlot[>..]&, count: i64&, gen: i64, root: i64
     return false;
 }
 fn life_mark_future_globals(p: Program&, l: Lifetimes&) {
-    let n = l.future_count - l.future_floor;
-    if l.future_global_gen > 0 && n == l.last_future_nodes.len {
-        var same = true;
-        for i in 0..n { if l.futures[l.future_floor + i].node as i64 != l.last_future_nodes[i] { same = false; break; } }
-        if same { return; }
+    var same = l.future_global_gen > 0;
+    var matched: i64 = 0;
+    if same {
+        for idx in l.future_floor..l.future_count {
+            let future: const LifeFuture& = l.futures[idx];
+            if !life_future_reachable(l, idx, future) { continue; }
+            if matched >= l.last_future_nodes.len || future.node != l.last_future_nodes[matched] || future.last != l.last_future_lasts[matched] {
+                same = false; break;
+            }
+            matched += 1;
+        }
+        if same && matched == l.last_future_nodes.len { return; }
     }
-    l.last_future_nodes.clear();
+    l.last_future_nodes.clear(); l.last_future_lasts.clear();
     if l.global_future_mark.len < p.symbols.len { l.global_future_mark.resize(p.symbols.len, 0); }
     l.body_walks += 1; let walk = l.body_walks;
     l.future_global_gen = walk;
     for idx in l.future_floor..l.future_count {
-        let fn_n = l.futures[idx].node as i64;
-        l.last_future_nodes.push(fn_n);
+        let future: const LifeFuture& = l.futures[idx];
+        if !life_future_reachable(l, idx, future) { continue; }
+        let fn_n = future.node; let fn_last = future.last;
+        l.last_future_nodes.push(fn_n); l.last_future_lasts.push(fn_last);
         if fn_n < 0 { continue; }
-        let b = if fn_n < l.node_body.len && l.node_body[fn_n] >= 0 { l.node_body[fn_n] as i64 } else { life_body_build(p, l, fn_n) };
+        let b = life_body_span(p, l, fn_n, fn_last);
         if l.bodies[b].call_count == 0 {
             let gs = l.bodies[b].globals; let ge = gs + l.bodies[b].global_count;
             for g in gs..ge { l.global_future_mark[l.body_globals[g]] = walk; }
@@ -5645,13 +5684,17 @@ fn life_shrink_array(p: Program&, l: Lifetimes&, node: i64, given_receiver: cons
     // holder_grow_epoch, and no holder has become live or gained references/contents
     // since, no live holder can point into it now.
     if l.future_floor == l.future_count { return; }
-    let cacheable = !balanced && l.types_frozen && l.future_exit.frame < 0;
+    let cacheable = !balanced && l.types_frozen;
     var clean_slot: i64 = -1;
     var fhash: u64 = 1469598103934665603;
     if cacheable && l.class_frames > 0 {
         for fi in l.future_floor..l.future_count {
-            let fn_id = l.futures[fi].node as i64;
-            fhash = life_hash_step(fhash, fn_id);
+            let f: const LifeFuture& = l.futures[fi];
+            if !life_future_reachable(l, fi, f) { continue; }
+            fhash = life_hash_step(fhash, f.node);
+            fhash = life_hash_step(fhash, f.last);
+            fhash = life_hash_step(fhash, f.frame);
+            fhash = life_hash_step(fhash, f.loop_scope);
         }
     }
     if cacheable {
@@ -5708,7 +5751,7 @@ fn life_shrink_array(p: Program&, l: Lifetimes&, node: i64, given_receiver: cons
         if reference && l.cells[candidate].live_refs == 0 { continue; }
         if !reference && l.roots[root].live_contents == 0 { continue; }
         if l.class_frames > 0 {
-            if is_glob && l.future_exit.frame < 0 {
+            if is_glob && (p.symbols[symbol].flags & S_CAPTURE) == 0 {
                 if !marked_globals { life_mark_future_globals(p, l); marked_globals = true; }
                 if l.global_future_mark[symbol] != l.future_global_gen { all_checked = false; all_glob_checked = false; continue; }
             } else if !life_used_after(p, l, l.cells[candidate]) { all_checked = false; continue; }
@@ -12141,13 +12184,13 @@ fn life_check_attempt(p: Program&, scope_parent: const i64[>..]&, scope_depth: c
     var live_holder_bits: u64[>..] = []; var live_holder_words: u64[>..] = [];
     var walk_work: LifeWalk[>..] = []; var walk_scanned: i64[>..] = []; var walk_memo_roots: LifeWalkRoot[>..] = [];
     var walk_seen: LifeWalkSlot[>..] = []; var shrink_safe: LifeWalkSlot[>..] = []; var walk_elems: LifeWalkElem[>..] = [];
-    var global_future_mark: i64[>..] = []; var last_future_nodes: i64[>..] = [];
+    var global_future_mark: i64[>..] = []; var last_future_nodes: i64[>..] = []; var last_future_lasts: i64[>..] = [];
     var global_shrinks: LifeGlobalShrink[>..] = [];
     var shrink_clean: LifeShrinkClean[>..] = []; var global_shrink_clean: LifeGlobalShrinkClean[>..] = []; var shrink_ov: LifeOvSlot[>..] = [];
     var type_flags: u8[>..] = []; var sym_flags: u8[>..] = []; var node_flags: u8[>..] = []; var scope_has_cell: u8[>..] = []; var hold_flags: u8[>..] = [];
     var root_live_stamps: i64[>..] = []; var chk_dep_roots: i32[>..] = []; var chk_dep_stack: i32[>..] = [];
     var held_own_memo: LifeHeldOwn[>..] = []; var type_exact_canon: i32[>..] = [];
-    var node_body: i32[>..] = []; var body_work: i64[>..] = []; var body_reached: i64[>..] = [];
+    var node_body: i32[>..] = []; var span_slots: LifeSpanSlot[>..] = []; var body_work: i64[>..] = []; var body_reached: i64[>..] = [];
     var local_holder_bits: u64[>..] = []; var local_holder_words: u64[>..] = [];
     var contains_seen: i32[>..] = []; var outer_type_seen: i32[>..] = [];
     var closure_start: i32[>..] = []; var closure_count: i32[>..] = []; var closure_data: i32[>..] = [];
@@ -12185,7 +12228,7 @@ fn life_check_attempt(p: Program&, scope_parent: const i64[>..]&, scope_depth: c
         live_bits: live_bits, live_words: live_words, holder_bits: holder_bits,
         live_holder_bits: live_holder_bits, live_holder_words: live_holder_words,
         walk_work: walk_work, walk_scanned: walk_scanned, walk_memo_roots: walk_memo_roots, shrink_clean: shrink_clean, global_shrink_clean: global_shrink_clean, shrink_ov: shrink_ov,
-        walk_seen: walk_seen, walk_elems: walk_elems, shrink_safe: shrink_safe, global_shrinks: global_shrinks, global_future_mark: global_future_mark, last_future_nodes: last_future_nodes,
+        walk_seen: walk_seen, walk_elems: walk_elems, shrink_safe: shrink_safe, global_shrinks: global_shrinks, global_future_mark: global_future_mark, last_future_nodes: last_future_nodes, last_future_lasts: last_future_lasts,
         type_flags: type_flags, sym_flags: sym_flags, node_flags: node_flags, scope_has_cell: scope_has_cell, hold_flags: hold_flags,
         dep_roots: dep_roots, dep_callees: dep_callees, dep_callee_stamps: dep_callee_stamps,
         dep_root_stack: dep_root_stack, dep_callee_stack: dep_callee_stack, dep_callee_stamp_stack: dep_callee_stamp_stack,
@@ -12195,7 +12238,7 @@ fn life_check_attempt(p: Program&, scope_parent: const i64[>..]&, scope_depth: c
         map_sets: map_sets, map_roots: map_roots, map_types: map_types, map_depths: map_depths, key_scratch: key_scratch, class_scratch: class_scratch, bound_scratch: bound_scratch, assumes: assumes, assume_slots: assume_slots, map_memo: map_memo, type_work: type_work, call_sigs: call_sigs, call_sig_heads: call_sig_heads, call_sig_data: call_sig_data, body_owners: body_owners, body_captures: body_captures, contained: contained, typed_slots: typed_slots, type_canon: type_canon, global_types: global_types, refers: refers, referable: referable, store_wakes: store_wakes,
         full_reads: full, root_live_stamps: root_live_stamps, chk_dep_roots: chk_dep_roots, chk_dep_stack: chk_dep_stack,
         held_own_memo: held_own_memo, type_exact_canon: type_exact_canon,
-        node_body: node_body, body_work: body_work, body_reached: body_reached,
+        node_body: node_body, span_slots: span_slots, body_work: body_work, body_reached: body_reached,
         local_holder_bits: local_holder_bits, local_holder_words: local_holder_words,
         contains_seen: contains_seen, outer_type_seen: outer_type_seen,
         closure_start: closure_start, closure_count: closure_count, closure_data: closure_data,
