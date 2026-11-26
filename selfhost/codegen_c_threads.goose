@@ -21,8 +21,8 @@ fn cc_threads_used(p: Program&) -> bool {
 
 fn cc_queue_declaration(p: Program&, declaration: i64) -> i64 {
     var node = declaration;
-    while node >= 0 && p.nodes[node].origin >= 0 {
-        let original = p.nodes[node].origin;
+    while node >= 0 && node_origin(p, node) >= 0 {
+        let original = node_origin(p, node);
         if p.nodes[original].kind != p.nodes[node].kind { break; }
         node = original;
     }

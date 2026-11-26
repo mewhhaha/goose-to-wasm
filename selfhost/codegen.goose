@@ -923,7 +923,7 @@ fn cg_field_place(p: Program&, m: CgModule&, f: CgBody&, object_type: i64, node:
         let owner = cg_save(f, wa()); let image = cg_record_image_base(p, m, f, object_type, owner, node);
         var field = p.types[object_type].first; var offset = 0;
         while field >= 0 && field != selected {
-        if (p.nodes[field].flags & F_PAD) != 0 { offset += p.nodes[field].aux; }
+        if (p.nodes[field].flags & F_PAD) != 0 { offset += node_layout_aux(p, field, p.nodes[field].aux); }
         else { offset += cg_size(p, p.nodes[field].type_id); }
         field = p.nodes[field].next;
         }
@@ -1255,7 +1255,7 @@ recursive fn cg_write_value(p: Program&, m: CgModule&, f: CgBody&, id: i64, dest
 }
 fn cg_callback_expression(p: Program&, node: i64) -> bool {
     let n: const Node& = p.nodes[node];
-    if n.kind == N_BLOCK && n.origin >= 0 { return p.nodes[n.origin].kind == N_FUNCTION_VALUE; }
+    if n.kind == N_BLOCK && node_origin(p, node) >= 0 { return p.nodes[node_origin(p, node)].kind == N_FUNCTION_VALUE; }
     if n.kind != N_CALL { return false; }
     if n.symbol < 0 { return true; }
     return (p.symbols[n.symbol].flags & (S_FUNCTION | S_BUILTIN)) == S_FUNCTION &&
@@ -1269,7 +1269,7 @@ recursive fn cg_to(p: Program&, m: CgModule&, f: CgBody&, node: i64, id: i64) {
     if cg_type_kind(p, id) == TY_ARRAY && cg_type_kind(p, from) == TY_ARRAY && p.types[from].array_kind == A_VAR && !cg_callback_expression(p, node) {
         if p.types[id].array_kind == A_GROW || p.types[id].array_kind == A_GROWSHRINK ||
            p.types[id].array_kind == A_VAR && p.types[id].length_storage != p.types[from].length_storage ||
-           p.types[id].array_kind == A_LIMITED && p.nodes[node].kind == N_BLOCK && p.nodes[node].origin >= 0 { f.raw_node = node; }
+           p.types[id].array_kind == A_LIMITED && p.nodes[node].kind == N_BLOCK && node_origin(p, node) >= 0 { f.raw_node = node; }
     }
     cg_expr(p, m, f, node); f.raw_node = saved_raw;
     if cg_diverges(p, node) { return; }
@@ -2743,7 +2743,7 @@ fn cg_prefix_mapping_body(out: u8[>..]&) {
 fn cg_mark_regions(f: CgBody&) -> i64 { cg_record(f, 0x23, 3); wb_op(f.code, 0x23, 3); return cg_save(f, 0x7f); }
 fn cg_restore_regions(f: CgBody&, mark: i64) { if mark >= 0 { cg_get(f, mark); cg_record(f, 0x24, 3); wb_op(f.code, 0x24, 3); } }
 fn cg_named_result(p: Program&, function: i64, ordinal: i64) -> i64 {
-    if function < 0 || p.nodes[function].kind == N_FUNCTION_VALUE { return -1; } var binding = p.nodes[function].named_results;
+    if function < 0 || p.nodes[function].kind == N_FUNCTION_VALUE { return -1; } var binding = node_named_results(p, function);
     while binding >= 0 { if p.nodes[binding].integer == ordinal { return p.nodes[binding].symbol; } binding = p.nodes[binding].next; } return -1;
 }
 fn cg_named_array_mode(p: Program&, from: i64, to: i64) -> bool {
@@ -2769,8 +2769,8 @@ fn cg_same_destination(f: CgBody&, left: i64, right: i64) -> bool {
 }
 fn cg_bind_inline_results(p: Program&, f: CgBody&, node: i64, first_slot: i64) -> i64 {
     let mark = f.receiving.len;
-    if p.nodes[node].origin >= 0 && p.nodes[p.nodes[node].origin].kind == N_FUNCTION_VALUE { return mark; }
-    var binding = p.nodes[node].named_results;
+    if node_origin(p, node) >= 0 && p.nodes[node_origin(p, node)].kind == N_FUNCTION_VALUE { return mark; }
+    var binding = node_named_results(p, node);
     while binding >= 0 {
         let n: const Node& = p.nodes[binding]; let receiving = cg_receiving(f, first_slot, n.integer);
         if receiving >= 0 && n.symbol >= 0 && cg_named_array_mode(p, p.symbols[n.symbol].type_id, f.construction_destinations[receiving].type_id) {
@@ -3082,7 +3082,7 @@ recursive fn cg_break(p: Program&, m: CgModule&, f: CgBody&, node: i64, continui
 }
 fn cg_inline_argument(p: Program&, node: i64) -> bool {
     if node < 0 { return false; } let n: const Node& = p.nodes[node];
-    return n.kind == N_VARIABLE && n.origin >= 0 && p.nodes[n.origin].kind == N_PARAM;
+    return n.kind == N_VARIABLE && node_origin(p, node) >= 0 && p.nodes[node_origin(p, node)].kind == N_PARAM;
 }
 recursive fn cg_block_into(p: Program&, m: CgModule&, f: CgBody&, node: i64, id: i64, result: i64) {
     if node < 0 { return; }
@@ -3100,7 +3100,7 @@ recursive fn cg_block_into(p: Program&, m: CgModule&, f: CgBody&, node: i64, id:
         return;
     }
     let n: const Node& = p.nodes[node]; var child = n.first;
-    if (n.flags & F_EARLY) != 0 && n.origin >= 0 {
+    if (n.flags & F_EARLY) != 0 && node_origin(p, node) >= 0 {
         while cg_inline_argument(p, child) { child = p.nodes[child].next; }
     }
     let live = f.region_live; let acquisitions = f.acquisitions; var region_mark = -1;
@@ -3156,7 +3156,7 @@ fn cg_control_slots(p: Program&, f: CgBody&, id: i64, node: i64) -> i64 {
         var receiving = cg_receiving(f, -2 - node, ordinal);
         if receiving >= 0 {
             let n: const Node& = p.nodes[node];
-            if n.kind == N_BLOCK && (n.flags & F_EARLY) != 0 && n.origin >= 0 {
+            if n.kind == N_BLOCK && (n.flags & F_EARLY) != 0 && node_origin(p, node) >= 0 {
                 var target = f.construction_destinations[receiving]; target.open0 = f.constructions[target.construction].open; target.escape = false;
                 receiving = f.construction_destinations.len; f.construction_destinations.push(target);
             }
@@ -4331,7 +4331,7 @@ fn cg_zero_default_scalar(p: Program&, element: i64, def_node: i64) -> bool {
         return def_node < 0 || p.nodes[def_node].kind == N_INTEGER && p.nodes[def_node].integer == 0;
     }
     if k == TY_BOOL { return def_node < 0 || p.nodes[def_node].kind == N_BOOL && p.nodes[def_node].integer == 0; }
-    if k == TY_FLOAT { return def_node < 0 || p.nodes[def_node].kind == N_FLOAT && p.nodes[def_node].float_value == 0.0; }
+    if k == TY_FLOAT { return def_node < 0 || p.nodes[def_node].kind == N_FLOAT && (p.nodes[def_node].integer & 0x7fffffffffffffff) == 0; }
     if k == TY_SLICE { return def_node < 0 || p.nodes[def_node].kind == N_ARRAY && p.nodes[def_node].first < 0; }
     return false;
 }
@@ -4987,7 +4987,7 @@ recursive fn cg_from_bytes_check_val(p: Program&, f: CgBody&, id: i64, ptr: i64,
         var off = 0;
         while field >= 0 {
             let fn_node: const Node& = p.nodes[field];
-            if (fn_node.flags & F_PAD) != 0 { off += fn_node.aux; }
+            if (fn_node.flags & F_PAD) != 0 { off += node_layout_aux(p, field, fn_node.aux); }
             else {
                 var foff = off; if t.kind == TY_STRUCT { foff = fn_node.integer; }
                 if cg_from_bytes_needs_check(p, fn_node.type_id) {
@@ -5411,7 +5411,14 @@ recursive fn cg_expr_body(p: Program&, m: CgModule&, f: CgBody&, node: i64, type
         else if w == 0x7c { wb_f64(f.code, n.integer); } else { wb_i32(f.code, n.integer); }
         return;
     }
-    if kind == N_FLOAT { let w = cg_wasm_type(p, type_id); if w == 0x7d { wb_f32(f.code, n.float_value); } else { wb_f64(f.code, n.float_value); } return; }
+    if kind == N_FLOAT {
+        if cg_wasm_type(p, type_id) == 0x7d { wb_f32(f.code, node_float(n)); }
+        else {
+            let bits: i64[1] = [n.integer];
+            wb_byte(f.code, 0x44); wb_raw(f.code, bytes_of(bits));
+        }
+        return;
+    }
     if kind == N_STRING {
         let token = p.tokens[n.token]; let length = token.text_len;
         let address = cg_data_reference(m, p.text[token.text_start..token.text_start + length]);
@@ -5537,7 +5544,7 @@ recursive fn cg_expr_body(p: Program&, m: CgModule&, f: CgBody&, node: i64, type
                           p.types[id].length_storage != p.types[f.construction_destinations[requested].type_id].length_storage {
                     producer = cg_share_destination(p, m, f, requested, id, true, false, f.construction_destinations[requested].escape, node); adaptation = 1;
                 } else if cg_region_value(p, id) && f.construction_destinations[requested].type_id != id &&
-                          (!cg_inline_array_receiver(p, id, f.construction_destinations[requested]) || n.origin >= 0 && p.nodes[n.origin].kind == N_FUNCTION_VALUE) {
+                          (!cg_inline_array_receiver(p, id, f.construction_destinations[requested]) || node_origin(p, node) >= 0 && p.nodes[node_origin(p, node)].kind == N_FUNCTION_VALUE) {
                     producer = cg_temporary_destination(p, m, f, id, node); adaptation = 2;
                 }
                 if adaptation != 0 { adapting = true; f.receiving.push(CgReceiving { slot: -2 - node, ordinal: ordinal, destination: producer }); }
@@ -5548,7 +5555,7 @@ recursive fn cg_expr_body(p: Program&, m: CgModule&, f: CgBody&, node: i64, type
         if (n.flags & F_EARLY) != 0 {
             // Argument materializations belong to the caller expression. A
             // returned view must survive later arguments of that expression.
-            if n.origin >= 0 {
+            if node_origin(p, node) >= 0 {
                 var argument = n.first;
                 while cg_inline_argument(p, argument) {
                     cg_declaration(p, m, f, argument); if cg_decl_diverges(p, argument) { f.receiving.resize(result_mark); f.work.resize(plans); return; }
@@ -7023,7 +7030,8 @@ recursive fn cg_unforwarded_body(p: Program&, function: i64, node: i64) -> bool 
     if n.type_id >= 0 && !cg_unforwarded_type(p, n.type_id) {
         if cg_type_kind(p, n.type_id) != TY_FN || n.symbol < 0 || (p.symbols[n.symbol].flags & (S_FUNCTION | S_BUILTIN)) == 0 { return false; }
     }
-    if n.coerced_type >= 0 && !cg_unforwarded_type(p, n.coerced_type) { return false; }
+    let coerced = node_coerced_type(p, node);
+    if coerced >= 0 && !cg_unforwarded_type(p, coerced) { return false; }
     if n.kind == N_CALL && (n.symbol < 0 || (n.flags & F_DISPATCH) != 0) { return false; }
     if !cg_unforwarded_body(p, function, n.left) || !cg_unforwarded_body(p, function, n.right) || !cg_unforwarded_body(p, function, n.third) { return false; }
     var child = n.first; while child >= 0 { if !cg_unforwarded_body(p, function, child) { return false; } child = p.nodes[child].next; }
@@ -7250,17 +7258,18 @@ recursive fn cg_prescan_node(p: Program&, m: CgModule&, ps: CgPrescan&, node: i6
                 if ps.worker { cg_scan_patch(ps, CG_SCAN_CAPTURE, sym); }
                 else { cg_capture_add(m, ps.cur_fn_node, sym); }
             }
+            let coerced = node_coerced_type(p, node);
             if (s.flags & CG_ADDRESS_TAKEN) == 0 &&
-               ((n.flags & F_REFERENCE_CONTEXT) != 0 || n.type_id >= 13 && cg_type_kind(p, n.type_id) == TY_REF || n.coerced_type >= 13 && cg_type_kind(p, n.coerced_type) == TY_REF) {
+               ((n.flags & F_REFERENCE_CONTEXT) != 0 || n.type_id >= 13 && cg_type_kind(p, n.type_id) == TY_REF || coerced >= 13 && cg_type_kind(p, coerced) == TY_REF) {
                 let sk = cg_type_kind(p, s.type_id);
                 if sk == TY_REF {
                     if cg_type_kind(p, n.type_id) == TY_REF && cg_type_kind(p, p.types[n.type_id].element) == TY_REF ||
-                       cg_type_kind(p, n.coerced_type) == TY_REF && cg_type_kind(p, p.types[n.coerced_type].element) == TY_REF ||
+                       cg_type_kind(p, coerced) == TY_REF && cg_type_kind(p, p.types[coerced].element) == TY_REF ||
                        (n.flags & F_REFERENCE_CONTEXT) != 0 && cg_type_kind(p, n.type_id) != TY_REF {
                         cg_scan_symbol_flag(p, ps, sym, CG_SCAN_ADDRESS, CG_ADDRESS_TAKEN);
                     }
                 } else if sk == TY_SLICE {
-                    if cg_type_kind(p, n.type_id) == TY_REF || cg_type_kind(p, n.coerced_type) == TY_REF {
+                    if cg_type_kind(p, n.type_id) == TY_REF || cg_type_kind(p, coerced) == TY_REF {
                         cg_scan_symbol_flag(p, ps, sym, CG_SCAN_ADDRESS, CG_ADDRESS_TAKEN);
                     }
                 } else {
@@ -7377,20 +7386,21 @@ recursive fn cg_prescan_node(p: Program&, m: CgModule&, ps: CgPrescan&, node: i6
             let sym = p.nodes[n.left].symbol;
             if sym >= 0 && sym < p.symbols.len && cg_type_kind(p, p.symbols[sym].type_id) == TY_STRUCT &&
                (p.symbols[sym].flags & CG_NO_SROA) == 0 {
+                let coerced = node_coerced_type(p, node);
                 if n.symbol < 0 || n.symbol >= p.nodes.len || p.nodes[n.symbol].kind != N_FIELD {
                     cg_scan_symbol_flag(p, ps, sym, CG_SCAN_NO_SROA, CG_NO_SROA);
                 } else if (n.flags & F_REFERENCE_CONTEXT) != 0 ||
                           n.type_id >= 13 && cg_type_kind(p, n.type_id) == TY_REF ||
-                          n.coerced_type >= 13 && cg_type_kind(p, n.coerced_type) == TY_REF {
+                          coerced >= 13 && cg_type_kind(p, coerced) == TY_REF {
                     let fk = cg_type_kind(p, p.nodes[n.symbol].type_id);
                     if fk == TY_REF {
                         if cg_type_kind(p, n.type_id) == TY_REF && cg_type_kind(p, p.types[n.type_id].element) == TY_REF ||
-                           cg_type_kind(p, n.coerced_type) == TY_REF && cg_type_kind(p, p.types[n.coerced_type].element) == TY_REF ||
+                           cg_type_kind(p, coerced) == TY_REF && cg_type_kind(p, p.types[coerced].element) == TY_REF ||
                            (n.flags & F_REFERENCE_CONTEXT) != 0 && cg_type_kind(p, n.type_id) != TY_REF {
                             cg_scan_symbol_flag(p, ps, sym, CG_SCAN_NO_SROA, CG_NO_SROA);
                         }
                     } else if fk == TY_SLICE {
-                        if cg_type_kind(p, n.type_id) == TY_REF || cg_type_kind(p, n.coerced_type) == TY_REF {
+                        if cg_type_kind(p, n.type_id) == TY_REF || cg_type_kind(p, coerced) == TY_REF {
                             cg_scan_symbol_flag(p, ps, sym, CG_SCAN_NO_SROA, CG_NO_SROA);
                         }
                     } else {
@@ -9279,7 +9289,7 @@ fn cg_variant_result(p: Program&, natural: i64, target: i64) -> i64 {
 }
 fn cg_prepare_variant_result(p: Program&, m: CgModule&, f: CgBody&, natural: i64, receiving: i64, node: i64) -> i64 {
     let target = f.construction_destinations[receiving]; let variant = cg_variant_result(p, natural, target.type_id);
-    var producer = cg_prepare_enum_payload(p, m, f, receiving, variant, node, cg_result_count(p, p.nodes[node].type_id) != 1 || cg_enum_image(p, p.nodes[node].coerced_type));
+    var producer = cg_prepare_enum_payload(p, m, f, receiving, variant, node, cg_result_count(p, p.nodes[node].type_id) != 1 || cg_enum_image(p, node_coerced_type(p, node)));
     if producer < 0 { producer = cg_destination(f, natural, cg_temporary(p, f, natural), CG_TEMPORARY, false, false, false, -1, -1); }
     return producer;
 }
@@ -9348,7 +9358,7 @@ recursive fn cg_construct_enum(p: Program&, m: CgModule&, f: CgBody&, node: i64,
             while field >= 0 {
                 let n: const Node& = p.nodes[field]; let value = cg_record_initializer(p, node, field); var scalar = -1;
                 if (n.flags & F_PAD) == 0 && value >= 0 { cg_to(p, m, f, value, n.type_id); if cg_diverges(p, value) { break; } scalar = cg_save(f, cg_wasm_type(p, n.type_id)); }
-                var size = cg_size(p, n.type_id); if (n.flags & F_PAD) != 0 { size = n.aux; }
+                var size = cg_size(p, n.type_id); if (n.flags & F_PAD) != 0 { size = node_layout_aux(p, field, n.aux); }
                 wb_i64(f.code, size); let bytes = cg_save(f, 0x7e); let top = cg_region_reserve(p, m, f, owner, bytes, node); let cursor = cg_region_cursor(f, owner);
                 if scalar >= 0 { cg_get(f, scalar); cg_write_value(p, m, f, n.type_id, cursor, node); }
                 else { cg_get(f, cursor); cg_clear_bytes(p, f, size); }
@@ -9482,8 +9492,9 @@ recursive fn cg_construct_record_image(p: Program&, m: CgModule&, f: CgBody&, no
                     wa_const(f.code, 0); let zero = cg_save(f, wa()); cg_region_array_prefix(p, m, f, child, carrier, zero, zero, node); f.active_node = previous_node; f.active_destination = previous_destination;
                 }
             } else if (n.flags & F_PAD) != 0 {
-                wb_i64(f.code, n.aux); let bytes = cg_save(f, 0x7e); let top = cg_region_reserve(p, m, f, header, bytes, node); let cursor = cg_region_cursor(f, header);
-                cg_get(f, cursor); cg_clear_bytes(p, f, n.aux); cg_region_publish(f, header, top);
+                let padding = node_layout_aux(p, field, n.aux);
+                wb_i64(f.code, padding); let bytes = cg_save(f, 0x7e); let top = cg_region_reserve(p, m, f, header, bytes, node); let cursor = cg_region_cursor(f, header);
+                cg_get(f, cursor); cg_clear_bytes(p, f, padding); cg_region_publish(f, header, top);
             } else if cg_relative_type(p, n.type_id) && p.types[n.type_id].length_storage == 0 {
                 if value >= 0 { cg_to(p, m, f, value, n.type_id); if cg_diverges(p, value) { break; } } else { wa_const(f.code, 0); }
                 let reference = cg_save(f, wa()); cg_region_relative(p, m, f, n.type_id, header, reference, node);
@@ -9597,7 +9608,8 @@ recursive fn cg_construct_frame_record(p: Program&, m: CgModule&, f: CgBody&, no
                     wa_const(f.code, 0); let zero = cg_save(f, wa()); cg_region_array_prefix(p, m, f, n.type_id, address, zero, zero, node); f.active_node = before_node; f.active_destination = before_destination;
                 }
             } else if (n.flags & F_PAD) != 0 {
-                cg_get(f, address); cg_canonical_address(m, f, n.aux); cg_clear_bytes(p, f, n.aux);
+                let padding = node_layout_aux(p, field, n.aux);
+                cg_get(f, address); cg_canonical_address(m, f, padding); cg_clear_bytes(p, f, padding);
             } else if value >= 0 { cg_to(p, m, f, value, n.type_id); if cg_diverges(p, value) { break; } cg_write_value(p, m, f, n.type_id, address, field); }
             else { cg_get(f, address); cg_canonical_address(m, f, cg_size(p, n.type_id)); cg_clear_bytes(p, f, cg_size(p, n.type_id)); }
             if value >= 0 && cg_diverges(p, value) { break; } field = n.next;
@@ -10364,7 +10376,7 @@ fn cg_byte_record_bound(p: Program&, id: i64) -> i64 {
     var bytes = 0; var field = p.types[id].first;
     while field >= 0 {
         let n: const Node& = p.nodes[field];
-        if (n.flags & F_PAD) != 0 { bytes += n.aux; }
+        if (n.flags & F_PAD) != 0 { bytes += node_layout_aux(p, field, n.aux); }
         else if cg_encoded_scalar(p, n.type_id) { bytes += 10; }
         else { bytes += cg_size(p, n.type_id); }
         field = n.next;
@@ -10380,7 +10392,7 @@ fn cg_byte_field(p: Program&, m: CgModule&, f: CgBody&, id: i64, header: i64, wa
         if (n.flags & F_PAD) == 0 && cg_encoded_scalar(p, n.type_id) {
             let decoded = cg_read_uleb(p, m, f, cursor, node); cg_get(f, decoded.cursor); cg_set(f, cursor);
         } else {
-            var bytes = n.aux; if (n.flags & F_PAD) == 0 { bytes = cg_size(p, n.type_id); }
+            let bytes = if (n.flags & F_PAD) != 0 { node_layout_aux(p, field, n.aux) } else { cg_size(p, n.type_id) };
             cg_get(f, cursor); wa_const(f.code, bytes); wa_op(f.code, 0x6a); cg_set(f, cursor);
         }
         cg_get(f, cursor); cg_get(f, header); wc_load(f.code, 2); wa_op(f.code, 0x4b);
@@ -10403,8 +10415,9 @@ recursive fn cg_construct_byte_record(p: Program&, m: CgModule&, f: CgBody&, id:
     while field >= 0 {
         let n: const Node& = p.nodes[field];
         if (n.flags & F_PAD) != 0 {
-            cg_get(f, cursor); cg_clear_bytes(p, f, n.aux);
-            cg_get(f, cursor); wa_const(f.code, n.aux); wa_op(f.code, 0x6a); cg_set(f, cursor);
+            let padding = node_layout_aux(p, field, n.aux);
+            cg_get(f, cursor); cg_clear_bytes(p, f, padding);
+            cg_get(f, cursor); wa_const(f.code, padding); wa_op(f.code, 0x6a); cg_set(f, cursor);
         } else {
             var initializer = -1;
             if node >= 0 {
@@ -10465,7 +10478,7 @@ recursive fn cg_rebase_enum_frame(p: Program&, f: CgBody&, id: i64, owner: i64, 
         let payload = p.nodes[variant].type_id;
         if cg_frame_metadata(p, payload) {
             cg_get(f, tag); wb_i32(f.code, p.nodes[variant].integer); wb_byte(f.code, 0x46); cg_begin(f, 0x04, 0x40);
-            cg_get(f, owner); wa_const(f.code, p.nodes[variant].aux); wa_op(f.code, 0x6a); let place = cg_save(f, wa());
+            cg_get(f, owner); wa_const(f.code, node_layout_aux(p, variant, p.nodes[variant].aux)); wa_op(f.code, 0x6a); let place = cg_save(f, wa());
             if cg_record_image(p, payload) {
                 cg_get(f, image); wa_const(f.code, p.types[id].length_storage); wa_op(f.code, 0x6a); let payload_image = cg_save(f, wa());
                 cg_get(f, bytes); wa_const(f.code, p.types[id].length_storage); wa_op(f.code, 0x6b); let payload_bytes = cg_save(f, wa());
@@ -10509,9 +10522,9 @@ fn cg_enum_payload(p: Program&, m: CgModule&, f: CgBody&, enum_id: i64, owner: i
     cg_get(f, owner);
     if cg_enum_image(p, enum_id) { wc_load(f.code, 0); }
     wa_const(f.code, p.types[enum_id].length_storage); wa_op(f.code, 0x6a); let image = cg_save(f, wa());
-    if cg_enum_image(p, enum_id) && variant >= 0 && p.nodes[variant].aux > 0 &&
+    if cg_enum_image(p, enum_id) && variant >= 0 && node_layout_aux(p, variant, p.nodes[variant].aux) > 0 &&
        (cg_frame_metadata(p, p.nodes[variant].type_id) || cg_image_owner(p, p.nodes[variant].type_id)) {
-        cg_get(f, owner); wa_const(f.code, p.nodes[variant].aux); wa_op(f.code, 0x6a); let payload = cg_save(f, wa());
+        cg_get(f, owner); wa_const(f.code, node_layout_aux(p, variant, p.nodes[variant].aux)); wa_op(f.code, 0x6a); let payload = cg_save(f, wa());
         if cg_frame_metadata(p, p.nodes[variant].type_id) { return payload; }
         cg_get(f, owner); wc_load(f.code, 2); let limit = cg_save(f, wa());
         cg_seed_record_image(p, m, f, p.nodes[variant].type_id, payload, image, limit, node); return payload;
@@ -10550,7 +10563,7 @@ recursive fn cg_enum_variant_image(p: Program&, m: CgModule&, f: CgBody&, id: i6
     if cg_frame_owner(p, payload) {
         let tail = cg_region_header(p, f, payload, source); cg_owner_read_base(p, m, f, tail, node); original = cg_save(f, wa());
         payload_bytes = cg_frame_array_bytes(p, m, f, payload, source, node);
-        cg_get(f, destination); wa_const(f.code, p.nodes[variant].aux); wa_op(f.code, 0x6a); let place = cg_save(f, wa());
+        cg_get(f, destination); wa_const(f.code, node_layout_aux(p, variant, p.nodes[variant].aux)); wa_op(f.code, 0x6a); let place = cg_save(f, wa());
         cg_get(f, place); cg_get(f, source); wa_const(f.code, cg_size(p, payload)); wb_copy(f.code);
     } else if cg_byte_record(p, payload) {
         cg_get(f, source); wc_load(f.code, 4); original = cg_save(f, wa()); let end = cg_byte_field(p, m, f, payload, source, -1, node);
@@ -10558,7 +10571,7 @@ recursive fn cg_enum_variant_image(p: Program&, m: CgModule&, f: CgBody&, id: i6
     } else if cg_record_image(p, payload) {
         original = cg_record_image_base(p, m, f, payload, source, node); payload_bytes = cg_record_image_bytes(p, m, f, payload, source, node);
         if cg_frame_metadata(p, payload) {
-            cg_get(f, destination); wa_const(f.code, p.nodes[variant].aux); wa_op(f.code, 0x6a); let place = cg_save(f, wa());
+            cg_get(f, destination); wa_const(f.code, node_layout_aux(p, variant, p.nodes[variant].aux)); wa_op(f.code, 0x6a); let place = cg_save(f, wa());
             cg_get(f, place); cg_get(f, source); wa_const(f.code, cg_size(p, payload)); wb_copy(f.code);
         }
     }
@@ -10688,7 +10701,7 @@ fn cg_image_tail_control(p: Program&, f: CgBody&, id: i64, owner: i64) -> i64 {
 fn cg_record_prefix(p: Program&, id: i64) -> i64 {
     var bytes = 0; var field = p.types[id].first;
     while field >= 0 && field != p.types[id].tail {
-        if (p.nodes[field].flags & F_PAD) != 0 { bytes += p.nodes[field].aux; }
+        if (p.nodes[field].flags & F_PAD) != 0 { bytes += node_layout_aux(p, field, p.nodes[field].aux); }
         else { bytes += cg_size(p, p.nodes[field].type_id); }
         field = p.nodes[field].next;
     }
@@ -10756,7 +10769,7 @@ recursive fn cg_pack_record_image(p: Program&, m: CgModule&, f: CgBody&, id: i64
     while field >= 0 && field != tail_field {
         let n: const Node& = p.nodes[field];
         cg_get(f, image); wa_const(f.code, offset); wa_op(f.code, 0x6a);
-        if (n.flags & F_PAD) != 0 { cg_clear_bytes(p, f, n.aux); offset += n.aux; }
+        if (n.flags & F_PAD) != 0 { let padding = node_layout_aux(p, field, n.aux); cg_clear_bytes(p, f, padding); offset += padding; }
         else {
             cg_get(f, owner); wa_const(f.code, n.integer); wa_op(f.code, 0x6a); wa_const(f.code, cg_size(p, n.type_id)); wb_copy(f.code); offset += cg_size(p, n.type_id);
         }

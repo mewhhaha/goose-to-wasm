@@ -1,4 +1,5 @@
 import model;
+import lexer;
 import parallel;
 import sources;
 import checker;
@@ -86,7 +87,7 @@ fn driver_tokens(p: Program&) {
         else if token.kind == T_INTLIT {
             out.append("integer literal "); driver_integer(out, token.integer);
             out.append(" ("); out.append(spelling); out.push(')');
-        } else if token.kind == T_FLTLIT { out.append("float literal "); out.format(token.float_value); }
+        } else if token.kind == T_FLTLIT { out.append("float literal "); out.format(token_float(token)); }
         else if token.kind == T_STRLIT {
             out.append("string literal "); driver_string_literal(out, p.text[token.text_start..token.text_start + token.text_len]);
         } else { out.append(spelling); }
@@ -478,8 +479,8 @@ fn driver_ir(p: Program&) {
     for t, i in p.tokens {
         if i > 0 { out.push(','); }
         out.append("{\"id\":"); driver_integer(out, i);
-        driver_ir_field(out, "kind", t.kind); driver_ir_field(out, "source", t.source);
-        driver_ir_field(out, "line", t.line); driver_ir_field(out, "column", t.column);
+        driver_ir_field(out, "kind", if t.kind == T_INVALID { -1 } else { t.kind }); driver_ir_field(out, "source", t.source);
+        driver_ir_field(out, "line", t.line); driver_ir_field(out, "column", token_column(p, i));
         out.append(",\"text\":"); driver_json(out, p.text[t.start..t.end]); out.push('}');
     }
     out.append("],\"nodes\":[");
@@ -488,19 +489,25 @@ fn driver_ir(p: Program&) {
         out.append("{\"id\":"); driver_integer(out, i);
         driver_ir_field(out, "kind", n.kind); driver_ir_field(out, "token", n.token);
         driver_ir_field(out, "type_id", n.type_id); driver_ir_field(out, "symbol", n.symbol);
-        driver_ir_field(out, "coerced_type", n.coerced_type);
+        driver_ir_field(out, "coerced_type", node_coerced_type(p, i));
         driver_ir_field(out, "left", n.left); driver_ir_field(out, "right", n.right);
         driver_ir_field(out, "third", n.third); driver_ir_field(out, "first", n.first);
-        driver_ir_field(out, "next", n.next); driver_ir_field(out, "aux", n.aux);
-        driver_ir_field(out, "integer", n.integer); driver_ir_field(out, "flags", n.flags);
-        driver_ir_field(out, "origin", n.origin); driver_ir_field(out, "scope", n.scope);
-        driver_ir_field(out, "captures", n.captures); out.push('}');
+        driver_ir_field(out, "next", n.next);
+        driver_ir_field(out, "aux", if n.kind == N_FLOAT { -1 } else { node_layout_aux(p, i, n.aux) });
+        var integer = n.integer;
+        if n.kind == N_FLOAT {
+            integer = 0;
+            if n.aux >= 0 { integer = lex_float_integer(token_text(p, n.aux)); }
+        }
+        driver_ir_field(out, "integer", integer); driver_ir_field(out, "flags", n.flags & ~F_HAS_EXTRA);
+        driver_ir_field(out, "origin", node_origin(p, i)); driver_ir_field(out, "scope", n.scope);
+        driver_ir_field(out, "captures", node_captures(p, i)); out.push('}');
     }
     out.append("],\"types\":[");
     for t, i in p.types {
         if i > 0 { out.push(','); }
         out.append("{\"id\":"); driver_integer(out, i);
-        driver_ir_field(out, "kind", t.kind); driver_ir_field(out, "element", t.element);
+        driver_ir_field(out, "kind", if t.kind == T_INVALID { -1 } else { t.kind }); driver_ir_field(out, "element", t.element);
         driver_ir_field(out, "count", t.count); driver_ir_field(out, "array_kind", t.array_kind);
         driver_ir_field(out, "storage", t.storage); driver_ir_field(out, "size", t.size);
         driver_ir_field(out, "declaration", t.declaration); driver_ir_field(out, "first", t.first);
@@ -681,6 +688,8 @@ fn driver_main() -> i64 {
     var type_buckets: TypeBucket[>..] = []; var type_links: TypeLink[>..] = []; var type_scan_marks: i64[>..] = []; var type_holds: i64[>..] = [];
     var inline_sites: InlineSite[>..] = []; var instantiation_stack: InstantiationSite[>..] = []; var region_profile: i64[>..] = [];
     var ident_table: i32[>..] = [];
+    var node_extra_slots: i32[>..] = []; var node_extras: NodeExtra[>..] = [];
+    var token_columns: TokenColumn[>..] = [];
     // A region profile is lines of "index bytes", as a host writes them
     // (GOOSE_REGION_PROFILE): what each data region was seen to need.
     if o.profile_arg >= 0 {
@@ -700,12 +709,13 @@ fn driver_main() -> i64 {
         }
     }
     var p = Program { text: text, messages: messages, sources: sources, tokens: tokens,
-                      nodes: nodes, types: types, symbols: symbols, diagnostics: diagnostics,
+                      nodes: nodes, types: types, node_extra_slots: node_extra_slots, node_extras: node_extras,
+                      token_columns: token_columns, symbols: symbols, diagnostics: diagnostics,
                       type_properties: type_properties, builtin_symbols: builtin_symbols,
                       type_buckets: type_buckets, type_links: type_links, type_scan_marks: type_scan_marks, type_holds: type_holds,
                       inline_sites: inline_sites, instantiation_stack: instantiation_stack, region_profile: region_profile, ident_table: ident_table };
     let link_shared = o.shared && !driver_ends_with(paths[output_start..output_end], ".c");
-    p.optimization = o.optimization; p.jobs = gp_effective_jobs(o.jobs); p.debug = o.debug; p.library = o.library;
+    p.dump_ir = o.dump_ir; p.optimization = o.optimization; p.jobs = gp_effective_jobs(o.jobs); p.debug = o.debug; p.library = o.library;
     p.c_host = o.header_arg >= 0 || o.shared; p.shared = o.shared;
     p.separate_runtime = o.header_arg >= 0 && !o.standalone && !link_shared;
     p.check_only = o.check || o.parse; p.reachable_program = o.reachable_program; p.expansion_limit = o.expansion_limit; p.stack_reserve = o.stack_reserve;

@@ -451,12 +451,12 @@ fn validation_function(p: Program&, node: i64) {
     if n.type_id < 0 && library_node(p, node) { return; }
     let external = (n.flags & F_EXTERN) != 0;
     if external {
-        var original = n.origin;
+        var original = node_origin(p, node);
         while original >= 0 && (p.nodes[original].kind == N_FUNCTION || p.nodes[original].kind == N_FUNCTION_VALUE) {
             if p.nodes[original].third >= 0 || (p.nodes[original].flags & F_GENERIC) != 0 {
                 validation_extern_diagnostic(p, node, -1, "cannot be generic"); return;
             }
-            original = p.nodes[original].origin;
+            original = node_origin(p, original);
         }
         var name = token_text(p, n.token);
         if n.integer >= 0 {
@@ -513,8 +513,8 @@ fn validation_thread_family(p: Program&, argument: i64) -> ValidationThreadFamil
         symbol = p.nodes[bound].symbol;
     }
     var declaration = p.symbols[symbol].node;
-    while declaration >= 0 && p.nodes[declaration].origin >= 0 {
-        let original = p.nodes[declaration].origin;
+    while declaration >= 0 && node_origin(p, declaration) >= 0 {
+        let original = node_origin(p, declaration);
         if p.nodes[original].kind != N_FUNCTION { break; }
         declaration = original;
     }

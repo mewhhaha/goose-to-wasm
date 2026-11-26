@@ -3,7 +3,8 @@ import model;
 // Aggregate operations lower to ordinary typed functions. Parameters retain
 // evaluation order, and the backends share the resulting scalar operations.
 fn operation_name(p: Program&, at: i64, prefix: u8[:], unique: bool = true) -> i64 {
-    var token = p.tokens[at]; token.kind = T_IDENT as i16; token.start = p.text.len as i32;
+    if p.dump_ir { remember_token_column(p, at); }
+    var token = p.tokens[at]; token.kind = T_IDENT as u8; token.start = p.text.len as i32;
     for byte in prefix { p.text.push(byte); }
     if unique {
         var value = p.nodes.len;
@@ -171,7 +172,7 @@ fn operation_enum_body(p: Program&, body: i64, enum_type: i64, a: i64, b: i64, t
 }
 fn operation_function(p: Program&, left_type: i64, right_type: i64, result_type: i64, op: i64, token: i64) -> i64 {
     let name = operation_name(p, token, "__goose_operation"); let a = operation_name(p, token, "__goose_a"); let b = operation_name(p, token, "__goose_b");
-    let function_node = new_node(p, N_FUNCTION, name); p.nodes[function_node].flags = F_SYNTHETIC | F_RECURSIVE; p.nodes[function_node].aux = op;
+    let function_node = new_node(p, N_FUNCTION, name); p.nodes[function_node].flags = F_SYNTHETIC | F_RECURSIVE; p.nodes[function_node].aux = op as i32;
     let parameter = new_node(p, N_PARAM, a); p.nodes[parameter].type_id = left_type as i32; append_child(p, function_node, parameter);
     if right_type >= 0 { let second = new_node(p, N_PARAM, b); p.nodes[second].type_id = right_type as i32; append_child(p, function_node, second); }
     var returned = result_type; if op == T_EQ { returned = TYPE_BOOL; }

@@ -14,7 +14,7 @@ recursive fn ci_zero_bytes(p: Program&, id: i64) -> i64 {
     while field >= 0 {
         let n = p.nodes[field];
         if (n.flags & F_PAD) == 0 { bytes += ci_zero_bytes(p, n.type_id); }
-        else if n.aux > 0 { bytes += n.aux; }
+        else { let padding = node_layout_aux(p, field, n.aux); if padding > 0 { bytes += padding; } }
         field = n.next;
     }
     return bytes;
@@ -65,10 +65,11 @@ fn ci_fields(p: Program&, out: u8[>..]&, id: i64, operation: i64) {
     while field >= 0 {
         let n = p.nodes[field];
         if (n.flags & F_PAD) != 0 {
-            if operation == 0 { out.format("size=g_image_add(size,", n.aux, ");\n"); }
-            else if operation == 1 { out.format("image+=", n.aux, ";\n"); }
-            else if operation == 2 { out.format("memcpy(image,g_address(g_offset(source,", cc_field_offset(p, id, field), ")),", n.aux, ");image+=", n.aux, ";\n"); }
-            else { out.format("memcpy(g_address(g_offset(dest,", cc_field_offset(p, id, field), ")),image,", n.aux, ");image+=", n.aux, ";\n"); }
+            let padding = node_layout_aux(p, field, n.aux);
+            if operation == 0 { out.format("size=g_image_add(size,", padding, ");\n"); }
+            else if operation == 1 { out.format("image+=", padding, ";\n"); }
+            else if operation == 2 { out.format("memcpy(image,g_address(g_offset(source,", cc_field_offset(p, id, field), ")),", padding, ");image+=", padding, ";\n"); }
+            else { out.format("memcpy(g_address(g_offset(dest,", cc_field_offset(p, id, field), ")),image,", padding, ");image+=", padding, ";\n"); }
         } else {
             if operation == 0 { out.format("size=g_image_add(size,g_image_size_", n.type_id, "("); }
             else if operation == 1 {
@@ -325,7 +326,7 @@ recursive fn ci_min_bytes(p: Program&, id: i64) -> i64 {
         var field = t.first; if t.kind == TY_STRUCT { field = p.nodes[t.declaration].first; }
         var size = 0;
         while field >= 0 {
-            if (p.nodes[field].flags & F_PAD) != 0 { size += p.nodes[field].aux; }
+            if (p.nodes[field].flags & F_PAD) != 0 { size += node_layout_aux(p, field, p.nodes[field].aux); }
             else { size += ci_min_bytes(p, p.nodes[field].type_id); }
             field = p.nodes[field].next;
         }
@@ -383,7 +384,7 @@ fn ci_verify_type(p: Program&, out: u8[>..]&, id: i64) {
         var field = t.first; if t.kind == TY_STRUCT { field = p.nodes[t.declaration].first; }
         while field >= 0 {
             let n = p.nodes[field];
-            if (n.flags & F_PAD) != 0 { out.format("if(end-image<", n.aux, ")return NULL;image+=", n.aux, ";\n"); }
+            if (n.flags & F_PAD) != 0 { let padding = node_layout_aux(p, field, n.aux); out.format("if(end-image<", padding, ")return NULL;image+=", padding, ";\n"); }
             else { out.format("image=g_image_check_", n.type_id, "(image,end,run);if(!image)return NULL;\n"); }
             field = n.next;
         }

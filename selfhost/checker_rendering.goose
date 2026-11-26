@@ -24,7 +24,8 @@ fn render_output_type(p: Program&) -> i64 {
     return render_reference(p, array);
 }
 fn render_literal(p: Program&, at: i64, text: const u8[:]) -> i64 {
-    var token = p.tokens[at]; token.kind = T_STRLIT as i16; token.start = p.text.len as i32;
+    if p.dump_ir { remember_token_column(p, at); }
+    var token = p.tokens[at]; token.kind = T_STRLIT as u8; token.start = p.text.len as i32;
     p.text.append(text); token.end = p.text.len as i32; token.text_start = token.start; token.text_len = text.len as i32;
     let id = p.tokens.len; p.tokens.push(token); return new_node(p, N_STRING, id);
 }
@@ -46,7 +47,7 @@ fn render_nominal_name(p: Program&, declaration: i64, out: u8[>..]&) {
         out.append(token_text(p, token - 2)); out.append("::");
     } else {
         let source = p.tokens[token].source;
-        if source >= 0 && source < p.sources.len {
+        if source < p.sources.len {
             let module = p.sources[source].root;
             if module >= 0 {
                 var item = p.nodes[module].first;

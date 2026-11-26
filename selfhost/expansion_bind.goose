@@ -45,7 +45,7 @@ recursive fn expansion_walk(p: Program&, node: i64, bindings: ExpansionBinding[>
     let n = p.nodes[node];
     if n.kind == N_IMPORT { return; }
     if n.kind == N_TYPE_NAME {
-        if n.left < 0 { p.nodes[node].expansion_binding = expansion_find(p, bindings, n.token, true).id as i32; }
+        if n.left < 0 { set_node_expansion_binding(p, node, expansion_find(p, bindings, n.token, true).id); }
         else { expansion_walk(p, n.left, bindings); }
         expansion_list(p, n.first, bindings); return;
     }
@@ -56,7 +56,7 @@ recursive fn expansion_walk(p: Program&, node: i64, bindings: ExpansionBinding[>
         expansion_list(p, n.left, bindings);
         let mark = bindings.len; var binder = n.first; var ordinal = 0;
         while binder >= 0 {
-            p.nodes[binder].expansion_binding = binder;
+            set_node_expansion_binding(p, binder, binder);
             bindings.push(ExpansionBinding { token: p.nodes[binder].token, id: binder,
                 accessor: n.integer == 1 && ordinal == 1, type_name: true });
             ordinal++; binder = p.nodes[binder].next;
@@ -121,7 +121,7 @@ recursive fn expansion_walk(p: Program&, node: i64, bindings: ExpansionBinding[>
             let binding = p.nodes[child];
             if binding.kind == N_BINDING {
                 let lexical = expansion_find(p, bindings, binding.token);
-                if lexical.accessor { p.nodes[child].expansion_binding = lexical.id as i32; }
+                if lexical.accessor { set_node_expansion_binding(p, child, lexical.id); }
                 expansion_walk(p, binding.right, bindings);
             } else { expansion_walk(p, child, bindings); }
             child = binding.next;
@@ -133,14 +133,14 @@ recursive fn expansion_walk(p: Program&, node: i64, bindings: ExpansionBinding[>
         // has_default<A> names an accessor binding as a value name would: a
         // local of the name hides it, and any other name stays unbound.
         let lexical = expansion_find(p, bindings, p.nodes[n.first].token);
-        if lexical.accessor { p.nodes[n.first].expansion_binding = lexical.id as i32; }
+        if lexical.accessor { set_node_expansion_binding(p, n.first, lexical.id); }
         return;
     }
     if query == 2 { expansion_list(p, n.first, bindings); return; }
-    if n.kind == N_NAME { p.nodes[node].expansion_binding = expansion_find(p, bindings, n.token).id as i32; }
+    if n.kind == N_NAME { set_node_expansion_binding(p, node, expansion_find(p, bindings, n.token).id); }
     else if n.kind == N_MEMBER {
         let lexical = expansion_find(p, bindings, n.token);
-        if lexical.accessor { p.nodes[node].expansion_binding = lexical.id as i32; }
+        if lexical.accessor { set_node_expansion_binding(p, node, lexical.id); }
     }
     expansion_list(p, n.first, bindings);
     expansion_walk(p, n.left, bindings); expansion_walk(p, n.right, bindings); expansion_walk(p, n.third, bindings);

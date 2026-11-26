@@ -4,7 +4,7 @@ import expansion_bind;
 
 // Cursors and table IDs survive recursion and table growth; borrowed elements do not.
 struct ParseCursor {
-    source: i64, at: i64, end: i64, tokens: const Token[:], kind: i16 = 0,
+    source: i64, at: i64, end: i64, tokens: const Token[:], kind: u8 = 0,
     no_record: bool = false, statement: bool = false, ended: bool = false,
     for_binding: bool = false, half_angle: bool = false,
     namespace_token: i64 = -1, file_namespace: i64 = -1,
@@ -22,10 +22,10 @@ inline fn parse_refresh(c: ParseCursor&) {
     let end = c.end;
     let tokens = c.tokens;
     var at = c.at;
-    var kind = T_EOF as i16;
+    var kind = T_EOF as u8;
     if at < end {
         kind = tokens[at].kind;
-        while kind < 0 && at + 1 < end {
+        while kind == T_INVALID && at + 1 < end {
             at++;
             kind = tokens[at].kind;
         }
@@ -44,7 +44,7 @@ inline fn parse_next(c: ParseCursor&) -> i64 {
     if next < c.end {
         c.at = next;
         c.kind = c.tokens[next].kind;
-        if c.kind < 0 { parse_refresh(c); }
+        if c.kind == T_INVALID { parse_refresh(c); }
     } else { parse_refresh(c); }
     return token;
 }
@@ -116,10 +116,10 @@ fn parse_checkfree(p: Program&, c: ParseCursor&) -> bool {
 fn parse_deprecated(p: Program&, c: ParseCursor&) -> bool {
     if !parse_word(p, c, "deprecated") { return false; }
     var at = c.at + 1;
-    while at < c.end && p.tokens[at].kind < 0 { at++; }
+    while at < c.end && p.tokens[at].kind == T_INVALID { at++; }
     if at < c.end && p.tokens[at].kind == T_STRLIT {
         at++;
-        while at < c.end && p.tokens[at].kind < 0 { at++; }
+        while at < c.end && p.tokens[at].kind == T_INVALID { at++; }
     }
     if at >= c.end { return false; }
     let kind = p.tokens[at].kind;
@@ -136,8 +136,8 @@ fn parse_qualified(p: Program&, c: ParseCursor&, declaration: bool = false) -> i
         token = parse_expect(p, c, T_IDENT, "expected identifier after ::");
     } else if absolute && declaration { c.namespace_token = -1; }
     return parse_append_node(p, Node {
-        integer: start, aux: c.at - start, kind: N_NAME as i32,
-        token: token as i32, scope: c.namespace_token as i32,
+        integer: start, kind: N_NAME as i32, token: token as i32,
+        scope: c.namespace_token as i32, aux: (c.at - start) as i32,
     });
 }
 // The storage a relative reference or index type names: a global, or a
@@ -537,8 +537,10 @@ recursive fn parse_primary(p: Program&, c: ParseCursor&) -> i64 {
         if kind == T_STRLIT { flags = literal.flags; }
         return parse_append_node(p, Node {
             integer: if kind == T_TRUE { 1 } else { literal.integer },
-            float_value: literal.float_value, flags: flags,
+            flags: flags,
             kind: node_kind as i32, token: token as i32, scope: c.namespace_token as i32,
+            // Only the IR dump needs the old literal integer prefix.
+            aux: if kind == T_FLTLIT && p.dump_ir { token as i32 } else { -1 },
         });
     }
     if kind == T_LPAREN {
@@ -861,7 +863,7 @@ recursive fn parse_function(p: Program&, c: ParseCursor&, nested: bool, inherite
     if nested && p.nodes[name].aux != 1 { parse_error(p, c, "nested functions cannot declare a namespace"); }
     let id = parse_node(p, N_FUNCTION, p.nodes[name].token); p.nodes[id].flags = flags;
     p.nodes[id].scope = c.namespace_token as i32; p.nodes[id].integer = symbol;
-    if library >= 0 { p.nodes[id].aux = library; }
+    if library >= 0 { p.nodes[id].aux = library as i32; }
     let generic = parse_generics(p, c); p.nodes[id].third = generic as i32;
     let open = parse_expect(p, c, T_LPAREN, "expected ( after function name");
     let params = parse_parameters(p, c, T_RPAREN, true); p.nodes[id].first = params as i32;
@@ -1023,8 +1025,8 @@ fn parse_deferred_body(p: Program&, function_node: i64) {
     if p.tokens[open].kind == T_LAZY_BODY {
         // Lex the skipped text through its closing brace, after all existing tokens.
         let brace = p.tokens[open];
-        p.tokens[open].kind = T_LCURLY as i16; p.tokens[open].integer = 0;
-        var l = LexCursor { source: source, at: brace.end, end: brace.integer + 1, line: brace.line, column: brace.column + 1 };
+        p.tokens[open].kind = T_LCURLY as u8; p.tokens[open].integer = 0;
+        var l = LexCursor { source: source, at: brace.end, end: brace.integer + 1, line: brace.line };
         start = p.tokens.len; lex_tokens(p, l); end = p.tokens.len;
     }
     var c = ParseCursor { source: source, at: start, end: end, tokens: p.tokens[..end],
@@ -1159,7 +1161,7 @@ recursive fn parse_top(p: Program&, c: ParseCursor&) -> i64 {
         let name = parse_expect(p, c, T_IDENT, "expected import name"); let id = parse_node(p, N_IMPORT, name);
         p.nodes[id].integer = name; var end = name;
         while parse_accept(c, T_DOT) { end = parse_expect(p, c, T_IDENT, "expected import path component"); }
-        p.nodes[id].aux = end;
+        p.nodes[id].aux = end as i32;
         if relative { p.nodes[id].flags |= F_REFERENCE; }
         if parse_word(p, c, "from") {
             if relative || end != name { parse_error(p, c, "a sourced import names one package"); }
@@ -1194,8 +1196,8 @@ recursive fn parse_top(p: Program&, c: ParseCursor&) -> i64 {
     }
     parse_error(p, c, "expected top-level declaration"); parse_next(c); return parse_node(p, N_EMPTY, token);
 }
-fn parse_source(p: Program&, source_id: i64) -> i64 {
-    if source_id < 0 || source_id >= p.sources.len { diagnose_at(p, 0, 0, 0, "invalid source ID"); return -1; }
+fn parse_source(p: Program&, source_id: i64, bind_names: bool = true) -> i64, bool {
+    if source_id < 0 || source_id >= p.sources.len { diagnose_at(p, 0, 0, 0, "invalid source ID"); return -1, false; }
     if p.sources[source_id].token_end <= p.sources[source_id].token_start { lex_source(p, source_id); }
     let source = p.sources[source_id];
     var c = ParseCursor { source: source_id, at: source.token_start, end: source.token_end,
@@ -1213,8 +1215,8 @@ fn parse_source(p: Program&, source_id: i64) -> i64 {
             }
         }
     }
-    if c.has_expansion { bind_expansion_names(p, root); }
-    return root;
+    if c.has_expansion && bind_names { bind_expansion_names(p, root); }
+    return root, c.has_expansion;
 }
 
 // Relocate the fields initialized by parsing. Auxiliary and semantic fields
@@ -1238,10 +1240,9 @@ inline fn parse_rebase_node(node: Node, token_base: i64, node_base: i64) -> Node
     n.left = parse_rebase_index(n.left, if imported || deferred { tb } else { nb });
     n.right = parse_rebase_index(n.right, nb);
     n.third = parse_rebase_index(n.third, nb);
-    n.expansion_binding = parse_rebase_index(n.expansion_binding, nb);
     if imported || deferred || qualified || function && n.integer >= 0 {
         n.integer = n.integer + token_base;
     }
-    if imported || function && n.aux >= 0 { n.aux = n.aux + token_base; }
+    if imported || (function || n.kind == N_FLOAT) && n.aux >= 0 { n.aux += tb; }
     return n;
 }

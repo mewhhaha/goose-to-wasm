@@ -107,6 +107,8 @@ let T_TF64: i64 = 100;
 // the offset of the matching closing brace.
 let T_LAZY_BODY: i64 = 101;
 let T_DEFER: i64 = 102;
+let T_INVALID: i64 = 255;
+let TOKEN_SOURCE_LIMIT: i64 = 65536;
 
 let N_MODULE: i64 = 0;
 let N_IMPORT: i64 = 1;
@@ -250,6 +252,9 @@ let F_DEFERRED: i64 = 4398046511104;
 let F_ROOT: i64 = 8796093022208;
 // An array-only branch join still awaiting a slice destination.
 let F_ARRAY_JOIN: i64 = 17592186044416;
+// Bits 45 and 46 are the Wasm print-analysis cache. This storage bit
+// is omitted from the public IR dump.
+let F_HAS_EXTRA: i64 = 140737488355328;
 let TF_UNSIGNED: i64 = 1;
 let TF_OPTIONAL: i64 = 2;
 let TF_CONST: i64 = 4;
@@ -278,22 +283,48 @@ struct Source {
     library: bool = false,
 }
 struct Token {
-    integer: i64 = 0, float_value: f64 = 0.0,
-    kind: i16 = 0, flags: u16 = 0, source: i32 = 0,
+    integer: i64 = 0,
     start: i32 = 0, end: i32 = 0,
-    line: i32 = 1, column: i32 = 1,
     text_start: i32 = 0, text_len: i32 = 0,
+    line: i32 = 1,
+    source: u16 = 0, kind: u8 = 0, flags: u8 = 0,
 }
 struct Node {
-    integer: i64 = 0, float_value: f64 = 0.0, flags: i64 = 0, aux: i64 = -1,
+    integer: i64 = 0, flags: i64 = 0,
     kind: i32 = 0, token: i32 = -1,
     first: i32 = -1, last: i32 = -1, next: i32 = -1,
     left: i32 = -1, right: i32 = -1, third: i32 = -1,
     type_id: i32 = -1, symbol: i32 = -1,
-    scope: i32 = -1, origin: i32 = -1,
-    captures: i32 = -1, named_results: i32 = -1,
-    coerced_type: i32 = -1, expansion_binding: i32 = -1,
+    scope: i32 = -1, aux: i32 = -1,
 }
+struct NodeExtra {
+    node: i32 = -1, origin: i32 = -1, captures: i32 = -1, named_results: i32 = -1,
+    coerced_type: i32 = -1, expansion_binding: i32 = -1, wide_aux: i64 = -1,
+}
+struct TokenColumn { token: i32, column: i32 }
+
+// Goose's as! converts floating-point values numerically. Use the byte image
+// of one scalar to preserve its bits, including signed zero and NaN payloads.
+fn float_bits(value: f64) -> i64 {
+    let values: f64[1] = [value];
+    let bytes = bytes_of(values);
+    var bits: u64 = 0;
+    for i in 0..8 { bits |= (bytes[i] as u64) << (i * 8); }
+    return bits as! i64;
+}
+fn float_from_bits(bits: i64) -> f64 {
+    // One eight-byte element in the growable array image format.
+    var image: u8[9] = [8, 0, 0, 0, 0, 0, 0, 0, 0];
+    let value = bits as! u64;
+    for i in 0..8 { image[i + 1] = (value >> (i * 8)) as! u8; }
+    let values, ok = from_bytes<f64[>..]>(image);
+    assert(ok);
+    return values[0];
+}
+inline fn token_float(t: const Token&) -> f64 { return float_from_bits(t.integer); }
+inline fn set_token_float(t: Token&, value: f64) { t.integer = float_bits(value); }
+inline fn node_float(n: const Node&) -> f64 { return float_from_bits(n.integer); }
+inline fn set_node_float(n: Node&, value: f64) { n.integer = float_bits(value); }
 // kind, element, count, flags and declaration identify a type for lookup
 // (type_find): whoever changes one of them on an existing type reindexes it.
 struct Type {
@@ -345,6 +376,8 @@ struct InstantiationSite { decl_node: i64 = -1, call_token: i64 = -1 }
 struct Program {
     text: u8[>..]&, messages: u8[>..]&, sources: Source[>..]&,
     tokens: Token[>..]&, nodes: Node[>..]&, types: Type[>..]&,
+    node_extra_slots: i32[>..]&, node_extras: NodeExtra[>..]&,
+    token_columns: TokenColumn[>..]&,
     symbols: Symbol[>..]&, diagnostics: Diagnostic[>..]&,
     // Memoized type properties (type * 8 + property, value + 1; 0 unknown)
     // and the builtin symbol of each builtin ID (-1 none yet).
@@ -374,6 +407,7 @@ struct Program {
     // functions are not checked (the reference checker's
     // GOOSE_REACHABLE_PROGRAM build, blot2 upstream-32a4f44 patch 03).
     check_only: bool = false, reachable_program: bool = false,
+    dump_ir: bool = false,
     saw_inline_checkfree: bool = false, has_checked_checkfree: bool = false,
     // Time the lifetime pass took, reported apart from type checking.
     lifetime_ns: i64 = 0,
@@ -508,7 +542,7 @@ inline fn token_is(p: Program&, token: i64, text: u8[:]) -> bool {
 fn format_token_location(p: Program&, token: i64, out: u8[>..]&) {
     if token < 0 || token >= p.tokens.len { out.append("<unknown>"); return; }
     let t: const Token& = p.tokens[token];
-    if t.source >= 0 && t.source < p.sources.len {
+    if t.source < p.sources.len {
         let s: const Source& = p.sources[t.source];
         out.append(p.text[s.path_start..s.path_start + s.path_len]);
         var line: i64 = 1; var col: i64 = 1;
@@ -754,6 +788,150 @@ fn root_struct_type(p: Program&, ty: i64) -> bool {
     let t: const Type& = p.types[ty];
     return t.kind == TY_STRUCT && t.declaration >= 0 && p.nodes[t.declaration].kind == N_STRUCT && (p.nodes[t.declaration].flags & F_ROOT) != 0;
 }
+// Entries are stable by key even when a node is replaced. Only F_HAS_EXTRA
+// makes its current entry live. Negative keys preserve checker syntax snapshots.
+inline fn node_extra_bucket(id: i64, mask: i64) -> i64 {
+    let hash = (id as! u64) * 11400714819323198485;
+    return ((hash ^ (hash >> 32)) as! i64) & mask;
+}
+fn node_extra_slot(p: const Program&, id: i64) -> i64 {
+    let mask = p.node_extra_slots.len - 1;
+    var slot = node_extra_bucket(id, mask);
+    loop {
+        let entry = p.node_extra_slots[slot];
+        if entry == 0 || p.node_extras[entry - 1].node == id { return slot; }
+        slot = (slot + 1) & mask;
+    }
+}
+fn node_extra_get(p: const Program&, id: i64) -> const NodeExtra& {
+    return p.node_extras[p.node_extra_slots[node_extra_slot(p, id)] - 1];
+}
+fn node_extra_index(p: Program&, id: i64) -> i64 {
+    if p.node_extra_slots.len > 0 {
+        let entry = p.node_extra_slots[node_extra_slot(p, id)];
+        if entry != 0 { return entry - 1; }
+    }
+    if p.node_extras.len * 2 >= p.node_extra_slots.len {
+        let size = if p.node_extra_slots.len == 0 { 32 } else { p.node_extra_slots.len * 2 };
+        for i in 0..p.node_extra_slots.len { p.node_extra_slots[i] = 0; }
+        while p.node_extra_slots.len < size { p.node_extra_slots.push(0); }
+        for extra, i in p.node_extras {
+            p.node_extra_slots[node_extra_slot(p, extra.node)] = (i + 1) as i32;
+        }
+    }
+    let index = p.node_extras.len;
+    p.node_extra_slots[node_extra_slot(p, id)] = (index + 1) as i32;
+    p.node_extras.push(NodeExtra { node: id as i32 });
+    return index;
+}
+fn node_extra_put(p: Program&, id: i64, extra: NodeExtra) {
+    let index = node_extra_index(p, id);
+    p.node_extras[index] = extra;
+    p.node_extras[index].node = id as i32;
+}
+fn node_extra_ensure(p: Program&, id: i64) -> i64 {
+    let index = node_extra_index(p, id);
+    if (p.nodes[id].flags & F_HAS_EXTRA) == 0 {
+        p.node_extras[index] = NodeExtra { node: id as i32 };
+        p.nodes[id].flags |= F_HAS_EXTRA;
+    }
+    return index;
+}
+inline fn node_copy_extra(p: Program&, dest: i64, source: i64, flags: i64) {
+    if (flags & F_HAS_EXTRA) != 0 && dest != source {
+        let extra = node_extra_get(p, source);
+        node_extra_put(p, dest, extra);
+    }
+}
+inline fn node_copy(p: Program&, dest: i64, source: i64) {
+    let value = p.nodes[source];
+    node_copy_extra(p, dest, source, value.flags);
+    p.nodes[dest] = value;
+}
+inline fn node_origin(p: const Program&, id: i64) -> i32 {
+    if (p.nodes[id].flags & F_HAS_EXTRA) == 0 { return -1; }
+    return node_extra_get(p, id).origin;
+}
+inline fn set_node_origin(p: Program&, id: i64, value: i64) {
+    if value == -1 && (p.nodes[id].flags & F_HAS_EXTRA) == 0 { return; }
+    let index = node_extra_ensure(p, id);
+    p.node_extras[index].origin = value as i32;
+}
+inline fn node_captures(p: const Program&, id: i64) -> i32 {
+    if (p.nodes[id].flags & F_HAS_EXTRA) == 0 { return -1; }
+    return node_extra_get(p, id).captures;
+}
+inline fn set_node_captures(p: Program&, id: i64, value: i64) {
+    if value == -1 && (p.nodes[id].flags & F_HAS_EXTRA) == 0 { return; }
+    let index = node_extra_ensure(p, id);
+    p.node_extras[index].captures = value as i32;
+}
+inline fn node_named_results(p: const Program&, id: i64) -> i32 {
+    if (p.nodes[id].flags & F_HAS_EXTRA) == 0 { return -1; }
+    return node_extra_get(p, id).named_results;
+}
+inline fn set_node_named_results(p: Program&, id: i64, value: i64) {
+    if value == -1 && (p.nodes[id].flags & F_HAS_EXTRA) == 0 { return; }
+    let index = node_extra_ensure(p, id);
+    p.node_extras[index].named_results = value as i32;
+}
+inline fn node_coerced_type(p: const Program&, id: i64) -> i32 {
+    if (p.nodes[id].flags & F_HAS_EXTRA) == 0 { return -1; }
+    return node_extra_get(p, id).coerced_type;
+}
+inline fn set_node_coerced_type(p: Program&, id: i64, value: i64) {
+    if value == -1 && (p.nodes[id].flags & F_HAS_EXTRA) == 0 { return; }
+    let index = node_extra_ensure(p, id);
+    p.node_extras[index].coerced_type = value as i32;
+}
+inline fn node_expansion_binding(p: const Program&, id: i64) -> i32 {
+    if (p.nodes[id].flags & F_HAS_EXTRA) == 0 { return -1; }
+    return node_extra_get(p, id).expansion_binding;
+}
+inline fn set_node_expansion_binding(p: Program&, id: i64, value: i64) {
+    if value == -1 && (p.nodes[id].flags & F_HAS_EXTRA) == 0 { return; }
+    let index = node_extra_ensure(p, id);
+    p.node_extras[index].expansion_binding = value as i32;
+}
+// Most aux values are IDs or ordinals. Layout offsets and explicit
+// padding counts may also exceed i32 on the native and memory64 targets.
+let NODE_WIDE_AUX: i64 = -2147483648;
+inline fn node_layout_aux(p: const Program&, id: i64, aux: i32) -> i64 {
+    if aux != NODE_WIDE_AUX { return aux; }
+    return node_extra_get(p, id).wide_aux;
+}
+inline fn set_node_layout_aux(p: Program&, id: i64, value: i64) {
+    if value > NODE_WIDE_AUX && value <= 2147483647 { p.nodes[id].aux = value as i32; return; }
+    let index = node_extra_ensure(p, id);
+    p.node_extras[index].wide_aux = value;
+    p.nodes[id].aux = NODE_WIDE_AUX as i32;
+}
+
+// This table only records synthetic spellings appended outside their source.
+// Their legacy IR column is inherited from the token that they replace.
+fn remember_token_column(p: Program&, at: i64) {
+    let column = token_column(p, at);
+    p.token_columns.push(TokenColumn { token: p.tokens.len as i32, column: column as i32 });
+}
+fn token_column(p: const Program&, token: i64) -> i64 {
+    let t: const Token& = p.tokens[token];
+    let source: const Source& = p.sources[t.source];
+    if t.end > source.text_start + source.text_len {
+        var low = 0; var high = p.token_columns.len;
+        while low < high {
+            let mid = (low + high) / 2;
+            if p.token_columns[mid].token < token { low = mid + 1; }
+            else { high = mid; }
+        }
+        if low < p.token_columns.len && p.token_columns[low].token == token { return p.token_columns[low].column; }
+    }
+    // The error token for an unclosed block comment used the EOF column.
+    let start: i64 = if t.kind == T_EOF { t.end } else { t.start };
+    var at = start;
+    while at > source.text_start && p.text[at - 1] != 10 { at--; }
+    return start - at + 1;
+}
+
 fn new_node(p: Program&, kind: i64, token: i64) -> i64 {
     let id = p.nodes.len;
     p.nodes.push(Node { kind: kind as i32, token: token as i32 });

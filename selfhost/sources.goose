@@ -2,6 +2,7 @@ import model;
 import parallel;
 import lexer;
 import parser;
+import expansion_bind;
 import os;
 
 struct SourceRequest { start: i64, length: i64, token: i64 = -1, package: i64 = -1, source: i64 = -1, index: i64 = -1, library: bool = false }
@@ -93,7 +94,7 @@ fn source_embed_file(p: Program&, node: i64, argument: i64) -> i64 {
     let text = p.tokens[literal]; let call = p.tokens[p.nodes[node].token];
     var path: u8[>..] = [];
     let embedded = p.text[text.text_start..text.text_start + text.text_len];
-    if !source_absolute(embedded) && call.source >= 0 {
+    if !source_absolute(embedded) {
         let source = p.sources[call.source]; source_directory(p.text[source.path_start..source.path_start + source.path_len], path);
     }
     path.append(embedded);
@@ -109,7 +110,7 @@ fn source_embed_file(p: Program&, node: i64, argument: i64) -> i64 {
         source_id = p.sources.len;
         p.sources.push(Source { path_start: path_start, path_len: normalized.len, text_start: text_start, text_len: contents.len });
     }
-    let source = p.sources[source_id]; var token = call; token.kind = T_STRLIT as i16;
+    let source = p.sources[source_id]; var token = call; token.kind = T_STRLIT as u8;
     token.text_start = source.text_start as i32; token.text_len = source.text_len as i32;
     let token_id = p.tokens.len; p.tokens.push(token);
     return new_node(p, N_STRING, token_id);
@@ -124,7 +125,7 @@ fn source_embed_shader_blob(p: Program&, call_token: i64, stage: const u8[:], so
     p.text.append(stage);
     p.text.push(0);
     p.text.append(source_bytes);
-    var token = p.tokens[call_token]; token.kind = T_STRLIT as i16; token.flags = 0;
+    var token = p.tokens[call_token]; token.kind = T_STRLIT as u8; token.flags = 0;
     token.text_start = start as i32; token.text_len = (p.text.len - start) as i32;
     let token_id = p.tokens.len; p.tokens.push(token);
     return new_node(p, N_STRING, token_id);
@@ -135,7 +136,7 @@ fn source_embed_shader_file(p: Program&, node: i64, argument: i64) -> i64 {
     let text = p.tokens[literal]; let call = p.tokens[p.nodes[node].token];
     var path: u8[>..] = [];
     let embedded = p.text[text.text_start..text.text_start + text.text_len];
-    if !source_absolute(embedded) && call.source >= 0 {
+    if !source_absolute(embedded) {
         let source = p.sources[call.source]; source_directory(p.text[source.path_start..source.path_start + source.path_len], path);
     }
     path.append(embedded);
@@ -332,7 +333,7 @@ struct ParseSpmdFile {
     status: i64 = PARSE_SPMD_PENDING, root: i64 = -1,
     tok_count: i64 = 0, node_count: i64 = 0, str_count: i64 = 0,
     ident_count: i64 = 0, import_count: i64 = 0,
-    saw_inline_checkfree: bool = false,
+    saw_inline_checkfree: bool = false, has_expansion: bool = false,
     // Midpoint Phase 2 install targets in Program arrays.
     install_ok: bool = false, source_id: i64 = -1,
     p_text_base: i64 = 0,
@@ -495,6 +496,10 @@ fn source_spmd_midpoint(ctx: const ParseSpmdCtx&) {
         return;
     }
 
+    if ctx.p.sources.len + ctx.files.len > TOKEN_SOURCE_LIMIT {
+        ctx.phase = PARSE_PHASE_ABORT;
+        return;
+    }
     // Complete transitive closure is parsed and verified. Run the exact serial
     // DFS schedule to assign final Source, text, token, and node ranges.
     let p: Program& = ctx.p;
@@ -615,14 +620,17 @@ fn gp_parse_spmd_range(ctx: const ParseSpmdCtx&, out: i64[:], worker_id: i64, wo
     var w_type_scan_marks: i64[>..] = []; var w_type_holds: i64[>..] = [];
     var w_inline_sites: InlineSite[>..] = []; var w_instantiation_stack: InstantiationSite[>..] = [];
     var w_region_profile: i64[>..] = []; var w_ident_table: i32[>..] = [];
+    var w_extra_slots: i32[>..] = []; var w_extras: NodeExtra[>..] = [];
+    var w_token_columns: TokenColumn[>..] = [];
     var local = Program {
         text: w_text, messages: w_messages, sources: w_sources, tokens: w_tokens, nodes: w_nodes,
+        node_extra_slots: w_extra_slots, node_extras: w_extras, token_columns: w_token_columns,
         diagnostics: w_diagnostics, types: w_types, symbols: w_symbols,
         type_properties: w_type_properties, builtin_symbols: w_builtin_symbols,
         type_buckets: w_type_buckets, type_links: w_type_links,
         type_scan_marks: w_type_scan_marks, type_holds: w_type_holds,
         inline_sites: w_inline_sites, instantiation_stack: w_instantiation_stack,
-        region_profile: w_region_profile, ident_table: w_ident_table,
+        dump_ir: ctx.p.dump_ir, region_profile: w_region_profile, ident_table: w_ident_table,
     };
     var w_htab: i32[>..] = [];
     var imp_name: u8[>..] = [];
@@ -650,16 +658,22 @@ fn gp_parse_spmd_range(ctx: const ParseSpmdCtx&, out: i64[:], worker_id: i64, wo
             }
             let raw_len = w_text.len - w_text_start;
             let w_src = w_sources.len;
+            if w_src >= TOKEN_SOURCE_LIMIT {
+                ctx.files[file].status = PARSE_SPMD_FALLBACK;
+                continue;
+            }
             w_sources.push(Source { text_start: w_text_start, text_len: raw_len, library: f.library });
             let w_tok_off = w_tokens.len;
             let w_node_off = w_nodes.len;
             local.saw_inline_checkfree = false;
             lex_source(local, w_src, f.library, false);
             var ok = w_diagnostics.len == 0;
-            var root: i64 = -1;
+            var root: i64 = -1; var has_expansion = false;
             if ok {
-                root = parse_source(local, w_src);
-                ok = w_diagnostics.len == 0;
+                root, has_expansion = parse_source(local, w_src, false);
+                // Expansion bindings are installed after rebasing. If parsing
+                // acquires other extra fields, keep those files on the serial path.
+                ok = w_diagnostics.len == 0 && w_extras.len == 0;
             }
             if !ok {
                 w_diagnostics.clear();
@@ -771,6 +785,7 @@ fn gp_parse_spmd_range(ctx: const ParseSpmdCtx&, out: i64[:], worker_id: i64, wo
             ctx.files[file].ident_count = u_count;
             ctx.files[file].import_count = imp_count;
             ctx.files[file].saw_inline_checkfree = local.saw_inline_checkfree;
+            ctx.files[file].has_expansion = has_expansion;
             ctx.files[file].status = PARSE_SPMD_OK;
         }
 
@@ -838,7 +853,7 @@ fn source_spmd_install_tokens(ctx: const ParseSpmdCtx&, f: const ParseSpmdFile&,
     let idents: const ParseUniqueIdent[:] = ctx.ident_slab[ident_start..ident_start + f.ident_count];
     for tok, ti in src_toks {
         var dt = tok;
-        dt.source = sid as i32;
+        dt.source = sid as u16;
         dt.start = (dt.start + delta_text) as i32;
         dt.end = (dt.end + delta_text) as i32;
         if dt.kind == T_IDENT {
@@ -892,6 +907,10 @@ fn source_parse_wave_spmd(p: Program&, pending: SourceRequest[>..]&, seen: Sourc
     gp_parse_spmd_dispatch(p.jobs, ctx, worker_slots[..]);
     if phase != PARSE_PHASE_INSTALL { return false; }
     pending.clear();
+    // The workers leave expansion binding to this serial pass over final IDs.
+    for fi in dfs_files {
+        if files[fi].has_expansion { bind_expansion_names(p, p.sources[files[fi].source_id].root); }
+    }
     // Strip any non-root fn main() declarations after parallel install.
     for fi in dfs_files {
         let sid = files[fi].source_id;
@@ -938,14 +957,19 @@ fn load_sources(p: Program&, root: const u8[:], stdlib: const u8[:], tokens_only
             seen[request.index].source = -2;
             diagnose(p, request.token, "cannot open source file"); continue;
         }
-        let source_id = p.sources.len; seen[request.index].source = source_id;
+        let source_id = p.sources.len;
+        if source_id >= TOKEN_SOURCE_LIMIT {
+            diagnose(p, request.token, "source file limit exceeded");
+            return;
+        }
+        seen[request.index].source = source_id;
         let start = p.text.len;
         p.text.append(contents);
         p.sources.push(Source { path_start: request.start, path_len: request.length,
                                text_start: start, text_len: contents.len, library: request.library });
         lex_source(p, source_id, request.library && !tokens_only);
         if tokens_only { continue; }
-        let module = parse_source(p, source_id);
+        let module, has_expansion = parse_source(p, source_id);
         pending.push(SourceRequest { start: 0, length: 0, source: source_id });
         let imports_start = pending.len;
         var directory: u8[>..] = [];

@@ -11,12 +11,17 @@ primitive IDs are `TYPE_I64` etc.; integer width is `Type.count` and signedness 
 `TF_UNSIGNED`.
 
 - `lex_source(p, source_id)` appends tokens and records source token bounds.
-- `parse_source(p, source_id)` returns and stores an `N_MODULE` node.
+- `parse_source(p, source_id)` stores an `N_MODULE` node and returns its ID and whether it contains expansion syntax.
 - `check_program(p)` resolves declarations, specializes calls, assigns symbols and
   physical layouts, and sets `p.entry` to the checked main function node.
 - `optimize_program(p)` transforms checked nodes according to `p.optimization`.
 - `generate_wasm(p, out)` writes a standalone Wasm module into a byte builder.
 - `generate_c(p, out)` writes native C source into a byte builder.
+
+Tokens and nodes store floating-point bits in `integer` for float literals.
+Token columns are derived from the source bytes, with a sparse table for
+synthetic spellings. `F_HAS_EXTRA` marks nodes with metadata in
+`Program.node_extras`. Large layout sizes use the same table.
 
 Lists use `first`/`last`/`next`. An AST node's `next` belongs to its parent list;
 expression lowering must not accidentally evaluate it.
@@ -45,8 +50,8 @@ expression lowering must not accidentally evaluate it.
 Checked expressions retain their natural `type_id`. `coerced_type` records a
 successful contextual enum adaptation; an explicit `copy` keeps its operand's
 adaptation separate. Names refer to `Symbol` IDs in `symbol`.
-Calls refer to their specialized function symbol. `Node.origin` records the
-unspecialized declaration; `Node.captures` points to a list of `N_BINDING` nodes
+Calls refer to their specialized function symbol. `NodeExtra.origin` records the
+unspecialized declaration; `NodeExtra.captures` points to a list of `N_BINDING` nodes
 whose `symbol` is the original captured symbol. Function `integer` is the optional
 C/export symbol string token, or -1; qualified names use `aux` for token span
 length. Field declarations carry byte
@@ -82,7 +87,7 @@ uses `F_BROKEN` and always has an accompanying diagnostic.
 
 Checked record bindings are ordered by declaration. If supplied named fields invert, `right` retains an immutable `N_TYPE_ARG` list whose `integer` values are their original field ordinals; generic and optimizer clones share this metadata. `F_PROPERTY` identifies a syntactic length/capacity read lowered to a builtin call.
 
-`Node.expansion_binding` is the original const-for binder node ID on its declaration and definition-site uses. Parser tagging runs once; clones preserve the ID. Expansion substitutes those uses before ordinary field/default/arm checks. A substituted field accessor stores its concrete owner type in `aux` on member expressions and initializer bindings. Deferred invalid value/type uses use IDs -2/-3 and diagnose only when checked. Expansion is limited to 100000 generated nodes per program.
+`NodeExtra.expansion_binding` is the original const-for binder node ID on its declaration and definition-site uses. The parser tags bindings after serial parsing or after the parallel files are rebased. Clones preserve the ID. Expansion substitutes those uses before ordinary field/default/arm checks. A substituted field accessor stores its concrete owner type in `aux` on member expressions and initializer bindings. Deferred invalid value/type uses use IDs -2/-3 and diagnose only when checked. Expansion is limited to 100000 generated nodes per program.
 
 `N_RESULT` (58) selects natural result ordinal `integer` (currently 0) from a fully typed tuple producer in `left`. Its `type_id` is the selected natural value type; `coerced_type` remains its contextual adaptation. The child keeps its tuple type and runs once. Every natural result channel is still evaluated and received, including side effects and temporary lifetimes; lowering forwards a receiving destination only to the selected channel.
 
