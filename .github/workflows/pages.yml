@@ -1,0 +1,53 @@
+name: Deploy GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Install compiler prerequisites
+        run: |
+          if ! command -v clang >/dev/null || ! command -v python3 >/dev/null; then
+            sudo apt-get update
+            sudo apt-get install -y clang python3
+          fi
+      - name: Bootstrap Goose compiler
+        run: python3 scripts/bootstrap.py --jobs 4
+      - name: Check out official Goose samples
+        run: |
+          git clone --no-checkout https://github.com/aardappel/goose.git /tmp/upstream-goose
+          git -C /tmp/upstream-goose checkout --detach 1838de45b8823cac6c3e02a431f0134012212d39
+      - name: Build static showcase
+        run: python3 scripts/build_pages.py --compiler build/bin/goosew --samples-dir /tmp/upstream-goose/samples --output-dir build/pages
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+      - name: Upload GitHub Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: build/pages
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-24.04
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

@@ -13,5 +13,9 @@ Its `trim()` zeroes the complete 4096-byte pages inside free spans, aligned
 relative to the backing byte array. Those pages stay in the backing allocation.
 For pools that exceed the default Wasm region budget, raise `--wasm-max-pages`.
 
+`stdlib-web` also provides browser-ready drop-in modules for `audio`, `gfx`,
+`ui`, and `physics` backed by `host/web/` (Web Audio, WebGL2 + JSPI, Canvas 2D
+UI overlay, and pure-JS 3D rigid-body physics).
+
 Switch back with `--stdlib stdlib` to use the pinned library and its native
 slice pool runtime.

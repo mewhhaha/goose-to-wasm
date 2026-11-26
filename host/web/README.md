@@ -104,6 +104,9 @@ as `createGooseWorker({ worker })`. The direct host also runs without a worker.
 | `std` | Same helpers, with numeric and byte-search imports supplied by the host |
 | `vec` | Same vector API |
 | `audio` | Web addition for offline PCM mixing and live Web Audio playback |
+| `gfx` | WebGL2 backend + GLSL 450→300 es transpiler + JSPI async frame loop (`asyncFrame: true`, `loaded.runAsync()`) and headless fallback |
+| `ui` | Immediate-mode GUI rendered on 2D canvas and composited onto `gfx` |
+| `physics` | Pure-JavaScript 3D rigid-body box solver matching Goose's `physics` API |
 
 Custom externs can be supplied through the `imports` option. The browser host
 provides JavaScript imports and virtual resources for the direct Wasm ABI.

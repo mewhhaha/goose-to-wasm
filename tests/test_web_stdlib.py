@@ -54,11 +54,16 @@ class WebSources(unittest.TestCase):
 
     @unittest.skipUnless(shutil.which("node"), "Node.js is required")
     def test_node_syntax(self):
-        for src in sorted(WEB.glob("*.js")):
-            with self.subTest(file=src.name):
+        for src in [*sorted(WEB.glob("*.js")), ROOT / "site/app.js"]:
+            with self.subTest(file=src.relative_to(ROOT)):
                 result = subprocess.run(["node", "--check", str(src)], cwd=ROOT,
                                         stdin=subprocess.DEVNULL, capture_output=True, text=True, timeout=15)
                 self.assertEqual(result.returncode, 0, result.stderr)
+
+    def test_pages_build_script_syntax(self):
+        result = subprocess.run(["python3", "-m", "py_compile", str(ROOT / "scripts/build_pages.py")],
+                                cwd=ROOT, stdin=subprocess.DEVNULL, capture_output=True, text=True, timeout=15)
+        self.assertEqual(result.returncode, 0, result.stderr)
 
     @unittest.skipUnless(shutil.which("bun") or shutil.which("deno"), "Bun or Deno is required")
     def test_bun_and_deno_import(self):
@@ -974,6 +979,162 @@ class WebStdlibExecution(WebHostCase):
                 assert.equal(result.stdout, "chime " + reportText + "files /demo\nchime.json\nreport.json\n");
               }
             """, *variants)
+
+    def test_gfx_ui_physics_embed_shader_and_jspi(self):
+        probe_dir = self.work / "gfx_probe"
+        probe_dir.mkdir()
+        (probe_dir / "tri.vert").write_text(
+            "#version 450\nlayout(location=0) in vec3 p;\nvoid main() { gl_Position = vec4(p, 1.0); }\n",
+            encoding="utf-8",
+        )
+        (probe_dir / "tri.frag").write_text(
+            "#version 450\nlayout(location=0) out vec4 c;\nvoid main() { c = vec4(0.25, 0.5, 0.75, 1.0); }\n",
+            encoding="utf-8",
+        )
+        src = probe_dir / "probe.goose"
+        src.write_text(r'''
+import std;
+import vec;
+import os;
+import gfx;
+import ui;
+import physics;
+
+let VS_FILE = embed_shader("tri.vert");
+let FS_FILE = embed_shader("tri.frag");
+let FS_INLINE = embed_shader("frag", "#version 450\nlayout(location=0) out vec4 o;\n", "void main() { o = vec4(1.0); }\n");
+
+fn main() {
+    assert(VS_FILE.len > 10 && VS_FILE[0] == 'G' && VS_FILE[1] == 'W' && VS_FILE[2] == 'E' && VS_FILE[3] == 'B');
+    assert(FS_FILE.len > 10 && FS_INLINE.len > 10);
+    assert(gfx::open_headless(16, 12));
+    defer gfx::close();
+    gfx::set_title("Probe Updated");
+
+    let pipe = gfx::pipeline(VS_FILE, FS_FILE);
+    assert(pipe.id != 0);
+    defer gfx::release(pipe);
+
+    let ctx = ui::create(14.0, 1.0);
+    assert(ctx.id != 0);
+    defer ui::destroy(ctx);
+
+    let world = physics::create_world();
+    assert(world.id != 0);
+    defer physics::destroy(world);
+    let floor = physics::create_body(world, physics::BodyDef { body_type: physics::STATIC });
+    let shape_def = physics::ShapeDef {};
+    assert(physics::create_box_shape(floor, shape_def, float3 { 10.0, 0.5, 10.0 }).id != 0);
+
+    let body = physics::create_body(world, physics::BodyDef {
+        body_type: physics::DYNAMIC,
+        position: float3 { 0.0, 4.0, 0.0 },
+    });
+    assert(physics::create_box_shape(body, shape_def, float3 { 0.5, 0.5, 0.5 }).id != 0);
+    assert(physics::awake_body_count(world) == 1);
+
+    var frames = 0;
+    var checked = false;
+    while gfx::frame() {
+        frames++;
+        physics::step(world, 1.0 / 60.0, 2);
+        ui::input_from_gfx(ctx);
+        if ui::begin(ctx, "Panel", ui::Rect { 2.0, 2.0, 12.0, 8.0 }, ui::WINDOW_BORDER) {
+            ui::layout_row_dynamic(ctx, 20.0, 1);
+            ui::checkbox_label(ctx, "Flag", checked);
+        }
+        ui::end(ctx);
+        assert(gfx::begin_screen(float4 { 0.25, 0.5, 0.75, 1.0 }));
+        gfx::end_pass();
+        ui::render(ctx);
+        if frames == 2 {
+            physics::explode(world, physics::ExplosionDef {
+                position: float3 { 0.0, 0.0, 0.0 },
+                radius: 12.0,
+                impulse_per_area: 20.0,
+            });
+        }
+        if frames >= 3 {
+            assert(gfx::screenshot("probe.png"));
+            break;
+        }
+    }
+
+    let bodies: physics::Body[1] = [body];
+    var xforms: physics::Transform[1] = [physics::transform_identity];
+    physics::transforms(bodies, xforms);
+    assert(xforms[0].p.y < 4.0);
+    print("gfx ui physics ok ", frames);
+}
+''', encoding="utf-8")
+
+        variants = []
+        for memory64 in (False, True):
+            for optimization in ("-O0", "-O2"):
+                label = f"wasm{'64' if memory64 else '32'}{optimization}"
+                with self.subTest(variant=label):
+                    out = probe_dir / f"probe-{label}.wasm"
+                    result = self._compile(src, out, optimization, memory64=memory64)
+                    self.assertEqual(result.returncode, 0, result.stderr)
+                    variants.append([label, str(out)])
+
+        if variants:
+            self.node(r"""
+              import assert from "node:assert/strict";
+              import {readFileSync} from "node:fs";
+              import {loadGoose, runGoose, supportsJspi} from "./host/web/index.js";
+
+              for (const [label, file] of JSON.parse(process.argv[1])) {
+                const bytes = readFileSync(file);
+                const titles = [];
+                let seenFrames = 0;
+                const result = await runGoose(bytes, {
+                  onTitle: (t) => titles.push(t),
+                  onFrame: () => { seenFrames++; },
+                });
+                assert.equal(result.exitCode, 0, label + "\n" + result.stderr);
+                assert.equal(result.stderr, "", label);
+                assert.equal(result.stdout, "gfx ui physics ok 3\n", label);
+                assert.deepEqual(titles, ["", "Probe Updated"], label);
+                assert.equal(seenFrames, 3, label);
+                const png = result.fs.readFile("/probe.png");
+                assert.ok(png && png.length > 32, label + " missing screenshot");
+                assert.deepEqual([...png.slice(0, 8)], [137, 80, 78, 71, 13, 10, 26, 10], label);
+
+                if (supportsJspi()) {
+                  let asyncFrames = 0;
+                  const loaded = await loadGoose(bytes, {
+                    asyncFrame: true,
+                    onFrame: () => { asyncFrames++; },
+                  });
+                  try {
+                    const asyncResult = await loaded.runAsync();
+                    assert.equal(asyncResult.exitCode, 0, label + " jspi\n" + asyncResult.stderr);
+                    assert.equal(asyncResult.stdout, "gfx ui physics ok 3\n", label + " jspi");
+                    assert.equal(asyncFrames, 3, label + " jspi frames");
+                  } finally {
+                    await loaded.dispose();
+                  }
+
+                  // Verify host.stop() exits an asyncFrame loop early.
+                  let stopFrames = 0;
+                  const stopLoaded = await loadGoose(bytes, {
+                    asyncFrame: true,
+                    onFrame: () => {
+                      stopFrames++;
+                      if (stopFrames === 2) stopLoaded.host.stop();
+                    },
+                  });
+                  try {
+                    const stopped = await stopLoaded.runAsync();
+                    assert.equal(stopped.exitCode, 0, label + " stop\n" + stopped.stderr);
+                    assert.equal(stopped.stdout, "gfx ui physics ok 2\n", label + " stop");
+                  } finally {
+                    await stopLoaded.dispose();
+                  }
+                }
+              }
+            """, json.dumps(variants))
 
 
 if __name__ == "__main__":

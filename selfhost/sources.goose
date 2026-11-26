@@ -109,6 +109,73 @@ fn source_embed_file(p: Program&, node: i64, argument: i64) -> i64 {
     let token_id = p.tokens.len; p.tokens.push(token);
     return new_node(p, N_STRING, token_id);
 }
+fn source_shader_stage(name: const u8[:]) -> bool {
+    return same_bytes(name, "vert") || same_bytes(name, "frag") || same_bytes(name, "comp");
+}
+fn source_embed_shader_blob(p: Program&, call_token: i64, stage: const u8[:], source_bytes: const u8[:]) -> i64 {
+    let start = p.text.len;
+    p.text.append("GWEB");
+    p.text.push(0);
+    p.text.append(stage);
+    p.text.push(0);
+    p.text.append(source_bytes);
+    var token = p.tokens[call_token]; token.kind = T_STRLIT; token.flags = 0;
+    token.text_start = start; token.text_len = p.text.len - start;
+    let token_id = p.tokens.len; p.tokens.push(token);
+    return new_node(p, N_STRING, token_id);
+}
+fn source_embed_shader_file(p: Program&, node: i64, argument: i64) -> i64 {
+    let literal = source_embed_literal(p, argument);
+    if literal < 0 { diagnose(p, p.nodes[argument].token, "embed_shader requires a constant path string"); return -1; }
+    let text = p.tokens[literal]; let call = p.tokens[p.nodes[node].token];
+    var path: u8[>..] = [];
+    let embedded = p.text[text.text_start..text.text_start + text.text_len];
+    if !source_absolute(embedded) && call.source >= 0 {
+        let source = p.sources[call.source]; source_directory(p.text[source.path_start..source.path_start + source.path_len], path);
+    }
+    path.append(embedded);
+    var dot = -1;
+    for byte, i in path { if byte == '.' { dot = i; } else if byte == '/' || byte == '\\' { dot = -1; } }
+    var stage: u8[>..] = [];
+    if dot >= 0 && dot + 1 < path.len { stage.append(path[dot + 1..]); }
+    if !source_shader_stage(stage) {
+        diagnose(p, p.nodes[argument].token, "embed_shader file extension must be .vert, .frag, or .comp"); return -1;
+    }
+    var normalized: u8[>..] = []; source_normalize(path, normalized);
+    var contents: u8[>..] = [];
+    if !read_file(normalized, contents) { diagnose(p, p.nodes[node].token, "cannot open embedded shader file"); return -1; }
+    return source_embed_shader_blob(p, p.nodes[node].token, stage, contents);
+}
+fn source_embed_shader(p: Program&, node: i64) -> i64 {
+    let first = p.nodes[node].first;
+    if first < 0 { return -1; }
+    let second = p.nodes[first].next;
+    if second < 0 { return source_embed_shader_file(p, node, first); }
+    let stage_lit = source_embed_literal(p, first);
+    var stage: u8[>..] = [];
+    if stage_lit >= 0 {
+        let st = p.tokens[stage_lit];
+        stage.append(p.text[st.text_start..st.text_start + st.text_len]);
+    }
+    if stage_lit < 0 || !source_shader_stage(stage) {
+        diagnose(p, p.nodes[first].token, "embed_shader stage must be \"vert\", \"frag\", or \"comp\""); return -1;
+    }
+    var joined: u8[>..] = [];
+    var part = second;
+    var index = 0;
+    while part >= 0 {
+        let part_lit = source_embed_literal(p, part);
+        if part_lit < 0 {
+            diagnose(p, p.nodes[part].token, "embed_shader source parts must be constant strings"); return -1;
+        }
+        if index > 0 { joined.push('\n'); }
+        let pt = p.tokens[part_lit];
+        joined.append(p.text[pt.text_start..pt.text_start + pt.text_len]);
+        part = p.nodes[part].next;
+        index += 1;
+    }
+    return source_embed_shader_blob(p, p.nodes[node].token, stage, joined);
+}
 fn source_join(directory: const u8[:], module: const u8[:], out: u8[>..]&) {
     out.append(directory);
     if out.len > 0 && out[out.len - 1] != '/' && out[out.len - 1] != '\\' { out.push('/'); }

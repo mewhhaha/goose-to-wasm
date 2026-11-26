@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Run nine official Goose graphics examples in your browser with WebAssembly.">
+  <title>Goose Graphics Examples in WebAssembly</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23121217'/%3E%3Crect x='2' y='2' width='28' height='28' rx='5' fill='none' stroke='%23ffc39a' stroke-width='2'/%3E%3Ctext x='16' y='22' text-anchor='middle' font-family='system-ui,sans-serif' font-size='18' font-weight='800' fill='%23ffc39a'%3EG%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="./styles.css">
+  <script type="module" src="./app.js"></script>
+</head>
+<body>
+  <div class="shell">
+    <header class="masthead">
+      <h1>Goose Graphics Examples <span>in WebAssembly</span></h1>
+      <div class="masthead-links">
+        <a href="https://github.com/mewhhaha/goose-to-wasm">goose-to-wasm ↗</a>
+        <a id="repository" href="https://github.com/aardappel/goose">Upstream Goose ↗</a>
+      </div>
+    </header>
+
+    <main class="showcase">
+      <nav id="gallery" class="gallery" aria-label="Graphics examples"></nav>
+
+      <section class="workspace" aria-labelledby="demo-title">
+        <header class="stage-header">
+          <div class="stage-heading">
+            <h2 id="demo-title">Choose an example</h2>
+            <div class="metrics" aria-label="Performance">
+              <span>FPS <b id="fps">—</b></span>
+              <span>Wasm <b id="wasm-size">—</b></span>
+              <span>Load / Run <b id="duration">—</b></span>
+            </div>
+          </div>
+          <div class="toolbar" aria-label="Stage controls">
+            <button id="run" class="primary" disabled>Run</button>
+            <button id="stop" disabled>Stop</button>
+            <button id="fullscreen" disabled>Fullscreen</button>
+            <button id="screenshot" disabled>Screenshot (.png)</button>
+            <label id="preset-field" hidden>Preset <select id="preset"></select></label>
+          </div>
+        </header>
+
+        <p class="notice" id="compatibility" hidden>
+          This demo needs WebAssembly JSPI. Use Chrome 137+ or a version of Firefox or Safari
+          with JSPI enabled. All four software graphics demos are available in this browser.
+        </p>
+
+        <div class="stage" id="stage">
+          <div class="stage-media" id="stage-media"></div>
+          <p id="stage-message" class="stage-message" role="status">Loading examples…</p>
+          <div class="life-controls" id="life-controls" hidden>
+            <button id="life-play">Pause</button>
+            <label for="life-position">Generation</label>
+            <input type="range" id="life-position" min="0" value="0">
+            <output id="life-label" for="life-position"></output>
+          </div>
+        </div>
+        <p class="hint" id="focus-hint" hidden></p>
+
+        <section class="inspector" aria-label="Example inspector">
+          <div class="tabs" role="tablist" aria-label="Inspector views">
+            <button role="tab" id="tab-notes" aria-selected="true" aria-controls="notes">Controls &amp; Notes</button>
+            <button role="tab" id="tab-source" aria-selected="false" aria-controls="source" tabindex="-1">Goose Source</button>
+            <button role="tab" id="tab-console" aria-selected="false" aria-controls="console" tabindex="-1">Console</button>
+            <button role="tab" id="tab-files" aria-selected="false" aria-controls="files" tabindex="-1">Virtual FS</button>
+          </div>
+          <div class="panel" role="tabpanel" id="notes" aria-labelledby="tab-notes" tabindex="0">
+            <p id="description"></p>
+            <ul id="control-list" class="controls"></ul>
+            <a id="upstream-source" hidden>View source on aardappel/goose ↗</a>
+          </div>
+          <div class="panel" role="tabpanel" id="source" aria-labelledby="tab-source" tabindex="0" hidden>
+            <div class="panel-actions">
+              <button id="copy-source" disabled>Copy source</button>
+              <span id="source-status" role="status"></span>
+            </div>
+            <pre id="source-code" tabindex="0" aria-label="Goose source code"></pre>
+          </div>
+          <div class="panel" role="tabpanel" id="console" aria-labelledby="tab-console" tabindex="0" hidden>
+            <pre id="console-output" tabindex="0" aria-label="Program output"></pre>
+          </div>
+          <div class="panel" role="tabpanel" id="files" aria-labelledby="tab-files" tabindex="0" hidden>
+            <div class="panel-actions"><button id="refresh-files" disabled>Refresh files</button></div>
+            <div id="file-list"></div>
+          </div>
+        </section>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

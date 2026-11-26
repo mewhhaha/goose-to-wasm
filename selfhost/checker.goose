@@ -4617,7 +4617,12 @@ recursive fn check_builtin(p: Program&, c: Checker&, node: i64, builtin: i64) ->
         p.nodes[node] = p.nodes[replacement]; p.nodes[node].next = next; p.nodes[node].scope = scope;
         return check_expression(p, c, node, -1);
     } else if builtin == 19 {
-        diagnose(p, n.token, "embed_shader requires shader compilation tool integration"); result = TYPE_STRING;
+        for i in 0..args.count { check_value(p, c, check_list_at(c, args, i), TYPE_STRING); }
+        let replacement = source_embed_shader(p, node);
+        if replacement < 0 { return -1; }
+        let next = n.next; let scope = n.scope;
+        p.nodes[node] = p.nodes[replacement]; p.nodes[node].next = next; p.nodes[node].scope = scope;
+        return check_expression(p, c, node, -1);
     } else if builtin == 16 || builtin == 17 {
         let source = check_list_at(c, args, 0); let storage = check_array_receiver(p, c, source, false);
         if storage < 0 { return -1; }

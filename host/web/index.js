@@ -6,6 +6,15 @@ import { GooseExitError, GooseAbortError, createGooseImports } from "./runtime.j
 import { MAX_PATH_BYTES, MemoryFS, LocalStorageFS, OPFSAdapter } from "./vfs.js";
 import { createOsImports } from "./os.js";
 import { MAX_SOUNDS, MAX_VOICES, GooseAudioMixer, createAudioImports } from "./audio.js";
+import { createGfxImports } from "./gfx.js";
+import { createUiImports } from "./ui.js";
+import { createPhysicsImports } from "./physics.js";
+
+export function supportsJspi() {
+  return typeof WebAssembly !== "undefined"
+    && typeof WebAssembly.Suspending === "function"
+    && typeof WebAssembly.promising === "function";
+}
 
 export {
   MemoryFS, LocalStorageFS, OPFSAdapter, MAX_PATH_BYTES,
@@ -60,13 +69,33 @@ export function createGooseHost(options = {}) {
     sleepMs: options.sleepMs,
     maxMainThreadSleepMs: options.maxMainThreadSleepMs,
   });
+  const asyncFrame = Boolean(options.asyncFrame);
+  if (asyncFrame && !supportsJspi()) {
+    throw new Error("asyncFrame requires WebAssembly JSPI (WebAssembly.Suspending and WebAssembly.promising)");
+  }
   const audioHost = createAudioImports(mem, { audioContext: options.audioContext });
+  const gfxHost = createGfxImports(mem, {
+    canvas: options.canvas,
+    fs,
+    asyncFrame,
+    maxFrames: options.maxFrames,
+    onFrame: options.onFrame,
+    onTitle: options.onTitle,
+  });
+  const uiHost = createUiImports(mem, { gfx: gfxHost.gfx });
+  const physicsHost = createPhysicsImports(mem, { enabled: options.physicsEnabled });
+  const gfxImports = asyncFrame
+    ? { ...gfxHost.imports, gs_gfx_frame: new WebAssembly.Suspending(gfxHost.imports.gs_gfx_frame) }
+    : gfxHost.imports;
   const { goose: extraGoose, env: extraEnv, ...extraNamespaces } = options.imports ?? {};
   const env = {
     ...createMathImports(mem),
     ...createStdImports(mem),
     ...osHost.imports,
     ...audioHost.imports,
+    ...gfxImports,
+    ...uiHost.imports,
+    ...physicsHost.imports,
     ...extraEnv,
   };
 
@@ -74,11 +103,17 @@ export function createGooseHost(options = {}) {
     imports: { ...extraNamespaces, goose: { ...goose, ...extraGoose }, env },
     fs,
     audio: audioHost.mixer,
+    gfx: gfxHost.gfx,
+    ui: uiHost.ui,
+    physics: physicsHost.physics,
     state,
     bind(instance, bindOptions = {}) {
       state.memory = instance.exports.memory ?? null;
       state.reserve = instance.exports["goose.reserve"] ?? null;
       if (bindOptions.memory64 !== undefined) state.memory64 = Boolean(bindOptions.memory64);
+    },
+    stop() {
+      gfxHost.gfx.stop();
     },
     stdoutBytes: stdout.bytes,
     stdoutText: stdout.text,
@@ -91,8 +126,20 @@ export function createGooseHost(options = {}) {
     resetStdin(input) {
       osHost.resetStdin(input);
     },
-    dispose() {
-      return audioHost.mixer.close();
+    async dispose() {
+      try {
+        gfxHost.gfx.close();
+      } finally {
+        try {
+          uiHost.ui.dispose();
+        } finally {
+          try {
+            physicsHost.physics.dispose();
+          } finally {
+            await audioHost.mixer.close();
+          }
+        }
+      }
     },
   };
 }
@@ -140,42 +187,66 @@ export async function loadGoose(source, options = {}) {
     throw error;
   }
 
-  function run(entry = "_start", ...args) {
-    const callable = instance.exports[entry];
-    if (typeof callable !== "function") throw new TypeError(`Wasm export "${entry}" is not a function`);
-    const start = performance.now();
-    let exitCode = 0;
-    let aborted = false;
-    let abortReason = null;
-    let abortLine = null;
-    let returnValue;
-    try {
-      returnValue = callable(...args);
-    } catch (error) {
-      if (options.throwOnError) throw error;
-      if (error instanceof GooseExitError) {
-        exitCode = error.code;
-      } else if (error instanceof GooseAbortError) {
-        exitCode = 1;
-        aborted = true;
-        abortReason = error.reason;
-        abortLine = error.line;
-      } else {
-        throw error;
-      }
-    }
+  function finishRun(start, outcome) {
     const durationMs = performance.now() - start;
     const stdoutBytes = host.stdoutBytes();
     const stderrBytes = host.stderrBytes();
     const decoder = new TextDecoder("utf-8", { ignoreBOM: true });
     return {
-      exitCode, aborted, abortReason, abortLine, returnValue,
-      stdout: decoder.decode(stdoutBytes), stderr: decoder.decode(stderrBytes),
-      stdoutBytes, stderrBytes, durationMs,
+      ...outcome,
+      stdout: decoder.decode(stdoutBytes),
+      stderr: decoder.decode(stderrBytes),
+      stdoutBytes,
+      stderrBytes,
+      durationMs,
     };
   }
 
-  return { module, instance, exports: instance.exports, host, memory64, run, dispose: host.dispose };
+  function handleRunError(error, outcome) {
+    if (options.throwOnError) throw error;
+    if (error instanceof GooseExitError) {
+      outcome.exitCode = error.code;
+    } else if (error instanceof GooseAbortError) {
+      outcome.exitCode = 1;
+      outcome.aborted = true;
+      outcome.abortReason = error.reason;
+      outcome.abortLine = error.line;
+    } else {
+      throw error;
+    }
+  }
+
+  function run(entry = "_start", ...args) {
+    const callable = instance.exports[entry];
+    if (typeof callable !== "function") throw new TypeError(`Wasm export "${entry}" is not a function`);
+    const start = performance.now();
+    const outcome = { exitCode: 0, aborted: false, abortReason: null, abortLine: null, returnValue: undefined };
+    try {
+      outcome.returnValue = callable(...args);
+    } catch (error) {
+      handleRunError(error, outcome);
+    }
+    return finishRun(start, outcome);
+  }
+
+  async function runAsync(entry = "_start", ...args) {
+    const callable = instance.exports[entry];
+    if (typeof callable !== "function") throw new TypeError(`Wasm export "${entry}" is not a function`);
+    if (options.asyncFrame && !supportsJspi()) {
+      throw new Error("runAsync with asyncFrame requires WebAssembly JSPI");
+    }
+    const invoke = options.asyncFrame ? WebAssembly.promising(callable) : callable;
+    const start = performance.now();
+    const outcome = { exitCode: 0, aborted: false, abortReason: null, abortLine: null, returnValue: undefined };
+    try {
+      outcome.returnValue = await invoke(...args);
+    } catch (error) {
+      handleRunError(error, outcome);
+    }
+    return finishRun(start, outcome);
+  }
+
+  return { module, instance, exports: instance.exports, host, memory64, run, runAsync, dispose: host.dispose };
 }
 
 export async function runGoose(source, options = {}) {

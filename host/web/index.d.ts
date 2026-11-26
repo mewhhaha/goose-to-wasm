@@ -91,6 +91,39 @@ export class GooseAudioMixer {
 export function gooseFloat(value: number, bits?: number): string;
 export function gooseFloatDigits(value: number): { digits: Uint8Array; point: number };
 export function detectMemory64(wasmBytes: Uint8Array): boolean;
+export function supportsJspi(): boolean;
+
+export interface GfxFrameInfo {
+  frameCount: number;
+  time: number;
+  deltaTime: number;
+  width: number;
+  height: number;
+}
+
+export interface GooseGfx {
+  stop(): void;
+  close(): void;
+  screenshotPngBytes(): Uint8Array | null;
+  compositeCanvas2D(overlayCanvas: HTMLCanvasElement | OffscreenCanvas): boolean;
+  injectKey(name: string, down: boolean): boolean;
+  injectMouse(kind: number, x: number, y: number, button: number, wheel: number): void;
+  injectText(text: string): void;
+  injectFocus(focused: boolean): boolean;
+  readonly width: number;
+  readonly height: number;
+  readonly gl: WebGL2RenderingContext | null;
+  readonly canvas: HTMLCanvasElement | null;
+}
+
+export interface GooseUi {
+  readonly drawCommandCount: number;
+  dispose(): void;
+}
+
+export interface GoosePhysics {
+  dispose(): void;
+}
 
 export type OutputCallback = (chunk: Uint8Array, text: string) => void;
 export type Stdin = Uint8Array | string | (() => Uint8Array | null);
@@ -111,6 +144,12 @@ export interface HostOptions extends AudioOptions {
   captureOutput?: boolean;
   sleepMs?: (ms: number) => void;
   maxMainThreadSleepMs?: number;
+  canvas?: HTMLCanvasElement | null;
+  asyncFrame?: boolean;
+  maxFrames?: number;
+  onFrame?: (info: GfxFrameInfo) => void;
+  onTitle?: (title: string) => void;
+  physicsEnabled?: boolean;
   imports?: Record<string, Record<string, unknown>>;
 }
 
@@ -124,15 +163,19 @@ export interface GooseHost {
   imports: WebAssembly.Imports;
   fs: FileSystem;
   audio: GooseAudioMixer;
+  gfx: GooseGfx;
+  ui: GooseUi;
+  physics: GoosePhysics;
   state: HostState;
   bind(instance: WebAssembly.Instance, options?: { memory64?: boolean }): void;
+  stop(): void;
   stdoutBytes(): Uint8Array;
   stdoutText(): string;
   stderrBytes(): Uint8Array;
   stderrText(): string;
   resetOutput(): void;
   resetStdin(input?: Stdin): void;
-  dispose(): void | Promise<void>;
+  dispose(): Promise<void>;
 }
 
 export interface LoadOptions extends HostOptions {
@@ -166,7 +209,8 @@ export interface LoadedGoose {
   host: GooseHost;
   memory64: boolean;
   run(entry?: string, ...args: unknown[]): RunResult;
-  dispose(): void | Promise<void>;
+  runAsync(entry?: string, ...args: unknown[]): Promise<RunResult>;
+  dispose(): Promise<void>;
 }
 
 export type WorkerSource = ArrayBuffer | ArrayBufferView | Response | Promise<Response> | URL | string;
