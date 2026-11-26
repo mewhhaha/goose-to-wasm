@@ -924,7 +924,7 @@ fn opt_is_parallel_hook(p: Program&, symbol: i64) -> bool {
     return same_bytes(name, "gp_native_available") || same_bytes(name, "gp_default_jobs") ||
            same_bytes(name, "gp_barrier") ||
            same_bytes(name, "gp_parse_dispatch") || same_bytes(name, "gp_parse_spmd_dispatch") ||
-           same_bytes(name, "gp_wasm_dispatch") ||
+           same_bytes(name, "gp_wasm_dispatch") || same_bytes(name, "gp_cgen_dispatch") ||
            same_bytes(name, "gp_opt_collect_dispatch") || same_bytes(name, "gp_opt_body_dispatch") ||
            same_bytes(name, "gp_check_dispatch") || same_bytes(name, "gp_life_dispatch");
 }

@@ -1,4 +1,5 @@
 import model;
+import parallel;
 import std;
 import checker_rendering;
 import checker_operations;
@@ -32,33 +33,39 @@ let CC_SLICES: i64 = 840;
 
 // defers: the height of the defer stack the exit runs back down to (§6.6).
 struct CcExit { node: i64, done: i64, again: i64 = -1, result: i64 = -1, type_id: i64 = TYPE_VOID, regions: i64 = 0, again_regions: i64 = 0, publications: i64 = -1, self_build_depth: i64 = 0, defers: i64 = 0 }
-struct CcBodyScratch {
-    body: u8[>..]&, exits: CcExit[>..]&, work: i64[>..]&, temp_regions: i64[>..]&,
-    destinations: CcDestination[>..]&, receiving: CcReceiving[>..]&, indirect: i64[>..]&,
-    fills: CcFill[>..]&, channels: CcChannels[>..]&, cursors: CcCursor[>..]&,
-    defers: i64[>..]&, sites: i64[>..]&, stages: i64[>..]&, pub_stack: i64[>..]&,
+struct CcScratchWord { value: i64 }
+root struct CcBodyScratch {
+    body: u8[>..] = [], exits: CcExit[>..] = [], work: CcScratchWord[>..] = [], temp_regions: i64[>..] = [],
+    destinations: CcDestination[>..] = [], receiving: CcReceiving[>..] = [], indirect: i64[>..] = [],
+    fills: CcFill[>..] = [], channels: CcChannels[>..] = [], cursors: CcCursor[>..] = [],
+    defers: CcScratchWord[>..] = [], sites: i64[>..] = [], stages: CcScratchWord[>..] = [], pub_stack: CcScratchWord[>..] = [],
+}
+struct CcPathOffset { offset: i64 }
+struct CcEmitLayout {
+    packed_structs: const bool[:], field_indices: const i32[:], needs_env: const bool[:],
+    path_text: const u8[>..]&, path_offsets: const CcPathOffset[:],
 }
 struct CcBody {
-    out: u8[>..]&, exits: CcExit[>..]&, work: i64[>..]&, function: i64 = -1,
+    out: u8[>..]&, exits: CcExit[>..]&, work: CcScratchWord[>..]&, function: i64 = -1,
     activation_required: bool = false, natural_members: bool = false,
     publications_used: bool = false, fixed_alloc_used: bool = false, cleanup_used: bool = false, has_calls: bool = false, has_indirect_call: bool = false,
     serial: i64 = 0, result_type: i64 = TYPE_VOID, has_self_runs: bool = false, self_build_depth: i64 = 0,
     region_live: i64 = 0, region_peak: i64 = 0, function_index: i64 = -1, active_node: i64 = -1, receiver: i64 = -1,
-    calls: RegionCall[>..]&, indices: const i32[>..]&, temp_regions: i64[>..]&, destinations: CcDestination[>..]&, receiving: CcReceiving[>..]&, fills: CcFill[>..]&, indirect: i64[>..]&, channels: CcChannels[>..]&, cursors: CcCursor[>..]&, result_ref: i64 = -1, self_images: bool&,
+    calls: RegionCall[>..]&, temp_regions: i64[>..]&, destinations: CcDestination[>..]&, receiving: CcReceiving[>..]&, fills: CcFill[>..]&, indirect: i64[>..]&, channels: CcChannels[>..]&, cursors: CcCursor[>..]&, result_ref: i64 = -1, self_images: bool&,
     // The `defer` statements of the blocks being emitted, in registration
     // order (§6.6): an exit emits the bodies above its height, latest first.
-    defers: i64[>..]&, running_defers: i64 = 0,
+    defers: CcScratchWord[>..]&, running_defers: i64 = 0,
     // The places this body's calls pass located callees, by g_sites index.
     sites: i64[>..]&,
     // (destination, stage, type, note, exit depth) of each staged exit value
     // being built (cc_stage).
-    stages: i64[>..]&,
+    stages: CcScratchWord[>..]&,
     // Saved g_publication_top variable serials for enclosing publication-capable
     // cc_construct_into scopes so early exits restore g_publication_top only when needed.
-    pub_stack: i64[>..]&,
+    pub_stack: CcScratchWord[>..]&,
     // Precomputed per-program tables (packed structs, packed field ordinals,
     // and functions that require a GClosure *g_env parameter).
-    packed_structs: const bool[>..]&, field_indices: const i32[>..]&, needs_env: const bool[>..]&,
+    layout: CcEmitLayout,
     // Whether a return can land in this function, and how many image stages
     // it notes for rewinding there (cc_stage_caught).
     catches: bool = false, stage_marks: i64 = 0,
@@ -72,8 +79,8 @@ fn cc_region_argument(f: CcBody&, slot: i64) {
     cc_text(f.out, "g_base+"); cc_number(f.out, slot);
 }
 fn cc_region_call(f: CcBody&, function: i64, node: i64) {
-    if function >= 0 && function < f.indices.len && f.indices[function] >= 0 {
-        f.calls.push(RegionCall { caller: f.function_index, callee: f.indices[function], live: f.region_live, node: node });
+    if function >= 0 {
+        f.calls.push(RegionCall { caller: f.function_index, callee: function, live: f.region_live, node: node });
     }
 }
 fn cc_raw_array(f: CcBody&, name: const u8[:], id: i64) {
@@ -104,7 +111,7 @@ recursive fn cc_run_defers(p: Program&, f: CcBody&, mark: i64) {
     while index > mark {
         index -= 1;
         let statement_mark = f.region_live;
-        cc_expr(p, f, p.nodes[f.defers[index]].right);
+        cc_expr(p, f, p.nodes[f.defers[index].value].right);
         cc_restore(f, statement_mark); f.region_live = statement_mark;
     }
     f.running_defers -= 1;
@@ -257,7 +264,7 @@ recursive fn cc_construct_into(p: Program&, f: CcBody&, node: i64, type_id: i64,
     if needs_pub {
         publications = f.serial; f.serial++;
         cc_id(f.out, "GPublication *g_saved_publications", publications); cc_text(f.out, "=g_publication_top;\n");
-        f.pub_stack.push(publications);
+        f.pub_stack.push(CcScratchWord { value: publications });
     }
     var value = -1;
     if node < 0 { value = cc_default(p, f, type_id); } else { value = cc_to(p, f, node, type_id); }
@@ -337,7 +344,6 @@ fn cc_assignment_left(p: Program&, f: CcBody&, type_id: i64, right: i64) -> bool
     if p.nodes[right].kind != N_ARRAY && p.nodes[right].kind != N_FILL { return false; }
     if cc_leaves(p, right, false, false) { return true; }
     if f.function < 0 { return false; }
-    if !p.leaving_marked { if !p.unwinding { mark_unwinding_functions(p, true); } p.leaving_marked = true; }
     return (p.nodes[f.function].flags & F_UNWINDS) != 0 && cc_leaves(p, right, false, true);
 }
 // The walk behind cc_values_leave; with `calls`, a call that a return may
@@ -404,7 +410,7 @@ fn cc_stage(p: Program&, f: CcBody&, type_id: i64, header: i64) -> i64 {
         cc_id(f.out, "memcpy(&g_stage", raw); cc_text(f.out, ",&g_staged,sizeof g_staged);}\n");
     }
     let ref = cc_ref_temp(f); cc_set(f, ref); cc_id(f.out, "g_ref(&g_stage", raw); cc_text(f.out, ");\n");
-    f.stages.push(header); f.stages.push(ref); f.stages.push(type_id); f.stages.push(mark); f.stages.push(f.exits.len);
+    f.stages.push(CcScratchWord { value: header }); f.stages.push(CcScratchWord { value: ref }); f.stages.push(CcScratchWord { value: type_id }); f.stages.push(CcScratchWord { value: mark }); f.stages.push(CcScratchWord { value: f.exits.len });
     return ref;
 }
 // Before a jump out of the stages begun inside exit `depth`: drops their
@@ -413,7 +419,7 @@ fn cc_stage_leave(p: Program&, f: CcBody&, depth: i64) {
     var index = f.stages.len;
     while index > 0 {
         index -= 5;
-        if f.stages[index + 4] > depth && f.stages[index + 3] >= 0 { cc_id(f.out, "g_stage_regions[", f.stages[index + 3]); cc_text(f.out, "]=NULL;\n"); }
+        if f.stages[index + 4].value > depth && f.stages[index + 3].value >= 0 { cc_id(f.out, "g_stage_regions[", f.stages[index + 3].value); cc_text(f.out, "]=NULL;\n"); }
     }
 }
 // Where a return lands in a function with noted stages: each image stage
@@ -451,10 +457,10 @@ recursive fn cc_staged_values(p: Program&, f: CcBody&, first: i64, type_id: i64,
     }
     var index = start;
     while index < f.stages.len {
-        let part_type = f.stages[index + 2];
-        cc_id(f.out, "g_store_", part_type); cc_id(f.out, "(g_v", f.stages[index]); cc_text(f.out, ",*("); cc_type(f.out, part_type);
-        cc_text(f.out, "*)g_address("); cc_id(f.out, "g_v", f.stages[index + 1]); cc_text(f.out, "));\n");
-        if f.stages[index + 3] >= 0 { cc_id(f.out, "g_stage_regions[", f.stages[index + 3]); cc_text(f.out, "]=NULL;\n"); }
+        let part_type = f.stages[index + 2].value;
+        cc_id(f.out, "g_store_", part_type); cc_id(f.out, "(g_v", f.stages[index].value); cc_text(f.out, ",*("); cc_type(f.out, part_type);
+        cc_text(f.out, "*)g_address("); cc_id(f.out, "g_v", f.stages[index + 1].value); cc_text(f.out, "));\n");
+        if f.stages[index + 3].value >= 0 { cc_id(f.out, "g_stage_regions[", f.stages[index + 3].value); cc_text(f.out, "]=NULL;\n"); }
         index += 5;
     }
     f.stages.resize(start); return result;
@@ -527,10 +533,14 @@ fn cc_number(out: u8[>..]&, value: i64) {
         out.push(('0' + value % 10) as u8);
         return;
     }
-    if value >= 100 && value < 1000000000000000000 {
-        var buf: u8[20] = [0; 20]; var n: i64 = 0; var v = value;
-        while v > 0 { buf[n] = ('0' + (v % 10)) as u8; v /= 10; n += 1; }
-        while n > 0 { n -= 1; out.push(buf[n]); }
+    if value >= 100 {
+        var digits: u8[20] = [0; 20]; var start = digits.len; var rest = value as u64;
+        while rest > 0 {
+            start--;
+            digits[start] = ('0' + rest % 10) as u8;
+            rest /= 10;
+        }
+        out.append(digits[start..]);
         return;
     }
     out.format(value);
@@ -629,11 +639,11 @@ fn cc_simple_store(p: Program&, id: i64) -> bool {
     return !cc_needs_clone(p, id, 0) && !cc_helper_indirect(p, id);
 }
 fn cc_is_packed(f: CcBody&, id: i64) -> bool {
-    return id >= 0 && id < f.packed_structs.len && f.packed_structs[id];
+    return id >= 0 && id < f.layout.packed_structs.len && f.layout.packed_structs[id];
 }
 fn cc_field_index(f: CcBody&, field: i64) -> i64 {
-    if field < 0 || field >= f.field_indices.len { return -1; }
-    return f.field_indices[field];
+    if field < 0 || field >= f.layout.field_indices.len { return -1; }
+    return f.layout.field_indices[field];
 }
 fn cc_compute_packed_structs(p: Program&, used: const bool[:], packed: bool[>..]&, field_indices: i32[>..]&) {
     packed.resize(p.types.len, false);
@@ -700,17 +710,17 @@ recursive fn cc_mark_env_tree(p: Program&, node: i64, needs_env: bool[>..]&) {
                 walk_left = false;
             }
         }
-        if walk_left { cc_mark_env_tree(p, n.left, needs_env); }
+        if walk_left && n.left >= 0 { cc_mark_env_tree(p, n.left, needs_env); }
         while arg >= 0 { cc_mark_env_tree(p, arg, needs_env); arg = p.nodes[arg].next; }
         return;
     }
-    if n.kind != N_ARM { cc_mark_env_tree(p, n.left, needs_env); }
-    cc_mark_env_tree(p, n.right, needs_env);
-    cc_mark_env_tree(p, n.third, needs_env);
+    if n.kind != N_ARM && n.left >= 0 { cc_mark_env_tree(p, n.left, needs_env); }
+    if n.right >= 0 { cc_mark_env_tree(p, n.right, needs_env); }
+    if n.third >= 0 { cc_mark_env_tree(p, n.third, needs_env); }
     var child = n.first;
     while child >= 0 { cc_mark_env_tree(p, child, needs_env); child = p.nodes[child].next; }
 }
-fn cc_compute_needs_env(p: Program&, used: const bool[:], emittable: const i64[:], needs_env: bool[>..]&) {
+fn cc_compute_needs_env(p: Program&, used: const bool[:], emittable: const i32[:], needs_env: bool[>..]&) {
     needs_env.resize(p.nodes.len, false);
     for id in emittable {
         let n: const Node& = p.nodes[id];
@@ -849,12 +859,12 @@ fn cc_write(p: Program&, f: CcBody&, place: CcPlace, value: i64, node: i64) {
 fn cc_value_form(p: Program&, type_id: i64) -> i64 { if cc_relative_cell(p, type_id) || cc_kind(p, type_id) == TY_INT && p.types[type_id].storage != 0 { return CC_REGISTER; } return CC_NATIVE; }
 recursive fn cc_copy_tuple(p: Program&, f: CcBody&, target: i64, value: i64, type_id: i64) {
     let source = cc_temporary_ref(f, value); let start = f.work.len; var field = p.types[type_id].first; var ordinal = 0;
-    while field >= 0 { f.work.push(cc_tuple_value(p, f, value, type_id, ordinal)); field = p.nodes[field].next; ordinal++; }
+    while field >= 0 { f.work.push(CcScratchWord { value: cc_tuple_value(p, f, value, type_id, ordinal) }); field = p.nodes[field].next; ordinal++; }
     field = p.types[type_id].first; ordinal = 0;
     while field >= 0 {
         let destination = cc_channel_target(p, f, target, type_id, ordinal); let origin = cc_channel_target(p, f, source, type_id, ordinal);
         cc_text(f.out, "if("); cc_id(f.out, "g_v", destination); cc_text(f.out, "!="); cc_id(f.out, "g_v", origin); cc_text(f.out, "){\n");
-        cc_write(p, f, CcPlace { type_id: p.nodes[field].type_id, address: destination, form: CC_REGISTER }, f.work[start + ordinal], -1); cc_text(f.out, "}\n");
+        cc_write(p, f, CcPlace { type_id: p.nodes[field].type_id, address: destination, form: CC_REGISTER }, f.work[start + ordinal].value, -1); cc_text(f.out, "}\n");
         field = p.nodes[field].next; ordinal++;
     }
     f.work.resize(start);
@@ -1023,7 +1033,7 @@ recursive fn cc_place_location(p: Program&, f: CcBody&, node: i64) -> CcPlace {
             return CcPlace { type_id: type_id, address: ref, form: CC_IMAGE, stack: base.stack, owner_header: base.owner_header, image_base: base.image_base, image_end: base.image_end };
         }
         let offset = cc_field_offset(p, p.nodes[n.left].type_id, n.symbol);
-        if f.natural_members && base.form == CC_NATIVE && cc_kind(p, base.type_id) == TY_STRUCT && cc_concrete(p, base.type_id) && !cc_image_type(p, base.type_id) &&
+        if f.natural_members && base.form == CC_NATIVE && cc_kind(p, base.type_id) == TY_STRUCT && cc_emit_concrete(p, base.type_id) && !cc_image_type(p, base.type_id) &&
            n.symbol < p.nodes.len && p.nodes[n.symbol].kind == N_FIELD {
             let width = cc_frame_size(p, type_id); let size = cc_frame_size(p, base.type_id);
             if size > 0 && width > 0 && offset >= 0 && width <= size && offset <= size - width {
@@ -1172,11 +1182,11 @@ recursive fn cc_convert(p: Program&, f: CcBody&, value: i64, from: i64, to: i64,
     }
     if a == TY_TUPLE && b == TY_TUPLE {
         let start = f.work.len; var source = p.types[from].first; var index = 0;
-        while source >= 0 { f.work.push(cc_tuple_value(p, f, value, from, index)); source = p.nodes[source].next; index++; }
+        while source >= 0 { f.work.push(CcScratchWord { value: cc_tuple_value(p, f, value, from, index) }); source = p.nodes[source].next; index++; }
         source = p.types[from].first; var destination = p.types[to].first; index = 0; let target = cc_temporary_ref(f, result);
         while source >= 0 && destination >= 0 {
             let source_type = p.nodes[source].type_id; let destination_type = p.nodes[destination].type_id;
-            let adapted = cc_convert(p, f, f.work[start + index], source_type, destination_type, node, clone);
+            let adapted = cc_convert(p, f, f.work[start + index].value, source_type, destination_type, node, clone);
             if adapted >= 0 {
                 let part = cc_channel_target(p, f, target, to, index);
                 cc_write(p, f, CcPlace { type_id: destination_type, address: part, form: CC_REGISTER }, adapted, node);
@@ -1348,13 +1358,20 @@ recursive fn cc_to(p: Program&, f: CcBody&, node: i64, to: i64, clone: bool = fa
     let value = cc_expr(p, f, node); return cc_convert(p, f, value, from, to, node, clone);
 }
 fn cc_bytes(out: u8[>..]&, text: const u8[:]) {
-    cc_text(out, "\"");
-    for c in text {
-        // Fixed-width octal escapes cannot consume a following hex digit.
-        cc_text(out, "\\"); out.push((48 + ((c as i64 >> 6) & 7)) as u8);
-        out.push((48 + ((c as i64 >> 3) & 7)) as u8); out.push((48 + ((c as i64) & 7)) as u8);
+    out.push('"');
+    var escaped: u8[256] = [0; 256];
+    var at = 0;
+    for byte in text {
+        // Fixed-width octal escapes cannot consume a following digit.
+        escaped[at] = '\\';
+        escaped[at + 1] = '0' + (byte >> 6);
+        escaped[at + 2] = '0' + ((byte >> 3) & 7);
+        escaped[at + 3] = '0' + (byte & 7);
+        at += 4;
+        if at == escaped.len { out.append(escaped[..]); at = 0; }
     }
-    cc_text(out, "\"");
+    out.append(escaped[..at]);
+    out.push('"');
 }
 fn cc_function_result(p: Program&, function: i64) -> i64 {
     let type_id = p.nodes[function].type_id;
@@ -1379,7 +1396,7 @@ recursive fn cc_closure_value(p: Program&, f: CcBody&, node: i64, function: i64,
     return cc_closure(p, f, function, type_id);
 }
 recursive fn cc_closure(p: Program&, f: CcBody&, function: i64, type_id: i64) -> i64 {
-    if function < 0 || function >= f.needs_env.len || !f.needs_env[function] { cc_fail(p, function, "c: internal error: closure target missing env parameter"); return -1; }
+    if function < 0 || function >= f.layout.needs_env.len || !f.layout.needs_env[function] { cc_fail(p, function, "c: internal error: closure target missing env parameter"); return -1; }
     let result = cc_temp(p, f, type_id); var count = 0; var capture = node_captures(p, function);
     while capture >= 0 { count++; capture = p.nodes[capture].next; }
     cc_set(f, result); cc_text(f.out, "g_closure((void*)"); cc_id(f.out, "g_fn", function); cc_text(f.out, ","); cc_number(f.out, count); cc_text(f.out, ");\n");
@@ -1392,21 +1409,11 @@ recursive fn cc_closure(p: Program&, f: CcBody&, function: i64, type_id: i64) ->
     return result;
 }
 
-fn cc_use_type(p: Program&, used: bool[:], work: i64[>..]&, type_id: i64) {
+fn cc_use_type(p: Program&, used: bool[:], work: i32[>..]&, type_id: i64) {
     if type_id < 0 || type_id >= used.len || used[type_id] { return; }
-    used[type_id] = true; work.push(type_id);
+    used[type_id] = true; work.push(type_id as i32);
 }
-fn cc_used_types(p: Program&, used: bool[:], work: i64[>..]&, emittable: const i64[:], indices: const i32[:]) {
-    // Lowering introduces scalar counters, predicates, and conversion temps.
-    for type_id in 0..TYPE_STRING + 1 { cc_use_type(p, used, work, type_id); }
-    for id in 0..p.nodes.len {
-        let n: const Node& = p.nodes[id];
-        if (n.flags & F_CHECKED) == 0 { continue; }
-        if n.kind >= N_INTEGER && n.kind <= N_EXPR_STMT || n.kind == N_BLOCK || n.kind == N_FUNCTION_VALUE || n.kind == N_VARIABLE || n.kind == N_TUPLE || n.kind == N_CAST || n.kind == N_CONST_FOR || n.kind == N_RESULT {
-            cc_use_type(p, used, work, n.type_id);
-        }
-        if n.kind == N_BINARY && n.aux >= 0 { cc_use_type(p, used, work, n.aux); }
-    }
+fn cc_used_types(p: Program&, used: bool[:], work: i32[>..]&, emittable: const i32[:], indices: const i32[:]) {
     for s_id in 0..p.symbols.len {
         let symbol: const Symbol& = p.symbols[s_id];
         if (symbol.flags & (S_FUNCTION | S_TYPE | S_BUILTIN)) == 0 &&
@@ -2024,7 +2031,7 @@ recursive fn cc_block(p: Program&, f: CcBody&, node: i64, destination: i64 = -1)
     while child >= 0 {
         let kind = p.nodes[child].kind; let statement_mark = f.region_live;
         let terminates = cc_diverges(p, child); falls = !terminates;
-        if kind == N_DEFER { f.defers.push(child); child = p.nodes[child].next; continue; }
+        if kind == N_DEFER { f.defers.push(CcScratchWord { value: child }); child = p.nodes[child].next; continue; }
         if !terminates && p.nodes[child].next < 0 && (p.nodes[child].flags & F_TAIL) != 0 && result >= 0 {
             let destination = cc_temporary_ref(f, result); let value = cc_construct_into(p, f, child, n.type_id, destination, cc_value_form(p, n.type_id));
             if value < 0 { cc_fail(p, child, "c: block result has no value"); }
@@ -2121,10 +2128,10 @@ recursive fn cc_loop_path(p: Program&, node: i64) -> bool {
     return false;
 }
 recursive fn cc_loop_cursors(p: Program&, f: CcBody&, body: i64, index: i64) {
-    let mark = f.work.len; f.work.push(body);
+    let mark = f.work.len; f.work.push(CcScratchWord { value: body });
     while f.work.len > mark {
-        let node = f.work.pop(); if node < 0 { continue; } let n: const Node& = p.nodes[node];
-        if n.next >= 0 { f.work.push(n.next); }
+        let node = f.work.pop().value; if node < 0 { continue; } let n: const Node& = p.nodes[node];
+        if n.next >= 0 { f.work.push(CcScratchWord { value: n.next }); }
         if n.kind == N_FUNCTION || n.kind == N_FUNCTION_VALUE { continue; }
         if n.kind == N_INDEX && cc_cursor_symbol(p, n.left) >= 0 && p.nodes[n.right].kind == N_NAME && p.nodes[n.right].symbol == index {
             var type_id: i64 = p.nodes[n.left].type_id; while cc_kind(p, type_id) == TY_REF { type_id = p.types[type_id].element; }
@@ -2137,7 +2144,7 @@ recursive fn cc_loop_cursors(p: Program&, f: CcBody&, body: i64, index: i64) {
                 }
             }
         }
-        if n.first >= 0 { f.work.push(n.first); } if n.left >= 0 { f.work.push(n.left); } if n.right >= 0 { f.work.push(n.right); } if n.third >= 0 { f.work.push(n.third); }
+        if n.first >= 0 { f.work.push(CcScratchWord { value: n.first }); } if n.left >= 0 { f.work.push(CcScratchWord { value: n.left }); } if n.right >= 0 { f.work.push(CcScratchWord { value: n.right }); } if n.third >= 0 { f.work.push(CcScratchWord { value: n.third }); }
     }
 }
 recursive fn cc_committed_run_loop(p: Program&, f: CcBody&, node: i64, array: i64) -> i64 {
@@ -2304,20 +2311,20 @@ recursive fn cc_call(p: Program&, f: CcBody&, node: i64) -> i64 {
     } else { f.has_indirect_call = true; closure = cc_expr(p, f, n.left); }
     if cc_kind(p, callable) != TY_FN { cc_fail(p, node, "c: call lacks a checked function signature"); return -1; }
     let args_start = f.work.len; var args_count = 0; var param = p.types[callable].first; var arg = n.first;
-    while arg >= 0 { f.work.push(-1); args_count++; arg = p.nodes[arg].next; }
+    while arg >= 0 { f.work.push(CcScratchWord { value: -1 }); args_count++; arg = p.nodes[arg].next; }
     var authority = false; var scan = param;
     while scan >= 0 { if cc_flat_image_reference(p, p.nodes[scan].type_id) || cc_run_reference(p, p.nodes[scan].type_id) { authority = true; } scan = p.nodes[scan].next; }
-    if authority { for i in args_count { f.work.push(-1); } }
+    if authority { for i in args_count { f.work.push(CcScratchWord { value: -1 }); } }
     arg = n.first; var ordinal = 0;
     while param >= 0 && arg >= 0 {
         let value = cc_to(p, f, arg, p.nodes[param].type_id, true);
         if value < 0 { return -1; }
         cc_relative_check(p, f, value, p.nodes[param].type_id, arg);
-        f.work[args_start + ordinal] = value;
+        f.work[args_start + ordinal].value = value;
         if cc_run_reference(p, p.nodes[param].type_id) {
             let owner = cc_run_reference_owner(p, f, arg);
             if owner < 0 { cc_fail(p, arg, "c: run argument has no proved receiving capability"); return -1; }
-            f.work[args_start + args_count + ordinal] = owner;
+            f.work[args_start + args_count + ordinal].value = owner;
         }
         if cc_flat_image_reference(p, p.nodes[param].type_id) {
             let element = p.types[p.nodes[param].type_id].element;
@@ -2327,7 +2334,7 @@ recursive fn cc_call(p: Program&, f: CcBody&, node: i64) -> i64 {
                 owner = cc_temporary_ref(f, view);
             }
             if owner < 0 { cc_fail(p, arg, "c: relative image argument has no proved owner authority"); return -1; }
-            f.work[args_start + args_count + ordinal] = owner;
+            f.work[args_start + args_count + ordinal].value = owner;
         }
         ordinal++; param = p.nodes[param].next; arg = p.nodes[arg].next;
     }
@@ -2340,7 +2347,7 @@ recursive fn cc_call(p: Program&, f: CcBody&, node: i64) -> i64 {
     if function >= 0 { cc_id(f.out, "g_fn", function); }
     else { cc_text(f.out, "(("); cc_function_type(p, f.out, callable); cc_text(f.out, ")"); cc_id(f.out, "g_v", closure); cc_text(f.out, "->function)"); }
     cc_text(f.out, "(");
-    if function < 0 || f.needs_env[function] {
+    if function < 0 || f.layout.needs_env[function] {
         if closure >= 0 { cc_id(f.out, "g_v", closure); } else { cc_text(f.out, "NULL"); }
         cc_text(f.out, ",");
     }
@@ -2351,9 +2358,9 @@ recursive fn cc_call(p: Program&, f: CcBody&, node: i64) -> i64 {
     }
     param = p.types[callable].first;
     for i in 0..args_count {
-        cc_text(f.out, ","); if cc_indirect(p, p.nodes[param].type_id) { cc_text(f.out, "&"); } cc_id(f.out, "g_v", f.work[args_start + i]);
-        if cc_flat_image_reference(p, p.nodes[param].type_id) { cc_text(f.out, ","); cc_id(f.out, "g_v", f.work[args_start + args_count + i]); }
-        if cc_run_reference(p, p.nodes[param].type_id) { cc_text(f.out, ","); cc_id(f.out, "g_run_cap", f.work[args_start + args_count + i]); }
+        cc_text(f.out, ","); if cc_indirect(p, p.nodes[param].type_id) { cc_text(f.out, "&"); } cc_id(f.out, "g_v", f.work[args_start + i].value);
+        if cc_flat_image_reference(p, p.nodes[param].type_id) { cc_text(f.out, ","); cc_id(f.out, "g_v", f.work[args_start + args_count + i].value); }
+        if cc_run_reference(p, p.nodes[param].type_id) { cc_text(f.out, ","); cc_id(f.out, "g_run_cap", f.work[args_start + args_count + i].value); }
         param = p.nodes[param].next;
     }
     if function >= 0 && (p.nodes[function].flags & F_LOCATED) != 0 { cc_call_location(p, f, node); }
@@ -2386,7 +2393,7 @@ recursive fn cc_dispatch(p: Program&, f: CcBody&, node: i64) -> i64 {
         checked = p.nodes[checked].next;
     }
     let args_start = f.work.len; var count = 0; var argument = n.first;
-    while argument >= 0 { f.work.push(-1); count++; argument = p.nodes[argument].next; }
+    while argument >= 0 { f.work.push(CcScratchWord { value: -1 }); count++; argument = p.nodes[argument].next; }
     var parameter = p.types[signature].first; var ordinal = 0;
     var original = -1; var snapshot = -1; var tag = -1; var enum_type = -1; argument = n.first;
     var snapshots = -1;
@@ -2418,7 +2425,7 @@ recursive fn cc_dispatch(p: Program&, f: CcBody&, node: i64) -> i64 {
                 snapshots = f.work.len;
                 arm = n.third;
                 while arm >= 0 {
-                    f.work.push(-1); arm = p.nodes[arm].next;
+                    f.work.push(CcScratchWord { value: -1 }); arm = p.nodes[arm].next;
                 }
                 var form = CC_NATIVE; if cc_image_type(p, enum_type) { form = CC_IMAGE; }
                 arm = n.third; var index = snapshots;
@@ -2436,13 +2443,13 @@ recursive fn cc_dispatch(p: Program&, f: CcBody&, node: i64) -> i64 {
                             cc_text(f.out, "}\n");
                         }
                     }
-                    f.work[index] = fixed; index++; arm = p.nodes[arm].next;
+                    f.work[index].value = fixed; index++; arm = p.nodes[arm].next;
                 }
             }
         } else {
             let value = cc_to(p, f, argument, p.nodes[parameter].type_id, true);
             cc_relative_check(p, f, value, p.nodes[parameter].type_id, argument);
-            f.work[args_start + ordinal] = value;
+            f.work[args_start + ordinal].value = value;
         }
         ordinal++; argument = p.nodes[argument].next; parameter = p.nodes[parameter].next;
     }
@@ -2467,20 +2474,20 @@ recursive fn cc_dispatch(p: Program&, f: CcBody&, node: i64) -> i64 {
             let payload_ref = cc_dispatch_payload(p, f, enum_type, snapshot);
             var form = CC_NATIVE; if cc_image_type(p, enum_type) { form = CC_IMAGE; }
             payload = cc_read(p, f, CcPlace { type_id: dispatch_type, address: payload_ref, form: form }, dispatch_type, node);
-        } else { payload = f.work[snapshots + arm_index]; }
-        f.work[args_start + n.aux] = payload;
+        } else { payload = f.work[snapshots + arm_index].value; }
+        f.work[args_start + n.aux].value = payload;
         var closure = -1;
         if node_captures(p, function) >= 0 { closure = cc_closure(p, f, function, callable); }
         let arm_args = f.work.len; var source_parameter = p.types[signature].first; dispatch_parameter = p.types[callable].first;
         for i in 0..count {
-            var value = f.work[args_start + i]; let target_type = p.nodes[dispatch_parameter].type_id; let source_type = p.nodes[source_parameter].type_id;
+            var value = f.work[args_start + i].value; let target_type = p.nodes[dispatch_parameter].type_id; let source_type = p.nodes[source_parameter].type_id;
             if i != n.aux && source_type != target_type {
                 if cc_queue_same(p, source_type, target_type) && cc_frame_size(p, source_type) == cc_frame_size(p, target_type) {
                     let adapted = cc_temp(p, f, target_type, true, false);
                     cc_text(f.out, "memcpy(&"); cc_id(f.out, "g_v", adapted); cc_text(f.out, ",&"); cc_id(f.out, "g_v", value); cc_text(f.out, ",sizeof("); cc_type(f.out, target_type); cc_text(f.out, "));\n"); value = adapted;
                 } else { value = cc_convert(p, f, value, source_type, target_type, node); }
             }
-            f.work.push(value); dispatch_parameter = p.nodes[dispatch_parameter].next; source_parameter = p.nodes[source_parameter].next;
+            f.work.push(CcScratchWord { value: value }); dispatch_parameter = p.nodes[dispatch_parameter].next; source_parameter = p.nodes[source_parameter].next;
         }
         let natural_type = p.types[callable].element;
         // Every arm with a destination-dependent result must receive the
@@ -2495,7 +2502,7 @@ recursive fn cc_dispatch(p: Program&, f: CcBody&, node: i64) -> i64 {
         let cleanup = cc_cleanup_open(p, f, function);
         if natural >= 0 && !cc_result_indirect(p, natural_type) { cc_set(f, natural); }
         cc_id(f.out, "g_fn", function); cc_text(f.out, "(");
-        if f.needs_env[function] {
+        if f.layout.needs_env[function] {
             if closure >= 0 { cc_id(f.out, "g_v", closure); } else { cc_text(f.out, "NULL"); }
             cc_text(f.out, ",");
         }
@@ -2505,7 +2512,7 @@ recursive fn cc_dispatch(p: Program&, f: CcBody&, node: i64) -> i64 {
             else { cc_text(f.out, ",&"); cc_id(f.out, "g_v", natural); }
         }
         dispatch_parameter = p.types[callable].first;
-        for i in 0..count { cc_text(f.out, ","); if cc_indirect(p, p.nodes[dispatch_parameter].type_id) { cc_text(f.out, "&"); } cc_id(f.out, "g_v", f.work[arm_args + i]); dispatch_parameter = p.nodes[dispatch_parameter].next; }
+        for i in 0..count { cc_text(f.out, ","); if cc_indirect(p, p.nodes[dispatch_parameter].type_id) { cc_text(f.out, "&"); } cc_id(f.out, "g_v", f.work[arm_args + i].value); dispatch_parameter = p.nodes[dispatch_parameter].next; }
         if (p.nodes[function].flags & F_LOCATED) != 0 { cc_call_location(p, f, node); }
         cc_text(f.out, ");\n"); cc_cleanup_close(f, cleanup); f.work.resize(arm_args); cc_region_call(f, function, node);
         if !receives {
@@ -2840,7 +2847,7 @@ recursive fn cc_flat_image_record(p: Program&, f: CcBody&, node: i64, type_id: i
     let start = f.work.len; let regions = f.region_live; var binding = -1;
     if node >= 0 { binding = p.nodes[node].first; }
     var field = p.nodes[p.types[type_id].declaration].first;
-    while field >= 0 { let n: const Node& = p.nodes[field]; if (n.flags & F_PAD) == 0 { f.work.push(-1); } field = n.next; }
+    while field >= 0 { let n: const Node& = p.nodes[field]; if (n.flags & F_PAD) == 0 { f.work.push(CcScratchWord { value: -1 }); } field = n.next; }
     field = p.nodes[p.types[type_id].declaration].first; var staged = start;
     while field >= 0 {
         let current = field; let n: const Node& = p.nodes[field]; field = n.next;
@@ -2852,7 +2859,7 @@ recursive fn cc_flat_image_record(p: Program&, f: CcBody&, node: i64, type_id: i
         }
         if cc_relative_cell(p, n.type_id) && cc_self_relative_image(p, type_id) {
             if initializer < 0 || p.nodes[initializer].kind != N_SELF { cc_fail(p, node, "c: pure-self image constructor requires literal self"); return -1; }
-            f.work[staged] = -1; staged++; continue;
+            f.work[staged].value = -1; staged++; continue;
         }
         var value = -1;
         if initializer >= 0 { value = cc_to(p, f, initializer, n.type_id); } else { value = cc_default(p, f, n.type_id); }
@@ -2860,7 +2867,7 @@ recursive fn cc_flat_image_record(p: Program&, f: CcBody&, node: i64, type_id: i
             let encoded = f.serial; f.serial++; cc_storage_type(p, f.out, n.type_id); cc_id(f.out, " g_v", encoded); cc_text(f.out, "={0};\n");
             let target = cc_temporary_ref(f, encoded); cc_store(p, f, target, value, n.type_id, initializer); value = encoded;
         }
-        f.work[staged] = value; staged++;
+        f.work[staged].value = value; staged++;
     }
     let raw = f.serial; f.serial++;
     cc_id(f.out, "GImage *g_flat", raw); cc_text(f.out, "=(GImage*)g_address("); cc_id(f.out, "g_v", owner); cc_text(f.out, ");\n");
@@ -2869,7 +2876,7 @@ recursive fn cc_flat_image_record(p: Program&, f: CcBody&, node: i64, type_id: i
     while field >= 0 {
         let n: const Node& = p.nodes[field]; field = n.next;
         if (n.flags & F_PAD) != 0 { cc_image_padding(f, owner, node_layout_aux(p, field, n.aux)); continue; }
-        let value = f.work[ordinal]; ordinal++;
+        let value = f.work[ordinal].value; ordinal++;
         if cc_relative_cell(p, n.type_id) && cc_self_relative_image(p, type_id) {
             let width = p.types[n.type_id].length_storage;
             cc_text(f.out, "g_relative_store(g_ref(g_image_space("); cc_id(f.out, "g_flat", raw); cc_text(f.out, "->region,"); cc_number(f.out, width); cc_text(f.out, ")),g_ref("); cc_id(f.out, "g_flat", raw); cc_text(f.out, "->base),"); cc_number(f.out, width); cc_text(f.out, ",0,0,\"<self image>\",0);g_image_advance("); cc_id(f.out, "g_flat", raw); cc_text(f.out, "->region,"); cc_id(f.out, "g_flat", raw); cc_text(f.out, "->region->stack.top+"); cc_number(f.out, width); cc_text(f.out, ");\n"); continue;
@@ -3036,7 +3043,7 @@ recursive fn cc_variable(p: Program&, f: CcBody&, node: i64) {
     }
     let keep = f.region_live; var borrowed = false;
     let values_start = f.work.len; var values_count = 0; var current = n.right;
-    while current >= 0 { f.work.push(-1); f.work.push(-1); values_count++; current = p.nodes[current].next; }
+    while current >= 0 { f.work.push(CcScratchWord { value: -1 }); f.work.push(CcScratchWord { value: -1 }); values_count++; current = p.nodes[current].next; }
     let receiving_mark = f.receiving.len;
     if values_count == 1 && cc_kind(p, p.nodes[n.right].type_id) == TY_TUPLE {
         var binding = n.first; var field = p.types[p.nodes[n.right].type_id].first; var index = 0;
@@ -3052,21 +3059,21 @@ recursive fn cc_variable(p: Program&, f: CcBody&, node: i64) {
     }
     current = n.right; var ordinal = 0;
     while current >= 0 {
-        let value = cc_expr(p, f, current); f.work[values_start + ordinal * 2] = value;
-        f.work[values_start + ordinal * 2 + 1] = p.nodes[current].type_id;
+        let value = cc_expr(p, f, current); f.work[values_start + ordinal * 2].value = value;
+        f.work[values_start + ordinal * 2 + 1].value = p.nodes[current].type_id;
         ordinal++; current = p.nodes[current].next;
     }
     f.receiving.resize(receiving_mark);
     var binding = n.first; var index = 0;
     while binding >= 0 {
         let bn: const Node& = p.nodes[binding]; let destination = cc_symbol_ref(p, f, bn.symbol, binding); let type_id = p.symbols[bn.symbol].type_id;
-        if values_count == 1 && cc_kind(p, f.work[values_start + (0) * 2 + 1]) == TY_TUPLE {
-            var field = p.types[f.work[values_start + 1]].first; for ordinal in 0..index { field = p.nodes[field].next; }
+        if values_count == 1 && cc_kind(p, f.work[values_start + (0) * 2 + 1].value) == TY_TUPLE {
+            var field = p.types[f.work[values_start + 1].value].first; for ordinal in 0..index { field = p.nodes[field].next; }
             let natural_type = p.nodes[field].type_id;
-            let value = cc_tuple_value(p, f, f.work[values_start], f.work[values_start + 1], index);
+            let value = cc_tuple_value(p, f, f.work[values_start].value, f.work[values_start + 1].value, index);
             let adapted = cc_convert(p, f, value, natural_type, type_id, binding, true); cc_store(p, f, destination, adapted, type_id);
         } else if index < values_count {
-            let value = cc_convert(p, f, f.work[values_start + (index) * 2], f.work[values_start + (index) * 2 + 1], type_id, binding, true); cc_store(p, f, destination, value, type_id);
+            let value = cc_convert(p, f, f.work[values_start + (index) * 2].value, f.work[values_start + (index) * 2 + 1].value, type_id, binding, true); cc_store(p, f, destination, value, type_id);
         } else { let value = cc_default(p, f, type_id); cc_store(p, f, destination, value, type_id); }
         if cc_frame_borrows(p, type_id) { borrowed = true; }
         index++; binding = bn.next;
@@ -3134,7 +3141,7 @@ recursive fn cc_assignment(p: Program&, f: CcBody&, node: i64) {
             if cc_kind(p, ftype) != TY_REF && cc_simple_store(p, ftype) && cc_kind(p, ftype) != TY_TUPLE {
                 if p.nodes[mnode.left].kind == N_NAME && cc_direct_symbol(p, f, p.nodes[mnode.left].symbol) {
                     let sym = p.nodes[mnode.left].symbol; let btype = p.symbols[sym].type_id;
-                    if cc_kind(p, btype) == TY_STRUCT && cc_concrete(p, btype) && !cc_image_type(p, btype) {
+                    if cc_kind(p, btype) == TY_STRUCT && cc_emit_concrete(p, btype) && !cc_image_type(p, btype) {
                         if cc_is_packed(f, btype) {
                             let fidx = cc_field_index(f, mnode.symbol);
                             if fidx >= 0 {
@@ -3235,14 +3242,14 @@ recursive fn cc_zero_receive(p: Program&, f: CcBody&, type_id: i64, target: i64)
 recursive fn cc_thread_builtin(p: Program&, f: CcBody&, node: i64, builtin: i64, args_start: i64, args_count: i64) -> i64 {
     let n: const Node& = p.nodes[node];
     if builtin == 7 || builtin == 8 {
-        let worker = p.symbols[p.nodes[f.work[args_start]].symbol].node;
+        let worker = p.symbols[p.nodes[f.work[args_start].value].symbol].node;
         let packet = f.serial; f.serial++; cc_raw_array(f, "g_packet", packet);
         var formal = p.nodes[worker].first; var ordinal = 1;
         while formal >= 0 && ordinal < args_count {
-            let type_id = p.nodes[formal].type_id; let value = cc_to(p, f, f.work[args_start + ordinal], type_id); var image = value;
+            let type_id = p.nodes[formal].type_id; let value = cc_to(p, f, f.work[args_start + ordinal].value, type_id); var image = value;
             if cc_relative_cell(p, type_id) {
                 image = f.serial; f.serial++; cc_storage_type(p, f.out, type_id); cc_text(f.out, " "); cc_id(f.out, "g_v", image); cc_text(f.out, "={0};\n");
-                let cell = cc_temporary_ref(f, image); cc_store(p, f, cell, value, type_id, f.work[args_start + ordinal]);
+                let cell = cc_temporary_ref(f, image); cc_store(p, f, cell, value, type_id, f.work[args_start + ordinal].value);
             }
             cc_thread_emit_image(f.out, type_id, image, packet);
             formal = p.nodes[formal].next; ordinal++;
@@ -3253,7 +3260,7 @@ recursive fn cc_thread_builtin(p: Program&, f: CcBody&, node: i64, builtin: i64,
         if builtin == 8 { f.out.append("1"); } else { f.out.append("0"); } f.out.append(");\n"); return result;
     }
     if builtin == 9 {
-        let id = cc_to(p, f, f.work[args_start], TYPE_I64); let result = cc_temp(p, f, n.type_id);
+        let id = cc_to(p, f, f.work[args_start].value, TYPE_I64); let result = cc_temp(p, f, n.type_id);
         if args_count == 1 {
             cc_set(f, result); f.out.format("gs_thread_wait(g_v", id, ",NULL,NULL,"); cc_location(p, f, node); f.out.append(");\n"); return result;
         }
@@ -3262,7 +3269,7 @@ recursive fn cc_thread_builtin(p: Program&, f: CcBody&, node: i64, builtin: i64,
         f.out.format("if(g_message", message, "){\n");
         let copied = f.serial; f.serial++; cc_raw_array(f, "g_wait_image", copied);
         f.out.format("g_transfer_hold(g_message", message, ");g_bytes(&g_wait_image", copied, ",g_message", message, ",g_message_bytes", message, ");g_transfer_drop();\n");
-        let receiver = f.work[args_start + 1]; var type_id: i64 = p.nodes[receiver].type_id;
+        let receiver = f.work[args_start + 1].value; var type_id: i64 = p.nodes[receiver].type_id;
         while cc_kind(p, type_id) == TY_REF { type_id = p.types[type_id].element; }
         let target = cc_base(p, f, receiver);
         f.out.format("g_append_bytes(g_v", target, ","); cc_array_args(p, f.out, type_id, false);
@@ -3270,7 +3277,7 @@ recursive fn cc_thread_builtin(p: Program&, f: CcBody&, node: i64, builtin: i64,
     }
     let type_id = cc_queue_type(p, node); let queue = cc_queue_key(p, type_id);
     if builtin == 10 {
-        let value = cc_to(p, f, f.work[args_start], type_id); let packet = f.serial; f.serial++; cc_raw_array(f, "g_queue_image", packet);
+        let value = cc_to(p, f, f.work[args_start].value, type_id); let packet = f.serial; f.serial++; cc_raw_array(f, "g_queue_image", packet);
         let size = f.serial; f.serial++;
         f.out.format("int64_t g_image_bytes", size, "=g_image_size_", type_id, "(g_ref(&g_v", value, "));\n",
             "g_reserve(g_ref(&g_queue_image", packet, "),3,-1,0,1,g_image_bytes", size, ");\n",
@@ -3279,11 +3286,11 @@ recursive fn cc_thread_builtin(p: Program&, f: CcBody&, node: i64, builtin: i64,
         f.out.format("gs_qput(&g_queue_", queue, ",g_queue_image", packet, ".data,g_image_bytes", size, ");\n"); return result;
     }
     if builtin == 13 {
-        let limit = cc_to(p, f, f.work[args_start], TYPE_I64);
+        let limit = cc_to(p, f, f.work[args_start].value, TYPE_I64);
         f.out.format("gs_qlimit(&g_queue_", queue, ",g_v", limit, ","); cc_location(p, f, node); f.out.append(");\n"); return -1;
     }
     let pair = builtin == 12 || args_count > 0;
-    var timeout = -1; if args_count > 0 { timeout = cc_to(p, f, f.work[args_start], TYPE_I64); }
+    var timeout = -1; if args_count > 0 { timeout = cc_to(p, f, f.work[args_start].value, TYPE_I64); }
     let result = cc_result_temp(p, f, node, n.type_id); let message = f.serial; f.serial++;
     var target = cc_temporary_ref(f, result); var present = -1;
     if pair { present = cc_channel_target(p, f, target, n.type_id, 1); target = cc_channel_target(p, f, target, n.type_id, 0); }
@@ -3309,34 +3316,34 @@ fn cc_slice_type(p: Program&, element: i64) -> i64 {
 recursive fn cc_pool_builtin(p: Program&, f: CcBody&, node: i64, builtin: i64, args: i64, base: i64, type_id: i64) -> i64 {
     let n: const Node& = p.nodes[node]; let element = p.types[type_id].element; let width = cc_frame_size(p, element);
     if builtin == 30 || builtin == 31 {
-        var value = -1; if !cc_result_location(p, element) { value = cc_to(p, f, f.work[args + 1], element, true); }
+        var value = -1; if !cc_result_location(p, element) { value = cc_to(p, f, f.work[args + 1].value, element, true); }
         let index = cc_temp(p, f, TYPE_I64); cc_set(f, index); cc_text(f.out, "g_pool_take("); cc_id(f.out, "g_v", base); cc_text(f.out, ","); cc_number(f.out, width); cc_text(f.out, ");\n");
         let target = cc_ref_temp(f); cc_set(f, target); cc_text(f.out, "g_moving("); cc_id(f.out, "g_v", base); cc_text(f.out, ","); cc_id(f.out, "g_v", index); cc_text(f.out, "*"); cc_number(f.out, width); cc_text(f.out, ");\n");
-        if cc_result_location(p, element) { cc_construct_into(p, f, f.work[args + 1], element, target); }
+        if cc_result_location(p, element) { cc_construct_into(p, f, f.work[args + 1].value, element, target); }
         else { cc_store(p, f, target, value, element, node); } cc_text(f.out, "g_pool_commit("); cc_id(f.out, "g_v", base); cc_text(f.out, ","); cc_id(f.out, "g_v", index); cc_text(f.out, ");\n");
         if builtin == 30 { return cc_convert(p, f, index, TYPE_I64, n.type_id, node); }
         if cc_kind(p, element) == TY_REF { return value; } return target;
     }
     if builtin == 32 {
-        let index = cc_to(p, f, f.work[args + 1], TYPE_I64); cc_text(f.out, "g_pool_free("); cc_id(f.out, "g_v", base); cc_text(f.out, ","); cc_id(f.out, "g_v", index);
+        let index = cc_to(p, f, f.work[args + 1].value, TYPE_I64); cc_text(f.out, "g_pool_free("); cc_id(f.out, "g_v", base); cc_text(f.out, ","); cc_id(f.out, "g_v", index);
         cc_text(f.out, ","); cc_location(p, f, node); cc_text(f.out, ");\n"); return -1;
     }
     var old = -1; var old_len = -1;
     if builtin != 33 {
-        var slice_type: i64 = p.nodes[f.work[args + 1]].type_id;
+        var slice_type: i64 = p.nodes[f.work[args + 1].value].type_id;
         while cc_kind(p, slice_type) == TY_REF { slice_type = p.types[slice_type].element; }
         if cc_kind(p, slice_type) != TY_SLICE {
             if cc_kind(p, n.type_id) == TY_SLICE { slice_type = n.type_id; }
             else { slice_type = cc_slice_type(p, element); }
         }
-        old = cc_to(p, f, f.work[args + 1], slice_type);
+        old = cc_to(p, f, f.work[args + 1].value, slice_type);
     }
     if builtin == 35 {
         cc_text(f.out, "g_pool_slice_free("); cc_id(f.out, "g_v", base); cc_text(f.out, ","); cc_id(f.out, "g_v", old); cc_text(f.out, ","); cc_number(f.out, width);
         cc_text(f.out, ","); cc_location(p, f, node); cc_text(f.out, ");\n"); return -1;
     }
     var count_arg = args + 1; if builtin == 34 { count_arg++; }
-    let count = cc_to(p, f, f.work[count_arg], TYPE_I64);
+    let count = cc_to(p, f, f.work[count_arg].value, TYPE_I64);
     if builtin == 34 { old_len = cc_temp(p, f, TYPE_I64); cc_set(f, old_len); cc_id(f.out, "g_v", old); cc_text(f.out, ".len;\n"); }
     let result = cc_temp(p, f, n.type_id); cc_set(f, result); cc_text(f.out, "g_pool_slice_resize("); cc_id(f.out, "g_v", base); cc_text(f.out, ",");
     if old >= 0 { cc_id(f.out, "g_v", old); } else { cc_text(f.out, "(GSlice){0}"); }
@@ -3450,7 +3457,7 @@ recursive fn cc_byte_builtin(p: Program&, f: CcBody&, node: i64, builtin: i64, a
         result = cc_result_temp(p, f, node, n.type_id); destination = cc_temporary_ref(f, result); receiving_type = n.type_id;
         cc_text(f.out, "g_begin_builder("); cc_id(f.out, "g_v", destination); cc_text(f.out, ");\n");
     } else {
-        let output = f.work[args + 1]; receiving_type = p.nodes[output].type_id; destination = cc_base(p, f, output);
+        let output = f.work[args + 1].value; receiving_type = p.nodes[output].type_id; destination = cc_base(p, f, output);
         while cc_kind(p, receiving_type) == TY_REF { receiving_type = p.types[receiving_type].element; }
     }
     cc_text(f.out, "g_append_bytes("); cc_id(f.out, "g_v", destination); cc_text(f.out, ","); cc_array_args(p, f.out, receiving_type, false);
@@ -3560,8 +3567,8 @@ fn cc_range_fail(p: Program&, f: CcBody&, node: i64, reason: i64, message: const
 // range_index, check_length and move_from (upstream §3.3) over fixed-size
 // elements. The receiver is evaluated first, then the argument.
 recursive fn cc_range_builtin(p: Program&, f: CcBody&, node: i64, builtin: i64, args_start: i64, args_count: i64, base: i64, type_id: i64) -> i64 {
-    let width = cc_frame_size(p, p.types[type_id].element); let argument = f.work[args_start + 1];
-    var reason = -1; if args_count > 2 { reason = f.work[args_start + 2]; }
+    let width = cc_frame_size(p, p.types[type_id].element); let argument = f.work[args_start + 1].value;
+    var reason = -1; if args_count > 2 { reason = f.work[args_start + 2].value; }
     if builtin == 40 {
         // The destination is captured before the source runs; memmove copies
         // as though the source values were saved first.
@@ -3608,9 +3615,9 @@ recursive fn cc_range_builtin(p: Program&, f: CcBody&, node: i64, builtin: i64, 
 recursive fn cc_builtin(p: Program&, f: CcBody&, node: i64, builtin: i64) -> i64 {
     if builtin <= 2 || builtin == 4 || (builtin >= 7 && builtin <= 13) || builtin == 18 || (builtin >= 30 && builtin <= 35) { f.has_calls = true; }
     let n: const Node& = p.nodes[node]; let args_start = f.work.len; var args_count = 0; var arg = n.first;
-    while arg >= 0 { f.work.push(arg); args_count++; arg = p.nodes[arg].next; }
+    while arg >= 0 { f.work.push(CcScratchWord { value: arg }); args_count++; arg = p.nodes[arg].next; }
     if builtin == 14 { return cc_default(p, f, n.type_id); }
-    if builtin == 15 { return cc_to(p, f, f.work[args_start + 0], n.type_id, true); }
+    if builtin == 15 { return cc_to(p, f, f.work[args_start + 0].value, n.type_id, true); }
     if builtin == 0 || builtin == 1 || builtin == 2 {
         var output = -1; var start = 0; var builder = -1; var limited = -1;
         let raw = f.serial; f.serial++;
@@ -3620,18 +3627,18 @@ recursive fn cc_builtin(p: Program&, f: CcBody&, node: i64, builtin: i64) -> i64
         }
         if builtin == 1 { output = cc_result_temp(p, f, node, n.type_id); builder = cc_temporary_ref(f, output); cc_text(f.out, "g_begin_builder("); cc_id(f.out, "g_v", builder); cc_text(f.out, ");\n"); }
         if builtin == 2 {
-            let receiver = f.work[args_start]; builder = cc_base(p, f, receiver); start = 1;
+            let receiver = f.work[args_start].value; builder = cc_base(p, f, receiver); start = 1;
             var array: i64 = p.nodes[receiver].type_id; while cc_kind(p, array) == TY_REF { array = p.types[array].element; }
             if cc_kind(p, array) == TY_ARRAY && p.types[array].array_kind == A_LIMITED { limited = array; }
         }
         cc_id(f.out, "GArray g_builder", raw); cc_text(f.out, ";\n");
         for i in start..args_count {
-            let value = cc_render_value(p, f, f.work[args_start + i]); if value < 0 { return -1; }
+            let value = cc_render_value(p, f, f.work[args_start + i].value); if value < 0 { return -1; }
             if limited >= 0 { let slot = cc_region_slot(f, 1); cc_id(f.out, "g_builder", raw); cc_text(f.out, "=g_array("); cc_region_argument(f, slot); cc_text(f.out, ");\n"); }
             else {
                 cc_text(f.out, "memcpy(&"); cc_id(f.out, "g_builder", raw); cc_text(f.out, ",g_address("); cc_id(f.out, "g_v", builder); cc_text(f.out, "),sizeof(GArray));\n");
             }
-            cc_id(f.out, "g_print_", cc_render_type(p, p.nodes[f.work[args_start + i]].type_id)); cc_text(f.out, "(&"); cc_id(f.out, "g_builder", raw);
+            cc_id(f.out, "g_print_", cc_render_type(p, p.nodes[f.work[args_start + i].value].type_id)); cc_text(f.out, "(&"); cc_id(f.out, "g_builder", raw);
             cc_text(f.out, ","); cc_id(f.out, "g_v", value); cc_text(f.out, ");\n");
             if limited >= 0 {
                 cc_text(f.out, "g_append_bytes("); cc_id(f.out, "g_v", builder); cc_text(f.out, ","); cc_array_args(p, f.out, limited, false);
@@ -3647,25 +3654,25 @@ recursive fn cc_builtin(p: Program&, f: CcBody&, node: i64, builtin: i64) -> i64
         return output;
     }
     if builtin == 3 {
-        let condition = cc_to(p, f, f.work[args_start + 0], TYPE_BOOL); cc_text(f.out, "if(!"); cc_id(f.out, "g_v", condition);
+        let condition = cc_to(p, f, f.work[args_start + 0].value, TYPE_BOOL); cc_text(f.out, "if(!"); cc_id(f.out, "g_v", condition);
         cc_text(f.out, ")g_debug_fail("); cc_location(p, f, node); cc_text(f.out, ",\"assert failed\");\n"); return -1;
     }
     if builtin == 4 {
-        let value = cc_render_value(p, f, f.work[args_start + 0]); if value < 0 { return -1; } let message = f.serial; f.serial++;
+        let value = cc_render_value(p, f, f.work[args_start + 0].value); if value < 0 { return -1; } let message = f.serial; f.serial++;
         cc_raw_array(f, "g_message", message);
-        cc_id(f.out, "g_print_", cc_render_type(p, p.nodes[f.work[args_start + 0]].type_id)); cc_text(f.out, "(&"); cc_id(f.out, "g_message", message);
+        cc_id(f.out, "g_print_", cc_render_type(p, p.nodes[f.work[args_start + 0].value].type_id)); cc_text(f.out, "(&"); cc_id(f.out, "g_message", message);
         cc_text(f.out, ","); cc_id(f.out, "g_v", value); cc_text(f.out, ");g_abort_value("); cc_id(f.out, "g_message", message);
         cc_text(f.out, ","); cc_location(p, f, node); cc_text(f.out, ");\n"); return -1;
     }
-    if builtin == 5 { let value = cc_to(p, f, f.work[args_start + 0], TYPE_I32); cc_text(f.out, "g_exit("); cc_id(f.out, "g_v", value); cc_text(f.out, ");\n"); return -1; }
+    if builtin == 5 { let value = cc_to(p, f, f.work[args_start + 0].value, TYPE_I32); cc_text(f.out, "g_exit("); cc_id(f.out, "g_v", value); cc_text(f.out, ");\n"); return -1; }
     if builtin == 6 {
         let result = cc_temp(p, f, n.type_id); cc_set(f, result); cc_text(f.out, "gs_hardware_threads();\n"); return result;
     }
     if builtin >= 7 && builtin <= 13 { return cc_thread_builtin(p, f, node, builtin, args_start, args_count); }
     if builtin == 19 || builtin == 20 { cc_fail(p, node, "c: embed builtin must be folded by the source driver"); return -1; }
-    if builtin == 18 { return cc_from_bytes(p, f, node, f.work[args_start]); }
+    if builtin == 18 { return cc_from_bytes(p, f, node, f.work[args_start].value); }
     if args_count == 0 { cc_fail(p, node, "c: builtin has no receiver"); return -1; }
-    let receiver = f.work[args_start + 0]; var type_id: i64 = p.nodes[receiver].type_id;
+    let receiver = f.work[args_start + 0].value; var type_id: i64 = p.nodes[receiver].type_id;
     if cc_kind(p, type_id) == TY_REF { type_id = p.types[type_id].element; }
     if builtin == 21 && p.nodes[receiver].kind == N_NAME && cc_direct_symbol(p, f, p.nodes[receiver].symbol) {
         let sym = p.nodes[receiver].symbol; let stype = p.symbols[sym].type_id;
@@ -3690,22 +3697,22 @@ recursive fn cc_builtin(p: Program&, f: CcBody&, node: i64, builtin: i64) -> i64
         cc_text(f.out, ");\n"); return result;
     }
     if builtin == 23 {
-        let value = cc_base(p, f, f.work[args_start + 1]); let result = cc_temp(p, f, n.type_id); cc_set(f, result);
+        let value = cc_base(p, f, f.work[args_start + 1].value); let result = cc_temp(p, f, n.type_id); cc_set(f, result);
         cc_text(f.out, "(int64_t)(((uintptr_t)"); cc_id(f.out, "g_v", value); cc_text(f.out, "-(uintptr_t)g_element("); cc_id(f.out, "g_v", base);
         cc_text(f.out, ","); cc_array_args(p, f.out, type_id); cc_text(f.out, ",0,1))/"); cc_number(f.out, cc_frame_size(p, t.element)); cc_text(f.out, ");\n"); return result;
     }
     if builtin >= 30 && builtin <= 35 { return cc_pool_builtin(p, f, node, builtin, args_start, base, type_id); }
     if (builtin == 24 || builtin == 25) && cc_size_class(p, t.element) == 1 {
-        return cc_image_extend(p, f, node, builtin, base, type_id, f.work[args_start + 1]);
+        return cc_image_extend(p, f, node, builtin, base, type_id, f.work[args_start + 1].value);
     }
     if builtin == 24 {
         if cc_result_location(p, t.element) {
             let length = cc_temp(p, f, TYPE_I64); cc_set(f, length); cc_text(f.out, "g_len("); cc_id(f.out, "g_v", base); cc_text(f.out, ","); cc_array_args(p, f.out, type_id, false); cc_text(f.out, ");\n");
             cc_text(f.out, "if("); cc_id(f.out, "g_v", length); cc_text(f.out, "==INT64_MAX)g_panic(\"array length overflow\");\ng_reserve("); cc_id(f.out, "g_v", base); cc_text(f.out, ","); cc_array_args(p, f.out, type_id); cc_text(f.out, ","); cc_id(f.out, "g_v", length); cc_text(f.out, "+1);\n");
             let slot = cc_ref_temp(f); cc_set(f, slot); cc_text(f.out, "g_slot("); cc_id(f.out, "g_v", base); cc_text(f.out, ","); cc_array_args(p, f.out, type_id); cc_text(f.out, ","); cc_id(f.out, "g_v", length); cc_text(f.out, ");\n");
-            cc_construct_into(p, f, f.work[args_start + 1], t.element, slot); cc_text(f.out, "g_set_len("); cc_id(f.out, "g_v", base); cc_text(f.out, ","); cc_array_args(p, f.out, type_id, false); cc_text(f.out, ","); cc_id(f.out, "g_v", length); cc_text(f.out, "+1);\n"); return slot;
+            cc_construct_into(p, f, f.work[args_start + 1].value, t.element, slot); cc_text(f.out, "g_set_len("); cc_id(f.out, "g_v", base); cc_text(f.out, ","); cc_array_args(p, f.out, type_id, false); cc_text(f.out, ","); cc_id(f.out, "g_v", length); cc_text(f.out, "+1);\n"); return slot;
         }
-        let value = cc_to(p, f, f.work[args_start + 1], t.element, true);
+        let value = cc_to(p, f, f.work[args_start + 1].value, t.element, true);
         if cc_relative_cell(p, t.element) {
             let length = cc_temp(p, f, TYPE_I64); cc_set(f, length); cc_text(f.out, "g_len("); cc_id(f.out, "g_v", base); cc_text(f.out, ","); cc_array_args(p, f.out, type_id, false); cc_text(f.out, ");\n");
             cc_text(f.out, "if("); cc_id(f.out, "g_v", length); cc_text(f.out, "==INT64_MAX)g_panic(\"array length overflow\");\ng_reserve("); cc_id(f.out, "g_v", base); cc_text(f.out, ","); cc_array_args(p, f.out, type_id);
@@ -3729,7 +3736,7 @@ recursive fn cc_builtin(p: Program&, f: CcBody&, node: i64, builtin: i64) -> i64
         if cc_kind(p, t.element) == TY_REF { return cc_convert(p, f, value, t.element, n.type_id, node); } return result;
     }
     if builtin == 25 {
-        let argument = f.work[args_start + 1]; let literal: const Node& = p.nodes[argument]; let literal_type = literal.type_id;
+        let argument = f.work[args_start + 1].value; let literal: const Node& = p.nodes[argument]; let literal_type = literal.type_id;
         if (literal.kind == N_ARRAY || literal.kind == N_FILL) && cc_kind(p, literal_type) == TY_ARRAY && p.types[literal_type].array_kind == A_FIXED && cc_relative_fields(p, t.element) {
             let fill_mark = f.fills.len;
             if cc_relative_cell(p, t.element) { cc_freeze_fill(p, f, argument, literal_type); }
@@ -3740,7 +3747,7 @@ recursive fn cc_builtin(p: Program&, f: CcBody&, node: i64, builtin: i64) -> i64
             cc_construct_into(p, f, argument, literal_type, target); f.fills.resize(fill_mark);
             cc_text(f.out, "g_set_len("); cc_id(f.out, "g_v", base); cc_text(f.out, ","); cc_array_args(p, f.out, type_id, false); cc_text(f.out, ","); cc_id(f.out, "g_v", old); cc_text(f.out, "+"); cc_number(f.out, count); cc_text(f.out, ");\n"); return -1;
         }
-        let src_node = f.work[args_start + 1];
+        let src_node = f.work[args_start + 1].value;
         if !cc_needs_clone(p, t.element, 0) && cc_owner(p, type_id) && cc_frame_size(p, t.element) > 0 &&
            cc_kind(p, p.nodes[src_node].type_id) == TY_SLICE {
             let sval = cc_expr(p, f, src_node);
@@ -3770,11 +3777,11 @@ recursive fn cc_builtin(p: Program&, f: CcBody&, node: i64, builtin: i64) -> i64
     if builtin >= 26 && builtin <= 29 {
         var requested = -1; var fill = -1;
         if builtin == 27 || builtin == 28 {
-            requested = cc_to(p, f, f.work[args_start + 1], TYPE_I64); if requested < 0 { return -1; }
+            requested = cc_to(p, f, f.work[args_start + 1].value, TYPE_I64); if requested < 0 { return -1; }
         }
         if builtin == 28 {
             cc_text(f.out, "if("); cc_id(f.out, "g_v", requested); cc_text(f.out, "<0)g_panic_at(\"resize to a negative length\","); cc_location(p, f, node); cc_text(f.out, ");\n");
-            if args_count >= 3 { fill = cc_to(p, f, f.work[args_start + 2], t.element, true); if fill < 0 { return -1; } }
+            if args_count >= 3 { fill = cc_to(p, f, f.work[args_start + 2].value, t.element, true); if fill < 0 { return -1; } }
         }
         let old = cc_val_start(p, f, TYPE_I64);
         if base_place.nonnull { cc_text(f.out, "g_len_nn("); } else { cc_text(f.out, "g_len("); }
@@ -3917,7 +3924,7 @@ recursive fn cc_expr(p: Program&, f: CcBody&, node: i64) -> i64 {
            !(cc_kind(p, ftype) == TY_INT && p.types[ftype].storage != 0) {
             if p.nodes[n.left].kind == N_NAME && cc_direct_symbol(p, f, p.nodes[n.left].symbol) {
                 let sym = p.nodes[n.left].symbol; let btype = p.symbols[sym].type_id;
-                if cc_kind(p, btype) == TY_STRUCT && cc_concrete(p, btype) && !cc_image_type(p, btype) {
+                if cc_kind(p, btype) == TY_STRUCT && cc_emit_concrete(p, btype) && !cc_image_type(p, btype) {
                     if cc_is_packed(f, btype) {
                         let fidx = cc_field_index(f, n.symbol);
                         if fidx >= 0 {
@@ -4085,7 +4092,7 @@ recursive fn cc_expr(p: Program&, f: CcBody&, node: i64) -> i64 {
         var label = exit.done; var mark = exit.regions; if n.kind == N_CONTINUE { label = exit.again; mark = exit.again_regions; }
         cc_restore(f, mark);
         if exit.publications >= 0 && f.pub_stack.len > exit.publications {
-            cc_text(f.out, "g_publication_top="); cc_id(f.out, "g_saved_publications", f.pub_stack[exit.publications]); cc_text(f.out, ";\n");
+            cc_text(f.out, "g_publication_top="); cc_id(f.out, "g_saved_publications", f.pub_stack[exit.publications].value); cc_text(f.out, ";\n");
         }
         cc_id(f.out, "goto g_label", label); cc_text(f.out, ";\n"); return -1;
     }
@@ -4191,7 +4198,7 @@ fn cc_is_builtin_extern(p: Program&, function: i64, name: const u8[:]) -> bool {
     }
     return false;
 }
-fn cc_is_direct_foreign(p: Program&, function: i64, exports: const i64[:]) -> bool {
+fn cc_is_direct_foreign(p: Program&, function: i64, exports: const i32[:]) -> bool {
     let n: const Node& = p.nodes[function];
     if (n.flags & F_EXTERN) == 0 { return false; }
     if n.aux >= 0 && n.aux < p.tokens.len && p.tokens[n.aux].kind == T_STRLIT { return false; }
@@ -4217,7 +4224,7 @@ fn cc_emit_foreign_params(p: Program&, out: u8[>..]&, function: i64, check_build
     }
     if index == 0 { cc_text(out, "void"); }
 }
-fn cc_emit_direct_foreign_decl(p: Program&, out: u8[>..]&, function: i64, exports: const i64[:]) {
+fn cc_emit_direct_foreign_decl(p: Program&, out: u8[>..]&, function: i64, exports: const i32[:]) {
     if !cc_is_direct_foreign(p, function, exports) { return; }
     let result_type = cc_function_result(p, function);
     cc_text(out, "extern ");
@@ -4226,7 +4233,7 @@ fn cc_emit_direct_foreign_decl(p: Program&, out: u8[>..]&, function: i64, export
     cc_emit_foreign_params(p, out, function, false);
     cc_text(out, ") __asm__("); cc_bytes(out, cc_extern_name(p, function)); cc_text(out, ");\n");
 }
-fn cc_emit_extern(p: Program&, out: u8[>..]&, function: i64, needs_env: const bool[:], exports: const i64[:]) {
+fn cc_emit_extern(p: Program&, out: u8[>..]&, function: i64, needs_env: const bool[:], exports: const i32[:]) {
     let name = cc_extern_name(p, function); let result_type = cc_function_result(p, function);
     let value = cc_kind(p, result_type) != TY_VOID;
     for id in exports {
@@ -4403,7 +4410,7 @@ fn cc_local_initialized(p: Program&, f: CcBody&, id: i64) -> bool {
     if declaration.right >= p.nodes.len { return false; }
     if p.nodes[declaration.right].next >= 0 || p.nodes[declaration.right].type_id <= TYPE_VOID { return false; }
     let type_id = symbol.type_id;
-    if !cc_concrete(p, type_id) || cc_kind(p, type_id) != TY_STRUCT { return false; }
+    if !cc_emit_concrete(p, type_id) || cc_kind(p, type_id) != TY_STRUCT { return false; }
     if cc_indirect(p, type_id) || cc_result_location(p, type_id) || cc_image_type(p, type_id) { return false; }
     if cc_region_width(p, type_id) > 0 || cc_needs_clone(p, type_id, 0) { return false; }
     for receiving in f.receiving { if receiving.symbol == id { return false; } }
@@ -4452,6 +4459,7 @@ fn cc_parallel_range_name(name: const u8[:]) -> const u8[:] {
     if same_bytes(name, "gp_opt_body_dispatch") { return "gp_opt_body_range"; }
     if same_bytes(name, "gp_check_dispatch") { return "gp_check_range"; }
     if same_bytes(name, "gp_life_dispatch") { return "gp_life_range"; }
+    if same_bytes(name, "gp_cgen_dispatch") { return "gp_cgen_range"; }
     return "";
 }
 fn cc_parallel_is_spmd(p: Program&, function: i64) -> bool {
@@ -4460,7 +4468,7 @@ fn cc_parallel_is_spmd(p: Program&, function: i64) -> bool {
     let tok = p.symbols[n.symbol].name_token;
     return tok >= 0 && tok < p.tokens.len && same_bytes(token_text(p, tok), "gp_parse_spmd_dispatch");
 }
-fn cc_parallel_find_range(p: Program&, emittable: const i64[:], needs_env: const bool[:], dispatch_node: i64) -> i64 {
+fn cc_parallel_find_range(p: Program&, emittable: const i32[:], needs_env: const bool[:], dispatch_node: i64) -> i64 {
     let dn: const Node& = p.nodes[dispatch_node];
     if dn.kind != N_FUNCTION || dn.symbol < 0 || needs_env[dispatch_node] { return -1; }
     if (dn.flags & (F_EXTERN | F_EXPORT | F_LOCATED | F_NONLOCAL)) != 0 { return -1; }
@@ -4495,7 +4503,13 @@ fn cc_parallel_find_range(p: Program&, emittable: const i64[:], needs_env: const
     }
     return -1;
 }
-fn cc_emit_function(p: Program&, out: u8[>..]&, function: i64, plans: RegionFunction[>..]&, calls: RegionCall[>..]&, indices: const i32[>..]&, self_images: bool&, natural_members: bool, has_self_runs: bool, owners: const SymbolOwners&, packed_structs: const bool[>..]&, field_indices: const i32[>..]&, needs_env: const bool[>..]&, exports: const i64[:], sc: CcBodyScratch&, parallel_pool: bool = false, parallel_range: i64 = -1) {
+struct CcDiagnosticSink { messages: u8[>..]&, diagnostics: Diagnostic[>..]& }
+fn cc_emit_function(program: Program, out: u8[>..]&, function: i64, function_index: i64, calls: RegionCall[>..]&, self_images: bool&, natural_members: bool, has_self_runs: bool, heads: const i32[>..]&, next_symbol: const i32[>..]&, layout: CcEmitLayout, exports: const i32[:], parallel_pool: bool = false, parallel_range: i64 = -1, sink: CcDiagnosticSink&? = null) -> i64 {
+    var p = program;
+    var messages: u8[>..] = []; var diagnostics: Diagnostic[>..] = [];
+    p.messages .= messages; p.diagnostics .= diagnostics;
+    cc_text(out, "#if G_IN_UNIT(   )\n");
+    let needs_env = layout.needs_env;
     let n: const Node& = p.nodes[function]; var checked = n.first; var signature_fixed = false;
     while checked >= 0 {
         let type_id = p.nodes[checked].type_id;
@@ -4509,16 +4523,16 @@ fn cc_emit_function(p: Program&, out: u8[>..]&, function: i64, plans: RegionFunc
     cc_emit_signature(p, out, function, needs_env); cc_text(out, " {\n"); cc_parameter_aliases(p, out, function);
     if parallel_pool {
         let pb = cc_parallel_builtin_kind(p, function, needs_env);
-        if pb == 1 { cc_text(out, "return 1;\n}\n"); cc_parameter_aliases(p, out, function, true); return; }
-        if pb == 2 { cc_text(out, "return g_cpool_default_jobs();\n}\n"); cc_parameter_aliases(p, out, function, true); return; }
-        if pb == 3 { cc_text(out, "g_cpool_barrier();\n}\n"); cc_parameter_aliases(p, out, function, true); return; }
+        if pb == 1 { cc_text(out, "return 1;\n}\n"); cc_parameter_aliases(p, out, function, true); return cc_finish_emission(p, out, function, needs_env, 0, sink); }
+        if pb == 2 { cc_text(out, "return g_cpool_default_jobs();\n}\n"); cc_parameter_aliases(p, out, function, true); return cc_finish_emission(p, out, function, needs_env, 0, sink); }
+        if pb == 3 { cc_text(out, "g_cpool_barrier();\n}\n"); cc_parameter_aliases(p, out, function, true); return cc_finish_emission(p, out, function, needs_env, 0, sink); }
         if pb == 4 {
             let p0 = n.first; let p1 = p.nodes[p0].next;
             let elem_ty = p.types[p.types[p.nodes[p0].type_id].element].element;
             cc_text(out, "g_cpool_grow_array("); cc_id(out, "g_s", p.nodes[p0].symbol);
             cc_text(out, ",(int64_t)sizeof("); cc_type(out, elem_ty); cc_text(out, "),");
             cc_id(out, "g_s", p.nodes[p1].symbol); cc_text(out, ");\n}\n");
-            cc_parameter_aliases(p, out, function, true); return;
+            cc_parameter_aliases(p, out, function, true); return cc_finish_emission(p, out, function, needs_env, 0, sink);
         }
         if parallel_range >= 0 {
             let p0 = n.first; let p1 = p.nodes[p0].next; let p2 = p.nodes[p1].next;
@@ -4552,12 +4566,12 @@ fn cc_emit_function(p: Program&, out: u8[>..]&, function: i64, plans: RegionFunc
                 field = p.nodes[field].next; ordinal++;
             }
         }
-        cc_text(out, "}\n"); cc_parameter_aliases(p, out, function, true); return; }
-    sc.body.clear(); sc.exits.clear(); sc.work.clear(); sc.temp_regions.clear(); sc.destinations.clear(); sc.receiving.clear(); sc.indirect.clear(); sc.fills.clear(); sc.channels.clear(); sc.cursors.clear(); sc.defers.clear(); sc.sites.clear(); sc.stages.clear(); sc.pub_stack.clear();
+        cc_text(out, "}\n"); cc_parameter_aliases(p, out, function, true); return cc_finish_emission(p, out, function, needs_env, 0, sink); }
+    var sc = CcBodyScratch {};
     let body: u8[>..]& = sc.body;
     let result_type = cc_function_result(p, function);
-    var f = CcBody { out: sc.body, exits: sc.exits, work: sc.work, function: function, natural_members: natural_members, result_type: result_type, has_self_runs: has_self_runs,
-        function_index: indices[function], calls: calls, indices: indices, temp_regions: sc.temp_regions, destinations: sc.destinations, receiving: sc.receiving, fills: sc.fills, indirect: sc.indirect, channels: sc.channels, cursors: sc.cursors, self_images: self_images, defers: sc.defers, sites: sc.sites, stages: sc.stages, pub_stack: sc.pub_stack, packed_structs: packed_structs, field_indices: field_indices, needs_env: needs_env };
+    var f = CcBody { out: body, exits: sc.exits, work: sc.work, function: function, natural_members: natural_members, result_type: result_type, has_self_runs: has_self_runs,
+        function_index: function_index, calls: calls, temp_regions: sc.temp_regions, destinations: sc.destinations, receiving: sc.receiving, fills: sc.fills, indirect: sc.indirect, channels: sc.channels, cursors: sc.cursors, self_images: self_images, defers: sc.defers, sites: sc.sites, stages: sc.stages, pub_stack: sc.pub_stack, layout: layout };
     let returns = cc_kind(p, result_type) != TY_VOID;
     let nonlocal = (n.flags & F_NONLOCAL) != 0; f.catches = nonlocal; var caught = -1;
     let deferred_result = !nonlocal && cc_kind(p, result_type) == TY_STRUCT && !cc_result_indirect(p, result_type) &&
@@ -4603,11 +4617,11 @@ fn cc_emit_function(p: Program&, out: u8[>..]&, function: i64, plans: RegionFunc
         cc_text(body, "g_return_top=&g_frame;if(setjmp(g_frame.jump))goto "); caught = body.len; cc_text(body, "g_return;\n");
     }
     cc_text(body, "{\n");
-    var next = owners.heads[function + 1];
+    var next = heads[function + 1];
     while next >= 0 {
-        let id = next; next = owners.next[id]; let symbol: const Symbol& = p.symbols[id];
+        let id = next; next = next_symbol[id]; let symbol: const Symbol& = p.symbols[id];
         if (symbol.flags & (S_PARAMETER | S_FUNCTION | S_TYPE)) != 0 { continue; }
-        if symbol.type_id < 0 || !cc_concrete(p, symbol.type_id) { cc_fail(p, symbol.node, "c: local variable lacks a concrete type"); continue; }
+        if symbol.type_id < 0 || !cc_emit_concrete(p, symbol.type_id) { cc_fail(p, symbol.node, "c: local variable lacks a concrete type"); continue; }
         var named = -1;
         if cc_result_location(p, symbol.type_id) { for receiving in f.receiving { if receiving.symbol == id { named = f.destinations[receiving.destination].header; } } }
         if named >= 0 { cc_alias_symbol(p, body, id, named); }
@@ -4645,8 +4659,7 @@ fn cc_emit_function(p: Program&, out: u8[>..]&, function: i64, plans: RegionFunc
         cc_text(body, "g_restore_regions(g_base,"); cc_number(body, f.region_peak); cc_text(body, ",g_watermarks);\n");
     }
     if returns && !cc_result_indirect(p, result_type) { cc_text(body, "return g_result;\n"); } else { cc_text(body, "return;\n"); }
-    plans[indices[function]].own = f.region_peak;
-    cc_sites(p, out, f.sites);
+    cc_sites(p, out, f.sites, layout);
     if (n.flags & (F_RECURSIVE | F_NONLOCAL | F_EXPORT)) != 0 || n.kind == N_FUNCTION_VALUE || f.has_indirect_call || f.indirect.len > 0 || p.unwinding { cc_text(out, "g_stack_check();\n"); }
     if needs_activation {
         cc_text(out, "GWatermark g_watermarks["); cc_number(out, f.region_peak + 1); cc_text(out, "];GActivation g_activation;\n");
@@ -4663,12 +4676,13 @@ fn cc_emit_function(p: Program&, out: u8[>..]&, function: i64, plans: RegionFunc
     cc_text(out, body); cc_text(out, "}\n");
     if !cc_tuple_channels(p, result_type) && cc_result_indirect(p, result_type) { cc_text(out, "#undef g_result\n"); }
     for id in sc.indirect { cc_undef(out, "g_v", id); }
-    next = owners.heads[function + 1];
+    next = heads[function + 1];
     while next >= 0 {
-        let id = next; next = owners.next[id]; let symbol: const Symbol& = p.symbols[id];
+        let id = next; next = next_symbol[id]; let symbol: const Symbol& = p.symbols[id];
         if (symbol.flags & (S_PARAMETER | S_FUNCTION | S_TYPE)) == 0 && (cc_indirect(p, symbol.type_id) || cc_result_location(p, symbol.type_id)) { cc_undef(out, "g_s", id); }
     }
     cc_parameter_aliases(p, out, function, true);
+    return cc_finish_emission(p, out, function, needs_env, f.region_peak, sink);
 }
 fn cc_export_c_type(p: Program&, out: u8[>..]&, type_id: i64, is_return: bool = false, for_header: bool = false) {
     let t: const Type& = p.types[type_id];
@@ -4766,6 +4780,28 @@ fn cc_emit_export(p: Program&, out: u8[>..]&, function: i64, needs_env: const bo
     cc_text(out, "}\n");
     if !return_slice && cc_result_indirect(p, result) { cc_undef(out, "g_export_result", function); }
 }
+fn cc_finish_emission(local: Program&, out: u8[>..]&, function: i64, needs_env: const bool[:], peak: i64, sink: CcDiagnosticSink&?) -> i64 {
+    cc_emit_export(local, out, function, needs_env);
+    cc_text(out, "#endif\n");
+    if local.diagnostics.len == 0 { return peak; }
+    if sink == null { return -1; }
+    // diagnose_at deduplicates across functions. Preserve that order and
+    // retain the entire message, including any instantiation notes.
+    for d in local.diagnostics {
+        let message = local.messages[d.message_start..d.message_start + d.message_len];
+        var duplicate = false;
+        for old in sink.diagnostics {
+            if old.source == d.source && old.start == d.start &&
+               same_bytes(sink.messages[old.message_start..old.message_start + old.message_len], message) {
+                duplicate = true; break;
+            }
+        }
+        if duplicate { continue; }
+        var entry = d; entry.message_start = sink.messages.len;
+        sink.messages.append(message); sink.diagnostics.push(entry);
+    }
+    return peak;
+}
 fn generate_c_runtime(out: u8[>..]&) {
     cc_text(out, "/* Generated by the Goose compiler (--emit-runtime). Do not edit. */\n#define _GNU_SOURCE 1\n#define G_RUNTIME_UNIT 1\n");
     cc_text(out, cc_runtime_units);
@@ -4798,9 +4834,9 @@ fn cc_emittable(p: Program&, function: i64) -> bool {
     let n: const Node& = p.nodes[function];
     if n.kind != N_FUNCTION && n.kind != N_FUNCTION_VALUE { return false; }
     if (n.flags & F_GENERIC) != 0 || (n.flags & F_CHECKED) == 0 || (n.flags & F_REACHABLE) == 0 || n.type_id < 0 || cc_kind(p, n.type_id) != TY_FN { return false; }
-    if !cc_concrete(p, p.types[n.type_id].element) { return false; }
+    if !cc_emit_concrete(p, p.types[n.type_id].element) { return false; }
     var param = n.first;
-    while param >= 0 { if !cc_concrete(p, p.nodes[param].type_id) { return false; } param = p.nodes[param].next; }
+    while param >= 0 { if !cc_emit_concrete(p, p.nodes[param].type_id) { return false; } param = p.nodes[param].next; }
     return true;
 }
 // Writes value into the blanks of a placeholder, right-aligned to end at out[at].
@@ -4812,24 +4848,30 @@ fn cc_patch_number(out: u8[>..]&, at: i64, value: i64) {
 inline fn cc_word_byte(byte: u8) -> bool {
     return byte == '_' || byte >= '0' && byte <= '9' || byte >= 'a' && byte <= 'z' || byte >= 'A' && byte <= 'Z';
 }
-// Widens [first, last] to [low, high] for every function that out[from..to]
-// names. find_pair skips to each "g..n", so the bytes between are not read
-// one at a time.
-fn cc_note_names(out: u8[:], from: i64, to: i64, low: i64, high: i64, first: i64[>..]&, last: i64[>..]&, g: const ByteSet&, n: const ByteSet&) {
-    var at = from;
+// Find the exact tokens considered by the unit linker, including names
+// appearing in literal text. Return the node ID for each hit.
+fn cc_next_unit_name(out: const u8[:], at: i64&, to: i64, node_count: i64, g: const ByteSet&, n: const ByteSet&) -> i64 {
     while at + 4 < to {
-        let found = find_pair(out[at..to], g, 3, n); if found < 0 { return; }
-        at += found; if at + 4 >= to { return; }
+        let found = byte_set_pair(out[at..to], g, 3, n); if found < 0 { return -1; }
+        at += found; if at + 4 >= to { return -1; }
         if out[at + 1] != '_' || out[at + 2] != 'f' || at > 0 && cc_word_byte(out[at - 1]) { at++; continue; }
         var node = 0; var next = at + 4;
-        while next < to && out[next] >= '0' && out[next] <= '9' { if node < first.len { node = node * 10 + (out[next] - '0') as i64; } next++; }
-        if next > at + 4 && node < first.len && (next == to || !cc_word_byte(out[next])) {
-            if low < first[node] { first[node] = low; }
-            if high > last[node] { last[node] = high; }
-        }
-        at = next;
+        while next < to && out[next] >= '0' && out[next] <= '9' { if node < node_count { node = node * 10 + (out[next] - '0'); } next++; }
+        let has_digits = next > at + 4; at = next;
+        if has_digits && node < node_count && (next == to || !cc_word_byte(out[next])) { return node; }
+    }
+    return -1;
+}
+fn cc_note_names(out: const u8[:], from: i64, to: i64, low: i64, high: i64, first: i64[:], last: i64[:], indices: const i32[:], g: const ByteSet&, n: const ByteSet&) {
+    var at = from;
+    loop {
+        let node = cc_next_unit_name(out, at, to, indices.len, g, n); if node < 0 { return; }
+        let index = indices[node]; if index < 0 { continue; }
+        if low < first[index] { first[index] = low; }
+        if high > last[index] { last[index] = high; }
     }
 }
+
 // Once everything from begin on is emitted, fills in the unit placeholders
 // (units.h). Guard k, "#if G_IN_UNIT(   )", holds function owners[k]
 // (g_initialize for -1), whose "#if G_LOCAL(   ,   ,   )" is at links[k].
@@ -4837,49 +4879,312 @@ fn cc_note_names(out: u8[:], from: i64, to: i64, low: i64, high: i64, first: i64
 // that slice and the first and last slices that name it, so it is static
 // wherever every unit that names it is its own. Code from shared to begin,
 // such as thread workers, is in every unit.
-fn cc_number_units(p: Program&, out: u8[>..]&, guards: const i64[:], owners: const i64[:], links: const i64[:], shared: i64, begin: i64) {
+struct CcLink { offset: i64 }
+struct CcGuard { start: i64, name_count: i64 = -1 }
+fn cc_number_units(out: u8[>..]&, guards: const CcGuard[:], links: const CcLink[:], shared: i64, begin: i64, indices: const i32[:], names: const i32[:]) {
     let total = out.len - begin;
-    var slices: i64[>..] = []; var first: i64[>..] = []; var last: i64[>..] = [];
-    slices.resize(p.nodes.len, 0); first.resize(p.nodes.len, CC_SLICES); last.resize(p.nodes.len, -1);
-    let g = byte_set("g"); let n = byte_set("n");
-    for start, index in guards {
+    var first: i64[>..] = []; var last: i64[>..] = [];
+    first.resize(links.len, CC_SLICES); last.resize(links.len, -1);
+    let g = byte_set("g"); let n = byte_set("n"); var name_at = 0;
+    for entry, index in guards {
+        let start = entry.start;
         let slice = (start - begin) * CC_SLICES / total; cc_patch_number(out, start + 16, slice);
-        if owners[index] >= 0 { slices[owners[index]] = slice; }
-        var end = out.len; if index + 1 < guards.len { end = guards[index + 1]; }
-        cc_note_names(out, start, end, slice, slice, first, last, g, n);
+        if entry.name_count >= 0 {
+            let end = name_at + entry.name_count;
+            for node in names[name_at..end] {
+                let mentioned = indices[node]; if mentioned < 0 { continue; }
+                if slice < first[mentioned] { first[mentioned] = slice; }
+                if slice > last[mentioned] { last[mentioned] = slice; }
+            }
+            name_at = end;
+        } else {
+            var end = out.len; if index + 1 < guards.len { end = guards[index + 1].start; }
+            cc_note_names(out, start, end, slice, slice, first, last, indices, g, n);
+        }
     }
-    cc_note_names(out, shared, begin, 0, CC_SLICES - 1, first, last, g, n);
-    for at, index in links {
-        let node = owners[index]; let slice = slices[node];
-        var low = first[node]; if slice < low { low = slice; }
-        var high = last[node]; if slice > high { high = slice; }
+    cc_note_names(out, shared, begin, 0, CC_SLICES - 1, first, last, indices, g, n);
+    for link, index in links {
+        let at = link.offset;
+        let slice = (guards[index].start - begin) * CC_SLICES / total;
+        var low = first[index]; if slice < low { low = slice; }
+        var high = last[index]; if slice > high { high = slice; }
         cc_patch_number(out, at + 14, slice); cc_patch_number(out, at + 18, low); cc_patch_number(out, at + 22, high);
     }
 }
+
+struct CcEmitSetup {
+    functions: const i32[>..]&, heads: const i32[>..]&, next_symbol: const i32[>..]&,
+    layout: CcEmitLayout, exports: const i32[>..]&,
+    ranges: const i32[>..]&, parallel_pool: bool, natural_members: bool, has_self_runs: bool,
+}
+struct CcEmitResult { bytes: i64 = 0, edges: i64 = 0, names: i64 = 0, peak: i64 = 0, self_images: bool = false }
+root struct CcEmitCtx {
+    program: Program&, setup: const CcEmitSetup&? = null,
+    image_types: const i32[>..]&? = null, image_declarations: bool = false,
+}
+struct CcEmitBucket { first: i64, results: CcEmitResult[:], bytes: u8[:], edges: RegionCall[:], names: i32[:] }
+
+fn gp_cgen_dispatch(jobs: i64, ctx: const CcEmitCtx&, out: CcEmitBucket[:]) -> bool {
+    gp_cgen_range(ctx, out, 0, out.len);
+    return true;
+}
+fn gp_cgen_range(ctx: const CcEmitCtx&, out: CcEmitBucket[:], begin: i64, end: i64) {
+    let image_types = ctx.image_types;
+    if image_types != null {
+        cc_emit_image_range(ctx.program, image_types, ctx.image_declarations, out, begin, end);
+        return;
+    }
+    let program: Program = ctx.program;
+    let setup = ctx.setup;
+    if setup == null { return; }
+    let functions = setup.functions; let heads = setup.heads; let next_symbol = setup.next_symbol;
+    let layout: CcEmitLayout = setup.layout;
+    let exports = setup.exports; let ranges = setup.ranges;
+    let parallel_pool = setup.parallel_pool; let natural_members = setup.natural_members; let has_self_runs = setup.has_self_runs;
+    var bytes: u8[>..] = []; var edges: RegionCall[>..] = [];
+    let g = byte_set("g"); let n = byte_set("n");
+    for b in begin..end {
+        let bucket: CcEmitBucket& = out[b];
+        var byte_at = 0; var edge_at = 0; var name_at = 0;
+        for i in 0..bucket.results.len {
+            bytes.clear(); edges.clear();
+            var self_images = false;
+            let node = functions[bucket.first + i]; var range = -1;
+            if parallel_pool { range = ranges[node]; }
+            let peak = cc_emit_function(program, bytes, node, bucket.first + i, edges, self_images, natural_members, has_self_runs,
+                heads, next_symbol, layout, exports, parallel_pool, range);
+            if peak < 0 || bytes.len > bucket.bytes.len - byte_at || edges.len > bucket.edges.len - edge_at {
+                bucket.results[i] = CcEmitResult {}; continue;
+            }
+            var at = 0; var name_end = name_at;
+            while name_end < bucket.names.len {
+                let name = cc_next_unit_name(bytes, at, bytes.len, program.nodes.len, g, n); if name < 0 { break; }
+                bucket.names[name_end] = name as i32; name_end++;
+            }
+            if name_end == bucket.names.len && cc_next_unit_name(bytes, at, bytes.len, program.nodes.len, g, n) >= 0 {
+                bucket.results[i] = CcEmitResult {}; continue;
+            }
+            bucket.bytes[byte_at..byte_at + bytes.len].move_from(bytes[..]);
+            bucket.edges[edge_at..edge_at + edges.len].move_from(edges[..]);
+            bucket.results[i] = CcEmitResult { bytes: bytes.len, edges: edges.len, names: name_end - name_at, peak: peak, self_images: self_images };
+            byte_at += bytes.len; edge_at += edges.len; name_at = name_end;
+        }
+    }
+}
+fn cc_emit_image_part(p: Program&, out: u8[>..]&, id: i64, declarations: bool) {
+    if declarations {
+        if ci_verifiable(p, id) { out.format("static const uint8_t *g_image_check_", id, "(const uint8_t*,const uint8_t*,const GImageCheck*);\n"); }
+        out.format("static int64_t g_image_size_", id, "(GRef);\n",
+            "static const uint8_t *g_image_skip_", id, "(const uint8_t*);\n",
+            "static uint8_t *g_image_write_", id, "(uint8_t*,GRef);\n",
+            "static const uint8_t *g_image_unpack_", id, "(GRef,const uint8_t*);\n",
+            "static const uint8_t *g_image_read_", id, "(GRef,const uint8_t*,int64_t);\n");
+    } else {
+        ci_emit_type(p, out, id);
+        ci_verify_type(p, out, id);
+    }
+}
+fn cc_emit_image_range(p: Program&, types: const i32[>..]&, declarations: bool, out: CcEmitBucket[:], begin: i64, end: i64) {
+    var bytes: u8[>..] = [];
+    for b in begin..end {
+        let bucket: CcEmitBucket& = out[b];
+        var at = 0;
+        for i in 0..bucket.results.len {
+            bytes.clear();
+            cc_emit_image_part(p, bytes, types[bucket.first + i], declarations);
+            if bytes.len > bucket.bytes.len - at {
+                bucket.results[i] = CcEmitResult {};
+            } else {
+                bucket.bytes[at..at + bytes.len].move_from(bytes[..]);
+                bucket.results[i] = CcEmitResult { bytes: bytes.len };
+                at += bytes.len;
+            }
+        }
+    }
+}
+fn cc_emit_image_batches(p: Program&, out: u8[>..]&, types: const i32[>..]&, declarations: bool) {
+    let count = min(p.jobs * 4, types.len);
+    let per_type = if declarations { 512 } else { 4096 };
+    let capacity = 4096 + (types.len + count - 1) / count * per_type;
+    var records: CcEmitResult[>..] = []; gp_grow_cc_results(records, types.len);
+    var bytes: u8[>..] = []; gp_grow_u8(bytes, count * capacity);
+    var edges: RegionCall[0] = []; var names: i32[0] = [];
+    var buckets: CcEmitBucket[>..] = [];
+    for b in 0..count {
+        let first = b * types.len / count; let end = (b + 1) * types.len / count;
+        buckets.push(CcEmitBucket { first: first, results: records[first..end], bytes: bytes[b * capacity..(b + 1) * capacity],
+            edges: edges[..], names: names[..] });
+    }
+    let ctx = CcEmitCtx { program: p, image_types: types, image_declarations: declarations };
+    let dispatched = gp_cgen_dispatch(p.jobs, ctx, buckets);
+    if !dispatched {
+        for id in types { cc_emit_image_part(p, out, id, declarations); }
+        return;
+    }
+    for bucket in buckets {
+        var at = 0;
+        for result, i in bucket.results {
+            if result.bytes == 0 { cc_emit_image_part(p, out, types[bucket.first + i], declarations); }
+            else { out.append(bucket.bytes[at..at + result.bytes]); at += result.bytes; }
+        }
+    }
+}
+fn cc_emit_parallel_images(p: Program&, out: u8[>..]&, used: const bool[:]) {
+    var types: i32[>..] = [];
+    for id in 0..used.len { if used[id] && cc_concrete(p, id) { types.push(id as i32); } }
+    if types.len < 32 { cc_image_emit(p, out, used); return; }
+    // Emit the shared prelude once. The declaration and definition passes
+    // keep their separate type order, as in cc_image_emit.
+    var prelude: bool[>..] = []; prelude.resize(used.len, false);
+    cc_image_emit(p, out, prelude);
+    cc_emit_image_batches(p, out, types, true);
+    cc_emit_image_batches(p, out, types, false);
+}
+fn gp_grow_cc_results(arr: CcEmitResult[>..]&, new_len: i64) {
+    while arr.len < new_len { arr.push(CcEmitResult {}); }
+}
+fn gp_grow_cc_edges(arr: RegionCall[>..]&, new_len: i64) {
+    while arr.len < new_len { arr.push(RegionCall { caller: 0, callee: 0, live: 0 }); }
+}
+fn gp_grow_cc_names(arr: i32[>..]&, new_len: i64) {
+    while arr.len < new_len { arr.push(0); }
+}
+// The body emitter can also report errors for a type absent from the
+// emitted layout tables. Read the cache and compute any miss without resizing it.
+fn cc_emit_concrete(p: Program&, id: i64) -> bool {
+    if id < 0 || id >= p.types.len { return false; }
+    let key = id * 8 + 7;
+    if key < p.type_properties.len && p.type_properties[key] != 0 { return p.type_properties[key] == 2; }
+    var seen: i32[64] = [0; 64]; var seen_len = 0;
+    return cc_concrete_walk(p, id, seen, seen_len);
+}
+// Same traversal as cc_frame_borrows, with one set of visit marks for all
+// roots. Large programs can have many unused instantiations in p.types.
+fn cc_warm_frame_borrows(p: Program&, id: i64, marks: i32[:], work: i64[>..]&) {
+    if (p.types[id].cc_memo_flags & (1 << 22)) != 0 { return; }
+    let stamp = (id + 1) as i32;
+    work.clear(); work.push(id);
+    var borrows = false;
+    while work.len > 0 {
+        let current = work.pop(); if current < 0 || marks[current] == stamp { continue; }
+        marks[current] = stamp;
+        let t: const Type& = p.types[current];
+        if current != id && t.cc_memo_id == current && (t.cc_memo_flags & (1 << 22)) != 0 {
+            if (t.cc_memo_flags & (1 << 23)) != 0 { borrows = true; break; }
+            continue;
+        }
+        if t.kind == TY_REF || t.kind == TY_SLICE || t.kind == TY_FN { borrows = true; break; }
+        if t.kind == TY_ARRAY { work.push(t.element); }
+        var field = -1;
+        if (t.kind == TY_STRUCT || t.kind == TY_ENUM) && t.declaration >= 0 { field = p.nodes[t.declaration].first; }
+        else if t.kind == TY_TUPLE { field = t.first; }
+        while field >= 0 {
+            let n: const Node& = p.nodes[field]; if (n.flags & F_PAD) == 0 { work.push(n.type_id); }
+            field = n.next;
+        }
+    }
+    p.types[id].cc_memo_flags |= if borrows { 3 << 22 } else { 1 << 22 };
+}
+fn cc_warm_emit_types(p: Program&, used: const bool[:]) {
+    var marks: i32[>..] = []; marks.resize(p.types.len, 0); var work: i64[>..] = [];
+    for id in 0..p.types.len {
+        if !used[id] || !cc_concrete(p, id) { continue; }
+        cc_size_class(p, id); cc_image_type(p, id);
+        cc_self_relative_image(p, id); cc_flat_relative_image(p, id);
+        cc_relative_fields(p, id); cc_relative_fields(p, id, true);
+        cc_fixed_storage(p, id); cc_variable_prefix_frame(p, id);
+        cc_result_location(p, id); cc_needs_clone(p, id, 0);
+        cc_region_width(p, id); cc_frame_size(p, id); cc_warm_frame_borrows(p, id, marks, work);
+        life_holds(p, id); life_relative_storage(p, id);
+    }
+}
+fn cc_merge_buckets(p: Program&, setup: CcEmitSetup, buckets: const CcEmitBucket[:], out: u8[>..]&, plans: RegionFunction[>..]&, calls: RegionCall[>..]&, self_images: bool&,
+                    guards: CcGuard[>..]&, names: i32[>..]&) {
+    let functions = setup.functions; let heads = setup.heads; let next_symbol = setup.next_symbol;
+    let layout: CcEmitLayout = setup.layout;
+    let exports = setup.exports; let ranges = setup.ranges; let parallel_pool = setup.parallel_pool;
+    let natural_members = setup.natural_members; let has_self_runs = setup.has_self_runs;
+    // All published slices are disjoint in the workers. Replay the output
+    // and the region graph in function order, retrying only failed functions.
+    var sink = CcDiagnosticSink { messages: p.messages, diagnostics: p.diagnostics };
+    for bucket in buckets {
+        var byte_at = 0; var edge_at = 0; var name_at = 0;
+        for result, i in bucket.results {
+            let index = bucket.first + i;
+            if result.bytes == 0 {
+                guards.push(CcGuard { start: out.len });
+                let node = functions[index]; var range = -1;
+                if parallel_pool { range = ranges[node]; }
+                let peak = cc_emit_function(p, out, node, index, calls, self_images, natural_members, has_self_runs,
+                    heads, next_symbol, layout, exports, parallel_pool, range, sink);
+                plans[index].own = peak;
+                continue;
+            }
+            guards.push(CcGuard { start: out.len, name_count: result.names });
+            out.append(bucket.bytes[byte_at..byte_at + result.bytes]); byte_at += result.bytes;
+            if result.edges > 0 { calls.append(bucket.edges[edge_at..edge_at + result.edges]); edge_at += result.edges; }
+            if result.names > 0 { names.append(bucket.names[name_at..name_at + result.names]); name_at += result.names; }
+            plans[index].own = result.peak;
+            if result.self_images { self_images = true; }
+        }
+    }
+}
+
 fn generate_c(p: Program&, out: u8[>..]&) {
     if p.diagnostics.len > 0 { return; }
     if p.pointer_bytes != 8 { diagnose_at(p, 0, 0, 0, "c: native layouts require pointer_bytes = 8"); return; }
-    var emittable: i64[>..] = [];
-    var exports: i64[>..] = [];
-    for id in 0..p.nodes.len {
-        let n: const Node& = p.nodes[id];
-        if n.kind != N_FUNCTION && n.kind != N_FUNCTION_VALUE { continue; }
-        if !cc_emittable(p, id) { continue; }
-        emittable.push(id);
-        if (n.flags & F_EXPORT) != 0 { exports.push(id); }
-    }
-    cc_collect_captures(p, emittable);
-    p.unwinding = mark_unwinding_functions(p); let located = mark_located_functions(p);
+    var emittable: i32[>..] = []; var exports: i32[>..] = [];
+    var used: bool[>..] = []; used.resize(p.types.len, false); var type_work: i32[>..] = [];
+    // Lowering introduces scalar counters, predicates, and conversion temps.
+    for type_id in 0..TYPE_STRING + 1 { cc_use_type(p, used, type_work, type_id); }
     var natural_members = !p.library && !p.c_host;
-    for node in 0..p.nodes.len {
-        let n: const Node& = p.nodes[node];
-        if (n.kind == N_FUNCTION || n.kind == N_FUNCTION_VALUE) && (n.flags & F_EXPORT) != 0 { natural_members = false; }
-        if n.kind == N_CAST {
-            if n.left < 0 || n.left >= p.nodes.len { natural_members = false; }
-            else if cc_kind(p, n.type_id) == TY_REF || cc_kind(p, p.nodes[n.left].type_id) == TY_REF { natural_members = false; }
+    var nonlocal_returns = false; var defers_used = false; var captures_used = false; var threads = false;
+    for id in 0..p.nodes.len {
+        let n: const Node& = p.nodes[id]; let kind = n.kind;
+        if kind == N_FUNCTION || kind == N_FUNCTION_VALUE {
+            if (n.flags & F_EXPORT) != 0 { natural_members = false; }
+            if cc_emittable(p, id) {
+                emittable.push(id as i32);
+                if (n.flags & F_EXPORT) != 0 { exports.push(id as i32); }
+                if kind == N_FUNCTION_VALUE || node_captures(p, id) >= 0 || (n.flags & F_NONLOCAL) != 0 ||
+                   n.symbol >= 0 && p.symbols[n.symbol].owner >= 0 { captures_used = true; }
+            }
+        }
+        if (n.flags & F_CHECKED) != 0 {
+            if kind >= N_INTEGER && kind <= N_EXPR_STMT || kind == N_BLOCK || kind == N_FUNCTION_VALUE || kind == N_VARIABLE ||
+               kind == N_TUPLE || kind == N_CAST || kind == N_CONST_FOR || kind == N_RESULT { cc_use_type(p, used, type_work, n.type_id); }
+            if kind == N_BINARY && n.aux >= 0 { cc_use_type(p, used, type_work, n.aux); }
+            if kind == N_DEFER { defers_used = true; }
+        }
+        if kind == N_RETURN && (n.flags & F_NONLOCAL) != 0 { nonlocal_returns = true; }
+        if kind == N_CAST && natural_members {
+            if n.left < 0 || n.left >= p.nodes.len || cc_kind(p, n.type_id) == TY_REF ||
+               cc_kind(p, p.nodes[n.left].type_id) == TY_REF { natural_members = false; }
+        }
+        if kind == N_CALL && !threads && n.symbol >= 0 {
+            let symbol: const Symbol& = p.symbols[n.symbol];
+            if (symbol.flags & S_BUILTIN) != 0 && symbol.index >= 7 && symbol.index <= 13 { threads = true; }
         }
     }
-    for type_id in 0..p.types.len { let t: const Type& = p.types[type_id]; if t.kind == TY_REF && t.length_storage >= 0 { natural_members = false; } }
+    // A function can also capture a binding from a global initializer.
+    if !captures_used {
+        for symbol, id in p.symbols {
+            if symbol.owner < 0 && (symbol.flags & (S_GLOBAL | S_FUNCTION | S_TYPE | S_BUILTIN)) == 0 &&
+               cc_storage_binding(p, id) { captures_used = true; break; }
+        }
+    }
+    if captures_used || nonlocal_returns { cc_collect_captures(p, emittable); }
+    // Nonlocal return and defer flags are assigned to the checked IR. Without
+    // both, no cleanup frame is needed on a call's propagation path.
+    if p.unwinding || p.leaving_marked || defers_used && nonlocal_returns { p.unwinding = mark_unwinding_functions(p); }
+    if !p.unwinding && nonlocal_returns { mark_unwinding_functions(p, true); }
+    p.leaving_marked = true;
+    let located = mark_located_functions(p);
+    if natural_members {
+        for t in p.types {
+            if t.kind == TY_REF && t.length_storage >= 0 { natural_members = false; break; }
+        }
+    }
     var plans: RegionFunction[>..] = []; var calls: RegionCall[>..] = []; var indices: i32[>..] = [];
     indices.resize(p.nodes.len, -1);
     for node in emittable {
@@ -4887,7 +5192,6 @@ fn generate_c(p: Program&, out: u8[>..]&) {
     }
     let initializer = plans.len; plans.push(RegionFunction { entry: true });
     var self_images = false;
-    var used: bool[>..] = []; used.resize(p.types.len, false); var type_work: i64[>..] = [];
     cc_used_types(p, used, type_work, emittable, indices);
     var packed_structs: bool[>..] = []; var field_indices: i32[>..] = [];
     cc_compute_packed_structs(p, used, packed_structs, field_indices);
@@ -4898,7 +5202,7 @@ fn generate_c(p: Program&, out: u8[>..]&) {
         let symbol: const Symbol& = p.symbols[s];
         if (symbol.flags & S_GLOBAL) != 0 && symbol.component_owner < 0 { global_count += cc_region_width(p, symbol.type_id); if cc_pool_mode(p, s) > 0 { global_count++; } }
     }
-    let threads = cc_threads_used(p); let parallel_pool = cc_compiler_parallel_used(p); let need_threads = threads || parallel_pool;
+    let parallel_pool = cc_compiler_parallel_used(p); let need_threads = threads || parallel_pool;
     let images = cc_images_used(p, threads); let begin = out.len;
     cc_text(out, "#ifndef _WIN32\n#define _GNU_SOURCE 1\n#endif\n");
     // --stack-reserve is written into the C itself, as upstream writes a -D:
@@ -4934,8 +5238,12 @@ fn generate_c(p: Program&, out: u8[>..]&) {
         if p.types[id].kind != TY_VOID && cc_concrete(p, id) { cc_emit_init(p, out, id); cc_emit_map(p, out, id); cc_emit_store(p, out, id); }
         cc_emit_clone(p, out, id); cc_emit_equal(p, out, id); cc_emit_print(p, out, id); cc_emit_nested(p, out, id);
     }
+    let parallel_images = images && p.jobs > 1 && p.types.len >= 32768;
     if images {
-        cc_image_emit(p, out, used);
+        if parallel_images {
+            cc_warm_emit_types(p, used);
+            cc_emit_parallel_images(p, out, used);
+        } else { cc_image_emit(p, out, used); }
         if threads { var static_types: bool[>..] = []; cc_thread_static_types(p, static_types); cc_global_image_emit(p, out, static_types); }
     }
     for type_id in 0..p.types.len {
@@ -4949,9 +5257,9 @@ fn generate_c(p: Program&, out: u8[>..]&) {
         }
         cc_text(out, "}\n");
     }
-    var links: i64[>..] = [];
+    var links: CcLink[>..] = [];
     for node in emittable {
-        links.push(out.len); cc_text(out, "#if G_LOCAL(   ,   ,   )\n"); cc_id(out, "#define G_L", node); cc_text(out, " static\n#else\n");
+        links.push(CcLink { offset: out.len }); cc_text(out, "#if G_LOCAL(   ,   ,   )\n"); cc_id(out, "#define G_L", node); cc_text(out, " static\n#else\n");
         cc_id(out, "#define G_L", node); cc_text(out, " G_FN\n#endif\n"); cc_emit_signature(p, out, node, needs_env); cc_text(out, ";\n");
     }
     let shared = out.len;
@@ -4968,19 +5276,23 @@ fn generate_c(p: Program&, out: u8[>..]&) {
     cc_component_aliases(p, out);
     cc_pool_origins(p, out, true);
     if images { cc_index_lengths(p, out, true); }
-    var binding_heads: i64[>..] = []; var binding_next: i64[>..] = [];
-    var bindings = SymbolOwners { heads: binding_heads, next: binding_next };
-    index_symbol_owners(p, bindings);
-    var initialization: u8[>..] = []; var exits: CcExit[>..] = []; var work: i64[>..] = []; var temp_regions: i64[>..] = []; var destinations: CcDestination[>..] = []; var receiving: CcReceiving[>..] = []; var indirect: i64[>..] = []; var fills: CcFill[>..] = []; var channels: CcChannels[>..] = []; var cursors: CcCursor[>..] = []; var defers: i64[>..] = []; var sites: i64[>..] = []; var stages: i64[>..] = []; var pub_stack: i64[>..] = [];
-    var scratch = CcBodyScratch { body: initialization, exits: exits, work: work, temp_regions: temp_regions, destinations: destinations, receiving: receiving, indirect: indirect, fills: fills, channels: channels, cursors: cursors, defers: defers, sites: sites, stages: stages, pub_stack: pub_stack };
-    var parallel_ranges: i64[>..] = [];
+    var binding_heads: i32[>..] = []; binding_heads.resize(p.nodes.len + 1, -1);
+    var binding_next: i32[>..] = []; binding_next.resize(p.symbols.len, -1);
+    var symbol_index = p.symbols.len;
+    while symbol_index > 0 {
+        symbol_index--;
+        let owner = p.symbols[symbol_index].owner + 1;
+        binding_next[symbol_index] = binding_heads[owner];
+        binding_heads[owner] = symbol_index as i32;
+    }
+    var parallel_ranges: i32[>..] = [];
     if parallel_pool {
         parallel_ranges.resize(p.nodes.len, -1);
         var emitted_thunks: i64[>..] = [];
         for node in emittable {
             let target = cc_parallel_find_range(p, emittable, needs_env, node);
             if target < 0 { continue; }
-            parallel_ranges[node] = target;
+            parallel_ranges[node] = target as i32;
             var dup = false;
             for seen in emitted_thunks { if seen == target { dup = true; break; } }
             if !dup {
@@ -4991,15 +5303,63 @@ fn generate_c(p: Program&, out: u8[>..]&) {
             }
         }
     }
-    let functions = out.len; var guards: i64[>..] = []; var owners: i64[>..] = [];
-    for node in emittable {
-        guards.push(out.len); owners.push(node); cc_text(out, "#if G_IN_UNIT(   )\n");
-        var pr: i64 = -1; if parallel_pool { pr = parallel_ranges[node]; }
-        cc_emit_function(p, out, node, plans, calls, indices, self_images, natural_members, has_self_runs, bindings, packed_structs, field_indices, needs_env, exports, scratch, parallel_pool, pr); cc_emit_export(p, out, node, needs_env); cc_text(out, "#endif\n");
+    let functions = out.len;
+    var guards: CcGuard[>..] = []; var names: i32[>..] = [];
+    let parallel_emit = p.jobs > 1 && emittable.len >= 32;
+    if parallel_emit && !parallel_images { cc_warm_emit_types(p, used); }
+    // Source locations repeat the same C literal for each checked operation.
+    var path_text: u8[>..] = []; var path_offsets: CcPathOffset[>..] = [CcPathOffset { offset: 0 }];
+    for source in p.sources {
+        cc_bytes(path_text, p.text[source.path_start..source.path_start + source.path_len]);
+        path_offsets.push(CcPathOffset { offset: path_text.len });
     }
-    initialization.clear(); exits.clear(); work.clear(); temp_regions.clear(); destinations.clear(); receiving.clear(); indirect.clear(); fills.clear(); channels.clear(); cursors.clear(); defers.clear(); sites.clear(); stages.clear(); pub_stack.clear();
-    var f = CcBody { out: initialization, exits: exits, work: work, natural_members: natural_members, has_self_runs: has_self_runs, function_index: initializer, calls: calls, indices: indices,
-        temp_regions: temp_regions, destinations: destinations, receiving: receiving, fills: fills, indirect: indirect, channels: channels, cursors: cursors, self_images: self_images, defers: defers, sites: sites, stages: stages, pub_stack: pub_stack, packed_structs: packed_structs, field_indices: field_indices, needs_env: needs_env };
+    let layout = CcEmitLayout { packed_structs: packed_structs, field_indices: field_indices, needs_env: needs_env,
+        path_text: path_text, path_offsets: path_offsets };
+    let setup = CcEmitSetup { functions: emittable, heads: binding_heads, next_symbol: binding_next,
+        layout: layout, exports: exports, ranges: parallel_ranges,
+        parallel_pool: parallel_pool, natural_members: natural_members, has_self_runs: has_self_runs };
+    var dispatched = false;
+    if parallel_emit {
+        let count = min(p.jobs * 4, emittable.len);
+        let per_bucket = (emittable.len + count - 1) / count;
+        let byte_cap = 65536 + p.nodes.len * 96 / count;
+        let edge_cap = 256 + p.nodes.len / (8 * count);
+        let name_cap = edge_cap * 2;
+        var records: CcEmitResult[>..] = []; gp_grow_cc_results(records, emittable.len);
+        var bytes: u8[>..] = []; gp_grow_u8(bytes, byte_cap * count);
+        var edges: RegionCall[>..] = []; gp_grow_cc_edges(edges, edge_cap * count);
+        var refs: i32[>..] = []; gp_grow_cc_names(refs, name_cap * count);
+        var buckets: CcEmitBucket[>..] = [];
+        var first = 0;
+        while first < emittable.len {
+            let end = min(first + per_bucket, emittable.len);
+            let b = buckets.len;
+            buckets.push(CcEmitBucket { first: first, results: records[first..end], bytes: bytes[b * byte_cap..(b + 1) * byte_cap],
+                edges: edges[b * edge_cap..(b + 1) * edge_cap], names: refs[b * name_cap..(b + 1) * name_cap] });
+            first = end;
+        }
+        let ctx = CcEmitCtx { program: p, setup: setup };
+        dispatched = gp_cgen_dispatch(p.jobs, ctx, buckets);
+        if dispatched { cc_merge_buckets(p, setup, buckets, out, plans, calls, self_images, guards, names); }
+    }
+    if !dispatched {
+        var sink = CcDiagnosticSink { messages: p.messages, diagnostics: p.diagnostics };
+        for index in 0..emittable.len {
+            guards.push(CcGuard { start: out.len });
+            let node = emittable[index]; var range = -1;
+            if parallel_pool { range = parallel_ranges[node]; }
+            let peak = cc_emit_function(p, out, node, index, calls, self_images, natural_members, has_self_runs,
+                binding_heads, binding_next, layout, exports, parallel_pool, range, sink);
+            plans[index].own = peak;
+        }
+    }
+    var scratch = CcBodyScratch {};
+    let initialization = scratch.body; let exits = scratch.exits; let work = scratch.work; let temp_regions = scratch.temp_regions;
+    let destinations = scratch.destinations; let receiving = scratch.receiving; let indirect = scratch.indirect;
+    let fills = scratch.fills; let channels = scratch.channels; let cursors = scratch.cursors;
+    let defers = scratch.defers; let sites = scratch.sites; let stages = scratch.stages; let pub_stack = scratch.pub_stack;
+    var f = CcBody { out: initialization, exits: exits, work: work, natural_members: natural_members, has_self_runs: has_self_runs, function_index: initializer, calls: calls,
+        temp_regions: temp_regions, destinations: destinations, receiving: receiving, fills: fills, indirect: indirect, channels: channels, cursors: cursors, self_images: self_images, defers: defers, sites: sites, stages: stages, pub_stack: pub_stack, layout: layout };
     for s, symbol in p.symbols {
         if s.owner >= 0 || (s.flags & (S_GLOBAL | S_PARAMETER | S_FUNCTION | S_TYPE | S_BUILTIN)) != 0 ||
            !cc_storage_binding(p, symbol) || !cc_concrete(p, s.type_id) { continue; }
@@ -5020,11 +5380,21 @@ fn generate_c(p: Program&, out: u8[>..]&) {
     }
     for s in p.symbols { if (s.flags & S_GLOBAL) != 0 && s.node >= 0 && s.component_owner < 0 { cc_variable(p, f, s.node); } }
     plans[initializer].own = f.region_peak;
+    // Workers record callee nodes. Resolve them once the ordered graph has
+    // been assembled, keeping the exact subsequence of emittable callees.
+    var edge_count = 0;
+    for edge in calls {
+        if edge.callee >= indices.len { continue; }
+        let callee = indices[edge.callee]; if callee < 0 { continue; }
+        calls[edge_count] = edge; calls[edge_count].callee = callee;
+        edge_count++;
+    }
+    calls.resize(edge_count);
     var stack: i64[>..] = []; var members: i64[>..] = [];
     var graph = RegionGraph { functions: plans, calls: calls, stack: stack, members: members };
     let bound = region_bound(p, graph, global_count); var snapshots = 0;
     if threads { for n, node in p.nodes { if cc_thread_function(p, node) { let count = cc_thread_regions(p, node); if count > snapshots { snapshots = count; } } } }
-    guards.push(out.len); owners.push(-1); cc_text(out, "#if G_IN_UNIT(   )\n");
+    guards.push(CcGuard { start: out.len }); cc_text(out, "#if G_IN_UNIT(   )\n");
     cc_text(out, "G_FN void g_initialize(void){if(g_initialized)return;g_initialized=1;g_global_regions="); cc_number(out, global_count);
     if threads { cc_text(out, ";g_worker_regions="); cc_number(out, bound); }
     cc_text(out, ";g_runtime_start(g_argc,g_argv,"); cc_number(out, bound); cc_text(out, ",");
@@ -5036,7 +5406,7 @@ fn generate_c(p: Program&, out: u8[>..]&) {
     if threads { cc_text(out, "gs_gl=&g_main_globals;\n"); cc_thread_emit_queues(p, out, true); }
     cc_text(out, "GWatermark g_watermarks["); cc_number(out, f.region_peak + 1); cc_text(out, "];GActivation g_activation;\n");
     cc_text(out, "g_activation_enter(&g_activation,g_base,"); cc_number(out, f.region_peak); cc_text(out, ",g_watermarks);\n");
-    cc_sites(p, out, f.sites); cc_text(out, initialization); cc_text(out, "g_activation_leave(&g_activation);}\n");
+    cc_sites(p, out, f.sites, layout); cc_text(out, initialization); cc_text(out, "g_activation_leave(&g_activation);}\n");
     for id in indirect { cc_undef(out, "g_v", id); }
     for s, symbol in p.symbols {
         if s.owner < 0 && (s.flags & (S_GLOBAL | S_PARAMETER | S_FUNCTION | S_TYPE | S_BUILTIN)) == 0 && cc_storage_binding(p, symbol) && cc_indirect(p, s.type_id) { cc_undef(out, "g_s", symbol); }
@@ -5066,7 +5436,7 @@ fn generate_c(p: Program&, out: u8[>..]&) {
             if cc_kind(p, result) != TY_INT { cc_text(out, "return 0;"); } cc_text(out, "}\n");
         }
     }
-    cc_text(out, "#endif\n"); cc_number_units(p, out, guards, owners, links, shared, functions); cc_text(out, "#endif\n");
+    cc_text(out, "#endif\n"); cc_number_units(out, guards, links, shared, functions, indices, names); cc_text(out, "#endif\n");
     if self_images {
         for node in emittable {
             if (p.nodes[node].flags & F_NONLOCAL) != 0 { cc_fail(p, node, "c: self-image construction with nonlocal exits requires partial-destination handling"); }
@@ -5360,19 +5730,22 @@ fn cc_conversion_fail(p: Program&, node: i64, from: i64, to: i64) {
 // line, or, on a library line of a located function, where the program
 // called the library (g_at).
 fn cc_location(p: Program&, f: CcBody&, node: i64) {
-    cc_location_in(p, f.out, node, f.function >= 0 && (p.nodes[f.function].flags & F_LOCATED) != 0);
+    cc_location_in(p, f.out, node, f.function >= 0 && (p.nodes[f.function].flags & F_LOCATED) != 0, f.layout);
 }
-fn cc_location_in(p: Program&, out: u8[>..]&, node: i64, located: bool) {
+fn cc_location_in(p: Program&, out: u8[>..]&, node: i64, located: bool, layout: const CcEmitLayout&? = null) {
     if node < 0 || node >= p.nodes.len { cc_text(out, "\"<generated>\",1"); return; }
     let token = location_token(p, node);
     if located && library_token(p, token) { cc_text(out, "g_at->file,g_at->line"); return; }
-    cc_token_location(p, out, token);
+    cc_token_location(p, out, token, layout);
 }
-fn cc_token_location(p: Program&, out: u8[>..]&, token: i64) {
+fn cc_token_location(p: Program&, out: u8[>..]&, token: i64, layout: const CcEmitLayout&?) {
     if token < 0 || token >= p.tokens.len { cc_text(out, "\"<generated>\",1"); return; }
     let t = p.tokens[token];
     if t.source >= p.sources.len { cc_text(out, "\"<generated>\""); }
-    else {
+    else if layout != null {
+        let first = layout.path_offsets[t.source].offset; let end = layout.path_offsets[t.source + 1].offset;
+        cc_text(out, layout.path_text[first..end]);
+    } else {
         let source = p.sources[t.source]; cc_bytes(out, p.text[source.path_start..source.path_start + source.path_len]);
     }
     cc_text(out, ","); cc_number(out, t.line);
@@ -5392,12 +5765,12 @@ fn cc_call_location(p: Program&, f: CcBody&, node: i64) {
     cc_text(f.out, ",&g_sites["); cc_number(f.out, index); cc_text(f.out, "]");
 }
 // A body's call places, which a callee reads only on a failing path.
-fn cc_sites(p: Program&, out: u8[>..]&, sites: const i64[:]) {
+fn cc_sites(p: Program&, out: u8[>..]&, sites: const i64[:], layout: const CcEmitLayout&) {
     if sites.len == 0 { return; }
     cc_text(out, "static const GLoc g_sites[]={");
     for token, i in sites {
         if i > 0 { cc_text(out, ","); }
-        cc_text(out, "{"); cc_token_location(p, out, token); cc_text(out, "}");
+        cc_text(out, "{"); cc_token_location(p, out, token, layout); cc_text(out, "}");
     }
     cc_text(out, "};\n");
 }
@@ -5515,9 +5888,9 @@ recursive fn cc_capture_tree(p: Program&, function: i64, node: i64) -> bool {
         }
     }
     // A match pattern names variant nodes, not symbols or executable callees.
-    if n.kind != N_ARM && cc_capture_tree(p, function, n.left) { changed = true; }
-    if cc_capture_tree(p, function, n.right) { changed = true; }
-    if cc_capture_tree(p, function, n.third) { changed = true; }
+    if n.kind != N_ARM && n.left >= 0 && cc_capture_tree(p, function, n.left) { changed = true; }
+    if n.right >= 0 && cc_capture_tree(p, function, n.right) { changed = true; }
+    if n.third >= 0 && cc_capture_tree(p, function, n.third) { changed = true; }
     var child = n.first;
     while child >= 0 {
         if cc_capture_tree(p, function, child) { changed = true; }
@@ -5525,7 +5898,7 @@ recursive fn cc_capture_tree(p: Program&, function: i64, node: i64) -> bool {
     }
     return changed;
 }
-fn cc_collect_captures(p: Program&, emittable: const i64[:]) {
+fn cc_collect_captures(p: Program&, emittable: const i32[:]) {
     var changed = true;
     while changed {
         changed = false;
