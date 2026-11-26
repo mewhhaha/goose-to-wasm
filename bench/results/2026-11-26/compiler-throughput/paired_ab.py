@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
 from pathlib import Path
 import statistics
 import subprocess
@@ -18,19 +19,24 @@ def run_once(compiler: Path, spec: dict, extra_args: list[str], pin_cpu: int | N
     with tempfile.TemporaryDirectory(prefix='goosew_ab_') as tmp:
         out_path = Path(tmp) / 'out.bin'
         stats_path = Path(tmp) / 'stats.json'
+        err_path = Path(tmp) / 'stderr.txt'
         cmd = [str(compiler), spec['src'], *spec['args'], *extra_args,
                '-o', str(out_path), '--wasm-stats', str(stats_path)]
         if pin_cpu is not None:
             cmd = ['taskset', '-c', str(pin_cpu), *cmd]
-        t0 = time.perf_counter_ns()
-        res = subprocess.run(cmd, stdin=subprocess.DEVNULL, capture_output=True, text=True)
-        wall_ns = time.perf_counter_ns() - t0
-        if res.returncode != 0:
-            raise RuntimeError(f'Command failed ({res.returncode}): {cmd}\nstderr:\n{res.stderr}')
+        with err_path.open('wb') as ef:
+            t0 = time.perf_counter_ns()
+            proc = subprocess.Popen(cmd, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=ef)
+            _, status, rusage = os.wait4(proc.pid, 0)
+            wall_ns = time.perf_counter_ns() - t0
+            proc.returncode = os.waitstatus_to_exitcode(status)
+        if proc.returncode != 0:
+            raise RuntimeError(f'Command failed ({proc.returncode}): {cmd}\nstderr:\n{err_path.read_text(errors="replace")}')
         stats = json.loads(stats_path.read_text()) if stats_path.exists() else {}
         out_bytes = out_path.read_bytes()
         return {
             'wall_ns': wall_ns,
+            'max_rss_kb': rusage.ru_maxrss,
             'out_sha256': hashlib.sha256(out_bytes).hexdigest(),
             'out_size': len(out_bytes),
             'stats': stats,
@@ -44,11 +50,18 @@ def summarize(runs: list[dict], loc: int) -> dict:
     for k in ('parse_ns', 'typecheck_ns', 'lifetime_ns', 'optimize_ns', 'backend_ns'):
         stages[k.replace('_ns', '_ms')] = round(statistics.median(r['stats'].get(k, 0) / 1e6 for r in runs), 2)
     stages['typecheck_excl_life_ms'] = round(stages['typecheck_ms'] - stages['lifetime_ms'], 2)
+    compile_ms = round(stages['parse_ms'] + stages['typecheck_ms'] + stages['optimize_ms'] + stages['backend_ms'], 2)
+    stages['compile_ms'] = compile_ms
+    stages['other_ms'] = round(max(0.0, med_ms - compile_ms), 2)
+    rss_kb = [r['max_rss_kb'] for r in runs]
     return {
         'loc': loc,
         'median_wall_ms': round(med_ms, 2),
+        'min_wall_ms': round(min(walls_ms), 2),
         'walls_ms': [round(x, 2) for x in walls_ms],
         'loc_per_sec': round(loc / (med_ms / 1000.0)),
+        'compile_loc_per_sec': round(loc / (compile_ms / 1000.0)) if compile_ms > 0 else 0,
+        'median_max_rss_kb': round(statistics.median(rss_kb)),
         'stages_ms': stages,
         'out_sha256': runs[0]['out_sha256'],
         'out_size': runs[0]['out_size'],

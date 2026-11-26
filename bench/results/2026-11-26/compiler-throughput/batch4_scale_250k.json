@@ -1,0 +1,260 @@
+{
+  "timestamp": "2026-11-26T23:21:01+0100",
+  "workload": "flat_multi_250k_o0",
+  "meta": {
+    "modules": 34,
+    "functions": 5633,
+    "total_lines": 246765
+  },
+  "runs": [
+    {
+      "median_wall_ms": 731.24,
+      "min_wall_ms": 700.47,
+      "walls_ms": [
+        731.24,
+        700.47,
+        754.12
+      ],
+      "wall_loc_per_sec": 337463,
+      "compile_loc_per_sec": 346007,
+      "median_max_rss_kb": 765824,
+      "stages_ms": {
+        "parse_ms": 82.4,
+        "typecheck_ms": 362.39,
+        "lifetime_ms": 123.17,
+        "optimize_ms": 102.61,
+        "backend_ms": 165.78,
+        "typecheck_excl_life_ms": 239.22,
+        "compile_ms": 713.18,
+        "other_ms": 18.06
+      },
+      "out_sha256": "fced62e0a33aa19f4d2e5fd602dbcde207af8cbf490143860182d92f15f63ad5",
+      "out_size": 6548723,
+      "label": "v2026.4-3-nopgo",
+      "compiler": "/home/mewhhaha/src/goose-to-wasm/build/baselines/v2026.4-3-nopgo/goosew",
+      "extra_args": []
+    },
+    {
+      "median_wall_ms": 332.01,
+      "min_wall_ms": 329.81,
+      "walls_ms": [
+        332.01,
+        338.13,
+        329.81
+      ],
+      "wall_loc_per_sec": 743248,
+      "compile_loc_per_sec": 758087,
+      "median_max_rss_kb": 344700,
+      "stages_ms": {
+        "parse_ms": 53.14,
+        "typecheck_ms": 164.57,
+        "lifetime_ms": 3.89,
+        "optimize_ms": 15.77,
+        "backend_ms": 92.03,
+        "typecheck_excl_life_ms": 160.68,
+        "compile_ms": 325.51,
+        "other_ms": 6.5
+      },
+      "out_sha256": "fced62e0a33aa19f4d2e5fd602dbcde207af8cbf490143860182d92f15f63ad5",
+      "out_size": 6548723,
+      "label": "batch4d-nopgo j=1",
+      "compiler": "/home/mewhhaha/src/goose-to-wasm/build/qualify-batch4d/bootstrap/bin/goosew",
+      "extra_args": [
+        "--jobs",
+        "1"
+      ]
+    },
+    {
+      "median_wall_ms": 114.54,
+      "min_wall_ms": 108.42,
+      "walls_ms": [
+        112.21,
+        108.42,
+        117.0,
+        114.54,
+        121.22
+      ],
+      "wall_loc_per_sec": 2154314,
+      "compile_loc_per_sec": 2373197,
+      "median_max_rss_kb": 466984,
+      "stages_ms": {
+        "parse_ms": 31.76,
+        "typecheck_ms": 38.09,
+        "lifetime_ms": 4.36,
+        "optimize_ms": 8.3,
+        "backend_ms": 25.83,
+        "typecheck_excl_life_ms": 33.73,
+        "compile_ms": 103.98,
+        "other_ms": 10.56
+      },
+      "out_sha256": "fced62e0a33aa19f4d2e5fd602dbcde207af8cbf490143860182d92f15f63ad5",
+      "out_size": 6548723,
+      "label": "batch4d-nopgo j=8",
+      "compiler": "/home/mewhhaha/src/goose-to-wasm/build/qualify-batch4d/bootstrap/bin/goosew",
+      "extra_args": [
+        "--jobs",
+        "8"
+      ]
+    },
+    {
+      "median_wall_ms": 111.12,
+      "min_wall_ms": 107.69,
+      "walls_ms": [
+        116.01,
+        107.69,
+        107.84,
+        111.12,
+        111.45
+      ],
+      "wall_loc_per_sec": 2220751,
+      "compile_loc_per_sec": 2480050,
+      "median_max_rss_kb": 469580,
+      "stages_ms": {
+        "parse_ms": 33.02,
+        "typecheck_ms": 35.52,
+        "lifetime_ms": 4.42,
+        "optimize_ms": 7.37,
+        "backend_ms": 23.59,
+        "typecheck_excl_life_ms": 31.1,
+        "compile_ms": 99.5,
+        "other_ms": 11.62
+      },
+      "out_sha256": "fced62e0a33aa19f4d2e5fd602dbcde207af8cbf490143860182d92f15f63ad5",
+      "out_size": 6548723,
+      "label": "batch4d-nopgo j=10",
+      "compiler": "/home/mewhhaha/src/goose-to-wasm/build/qualify-batch4d/bootstrap/bin/goosew",
+      "extra_args": [
+        "--jobs",
+        "10"
+      ]
+    },
+    {
+      "median_wall_ms": 106.14,
+      "min_wall_ms": 104.99,
+      "walls_ms": [
+        106.14,
+        104.99,
+        105.72,
+        106.25,
+        106.63
+      ],
+      "wall_loc_per_sec": 2324891,
+      "compile_loc_per_sec": 2594795,
+      "median_max_rss_kb": 473948,
+      "stages_ms": {
+        "parse_ms": 32.06,
+        "typecheck_ms": 35.04,
+        "lifetime_ms": 4.11,
+        "optimize_ms": 7.29,
+        "backend_ms": 20.71,
+        "typecheck_excl_life_ms": 30.93,
+        "compile_ms": 95.1,
+        "other_ms": 11.04
+      },
+      "out_sha256": "fced62e0a33aa19f4d2e5fd602dbcde207af8cbf490143860182d92f15f63ad5",
+      "out_size": 6548723,
+      "label": "batch4d-nopgo j=12",
+      "compiler": "/home/mewhhaha/src/goose-to-wasm/build/qualify-batch4d/bootstrap/bin/goosew",
+      "extra_args": [
+        "--jobs",
+        "12"
+      ]
+    },
+    {
+      "median_wall_ms": 110.84,
+      "min_wall_ms": 108.39,
+      "walls_ms": [
+        115.45,
+        108.39,
+        110.84,
+        109.44,
+        111.72
+      ],
+      "wall_loc_per_sec": 2226265,
+      "compile_loc_per_sec": 2453176,
+      "median_max_rss_kb": 467352,
+      "stages_ms": {
+        "parse_ms": 31.28,
+        "typecheck_ms": 36.48,
+        "lifetime_ms": 4.05,
+        "optimize_ms": 7.35,
+        "backend_ms": 25.48,
+        "typecheck_excl_life_ms": 32.43,
+        "compile_ms": 100.59,
+        "other_ms": 10.25
+      },
+      "out_sha256": "fced62e0a33aa19f4d2e5fd602dbcde207af8cbf490143860182d92f15f63ad5",
+      "out_size": 6548723,
+      "label": "batch4d-pgo j=8",
+      "compiler": "/home/mewhhaha/src/goose-to-wasm/build/pgo-batch4d/goosew_pgo",
+      "extra_args": [
+        "--jobs",
+        "8"
+      ]
+    },
+    {
+      "median_wall_ms": 108.73,
+      "min_wall_ms": 106.32,
+      "walls_ms": [
+        108.73,
+        109.2,
+        106.32,
+        113.72,
+        106.72
+      ],
+      "wall_loc_per_sec": 2269514,
+      "compile_loc_per_sec": 2561929,
+      "median_max_rss_kb": 470612,
+      "stages_ms": {
+        "parse_ms": 32.86,
+        "typecheck_ms": 34.7,
+        "lifetime_ms": 4.1,
+        "optimize_ms": 6.98,
+        "backend_ms": 21.78,
+        "typecheck_excl_life_ms": 30.6,
+        "compile_ms": 96.32,
+        "other_ms": 12.41
+      },
+      "out_sha256": "fced62e0a33aa19f4d2e5fd602dbcde207af8cbf490143860182d92f15f63ad5",
+      "out_size": 6548723,
+      "label": "batch4d-pgo j=10",
+      "compiler": "/home/mewhhaha/src/goose-to-wasm/build/pgo-batch4d/goosew_pgo",
+      "extra_args": [
+        "--jobs",
+        "10"
+      ]
+    },
+    {
+      "median_wall_ms": 104.6,
+      "min_wall_ms": 103.17,
+      "walls_ms": [
+        104.52,
+        103.17,
+        104.6,
+        108.8,
+        107.68
+      ],
+      "wall_loc_per_sec": 2359075,
+      "compile_loc_per_sec": 2646273,
+      "median_max_rss_kb": 472748,
+      "stages_ms": {
+        "parse_ms": 31.86,
+        "typecheck_ms": 34.58,
+        "lifetime_ms": 4.05,
+        "optimize_ms": 6.92,
+        "backend_ms": 19.89,
+        "typecheck_excl_life_ms": 30.53,
+        "compile_ms": 93.25,
+        "other_ms": 11.35
+      },
+      "out_sha256": "fced62e0a33aa19f4d2e5fd602dbcde207af8cbf490143860182d92f15f63ad5",
+      "out_size": 6548723,
+      "label": "batch4d-pgo j=12",
+      "compiler": "/home/mewhhaha/src/goose-to-wasm/build/pgo-batch4d/goosew_pgo",
+      "extra_args": [
+        "--jobs",
+        "12"
+      ]
+    }
+  ]
+}

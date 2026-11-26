@@ -61,6 +61,26 @@ def workload_specs() -> dict[str, dict]:
             'src': str(WORKLOADS / 'selfhost_f746c6e/selfhost/main.goose'),
             'args': ['--stdlib', str(WORKLOADS / 'selfhost_f746c6e/stdlib'), '--target', 'c', '-O0'],
         },
+        'selfhost_o2_c': {
+            'loc': manifest['selfhost_f746c6e']['selfhost_lines'],
+            'src': str(WORKLOADS / 'selfhost_f746c6e/selfhost/main.goose'),
+            'args': ['--stdlib', str(WORKLOADS / 'selfhost_f746c6e/stdlib'), '--target', 'c', '-O2'],
+        },
+        'flat_multi_250k_o0': {
+            'loc': 246765,
+            'src': str(WORKLOADS / 'flat_multi_250k/main.goose'),
+            'args': ['--stdlib', str(WORKLOADS / 'selfhost_f746c6e/stdlib'), '--target', 'wasm-direct', '-O0'],
+        },
+        'flat_multi_100k_o0_c': {
+            'loc': manifest['flat_multi_100k']['total_lines'],
+            'src': str(WORKLOADS / 'flat_multi_100k/main.goose'),
+            'args': ['--stdlib', str(WORKLOADS / 'selfhost_f746c6e/stdlib'), '--target', 'c', '-O0'],
+        },
+        'flat_multi_250k_o0_c': {
+            'loc': 246765,
+            'src': str(WORKLOADS / 'flat_multi_250k/main.goose'),
+            'args': ['--stdlib', str(WORKLOADS / 'selfhost_f746c6e/stdlib'), '--target', 'c', '-O0'],
+        },
         'blot2_o0_wasm64': {
             'loc': 78954,
             'src': str(BLOT2_SRC),
@@ -74,6 +94,12 @@ def workload_specs() -> dict[str, dict]:
             'args': ['--stdlib', str(BLOT2_STDLIB), '--library', '--reachable-program',
                      '--expansion-node-limit', '1000000', '--target', 'wasm-direct',
                      '--wasm-memory64', '--wasm-max-pages', '65536', '-O2'],
+        },
+        'blot2_o0_c': {
+            'loc': 78954,
+            'src': str(BLOT2_SRC),
+            'args': ['--stdlib', str(BLOT2_STDLIB), '--library', '--reachable-program',
+                     '--expansion-node-limit', '1000000', '--target', 'c', '-O0'],
         },
     }
 
