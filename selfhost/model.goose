@@ -375,6 +375,7 @@ struct Program {
     // functions are not checked (the reference checker's
     // GOOSE_REACHABLE_PROGRAM build, blot2 upstream-32a4f44 patch 03).
     check_only: bool = false, reachable_program: bool = false,
+    saw_inline_checkfree: bool = false, has_checked_checkfree: bool = false,
     // Time the lifetime pass took, reported apart from type checking.
     lifetime_ns: i64 = 0,
     // The program's total const for expansion size (upstream ExpansionClone,

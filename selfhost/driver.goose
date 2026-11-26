@@ -724,7 +724,7 @@ fn driver_main() -> i64 {
     if p.diagnostics.len > 0 { driver_diagnostics(p, o); return 1; }
     // Checkfree promises are checked after bounds analysis, including in check mode.
     if o.check {
-        if opt_has_checkfree(p) { optimize_program(p); }
+        if p.has_checked_checkfree { optimize_program(p); }
         if p.diagnostics.len > 0 { driver_diagnostics(p, o); return 1; }
         if !driver_outputs_distinct(p, "", paths[stats_start..stats_end], "") { return 1; }
         if stats_end > stats_start && !driver_stats(p, paths[stats_start..stats_end], 0, parsed - started, checked - parsed, 0, 0) {

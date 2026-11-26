@@ -99,10 +99,23 @@ let OPT_SDEP_KNOWN: u8 = 16;
 let OPT_SDEP_BAD: u8 = 32;
 let OPT_HAS_INDEX: u8 = 64;
 let OPT_HAS_BREAK: u8 = 128;
+struct OptDependencyQuery { owner: i64, strict: bool, epoch: u32 }
+struct OptDepEvent { kind: i64, key: i64 }
+struct OptDepSummary { first: i64, end: i64 = 0, valid: bool = true }
+struct OptDepSummarySlots { normal: i64 = -1, strict: i64 = -1 }
+struct OptDepWatch { summary: i64, next: i64 }
+root struct OptDependencyCache {
+    slots: OptDepSummarySlots[>..] = [],
+    summaries: OptDepSummary[>..] = [],
+    events: OptDepEvent[>..] = [],
+    watch_heads: i64[>..] = [],
+    watches: OptDepWatch[>..] = [],
+}
 struct Optimizer {
-    first_free_slots: const i64[:],
-    facts: OptFact[>..]&, function_states: u8[>..]&, maps: OptMap[>..]&, node_maps: OptNodeMap[>..]&, dependency_work: i64[>..]&, proof_old: i64[>..]&, proof_new: i64[>..]&,
+    first_free_slots: const i64[:], inline_calls: bool, track_bounds: bool,
+    facts: OptFact[>..]&, function_states: u8[>..]&, maps: OptMap[>..]&, node_maps: OptNodeMap[>..]&, dependency_seen: u32[>..]&, proof_old: i64[>..]&, proof_new: i64[>..]&,
     inlined_blocks: i64[>..]&,
+    dependency_cache: OptDependencyCache&, dependency_epoch: u32 = 0,
     current_function: i64 = -1, next_slot: i64 = 0, folded: i64 = 0, propagated: i64 = 0,
     inlined: i64 = 0, tail_loops: i64 = 0, has_index: bool = false, has_break: bool = false,
     // While a library body is copied into the program's code, the call its
@@ -122,10 +135,23 @@ fn opt_literal(p: Program&, node: i64) -> bool {
     let kind = p.nodes[node].kind;
     return kind == N_INTEGER || kind == N_FLOAT || kind == N_BOOL || kind == N_NULL;
 }
+// A node can occur in more than one body or in both traversal modes.
+fn opt_invalidate_dependencies(o: Optimizer&, node: i64) {
+    if node >= o.dependency_cache.watch_heads.len { return; }
+    var watch = o.dependency_cache.watch_heads[node];
+    if watch < 0 { return; }
+    o.dependency_cache.watch_heads[node] = -1;
+    while watch >= 0 {
+        let entry: const OptDepWatch& = o.dependency_cache.watches[watch];
+        o.dependency_cache.summaries[entry.summary].valid = false;
+        watch = entry.next;
+    }
+}
 fn opt_replace(p: Program&, o: Optimizer&, destination: i64, source: i64) {
     let next = p.nodes[destination].next; let token = p.nodes[destination].token;
     let type_id = p.nodes[destination].type_id; let coerced_type = p.nodes[destination].coerced_type; let tail = p.nodes[destination].flags & F_TAIL;
     let replacement = p.nodes[source];
+    opt_invalidate_dependencies(o, destination);
     p.nodes[destination] = replacement; p.nodes[destination].next = next; p.nodes[destination].token = token;
     p.nodes[destination].flags |= tail;
     if type_id >= 0 { p.nodes[destination].type_id = type_id; }
@@ -139,27 +165,30 @@ fn opt_replace(p: Program&, o: Optimizer&, destination: i64, source: i64) {
     if destination != source && (replacement.kind == N_BLOCK && (replacement.flags & F_EARLY) != 0 ||
         replacement.kind == N_LOOP || replacement.kind == N_FOR || replacement.kind == N_WHILE) {
         check_retarget_exits(p, destination, source, destination);
-        if source < o.function_states.len && (o.function_states[source] & OPT_HAS_BREAK) != 0 {
+        if o.track_bounds && source < o.function_states.len && (o.function_states[source] & OPT_HAS_BREAK) != 0 {
             opt_mark_break(o, destination);
         }
     }
 }
-fn opt_set_integer(p: Program&, node: i64, value: i64, kind: i64) {
+fn opt_set_integer(p: Program&, o: Optimizer&, node: i64, value: i64, kind: i64) {
     let tok = p.nodes[node].token; let nxt = p.nodes[node].next;
     let ty = p.nodes[node].type_id; let fl = p.nodes[node].flags; let sc = p.nodes[node].scope;
+    opt_invalidate_dependencies(o, node);
     p.nodes[node] = Node { kind: kind, token: tok, next: nxt, type_id: ty, integer: value, flags: fl | F_CHECKED, scope: sc };
 }
 fn opt_float_value(p: Program&, type_id: i64, value: f64) -> f64 {
     if check_numeric_value_type(p, type_id) == TYPE_F32 { return (value as! f32) as f64; }
     return value;
 }
-fn opt_set_float(p: Program&, node: i64, value: f64) {
+fn opt_set_float(p: Program&, o: Optimizer&, node: i64, value: f64) {
     let tok = p.nodes[node].token; let nxt = p.nodes[node].next;
     let ty = p.nodes[node].type_id; let fl = p.nodes[node].flags; let sc = p.nodes[node].scope;
+    opt_invalidate_dependencies(o, node);
     p.nodes[node] = Node { kind: N_FLOAT, token: tok, next: nxt, type_id: ty, float_value: opt_float_value(p, ty, value), flags: fl | F_CHECKED, scope: sc };
 }
-fn opt_empty(p: Program&, node: i64) {
+fn opt_empty(p: Program&, o: Optimizer&, node: i64) {
     let tok = p.nodes[node].token; let nxt = p.nodes[node].next; let sc = p.nodes[node].scope;
+    opt_invalidate_dependencies(o, node);
     p.nodes[node] = Node { kind: N_EMPTY, token: tok, next: nxt, type_id: TYPE_VOID, flags: F_CHECKED, scope: sc };
 }
 // Bitwise arithmetic makes release wrapping independent of the bootstrap
@@ -189,13 +218,13 @@ recursive fn opt_collect(p: Program&, o: Optimizer&, node: i64) {
     if node < 0 { return; }
     let n: const Node& = p.nodes[node];
     let kind = n.kind;
-    if kind == N_NAME || kind == N_INTEGER || kind == N_FLOAT || kind == N_BOOL || kind == N_NULL || kind == N_STRING ||
-       kind == N_EMPTY || kind == N_CONTINUE || kind == N_FUNCTION || kind == N_FUNCTION_VALUE { return; }
-    if kind == N_INDEX {
+    if kind >= N_INTEGER && kind <= N_NAME || kind == N_EMPTY || kind == N_CONTINUE ||
+       kind == N_FUNCTION || kind == N_FUNCTION_VALUE { return; }
+    if o.track_bounds && kind == N_INDEX {
         opt_mark_index_vars(p, o, n.right);
-    } else if kind == N_FOR && n.left >= 0 && p.nodes[n.left].kind == N_RANGE {
+    } else if o.track_bounds && kind == N_FOR && n.left >= 0 && p.nodes[n.left].kind == N_RANGE {
         opt_mark_index_vars(p, o, p.nodes[n.left].left);
-    } else if kind == N_BINARY && (n.integer == T_LT || n.integer == T_LTEQ || n.integer == T_GT || n.integer == T_GTEQ) {
+    } else if o.track_bounds && kind == N_BINARY && (n.integer == T_LT || n.integer == T_LTEQ || n.integer == T_GT || n.integer == T_GTEQ) {
         if n.right >= 0 && p.nodes[n.right].kind == N_CALL && p.nodes[n.right].symbol >= 0 &&
            (p.symbols[p.nodes[n.right].symbol].flags & S_BUILTIN) != 0 && p.symbols[p.nodes[n.right].symbol].index == 21 {
             opt_mark_index_vars(p, o, n.left);
@@ -206,12 +235,12 @@ recursive fn opt_collect(p: Program&, o: Optimizer&, node: i64) {
     } else if kind == N_ASSIGN || kind == N_MULTI_ASSIGN {
         var target = n.left; if kind == N_MULTI_ASSIGN { target = n.first; }
         while target >= 0 {
-            let symbol = check_place_root(p, target);
+            let direct = p.nodes[target].kind == N_NAME;
+            let symbol = if direct { p.nodes[target].symbol } else { check_place_root(p, target) };
             if symbol >= 0 {
                 opt_fact(o, symbol);
-                var f: u32 = OPT_FACT_WRITTEN;
-                if p.nodes[target].kind == N_NAME && p.nodes[target].symbol == symbol { f |= OPT_FACT_DIRECT_WRITTEN; }
-                o.facts[symbol].flags |= f;
+                let flags = if direct { OPT_FACT_WRITTEN | OPT_FACT_DIRECT_WRITTEN } else { OPT_FACT_WRITTEN };
+                o.facts[symbol].flags |= flags;
             }
             if kind != N_MULTI_ASSIGN { break; }
             target = p.nodes[target].next;
@@ -220,7 +249,7 @@ recursive fn opt_collect(p: Program&, o: Optimizer&, node: i64) {
         let symbol = check_place_root(p, n.left);
         if symbol >= 0 { opt_fact(o, symbol); o.facts[symbol].flags |= OPT_FACT_ADDRESSED; }
     } else if kind == N_CALL && n.symbol >= 0 {
-        opt_fact(o, n.symbol); o.facts[n.symbol].calls += 1;
+        if p.optimization > 0 { opt_fact(o, n.symbol); o.facts[n.symbol].calls += 1; }
         let s: const Symbol& = p.symbols[n.symbol];
         if (s.flags & S_BUILTIN) != 0 && (s.index == 2 || s.index >= 24) && n.first >= 0 {
             let root = check_place_root(p, n.first);
@@ -278,23 +307,40 @@ recursive fn opt_inline_cost(p: Program&, node: i64, budget: i64) -> i64 {
     }
     return cost;
 }
-recursive fn opt_separate_tree(p: Program&, o: Optimizer&, node: i64, owner: i64, visited_start: i64, strict: bool) -> bool {
-    if node < 0 { return false; }
+fn opt_watch_dependency(cache: OptDependencyCache&, node: i64, summary: i64) {
+    let head = cache.watch_heads[node];
+    if head >= 0 && cache.watches[head].summary == summary { return; }
+    cache.watch_heads[node] = cache.watches.len;
+    cache.watches.push(OptDepWatch { summary: summary, next: head });
+}
+
+// Record only the owner-sensitive operations, in traversal order. Calls are
+// resolved during replay, so a summary never depends on another body's AST.
+recursive fn opt_summarize_dependency_tree(p: Program&, cache: OptDependencyCache&, node: i64, summary: i64, function_node: i64, strict: bool) {
+    if node < 0 { return; }
+    opt_watch_dependency(cache, node, summary);
     let n: const Node& = p.nodes[node];
     let kind = n.kind;
-    if kind == N_NAME { return n.symbol >= 0 && n.symbol < p.symbols.len && p.symbols[n.symbol].owner == owner; }
-    if kind >= N_INTEGER && kind <= N_STRING || kind == N_EMPTY || kind == N_CONTINUE || kind == N_FUNCTION || kind == N_FUNCTION_VALUE { return false; }
-    if kind == N_RETURN && n.symbol == p.nodes[owner].symbol { return true; }
+    if kind == N_NAME {
+        if n.symbol >= 0 && n.symbol < p.symbols.len {
+            let owner = p.symbols[n.symbol].owner;
+            // The call check handles the queried owner before entering its body.
+            if owner >= 0 && owner != function_node { cache.events.push(OptDepEvent { kind: kind, key: owner }); }
+        }
+        return;
+    }
+    if kind >= N_INTEGER && kind <= N_STRING || kind == N_EMPTY || kind == N_CONTINUE || kind == N_FUNCTION || kind == N_FUNCTION_VALUE { return; }
+    if kind == N_RETURN { cache.events.push(OptDepEvent { kind: kind, key: n.symbol }); }
     if kind == N_CALL {
-        if strict && (n.flags & F_DISPATCH) != 0 { return true; }
-        if opt_separate_call(p, o, n.symbol, owner, visited_start, strict) { return true; }
+        if strict && (n.flags & F_DISPATCH) != 0 {
+            cache.events.push(OptDepEvent { kind: kind, key: -1 });
+            return;
+        }
+        cache.events.push(OptDepEvent { kind: kind, key: n.symbol });
     }
     var child = n.first; if kind == N_PATTERN { child = -1; }
     while child >= 0 {
-        let ck = p.nodes[child].kind;
-        if ck < N_INTEGER || ck > N_STRING {
-            if opt_separate_tree(p, o, child, owner, visited_start, strict) { return true; }
-        }
+        opt_summarize_dependency_tree(p, cache, child, summary, function_node, strict);
         child = p.nodes[child].next;
     }
     // These nodes also own linked expression lists outside their first list.
@@ -302,78 +348,103 @@ recursive fn opt_separate_tree(p: Program&, o: Optimizer&, node: i64, owner: i64
     if strict && kind == N_VARIABLE { extra = n.right; }
     if strict && kind == N_BREAK { extra = n.left; }
     while extra >= 0 {
+        opt_watch_dependency(cache, extra, summary);
         extra = p.nodes[extra].next;
-        if extra >= 0 && opt_separate_tree(p, o, extra, owner, visited_start, strict) { return true; }
+        opt_summarize_dependency_tree(p, cache, extra, summary, function_node, strict);
     }
     if n.left >= 0 && kind != N_RECORD && kind != N_VARIABLE && kind != N_PARAM && kind != N_FIELD {
-        let lk = p.nodes[n.left].kind;
-        if (lk < N_INTEGER || lk > N_STRING) && opt_separate_tree(p, o, n.left, owner, visited_start, strict) { return true; }
+        opt_summarize_dependency_tree(p, cache, n.left, summary, function_node, strict);
     }
-    if n.right >= 0 {
-        let rk = p.nodes[n.right].kind;
-        if (rk < N_INTEGER || rk > N_STRING) && opt_separate_tree(p, o, n.right, owner, visited_start, strict) { return true; }
+    if n.right >= 0 { opt_summarize_dependency_tree(p, cache, n.right, summary, function_node, strict); }
+    if n.third >= 0 { opt_summarize_dependency_tree(p, cache, n.third, summary, function_node, strict); }
+}
+
+fn opt_dependency_summary(p: Program&, cache: OptDependencyCache&, function_node: i64, strict: bool) -> OptDepSummary {
+    if function_node >= cache.slots.len {
+        while cache.slots.len < p.nodes.len { cache.slots.push(OptDepSummarySlots {}); }
     }
-    if n.third >= 0 {
-        let tk = p.nodes[n.third].kind;
-        if (tk < N_INTEGER || tk > N_STRING) && opt_separate_tree(p, o, n.third, owner, visited_start, strict) { return true; }
+    let cached = if strict { cache.slots[function_node].strict } else { cache.slots[function_node].normal };
+    if cached >= 0 && cache.summaries[cached].valid { return cache.summaries[cached]; }
+    while cache.watch_heads.len < p.nodes.len { cache.watch_heads.push(-1); }
+    let summary = cache.summaries.len;
+    let first = cache.events.len;
+    opt_watch_dependency(cache, function_node, summary);
+    opt_summarize_dependency_tree(p, cache, p.nodes[function_node].right, summary, function_node, strict);
+    let result = OptDepSummary { first: first, end: cache.events.len };
+    cache.summaries.push(result);
+    if strict { cache.slots[function_node].strict = summary; }
+    else { cache.slots[function_node].normal = summary; }
+    return result;
+}
+
+recursive fn opt_separate_tree(p: Program&, o: Optimizer&, function_node: i64, query: const OptDependencyQuery&) -> bool {
+    let summary = opt_dependency_summary(p, o.dependency_cache, function_node, query.strict);
+    for index in summary.first..summary.end {
+        let event = o.dependency_cache.events[index];
+        if event.kind == N_NAME {
+            if event.key == query.owner { return true; }
+        } else if event.kind == N_RETURN {
+            if event.key == p.nodes[query.owner].symbol { return true; }
+        } else if opt_separate_call(p, o, event.key, query) { return true; }
     }
     return false;
 }
-recursive fn opt_separate_call(p: Program&, o: Optimizer&, symbol: i64, owner: i64, visited_start: i64, strict: bool) -> bool {
-    if symbol < 0 { return strict; }
-    if strict && symbol >= p.symbols.len { return true; }
+recursive fn opt_separate_call(p: Program&, o: Optimizer&, symbol: i64, query: const OptDependencyQuery&) -> bool {
+    if symbol < 0 { return query.strict; }
+    if query.strict && symbol >= p.symbols.len { return true; }
     let called: const Symbol& = p.symbols[symbol];
     if (called.flags & S_BUILTIN) != 0 {
         // Spawn workers and reusable-slice defaults live outside this call graph.
-        if strict && (called.index < 0 || called.index > 35 || called.index == 7 || called.index == 8 || called.index == 33 || called.index == 34) { return true; }
+        if query.strict && (called.index < 0 || called.index > 35 || called.index == 7 || called.index == 8 || called.index == 33 || called.index == 34) { return true; }
         return false;
     }
-    if (called.flags & S_EXTERN) != 0 { return strict; }
+    if (called.flags & S_EXTERN) != 0 { return query.strict; }
     let function_node = called.node;
-    if function_node < 0 { return strict; }
-    if strict {
+    if function_node < 0 { return query.strict; }
+    if query.strict {
         if function_node >= p.nodes.len || (called.flags & S_FUNCTION) == 0 { return true; }
         let function: const Node& = p.nodes[function_node];
         if (function.kind != N_FUNCTION && function.kind != N_FUNCTION_VALUE) || function.right < 0 { return true; }
     }
-    if function_node == owner { return true; }
-    for index in visited_start..o.dependency_work.len { if o.dependency_work[index] == function_node { return false; } }
-    o.dependency_work.push(function_node);
-    return opt_separate_tree(p, o, p.nodes[function_node].right, owner, visited_start, strict);
+    if function_node == query.owner { return true; }
+    if function_node >= o.dependency_seen.len { o.dependency_seen.resize(p.nodes.len, 0); }
+    if o.dependency_seen[function_node] == query.epoch { return false; }
+    o.dependency_seen[function_node] = query.epoch;
+    return opt_separate_tree(p, o, function_node, query);
 }
-recursive fn opt_inline_dependencies(p: Program&, o: Optimizer&, node: i64, owner: i64, strict: bool) -> bool {
+recursive fn opt_inline_dependencies(p: Program&, o: Optimizer&, node: i64, query: const OptDependencyQuery&) -> bool {
     if node < 0 { return false; }
     let n: const Node& = p.nodes[node];
     let kind = n.kind;
     if kind >= N_INTEGER && kind <= N_NULL || kind == N_EMPTY || kind == N_CONTINUE || kind == N_FUNCTION || kind == N_FUNCTION_VALUE { return false; }
     if kind == N_CALL {
-        if strict && (n.flags & F_DISPATCH) != 0 { return true; }
-        if opt_separate_call(p, o, n.symbol, owner, o.dependency_work.len, strict) { return true; }
+        if query.strict && (n.flags & F_DISPATCH) != 0 { return true; }
+        if opt_separate_call(p, o, n.symbol, query) { return true; }
     }
     var child = n.first; if kind == N_PATTERN { child = -1; }
     while child >= 0 {
         let ck = p.nodes[child].kind;
-        if (ck < N_INTEGER || ck > N_NULL) && opt_inline_dependencies(p, o, child, owner, strict) { return true; }
+        if (ck < N_INTEGER || ck > N_NULL) && opt_inline_dependencies(p, o, child, query) { return true; }
         child = p.nodes[child].next;
     }
     var extra = -1;
-    if strict && kind == N_VARIABLE { extra = n.right; }
-    if strict && kind == N_BREAK { extra = n.left; }
+    if query.strict && kind == N_VARIABLE { extra = n.right; }
+    if query.strict && kind == N_BREAK { extra = n.left; }
     while extra >= 0 {
         extra = p.nodes[extra].next;
-        if extra >= 0 && opt_inline_dependencies(p, o, extra, owner, strict) { return true; }
+        if extra >= 0 && opt_inline_dependencies(p, o, extra, query) { return true; }
     }
     if n.left >= 0 && kind != N_RECORD && kind != N_VARIABLE && kind != N_PARAM && kind != N_FIELD {
         let lk = p.nodes[n.left].kind;
-        if (lk < N_INTEGER || lk > N_NULL) && opt_inline_dependencies(p, o, n.left, owner, strict) { return true; }
+        if (lk < N_INTEGER || lk > N_NULL) && opt_inline_dependencies(p, o, n.left, query) { return true; }
     }
     if n.right >= 0 {
         let rk = p.nodes[n.right].kind;
-        if (rk < N_INTEGER || rk > N_NULL) && opt_inline_dependencies(p, o, n.right, owner, strict) { return true; }
+        if (rk < N_INTEGER || rk > N_NULL) && opt_inline_dependencies(p, o, n.right, query) { return true; }
     }
     if n.third >= 0 {
         let tk = p.nodes[n.third].kind;
-        if (tk < N_INTEGER || tk > N_NULL) && opt_inline_dependencies(p, o, n.third, owner, strict) { return true; }
+        if (tk < N_INTEGER || tk > N_NULL) && opt_inline_dependencies(p, o, n.third, query) { return true; }
     }
     return false;
 }
@@ -383,7 +454,13 @@ fn opt_inline_dependencies_cached(p: Program&, o: Optimizer&, fn_node: i64, stri
     let bad_bit = if strict { OPT_SDEP_BAD } else { OPT_DEP_BAD };
     let st = o.function_states[fn_node];
     if (st & known_bit) != 0 { return (st & bad_bit) != 0; }
-    let bad = opt_inline_dependencies(p, o, p.nodes[fn_node].right, fn_node, strict);
+    if o.dependency_epoch == 4294967295 {
+        o.dependency_seen.clear();
+        o.dependency_epoch = 1;
+    } else { o.dependency_epoch++; }
+    // The walk is read-only, so all calls in this query share the same marks.
+    let query = OptDependencyQuery { owner: fn_node, strict: strict, epoch: o.dependency_epoch };
+    let bad = opt_inline_dependencies(p, o, p.nodes[fn_node].right, query);
     if bad { o.function_states[fn_node] = st | known_bit | bad_bit; }
     else { o.function_states[fn_node] = st | known_bit; }
     return bad;
@@ -454,7 +531,7 @@ recursive fn opt_clone(p: Program&, o: Optimizer&, node: i64, map_start: i64) ->
     }
     return result;
 }
-fn opt_capture(p: Program&, function_node: i64, symbol: i64) {
+fn opt_capture(p: Program&, o: Optimizer&, function_node: i64, symbol: i64) {
     if function_node < 0 || symbol < 0 || symbol >= p.symbols.len { return; }
     let owner = p.symbols[symbol].owner; let flags = p.symbols[symbol].flags;
     if owner < 0 || owner == function_node || (flags & (S_FUNCTION | S_TYPE | S_GLOBAL)) != 0 { return; }
@@ -462,7 +539,8 @@ fn opt_capture(p: Program&, function_node: i64, symbol: i64) {
     while binding >= 0 { if p.nodes[binding].symbol == symbol { return; } last = binding; binding = p.nodes[binding].next; }
     let name_token = p.symbols[symbol].name_token; let type_id = p.symbols[symbol].type_id;
     let capture = new_node(p, N_BINDING, name_token); p.nodes[capture].symbol = symbol; p.nodes[capture].type_id = type_id;
-    if last < 0 { p.nodes[function_node].captures = capture; } else { p.nodes[last].next = capture; }
+    if last < 0 { p.nodes[function_node].captures = capture; }
+    else { opt_invalidate_dependencies(o, last); p.nodes[last].next = capture; }
     p.nodes[function_node].flags |= F_CAPTURE; p.symbols[symbol].flags |= S_CAPTURE;
 }
 recursive fn opt_fix_inline(p: Program&, o: Optimizer&, node: i64, callee: i64, target: i64, map_start: i64, node_start: i64) {
@@ -472,21 +550,22 @@ recursive fn opt_fix_inline(p: Program&, o: Optimizer&, node: i64, callee: i64, 
     let sym = p.nodes[node].symbol;
     if kind == N_NAME {
         let mapped = opt_mapped_symbol(o, sym, map_start);
-        p.nodes[node].symbol = mapped;
-        opt_capture(p, o.current_function, mapped);
+        if mapped != sym { opt_invalidate_dependencies(o, node); p.nodes[node].symbol = mapped; }
+        opt_capture(p, o, o.current_function, mapped);
         return;
     }
     if kind == N_VARIABLE || kind == N_BINDING && sym >= 0 && sym < p.symbols.len && p.symbols[sym].node == node {
         p.nodes[node].symbol = opt_mapped_symbol(o, sym, map_start);
     }
     if kind == N_RETURN && sym == callee {
+        opt_invalidate_dependencies(o, node);
         p.nodes[node].kind = N_BREAK; p.nodes[node].symbol = target; p.nodes[node].left = p.nodes[node].first;
         p.nodes[node].first = -1; p.nodes[node].last = -1; p.nodes[node].flags &= ~F_NONLOCAL; kind = N_BREAK;
     } else if kind == N_RETURN && o.current_function >= 0 && sym == p.nodes[o.current_function].symbol { p.nodes[node].flags &= ~F_NONLOCAL; }
     if kind == N_BREAK || kind == N_CONTINUE {
         let cur_sym = p.nodes[node].symbol;
         for index in node_start..o.node_maps.len { let map: const OptNodeMap& = o.node_maps[index]; if cur_sym == map.from { p.nodes[node].symbol = map.to; break; } }
-        if kind == N_BREAK { opt_mark_break(o, p.nodes[node].symbol); }
+        if kind == N_BREAK && o.track_bounds { opt_mark_break(o, p.nodes[node].symbol); }
     }
     let first = p.nodes[node].first; let left = p.nodes[node].left;
     let right = p.nodes[node].right; let third = p.nodes[node].third;
@@ -548,13 +627,15 @@ recursive fn opt_try_inline(p: Program&, o: Optimizer&, node: i64) -> bool {
     let callee_first = p.nodes[callee_node].first;
     let call_first = p.nodes[node].first;
     if check_list_count(p, callee_first) != check_list_count(p, call_first) { return false; }
-    var threshold = 8; var use_threshold = 48;
-    if p.optimization >= 2 { threshold = 16; use_threshold = 96; }
-    opt_fact(o, call_symbol); var uses: i64 = o.facts[call_symbol].calls; if uses < 1 { uses = 1; }
-    var budget = threshold;
-    if use_threshold / uses > budget { budget = use_threshold / uses; }
-    if uses == 1 && budget < 200 { budget = 200; }
-    if (callee_flags & F_INLINE) != 0 { budget = 200; }
+    var budget = 200;
+    if p.optimization > 0 && (callee_flags & F_INLINE) == 0 {
+        var threshold = 8; var use_threshold = 48;
+        if p.optimization >= 2 { threshold = 16; use_threshold = 96; }
+        opt_fact(o, call_symbol); var uses: i64 = o.facts[call_symbol].calls; if uses < 1 { uses = 1; }
+        budget = threshold;
+        if use_threshold / uses > budget { budget = use_threshold / uses; }
+        if uses == 1 && budget < 200 { budget = 200; }
+    }
     let cost = opt_inline_cost(p, callee_right, budget);
     if cost > budget || opt_inline_dependencies_cached(p, o, callee_node, strict) { return false; }
     let call_tok = p.nodes[node].token; let call_ty = p.nodes[node].type_id; let call_scope = p.nodes[node].scope;
@@ -568,12 +649,13 @@ recursive fn opt_try_inline(p: Program&, o: Optimizer&, node: i64) -> bool {
     p.nodes[inline_body].origin = callee_node; p.nodes[inline_body].symbol = call_symbol;
     var formal = callee_first; var argument = call_first;
     while formal >= 0 {
-        let next = p.nodes[argument].next; p.nodes[argument].next = -1;
+        let next = p.nodes[argument].next;
+        if next >= 0 { opt_invalidate_dependencies(o, argument); p.nodes[argument].next = -1; }
         let local = opt_temporary(p, o, o.current_function, call_scope, p.nodes[formal].token, p.nodes[formal].type_id, argument);
         p.nodes[local].origin = formal; opt_note_site(p, o, formal, local);
         append_child(p, inline_body, local);
         o.maps.push(OptMap { from: p.nodes[formal].symbol, to: p.nodes[local].symbol }); opt_copy_fact(o, p.nodes[formal].symbol, p.nodes[local].symbol);
-        if (o.facts[p.nodes[formal].symbol].flags & OPT_FACT_INDEX_VAR) != 0 { opt_mark_index_vars(p, o, argument); }
+        if o.track_bounds && (o.facts[p.nodes[formal].symbol].flags & OPT_FACT_INDEX_VAR) != 0 { opt_mark_index_vars(p, o, argument); }
         formal = p.nodes[formal].next; argument = next;
     }
     let body = opt_clone(p, o, callee_right, map_start); o.site = outer_site;
@@ -641,7 +723,7 @@ fn opt_fold_binary(p: Program&, o: Optimizer&, node: i64) {
             if p.debug && !comparison && check_integer(n.type_id) && !check_unsigned(n.type_id) &&
                (result < check_min(n.type_id) || result > check_max(n.type_id)) { return; }
             var kind = N_INTEGER; if comparison { kind = N_BOOL; }
-            opt_set_integer(p, node, result, kind); o.folded += 1;
+            opt_set_integer(p, o, node, result, kind); o.folded += 1;
         }
     } else if left.kind == N_BOOL && right.kind == N_BOOL {
         var result = false; var valid = true;
@@ -650,7 +732,7 @@ fn opt_fold_binary(p: Program&, o: Optimizer&, node: i64) {
         else if op == T_ANDAND { result = left.integer != 0 && right.integer != 0; }
         else if op == T_OROR { result = left.integer != 0 || right.integer != 0; }
         else { valid = false; }
-        if valid { var value = 0; if result { value = 1; } opt_set_integer(p, node, value, N_BOOL); o.folded += 1; }
+        if valid { var value = 0; if result { value = 1; } opt_set_integer(p, o, node, value, N_BOOL); o.folded += 1; }
     } else if left.kind == N_FLOAT && right.kind == N_FLOAT {
         var a = left.float_value; var b = right.float_value; var value = 0.0; var valid = true;
         if n.type_id == TYPE_F32 || n.aux == TYPE_F32 { a = (a as! f32) as f64; b = (b as! f32) as f64; }
@@ -658,7 +740,7 @@ fn opt_fold_binary(p: Program&, o: Optimizer&, node: i64) {
         else if op == T_MUL { value = a * b; } else if op == T_DIV && b != 0.0 { value = a / b; }
         else { valid = false; }
         if valid && value == value && value > -1.0e308 && value < 1.0e308 {
-            opt_set_float(p, node, value); o.folded += 1;
+            opt_set_float(p, o, node, value); o.folded += 1;
         }
     }
 }
@@ -667,10 +749,6 @@ recursive fn opt_node(p: Program&, o: Optimizer&, node: i64, depth: i64) {
     if node < 0 || depth > 512 { return; }
     let entry: const Node& = p.nodes[node];
     let kind = entry.kind;
-    // Checked float literals keep their value when propagation widens their type.
-    if kind == N_INTEGER || kind == N_BOOL || kind == N_NULL || kind == N_STRING || kind == N_EMPTY || kind == N_CONTINUE ||
-       kind == N_FUNCTION || kind == N_FUNCTION_VALUE || kind == N_STRUCT || kind == N_ENUM || kind == N_ALIAS || kind == N_PATTERN { return; }
-    if kind == N_FLOAT { p.nodes[node].float_value = opt_float_value(p, entry.type_id, entry.float_value); return; }
     if kind == N_NAME {
         let sym = entry.symbol;
         if sym >= 0 && sym < o.facts.len {
@@ -681,6 +759,10 @@ recursive fn opt_node(p: Program&, o: Optimizer&, node: i64, depth: i64) {
         }
         return;
     }
+    // Checked float literals keep their value when propagation widens their type.
+    if kind == N_INTEGER || kind >= N_STRING && kind <= N_NULL || kind == N_EMPTY || kind == N_CONTINUE ||
+       kind == N_FUNCTION || kind == N_FUNCTION_VALUE || kind == N_STRUCT || kind == N_ENUM || kind == N_ALIAS || kind == N_PATTERN { return; }
+    if kind == N_FLOAT { p.nodes[node].float_value = opt_float_value(p, entry.type_id, entry.float_value); return; }
     // Inlining can grow the node array. Keep just the traversal fields across child visits.
     let left = entry.left; let right = entry.right;
     let third = entry.third; let first = entry.first;
@@ -693,7 +775,7 @@ recursive fn opt_node(p: Program&, o: Optimizer&, node: i64, depth: i64) {
         if condition.kind == N_BOOL {
             var chosen = third; if condition.integer != 0 { chosen = right; }
             if chosen >= 0 { opt_node(p, o, chosen, depth + 1); opt_replace(p, o, node, chosen); }
-            else { opt_empty(p, node); }
+            else { opt_empty(p, o, node); }
             o.folded += 1; return;
         }
     } else if kind == N_BINARY && (op == T_ANDAND || op == T_OROR) {
@@ -711,35 +793,35 @@ recursive fn opt_node(p: Program&, o: Optimizer&, node: i64, depth: i64) {
     while child >= 0 {
         let next = p.nodes[child].next;
         let ck = p.nodes[child].kind;
-        if ck != N_INTEGER && ck != N_BOOL && ck != N_NULL && ck != N_STRING && ck != N_EMPTY && ck != N_CONTINUE {
+        if ck != N_INTEGER && (ck < N_STRING || ck > N_NULL) && ck != N_EMPTY && ck != N_CONTINUE {
             opt_node(p, o, child, depth + 1);
         }
         child = next;
     }
-    if kind == N_BREAK { opt_mark_break(o, p.nodes[node].symbol); }
+    if kind == N_BREAK && o.track_bounds { opt_mark_break(o, p.nodes[node].symbol); }
     if !left_done && left >= 0 && kind != N_VARIABLE && kind != N_PARAM && kind != N_FIELD && kind != N_RECORD &&
        kind != N_ASSIGN && kind != N_MULTI_ASSIGN {
         let lk = p.nodes[left].kind;
-        if lk != N_INTEGER && lk != N_BOOL && lk != N_NULL && lk != N_STRING && lk != N_EMPTY && lk != N_CONTINUE {
+        if lk != N_INTEGER && (lk < N_STRING || lk > N_NULL) && lk != N_EMPTY && lk != N_CONTINUE {
             opt_node(p, o, left, depth + 1);
         }
     } else if kind == N_ASSIGN {
         var target_id = left;
         while target_id >= 0 && p.nodes[target_id].kind == N_MEMBER { target_id = p.nodes[target_id].left; }
         if target_id >= 0 && p.nodes[target_id].kind == N_INDEX {
-            o.has_index = true;
+            if p.optimization > 0 { o.has_index = true; }
             opt_node(p, o, p.nodes[target_id].right, depth + 1);
         }
     }
     if right >= 0 {
         let rk = p.nodes[right].kind;
-        if rk != N_INTEGER && rk != N_BOOL && rk != N_NULL && rk != N_STRING && rk != N_EMPTY && rk != N_CONTINUE {
+        if rk != N_INTEGER && (rk < N_STRING || rk > N_NULL) && rk != N_EMPTY && rk != N_CONTINUE {
             opt_node(p, o, right, depth + 1);
         }
     }
     if third >= 0 && kind != N_CALL {
         let tk = p.nodes[third].kind;
-        if tk != N_INTEGER && tk != N_BOOL && tk != N_NULL && tk != N_STRING && tk != N_EMPTY && tk != N_CONTINUE {
+        if tk != N_INTEGER && (tk < N_STRING || tk > N_NULL) && tk != N_EMPTY && tk != N_CONTINUE {
             opt_node(p, o, third, depth + 1);
         }
     }
@@ -756,25 +838,25 @@ recursive fn opt_node(p: Program&, o: Optimizer&, node: i64, depth: i64) {
         if value.kind == N_INTEGER {
             if n.integer == T_MINUS && (!p.debug || value.integer != check_min(n.type_id)) {
                 let bits = opt_add_bits(~(value.integer as! u64), 1);
-                opt_set_integer(p, node, opt_wrap(bits, n.type_id), N_INTEGER); o.folded += 1;
+                opt_set_integer(p, o, node, opt_wrap(bits, n.type_id), N_INTEGER); o.folded += 1;
             } else if n.integer == T_BITNOT {
-                opt_set_integer(p, node, opt_wrap(~(value.integer as! u64), n.type_id), N_INTEGER); o.folded += 1;
+                opt_set_integer(p, o, node, opt_wrap(~(value.integer as! u64), n.type_id), N_INTEGER); o.folded += 1;
             }
         } else if value.kind == N_BOOL && n.integer == T_NOT {
             var result = 0; if value.integer == 0 { result = 1; }
-            opt_set_integer(p, node, result, N_BOOL); o.folded += 1;
+            opt_set_integer(p, o, node, result, N_BOOL); o.folded += 1;
         } else if value.kind == N_FLOAT && n.integer == T_MINUS {
-            opt_set_float(p, node, -value.float_value); o.folded += 1;
+            opt_set_float(p, o, node, -value.float_value); o.folded += 1;
         }
     } else if n.kind == N_CAST && n.left >= 0 {
         let source: const Node& = p.nodes[n.left]; let destination = n.type_id;
         if source.kind == N_INTEGER && check_integer(destination) {
             if (n.flags & F_UNSIGNED) != 0 || source.integer >= check_min(destination) && source.integer <= check_max(destination) &&
                !(check_unsigned(source.type_id) && source.integer < 0 && destination != TYPE_U64) {
-                opt_set_integer(p, node, opt_wrap(source.integer as! u64, destination), N_INTEGER); o.folded += 1;
+                opt_set_integer(p, o, node, opt_wrap(source.integer as! u64, destination), N_INTEGER); o.folded += 1;
             }
         } else if source.kind == N_FLOAT && check_float(destination) {
-            opt_set_float(p, node, source.float_value); o.folded += 1;
+            opt_set_float(p, o, node, source.float_value); o.folded += 1;
         } else if source.kind == N_INTEGER && check_float(destination) {
             var value = source.integer as f64;
             let unsigned = check_unsigned(check_numeric_value_type(p, source.type_id));
@@ -783,7 +865,7 @@ recursive fn opt_node(p: Program&, o: Optimizer&, node: i64, depth: i64) {
                 value = (source.integer as f32) as f64;
                 if unsigned { value = ((source.integer as! u64) as f32) as f64; }
             }
-            opt_set_float(p, node, value); o.folded += 1;
+            opt_set_float(p, o, node, value); o.folded += 1;
         }
     } else if n.kind == N_CALL && n.symbol >= 0 {
         let symbol: const Symbol& = p.symbols[n.symbol];
@@ -798,10 +880,10 @@ recursive fn opt_node(p: Program&, o: Optimizer&, node: i64, depth: i64) {
                 var item = receiver.first;
                 while item >= 0 { if !opt_literal(p, item) { length = -1; } item = p.nodes[item].next; }
             }
-            if length >= 0 { opt_set_integer(p, node, length, N_INTEGER); o.folded += 1; }
-        } else { opt_try_inline(p, o, node); }
+            if length >= 0 { opt_set_integer(p, o, node, length, N_INTEGER); o.folded += 1; }
+        } else if o.inline_calls { opt_try_inline(p, o, node); }
     } else if n.kind == N_WHILE && n.left >= 0 && p.nodes[n.left].kind == N_BOOL && p.nodes[n.left].integer == 0 {
-        opt_empty(p, node); o.folded += 1;
+        opt_empty(p, o, node); o.folded += 1;
     } else if n.kind == N_FOR && n.left >= 0 && p.nodes[n.left].kind == N_RANGE {
         let range: const Node& = p.nodes[n.left];
         if p.nodes[range.left].kind == N_INTEGER && p.nodes[range.right].kind == N_INTEGER &&
@@ -812,10 +894,10 @@ recursive fn opt_node(p: Program&, o: Optimizer&, node: i64, depth: i64) {
             } else {
                 lo >= hi
             };
-            if empty { opt_empty(p, node); o.folded += 1; }
+            if empty { opt_empty(p, o, node); o.folded += 1; }
         }
     } else if n.kind == N_INDEX && n.right >= 0 {
-        o.has_index = true;
+        if p.optimization > 0 { o.has_index = true; }
         let index: const Node& = p.nodes[n.right]; let source: const Node& = p.nodes[n.left];
         if index.kind == N_INTEGER && index.integer >= 0 && source.type_id >= 0 &&
            p.types[source.type_id].kind == TY_ARRAY && p.types[source.type_id].array_kind == A_FIXED &&
@@ -824,9 +906,13 @@ recursive fn opt_node(p: Program&, o: Optimizer&, node: i64, depth: i64) {
         var first = p.nodes[node].first; var last = -1; var current = first; var leaves = false;
         while current >= 0 {
             let next = p.nodes[current].next;
-            if leaves { if last >= 0 { p.nodes[last].next = -1; } break; }
+            if leaves {
+                if last >= 0 { opt_invalidate_dependencies(o, last); p.nodes[last].next = -1; }
+                break;
+            }
             if p.nodes[current].kind == N_EMPTY {
-                if last < 0 { first = next; } else { p.nodes[last].next = next; }
+                if last < 0 { first = next; }
+                else { opt_invalidate_dependencies(o, last); p.nodes[last].next = next; }
             } else {
                 last = current;
                 let kind = p.nodes[current].kind;
@@ -838,7 +924,10 @@ recursive fn opt_node(p: Program&, o: Optimizer&, node: i64, depth: i64) {
             }
             current = next;
         }
-        p.nodes[node].first = first; p.nodes[node].last = last;
+        if p.nodes[node].first != first {
+            opt_invalidate_dependencies(o, node); p.nodes[node].first = first;
+        }
+        p.nodes[node].last = last;
     }
 }
 recursive fn opt_tail_rewrite(p: Program&, o: Optimizer&, node: i64, function_symbol: i64, loop_node: i64) -> i64 {
@@ -858,7 +947,8 @@ recursive fn opt_tail_rewrite(p: Program&, o: Optimizer&, node: i64, function_sy
             p.nodes[inline_body].flags = F_CHECKED; p.nodes[inline_body].scope = n_scope;
             var temp_count = 0; var formal = p.nodes[function_node].first; var argument = call_first;
             while formal >= 0 && argument >= 0 {
-                let next = p.nodes[argument].next; p.nodes[argument].next = -1;
+                let next = p.nodes[argument].next;
+                if next >= 0 { opt_invalidate_dependencies(o, argument); p.nodes[argument].next = -1; }
                 let temp = opt_temporary(p, o, function_node, n_scope, p.nodes[formal].token, p.nodes[formal].type_id, argument);
                 p.nodes[temp].origin = formal;
                 append_child(p, inline_body, temp); temp_count += 1;
@@ -918,6 +1008,7 @@ fn opt_tail_function(p: Program&, o: Optimizer&, node: i64) {
     if changed == 0 { return; }
     let body = new_node(p, N_BLOCK, n_tok); p.nodes[body].type_id = TYPE_VOID;
     p.nodes[body].flags = F_CHECKED; p.nodes[body].scope = n_scope; append_child(p, body, loop_node);
+    opt_invalidate_dependencies(o, node);
     p.nodes[node].right = body; o.tail_loops += changed;
 }
 recursive fn opt_callees(p: Program&, o: Optimizer&, node: i64) {
@@ -2206,14 +2297,6 @@ fn opt_harvest_cond(p: Program&, o: Optimizer&, bs: OptBoundState&, cond: i64, t
     opt_harvest_cond_pass(p, o, bs, cond, truthy, 1, cond_mutated);
 }
 
-fn opt_has_checkfree(p: Program&) -> bool {
-    for n in p.nodes {
-        if (n.kind == N_FUNCTION || n.kind == N_FUNCTION_VALUE) &&
-           (n.flags & (F_CHECKED | F_CHECKFREE)) == (F_CHECKED | F_CHECKFREE) { return true; }
-    }
-    return false;
-}
-
 recursive fn opt_bound_expr(p: Program&, node: i64, out: u8[>..]&) {
     let n: const Node& = p.nodes[node];
     if n.kind == N_MEMBER || n.kind == N_INDEX {
@@ -3149,21 +3232,28 @@ fn optimize_program(p: Program&) {
     var optimizer_facts: OptFact[>..] = []; optimizer_facts.resize(p.symbols.len, OptFact {});
     var function_states: u8[>..] = []; function_states.resize(p.nodes.len, 0);
     var optimizer_maps: OptMap[>..] = []; var optimizer_node_maps: OptNodeMap[>..] = [];
-    var optimizer_dependencies: i64[>..] = []; var optimizer_proof_old: i64[>..] = []; var optimizer_proof_new: i64[>..] = [];
+    var optimizer_dependencies: u32[>..] = []; var optimizer_proof_old: i64[>..] = []; var optimizer_proof_new: i64[>..] = [];
     var optimizer_inlined_blocks: i64[>..] = [];
+    var dependency_cache = OptDependencyCache {};
     // Each function is optimized once. Inlining and tail calls allocate their
     // temporaries from next_slot while that function is active.
+    let inline_calls = p.optimization > 0 || p.saw_inline_checkfree;
     var slots: i64[>..] = [];
-    for s_id in 0..p.symbols.len {
-        let symbol: const Symbol& = p.symbols[s_id];
-        if symbol.owner < 0 || symbol.slot < 0 { continue; }
-        if symbol.owner >= slots.len { slots.resize(symbol.owner + 1, 0); }
-        if symbol.slot >= slots[symbol.owner] { slots[symbol.owner] = symbol.slot + 1; }
+    if inline_calls {
+        for s_id in 0..p.symbols.len {
+            let symbol: const Symbol& = p.symbols[s_id];
+            if symbol.owner < 0 || symbol.slot < 0 { continue; }
+            if symbol.owner >= slots.len { slots.resize(symbol.owner + 1, 0); }
+            if symbol.slot >= slots[symbol.owner] { slots[symbol.owner] = symbol.slot + 1; }
+        }
     }
     var o = Optimizer {
-        first_free_slots: slots[..], facts: optimizer_facts, function_states: function_states, maps: optimizer_maps,
-        node_maps: optimizer_node_maps, dependency_work: optimizer_dependencies, proof_old: optimizer_proof_old,
+        first_free_slots: slots[..], inline_calls: inline_calls,
+        track_bounds: p.optimization > 0 || p.has_checked_checkfree,
+        facts: optimizer_facts, function_states: function_states, maps: optimizer_maps,
+        node_maps: optimizer_node_maps, dependency_seen: optimizer_dependencies, proof_old: optimizer_proof_old,
         proof_new: optimizer_proof_new, inlined_blocks: optimizer_inlined_blocks,
+        dependency_cache: dependency_cache,
     };
     let count = p.symbols.len;
     for i in 0..count {
@@ -3181,8 +3271,7 @@ fn optimize_program(p: Program&) {
         if s.node >= 0 && (s.flags & S_FUNCTION) != 0 && (s.flags & S_BUILTIN) == 0 &&
            (p.nodes[s.node].flags & F_REACHABLE) != 0 { opt_function(p, o, s.node); }
     }
-    let checkfree = opt_has_checkfree(p);
-    if checkfree { opt_remove_inlined_checkfree(p, count); }
-    if p.optimization >= 2 || checkfree { opt_prove_bounds_program(p, o, count); }
+    if p.has_checked_checkfree && inline_calls { opt_remove_inlined_checkfree(p, count); }
+    if p.optimization >= 2 || p.has_checked_checkfree { opt_prove_bounds_program(p, o, count); }
     life_refresh_named_results_for(p, o.inlined_blocks[..]);
 }

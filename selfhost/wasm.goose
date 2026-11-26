@@ -198,9 +198,8 @@ fn wb_compact_body(out: u8[>..]&, locals: i64[:], code: u8[:], params: i64) {
 // offset is relative to the emitted body or prelude. Branch table targets
 // stay in the bytecode.
 struct WbEvent { start: i32, operand: i32, opcode: u8 }
-struct WbLocalAccess { start: i32, index: i32 }
 
-// A block, loop or if being read by wb_reuse_locals: where it began (a loop),
+// A block, loop or if being read by wb_reuse_body: where it began (a loop),
 // where its definite assignments start on the undo stack, and whether a
 // branch names it.
 struct WbFrame { at: i32, looping: bool = false, conditional: bool = false, alternative: bool = false, branched: bool = false, undo: i32 = 0 }
@@ -218,16 +217,14 @@ struct WbFrame { at: i32, looping: bool = false, conditional: bool = false, alte
 // A write dominates a later read in the same block or one nested in it; a
 // local written in both arms of an if that no branch names is written after
 // it. Everything else is taken as not written, which only costs sharing.
-// Reusable scratch buffers for wb_reuse_locals so per-function emission avoids
+// Reusable scratch buffers for wb_reuse_body so per-function emission avoids
 // acquiring fresh growable regions on every function body.
 struct WbReuseScratch {
-    locals_at: WbLocalAccess[>..]&,
     first: i32[>..]&, last: i32[>..]&, written: i32[>..]&, arm: i32[>..]&, stamp: i32[>..]&,
-    loop_end: i32[>..]&,
-    frames: WbFrame[>..]&, undo: i32[>..]&, covers: i32[>..]&, merged: i32[>..]&,
-    head: i32[>..]&, next: i32[>..]&, kinds: i64[>..]&, kept: i64[>..]&, ends: i32[>..]&,
+    loop_end: i32[>..]&, active_loops: i32[>..]&,
+    frames: WbFrame[>..]&, undo: i32[>..]&, covers: i32[>..]&,
+    head: i32[>..]&, next: i32[>..]&, kinds: i64[>..]&, ends: i32[>..]&,
     reads: i32[>..]&, action: u8[>..]&,
-    encoded: u8[>..]&,
     epoch: i32 = 1,
 }
 
@@ -240,9 +237,17 @@ inline fn wb_local_len(index: i64) -> i64 {
     return length;
 }
 
-fn wb_reuse_locals(locals: i64[>..]&, code: u8[>..]&, params: i64, events: WbEvent[:], body_event_count: i64, prelude_bytes: i64, no_regions: bool, s: WbReuseScratch&) {
-    if locals.len == 0 { return; }
-    s.encoded.clear();
+inline fn wb_patch_local_index(bytes: u8[:], start: i64, index: i64, width: i64) {
+    var remaining = index;
+    for offset in 0..width - 1 {
+        bytes[start + offset] = ((remaining & 127) | 128) as u8;
+        remaining >>= 7;
+    }
+    bytes[start + width - 1] = remaining as u8;
+}
+
+fn wb_reuse_body(out: u8[>..]&, locals: i64[>..]&, code: u8[>..]&, params: i64, events: WbEvent[:], body_event_count: i64, prelude_bytes: i64, no_regions: bool, s: WbReuseScratch&) {
+    if locals.len == 0 { wb_body(out, locals, code); return; }
     let total = params + locals.len;
     if s.epoch > 1000000000 {
         s.arm.clear(); s.stamp.clear(); s.epoch = 1;
@@ -255,7 +260,6 @@ fn wb_reuse_locals(locals: i64[>..]&, code: u8[>..]&, params: i64, events: WbEve
     if s.stamp.len < total { s.stamp.resize(total, 0); }
     if s.next.len < total { s.next.resize(total, -1); }
     if s.undo.len < total { s.undo.resize(total, 0); }
-    if s.merged.len < total { s.merged.resize(total, 0); }
     if s.ends.len < total { s.ends.resize(total, 0); }
     if s.reads.len < total { s.reads.resize(total, 0); }
     // Ensure loop_end, head, and action have room for all event positions without shrinking.
@@ -264,7 +268,7 @@ fn wb_reuse_locals(locals: i64[>..]&, code: u8[>..]&, params: i64, events: WbEve
     if s.head.len < max_pos { s.head.resize(max_pos, -1); }
     if s.action.len < events.len { s.action.resize(events.len, 0); }
     s.covers.clear();
-    var frame_len: i64 = 0;
+    var frame_len: i64 = 0; var loop_depth: i64 = 0;
     let bytes: u8[:] = code;
     let first: i32[:] = s.first[0..total];
     let reads: i32[:] = s.reads[0..total];
@@ -274,7 +278,6 @@ fn wb_reuse_locals(locals: i64[>..]&, code: u8[>..]&, params: i64, events: WbEve
     let arm: i32[:] = s.arm[0..total];
     let stamp: i32[:] = s.stamp[0..total];
     let undo: i32[:] = s.undo[0..total];
-    let merged: i32[:] = s.merged[0..total];
     let ends: i32[:] = s.ends[0..total];
     let loop_end: i32[:] = s.loop_end[0..max_pos];
     let action: u8[:] = s.action[0..events.len];
@@ -283,7 +286,7 @@ fn wb_reuse_locals(locals: i64[>..]&, code: u8[>..]&, params: i64, events: WbEve
     var any_folded = false;
     if no_regions {
         // When the function never acquires a data region, any cg_restore_regions
-        // (local.get mark; global.set 3) is dead; omitting it lets pass 2/2b drop the mark too.
+        // (local.get mark; global.set 3) is dead; omitting it lets pass 2 drop the mark too.
         for segment in 0..2 {
             var first_event = body_event_count; var limit = events.len;
             if segment != 0 { first_event = 0; limit = body_event_count; }
@@ -353,44 +356,30 @@ fn wb_reuse_locals(locals: i64[>..]&, code: u8[>..]&, params: i64, events: WbEve
     }
     // Peephole pass 2: eliminate writes to locals with zero remaining reads,
     // and drop any immediately preceding recorded global.get (0x23) feeding a dead local.set.
-    var any_dead = false;
-    for i in 0..total { if reads[i] == 0 { any_dead = true; break; } }
-    var any_dropped = false;
-    if any_dead {
-        for event_index in 0..events.len {
-            let act = action[event_index] as i64;
+    for segment in 0..2 {
+        var first_event = body_event_count; var limit = events.len;
+        if segment != 0 { first_event = 0; limit = body_event_count; }
+        for ei in first_event..limit {
+            let act = action[ei] as i64;
             if act == 2 { continue; }
-            let event: const WbEvent& = events[event_index];
+            let event: const WbEvent& = events[ei];
             let op = event.opcode as i64;
-            if op >= 0x20 && op <= 0x22 && reads[event.operand as i64] == 0 {
-                if op == 0x21 && act == 0 { action[event_index] = 3; any_dropped = true; }
-                else { action[event_index] = 2; }
-                any_folded = true;
-            }
-        }
-    }
-    if any_dropped {
-        for segment in 0..2 {
-            var first_event = body_event_count; var limit = events.len;
-            if segment != 0 { first_event = 0; limit = body_event_count; }
-            var ei = first_event;
-            while ei + 1 < limit {
-                let e1: const WbEvent& = events[ei];
-                if (e1.opcode as i64) == 0x23 && (action[ei + 1] as i64) == 3 {
-                    let e2: const WbEvent& = events[ei + 1];
-                    if (e1.start as i64) + wb_local_len(e1.operand as i64) == (e2.start as i64) {
-                        action[ei] = 2; action[ei + 1] = 2;
-                        ei += 2;
+            if op < 0x20 || op > 0x22 || reads[event.operand as i64] != 0 { continue; }
+            any_folded = true;
+            action[ei] = 2;
+            if op == 0x21 && act == 0 {
+                if ei > first_event {
+                    let prior: const WbEvent& = events[ei - 1];
+                    if prior.opcode == 0x23 && prior.start + wb_local_len(prior.operand) == event.start {
+                        action[ei - 1] = 2;
                         continue;
                     }
                 }
-                ei++;
+                action[ei] = 3;
             }
         }
     }
     var undo_len: i64 = 0;
-    var merged_len: i64 = 0;
-    var loop_depth: i64 = 0;
     // The first instruction may have no event (typically global.get in
     // the prelude). Keep its position for implicitly zeroed locals.
     var position: i32 = -1;
@@ -415,18 +404,15 @@ fn wb_reuse_locals(locals: i64[>..]&, code: u8[>..]&, params: i64, events: WbEve
                     // The outermost loop entered since the write, or of all.
                     var depth = (written[local] as i64) - 1;
                     if depth < 0 { first[local] = 0; depth = 0; }
-                    if loop_depth > 0 {
-                        while depth < frame_len && !s.frames[depth].looping { depth++; }
-                        if depth < frame_len {
-                            let loop_at = s.frames[depth].at;
-                            let tag = epoch + loop_at;
-                            if stamp[local] != tag {
-                                stamp[local] = tag; s.covers.push(local as i32); s.covers.push(loop_at);
-                            }
+                    if depth < loop_depth {
+                        let loop_at = s.active_loops[depth];
+                        let tag = epoch + loop_at;
+                        if stamp[local] != tag {
+                            stamp[local] = tag; s.covers.push(local as i32); s.covers.push(loop_at);
                         }
                     }
                 } else if written[local] == 0 {
-                    written[local] = (frame_len + 1) as i32;
+                    written[local] = (loop_depth + 1) as i32;
                     undo[undo_len] = local as i32;
                     undo_len++;
                 }
@@ -437,27 +423,28 @@ fn wb_reuse_locals(locals: i64[>..]&, code: u8[>..]&, params: i64, events: WbEve
                 let fmark = frame.undo as i64;
                 let can_merge = frame.conditional && frame.alternative && !frame.branched;
                 let tag = epoch + frame.at;
-                merged_len = 0;
-                for ui in fmark..undo_len {
-                    let local = undo[ui] as i64; written[local] = 0;
-                    if can_merge && arm[local] == tag {
-                        merged[merged_len] = local as i32;
-                        merged_len++;
-                    }
+                if frame.looping {
+                    loop_depth--;
+                    loop_end[frame.at as i64] = position;
                 }
+                let new_depth = (loop_depth + 1) as i32;
+                let undo_end = undo_len;
                 undo_len = fmark;
-                let new_depth = (frame_len + 1) as i32;
-                for mi in 0..merged_len {
-                    let local = merged[mi] as i64;
-                    if written[local] == 0 {
+                // Each local appears only once in the arm's undo range.
+                for ui in fmark..undo_end {
+                    let local = undo[ui] as i64;
+                    if can_merge && arm[local] == tag {
                         written[local] = new_depth;
                         undo[undo_len] = local as i32;
                         undo_len++;
-                    }
+                    } else { written[local] = 0; }
                 }
-                if frame.looping { loop_depth--; loop_end[frame.at as i64] = position; }
             } else if op == 0x02 || op == 0x03 || op == 0x04 {
-                if op == 0x03 { loop_depth++; }
+                if op == 0x03 {
+                    if loop_depth == s.active_loops.len { s.active_loops.push(position); }
+                    else { s.active_loops[loop_depth] = position; }
+                    loop_depth++;
+                }
                 let nf = WbFrame { at: position, looping: op == 0x03, conditional: op == 0x04, undo: undo_len as i32 };
                 if frame_len == s.frames.len { s.frames.push(nf); } else { s.frames[frame_len] = nf; }
                 frame_len++;
@@ -522,12 +509,13 @@ fn wb_reuse_locals(locals: i64[>..]&, code: u8[>..]&, params: i64, events: WbEve
             tail[slot] = member as i32; next[member] = -1; member = following;
         }
     }
-    s.kept.clear();
+    wb_u(out, s.kinds.len);
+    var slot_count = 0;
     var changed = false;
     for kind in s.kinds {
         var ends_len: i64 = 0; var skip: i64 = 0; var until: i32 = -1;
         var member = begin[(0x7f - kind) & 7] as i64;
-        let base_slot = params + s.kept.len;
+        let base_slot = params + slot_count;
         while member >= 0 {
             let start = first[member];
             if until < start { skip = 0; until = head_len as i32; }
@@ -547,110 +535,62 @@ fn wb_reuse_locals(locals: i64[>..]&, code: u8[>..]&, params: i64, events: WbEve
             if mapped != member as i32 { changed = true; }
             member = next[member] as i64;
         }
-        s.kept.resize(s.kept.len + ends_len, kind);
+        slot_count += ends_len;
+        wb_u(out, ends_len); wb_byte(out, kind);
     }
+
     var copied = 0;
-    var replace_code = false;
-    if any_folded {
+    if !any_folded && changed && total < 128 {
+        // All indexes fit in a single byte and every instruction stays in place.
         for segment in 0..2 {
             var first_event = body_event_count; var limit = events.len; var base = 0;
             if segment != 0 { first_event = 0; limit = body_event_count; base = prelude_bytes; }
-            for event_index in first_event..limit {
-                let event: const WbEvent& = events[event_index];
-                let eop = event.opcode as i64;
-                if eop < 0x20 { continue; }
-                let act = action[event_index] as i64;
+            for ei in first_event..limit {
+                let event: const WbEvent& = events[ei];
+                let op = event.opcode as i64;
+                if op < 0x20 || op >= 0x23 { continue; }
+                let old = event.operand as i64;
+                let mapped = first[old] as i64;
+                if old != mapped { bytes[base + (event.start as i64) + 1] = mapped as u8; }
+            }
+        }
+    } else if any_folded || changed {
+        // Patch equal-width replacements and append runs around edits that change length.
+        for segment in 0..2 {
+            var first_event = body_event_count; var limit = events.len; var base = 0;
+            if segment != 0 { first_event = 0; limit = body_event_count; base = prelude_bytes; }
+            for ei in first_event..limit {
+                let event: const WbEvent& = events[ei];
+                let op = event.opcode as i64;
+                if op < 0x20 { continue; }
+                let act = action[ei] as i64;
+                if op >= 0x23 && act != 2 { continue; }
                 let old = event.operand as i64;
                 let start = base + (event.start as i64);
-                if eop >= 0x23 {
-                    if act == 2 {
-                        let end = start + wb_local_len(old);
-                        if start > copied { s.encoded.append(bytes[copied..start]); }
-                        copied = end;
-                    }
-                    continue;
-                }
-                if act == 0 {
-                    let index = first[old] as i64;
-                    if old == index { continue; }
-                    if old < 128 && index < 128 { bytes[start + 1] = index as u8; continue; }
-                    if old >= 128 && old < 16384 && index >= 128 && index < 16384 {
-                        bytes[start + 1] = ((index & 127) | 128) as u8;
-                        bytes[start + 2] = (index >> 7) as u8;
+                if act <= 1 {
+                    let mapped = first[old] as i64;
+                    if old == mapped {
+                        if act == 1 { bytes[start] = 0x22; }
                         continue;
                     }
-                }
-                let end = start + wb_local_len(old);
-                if start > copied { s.encoded.append(bytes[copied..start]); }
-                if act == 3 {
-                    s.encoded.push(0x1a);
-                } else if act != 2 {
-                    var op = eop;
-                    if act == 1 { op = 0x22; }
-                    let index = first[old] as i64;
-                    s.encoded.push(op as u8);
-                    if index < 128 { s.encoded.push(index as u8); }
-                    else if index < 16384 { s.encoded.push(((index & 127) | 128) as u8); s.encoded.push((index >> 7) as u8); }
-                    else { wb_u(s.encoded, index); }
-                }
-                copied = end;
-            }
-        }
-        replace_code = true;
-    } else if changed {
-        if total < 128 {
-            // Fast path: when every old and new local index fits in one ULEB byte (< 128),
-            // every rewrite is a 1-byte in-place patch with no length changes.
-            for segment in 0..2 {
-                var first_event = body_event_count; var limit = events.len; var base = 0;
-                if segment != 0 { first_event = 0; limit = body_event_count; base = prelude_bytes; }
-                for event_index in first_event..limit {
-                    let event: const WbEvent& = events[event_index];
-                    let eop = event.opcode as i64;
-                    if eop < 0x20 || eop >= 0x23 { continue; }
-                    let old = event.operand as i64;
-                    let index = first[old] as i64;
-                    if old != index { bytes[base + (event.start as i64) + 1] = index as u8; }
-                }
-            }
-        } else {
-            // Rewrite equal-width indexes in place. Copy unchanged runs around
-            // width-changing replacements, including the opcode before each index.
-            for segment in 0..2 {
-                var first_event = body_event_count; var limit = events.len; var base = 0;
-                if segment != 0 { first_event = 0; limit = body_event_count; base = prelude_bytes; }
-                for event_index in first_event..limit {
-                    let event: const WbEvent& = events[event_index];
-                    let eop = event.opcode as i64;
-                    if eop < 0x20 || eop >= 0x23 { continue; }
-                    let start = base + (event.start as i64);
-                    let old = event.operand as i64;
-                    let index = first[old] as i64;
-                    if old < 128 && index < 128 {
-                        if old != index { bytes[start + 1] = index as u8; }
+                    var opcode = op;
+                    if act == 1 { opcode = 0x22; }
+                    let length = wb_local_len(old);
+                    if length == wb_local_len(mapped) {
+                        if act == 1 { bytes[start] = opcode as u8; }
+                        wb_patch_local_index(bytes, start + 1, mapped, length - 1);
                         continue;
                     }
-                    if old >= 128 && old < 16384 && index >= 128 && index < 16384 {
-                        if old != index {
-                            bytes[start + 1] = ((index & 127) | 128) as u8;
-                            bytes[start + 2] = (index >> 7) as u8;
-                        }
-                        continue;
-                    }
-                    // The emitter uses the shortest unsigned LEB for a local index.
-                    let end = start + wb_local_len(old);
-                    s.encoded.append(bytes[copied..start + 1]);
-                    if index < 128 { s.encoded.push(index as u8); }
-                    else if index < 16384 { s.encoded.push(((index & 127) | 128) as u8); s.encoded.push((index >> 7) as u8); }
-                    else { wb_u(s.encoded, index); }
-                    copied = end;
+                    if start > copied { wb_raw(out, bytes[copied..start]); }
+                    wb_op(out, opcode, mapped);
+                    copied = start + length;
+                } else {
+                    if start > copied { wb_raw(out, bytes[copied..start]); }
+                    if act == 3 { wb_byte(out, 0x1a); }
+                    copied = start + wb_local_len(old);
                 }
             }
-            if copied > 0 { replace_code = true; }
         }
     }
-    locals.clear(); locals.append(s.kept);
-    if !replace_code { return; }
-    if copied < bytes.len { s.encoded.append(bytes[copied..bytes.len]); }
-    code.clear(); code.append(s.encoded);
+    if copied < bytes.len { wb_raw(out, bytes[copied..bytes.len]); }
 }

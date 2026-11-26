@@ -197,7 +197,7 @@ struct LifeSpanSlot { start: i32 = -1, last: i32 = -1, body: i32 = -1 }
 struct LifeAsked { a: i64, b: i64, c: i64, into: bool, next: i32 , all_global: bool = false }
 struct LifeHold { value: LifeValue, node: i32, kind: i32 = 0, frame: i32 = 0 }
 struct LifeTemp { frame: i64 }
-struct LifeRead { node: i64, symbol: i64, answer: bool, next: i64 = -1 }
+struct LifeRead { node: i32, last: i32, symbol: i32, next: i32 = -1, answer: bool }
 struct LifeKill { field: i64, next: i64, first: i64 = -1, count: i64 = 0 }
 struct LifeAtom { set: i64, next: i64 = -1 }
 // An atom_slots entry: an atom's hash, its one alternative and its set.
@@ -507,6 +507,7 @@ struct Lifetimes {
     summary_l1: LifeSummarySlot[>..]&, assume_l1: LifeAssumeSlot[>..]&,
     val_kill_epoch: i64 = 0,
     defers: LifeDefer[>..]&, defer_targets: LifeDeferTarget[>..]&, defer_run: LifeDefer[>..]&, defer_floor: i64 = 0,
+    bypass_memo: u8[>..]&,
 }
 
 fn life_same_effect(l: Lifetimes&, old: const LifeEffect&, effect: const LifeEffect&) -> bool {
@@ -3206,8 +3207,8 @@ inline fn life_read_child(l: Lifetimes&, work: i64[>..]&, node: i64) {
     if node < 0 || (l.visited[node] as i64) == l.visit { return; }
     l.visited[node] = l.visit as i32; work.push(node);
 }
-inline fn life_read_bucket(node: i64, symbol: i64, count: i64) -> i64 {
-    var h = (node as! u64) * 11400714819323198485 ^ (symbol as! u64) * 14029467366897019727;
+inline fn life_read_bucket(node: i64, symbol: i64, last: i64, count: i64) -> i64 {
+    var h = (node as! u64) * 11400714819323198485 ^ (symbol as! u64) * 14029467366897019727 ^ (last as! u64) * 1099511628211;
     h ^= h >> 29; return (h & ((count - 1) as! u64)) as i64;
 }
 // life_reads for a captured binding, from body to body. Its walk over nodes
@@ -3309,8 +3310,9 @@ fn life_reads_rehash(l: Lifetimes&) {
     var count: i64 = 1024; while 2 * count <= l.reads.len { count <<= 1; }
     l.read_heads.clear(); l.read_heads.resize(count, -1);
     for index in 0..l.reads.len {
-        let slot = life_read_bucket(l.reads[index].node, l.reads[index].symbol, count);
-        l.reads[index].next = l.read_heads[slot] as i64; l.read_heads[slot] = index as i32;
+        let r: const LifeRead& = l.reads[index];
+        let slot = life_read_bucket(r.node as i64, r.symbol as i64, r.last as i64, count);
+        l.reads[index].next = l.read_heads[slot]; l.read_heads[slot] = index as i32;
     }
 }
 fn life_reads_miss(p: Program&, l: Lifetimes&, node: i64, symbol: i64, bucket: i64, last: i64 = -1) -> bool {
@@ -3335,19 +3337,24 @@ fn life_reads_miss(p: Program&, l: Lifetimes&, node: i64, symbol: i64, bucket: i
         }
         l.body_work.resize(wbase);
     }
-    if last >= 0 { return answer; }
-    let index = l.reads.len; l.reads.push(LifeRead { node: node, symbol: symbol, answer: answer, next: l.read_heads[bucket] as i64 }); l.read_heads[bucket] = index as i32;
+    let index = l.reads.len;
+    l.reads.push(LifeRead { node: node as i32, last: last as i32, symbol: symbol as i32, next: l.read_heads[bucket], answer: answer });
+    l.read_heads[bucket] = index as i32;
     return answer;
 }
 fn life_reads(p: Program&, l: Lifetimes&, node: i64, symbol: i64, last: i64 = -1) -> bool {
     if node < 0 { return false; }
-    if last >= 0 { return life_reads_miss(p, l, node, symbol, 0, last); }
     // Two cached answers per bucket at most, on average.
     if 2 * l.read_heads.len <= l.reads.len { life_reads_rehash(l); }
-    let bucket = life_read_bucket(node, symbol, l.read_heads.len);
+    let bucket = life_read_bucket(node, symbol, last, l.read_heads.len);
+    let n32 = node as i32; let s32 = symbol as i32; let l32 = last as i32;
     var cached = l.read_heads[bucket] as i64;
-    while cached >= 0 { let q: const LifeRead& = l.reads[cached]; if q.node == node && q.symbol == symbol { return q.answer; } cached = q.next; }
-    return life_reads_miss(p, l, node, symbol, bucket);
+    while cached >= 0 {
+        let q: const LifeRead& = l.reads[cached];
+        if q.node == n32 && q.symbol == s32 && q.last == l32 { return q.answer; }
+        cached = q.next as i64;
+    }
+    return life_reads_miss(p, l, node, symbol, bucket, last);
 }
 
 // The walk life_reads makes from a node, following every call, reaches the
@@ -10099,18 +10106,33 @@ recursive fn life_eval_tuple(p: Program&, l: Lifetimes&, n: const Node&, out: Li
 
 // A jump in a nested loop's body has its own target. A jump in the
 // enclosing block may bypass a later return or break.
-recursive fn life_bypasses_exit(p: Program&, node: i64) -> bool {
+recursive fn life_bypasses_exit(p: Program&, l: Lifetimes&, node: i64) -> bool {
     if node < 0 { return false; }
-    let n: const Node& = p.nodes[node];
-    if n.kind == N_CONTINUE || n.kind == N_BREAK { return true; }
-    if n.kind == N_FUNCTION || n.kind == N_FUNCTION_VALUE || n.kind == N_IMPORT { return false; }
-    if n.kind == N_FOR || n.kind == N_WHILE || n.kind == N_LOOP { return life_bypasses_exit(p, n.left); }
-    var child = n.first;
-    while child >= 0 {
-        if life_bypasses_exit(p, child) { return true; }
-        child = p.nodes[child].next;
+    if node < l.bypass_memo.len {
+        let m = l.bypass_memo[node];
+        if m != 0 { return m == 2; }
+    } else {
+        l.bypass_memo.resize(p.nodes.len, 0);
     }
-    return life_bypasses_exit(p, n.left) || life_bypasses_exit(p, n.right) || life_bypasses_exit(p, n.third);
+    let n: const Node& = p.nodes[node];
+    var ans = false;
+    if n.kind == N_CONTINUE || n.kind == N_BREAK { ans = true; }
+    else if n.kind != N_FUNCTION && n.kind != N_FUNCTION_VALUE && n.kind != N_IMPORT {
+        if n.kind == N_FOR || n.kind == N_WHILE || n.kind == N_LOOP {
+            ans = life_bypasses_exit(p, l, n.left);
+        } else {
+            var child = n.first;
+            while child >= 0 {
+                if life_bypasses_exit(p, l, child) { ans = true; break; }
+                child = p.nodes[child].next;
+            }
+            if !ans {
+                ans = life_bypasses_exit(p, l, n.left) || life_bypasses_exit(p, l, n.right) || life_bypasses_exit(p, l, n.third);
+            }
+        }
+    }
+    l.bypass_memo[node] = if ans { 2 } else { 1 };
+    return ans;
 }
 
 fn life_push_active_defers(p: Program&, l: Lifetimes&, from: i64, to: i64) {
@@ -10218,10 +10240,10 @@ fn life_block_future(p: Program&, l: Lifetimes&, child: i64) {
             let local_return = stmt.kind == N_RETURN && fn_node >= 0 && stmt.symbol == p.nodes[fn_node].symbol;
             if cut >= 0 || local_return {
                 var prior = child;
-                while prior != after && !life_bypasses_exit(p, prior) { prior = p.nodes[prior].next; }
+                while prior != after && !life_bypasses_exit(p, l, prior) { prior = p.nodes[prior].next; }
                 // Evaluate the exit operand too. A conditional jump in it
                 // can still resume an enclosing loop.
-                if prior == after && !life_bypasses_exit(p, stmt.first) && !life_bypasses_exit(p, stmt.left) {
+                if prior == after && !life_bypasses_exit(p, l, stmt.first) && !life_bypasses_exit(p, l, stmt.left) {
                     l.future_exit = LifeFutureExit { frame: l.frame, scope: cut, before: l.future_count };
                     last = after;
                 }
@@ -11203,8 +11225,106 @@ fn life_check_roots(p: Program&, l: Lifetimes&, standalone: const LifeStandalone
     }
     return true;
 }
+// Sound whole-program fast path: if the entire checked program uses only fixed
+// pure value types (scalars, fixed arrays, plain fixed structs), has no globals,
+// captures, pools, recursive/thread/export/extern functions, references, slices,
+// or non-value builtins, no lifetime error is possible and every local's
+// provenance proof is static (-2).
+recursive fn life_type_is_pure_value(p: Program&, state: u8[>..]&, id: i64) -> bool {
+    if id < 0 || id >= state.len { return false; }
+    let s = state[id];
+    if s != 0 { return s == 2; }
+    state[id] = 1;
+    let t: const Type& = p.types[id];
+    var ok = false;
+    if t.kind == TY_VOID || t.kind == TY_BOOL || t.kind == TY_FLOAT { ok = true; }
+    else if t.kind == TY_INT { ok = t.index_type < 0 && t.pool < 0 && t.storage == 0; }
+    else if t.kind == TY_ARRAY {
+        ok = t.array_kind == A_FIXED && t.length_storage < 0 && t.pool < 0 && t.storage == 0 &&
+             life_type_is_pure_value(p, state, t.element);
+    } else if t.kind == TY_STRUCT {
+        if t.declaration >= 0 && (p.nodes[t.declaration].flags & (F_ROOT | F_VARIABLE_MODE)) == 0 &&
+           t.tail < 0 && t.prefix < 0 && t.storage == 0 {
+            ok = true;
+            var field = t.first;
+            while field >= 0 {
+                let fn_node: const Node& = p.nodes[field];
+                if (fn_node.flags & F_PAD) == 0 && !life_type_is_pure_value(p, state, fn_node.type_id) { ok = false; break; }
+                field = fn_node.next;
+            }
+        }
+    }
+    state[id] = if ok { 2 } else { 1 };
+    return ok;
+}
+fn life_try_pure_fast_path(p: Program&, pool_references: const i64[:]) -> bool {
+    if pool_references.len > 0 { return false; }
+    var state: u8[>..] = [];
+    state.resize(p.types.len, 0);
+    // Quick fail-fast over symbols (bails in <10 iterations on programs with globals/refs/slices).
+    let node_count = p.nodes.len;
+    for sym in p.symbols {
+        let fl = sym.flags;
+        if (fl & (S_GLOBAL | S_CAPTURE | S_EXTERN)) != 0 { return false; }
+        if (fl & (S_TYPE | S_BUILTIN)) != 0 { continue; }
+        if (fl & S_FUNCTION) != 0 {
+            if sym.node >= 0 && sym.node < node_count {
+                let fn_n: const Node& = p.nodes[sym.node];
+                if (fn_n.flags & (F_CHECKED | F_GENERIC)) == F_CHECKED {
+                    if sym.owner >= 0 || fn_n.captures >= 0 ||
+                       (fn_n.flags & (F_RECURSIVE | F_THREAD | F_EXPORT | F_EXTERN | F_NONLOCAL)) != 0 { return false; }
+                    if sym.type_id < 0 || p.types[sym.type_id].kind != TY_FN { return false; }
+                    let ft: const Type& = p.types[sym.type_id];
+                    if !life_type_is_pure_value(p, state, ft.element) { return false; }
+                    var param = ft.first;
+                    while param >= 0 {
+                        if !life_type_is_pure_value(p, state, p.nodes[param].type_id) { return false; }
+                        param = p.nodes[param].next;
+                    }
+                }
+            }
+            continue;
+        }
+        if sym.owner >= 0 && sym.owner < node_count && (p.nodes[sym.owner].flags & (F_CHECKED | F_GENERIC)) == F_CHECKED {
+            if !life_type_is_pure_value(p, state, sym.type_id) { return false; }
+            if sym.node >= 0 && sym.node < node_count &&
+               (p.nodes[sym.node].flags & (F_REUSABLE | F_REUSABLE_SLICES | F_REFERENCE | F_REFERENCE_CONTEXT)) != 0 { return false; }
+        }
+    }
+    let bad_flags = F_REUSABLE | F_REUSABLE_SLICES | F_REFERENCE | F_REFERENCE_CONTEXT | F_NONLOCAL | F_VARIABLE_MODE | F_ROOT | F_ARRAY_JOIN;
+    for n in p.nodes {
+        if (n.flags & bad_flags) != 0 { return false; }
+        let k = n.kind;
+        if k == N_DEFER || k == N_SLICE || k == N_FUNCTION_VALUE || k == N_EXTERN || k == N_SELF || k == N_RESULT { return false; }
+        if k == N_UNARY && (n.integer == T_BITAND || n.integer == T_MUL) { return false; }
+        if k == N_ASSIGN && n.integer == T_DOTASSIGN { return false; }
+        if k == N_FUNCTION {
+            if (n.flags & (F_CHECKED | F_GENERIC)) == F_CHECKED {
+                if n.symbol < 0 || p.symbols[n.symbol].owner >= 0 ||
+                   (n.flags & (F_RECURSIVE | F_THREAD | F_EXPORT | F_EXTERN)) != 0 { return false; }
+            }
+            continue;
+        }
+        if k == N_CALL {
+            if n.symbol < 0 { return false; }
+            let cs: const Symbol& = p.symbols[n.symbol];
+            if (cs.flags & S_BUILTIN) != 0 {
+                if cs.name_token < 0 || !same_bytes(token_text(p, cs.name_token), "print") { return false; }
+            }
+        }
+        if n.type_id >= 0 && p.types[n.type_id].kind != TY_FN && !life_type_is_pure_value(p, state, n.type_id) { return false; }
+        if n.coerced_type >= 0 && !life_type_is_pure_value(p, state, n.coerced_type) { return false; }
+    }
+    for index in 0..p.symbols.len {
+        let flags = p.symbols[index].flags;
+        if (flags & (S_PARAMETER | S_FUNCTION | S_BUILTIN | S_TYPE)) != 0 { continue; }
+        p.symbols[index].provenance = -2;
+    }
+    return true;
+}
 fn check_lifetimes(p: Program&, scope_parent: const i64[>..]&, scope_depth: const i64[>..]&, scope_functions: const i64[>..]&, pool_references: const i64[:]) {
     if p.diagnostics.len > 0 { return; }
+    if life_try_pure_fast_path(p, pool_references) { return; }
     let nodes = p.nodes.len; let types = p.types.len; let holds = p.type_holds.len;
     let messages = p.messages.len;
     if life_check_attempt(p, scope_parent, scope_depth, scope_functions, pool_references, false) { return; }
@@ -12159,6 +12279,7 @@ fn life_check_attempt(p: Program&, scope_parent: const i64[>..]&, scope_depth: c
     var items: LifeItem[>..] = []; var pair_slots: LifePairSlot[>..] = []; var exits: LifeExit[>..] = [];
     var futures: LifeFuture[>..] = []; var holds: LifeHold[>..] = []; var temps: LifeTemp[>..] = []; var reads: LifeRead[>..] = []; var kills: LifeKill[>..] = []; var atoms: LifeAtom[>..] = []; var failures: LifeFailure[>..] = []; var effects: LifeEffect[>..] = [];
     var defers: LifeDefer[>..] = []; var defer_targets: LifeDeferTarget[>..] = []; var defer_run: LifeDefer[>..] = [];
+    var bypass_memo: u8[>..] = [];
     var symbol_cells: i32[>..] = []; symbol_cells.resize(p.symbols.len, -1);
     var node_roots: i32[>..] = []; var function_frames: i32[>..] = []; var read_heads: i32[>..] = []; var visited: i32[>..] = []; var summary_slots: LifeSummarySlot[>..] = [];
     var effect_heads: i32[>..] = []; effect_heads.resize(2048, -1);
@@ -12245,7 +12366,7 @@ fn life_check_attempt(p: Program&, scope_parent: const i64[>..]&, scope_depth: c
         holder_ref_start: holder_ref_start, holder_ref_count: holder_ref_count, holder_ref_flags: holder_ref_flags, holder_ref_elems: holder_ref_elems,
         gs_start: gs_start, gs_count: gs_count, gs_elems: gs_elems,
         body_trans_globals: body_trans_globals, summary_l1: summary_l1, assume_l1: assume_l1,
-        defers: defers, defer_targets: defer_targets, defer_run: defer_run };
+        defers: defers, defer_targets: defer_targets, defer_run: defer_run, bypass_memo: bypass_memo };
     life_validate_pools(p, l, pool_references);
     if p.diagnostics.len > 0 { return true; }
     var standalone: LifeStandalone[>..] = []; let node_count = p.nodes.len;

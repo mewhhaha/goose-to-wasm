@@ -821,7 +821,10 @@ recursive fn parse_function(p: Program&, c: ParseCursor&, nested: bool, inherite
     }
     if parse_checkfree(p, c) { flags |= F_CHECKFREE; parse_next(p, c); }
     if parse_accept(p, c, T_SIMD) { flags |= F_SIMD; }
-    if parse_inline(p, c) { flags |= F_INLINE; parse_next(p, c); }
+    if parse_inline(p, c) {
+        flags |= F_INLINE; parse_next(p, c);
+        if (flags & F_CHECKFREE) != 0 { p.saw_inline_checkfree = true; }
+    }
     if parse_accept(p, c, T_RECURSIVE) { flags |= F_RECURSIVE; }
     if parse_accept(p, c, T_THREADFN) { flags |= F_THREAD; }
     else { parse_expect(p, c, T_FN, "expected fn in function declaration"); }

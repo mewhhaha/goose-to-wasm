@@ -698,6 +698,7 @@ fn check_validate_program(p: Program&) {
         }
     }
     let count = p.nodes.len;
+    p.has_checked_checkfree = false;
     for node in 0..count {
         let n: const Node& = p.nodes[node];
         let kind = n.kind;
@@ -707,7 +708,10 @@ fn check_validate_program(p: Program&) {
         if kind == N_FUNCTION || kind == N_FUNCTION_VALUE || kind == N_TYPE_FN {
             if kind == N_FUNCTION && (flags & F_THREAD) != 0 { validation_thread_signature(p, node); }
             validation_function(p, node);
-            if kind != N_TYPE_FN && (flags & F_CHECKED) != 0 { validation_checkfree_calls(p, node); }
+            if kind != N_TYPE_FN && (flags & F_CHECKED) != 0 {
+                if (flags & F_CHECKFREE) != 0 { p.has_checked_checkfree = true; }
+                validation_checkfree_calls(p, node);
+            }
         }
         if kind == N_TYPE_ARRAY && tid >= 0 && tid < elem_bad.len && elem_bad[tid] { validation_element_layout(p, tid, tok); }
         if (flags & F_CHECKED) == 0 || tid < 0 { continue; }
