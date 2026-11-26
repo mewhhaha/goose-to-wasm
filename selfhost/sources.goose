@@ -209,13 +209,13 @@ fn source_import_path(p: Program&, node: i64, directory: const u8[:], root: cons
         diagnose(p, n.token, "cannot open declared package module"); return false;
     }
     if local { return true; }
-    if source_blessed(p, n.integer) {
-        diagnose(p, n.token, "blessed packages are not yet supported: remote package retrieval is not implemented"); return false;
-    }
     var looked: u8[>..] = []; looked.append(out); out.clear();
     if stdlib.len > 0 {
         source_join(stdlib, name, out);
         if file_exists(out) { library = true; resolved_package = -1; return true; }
+    }
+    if source_blessed(p, n.integer) {
+        diagnose(p, n.token, "blessed packages are not yet supported: remote package retrieval is not implemented"); return false;
     }
     var message: u8[>..] = [];
     message.append("cannot find the module ");

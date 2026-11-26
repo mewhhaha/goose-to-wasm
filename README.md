@@ -176,6 +176,7 @@ Releases are versioned **`v<goose-version>-<n>`** (currently **`v2026.4-2`**), s
 - [Guide & CLI options](docs/GUIDE.md) — flags, targets, compaction, and host options
 - [Native Rust Wasmtime host](host/rust/README.md) — fast parallel Cranelift JIT, `.cwasm` caching, `--entry`, and Blot2 `env.blot_*` support
 - [Safe-Rust `wtime` host](host/wtime/README.md) — `#![forbid(unsafe_code)]` runner for Direct Goose Wasm32/Wasm64 and Blot2
+- [Web host & drop-in browser stdlib](host/web/README.md) — zero-dependency ESM browser runtime (`MemoryFS`/`LocalStorageFS`/`OPFS`, Web Audio, Web Worker) + drop-in [`stdlib-web/`](stdlib-web/README.md)
 - [Compatibility tracker](docs/FEATURES.md) — feature-by-feature status vs upstream Goose & Blot2
 - [Self-hosted compiler & bootstrap](selfhost/README.md) — architecture, Snapshot 70 seed & fixed-point verification
 - [Conformance & qualification](tests/README.md) — test suites and qualification gates

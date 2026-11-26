@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Goose Wasm Playground</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      font: 16px/1.5 system-ui, sans-serif;
+      background: #13171d;
+      color: #edf1f5;
+      --panel: #1c222a;
+      --border: #383f4a;
+      --muted: #adb8c6;
+      --accent: #bfe589;
+    }
+
+    * { box-sizing: border-box; }
+    body { margin: 0; }
+    main { max-width: 75rem; margin: auto; padding: clamp(1rem, 4vw, 3rem); }
+    h1 { margin: 0; font-size: clamp(2rem, 5vw, 3.4rem); line-height: 1.2; letter-spacing: -.045em; }
+    h2 { margin: 0 0 .75rem; font-size: 1rem; }
+    p { margin: .5rem 0 0; color: var(--muted); }
+    a { color: var(--accent); }
+    code, pre, summary { font-family: ui-monospace, monospace; }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: .65rem;
+      margin-top: 1.5rem;
+      border: 1px dashed var(--border);
+      border-radius: .75rem;
+      padding: 1rem;
+    }
+
+    .controls[data-dragging] { border-color: var(--accent); background: #253022; }
+    .controls p { flex-basis: 100%; margin: 0; font-size: .875rem; }
+    button {
+      padding: .55rem .8rem;
+      border-radius: .45rem;
+      border: 1px solid var(--border);
+      background: var(--panel);
+      color: inherit;
+      font: inherit;
+      cursor: pointer;
+    }
+
+    button:hover:not(:disabled) { border-color: var(--accent); }
+    button:disabled { opacity: .55; cursor: default; }
+    button:focus-visible, a:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+    #demo { background: var(--accent); color: #1d2a13; border-color: var(--accent); }
+    #status { min-height: 1.5em; margin: .8rem 0; overflow-wrap: anywhere; }
+    #status[data-error] { color: #ffb0a7; }
+
+    .results { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); gap: 1rem; }
+    .panel { background: var(--panel); border: 1px solid var(--border); border-radius: .75rem; padding: 1rem; }
+    .panel + .panel { margin-top: 1rem; }
+    .terminal {
+      margin: 0;
+      min-height: 4rem;
+      max-height: 24rem;
+      overflow: auto;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      font-size: .875rem;
+    }
+
+    #stderr { color: #ffb0a7; }
+    details { border-top: 1px solid var(--border); padding: .55rem 0; }
+    summary { cursor: pointer; font-size: .875rem; overflow-wrap: anywhere; }
+    details .terminal { margin-top: .5rem; }
+    @media (max-width: 42rem) { .results { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>Goose Wasm Playground</h1>
+      <p>Run a Goose program in your browser and inspect its output and virtual files.</p>
+    </header>
+
+    <section class="controls" aria-label="Program controls">
+      <button id="demo" type="button">Run demo</button>
+      <button id="pick" type="button">Choose Wasm</button>
+      <button id="play" type="button">Play Web Audio Chime</button>
+      <input id="file" type="file" accept=".wasm,application/wasm" hidden>
+      <p>Drop a <code>.wasm</code> file compiled with <code>--target wasm-direct --stdlib stdlib-web</code> anywhere on the page. <a href="demo.goose">View demo source</a>.</p>
+    </section>
+    <p id="status" role="status">Ready.</p>
+
+    <div class="results">
+      <div>
+        <section class="panel">
+          <h2>stdout</h2>
+          <pre class="terminal" id="stdout" tabindex="0"></pre>
+        </section>
+        <section class="panel">
+          <h2>stderr</h2>
+          <pre class="terminal" id="stderr" tabindex="0"></pre>
+        </section>
+      </div>
+      <section class="panel">
+        <h2>Virtual filesystem</h2>
+        <div id="files"><p>No files yet.</p></div>
+      </section>
+    </div>
+  </main>
+
+  <script type="module">
+    import { createGooseWorker, loadGoose } from "../index.js";
+
+    const demoURL = new URL("./demo.wasm", import.meta.url);
+    const controls = document.querySelector(".controls");
+    const fileInput = document.querySelector("#file");
+    const status = document.querySelector("#status");
+    const stdout = document.querySelector("#stdout");
+    const stderr = document.querySelector("#stderr");
+    const files = document.querySelector("#files");
+    const buttons = [...controls.querySelectorAll("button")];
+    let runner;
+
+    function announce(text, error = false) {
+      status.textContent = text;
+      status.toggleAttribute("data-error", error);
+    }
+
+    function showFiles(snapshot) {
+      const entries = Object.entries(snapshot).sort(([a], [b]) => a.localeCompare(b));
+      const empty = document.createElement("p");
+      empty.textContent = "No files.";
+      if (!entries.length) {
+        files.replaceChildren(empty);
+        return;
+      }
+
+      files.replaceChildren(...entries.map(([path, bytes]) => {
+        const entry = document.createElement("details");
+        const name = document.createElement("summary");
+        name.textContent = `${path} · ${bytes.length.toLocaleString()} bytes`;
+        entry.append(name);
+        entry.addEventListener("toggle", () => {
+          if (!entry.open || entry.childElementCount > 1) return;
+          const preview = document.createElement("pre");
+          preview.className = "terminal";
+          const prefix = bytes.subarray(0, 4096);
+          const text = new TextDecoder().decode(prefix);
+          preview.textContent = text.includes("\u0000") || text.includes("\ufffd")
+            ? Array.from(prefix.subarray(0, 128), (byte) => byte.toString(16).padStart(2, "0")).join(" ")
+            : text + (bytes.length > prefix.length ? "\n…" : "");
+          entry.append(preview);
+        });
+        return entry;
+      }));
+    }
+
+    function append(output) {
+      return (_bytes, text) => {
+        output.append(text);
+        output.scrollTop = output.scrollHeight;
+      };
+    }
+
+    const onStdout = append(stdout);
+    const onStderr = append(stderr);
+
+    async function playDemo() {
+      const Audio = globalThis.AudioContext ?? globalThis.webkitAudioContext;
+      if (!Audio) throw new Error("Web Audio is unavailable in this browser");
+      const audioContext = new Audio();
+      let loaded;
+      try {
+        await audioContext.resume();
+        loaded = await loadGoose(demoURL, { audioContext, args: ["demo.wasm", "--play"], onStdout, onStderr });
+        const result = loaded.run();
+        if (!result.aborted && result.exitCode === 0) {
+          announce("Playing the 440 Hz chime…");
+          await new Promise((resolve) => setTimeout(resolve, 750));
+        }
+        return { ...result, files: loaded.host.fs.snapshot() };
+      } finally {
+        try {
+          await loaded?.dispose();
+        } finally {
+          await audioContext.close();
+        }
+      }
+    }
+
+    async function run(file, play = false) {
+      if (buttons[0].disabled) return;
+      const name = file?.name ?? "demo.wasm";
+      buttons.forEach((button) => { button.disabled = true; });
+      stdout.replaceChildren();
+      stderr.replaceChildren();
+      files.replaceChildren();
+      announce(`Running ${name}…`);
+      try {
+        let result;
+        if (play) {
+          result = await playDemo();
+        } else {
+          runner ??= createGooseWorker();
+          const source = file ? await file.arrayBuffer() : demoURL;
+          result = await runner.run(source, { args: [name], onStdout, onStderr });
+        }
+        stdout.textContent = result.stdout;
+        stderr.textContent = result.stderr;
+        showFiles(result.files);
+        const summary = result.aborted
+          ? `Aborted on line ${result.abortLine}`
+          : `Exit ${result.exitCode}`;
+        announce(`${name} · ${summary} · ${result.durationMs.toFixed(1)} ms`, result.exitCode !== 0);
+      } catch (error) {
+        if (!play) {
+          runner?.terminate();
+          runner = undefined;
+        }
+        const hint = !file && error.message.includes("HTTP 404") ? " Build demo.wasm using the README command." : "";
+        announce(`${error.message}${hint}`, true);
+      } finally {
+        buttons.forEach((button) => { button.disabled = false; });
+      }
+    }
+
+    document.querySelector("#demo").addEventListener("click", () => void run());
+    document.querySelector("#pick").addEventListener("click", () => fileInput.click());
+    document.querySelector("#play").addEventListener("click", () => void run(null, true));
+    fileInput.addEventListener("change", () => {
+      if (fileInput.files[0]) void run(fileInput.files[0]);
+      fileInput.value = "";
+    });
+    window.addEventListener("dragover", (event) => {
+      if (!event.dataTransfer.types.includes("Files")) return;
+      event.preventDefault();
+      controls.setAttribute("data-dragging", "");
+    });
+    window.addEventListener("dragleave", (event) => {
+      if (!event.relatedTarget) controls.removeAttribute("data-dragging");
+    });
+    window.addEventListener("drop", (event) => {
+      if (!event.dataTransfer.types.includes("Files")) return;
+      event.preventDefault();
+      controls.removeAttribute("data-dragging");
+      const file = event.dataTransfer.files[0];
+      if (file) void run(file);
+    });
+    window.addEventListener("pagehide", () => {
+      runner?.terminate();
+      runner = undefined;
+    });
+    void run();
+  </script>
+</body>
+</html>

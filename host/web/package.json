@@ -1,0 +1,14 @@
+{
+  "name": "@goose-to-wasm/web",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "import": "./index.js"
+    },
+    "./worker": "./worker.js"
+  },
+  "types": "./index.d.ts",
+  "sideEffects": false
+}

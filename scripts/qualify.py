@@ -40,7 +40,7 @@ UNIT_TESTS = ['tests.test_conformance_runner', 'tests.test_bootstrap_optimizatio
               'tests.test_loop_ordinals', 'tests.test_dynamic_remainder', 'tests.test_descending_while',
               'tests.test_zero_stores', 'tests.test_owner_view_host', 'tests.test_ordinary_owner_modes', 'tests.test_aggregate_print', 'tests.test_while_unroll', 'tests.test_fixed_memory_frames', 'tests.test_holder_walks',
               'tests.test_data_segments', 'tests.test_fixed_memory_ops', 'tests.test_diagnostics',
-              'tests.test_wtime_host']
+              'tests.test_wtime_host', 'tests.test_web_stdlib']
 
 
 def run(name, command, log, env=None):
