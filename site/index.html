@@ -2,56 +2,79 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Official Goose graphics examples running in WebAssembly.">
-  <title>Examples · Goose</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="description" content="Official Goose graphics examples, compiled to WebAssembly and running live in the browser.">
+  <meta name="theme-color" content="#ffffff">
+  <meta name="color-scheme" content="light">
+  <title>Goose examples</title>
   <link rel="icon" href="./assets/goose-favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400..700&family=JetBrains+Mono:ital,wght@0,400..700;1,400&display=swap">
   <link rel="stylesheet" href="./styles.css">
   <script type="module" src="./app.js"></script>
 </head>
 <body>
   <header class="top">
     <a class="brand" href="./">
-      <img src="./assets/goose-logo.png" alt="">
-      <span>Goose</span>
+      <img src="./assets/goose-logo.png" alt="" width="64" height="64">
+      <span class="brand-name">Goose</span>
       <span class="brand-sub">Examples</span>
     </a>
+    <button class="menu-toggle" id="menu-toggle" type="button" aria-expanded="false" aria-controls="menu">
+      <span class="menu-toggle-label" id="menu-toggle-label">Examples</span>
+      <svg class="menu-toggle-icon" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true">
+        <path d="M4 6l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
   </header>
 
-  <div class="page">
-    <aside class="toc">
-      <nav id="gallery" class="gallery" aria-label="Examples"></nav>
-    </aside>
+  <div class="layout">
+    <div class="menu-backdrop" id="menu-backdrop" hidden></div>
+    <nav class="menu" id="menu" aria-label="Examples">
+      <div class="gallery" id="gallery"></div>
+    </nav>
 
-    <main class="workspace" aria-labelledby="demo-title">
-      <h1 id="demo-title" class="demo-title"></h1>
+    <main class="showcase" aria-labelledby="demo-title">
+      <h1 id="demo-title" class="demo-title">Loading examples</h1>
 
-      <blockquote class="notice" id="compatibility" hidden>
-        <strong>WebAssembly JSPI required:</strong> this GPU example needs a browser with JSPI enabled
-        (Chrome 137+ or Firefox/Safari with JSPI). The software examples in the menu run in any browser.
-      </blockquote>
+      <p class="notice" id="compatibility" hidden>
+        This GPU example needs WebAssembly JSPI, available in Chrome 137 and later.
+        The software examples in the menu run in any browser.
+      </p>
 
       <div class="stage" id="stage">
         <div class="stage-media" id="stage-media"></div>
         <div id="stage-message" class="stage-message" role="status">Loading…</div>
-        <div class="life-controls" id="life-controls" hidden>
-          <button id="life-play" type="button">Pause</button>
-          <input type="range" id="life-position" min="0" value="0" aria-label="Generation">
-          <output id="life-label" for="life-position"></output>
-        </div>
       </div>
 
-      <details id="code-disclosure" class="code-disclosure">
-        <summary>Code <code id="code-filename"></code></summary>
-        <div class="code-body">
+      <div class="life-controls" id="life-controls" hidden>
+        <button id="life-play" type="button" class="life-play" aria-label="Pause">
+          <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true">
+            <path class="icon-pause" d="M5 3.5v9M11 3.5v9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <path class="icon-play" d="M5 3.2v9.6L12.6 8z" fill="currentColor"/>
+          </svg>
+          <span id="life-play-label">Pause</span>
+        </button>
+        <input type="range" id="life-position" min="0" value="0" aria-label="Generation">
+        <output id="life-label" for="life-position"></output>
+      </div>
+
+      <section class="code" id="code" data-state="loading" aria-labelledby="code-filename">
+        <div class="code-bar">
+          <h2 class="code-file"><code id="code-filename"></code></h2>
+          <span class="code-meta" id="source-status" role="status"></span>
           <div class="code-actions">
-            <button id="copy-source" type="button" disabled>Copy</button>
-            <span id="source-status" role="status"></span>
-            <a id="upstream-source" target="_blank" rel="noopener">View on GitHub ↗</a>
+            <button id="copy-source" type="button" class="quiet" disabled>Copy</button>
+            <a id="upstream-source" class="quiet" target="_blank" rel="noopener">View on GitHub</a>
+            <button id="collapse-source" type="button" class="quiet" aria-controls="source-code" aria-expanded="true">Collapse code</button>
           </div>
-          <pre id="source-code" class="source-code" tabindex="0" aria-label="Goose source code"></pre>
         </div>
-      </details>
+        <div class="code-view">
+          <pre id="source-code" class="source-code" tabindex="0" aria-label="Goose source code"></pre>
+          <button id="expand-source" type="button" class="code-expand" aria-controls="source-code" aria-expanded="false">Show code</button>
+        </div>
+      </section>
     </main>
   </div>
 </body>

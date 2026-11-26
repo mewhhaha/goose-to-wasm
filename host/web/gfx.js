@@ -501,6 +501,50 @@ export function createGfxImports(mem, options = {}) {
       if (over || locked || input.mouseDown.size) motion(event, over);
       recordButton(browserButton(event), false, event.detail || 1);
     });
+    let activeTouchId = null;
+    function touchMotion(touch, over) {
+      if (!input.focused) return;
+      const rect = canvas.getBoundingClientRect();
+      const xScale = width / (rect.width || width);
+      const yScale = height / (rect.height || height);
+      const x = (touch.clientX - rect.left) * xScale;
+      const y = (touch.clientY - rect.top) * yScale;
+      recordMotion(x, y, x - input.x, y - input.y, over);
+    }
+    listen(canvas, "touchstart", (event) => {
+      if (activeTouchId !== null || !event.changedTouches.length) return;
+      const touch = event.changedTouches[0];
+      activeTouchId = touch.identifier;
+      canvas.focus?.({ preventScroll: true });
+      injectFocus(true);
+      touchMotion(touch, true);
+      recordButton(1, true, 1);
+      event.preventDefault();
+    }, { passive: false });
+    listen(window ?? canvas, "touchmove", (event) => {
+      if (activeTouchId === null) return;
+      for (const touch of event.changedTouches) {
+        if (touch.identifier === activeTouchId) {
+          touchMotion(touch, true);
+          if (event.cancelable) event.preventDefault();
+          break;
+        }
+      }
+    }, { passive: false });
+    const endTouch = (event) => {
+      if (activeTouchId === null) return;
+      for (const touch of event.changedTouches) {
+        if (touch.identifier === activeTouchId) {
+          touchMotion(touch, false);
+          recordButton(1, false, 1);
+          activeTouchId = null;
+          if (event.cancelable) event.preventDefault();
+          break;
+        }
+      }
+    };
+    listen(window ?? canvas, "touchend", endTouch, { passive: false });
+    listen(window ?? canvas, "touchcancel", endTouch, { passive: false });
     listen(canvas, "contextmenu", (event) => event.preventDefault());
     listen(canvas, "wheel", (event) => {
       if (!input.focused) return;

@@ -1,8 +1,15 @@
 import { loadGoose, runGoose, supportsJspi } from "./host/web/index.js";
 
 const $ = (id) => document.getElementById(id);
+const showcase = document.querySelector("main.showcase");
 const stageMedia = $("stage-media");
-const codeDisclosure = $("code-disclosure");
+const codeSection = $("code");
+const sourceCode = $("source-code");
+const menu = $("menu");
+const menuToggle = $("menu-toggle");
+const menuBackdrop = $("menu-backdrop");
+const narrowScreen = window.matchMedia("(max-width: 56rem)");
+const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 const jspi = supportsJspi();
 const decoder = new TextDecoder();
 const pageTitle = document.title;
@@ -14,6 +21,8 @@ let activeRun;
 let life;
 let sourceRequest;
 let sourceText;
+let sourceLines = 0;
+let statusTimer;
 let queue = Promise.resolve();
 
 function element(tag, text, className) {
@@ -53,6 +62,26 @@ function enqueue(action) {
   });
 }
 
+/* Menu: a sidebar on wide screens, a drawer under the header on narrow ones. */
+
+function menuOpen() {
+  return menu.hasAttribute("data-open");
+}
+
+function setMenu(open, { restoreFocus = true, focusInside = true } = {}) {
+  if (open === menuOpen()) return;
+  menu.toggleAttribute("data-open", open);
+  menuBackdrop.hidden = !open;
+  menuToggle.setAttribute("aria-expanded", String(open));
+  if (open) {
+    const current = menu.querySelector('a[aria-current="true"]') ?? menu.querySelector("a");
+    current?.scrollIntoView({ block: "nearest" });
+    if (focusInside) current?.focus({ preventScroll: true });
+  } else if (restoreFocus && menu.contains(document.activeElement)) {
+    menuToggle.focus({ preventScroll: true });
+  }
+}
+
 function renderGallery() {
   const groups = [
     ["gpu", "Interactive"],
@@ -60,7 +89,10 @@ function renderGallery() {
   ];
   for (const [mode, label] of groups) {
     const section = element("section");
-    section.append(element("h2", label));
+    const heading = element("h2", label);
+    heading.id = `menu-${mode}`;
+    section.setAttribute("aria-labelledby", heading.id);
+    section.append(heading);
     for (const example of manifest.examples.filter((item) => item.mode === mode)) {
       const link = element("a", example.title);
       link.href = `#${example.id}`;
@@ -69,6 +101,41 @@ function renderGallery() {
     }
     $("gallery").append(section);
   }
+}
+
+$("gallery").addEventListener("click", (event) => {
+  if (!event.target.closest("a") || !narrowScreen.matches) return;
+  setMenu(false, { restoreFocus: false });
+  window.scrollTo({ top: 0, behavior: reducedMotion.matches ? "auto" : "smooth" });
+});
+// Keyboard activation (detail 0) moves focus into the drawer; a tap leaves it on the button.
+menuToggle.addEventListener("click", (event) => setMenu(!menuOpen(), { focusInside: event.detail === 0 }));
+menuBackdrop.addEventListener("click", () => setMenu(false));
+menu.addEventListener("focusout", (event) => {
+  if (narrowScreen.matches && menuOpen() && event.relatedTarget &&
+      !menu.contains(event.relatedTarget) && event.relatedTarget !== menuToggle) {
+    setMenu(false, { restoreFocus: false });
+  }
+});
+document.addEventListener("keydown", (event) => {
+  if (event.key !== "Escape" || !menuOpen()) return;
+  event.stopPropagation();
+  setMenu(false);
+}, true);
+narrowScreen.addEventListener("change", () => setMenu(false, { restoreFocus: false }));
+
+/* Stage sizing: the demo keeps its natural width, scaled down to fit the column and window. */
+
+function sizeStage(width, height, naturalWidth = width) {
+  showcase.removeAttribute("data-wide");
+  showcase.style.setProperty("--natural-width", `${naturalWidth}px`);
+  showcase.style.setProperty("--aspect", String(width / height));
+}
+
+function wideStage() {
+  showcase.setAttribute("data-wide", "");
+  showcase.style.removeProperty("--natural-width");
+  showcase.style.removeProperty("--aspect");
 }
 
 function makeCanvas(label, width, height, pixel = false) {
@@ -86,15 +153,15 @@ function freshStage(example) {
   $("life-controls").hidden = true;
   const { width, height } = example.canvas ?? { width: 640, height: 400 };
   canvas = makeCanvas(example.title, width, height, example.mode === "software");
+  canvas.style.setProperty("--ratio", `${width} / ${height}`);
   if (example.mode === "gpu") {
     canvas.tabIndex = 0;
-    canvas.style.setProperty("--ratio", `${width} / ${height}`);
-    canvas.style.setProperty("--natural-width", `${width}px`);
     canvas.classList.add("gpu-surface");
     canvas.addEventListener("pointerdown", (event) => event.currentTarget.focus({ preventScroll: true }));
+    sizeStage(width, height);
   } else {
     canvas.classList.add("sw-single");
-    canvas.style.setProperty("--natural-width", `${Math.max(width, 640)}px`);
+    sizeStage(width, height, Math.max(width, 640));
   }
   stageMedia.replaceChildren(canvas);
 }
@@ -105,14 +172,16 @@ function showSelection(example) {
     else link.removeAttribute("aria-current");
   }
   $("demo-title").textContent = example.title;
+  $("menu-toggle-label").textContent = example.title;
   $("compatibility").hidden = example.mode !== "gpu" || jspi;
   $("code-filename").textContent = example.file;
   $("upstream-source").href = `${manifest.upstreamRepo}/blob/${manifest.upstreamRev}/samples/${example.file}`;
-  resetSource();
   freshStage(example);
+  resetSource();
 }
 
 function selectHash() {
+  setMenu(false, { restoreFocus: false });
   const id = location.hash.slice(1);
   const example = manifest.examples.find((item) => item.id === id) ?? manifest.examples[0];
   if (example.id !== id) history.replaceState(null, "", `#${example.id}`);
@@ -221,7 +290,7 @@ async function executeRun(run, execute) {
     } else if (!run.stopping) {
       const png = run.loaded?.host.gfx?.screenshotPngBytes() ?? null;
       if (png) await showLastFrame(run.example, png);
-      setMessage("Stopped.", () => enqueue(() => startRun(run.example)));
+      setMessage("Stopped", () => enqueue(() => startRun(run.example)));
     }
   } catch (error) {
     if (selected === run.example) {
@@ -238,7 +307,7 @@ async function showLastFrame(example, png) {
     canvas = makeCanvas(example.title, image.width, image.height);
     canvas.classList.add("gpu-surface");
     canvas.style.setProperty("--ratio", `${image.width} / ${image.height}`);
-    canvas.style.setProperty("--natural-width", `${example.canvas?.width ?? image.width}px`);
+    sizeStage(image.width, image.height, example.canvas?.width ?? image.width);
     canvas.getContext("2d").drawImage(image, 0, 0);
     stageMedia.replaceChildren(canvas);
   } finally {
@@ -270,6 +339,8 @@ async function stopRun() {
   if (run.loaded) run.loaded.host.stop();
   await run.done;
 }
+
+/* Software examples: decode what the Goose program wrote and paint it. */
 
 function readNetpbm(bytes) {
   let offset = 0;
@@ -331,14 +402,19 @@ function paintImage(image, title) {
   return surface;
 }
 
-function showGrid(items) {
+function makeGrid(items) {
   const grid = element("div", undefined, "stage-grid");
   for (const [caption, surface] of items) {
     const figure = element("figure");
     figure.append(element("figcaption", caption), surface);
     grid.append(figure);
   }
-  stageMedia.replaceChildren(grid);
+  return grid;
+}
+
+function showGrid(items, before = []) {
+  wideStage();
+  stageMedia.replaceChildren(...before, makeGrid(items));
 }
 
 function filterOriginal(width, height) {
@@ -427,11 +503,25 @@ function renderMaze(text) {
     drawGrid(surface, rows, colors, cell);
     return [label, surface];
   });
-  showGrid(items);
-  const legend = element("figcaption", "Green start · Red goal · Amber path · Blue water · Purple path through water", "maze-legend");
-  const figure = element("figure");
-  figure.append(legend, stageMedia.firstElementChild);
-  stageMedia.replaceChildren(figure);
+  const legend = element("ul", undefined, "maze-legend");
+  legend.setAttribute("aria-label", "Legend");
+  for (const [cell, label] of [["S", "Start"], ["E", "Goal"], ["*", "Path"], ["~", "Water"],
+    ["o", "Path through water"]]) {
+    const item = element("li");
+    const swatch = element("i");
+    swatch.style.setProperty("--swatch", colors[cell]);
+    item.append(swatch, label);
+    legend.append(item);
+  }
+  showGrid(items, [legend]);
+}
+
+function setLifePlaying(playing) {
+  const button = $("life-play");
+  const label = playing ? "Pause" : "Play";
+  $("life-play-label").textContent = label;
+  button.setAttribute("aria-label", label);
+  button.toggleAttribute("data-paused", !playing);
 }
 
 function displayGeneration(index) {
@@ -447,11 +537,11 @@ function stopLife() {
   if (!life) return;
   cancelAnimationFrame(life.raf);
   life.raf = null;
-  $("life-play").textContent = "Play";
+  setLifePlaying(false);
 }
 
 function playLife() {
-  $("life-play").textContent = "Pause";
+  setLifePlaying(true);
   let last = performance.now();
   function step(now) {
     if (now - last >= 360) {
@@ -469,7 +559,8 @@ function renderLife(text) {
   canvas.width = rows[0].length * 40;
   canvas.height = rows.length * 40;
   canvas.classList.add("sw-single");
-  canvas.style.setProperty("--natural-width", `${canvas.width}px`);
+  canvas.style.setProperty("--ratio", `${canvas.width} / ${canvas.height}`);
+  sizeStage(canvas.width, canvas.height);
   life = { frames, index: 0, raf: null };
   $("life-position").max = frames.length - 1;
   $("life-controls").hidden = false;
@@ -485,7 +576,8 @@ function renderSoftware(example, files, stdout) {
       const image = readNetpbm(bytes);
       canvas = paintImage(image, example.title);
       canvas.classList.add("sw-single");
-      canvas.style.setProperty("--natural-width", `${image.width * 2}px`);
+      canvas.style.setProperty("--ratio", `${image.width} / ${image.height}`);
+      sizeStage(image.width, image.height, image.width * 2);
       stageMedia.replaceChildren(canvas);
       break;
     }
@@ -501,81 +593,244 @@ function renderSoftware(example, files, stdout) {
   }
 }
 
+/* Goose highlighting, following upstream docs/site/goose.xml (the grammar the
+   official site renders with pandoc's Tango style), with the keyword and
+   literal syntax checked against src/lexer.h. */
+
 const GOOSE_KEYWORDS = new Set([
-  "as", "break", "case", "const", "continue", "default", "defer", "else", "enum", "extern",
-  "false", "fn", "for", "from", "guard", "if", "import", "in", "let", "match", "namespace",
-  "null", "return", "struct", "true", "type", "union", "var", "while", "block", "assert",
+  "import", "namespace", "struct", "enum", "type", "fn", "thread_fn", "export", "simd", "recursive",
+  "inline", "checkfree", "let", "var", "extern", "const", "pad", "reusable", "if", "else", "while",
+  "for", "in", "upto", "loop", "block", "guard", "match", "defer", "return", "break", "continue", "as", "from",
+  "fields", "variants", "types",
 ]);
 const GOOSE_TYPES = new Set([
-  "bool", "i8", "i16", "i32", "i64", "u8", "u16", "u32", "u64", "f32", "f64",
-  "int2", "int3", "int4", "float2", "float3", "float4", "mat4", "void",
+  "bool", "varint", "i8", "i16", "i32", "i64", "u8", "u16", "u32", "u64", "f32", "f64",
 ]);
-const GOOSE_TOKEN = /(\/\/.*$)|("(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*')|(\b0x[0-9a-fA-F_]+\b|\b\d+(?:\.\d+)?(?:[eE][+-]?\d+)?\b)|(\b[A-Za-z_][A-Za-z0-9_]*\b)/g;
+const GOOSE_CONSTANTS = new Set(["true", "false", "null", "self"]);
+const GOOSE_BUILTINS = new Set([
+  "print", "str", "format", "assert", "abort", "exit", "copy", "default", "hardware_threads",
+  "thread_spawn", "thread_spawn_contained", "thread_wait", "qput", "qget", "qpoll", "qlimit",
+  "to_bytes", "bytes_of", "from_bytes", "embed_file", "embed_shader", "len", "cap", "push", "append",
+  "pop", "pop_n", "resize", "clear", "index_of", "alloc_index", "alloc_ref", "free", "alloc_slice",
+  "realloc_slice", "free_slice",
+]);
+const OPERATOR_CHARS = new Set("+-*/%=&|^!<>~?.:;,");
+const IDENT = /[A-Za-z_][A-Za-z0-9_]*/y;
+const DIGITS = "[0-9](?:_?[0-9])*";
+const HEX = "[0-9a-fA-F](?:_?[0-9a-fA-F])*";
+const NUMBER = new RegExp(`0[xX]${HEX}(?:\\.${HEX})?[pP][+-]?${DIGITS}|0[xX]${HEX}|${DIGITS}(?:\\.${DIGITS})?(?:[eE][+-]?${DIGITS})?`, "y");
+const ESCAPE = /\\(?:x[0-9a-fA-F]{2}|[ntr0\\"']|.)/y;
+const NAMESPACE = /\s*::/y;
+const CALL = /\s*\(/y;
+const ROOT_STRUCT = /\s+struct\b/y;
 
-function highlightGooseLine(line) {
-  const fragment = document.createDocumentFragment();
-  let last = 0;
-  for (const match of line.matchAll(GOOSE_TOKEN)) {
-    if (match.index > last) fragment.append(document.createTextNode(line.slice(last, match.index)));
-    const [text, comment, str, num, ident] = match;
-    let cls;
-    if (comment) cls = "tok-co";
-    else if (str) cls = "tok-st";
-    else if (num) cls = "tok-nu";
-    else if (ident) {
-      if (GOOSE_KEYWORDS.has(ident)) cls = "tok-kw";
-      else if (GOOSE_TYPES.has(ident)) cls = "tok-ty";
+function sticky(pattern, text, index) {
+  pattern.lastIndex = index;
+  return pattern.exec(text)?.[0];
+}
+
+// Splits source into [class, text] tokens; class is null for plain text.
+function tokenizeGoose(text) {
+  const tokens = [];
+  const push = (cls, value) => {
+    const last = tokens.at(-1);
+    if (last && last[0] === cls) last[1] += value;
+    else tokens.push([cls, value]);
+  };
+  // Quoted string or char: escapes are special chars, and a line end closes it.
+  const quoted = (start, quote, cls) => {
+    let i = start + 1;
+    push(cls, quote);
+    let run = i;
+    while (i < text.length && text[i] !== quote && text[i] !== "\n") {
+      const escape = text[i] === "\\" ? sticky(ESCAPE, text, i) : undefined;
+      if (escape) {
+        if (i > run) push(cls, text.slice(run, i));
+        push("sc", escape);
+        i += escape.length;
+        run = i;
+      } else i++;
     }
-    fragment.append(cls ? element("span", text, cls) : document.createTextNode(text));
-    last = match.index + text.length;
+    if (text[i] === quote) i++;
+    if (i > run) push(cls, text.slice(run, i));
+    return i;
+  };
+
+  let i = 0;
+  while (i < text.length) {
+    const c = text[i];
+    const next = text[i + 1];
+    if (c === "/" && next === "/") {
+      const end = text.indexOf("\n", i);
+      const stop = end < 0 ? text.length : end;
+      push("co", text.slice(i, stop));
+      i = stop;
+    } else if (c === "/" && next === "*") {
+      let depth = 0;
+      let j = i;
+      while (j < text.length) {
+        if (text[j] === "/" && text[j + 1] === "*") { depth++; j += 2; }
+        else if (text[j] === "*" && text[j + 1] === "/") { j += 2; if (--depth === 0) break; }
+        else j++;
+      }
+      push("co", text.slice(i, j));
+      i = j;
+    } else if (text.startsWith('"""', i)) {
+      const end = text.indexOf('"""', i + 3);
+      const stop = end < 0 ? text.length : end + 3;
+      push("st", text.slice(i, stop));
+      i = stop;
+    } else if (c === '"') {
+      i = quoted(i, '"', "st");
+    } else if (c === "'") {
+      i = quoted(i, "'", "ch");
+    } else if (/[A-Za-z_]/.test(c)) {
+      const word = sticky(IDENT, text, i);
+      const after = i + word.length;
+      let cls = null;
+      if (GOOSE_KEYWORDS.has(word) || (word === "root" && sticky(ROOT_STRUCT, text, after))) cls = "kw";
+      else if (GOOSE_TYPES.has(word)) cls = "dt";
+      else if (GOOSE_CONSTANTS.has(word)) cls = "cn";
+      else if (GOOSE_BUILTINS.has(word)) cls = "bu";
+      else if (sticky(NAMESPACE, text, after)) cls = "ns";
+      else if (sticky(CALL, text, after)) cls = "fu";
+      else if (c >= "A" && c <= "Z") cls = "dt";
+      if (cls === "ns") {
+        const path = sticky(NAMESPACE, text, after);
+        push("ns", word + path);
+        i = after + path.length;
+      } else {
+        push(cls, word);
+        i = after;
+      }
+    } else if (c >= "0" && c <= "9") {
+      const number = sticky(NUMBER, text, i);
+      push("nu", number);
+      i += number.length;
+    } else if (OPERATOR_CHARS.has(c)) {
+      push("op", c);
+      i++;
+    } else {
+      push(null, c);
+      i++;
+    }
   }
-  if (last < line.length) fragment.append(document.createTextNode(line.slice(last)));
-  return fragment;
+  return tokens;
+}
+
+// One <code> row per source line; tokens spanning lines are split across rows.
+function highlightGoose(text) {
+  const listing = document.createDocumentFragment();
+  let row;
+  let count = 0;
+  const newRow = () => {
+    count++;
+    row = element("code", undefined, "source-line");
+    const number = element("span", String(count), "line-number");
+    number.setAttribute("aria-hidden", "true");
+    row.append(number);
+    listing.append(row);
+  };
+  newRow();
+  for (const [cls, value] of tokenizeGoose(text)) {
+    value.split("\n").forEach((part, index) => {
+      if (index > 0) {
+        row.append("\n");
+        newRow();
+      }
+      if (part) row.append(cls ? element("span", part, `tok-${cls}`) : part);
+    });
+  }
+  if (row.childNodes.length === 1 && count > 1) {
+    row.remove();
+    count--;
+    listing.lastChild.lastChild.remove();
+  }
+  return { listing, count };
+}
+
+/* Code disclosure: a faded preview that expands to the full listing. */
+
+function setStatus(text, revert = false) {
+  clearTimeout(statusTimer);
+  $("source-status").textContent = text;
+  if (revert) statusTimer = setTimeout(() => setStatus(linesLabel()), 2000);
+}
+
+function linesLabel() {
+  return sourceLines ? `${sourceLines} lines` : "";
+}
+
+function setCodeState(state) {
+  codeSection.dataset.state = state;
+  const expanded = state === "expanded";
+  $("expand-source").setAttribute("aria-expanded", String(expanded));
+  $("collapse-source").setAttribute("aria-expanded", String(expanded));
+  sourceCode.tabIndex = state === "expanded" ? 0 : -1;
+}
+
+function expandSource() {
+  if (codeSection.dataset.state !== "collapsed") return;
+  setCodeState("expanded");
+  $("collapse-source").focus({ preventScroll: true });
+}
+
+function collapseSource() {
+  if (codeSection.dataset.state !== "expanded") return;
+  setCodeState("collapsed");
+  sourceCode.scrollTop = 0;
+  sourceCode.scrollLeft = 0;
+  const header = document.querySelector("header.top").getBoundingClientRect().bottom;
+  if (codeSection.getBoundingClientRect().top < header) {
+    codeSection.scrollIntoView({ block: "start", behavior: reducedMotion.matches ? "auto" : "smooth" });
+  }
+  $("expand-source").focus({ preventScroll: true });
 }
 
 function resetSource() {
   sourceRequest?.abort();
   sourceRequest = undefined;
   sourceText = undefined;
+  sourceLines = 0;
   $("copy-source").disabled = true;
-  $("source-status").textContent = "";
-  $("source-code").replaceChildren();
-  if (codeDisclosure.open) loadSource();
+  setStatus("");
+  sourceCode.replaceChildren();
+  setCodeState("loading");
+  loadSource();
 }
 
 async function loadSource() {
   if (!selected || sourceText !== undefined || sourceRequest) return;
   const request = new AbortController();
   sourceRequest = request;
-  $("source-status").textContent = "Loading…";
+  const example = selected;
+  setStatus("Loading source…");
   try {
-    const response = await fetchAsset(selected.sourceUrl, { signal: request.signal });
-    const text = await response.text();
-    if (request.signal.aborted) return;
+    const response = await fetchAsset(example.sourceUrl, { signal: request.signal });
+    const text = (await response.text()).replace(/\r\n?/g, "\n");
+    if (request.signal.aborted || selected !== example) return;
+    const { listing, count } = highlightGoose(text);
     sourceText = text;
-    const lines = text.split(/\r?\n/);
-    if (lines.at(-1) === "") lines.pop();
-    const listing = document.createDocumentFragment();
-    lines.forEach((line, i) => {
-      const row = element("code", undefined, "source-line");
-      const number = element("span", i + 1, "line-number");
-      number.setAttribute("aria-hidden", "true");
-      row.append(number, highlightGooseLine(line));
-      listing.append(row);
-    });
-    $("source-code").replaceChildren(listing);
+    sourceLines = count;
+    sourceCode.replaceChildren(listing);
     $("copy-source").disabled = false;
-    $("source-status").textContent = `${lines.length} lines`;
+    $("expand-source").textContent = `Show all ${count} lines`;
+    setStatus(linesLabel());
+    setCodeState("collapsed");
   } catch (error) {
-    if (!request.signal.aborted) $("source-status").textContent = error.message;
+    if (!request.signal.aborted) {
+      setStatus("");
+      sourceCode.textContent = error.message;
+      setCodeState("error");
+    }
   } finally {
     if (sourceRequest === request) sourceRequest = undefined;
   }
 }
 
-codeDisclosure.addEventListener("toggle", () => {
-  if (codeDisclosure.open) loadSource();
-});
+$("expand-source").addEventListener("click", expandSource);
+$("collapse-source").addEventListener("click", collapseSource);
+sourceCode.addEventListener("click", expandSource);
 $("life-play").addEventListener("click", () => {
   if (life.raf === null) playLife();
   else stopLife();
@@ -588,9 +843,9 @@ $("copy-source").addEventListener("click", async () => {
   const text = sourceText;
   try {
     await navigator.clipboard.writeText(text);
-    if (sourceText === text) $("source-status").textContent = "Copied";
+    if (sourceText === text) setStatus("Copied", true);
   } catch {
-    if (sourceText === text) $("source-status").textContent = "Clipboard unavailable";
+    if (sourceText === text) setStatus("Clipboard unavailable", true);
   }
 });
 
@@ -600,5 +855,6 @@ try {
   window.addEventListener("hashchange", selectHash);
   selectHash();
 } catch (error) {
+  $("demo-title").textContent = "Goose examples";
   setMessage(error.message);
 }
