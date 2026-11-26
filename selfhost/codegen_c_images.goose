@@ -291,9 +291,9 @@ fn ci_verifiable(p: Program&, id: i64) -> bool {
     if root.kind == TY_BOOL || root.kind == TY_FLOAT { return true; }
     if root.kind == TY_REF { return root.length_storage >= 0 && root.pool < 0; }
     if root.kind == TY_SLICE || root.kind == TY_FN || root.kind == TY_VOID { return false; }
-    var work: i64[>..] = [id]; var seen: bool[>..] = []; seen.resize(p.types.len, false);
+    var work: i64[>..] = [id]; var seen: i32[>..] = []; var seen_count = 0;
     while work.len > 0 {
-        let current = work.pop(); if current < 0 || seen[current] { continue; } seen[current] = true; let t = p.types[current];
+        let current = work.pop(); if current < 0 || !cc_seen_insert(seen, seen_count, current) { continue; } let t = p.types[current];
         if t.kind == TY_INT { if t.index_type >= 0 && !ci_index_global(p, current) { return false; } continue; }
         if t.kind == TY_BOOL || t.kind == TY_FLOAT { continue; }
         if t.kind == TY_REF && t.length_storage >= 0 && t.pool < 0 { continue; }

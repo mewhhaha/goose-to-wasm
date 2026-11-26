@@ -122,10 +122,39 @@ fn cc_self_run(p: Program&, id: i64) -> bool {
 fn cc_run_reference(p: Program&, id: i64) -> bool {
     return id >= 0 && p.types[id].kind == TY_REF && p.types[id].length_storage < 0 && (p.types[id].flags & TF_OPTIONAL) == 0 && cc_self_run(p, p.types[id].element);
 }
+// Compact open-addressed set for per-type graph walks so large programs
+// (e.g. 439k types in Blot2) do not allocate and zero p.types.len bytes per call.
+fn cc_seen_insert(slots: i32[>..]&, count: i64&, id: i64) -> bool {
+    if slots.len == 0 { slots.resize(64, -1); }
+    else if (count + 1) * 2 >= slots.len {
+        var vals: i32[>..] = [];
+        for v in slots { if v >= 0 { vals.push(v); } }
+        let new_len = slots.len * 2;
+        slots.resize(new_len, -1);
+        for i in 0..new_len { slots[i] = -1; }
+        let mask = new_len - 1;
+        for v in vals {
+            let k: i64 = v;
+            var s = ((((k as! u64) * 2654435761) >> 16) as i64) & mask;
+            while slots[s] >= 0 { s = (s + 1) & mask; }
+            slots[s] = v;
+        }
+    }
+    let mask = slots.len - 1;
+    var s = ((((id as! u64) * 2654435761) >> 16) as i64) & mask;
+    let key = id as i32;
+    while slots[s] >= 0 {
+        if slots[s] == key { return false; }
+        s = (s + 1) & mask;
+    }
+    slots[s] = key; count++;
+    return true;
+}
+
 fn cc_self_run_inside(p: Program&, id: i64) -> bool {
-    var work: i64[>..] = [id]; var seen: bool[>..] = []; seen.resize(p.types.len, false);
+    var work: i64[>..] = [id]; var seen: i32[>..] = []; var seen_count = 0;
     while work.len > 0 {
-        let current = work.pop(); if current < 0 || seen[current] { continue; } seen[current] = true;
+        let current = work.pop(); if current < 0 || !cc_seen_insert(seen, seen_count, current) { continue; }
         if cc_self_run(p, current) { return true; } let t = p.types[current];
         if t.kind == TY_REF || t.kind == TY_ARRAY || t.kind == TY_SLICE { work.push(t.element); }
         else {
@@ -174,9 +203,9 @@ fn cc_render_unbounded_image(p: Program&, id: i64) -> bool {
     if cc_self_relative_image(p, id) { return true; }
     let kind = cc_kind(p, id);
     if kind == TY_VOID || kind == TY_BOOL || kind == TY_INT || kind == TY_FLOAT || kind == TY_FN { return false; }
-    var work: i64[>..] = [id]; var seen: bool[>..] = []; seen.resize(p.types.len, false);
+    var work: i64[>..] = [id]; var seen: i32[>..] = []; var seen_count = 0;
     while work.len > 0 {
-        let current = work.pop(); if current < 0 || seen[current] { continue; } seen[current] = true;
+        let current = work.pop(); if current < 0 || !cc_seen_insert(seen, seen_count, current) { continue; }
         let t = p.types[current];
         if t.kind == TY_REF {
             if cc_bounded_relative_image(p, t.element) { return true; }
@@ -208,9 +237,9 @@ fn cc_image_constructible(p: Program&, id: i64) -> bool {
     let root = p.types[id];
     if root.kind == TY_REF { return root.length_storage < 0 || cc_packed_pool_ref(p, id); }
     if root.kind != TY_ARRAY && root.kind != TY_STRUCT && root.kind != TY_ENUM { return true; }
-    var work: i64[>..] = [id]; var seen: bool[>..] = []; seen.resize(p.types.len, false);
+    var work: i64[>..] = [id]; var seen: i32[>..] = []; var seen_count = 0;
     while work.len > 0 {
-        let current = work.pop(); if current < 0 || seen[current] { continue; } seen[current] = true; let t = p.types[current];
+        let current = work.pop(); if current < 0 || !cc_seen_insert(seen, seen_count, current) { continue; } let t = p.types[current];
         if t.kind == TY_REF { continue; }
         if t.kind == TY_ARRAY {
             if t.array_kind != A_FIXED && t.array_kind != A_VAR && t.array_kind != A_LIMITED { return false; }
@@ -362,9 +391,9 @@ fn cc_frame_borrows(p: Program&, type_id: i64) -> bool {
     var ans = false;
     if root_kind == TY_REF || root_kind == TY_SLICE || root_kind == TY_FN { ans = true; }
     else if root_kind == TY_ARRAY || root_kind == TY_STRUCT || root_kind == TY_ENUM || root_kind == TY_TUPLE {
-        var work: i64[>..] = [type_id]; var seen: bool[>..] = []; seen.resize(p.types.len, false);
+        var work: i64[>..] = [type_id]; var seen: i32[>..] = []; var seen_count = 0;
         while work.len > 0 {
-            let current = work.pop(); if current < 0 || seen[current] { continue; } seen[current] = true;
+            let current = work.pop(); if current < 0 || !cc_seen_insert(seen, seen_count, current) { continue; }
             let t: const Type& = p.types[current];
             if t.kind == TY_REF || t.kind == TY_SLICE || t.kind == TY_FN { ans = true; break; }
             if t.kind == TY_ARRAY { work.push(t.element); }
