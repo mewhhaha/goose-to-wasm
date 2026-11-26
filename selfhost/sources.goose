@@ -55,6 +55,10 @@ fn source_request(p: Program&, pending: SourceRequest[>..]&, seen: SourceRequest
                   path: const u8[:], token: i64, package: i64 = -1, library: bool = false) {
     var normalized: u8[>..] = [];
     source_normalize(path, normalized);
+    source_request_normalized(p, pending, seen, normalized, token, package, library);
+}
+fn source_request_normalized(p: Program&, pending: SourceRequest[>..]&, seen: SourceRequest[>..]&,
+                             normalized: const u8[:], token: i64, package: i64, library: bool) {
     for request in seen {
         if same_bytes(p.text[request.start..request.start + request.length], normalized) {
             // A queued shared dependency must run before its new importer.
@@ -302,15 +306,17 @@ let PARSE_PHASE_INSTALL: i64 = 1;
 let PARSE_PHASE_ABORT: i64 = 2;
 let PARSE_SPMD_MAX_FILES: i64 = 1024;
 let PARSE_SPMD_IDENT_SLOTS: i64 = 16384;
+let PARSE_SPMD_IDENT_CAP: i64 = 12000;
+let PARSE_SPMD_IMPORT_CAP: i64 = 512;
+let PARSE_SPMD_IMPORT_BYTES: i64 = 65536;
 
 struct ParseUniqueIdent {
     first_local_tok: i32 = 0, rel_start: i32 = 0, rel_end: i32 = 0,
     hash: u32 = 0, canonical: i32 = 0,
 }
 struct ParseImportRec {
-    name_start: i32 = 0, name_len: i32 = 0, tok_offset: i32 = 0,
-    relative: bool = false, resolved_path_start: i32 = 0, resolved_path_len: i32 = 0,
-    resolved_library: bool = false,
+    path_start: i32 = 0, path_len: i32 = 0, tok_offset: i32 = 0,
+    library: bool = false,
 }
 fn gp_grow_parse_idents(arr: ParseUniqueIdent[>..]&, new_len: i64) {
     while arr.len < new_len { arr.push(ParseUniqueIdent {}); }
@@ -320,63 +326,47 @@ fn gp_grow_parse_imports(arr: ParseImportRec[>..]&, new_len: i64) {
 }
 struct ParseSpmdFile {
     path_start: i64 = 0, path_len: i64 = 0,
-    raw_start: i64 = 0, raw_len: i64 = 0,
     library: bool = false,
-    worker: i64 = 0,
-    // Disjoint metadata slab ranges assigned before each parse round.
-    ident_start: i64 = 0, ident_cap: i64 = 0,
-    import_start: i64 = 0, import_cap: i64 = 0,
-    import_bytes_start: i64 = 0, import_bytes_cap: i64 = 0,
     // Phase 1 worker outputs.
-    w_text_start: i64 = 0, w_tok_off: i64 = 0, w_node_off: i64 = 0,
+    w_text_start: i64 = 0, w_tok_off: i64 = 0, w_node_off: i64 = 0, raw_len: i64 = 0,
     status: i64 = PARSE_SPMD_PENDING, root: i64 = -1,
     tok_count: i64 = 0, node_count: i64 = 0, str_count: i64 = 0,
     ident_count: i64 = 0, import_count: i64 = 0,
     saw_inline_checkfree: bool = false,
     // Midpoint Phase 2 install targets in Program arrays.
     install_ok: bool = false, source_id: i64 = -1,
-    p_text_base: i64 = 0, p_str_base: i64 = 0,
+    p_text_base: i64 = 0,
     p_tok_base: i64 = 0, p_node_base: i64 = 0,
 }
 struct ParseSpmdCtx {
     p: Program&,
     pending: SourceRequest[>..]&,
     seen: SourceRequest[>..]&,
-    root_buf: const u8[>..]&,
+    root_dir: const u8[>..]&,
     stdlib_buf: const u8[>..]&,
-    raw_text: u8[>..]&,
     path_pool: u8[>..]&,
     files: ParseSpmdFile[>..]&,
     ident_slab: ParseUniqueIdent[>..]&,
     import_slab: ParseImportRec[>..]&,
     import_bytes: u8[>..]&,
-    installed_sources: i64[>..]&,
     phase: i64&,
     round_start: i64&,
     round_end: i64&,
     last_source: i64&,
-    participants: i64&,
+    dfs_files: i64[>..]&,
 }
 
-fn source_spmd_resolve_import(file_path: const u8[:], file_library: bool,
-                              root: const u8[:], stdlib: const u8[:],
+fn source_spmd_resolve_import(file_dir: const u8[:], file_library: bool,
+                              root_dir: const u8[:], stdlib: const u8[:],
                               name: const u8[:], relative: bool,
                               out: u8[>..]&, out_library: bool&) -> bool {
     out.clear();
     out_library = file_library;
-    if relative {
-        var dir: u8[>..] = [];
-        source_directory(file_path, dir);
-        source_join(dir, name, out);
-        return file_exists(out);
-    }
-    var pkg_root: u8[>..] = [];
-    if file_library { pkg_root.append(stdlib); }
-    else { source_directory(root, pkg_root); }
-    source_join(pkg_root, name, out);
+    let directory = if relative { file_dir } else if file_library { stdlib } else { root_dir };
+    source_join(directory, name, out);
     if file_exists(out) { return true; }
-    out.clear();
-    if stdlib.len > 0 {
+    if !relative && !file_library && stdlib.len > 0 {
+        out.clear();
         source_join(stdlib, name, out);
         if file_exists(out) { out_library = true; return true; }
     }
@@ -385,34 +375,18 @@ fn source_spmd_resolve_import(file_path: const u8[:], file_library: bool,
 
 fn source_spmd_add_file(ctx: const ParseSpmdCtx&, path: const u8[:], library: bool) -> bool {
     if ctx.files.len >= PARSE_SPMD_MAX_FILES { return false; }
-    var path_copy: u8[>..] = [];
-    path_copy.append(path);
-    let raw_start = ctx.raw_text.len;
-    if !read_file(path_copy, ctx.raw_text) {
-        return false;
-    }
-    let raw_len = ctx.raw_text.len - raw_start;
     let p_start = ctx.path_pool.len;
-    let p_len = path_copy.len;
-    ctx.path_pool.append(path_copy);
-    var ident_cap = raw_len / 20 + 256;
-    if ident_cap > 12000 { ident_cap = 12000; }
-    let ident_start = ctx.ident_slab.len;
-    gp_grow_parse_idents(ctx.ident_slab, ident_start + ident_cap);
-    let import_cap: i64 = 512;
-    let import_start = ctx.import_slab.len;
-    gp_grow_parse_imports(ctx.import_slab, import_start + import_cap);
-    let import_bytes_cap: i64 = 16384;
-    let import_bytes_start = ctx.import_bytes.len;
-    gp_grow_u8(ctx.import_bytes, import_bytes_start + import_bytes_cap);
-    ctx.files.push(ParseSpmdFile {
-        path_start: p_start, path_len: p_len,
-        raw_start: raw_start, raw_len: raw_len, library: library,
-        ident_start: ident_start, ident_cap: ident_cap,
-        import_start: import_start, import_cap: import_cap,
-        import_bytes_start: import_bytes_start, import_bytes_cap: import_bytes_cap,
-    });
+    ctx.path_pool.append(path);
+    ctx.files.push(ParseSpmdFile { path_start: p_start, path_len: path.len, library: library });
     return true;
+}
+
+// Each file owns a disjoint range in the shared metadata buffers.
+fn source_spmd_grow_metadata(ctx: const ParseSpmdCtx&) {
+    let count = ctx.files.len;
+    gp_grow_parse_idents(ctx.ident_slab, count * PARSE_SPMD_IDENT_CAP);
+    gp_grow_parse_imports(ctx.import_slab, count * PARSE_SPMD_IMPORT_CAP);
+    gp_grow_u8(ctx.import_bytes, count * PARSE_SPMD_IMPORT_BYTES);
 }
 
 fn source_spmd_find_file(ctx: const ParseSpmdCtx&, normalized: const u8[:]) -> i64 {
@@ -427,36 +401,6 @@ fn source_spmd_find_seen(p: Program&, seen: const SourceRequest[:], normalized: 
         if same_bytes(p.text[req.start..req.start + req.length], normalized) { return i; }
     }
     return -1;
-}
-
-fn source_spmd_assign_round(ctx: const ParseSpmdCtx&, r0: i64, r1: i64, workers: i64) {
-    if workers <= 1 {
-        for fi in r0..r1 { ctx.files[fi].worker = 0; }
-        return;
-    }
-    var order: i64[>..] = [];
-    for fi in r0..r1 { order.push(fi); }
-    for i in 1..order.len {
-        let key = order[i];
-        let key_len = ctx.files[key].raw_len;
-        var j = i - 1;
-        while j >= 0 && ctx.files[order[j]].raw_len < key_len {
-            order[j + 1] = order[j];
-            j -= 1;
-        }
-        order[j + 1] = key;
-    }
-    var loads: i64[>..] = [];
-    loads.resize(workers, 0);
-    for fi in order {
-        var best: i64 = 0;
-        var best_load = loads[0];
-        for w in 1..workers {
-            if loads[w] < best_load { best = w; best_load = loads[w]; }
-        }
-        ctx.files[fi].worker = best;
-        loads[best] += ctx.files[fi].raw_len + 4096;
-    }
 }
 
 struct ParseIdentRep {
@@ -508,7 +452,7 @@ fn source_spmd_intern(text: const u8[:], table: i32[>..]&, reps: ParseIdentRep[>
     }
 }
 
-fn source_spmd_midpoint(ctx: const ParseSpmdCtx&, reps: ParseIdentRep[>..]&) {
+fn source_spmd_midpoint(ctx: const ParseSpmdCtx&) {
     let r0 = ctx.round_start;
     let r1 = ctx.round_end;
     for fi in r0..r1 {
@@ -517,37 +461,26 @@ fn source_spmd_midpoint(ctx: const ParseSpmdCtx&, reps: ParseIdentRep[>..]&) {
             return;
         }
     }
-    var resolved_buf: u8[>..] = [];
-    var norm_buf: u8[>..] = [];
     var next_round_added = false;
     for fi in r0..r1 {
-        let f_path_start = ctx.files[fi].path_start;
-        let f_path_len = ctx.files[fi].path_len;
-        let f_lib = ctx.files[fi].library;
-        let imp_start = ctx.files[fi].import_start;
-        let imp_count = ctx.files[fi].import_count;
-        let ib_start = ctx.files[fi].import_bytes_start;
-        for k in 0..imp_count {
-            let rec = ctx.import_slab[imp_start + k];
-            let ns = ib_start + (rec.name_start as i64);
-            let name = ctx.import_bytes[ns..ns + (rec.name_len as i64)];
-            var imp_lib = f_lib;
-            if !source_spmd_resolve_import(ctx.path_pool[f_path_start..f_path_start + f_path_len], f_lib,
-                                           ctx.root_buf[..], ctx.stdlib_buf[..], name, rec.relative, resolved_buf, imp_lib) {
-                ctx.phase = PARSE_PHASE_ABORT;
-                return;
-            }
-            norm_buf.clear();
-            source_normalize(resolved_buf, norm_buf);
-            let rp_start = ctx.path_pool.len;
-            ctx.path_pool.append(norm_buf);
-            ctx.import_slab[imp_start + k].resolved_path_start = rp_start as i32;
-            ctx.import_slab[imp_start + k].resolved_path_len = norm_buf.len as i32;
-            ctx.import_slab[imp_start + k].resolved_library = imp_lib;
-            let seen_i = source_spmd_find_seen(ctx.p, ctx.seen, norm_buf);
+        let f = ctx.files[fi];
+        for k in 0..f.import_count {
+            let rec = ctx.import_slab[fi * PARSE_SPMD_IMPORT_CAP + k];
+            let start = fi * PARSE_SPMD_IMPORT_BYTES + rec.path_start;
+            let path = ctx.import_bytes[start..start + rec.path_len];
+            let seen_i = source_spmd_find_seen(ctx.p, ctx.seen, path);
             if seen_i >= 0 && ctx.seen[seen_i].source != -1 { continue; }
-            if source_spmd_find_file(ctx, norm_buf) >= 0 { continue; }
-            if !source_spmd_add_file(ctx, norm_buf, imp_lib) {
+            let prior = source_spmd_find_file(ctx, path);
+            if prior >= 0 {
+                // A path reached with different library modes needs the
+                // serial DFS to decide whether to defer its bodies.
+                if ctx.files[prior].library != rec.library {
+                    ctx.phase = PARSE_PHASE_ABORT;
+                    return;
+                }
+                continue;
+            }
+            if !source_spmd_add_file(ctx, path, rec.library) {
                 ctx.phase = PARSE_PHASE_ABORT;
                 return;
             }
@@ -555,9 +488,9 @@ fn source_spmd_midpoint(ctx: const ParseSpmdCtx&, reps: ParseIdentRep[>..]&) {
         }
     }
     if next_round_added {
+        source_spmd_grow_metadata(ctx);
         ctx.round_start = r1;
         ctx.round_end = ctx.files.len;
-        source_spmd_assign_round(ctx, r1, ctx.files.len, ctx.participants);
         ctx.phase = PARSE_PHASE_PARSE;
         return;
     }
@@ -569,7 +502,6 @@ fn source_spmd_midpoint(ctx: const ParseSpmdCtx&, reps: ParseIdentRep[>..]&) {
     work.append(ctx.pending);
     var tok_cursor = p.tokens.len;
     var node_cursor = p.nodes.len;
-    var dfs_files: i64[>..] = [];
     while work.len > 0 {
         let request = work.pop();
         if request.source >= 0 {
@@ -589,12 +521,9 @@ fn source_spmd_midpoint(ctx: const ParseSpmdCtx&, reps: ParseIdentRep[>..]&) {
         let source_id = p.sources.len;
         ctx.seen[request.index].source = source_id;
         let text_base = p.text.len;
-        let raw_start = ctx.files[fi].raw_start;
         let raw_len = ctx.files[fi].raw_len;
-        p.text.append(ctx.raw_text[raw_start..raw_start + raw_len]);
-        let str_base = p.text.len;
-        let str_count = ctx.files[fi].str_count;
-        if str_count > 0 { gp_grow_u8(p.text, str_base + str_count); }
+        // Keep the path, source and decoded-string offsets in serial DFS order.
+        gp_grow_u8(p.text, text_base + raw_len + ctx.files[fi].str_count);
         let tok_base = tok_cursor;
         let tok_count = ctx.files[fi].tok_count;
         tok_cursor += tok_count;
@@ -612,21 +541,18 @@ fn source_spmd_midpoint(ctx: const ParseSpmdCtx&, reps: ParseIdentRep[>..]&) {
         ctx.files[fi].install_ok = true;
         ctx.files[fi].source_id = source_id;
         ctx.files[fi].p_text_base = text_base;
-        ctx.files[fi].p_str_base = str_base;
         ctx.files[fi].p_tok_base = tok_base;
         ctx.files[fi].p_node_base = node_base;
-        dfs_files.push(fi);
-        ctx.installed_sources.push(source_id);
+        ctx.dfs_files.push(fi);
 
         work.push(SourceRequest { start: 0, length: 0, source: source_id });
         let imports_start = work.len;
-        let imp_start = ctx.files[fi].import_start;
-        let imp_count = ctx.files[fi].import_count;
-        for k in 0..imp_count {
-            let rec = ctx.import_slab[imp_start + k];
-            let rps = rec.resolved_path_start as i64;
-            let rp = ctx.path_pool[rps..rps + (rec.resolved_path_len as i64)];
-            source_request(p, work, ctx.seen, rp, tok_base + rec.tok_offset as i64, -1, rec.resolved_library);
+        let f = ctx.files[fi];
+        for k in 0..f.import_count {
+            let rec = ctx.import_slab[fi * PARSE_SPMD_IMPORT_CAP + k];
+            let start = fi * PARSE_SPMD_IMPORT_BYTES + rec.path_start;
+            let path = ctx.import_bytes[start..start + rec.path_len];
+            source_request_normalized(p, work, ctx.seen, path, tok_base + rec.tok_offset, -1, rec.library);
         }
         var left = imports_start; var right = work.len - 1;
         while left < right {
@@ -635,6 +561,14 @@ fn source_spmd_midpoint(ctx: const ParseSpmdCtx&, reps: ParseIdentRep[>..]&) {
         }
     }
 
+    // Extend the final arrays without initializing their worker-owned ranges.
+    gp_grow_tokens(p.tokens, tok_cursor);
+    gp_grow_nodes(p.nodes, node_cursor);
+    ctx.phase = PARSE_PHASE_INSTALL;
+}
+
+fn source_spmd_merge_idents(ctx: const ParseSpmdCtx&, reps: ParseIdentRep[>..]&) {
+    let p = ctx.p;
     // The seed list follows the existing table's slot order.
     let text: const u8[:] = p.text;
     let table = p.ident_table;
@@ -645,9 +579,10 @@ fn source_spmd_midpoint(ctx: const ParseSpmdCtx&, reps: ParseIdentRep[>..]&) {
             table[i] = seed;
         }
     }
-    for fi in dfs_files {
+    for fi in ctx.dfs_files {
         let f = ctx.files[fi];
-        for u in f.ident_start..f.ident_start + f.ident_count {
+        let ident_start = fi * PARSE_SPMD_IDENT_CAP;
+        for u in ident_start..ident_start + f.ident_count {
             let entry = ctx.ident_slab[u];
             let candidate = ParseIdentRep {
                 canonical: (f.p_tok_base + entry.first_local_tok as i64 + 1) as i32,
@@ -663,11 +598,6 @@ fn source_spmd_midpoint(ctx: const ParseSpmdCtx&, reps: ParseIdentRep[>..]&) {
         if entry != 0 { table[i] = reps[entry - 1].canonical; }
     }
     p.ident_count = reps.len;
-
-    // Extend the final arrays without initializing their worker-owned ranges.
-    gp_grow_tokens(p.tokens, tok_cursor);
-    gp_grow_nodes(p.nodes, node_cursor);
-    ctx.phase = PARSE_PHASE_INSTALL;
 }
 
 fn gp_parse_spmd_dispatch(jobs: i64, ctx: const ParseSpmdCtx&, out: i64[:]) -> bool {
@@ -696,19 +626,31 @@ fn gp_parse_spmd_range(ctx: const ParseSpmdCtx&, out: i64[:], worker_id: i64, wo
     };
     var w_htab: i32[>..] = [];
     var imp_name: u8[>..] = [];
+    var file_dir: u8[>..] = [];
+    var resolved: u8[>..] = [];
+    var normalized: u8[>..] = [];
     var reps: ParseIdentRep[>..] = [];
     if worker_id == 0 { source_spmd_seed_idents(ctx.p, reps); }
 
     loop {
         let r0 = ctx.round_start;
         let r1 = ctx.round_end;
-        for fi in r0..r1 {
-            if worker_count > 1 && ctx.files[fi].worker != worker_id { continue; }
-            let f = ctx.files[fi];
+        // Use the same round-robin assignment across discovery and install.
+        var fi = r0 - r0 % worker_count + worker_id;
+        if fi < r0 { fi += worker_count; }
+        while fi < r1 {
+            let file = fi;
+            fi += worker_count;
+            let f = ctx.files[file];
             let w_text_start = w_text.len;
-            w_text.append(ctx.raw_text[f.raw_start..f.raw_start + f.raw_len]);
+            let path = ctx.path_pool[f.path_start..f.path_start + f.path_len];
+            if !read_file(path, w_text) {
+                ctx.files[file].status = PARSE_SPMD_FALLBACK;
+                continue;
+            }
+            let raw_len = w_text.len - w_text_start;
             let w_src = w_sources.len;
-            w_sources.push(Source { text_start: w_text_start, text_len: f.raw_len, library: f.library });
+            w_sources.push(Source { text_start: w_text_start, text_len: raw_len, library: f.library });
             let w_tok_off = w_tokens.len;
             let w_node_off = w_nodes.len;
             local.saw_inline_checkfree = false;
@@ -721,47 +663,59 @@ fn gp_parse_spmd_range(ctx: const ParseSpmdCtx&, out: i64[:], worker_id: i64, wo
             }
             if !ok {
                 w_diagnostics.clear();
-                ctx.files[fi].status = PARSE_SPMD_FALLBACK;
+                ctx.files[file].status = PARSE_SPMD_FALLBACK;
                 continue;
             }
-            let w_str_off = w_text_start + f.raw_len;
+            let w_str_off = w_text_start + raw_len;
             let str_count = w_text.len - w_str_off;
             let tok_count = w_tokens.len - w_tok_off;
             let node_count = w_nodes.len - w_node_off;
 
-            // Collect top-level imports for midpoint closure resolution.
+            // Collect normalized imports in source order for the midpoint.
+            file_dir.clear();
             var imp_count: i64 = 0;
             var ib_used: i64 = 0;
             var decl = w_nodes[root].first;
             while decl >= 0 {
                 let dn = w_nodes[decl];
                 if dn.kind == N_IMPORT {
-                    if dn.left >= 0 || imp_count >= f.import_cap { ok = false; break; }
+                    if dn.left >= 0 || imp_count >= PARSE_SPMD_IMPORT_CAP { ok = false; break; }
                     imp_name.clear();
                     source_import_name(local, dn.integer, dn.aux, imp_name);
-                    if ib_used + imp_name.len > f.import_bytes_cap { ok = false; break; }
-                    for bi in 0..imp_name.len { ctx.import_bytes[f.import_bytes_start + ib_used + bi] = imp_name[bi]; }
-                    ctx.import_slab[f.import_start + imp_count] = ParseImportRec {
-                        name_start: ib_used as i32, name_len: imp_name.len as i32,
-                        tok_offset: (dn.token - w_tok_off) as i32,
-                        relative: (dn.flags & F_REFERENCE) != 0,
+                    let relative = (dn.flags & F_REFERENCE) != 0;
+                    if relative && file_dir.len == 0 { source_directory(path, file_dir); }
+                    var library = f.library;
+                    if !source_spmd_resolve_import(file_dir, f.library, ctx.root_dir, ctx.stdlib_buf,
+                                                   imp_name, relative, resolved, library) {
+                        ok = false; break;
+                    }
+                    normalized.clear();
+                    source_normalize(resolved, normalized);
+                    if ib_used + normalized.len > PARSE_SPMD_IMPORT_BYTES { ok = false; break; }
+                    let start = file * PARSE_SPMD_IMPORT_BYTES + ib_used;
+                    let dst: u8[:] = ctx.import_bytes[start..start + normalized.len];
+                    dst.move_from(normalized[..]);
+                    ctx.import_slab[file * PARSE_SPMD_IMPORT_CAP + imp_count] = ParseImportRec {
+                        path_start: ib_used as i32, path_len: normalized.len as i32,
+                        tok_offset: (dn.token - w_tok_off) as i32, library: library,
                     };
-                    ib_used += imp_name.len;
+                    ib_used += normalized.len;
                     imp_count += 1;
                 }
                 decl = dn.next;
             }
             if !ok {
-                ctx.files[fi].status = PARSE_SPMD_FALLBACK;
+                ctx.files[file].status = PARSE_SPMD_FALLBACK;
                 continue;
             }
 
             // A slot packs the file's tag and its one-based unique index.
             // File indices are monotonic within the wave, even across rounds.
-            let tag = ((fi + 1) * PARSE_SPMD_IDENT_SLOTS) as i32;
+            let tag = ((file + 1) * PARSE_SPMD_IDENT_SLOTS) as i32;
             if w_htab.len == 0 { w_htab.resize(PARSE_SPMD_IDENT_SLOTS, 0); }
             let table: i32[:] = w_htab;
-            let idents: ParseUniqueIdent[:] = ctx.ident_slab[f.ident_start..f.ident_start + f.ident_cap];
+            let ident_start = file * PARSE_SPMD_IDENT_CAP;
+            let idents: ParseUniqueIdent[:] = ctx.ident_slab[ident_start..ident_start + PARSE_SPMD_IDENT_CAP];
             let tokens: Token[:] = w_tokens[w_tok_off..];
             let text: const u8[:] = w_text;
             var u_count: i64 = 0;
@@ -803,72 +757,57 @@ fn gp_parse_spmd_range(ctx: const ParseSpmdCtx&, out: i64[:], worker_id: i64, wo
                 if !ok { break; }
             }
             if !ok {
-                ctx.files[fi].status = PARSE_SPMD_FALLBACK;
+                ctx.files[file].status = PARSE_SPMD_FALLBACK;
                 continue;
             }
-            ctx.files[fi].w_text_start = w_text_start;
-            ctx.files[fi].w_tok_off = w_tok_off;
-            ctx.files[fi].w_node_off = w_node_off;
-            ctx.files[fi].root = root - w_node_off;
-            ctx.files[fi].tok_count = tok_count;
-            ctx.files[fi].node_count = node_count;
-            ctx.files[fi].str_count = str_count;
-            ctx.files[fi].ident_count = u_count;
-            ctx.files[fi].import_count = imp_count;
-            ctx.files[fi].saw_inline_checkfree = local.saw_inline_checkfree;
-            ctx.files[fi].status = PARSE_SPMD_OK;
+            ctx.files[file].raw_len = raw_len;
+            ctx.files[file].w_text_start = w_text_start;
+            ctx.files[file].w_tok_off = w_tok_off;
+            ctx.files[file].w_node_off = w_node_off;
+            ctx.files[file].root = root - w_node_off;
+            ctx.files[file].tok_count = tok_count;
+            ctx.files[file].node_count = node_count;
+            ctx.files[file].str_count = str_count;
+            ctx.files[file].ident_count = u_count;
+            ctx.files[file].import_count = imp_count;
+            ctx.files[file].saw_inline_checkfree = local.saw_inline_checkfree;
+            ctx.files[file].status = PARSE_SPMD_OK;
         }
 
         gp_barrier();
-        if worker_id == 0 { source_spmd_midpoint(ctx, reps); }
+        if worker_id == 0 { source_spmd_midpoint(ctx); }
         gp_barrier();
 
         if ctx.phase == PARSE_PHASE_INSTALL {
-            // Phase 2: parallel relocation and copy directly into final Program slices.
-            for f in ctx.files {
-                if !f.install_ok || (worker_count > 1 && f.worker != worker_id) { continue; }
-                let w_str_off = f.w_text_start + f.raw_len;
-                let delta_text = f.p_text_base - f.w_text_start;
-                let delta_str = f.p_str_base - w_str_off;
-                let delta_tok = f.p_tok_base - f.w_tok_off;
-                let delta_node = f.p_node_base - f.w_node_off;
-                let str_count = f.str_count;
-                if str_count > 0 {
-                    let dst_str: u8[:] = ctx.p.text[f.p_str_base..f.p_str_base + str_count];
-                    let src_str: const u8[:] = w_text[w_str_off..w_str_off + str_count];
-                    dst_str.move_from(src_str);
-                }
-                let sid = f.source_id;
-                let istart = f.ident_start;
-                let str_split = w_str_off;
-                let tok_count = f.tok_count;
-                let dst_toks: Token[:] = ctx.p.tokens[f.p_tok_base..f.p_tok_base + tok_count];
-                let src_toks: const Token[:] = w_tokens[f.w_tok_off..f.w_tok_off + tok_count];
-                let ident_slice: const ParseUniqueIdent[:] = ctx.ident_slab[istart..istart + f.ident_count];
-                for tok, ti in src_toks {
-                    var dt = tok;
-                    dt.source = sid as i32;
-                    dt.start = (dt.start + delta_text) as i32;
-                    dt.end = (dt.end + delta_text) as i32;
-                    if dt.kind == T_IDENT {
-                        dt.text_start = ident_slice[dt.text_start].canonical;
-                    } else {
-                        if dt.kind == T_LAZY_BODY { dt.integer += delta_text; }
-                        if dt.text_start != 0 {
-                            let delta = if dt.text_start < str_split { delta_text } else { delta_str };
-                            dt.text_start = (dt.text_start + delta) as i32;
-                        }
-                    }
-                    dst_toks[ti] = dt;
-                }
-                let node_count = f.node_count;
-                let dst_nodes: Node[:] = ctx.p.nodes[f.p_node_base..f.p_node_base + node_count];
-                let src_nodes: const Node[:] = w_nodes[f.w_node_off..f.w_node_off + node_count];
-                for node, ni in src_nodes {
-                    var dn = node;
-                    parse_rebase_node(dn, delta_tok, delta_node);
-                    dst_nodes[ni] = dn;
-                }
+            let file_count = ctx.files.len;
+            var install = worker_id;
+            while install < file_count {
+                let f = ctx.files[install];
+                install += worker_count;
+                if !f.install_ok { continue; }
+                let count = f.raw_len + f.str_count;
+                let dst: u8[:] = ctx.p.text[f.p_text_base..f.p_text_base + count];
+                dst.move_from(w_text[f.w_text_start..f.w_text_start + count]);
+            }
+            // Spellings in the final text are needed for collision checks.
+            gp_barrier();
+            if worker_id == 0 { source_spmd_merge_idents(ctx, reps); }
+            install = worker_id;
+            while install < file_count {
+                let f = ctx.files[install];
+                install += worker_count;
+                if !f.install_ok { continue; }
+                source_spmd_install_nodes(ctx.p, f, w_nodes);
+            }
+            // Token installation uses the canonical IDs produced by the merge.
+            gp_barrier();
+            install = worker_id;
+            while install < file_count {
+                let fi = install;
+                install += worker_count;
+                let f = ctx.files[fi];
+                if !f.install_ok { continue; }
+                source_spmd_install_tokens(ctx, f, fi * PARSE_SPMD_IDENT_CAP, w_tokens);
             }
             // A negative grow length records dead native worker storage.
             if worker_id != 0 {
@@ -881,30 +820,60 @@ fn gp_parse_spmd_range(ctx: const ParseSpmdCtx&, out: i64[:], worker_id: i64, wo
     }
 }
 
+fn source_spmd_install_nodes(p: Program&, f: const ParseSpmdFile&, nodes: const Node[:]) {
+    let delta_tok = f.p_tok_base - f.w_tok_off;
+    let delta_node = f.p_node_base - f.w_node_off;
+    let dst_nodes: Node[:] = p.nodes[f.p_node_base..f.p_node_base + f.node_count];
+    let src_nodes = nodes[f.w_node_off..f.w_node_off + f.node_count];
+    for node, ni in src_nodes {
+        dst_nodes[ni] = parse_rebase_node(node, delta_tok, delta_node);
+    }
+}
+
+fn source_spmd_install_tokens(ctx: const ParseSpmdCtx&, f: const ParseSpmdFile&, ident_start: i64, tokens: const Token[:]) {
+    let delta_text = f.p_text_base - f.w_text_start;
+    let sid = f.source_id;
+    let dst_toks: Token[:] = ctx.p.tokens[f.p_tok_base..f.p_tok_base + f.tok_count];
+    let src_toks = tokens[f.w_tok_off..f.w_tok_off + f.tok_count];
+    let idents: const ParseUniqueIdent[:] = ctx.ident_slab[ident_start..ident_start + f.ident_count];
+    for tok, ti in src_toks {
+        var dt = tok;
+        dt.source = sid as i32;
+        dt.start = (dt.start + delta_text) as i32;
+        dt.end = (dt.end + delta_text) as i32;
+        if dt.kind == T_IDENT {
+            dt.text_start = idents[dt.text_start].canonical;
+        } else if dt.text_start != 0 {
+            dt.text_start = (dt.text_start + delta_text) as i32;
+        } else if dt.kind == T_LAZY_BODY {
+            dt.integer = dt.integer + delta_text;
+        }
+        dst_toks[ti] = dt;
+    }
+}
+
 fn source_parse_wave_spmd(p: Program&, pending: SourceRequest[>..]&, seen: SourceRequest[>..]&,
                           root: const u8[:], stdlib: const u8[:], last_source: i64&) -> bool {
-    var raw_text: u8[>..] = [];
     var path_pool: u8[>..] = [];
     var files: ParseSpmdFile[>..] = [];
     var ident_slab: ParseUniqueIdent[>..] = [];
     var import_slab: ParseImportRec[>..] = [];
     var import_bytes: u8[>..] = [];
-    var installed_sources: i64[>..] = [];
+    var dfs_files: i64[>..] = [];
     var phase: i64 = PARSE_PHASE_PARSE;
     var round_start: i64 = 0;
     var round_end: i64 = 0;
     var participants: i64 = p.jobs;
     if participants > 16 { participants = 16; }
     if !gp_native_available() { participants = 1; }
-    var root_buf: u8[>..] = []; root_buf.append(root);
+    var root_dir: u8[>..] = []; source_directory(root, root_dir);
     var stdlib_buf: u8[>..] = []; stdlib_buf.append(stdlib);
     let ctx = ParseSpmdCtx {
-        p: p, pending: pending, seen: seen, root_buf: root_buf, stdlib_buf: stdlib_buf,
-        raw_text: raw_text, path_pool: path_pool, files: files,
+        p: p, pending: pending, seen: seen, root_dir: root_dir, stdlib_buf: stdlib_buf,
+        path_pool: path_pool, files: files,
         ident_slab: ident_slab, import_slab: import_slab, import_bytes: import_bytes,
-        installed_sources: installed_sources,
         phase: phase, round_start: round_start, round_end: round_end, last_source: last_source,
-        participants: participants,
+        dfs_files: dfs_files,
     };
     var at = pending.len;
     while at > 0 {
@@ -916,15 +885,16 @@ fn source_parse_wave_spmd(p: Program&, pending: SourceRequest[>..]&, seen: Sourc
         if !source_spmd_add_file(ctx, path, req.library) { return false; }
     }
     if files.len < 2 { return false; }
+    source_spmd_grow_metadata(ctx);
     round_end = files.len;
-    source_spmd_assign_round(ctx, 0, round_end, participants);
     var worker_slots: i64[>..] = [];
     worker_slots.resize(participants, 0);
     gp_parse_spmd_dispatch(p.jobs, ctx, worker_slots[..]);
     if phase != PARSE_PHASE_INSTALL { return false; }
     pending.clear();
     // Strip any non-root fn main() declarations after parallel install.
-    for sid in installed_sources {
+    for fi in dfs_files {
+        let sid = files[fi].source_id;
         if sid <= 0 { continue; }
         let module = p.sources[sid].root;
         var decl = p.nodes[module].first;

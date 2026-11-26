@@ -4442,6 +4442,7 @@ fn cc_parallel_range_name(name: const u8[:]) -> const u8[:] {
     if same_bytes(name, "gp_opt_collect_dispatch") { return "gp_opt_collect_range"; }
     if same_bytes(name, "gp_opt_body_dispatch") { return "gp_opt_body_range"; }
     if same_bytes(name, "gp_check_dispatch") { return "gp_check_range"; }
+    if same_bytes(name, "gp_life_dispatch") { return "gp_life_range"; }
     return "";
 }
 fn cc_parallel_is_spmd(p: Program&, function: i64) -> bool {

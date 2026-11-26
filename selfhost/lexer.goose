@@ -21,15 +21,16 @@ let LEX_KW_HASH: u32[128] = [
     0, 0, 0, 0, 0, 0, 2977070660, 0,
     0, 0, 1453506779, 1716507092, 1349190650, 0, 2218221252, 3088651068,
 ];
+// 2 starts an identifier, 1 is a digit, and both can continue a name.
 let LEX_IDENT: u8[256] = [
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0,
-    0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1,
-    0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0,
+    0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+    2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0, 2,
+    0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+    2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -39,20 +40,38 @@ let LEX_IDENT: u8[256] = [
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 ];
-let LEX_SINGLE: u8[128] = [
+// The high bit marks punctuation that can start a longer operator.
+let LEX_PUNCT: u8[128] = [
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 5, 6, 0, 0, 11, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 12, 0, 0, 0, 14,
+    0, 175, 0, 0, 0, 153, 177, 0, 5, 6, 151, 149, 11, 150, 144, 152,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 141, 12, 167, 164, 168, 14,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7, 0, 8, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7, 0, 8, 179, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 0, 10, 48, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 178, 10, 48, 0,
+];
+let LEX_OP_EQUAL: u8[128] = [
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 38, 0, 0, 0, 30, 31, 0, 0, 0, 28, 26, 0, 27, 18, 29,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 41, 37, 42, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 33, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 32, 0, 0, 0,
+];
+let LEX_OP_REPEAT: u8[128] = [
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 52, 0, 0, 0, 0, 34, 0, 35, 17, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 15, 0, 43, 0, 44, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 53, 0, 0, 0,
 ];
 
-inline fn lex_alpha(c: u8) -> bool {
-    return c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z' || c == '_';
-}
 inline fn lex_digit(c: u8) -> bool { return c >= '0' && c <= '9'; }
 fn lex_hex(c: u8) -> i64 {
     if lex_digit(c) { return c as i64 - 48; }
@@ -289,7 +308,11 @@ fn lex_skeleton(p: Program&, l: LexCursor&, token: i64) {
 }
 
 // Lexes l's range, then appends its end-of-file token.
-fn lex_tokens(p: Program&, l: LexCursor&) {
+fn lex_tokens(p: Program&, start: LexCursor) {
+    var l = start;
+    // Token IDs are stable across table growth and a one-byte spelling has
+    // no ambiguity. Cache its canonical ID for the duration of this source.
+    var short_names: i32[128] = [0; 128];
     let source_id = l.source;
     let raw: const u8[:] = p.text[..l.end];
     loop {
@@ -329,7 +352,8 @@ fn lex_tokens(p: Program&, l: LexCursor&) {
             }
             continue;
         }
-        if lex_alpha(c) {
+        let ident = LEX_IDENT[c];
+        if ident == 2 {
             let start = l.at; let col = l.column;
             var h: u32 = (2166136261 ^ (c as u32)) * 16777619;
             var at = start + 1;
@@ -345,34 +369,32 @@ fn lex_tokens(p: Program&, l: LexCursor&) {
             l.column += at - start; l.at = at;
             let token_id = p.tokens.len;
             let hash: i64 = if kw == T_IDENT { h } else { 0 };
+            let short = l.intern_names && at == start + 1;
+            let canonical = if short { short_names[c] } else { 0 as i32 };
             p.tokens.push(Token { integer: hash, kind: kw as i16, source: source_id as i32,
-                start: start as i32, end: at as i32, line: l.line as i32, column: col as i32 });
-            if kw == T_IDENT && l.intern_names { intern_ident(p, token_id, h); }
+                start: start as i32, end: at as i32, line: l.line as i32, column: col as i32,
+                text_start: canonical });
+            if kw == T_IDENT && l.intern_names && canonical == 0 {
+                intern_ident(p, token_id, h);
+                if short { short_names[c] = p.tokens[token_id].text_start; }
+            }
             if l.skeleton { lex_skeleton(p, l, token_id); }
             continue;
         }
-        if c != 0 && !lex_digit(c) && c != '"' && c != '\'' {
-            let start = l.at; let col = l.column; let line = l.line;
-            var pk: i64 = 0;
-            if c < 128 { pk = LEX_SINGLE[c] as i64; }
-            if pk != 0 {
-                l.at++; l.column++;
-            } else {
-                pk = lex_punctuation(p, l);
-            }
+        if c != 0 && ident == 0 && c != '"' && c != '\'' {
+            let start = l.at; let col = l.column;
+            var kind: i64 = if c < 128 { LEX_PUNCT[c] } else { 0 };
+            l.at++; l.column++;
+            if kind >= 128 { kind = lex_operator(raw, l, c, kind - 128); }
             let token_id = p.tokens.len;
-            if pk == T_EOF {
-                p.tokens.push(Token { kind: -1, source: source_id as i32,
-                    start: start as i32, end: l.at as i32, line: line as i32, column: col as i32 });
-                diagnose(p, token_id, "illegal character in source text");
-            } else {
-                p.tokens.push(Token { kind: pk as i16, source: source_id as i32,
-                    start: start as i32, end: l.at as i32, line: line as i32, column: col as i32 });
-            }
+            p.tokens.push(Token { kind: (if kind == T_EOF { -1 } else { kind }) as i16,
+                source: source_id as i32, start: start as i32, end: l.at as i32,
+                line: l.line as i32, column: col as i32 });
+            if kind == T_EOF { diagnose(p, token_id, "illegal character in source text"); }
             if l.skeleton { lex_skeleton(p, l, token_id); }
             continue;
         }
-        if lex_digit(c) {
+        if ident == 1 {
             let start = l.at; let col = l.column; let line = l.line;
             var at = start + 1;
             var bits: u64 = (c - 48) as u64;
@@ -410,7 +432,7 @@ fn lex_tokens(p: Program&, l: LexCursor&) {
             lex_take(p, l);
             diagnose(p, token_id, "NUL byte is not valid source text");
             t.kind = -1;
-        } else if lex_digit(c) {
+        } else if ident == 1 {
             var radix: i64 = 10;
             if c == '0' && (lex_peek(p, l, 1) == 'x' || lex_peek(p, l, 1) == 'X') {
                 radix = 16; lex_take(p, l); lex_take(p, l);
@@ -460,7 +482,7 @@ fn lex_tokens(p: Program&, l: LexCursor&) {
                 t.float_value = lex_float(p.text[t.start..l.at], radix);
             }
             else if overflow { diagnose(p, token_id, "integer literal exceeds u64"); }
-        } else if c == '"' || c == '\'' {
+        } else {
             let quote = lex_take(p, l);
             t.text_start = p.text.len as i32;
             t.kind = T_STRLIT as i16;
@@ -487,9 +509,6 @@ fn lex_tokens(p: Program&, l: LexCursor&) {
                 else { diagnose(p, token_id, "unterminated string literal"); }
             }
             t.text_len = (p.text.len - t.text_start) as i32;
-        } else {
-            t.kind = lex_punctuation(p, l) as i16;
-            if t.kind == T_EOF { diagnose(p, token_id, "illegal character in source text"); t.kind = -1; }
         }
         t.end = l.at as i32;
         p.tokens[token_id] = t;
@@ -557,63 +576,28 @@ fn lex_raw_string(p: Program&, l: LexCursor&, token: i64, t: Token&) {
     while l.at < close + 3 { lex_take(p, l); }
 }
 
-// Dispatches on the first byte; longer operators win, as in the token grammar.
-fn lex_punctuation(p: Program&, l: LexCursor&) -> i64 {
-    let c = lex_peek(p, l); let d = lex_peek(p, l, 1);
-    var kind = T_EOF; var width = 1;
-    if c == '(' { kind = T_LPAREN; }
-    else if c == ')' { kind = T_RPAREN; }
-    else if c == '[' { kind = T_LBRACKET; }
-    else if c == ']' { kind = T_RBRACKET; }
-    else if c == '{' { kind = T_LCURLY; }
-    else if c == '}' { kind = T_RCURLY; }
-    else if c == ',' { kind = T_COMMA; }
-    else if c == ';' { kind = T_SEMI; }
-    else if c == '?' { kind = T_QUESTION; }
-    else if c == '~' { kind = T_BITNOT; }
-    else if c == '.' {
-        let e = lex_peek(p, l, 2);
-        if d == '=' && e == '=' { kind = T_DOTEQ; width = 3; }
-        else if d == '!' && e == '=' { kind = T_DOTNEQ; width = 3; }
-        else if d == '.' { kind = T_DOTDOT; width = 2; }
-        else if d == '=' { kind = T_DOTASSIGN; width = 2; }
-        else { kind = T_DOT; }
-    } else if c == '<' {
-        if d == '<' && lex_peek(p, l, 2) == '=' { kind = T_SHLEQ; width = 3; }
-        else if d == '=' { kind = T_LTEQ; width = 2; }
-        else if d == '<' { kind = T_SHL; width = 2; }
-        else { kind = T_LT; }
-    } else if c == '>' {
-        if d == '>' && lex_peek(p, l, 2) == '=' { kind = T_SHREQ; width = 3; }
-        else if d == '=' { kind = T_GTEQ; width = 2; }
-        else if d == '>' { kind = T_SHR; width = 2; }
-        else { kind = T_GT; }
-    } else if c == ':' {
-        if d == ':' { kind = T_COLONCOLON; width = 2; } else { kind = T_COLON; }
-    } else if c == '+' {
-        if d == '=' { kind = T_PLUSEQ; width = 2; } else if d == '+' { kind = T_INC; width = 2; } else { kind = T_PLUS; }
-    } else if c == '-' {
-        if d == '=' { kind = T_MINUSEQ; width = 2; } else if d == '-' { kind = T_DEC; width = 2; }
-        else if d == '>' { kind = T_ARROW; width = 2; } else { kind = T_MINUS; }
-    } else if c == '*' {
-        if d == '=' { kind = T_MULEQ; width = 2; } else { kind = T_MUL; }
-    } else if c == '/' {
-        if d == '=' { kind = T_DIVEQ; width = 2; } else { kind = T_DIV; }
-    } else if c == '%' {
-        if d == '=' { kind = T_MODEQ; width = 2; } else { kind = T_MOD; }
-    } else if c == '&' {
-        if d == '=' { kind = T_ANDEQ; width = 2; } else if d == '&' { kind = T_ANDAND; width = 2; } else { kind = T_BITAND; }
-    } else if c == '|' {
-        if d == '=' { kind = T_OREQ; width = 2; } else if d == '|' { kind = T_OROR; width = 2; } else { kind = T_BITOR; }
-    } else if c == '^' {
-        if d == '=' { kind = T_XOREQ; width = 2; } else { kind = T_XOR; }
-    } else if c == '=' {
-        if d == '=' { kind = T_EQ; width = 2; } else if d == '>' { kind = T_FATARROW; width = 2; } else { kind = T_ASSIGN; }
-    } else if c == '!' {
-        if d == '=' { kind = T_NEQ; width = 2; } else { kind = T_NOT; }
+// The first operator byte has already been consumed. Look ahead only as
+// far as needed to distinguish the two- and three-byte forms.
+inline fn lex_operator(raw: const u8[:], l: LexCursor&, c: u8, single: i64) -> i64 {
+    let at = l.at;
+    if at >= raw.len { return single; }
+    let d = raw[at];
+    var kind: i64 = 0;
+    if d == '=' { kind = LEX_OP_EQUAL[c]; }
+    else if d == c { kind = LEX_OP_REPEAT[c]; }
+    else if d == '>' && c == '-' { kind = T_ARROW; }
+    else if d == '>' && c == '=' { kind = T_FATARROW; }
+    if at + 1 < raw.len && (kind == T_DOTASSIGN || kind == T_SHL || kind == T_SHR || c == '.' && d == '!') {
+        if raw[at + 1] == '=' {
+            l.at += 2; l.column += 2;
+            if kind == T_SHL { return T_SHLEQ; }
+            if kind == T_SHR { return T_SHREQ; }
+            if kind == T_DOTASSIGN { return T_DOTEQ; }
+            return T_DOTNEQ;
+        }
     }
-    // None of these bytes is a newline; an unknown byte is consumed alone.
-    l.at += width; l.column += width;
+    if kind == 0 { return single; }
+    l.at++; l.column++;
     return kind;
 }
 

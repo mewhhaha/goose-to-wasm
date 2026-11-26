@@ -11283,6 +11283,64 @@ recursive fn life_type_is_pure_value(p: Program&, state: u8[>..]&, id: i64) -> b
     state[id] = if ok { 2 } else { 1 };
     return ok;
 }
+struct LifeBatchCtx {
+    nodes: const Node[:], symbols: const Symbol[:], types: const Type[:],
+    state: const u8[:], tokens: const Token[:], text: const u8[:],
+}
+struct LifePureOut { first: i64, end: i64, ok: bool = false }
+struct LifeBatchOut { pure: LifePureOut }
+
+fn life_pure_nodes(ctx: const LifeBatchCtx&, first: i64, end: i64) -> bool {
+    let bad_flags = F_REUSABLE | F_REUSABLE_SLICES | F_REFERENCE | F_REFERENCE_CONTEXT | F_NONLOCAL | F_VARIABLE_MODE | F_ROOT | F_ARRAY_JOIN;
+    let bad_kinds = (1 as u64) << N_DEFER | (1 as u64) << N_SLICE | (1 as u64) << N_FUNCTION_VALUE |
+                    (1 as u64) << N_EXTERN | (1 as u64) << N_SELF | (1 as u64) << N_RESULT;
+    // Most nodes only need the flag and type checks.
+    let inspect_kinds = bad_kinds | (1 as u64) << N_UNARY | (1 as u64) << N_ASSIGN |
+                        (1 as u64) << N_FUNCTION | (1 as u64) << N_CALL;
+    let state = ctx.state;
+    let types = ctx.types;
+    for n in ctx.nodes[first..end] {
+        if (n.flags & bad_flags) != 0 { return false; }
+        let k = n.kind;
+        let kind_bit = if (k as! u64) < 64 { (1 as u64) << k } else { 0 };
+        if (inspect_kinds & kind_bit) != 0 {
+            if (bad_kinds & kind_bit) != 0 { return false; }
+            if k == N_UNARY && (n.integer == T_BITAND || n.integer == T_MUL) { return false; }
+            if k == N_ASSIGN && n.integer == T_DOTASSIGN { return false; }
+            if k == N_FUNCTION {
+                if (n.flags & (F_CHECKED | F_GENERIC)) == F_CHECKED {
+                    if n.symbol < 0 || ctx.symbols[n.symbol].owner >= 0 ||
+                       (n.flags & (F_RECURSIVE | F_THREAD | F_EXPORT | F_EXTERN)) != 0 { return false; }
+                }
+                continue;
+            }
+            if k == N_CALL {
+                if n.symbol < 0 { return false; }
+                let cs: const Symbol& = ctx.symbols[n.symbol];
+                if (cs.flags & S_BUILTIN) != 0 {
+                    if cs.name_token < 0 || cs.name_token >= ctx.tokens.len { return false; }
+                    let t: const Token& = ctx.tokens[cs.name_token];
+                    if !same_bytes(ctx.text[t.start..t.end], "print") { return false; }
+                }
+            }
+        }
+        if n.type_id >= 0 && state[n.type_id] != 2 && types[n.type_id].kind != TY_FN { return false; }
+        if n.coerced_type >= 0 && (n.coerced_type >= state.len || state[n.coerced_type] != 2) { return false; }
+    }
+    return true;
+}
+
+fn gp_life_range(ctx: const LifeBatchCtx&, out: LifeBatchOut[:], begin: i64, end: i64) {
+    for i in begin..end {
+        let bucket: LifePureOut& = out[i].pure;
+        bucket.ok = life_pure_nodes(ctx, bucket.first, bucket.end);
+    }
+}
+fn gp_life_dispatch(jobs: i64, ctx: const LifeBatchCtx&, out: LifeBatchOut[:]) -> bool {
+    gp_life_range(ctx, out, 0, out.len);
+    return true;
+}
+
 fn life_try_pure_fast_path(p: Program&, pool_references: const i64[:]) -> bool {
     if pool_references.len > 0 { return false; }
     var state: u8[>..] = [];
@@ -11317,30 +11375,21 @@ fn life_try_pure_fast_path(p: Program&, pool_references: const i64[:]) -> bool {
                (p.nodes[sym.node].flags & (F_REUSABLE | F_REUSABLE_SLICES | F_REFERENCE | F_REFERENCE_CONTEXT)) != 0 { return false; }
         }
     }
-    let bad_flags = F_REUSABLE | F_REUSABLE_SLICES | F_REFERENCE | F_REFERENCE_CONTEXT | F_NONLOCAL | F_VARIABLE_MODE | F_ROOT | F_ARRAY_JOIN;
-    for n in p.nodes {
-        if (n.flags & bad_flags) != 0 { return false; }
-        let k = n.kind;
-        if k == N_DEFER || k == N_SLICE || k == N_FUNCTION_VALUE || k == N_EXTERN || k == N_SELF || k == N_RESULT { return false; }
-        if k == N_UNARY && (n.integer == T_BITAND || n.integer == T_MUL) { return false; }
-        if k == N_ASSIGN && n.integer == T_DOTASSIGN { return false; }
-        if k == N_FUNCTION {
-            if (n.flags & (F_CHECKED | F_GENERIC)) == F_CHECKED {
-                if n.symbol < 0 || p.symbols[n.symbol].owner >= 0 ||
-                   (n.flags & (F_RECURSIVE | F_THREAD | F_EXPORT | F_EXTERN)) != 0 { return false; }
-            }
-            continue;
+    // Resolve the recursive type cache before making it visible to workers.
+    for tid in 0..p.types.len { life_type_is_pure_value(p, state, tid); }
+    let ctx = LifeBatchCtx { nodes: p.nodes[..], symbols: p.symbols[..], types: p.types[..],
+                             state: state[..], tokens: p.tokens[..], text: p.text[..] };
+    if p.jobs > 1 && node_count >= 32768 {
+        let buckets = p.jobs * 2;
+        var out: LifeBatchOut[>..] = [];
+        for i in 0..buckets {
+            out.push(LifeBatchOut { pure: LifePureOut {
+                first: i * node_count / buckets, end: (i + 1) * node_count / buckets
+            } });
         }
-        if k == N_CALL {
-            if n.symbol < 0 { return false; }
-            let cs: const Symbol& = p.symbols[n.symbol];
-            if (cs.flags & S_BUILTIN) != 0 {
-                if cs.name_token < 0 || !same_bytes(token_text(p, cs.name_token), "print") { return false; }
-            }
-        }
-        if n.type_id >= 0 && p.types[n.type_id].kind != TY_FN && !life_type_is_pure_value(p, state, n.type_id) { return false; }
-        if n.coerced_type >= 0 && !life_type_is_pure_value(p, state, n.coerced_type) { return false; }
-    }
+        if !gp_life_dispatch(p.jobs, ctx, out[..]) { return false; }
+        for bucket in out { if !bucket.pure.ok { return false; } }
+    } else if !life_pure_nodes(ctx, 0, node_count) { return false; }
     for index in 0..p.symbols.len {
         let flags = p.symbols[index].flags;
         if (flags & (S_PARAMETER | S_FUNCTION | S_BUILTIN | S_TYPE)) != 0 { continue; }

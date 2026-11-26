@@ -394,6 +394,9 @@ fn opt_mul_bits(a: u64, b: u64) -> u64 {
     return result;
 }
 struct OptFactDelta { symbol: i64 = -1, flags: u32 = 0, calls: i32 = 0 }
+fn gp_grow_opt_fact_deltas(arr: OptFactDelta[>..]&, new_len: i64) {
+    while arr.len < new_len { arr.push(OptFactDelta {}); }
+}
 struct OptCollector {
     track_bounds: bool, count_calls: bool, facts: OptFact[:], nodes: const Node[:],
     entries: OptFactDelta[:], slots: i32[:],
@@ -507,18 +510,16 @@ struct OptCollectOut { entries: OptFactDelta[:], used: i64 = 0, overflow: bool =
 fn gp_opt_collect_range(ctx: const OptCollectCtx&, out: OptCollectOut[:], begin: i64, end: i64) {
     if begin >= end { return; }
     let capacity = out[begin].entries.len;
-    var entries: OptFactDelta[>..] = [];
     var slots: i32[>..] = [];
-    entries.resize(capacity, OptFactDelta {});
     var slot_count = 1;
     while slot_count < 2 * capacity { slot_count *= 2; }
     slots.resize(slot_count, -1);
     var empty_facts: OptFact[0] = [];
-    var c = OptCollector { track_bounds: ctx.track_bounds, count_calls: ctx.count_calls,
-                           facts: empty_facts[..], nodes: ctx.program.nodes[..], entries: entries[..], slots: slots[..] };
+    let nodes = ctx.program.nodes[..];
     for bucket in begin..end {
-        c.used = 0; c.overflow = false;
-        for slot in 0..slots.len { slots[slot] = -1; }
+        if bucket > begin { for slot in 0..slots.len { slots[slot] = -1; } }
+        var c = OptCollector { track_bounds: ctx.track_bounds, count_calls: ctx.count_calls,
+                               facts: empty_facts[..], nodes: nodes, entries: out[bucket].entries, slots: slots[..] };
         let first = bucket * ctx.functions.len / out.len;
         let stop = (bucket + 1) * ctx.functions.len / out.len;
         for i in first..stop {
@@ -526,10 +527,7 @@ fn gp_opt_collect_range(ctx: const OptCollectCtx&, out: OptCollectOut[:], begin:
             if c.overflow { break; }
         }
         out[bucket].overflow = c.overflow;
-        if !c.overflow {
-            for i in 0..c.used { out[bucket].entries[i] = entries[i]; }
-            out[bucket].used = c.used;
-        }
+        if !c.overflow { out[bucket].used = c.used; }
     }
 }
 fn gp_opt_collect_dispatch(jobs: i64, ctx: const OptCollectCtx&, out: OptCollectOut[:]) -> bool {
@@ -542,7 +540,8 @@ fn opt_collect_parallel(p: Program&, c: OptCollector&, functions: const i64[:]) 
     let capacity = min(4096, max(128, (functions.len + buckets - 1) / buckets * 64));
     var slab: OptFactDelta[>..] = [];
     var results: OptCollectOut[>..] = [];
-    slab.resize(buckets * capacity, OptFactDelta {});
+    // Workers initialize each delta before putting it in the hash table.
+    gp_grow_opt_fact_deltas(slab, buckets * capacity);
     results.resize(buckets, OptCollectOut { entries: slab[..0] });
     for b in 0..buckets { results[b].entries = slab[b * capacity..(b + 1) * capacity]; }
     let ctx = OptCollectCtx { program: p, functions: functions, track_bounds: c.track_bounds, count_calls: c.count_calls };
@@ -906,7 +905,7 @@ fn opt_is_parallel_hook(p: Program&, symbol: i64) -> bool {
            same_bytes(name, "gp_parse_dispatch") || same_bytes(name, "gp_parse_spmd_dispatch") ||
            same_bytes(name, "gp_wasm_dispatch") ||
            same_bytes(name, "gp_opt_collect_dispatch") || same_bytes(name, "gp_opt_body_dispatch") ||
-           same_bytes(name, "gp_check_dispatch");
+           same_bytes(name, "gp_check_dispatch") || same_bytes(name, "gp_life_dispatch");
 }
 recursive fn opt_try_inline(p: Program&, o: Optimizer&, node: i64) -> bool {
     if o.current_function < 0 { return false; }
@@ -975,8 +974,11 @@ recursive fn opt_try_inline(p: Program&, o: Optimizer&, node: i64) -> bool {
     opt_node(p, o, node, 1); return true;
 }
 
-fn opt_fold_binary<O>(p: Program&, o: O&, node: i64) {
-    let n: const Node& = opt_body_read(p, o, node); let left: const Node& = opt_body_read(p, o, n.left); let right: const Node& = opt_body_read(p, o, n.right); let op = n.integer;
+fn opt_fold_binary<O>(p: Program&, o: O&, node: i64, n: const Node&) {
+    let left: const Node& = opt_body_read(p, o, n.left);
+    if left.kind != N_INTEGER && left.kind != N_BOOL && left.kind != N_FLOAT { return; }
+    let right: const Node& = opt_body_read(p, o, n.right);
+    let op = n.integer;
     if left.kind == N_INTEGER && right.kind == N_INTEGER {
         let a = left.integer; let b = right.integer; var result = 0; var folded = true; var comparison = false;
         let unsigned = check_unsigned(left.type_id);
@@ -1147,7 +1149,7 @@ recursive fn opt_node<O>(p: Program&, o: O&, node: i64, depth: i64) {
         if (fact.flags & (OPT_FACT_WRITTEN | OPT_FACT_ADDRESSED)) == 0 && opt_literal(p, o, n.right) {
             opt_body_set_literal(o, n.symbol, n.right);
         }
-    } else if n.kind == N_BINARY { opt_fold_binary(p, o, node); }
+    } else if n.kind == N_BINARY { opt_fold_binary(p, o, node, n); }
     else if n.kind == N_UNARY && n.left >= 0 {
         let value: const Node& = opt_body_read(p, o, n.left);
         if value.kind == N_INTEGER {
@@ -3634,6 +3636,16 @@ struct OptBodyOut {
     full: bool = false,
 }
 
+fn gp_grow_opt_node_patches(arr: OptNodePatch[>..]&, new_len: i64) {
+    while arr.len < new_len { arr.push(OptNodePatch {}); }
+}
+fn gp_grow_opt_read_words(arr: OptReadWord[>..]&, new_len: i64) {
+    while arr.len < new_len { arr.push(OptReadWord {}); }
+}
+fn gp_grow_opt_body_results(arr: OptBodyResult[>..]&, new_len: i64) {
+    while arr.len < new_len { arr.push(OptBodyResult {}); }
+}
+
 fn gp_opt_body_range(ctx: const OptBodyCtx&, out: OptBodyOut[:], begin: i64, end: i64) {
     if ctx.prove_bounds {
         let facts = ctx.facts;
@@ -3716,9 +3728,10 @@ fn opt_body_parallel(p: Program&, o: Optimizer&, functions: const i64[:]) -> i64
     var patches: OptNodePatch[>..] = [];
     var records: OptBodyResult[>..] = [];
     var results: OptBodyOut[>..] = [];
-    patches.resize(buckets * capacity, OptNodePatch {});
-    reads.resize(buckets * read_capacity, OptReadWord {});
-    records.resize(functions.len, OptBodyResult {});
+    // Replay consumes only records and entries written by the workers.
+    gp_grow_opt_node_patches(patches, buckets * capacity);
+    gp_grow_opt_read_words(reads, buckets * read_capacity);
+    gp_grow_opt_body_results(records, functions.len);
     var empty_proofs: i64[0] = [];
     results.resize(buckets, OptBodyOut { functions: records[..0], patches: patches[..0], reads: reads[..0], proofs: empty_proofs[..] });
     for b in 0..buckets {
@@ -3739,8 +3752,8 @@ fn opt_body_parallel(p: Program&, o: Optimizer&, functions: const i64[:]) -> i64
         var retry_patches: OptNodePatch[>..] = [];
         var retry_reads: OptReadWord[>..] = [];
         var retries: OptBodyOut[>..] = [];
-        retry_patches.resize(full_buckets * patch_capacity, OptNodePatch {});
-        retry_reads.resize(full_buckets * word_capacity, OptReadWord {});
+        gp_grow_opt_node_patches(retry_patches, full_buckets * patch_capacity);
+        gp_grow_opt_read_words(retry_reads, full_buckets * word_capacity);
         retries.resize(buckets, results[0]);
         var index = 0;
         for b in 0..buckets {
@@ -3792,6 +3805,10 @@ fn opt_body_replay(p: Program&, o: Optimizer&, functions: const i64[:],
     return fallbacks;
 }
 
+fn gp_grow_opt_proofs(arr: i64[>..]&, new_len: i64) {
+    while arr.len < new_len { arr.push(0); }
+}
+
 fn opt_bounds_parallel(p: Program&, facts: const OptBoundsFacts&, tasks: const i64[:]) -> i64 {
     let buckets = min(tasks.len, p.jobs * 8);
     let capacity = min(4096, max(128, (tasks.len + buckets - 1) / buckets * 32));
@@ -3800,8 +3817,8 @@ fn opt_bounds_parallel(p: Program&, facts: const OptBoundsFacts&, tasks: const i
     var results: OptBodyOut[>..] = [];
     var empty_patches: OptNodePatch[0] = [];
     var empty_reads: OptReadWord[0] = [];
-    proofs.resize(buckets * capacity, -1);
-    records.resize(tasks.len, OptBodyResult {});
+    gp_grow_opt_proofs(proofs, buckets * capacity);
+    gp_grow_opt_body_results(records, tasks.len);
     results.resize(buckets, OptBodyOut { functions: records[..0], patches: empty_patches[..], reads: empty_reads[..], proofs: proofs[..0] });
     for b in 0..buckets {
         results[b].functions = records[b * tasks.len / buckets..(b + 1) * tasks.len / buckets];
@@ -3853,6 +3870,7 @@ fn optimize_program(p: Program&) {
     };
     let count = p.symbols.len;
     var reachable: i64[>..] = [];
+    var globals: i64[>..] = [];
     var empty_entries: OptFactDelta[0] = []; var empty_slots: i32[0] = [];
     var collector = OptCollector { track_bounds: o.track_bounds, count_calls: p.optimization > 0,
                                    facts: o.facts[..], nodes: p.nodes[..], entries: empty_entries[..], slots: empty_slots[..] };
@@ -3860,16 +3878,17 @@ fn optimize_program(p: Program&) {
         let s: const Symbol& = p.symbols[i]; if s.node < 0 { continue; }
         // Collection only ORs flags and adds counts, so globals can be
         // collected first without changing the facts used by optimization.
-        if (s.flags & S_GLOBAL) != 0 && s.component_owner < 0 { opt_collect(p, collector, s.node); }
+        if (s.flags & S_GLOBAL) != 0 && s.component_owner < 0 {
+            globals.push(s.node);
+            opt_collect(p, collector, s.node);
+        }
         if (s.flags & (S_FUNCTION | S_BUILTIN)) == S_FUNCTION && (p.nodes[s.node].flags & F_REACHABLE) != 0 {
             reachable.push(s.node);
         }
     }
     if p.jobs > 1 && reachable.len >= 64 { opt_collect_parallel(p, collector, reachable[..]); }
     else { for node in reachable { opt_collect(p, collector, p.nodes[node].right); } }
-    for i in 0..count {
-        let s: const Symbol& = p.symbols[i]; if s.node >= 0 && (s.flags & S_GLOBAL) != 0 && s.component_owner < 0 { opt_node(p, o, s.node, 0); }
-    }
+    for node in globals { opt_node(p, o, node, 0); }
     if p.jobs > 1 && !inline_calls && reachable.len >= 64 { opt_body_parallel(p, o, reachable[..]); }
     else { for node in reachable { opt_function(p, o, node); } }
     if p.has_checked_checkfree && inline_calls { opt_remove_inlined_checkfree(p, count); }

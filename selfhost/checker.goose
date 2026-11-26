@@ -124,8 +124,8 @@ struct Checker {
     defer_bodies: i64 = 0, defers: CheckList = CheckList {}, defer_mentions: CheckList = CheckList {},
     in_unreached: bool = false, unreached_marked: i64[>..]&,
     batch_out: CheckBodyBatch[>..]&, batch_index: i32[>..]&,
-    batch_patches: CheckBodyPatch[>..]&, batch_events: CheckBodyEvent[>..]&,
-    batch_pending_apply: i32[>..]&, batch_proof_end: i64 = 0,
+    batch_relocs: CheckBodyReloc[>..]&, batch_events: CheckBodyEvent[>..]&,
+    batch_pending_apply: i32[>..]&,
     batch_deferred: i64 = 0, batch_committed: i64 = 0,
 }
 
@@ -2428,7 +2428,10 @@ fn check_nonnegative_get(c: Checker&, node: i64) -> i64 {
     return c.node_nonnegative[node];
 }
 fn check_nonnegative_set(c: Checker&, node: i64, proof: i64) {
-    while c.node_nonnegative.len <= node { c.node_nonnegative.push(-2); }
+    if node >= c.node_nonnegative.len {
+        if proof == -2 { return; }
+        c.node_nonnegative.resize(node + 1, -2);
+    }
     c.node_nonnegative[node] = proof;
 }
 fn check_nonnegative_rely(p: Program&, c: Checker&, proof: i64, token: i64) {
@@ -4861,9 +4864,13 @@ recursive fn check_prepare_function(p: Program&, c: Checker&, function_node: i64
             if p.nodes[param].left >= 0 { ty = check_resolve_type(p, c, p.nodes[param].left); }
             else { ty = check_type(p, TY_GENERIC, -1, 0, param, 0); }
         }
-        ty = check_value_annotation(p, c, p.nodes[param].left, ty);
-        if ty >= 0 && p.types[ty].kind == TY_GENERIC { generic = true; }
-        if check_has_generic(p, ty, 0) { generic = true; }
+        // These primitive value types need neither annotation loading nor
+        // a generic type walk.
+        if !check_body_scalar(ty) {
+            ty = check_value_annotation(p, c, p.nodes[param].left, ty);
+            if ty >= 0 && p.types[ty].kind == TY_GENERIC { generic = true; }
+            if check_has_generic(p, ty, 0) { generic = true; }
+        }
         p.nodes[param].type_id = ty as i32;
         let ps = check_declare(p, c, param, c.scope); p.symbols[ps].type_id = ty;
         let vi = check_variable_index(c, ps); check_set_assigned(c, vi, true, true);
@@ -5091,6 +5098,7 @@ recursive fn check_specialize_function(p: Program&, c: Checker&, original: i64, 
         c.syntax_body = c.syntax_nodes[c.syntax_lookup[original]].right;
     }
     check_body_flush(p, c);
+    check_body_discard_function(p, c, original);
     let copy = check_clone(p, c, original, bindings);
     c.clone_syntax = saved_syntax; c.syntax_body = saved_body; c.syntax_function = saved_function;
     p.nodes[copy].type_id = -1; p.nodes[copy].third = -1; p.nodes[copy].origin = original as i32;
@@ -8064,31 +8072,44 @@ fn check_assignment_target(p: Program&, c: Checker&, target: i64, value: i64, re
         }
     }
 }
-// The speculative checker accepts fixed, reference-free bodies. A failed
-// check leaves only scratch entries in its slice. Calls are dependencies;
-// the main thread validates the entire dependency graph before replay.
+// Workers check fixed, reference-free bodies in disjoint AST windows. Calls
+// are dependencies. The main thread validates the graph before publishing
+// scope, symbol and local proof IDs, or restores syntax before serial checking.
 let CHECK_BODY_FOR_SOURCE: i64 = -3;
 let CHECK_BODY_FALLBACK: i64 = 0;
 let CHECK_BODY_PENDING: i64 = 1;
 let CHECK_BODY_VISITING: i64 = 2;
 let CHECK_BODY_READY: i64 = 3;
+let CHECK_BODY_COMMITTED: i64 = 4;
 let CHECK_BODY_SCOPE: i64 = 1;
 let CHECK_BODY_LOCAL: i64 = 2;
 let CHECK_BODY_CALL: i64 = 3;
 let CHECK_BODY_RETURN: i64 = 4;
-// Private patch bit, removed before writing Node.flags.
-let CHECK_BODY_NONCONSTANT: i64 = 1 << 62;
-let CHECK_BODY_PATCHED: i64 = 1 << 61;
+let CHECK_BODY_FLAG_MASK: i64 = F_REACHABLE | F_CHECKED | F_BOUNDS_PROVEN | F_DIVERGES;
+let CHECK_BODY_NONCONSTANT: i64 = 1 << 30;
+let CHECK_BODY_WINDOW: i64 = 1024;
+let CHECK_BODY_OFFSET_MASK: i64 = CHECK_BODY_WINDOW - 1;
+let CHECK_BODY_EVENT_MASK: i64 = 255;
+let CHECK_BODY_SYMBOL_SHIFT: i64 = 10;
+let CHECK_BODY_SCOPE_SHIFT: i64 = 18;
+let CHECK_BODY_RELOC_MASK: i64 = (1 << 26) - CHECK_BODY_WINDOW;
+let CHECK_BODY_AUX_WRITTEN: i64 = 1 << 26;
+let CHECK_BODY_LAST_WRITTEN: i64 = 1 << 27;
+let CHECK_BODY_PROOF_SHIFT: i64 = 28;
 
-struct CheckBodyPatch {
+// The node offset takes 10 bits and the two event indices take 8 each
+// (the largest event slice is 1024 / 5 + 8). The next two bits identify
+// overwritten syntax fields for rollback.
+struct CheckBodyReloc { bits: i32 = 0 }
+struct CheckBodyUpdate {
     flags: i64 = 0, type_id: i32 = -1, scope: i32 = -1, symbol: i32 = -1,
     aux: i32 = -1, last: i32 = -1, proof: i32 = -2,
 }
 struct CheckBodyEvent {
     kind: i32, node: i32, scope: i32, value: i32 = -1, mapped: i32 = -1,
 }
-fn gp_grow_check_patches(arr: CheckBodyPatch[>..]&, new_len: i64) {
-    while arr.len < new_len { arr.push(CheckBodyPatch {}); }
+fn gp_grow_check_relocs(arr: CheckBodyReloc[>..]&, new_len: i64) {
+    while arr.len < new_len { arr.push(CheckBodyReloc {}); }
 }
 fn gp_grow_check_events(arr: CheckBodyEvent[>..]&, new_len: i64) {
     while arr.len < new_len { arr.push(CheckBodyEvent { kind: 0, node: 0, scope: -1 }); }
@@ -8118,15 +8139,15 @@ fn gp_grow_check_variable_lookup(arr: i64[>..]&, new_len: i64) {
     while arr.len < new_len { arr.push(-1); }
 }
 
-fn gp_grow_check_proofs(arr: i64[>..]&, new_len: i64) {
-    while arr.len < new_len { arr.push(-2); }
+fn gp_grow_check_scope_column(arr: i64[>..]&, new_len: i64) {
+    while arr.len < new_len { arr.push(0); }
 }
 
 struct CheckBatchOut {
     function_node: i64 = -1, base: i64 = 0,
-    patches: CheckBodyPatch[:], events: CheckBodyEvent[:],
-    apply_nodes: Node[:], apply_proofs: i64[:],
-    patch_count: i64 = 0, proof_count: i64 = 0, event_count: i64 = 0,
+    relocs: CheckBodyReloc[:], events: CheckBodyEvent[:], scratch: i32[:],
+    apply_nodes: Node[:],
+    reloc_count: i64 = 0, event_count: i64 = 0,
     first_step: i64 = -1, last_step: i64 = -1, seen_call: bool = false,
     scope_count: i64 = 0, local_count: i64 = 0, installable: bool = true,
     status: i64 = 0, returns: bool = false,
@@ -8134,21 +8155,20 @@ struct CheckBatchOut {
     tables: CheckInstallTables, batches: CheckBodyBatch[:],
 }
 struct CheckBodyBatch {
-    base: i64, patch_at: i64, event_at: i64,
-    function_node: i64, patch_cap: i64, event_cap: i64,
-    patch_count: i64 = 0, proof_count: i64 = 0, event_count: i64 = 0,
+    base: i64, reloc_at: i64, event_at: i64,
+    function_node: i64, node_cap: i64, event_cap: i64,
+    reloc_count: i64 = 0, event_count: i64 = 0,
     first_step: i64 = -1, scope_count: i64 = 0, local_count: i64 = 0, installable: bool = false,
     status: i64 = 0, returns: bool = false, install: CheckBodyInstall = CheckBodyInstall {},
 }
 struct CheckBatchCtx {
-    program: const Program&, mode: i64 = 0, elem_bad: const bool[:],
+    program: const Program&, mode: i64 = 0, elem_bad: const bool[:], has_optional: bool = false,
     nodes: const Node[:], types: const Type[:], symbols: const Symbol[:],
     tokens: const Token[:], text: const u8[:],
     scopes: const CheckScope[:], names: const i32[:],
     link_scopes: const i32[:], hashes: const i32[:],
     functions: const i32[:], fixed_arrays: const i32[:], value_types: const bool[:],
     install_batches: const CheckBodyBatch[:], install_pending: const i32[:],
-    install_proof_start: i64 = -1,
 }
 struct CheckBodyState {
     scope: i64 = -1, local_count: i64 = 0,
@@ -8160,15 +8180,62 @@ inline fn check_body_scalar(ty: i64) -> bool {
     return ty == TYPE_I64 || ty == TYPE_BOOL || ty == TYPE_F64;
 }
 inline fn check_body_patchable(out: const CheckBatchOut&, node: i64) -> bool {
-    return node >= out.base && node - out.base < out.patches.len;
+    return node >= out.base && node - out.base < out.apply_nodes.len;
 }
-inline fn check_body_patch(out: CheckBatchOut&, node: i64, patch: CheckBodyPatch) {
+inline fn check_body_local_symbol(bits: i64) -> i64 {
+    return (bits >> CHECK_BODY_SYMBOL_SHIFT) & CHECK_BODY_EVENT_MASK;
+}
+inline fn check_body_proof(out: const CheckBatchOut&, node: i64) -> i32 {
+    let bits = out.scratch[node - out.base] as i64;
+    let proof = (bits >> CHECK_BODY_PROOF_SHIFT) & 3;
+    if proof == 2 { return (-check_body_local_symbol(bits) - 9) as i32; }
+    return (proof - 2) as i32;
+}
+inline fn check_body_nonconstant(out: const CheckBatchOut&, node: i64) -> i64 {
+    return (out.scratch[node - out.base] as i64) & CHECK_BODY_NONCONSTANT;
+}
+// Leave parser scopes in place until commit. All overwritten fields must
+// have their initial values so the relocation log can also undo the writes.
+inline fn check_body_pristine(n: const Node&) -> bool {
+    return n.type_id == -1 && n.symbol == -1 && (n.flags & CHECK_BODY_FLAG_MASK) == 0;
+}
+inline fn check_body_write(out: CheckBatchOut&, n: Node&, index: i64, patch: CheckBodyUpdate) -> bool {
+    let at = out.reloc_count;
+    if at >= out.relocs.len { return false; }
+    var bits = index | ((patch.scope as i64 + 1) << CHECK_BODY_SCOPE_SHIFT);
+    if patch.symbol <= -10 { bits |= (-patch.symbol as i64 - 9) << CHECK_BODY_SYMBOL_SHIFT; }
+    else if patch.symbol >= 0 { n.symbol = patch.symbol; }
+    if patch.aux >= 0 { n.aux = patch.aux as i64; bits |= CHECK_BODY_AUX_WRITTEN; }
+    if patch.last >= 0 { n.last = patch.last; bits |= CHECK_BODY_LAST_WRITTEN; }
+    n.flags |= patch.flags & CHECK_BODY_FLAG_MASK;
+    n.type_id = patch.type_id;
+    out.relocs[at].bits = bits as i32;
+    out.reloc_count = at + 1;
+    // Expression proofs are used only within this body. A local's proof
+    // escapes in its declaration event, where it is mapped with its symbol.
+    if patch.proof == -1 { bits |= 1 << CHECK_BODY_PROOF_SHIFT; }
+    else if patch.proof <= -10 { bits |= 2 << CHECK_BODY_PROOF_SHIFT; }
+    out.scratch[index] = (bits | (patch.flags & CHECK_BODY_NONCONSTANT)) as i32;
+    return true;
+}
+
+inline fn check_body_patch(out: CheckBatchOut&, node: i64, patch: CheckBodyUpdate) -> bool {
     let index = node - out.base;
-    out.patches[index] = patch;
-    out.patches[index].flags |= CHECK_BODY_PATCHED;
-    if index >= out.patch_count { out.patch_count = index + 1; }
-    if patch.proof != -2 && index >= out.proof_count { out.proof_count = index + 1; }
+    let n: Node& = out.apply_nodes[index];
+    return check_body_pristine(n) && check_body_write(out, n, index, patch);
 }
+
+fn check_body_rollback(nodes: Node[:], relocs: const CheckBodyReloc[:]) {
+    for reloc in relocs {
+        let bits = reloc.bits as i64;
+        let n: Node& = nodes[bits & CHECK_BODY_OFFSET_MASK];
+        n.flags &= ~CHECK_BODY_FLAG_MASK;
+        n.type_id = -1; n.symbol = -1;
+        if (bits & CHECK_BODY_AUX_WRITTEN) != 0 { n.aux = -1; }
+        if (bits & CHECK_BODY_LAST_WRITTEN) != 0 { n.last = -1; }
+    }
+}
+
 fn check_body_event(out: CheckBatchOut&, kind: i64, node: i64, scope: i64, value: i64 = -1) -> i64 {
     let at = out.event_count;
     if at >= out.events.len { return -1; }
@@ -8261,6 +8328,7 @@ recursive fn check_body_type(ctx: const CheckBatchCtx&, out: CheckBatchOut&, sta
         }
     } else if n.kind == N_TYPE_ARRAY && n.integer == A_FIXED && n.third < 0 && n.right >= 0 {
         // The bound is resolved as a constant without checking it as an expression.
+        if !check_body_patchable(out, n.right) { return -1; }
         let size: const Node& = ctx.nodes[n.right];
         if size.kind != N_INTEGER || (size.flags & F_UNSIGNED) != 0 || size.integer < 0 { return -1; }
         let element = check_body_type(ctx, out, state, n.left);
@@ -8271,7 +8339,7 @@ recursive fn check_body_type(ctx: const CheckBatchCtx&, out: CheckBatchOut&, sta
         }
     }
     if ty < 0 || !ctx.value_types[ty] { return -1; }
-    check_body_patch(out, id, CheckBodyPatch { type_id: ty as i32, symbol: symbol as i32 });
+    if !check_body_patch(out, id, CheckBodyUpdate { type_id: ty as i32, symbol: symbol as i32 }) { return -1; }
     return ty;
 }
 fn check_body_local(ctx: const CheckBatchCtx&, out: CheckBatchOut&, state: CheckBodyState&, id: i64, ty: i64, proof: i32, flags: i64) -> bool {
@@ -8283,19 +8351,18 @@ fn check_body_local(ctx: const CheckBatchCtx&, out: CheckBatchOut&, state: Check
     state.local_names[state.local_count] = t.text_start;
     state.locals[state.local_count] = event as i32;
     state.local_count += 1;
-    check_body_patch(out, id, CheckBodyPatch { flags: flags, type_id: ty as i32, symbol: (-event - 10) as i32 });
-    return true;
+    return check_body_patch(out, id, CheckBodyUpdate { flags: flags, type_id: ty as i32, symbol: (-event - 10) as i32 });
 }
-fn check_body_binding(ctx: const CheckBatchCtx&, out: const CheckBatchOut&, symbol: i64, patch: CheckBodyPatch&) -> bool {
+fn check_body_binding(ctx: const CheckBatchCtx&, out: const CheckBatchOut&, symbol: i64, patch: CheckBodyUpdate&) -> bool {
     patch.symbol = symbol as i32;
     patch.flags |= CHECK_BODY_NONCONSTANT;
     if symbol <= -10 {
         let event: const CheckBodyEvent& = out.events[-symbol - 10];
         let decl = event.node as i64;
         let n: const Node& = ctx.nodes[decl];
-        patch.type_id = out.patches[decl - out.base].type_id;
+        patch.type_id = n.type_id;
         if event.value >= -1 || event.value <= -10 { patch.proof = symbol as i32; }
-        if n.kind == N_VARIABLE && (n.flags & F_VAR) == 0 { patch.flags &= ~CHECK_BODY_NONCONSTANT; patch.flags |= out.patches[n.right - out.base].flags & CHECK_BODY_NONCONSTANT; }
+        if n.kind == N_VARIABLE && (n.flags & F_VAR) == 0 { patch.flags &= ~CHECK_BODY_NONCONSTANT; patch.flags |= check_body_nonconstant(out, n.right); }
         return true;
     }
     if symbol < 0 { return false; }
@@ -8311,11 +8378,11 @@ fn check_body_write_root(ctx: const CheckBatchCtx&, out: const CheckBatchOut&, i
         if !check_body_patchable(out, at) { return -1; }
         let n: const Node& = ctx.nodes[at];
         if n.kind == N_NAME {
-            let symbol = out.patches[at - out.base].symbol as i64;
-            if symbol > -10 { return -1; }
-            let decl = out.events[-symbol - 10].node as i64;
+            let symbol = check_body_local_symbol(out.scratch[at - out.base] as i64);
+            if symbol == 0 { return -1; }
+            let decl = out.events[symbol - 1].node as i64;
             if (ctx.nodes[decl].flags & F_VAR) == 0 { return -1; }
-            return symbol;
+            return -symbol - 9;
         }
         if n.kind != N_MEMBER && n.kind != N_INDEX { return -1; }
         at = n.left;
@@ -8324,7 +8391,7 @@ fn check_body_write_root(ctx: const CheckBatchCtx&, out: const CheckBatchOut&, i
 inline fn check_body_comparison(op: i64) -> bool {
     return op == T_EQ || op == T_NEQ || op == T_LT || op == T_LTEQ || op == T_GT || op == T_GTEQ;
 }
-recursive fn check_body_block(ctx: const CheckBatchCtx&, out: CheckBatchOut&, state: CheckBodyState&, node: i64, expected: i64, patch: CheckBodyPatch&) -> i64 {
+recursive fn check_body_block(ctx: const CheckBatchCtx&, out: CheckBatchOut&, state: CheckBodyState&, node: i64, expected: i64, patch: CheckBodyUpdate&) -> i64 {
     let n: const Node& = ctx.nodes[node];
     if (n.flags & F_TAIL) != 0 { return -1; }
     let saved = state.scope; let locals = state.local_count;
@@ -8333,10 +8400,11 @@ recursive fn check_body_block(ctx: const CheckBatchCtx&, out: CheckBatchOut&, st
     patch.scope = state.scope as i32;
     var child = n.first;
     while child >= 0 {
-        if !state.reachable { return -1; }
+        if !state.reachable || !check_body_patchable(out, child) { return -1; }
         let item: const Node& = ctx.nodes[child];
         if item.kind == N_VARIABLE {
-            if (item.flags & ~F_VAR) != 0 || item.first >= 0 || item.right < 0 || ctx.nodes[item.right].next >= 0 { return -1; }
+            if (item.flags & ~F_VAR) != 0 || item.first >= 0 ||
+                !check_body_patchable(out, item.right) || ctx.nodes[item.right].next >= 0 { return -1; }
             state.scope = check_body_event(out, CHECK_BODY_SCOPE, child, state.scope, 1);
             if state.scope < 0 { return -1; }
             var annotation = -1;
@@ -8347,7 +8415,7 @@ recursive fn check_body_block(ctx: const CheckBatchCtx&, out: CheckBatchOut&, st
             let ty = check_body_expr(ctx, out, state, item.right, annotation);
             if ty <= TYPE_VOID { return -1; }
             var proof: i32 = -2;
-            if ty == TYPE_I64 && (item.flags & F_VAR) == 0 { proof = out.patches[item.right - out.base].proof; }
+            if ty == TYPE_I64 && (item.flags & F_VAR) == 0 { proof = check_body_proof(out, item.right); }
             if !check_body_local(ctx, out, state, child, ty, proof, F_CHECKED) { return -1; }
         } else {
             if check_body_expr(ctx, out, state, child, TYPE_VOID) < 0 { return -1; }
@@ -8358,8 +8426,8 @@ recursive fn check_body_block(ctx: const CheckBatchCtx&, out: CheckBatchOut&, st
     if state.reachable && expected > TYPE_VOID { return -1; }
     return TYPE_VOID;
 }
-recursive fn check_body_call(ctx: const CheckBatchCtx&, out: CheckBatchOut&, state: CheckBodyState&, n: const Node&, patch: CheckBodyPatch&) -> i64 {
-    if n.third >= 0 || !check_body_patchable(out, n.left) { return -1; }
+recursive fn check_body_call(ctx: const CheckBatchCtx&, out: CheckBatchOut&, state: CheckBodyState&, n: const Node&, patch: CheckBodyUpdate&) -> i64 {
+    if n.third >= 0 || n.last != -1 || !check_body_patchable(out, n.left) { return -1; }
     let name: const Node& = ctx.nodes[n.left];
     if name.kind != N_NAME || !check_body_simple_name(name) { return -1; }
     let symbol = check_body_name(ctx, out, state, name.token, S_FUNCTION);
@@ -8373,19 +8441,19 @@ recursive fn check_body_call(ctx: const CheckBatchCtx&, out: CheckBatchOut&, sta
         last = actual; actual = ctx.nodes[actual].next; formal = ctx.nodes[formal].next;
     }
     if formal >= 0 || actual >= 0 || check_body_event(out, CHECK_BODY_CALL, s.node, symbol, n.token) < 0 { return -1; }
-    check_body_patch(out, n.left, CheckBodyPatch { symbol: symbol as i32 });
+    if !check_body_patch(out, n.left, CheckBodyUpdate { symbol: symbol as i32 }) { return -1; }
     patch.symbol = symbol as i32; patch.last = last as i32; patch.flags |= CHECK_BODY_NONCONSTANT;
     return ctx.types[s.type_id].element;
 }
-recursive fn check_body_match(ctx: const CheckBatchCtx&, out: CheckBatchOut&, state: CheckBodyState&, n: const Node&, expected: i64, patch: CheckBodyPatch&) -> i64 {
-    if expected != TYPE_I64 || check_body_expr(ctx, out, state, n.left, TYPE_I64) != TYPE_I64 { return -1; }
+recursive fn check_body_match(ctx: const CheckBatchCtx&, out: CheckBatchOut&, state: CheckBodyState&, n: const Node&, expected: i64, patch: CheckBodyUpdate&) -> i64 {
+    if n.aux != -1 || expected != TYPE_I64 || check_body_expr(ctx, out, state, n.left, TYPE_I64) != TYPE_I64 { return -1; }
     var patterns: i64[32] = [0; 32]; var count = 0; var wildcard = false; var nonconstant = false;
     let saved = state.scope;
     var arm = n.first;
     while arm >= 0 {
         if wildcard || !check_body_patchable(out, arm) { return -1; }
         let a: const Node& = ctx.nodes[arm];
-        if a.kind != N_ARM || a.third >= 0 { return -1; }
+        if a.kind != N_ARM || a.third >= 0 || !check_body_patchable(out, a.left) { return -1; }
         let pattern: const Node& = ctx.nodes[a.left];
         if pattern.left >= 0 { return -1; }
         wildcard = (pattern.flags & F_DEFAULT) != 0;
@@ -8396,13 +8464,13 @@ recursive fn check_body_match(ctx: const CheckBatchCtx&, out: CheckBatchOut&, st
             if literal.kind != N_INTEGER || literal.next >= 0 || (literal.flags & F_UNSIGNED) != 0 { return -1; }
             for i in 0..count { if patterns[i] == literal.integer { return -1; } }
             patterns[count] = literal.integer; count += 1;
-            check_body_patch(out, item, CheckBodyPatch { flags: F_CHECKED, type_id: TYPE_I64 as i32 });
+            if !check_body_patch(out, item, CheckBodyUpdate { flags: F_CHECKED, type_id: TYPE_I64 as i32 }) { return -1; }
         }
         state.scope = check_body_event(out, CHECK_BODY_SCOPE, arm, saved);
         if state.scope < 0 { return -1; }
-        check_body_patch(out, arm, CheckBodyPatch { scope: state.scope as i32 });
+        if !check_body_patch(out, arm, CheckBodyUpdate { scope: state.scope as i32 }) { return -1; }
         if check_body_expr(ctx, out, state, a.right, TYPE_I64) != TYPE_I64 || !state.reachable { return -1; }
-        nonconstant = nonconstant || (out.patches[a.right - out.base].flags & CHECK_BODY_NONCONSTANT) != 0;
+        nonconstant = nonconstant || (check_body_nonconstant(out, a.right)) != 0;
         arm = a.next;
     }
     state.scope = saved;
@@ -8424,7 +8492,7 @@ recursive fn check_body_aggregate(ctx: const CheckBatchCtx&, out: CheckBatchOut&
             if init.kind != N_BINDING || init.left >= 0 || init.aux >= 0 || init.flags != 0 ||
                 init.token >= 0 && !check_body_same(ctx, init.token, f.token) { return -1; }
             if check_body_expr(ctx, out, state, init.right, f.type_id) != f.type_id { return -1; }
-            check_body_patch(out, item, CheckBodyPatch { type_id: f.type_id, symbol: field as i32 });
+            if !check_body_patch(out, item, CheckBodyUpdate { type_id: f.type_id, symbol: field as i32 }) { return -1; }
             field = f.next; item = init.next; count += 1;
         }
         if count == 0 || field >= 0 || item >= 0 { return -1; }
@@ -8441,12 +8509,13 @@ recursive fn check_body_aggregate(ctx: const CheckBatchCtx&, out: CheckBatchOut&
     return expected;
 }
 recursive fn check_body_expr(ctx: const CheckBatchCtx&, out: CheckBatchOut&, state: CheckBodyState&, id: i64, expected: i64) -> i64 {
-    if state.depth >= 128 || !check_body_patchable(out, id) { return -1; }
+    let offset = id - out.base;
+    if state.depth >= 128 || offset < 0 || offset >= out.apply_nodes.len { return -1; }
     // An error aborts the entire body, so only success restores the depth.
     state.depth += 1;
-    let n: const Node& = ctx.nodes[id]; let kind = n.kind;
-    if n.type_id >= 0 || n.symbol >= 0 || (n.flags & (F_TAIL | F_EARLY | F_CHECKED | F_SYNTHETIC | F_UNSIGNED | F_NONLOCAL)) != 0 { return -1; }
-    var patch = CheckBodyPatch { flags: F_REACHABLE | F_CHECKED, scope: state.scope as i32 };
+    let n: Node& = out.apply_nodes[offset]; let kind = n.kind;
+    if !check_body_pristine(n) || (n.flags & (F_TAIL | F_EARLY | F_SYNTHETIC | F_UNSIGNED | F_NONLOCAL)) != 0 { return -1; }
+    var patch = CheckBodyUpdate { flags: F_REACHABLE | F_CHECKED, scope: state.scope as i32 };
     var ty = -1;
     if kind == N_INTEGER { ty = TYPE_I64; if n.integer >= 0 { patch.proof = -1; } }
     else if kind == N_BOOL { ty = TYPE_BOOL; }
@@ -8457,6 +8526,7 @@ recursive fn check_body_expr(ctx: const CheckBatchCtx&, out: CheckBatchOut&, sta
         if !check_body_binding(ctx, out, symbol, patch) { return -1; }
         ty = patch.type_id as i64;
     } else if kind == N_BINARY {
+        if n.aux != -1 { return -1; }
         let l = check_body_expr(ctx, out, state, n.left, -1);
         if !check_body_scalar(l) || check_body_expr(ctx, out, state, n.right, -1) != l { return -1; }
         let op = n.integer; let comparison = check_body_comparison(op);
@@ -8469,11 +8539,11 @@ recursive fn check_body_expr(ctx: const CheckBatchCtx&, out: CheckBatchOut&, sta
             patch.aux = l as i32; ty = l;
             if comparison { ty = TYPE_BOOL; }
         }
-        patch.flags |= (out.patches[n.left - out.base].flags | out.patches[n.right - out.base].flags) & CHECK_BODY_NONCONSTANT;
+        patch.flags |= check_body_nonconstant(out, n.left) | check_body_nonconstant(out, n.right);
     } else if kind == N_UNARY {
         ty = check_body_expr(ctx, out, state, n.left, -1);
         if !(n.integer == T_MINUS && (ty == TYPE_I64 || ty == TYPE_F64) || n.integer == T_NOT && ty == TYPE_BOOL) { return -1; }
-        patch.flags |= out.patches[n.left - out.base].flags & CHECK_BODY_NONCONSTANT;
+        patch.flags |= check_body_nonconstant(out, n.left);
     } else if kind == N_MEMBER {
         if n.aux >= 0 { return -1; }
         let source = check_body_expr(ctx, out, state, n.left, -1);
@@ -8493,7 +8563,7 @@ recursive fn check_body_expr(ctx: const CheckBatchCtx&, out: CheckBatchOut&, sta
         if index.kind == N_INTEGER {
             if index.integer < 0 || index.integer >= ctx.types[source].count { return -1; }
             patch.flags |= F_BOUNDS_PROVEN;
-        } else if (out.patches[n.right - out.base].flags & CHECK_BODY_NONCONSTANT) == 0 { return -1; }
+        } else if (check_body_nonconstant(out, n.right)) == 0 { return -1; }
         ty = ctx.types[source].element; patch.flags |= CHECK_BODY_NONCONSTANT;
     } else if kind == N_ARRAY || kind == N_RECORD {
         ty = check_body_aggregate(ctx, out, state, n, expected);
@@ -8517,9 +8587,9 @@ recursive fn check_body_expr(ctx: const CheckBatchCtx&, out: CheckBatchOut&, sta
         patch.scope = state.scope as i32;
         if kind == N_WHILE {
             if check_body_expr(ctx, out, state, n.left, TYPE_BOOL) != TYPE_BOOL ||
-                (out.patches[n.left - out.base].flags & CHECK_BODY_NONCONSTANT) == 0 { return -1; }
+                (check_body_nonconstant(out, n.left)) == 0 { return -1; }
         } else {
-            if check_body_expr(ctx, out, state, n.left, CHECK_BODY_FOR_SOURCE) != TYPE_I64 || n.first < 0 { return -1; }
+            if check_body_expr(ctx, out, state, n.left, CHECK_BODY_FOR_SOURCE) != TYPE_I64 || !check_body_patchable(out, n.first) { return -1; }
             let binding: const Node& = ctx.nodes[n.first];
             if binding.kind != N_BINDING || binding.flags != 0 || binding.left >= 0 || binding.next >= 0 ||
                 !check_body_local(ctx, out, state, n.first, TYPE_I64, -2, 0) { return -1; }
@@ -8537,14 +8607,15 @@ recursive fn check_body_expr(ctx: const CheckBatchCtx&, out: CheckBatchOut&, sta
             target == TYPE_BOOL && source == TYPE_F64 || target == TYPE_F64 && source == TYPE_BOOL { return -1; }
         ty = target; patch.flags |= CHECK_BODY_NONCONSTANT;
     } else if kind == N_ASSIGN && n.integer == T_ASSIGN {
+        if !check_body_patchable(out, n.left) { return -1; }
         let lhs: const Node& = ctx.nodes[n.left];
         var dest = -1;
         if lhs.kind == N_NAME {
-            if !check_body_patchable(out, n.left) || !check_body_simple_name(lhs) { return -1; }
-            var place = CheckBodyPatch {};
+            if !check_body_simple_name(lhs) { return -1; }
+            var place = CheckBodyUpdate {};
             if !check_body_binding(ctx, out, check_body_name(ctx, out, state, lhs.token, 0), place) { return -1; }
             dest = place.type_id as i64; place.proof = -2;
-            check_body_patch(out, n.left, place);
+            if !check_body_patch(out, n.left, place) { return -1; }
         } else { dest = check_body_expr(ctx, out, state, n.left, -1); }
         if !check_body_scalar(dest) { return -1; }
         let symbol = check_body_write_root(ctx, out, n.left);
@@ -8556,7 +8627,7 @@ recursive fn check_body_expr(ctx: const CheckBatchCtx&, out: CheckBatchOut&, sta
         if n.left >= 0 { return -1; }
         let result = ctx.types[ctx.nodes[out.function_node].type_id].element;
         if n.first >= 0 {
-            if result == TYPE_VOID || ctx.nodes[n.first].next >= 0 || check_body_expr(ctx, out, state, n.first, result) != result ||
+            if result == TYPE_VOID || check_body_expr(ctx, out, state, n.first, result) != result || ctx.nodes[n.first].next >= 0 ||
                 check_body_event(out, CHECK_BODY_RETURN, n.first, state.scope, result) < 0 { return -1; }
         } else if result != TYPE_VOID { return -1; }
         patch.symbol = ctx.nodes[out.function_node].symbol;
@@ -8567,14 +8638,14 @@ recursive fn check_body_expr(ctx: const CheckBatchCtx&, out: CheckBatchOut&, sta
     if !state.reachable { patch.flags |= F_DIVERGES; }
     // A terminal block has no raw type in the serial checker.
     if kind != N_BLOCK || state.reachable { patch.type_id = ty as i32; }
-    check_body_patch(out, id, patch);
+    if !check_body_write(out, n, offset, patch) { return -1; }
     return ty;
 }
 
 // Mirror the node order of check_validate_program and reuse its validators.
 // The worker's Program shares input tables but owns its diagnostic sink.
 // Extern normalization is the only AST write in these validators.
-fn check_validate_program_nodes(p: Program&, first: i64, end: i64, elem_bad: const bool[:]) -> bool {
+fn check_validate_program_nodes(p: Program&, first: i64, end: i64, elem_bad: const bool[:], has_optional: bool) -> bool {
     for node in first..end {
         if p.diagnostics.len != 0 { return false; }
         let n: const Node& = p.nodes[node];
@@ -8625,7 +8696,7 @@ fn check_validate_program_nodes(p: Program&, first: i64, end: i64, elem_bad: con
             }
         } else if kind == N_CAST && n.right >= 0 && validation_varint(p, p.nodes[n.right].type_id) {
             diagnose(p, tok, "cannot cast to varint (varints are written at construction only)");
-        } else if kind == N_BINARY {
+        } else if kind == N_BINARY && has_optional {
             var inspect = true;
             if n.integer == T_DOTEQ || n.integer == T_DOTNEQ || n.integer == T_ANDAND || n.integer == T_OROR { inspect = false; }
             if (n.integer == T_EQ || n.integer == T_NEQ) && n.left >= 0 && n.right >= 0 &&
@@ -8633,12 +8704,12 @@ fn check_validate_program_nodes(p: Program&, first: i64, end: i64, elem_bad: con
             if inspect && (validation_optional(p, n.left) || validation_optional(p, n.right)) {
                 diagnose(p, tok, "optional reference must be narrowed before a value operation");
             }
-        } else if kind == N_UNARY {
+        } else if kind == N_UNARY && has_optional {
             if (n.integer == T_MUL || n.integer == T_MINUS || n.integer == T_BITNOT ||
                 n.integer == T_INC || n.integer == T_DEC) && validation_optional(p, n.left) {
                 diagnose(p, tok, "optional reference must be narrowed before dereferencing");
             }
-        } else if kind == N_MEMBER || kind == N_INDEX || kind == N_SLICE {
+        } else if has_optional && (kind == N_MEMBER || kind == N_INDEX || kind == N_SLICE) {
             if validation_optional(p, n.left) { diagnose(p, tok, "optional reference must be narrowed before access"); }
         } else if kind == N_BLOCK {
             if n.last >= 0 && (p.nodes[n.last].flags & F_TAIL) != 0 && p.nodes[n.last].kind != N_RETURN {
@@ -8672,7 +8743,7 @@ fn check_validate_range(ctx: const CheckBatchCtx&, out: CheckBatchOut&) {
     local.diagnostics .= diagnostics;
     local.messages .= messages;
     local.has_checked_checkfree = false;
-    if !check_validate_program_nodes(local, out.base, out.validation_end, ctx.elem_bad) {
+    if !check_validate_program_nodes(local, out.base, out.validation_end, ctx.elem_bad, ctx.has_optional) {
         out.status = 1; return;
     }
     out.checked_checkfree = local.has_checked_checkfree;
@@ -8682,8 +8753,12 @@ fn check_validate_parallel(p: Program&, c: Checker&) -> bool {
 
     let type_count = p.types.len;
     var elem_bad: bool[>..] = []; elem_bad.resize(type_count, false);
+    var has_optional = false;
+    var has_index_owners = false;
     for tid in 0..type_count {
         let t: const Type& = p.types[tid];
+        if t.kind == TY_REF && (t.flags & TF_OPTIONAL) != 0 { has_optional = true; }
+        if t.kind == TY_INT && t.index_type >= 0 && t.pool >= 0 { has_index_owners = true; }
         if t.kind == TY_ARRAY || t.kind == TY_SLICE {
             let elem = t.element;
             if root_struct_type(p, elem) || validation_zero_layout(p, elem) || (elem >= 0 && p.types[elem].kind == TY_FN) {
@@ -8691,7 +8766,7 @@ fn check_validate_parallel(p: Program&, c: Checker&) -> bool {
             }
         }
     }
-    var patches: CheckBodyPatch[>..] = [];
+    var relocs: CheckBodyReloc[>..] = [];
     var events: CheckBodyEvent[>..] = [];
     var outputs: CheckBatchOut[>..] = [];
     let count = p.nodes.len;
@@ -8699,12 +8774,12 @@ fn check_validate_parallel(p: Program&, c: Checker&) -> bool {
     for i in 0..chunks {
         let first = count * i / chunks;
         let end = count * (i + 1) / chunks;
-        outputs.push(CheckBatchOut { base: first, patches: patches[..], events: events[..],
-            apply_nodes: p.nodes[..0], apply_proofs: c.node_nonnegative[..0], validation_end: end,
+        outputs.push(CheckBatchOut { base: first, relocs: relocs[..], events: events[..], scratch: c.batch_index[..0],
+            apply_nodes: p.nodes[..0], validation_end: end,
             tables: CheckInstallTables { scopes: c.scopes[..0], symbols: p.symbols[..0],
                 variables: c.variables[..0], variable_lookup: c.variable_lookup[..0] }, batches: c.batch_out[..0] });
     }
-    let ctx = CheckBatchCtx { program: p, mode: 1, elem_bad: elem_bad[..],
+    let ctx = CheckBatchCtx { program: p, mode: 1, elem_bad: elem_bad[..], has_optional: has_optional,
         nodes: p.nodes[..], types: p.types[..], symbols: p.symbols[..], tokens: p.tokens[..], text: p.text[..],
         scopes: c.scopes[..], names: c.name_table[..], link_scopes: c.link_scopes[..], hashes: c.name_hashes[..],
         functions: c.batch_index[..], fixed_arrays: c.batch_index[..0], value_types: elem_bad[..0],
@@ -8716,7 +8791,7 @@ fn check_validate_parallel(p: Program&, c: Checker&) -> bool {
         checked_checkfree = checked_checkfree || out.checked_checkfree;
     }
     p.has_checked_checkfree = checked_checkfree;
-    validation_index_owners(p);
+    if has_index_owners { validation_index_owners(p); }
     for tid in 0..p.types.len {
         let t: const Type& = p.types[tid];
         if t.kind != TY_STRUCT { continue; }
@@ -8752,21 +8827,22 @@ fn check_validate_types(p: Program&) {
 }
 
 fn check_body_precheck_range(ctx: const CheckBatchCtx&, bucket: CheckBatchOut&) {
+    // Readers only look up a local or a child after its successful visit.
+    var scratch: i32[1024] = [0; 1024];
     for i in bucket.base..bucket.validation_end {
         let item: CheckBodyBatch& = bucket.batches[i];
         var work = CheckBatchOut { function_node: item.function_node, base: item.base,
-            patches: bucket.patches[item.patch_at..item.patch_at + item.patch_cap],
-            events: bucket.events[item.event_at..item.event_at + item.event_cap],
-            apply_nodes: bucket.apply_nodes, apply_proofs: bucket.apply_proofs,
+            relocs: bucket.relocs[item.reloc_at..item.reloc_at + item.node_cap],
+            events: bucket.events[item.event_at..item.event_at + item.event_cap], scratch: scratch[..],
+            apply_nodes: bucket.apply_nodes[item.base..item.base + item.node_cap],
             tables: bucket.tables, batches: bucket.batches[..0] };
-        // A zero flag marks an unwritten patch. Other fields are assigned as
-        // a whole when the worker visits the node.
-        for at in 0..work.patches.len { work.patches[at].flags = 0; }
         var state = CheckBodyState {};
         let result = ctx.types[ctx.nodes[item.function_node].type_id].element;
-        if check_body_expr(ctx, work, state, item.base, TYPE_VOID) < 0 ||
-            state.reachable && result != TYPE_VOID { continue; }
-        item.patch_count = work.patch_count; item.proof_count = work.proof_count;
+        if check_body_expr(ctx, work, state, item.base, TYPE_VOID) < 0 || state.reachable && result != TYPE_VOID {
+            check_body_rollback(work.apply_nodes, work.relocs[..work.reloc_count]);
+            continue;
+        }
+        item.reloc_count = work.reloc_count;
         item.event_count = work.event_count; item.first_step = work.first_step;
         item.scope_count = work.scope_count; item.local_count = work.local_count;
         item.installable = work.installable; item.returns = state.returns;
@@ -8831,7 +8907,8 @@ fn check_body_checked_leaf(p: Program&, c: Checker&, id: i64) -> bool {
 }
 fn check_body_batch_start(p: Program&, c: Checker&, declarations: i64, wait_for_first_body: bool) {
     c.batch_deferred = 0;
-    if p.jobs <= 1 || p.diagnostics.len != 0 ||
+    // Optional globals can force syntax-preserving clones of checked bodies.
+    if p.jobs <= 1 || p.diagnostics.len != 0 || c.optional_globals ||
         p.nodes.len >= 2147483647 || p.symbols.len >= 2147483647 || p.types.len >= 2147483647 { return; }
     var candidates: i64[>..] = [];
     for i in 0..declarations {
@@ -8877,33 +8954,34 @@ fn check_body_batch_start(p: Program&, c: Checker&, declarations: i64, wait_for_
             check_body_candidate(p, s.node) && check_body_signature(p, s.node) && check_body_checked_leaf(p, c, s.node) { c.batch_index[i] = -2; }
     }
     // The high half sorts by body base. Fence every speculative window at
-    // the next base, so both node patches and proof writes are disjoint.
+    // the next base. Body traversal checks the fence before reading syntax.
+    // Top-level signatures and nominal layout metadata are read-only.
     candidates[..].sort();
-    var patch_total = 0; var event_total = 0;
+    var reloc_total = 0; var event_total = 0;
     for candidate, i in candidates {
         let body = candidate >> 32;
         let node = candidate & 4294967295;
         var cap = p.nodes[body].last - body + 32;
-        if cap < 32 { cap = 32; } else if cap > 1024 { cap = 1024; }
+        if cap < 32 { cap = 32; } else if cap > CHECK_BODY_WINDOW { cap = CHECK_BODY_WINDOW; }
         var limit = p.nodes.len;
         if i + 1 < candidates.len { limit = candidates[i + 1] >> 32; }
         if cap > limit - body { cap = limit - body; }
         if i > 0 && (candidates[i - 1] >> 32) == body { cap = 0; }
         let events = cap / 5 + 8;
         c.batch_index[p.nodes[node].symbol] = i as i32;
-        c.batch_out.push(CheckBodyBatch { base: body, patch_at: patch_total, event_at: event_total,
-            function_node: node, patch_cap: cap, event_cap: events });
-        patch_total += cap; event_total += events;
+        c.batch_out.push(CheckBodyBatch { base: body, reloc_at: reloc_total, event_at: event_total,
+            function_node: node, node_cap: cap, event_cap: events });
+        reloc_total += cap; event_total += events;
     }
     // Main reserves the backing arrays before workers receive their views.
-    gp_grow_check_patches(c.batch_patches, patch_total);
+    gp_grow_check_relocs(c.batch_relocs, reloc_total);
     gp_grow_check_events(c.batch_events, event_total);
     var outputs: CheckBatchOut[>..] = [];
     let buckets = p.jobs * 4;
     for i in 0..buckets {
         outputs.push(CheckBatchOut { base: candidates.len * i / buckets,
-            patches: c.batch_patches[..], events: c.batch_events[..],
-            apply_nodes: p.nodes[..0], apply_proofs: c.node_nonnegative[..0],
+            relocs: c.batch_relocs[..], events: c.batch_events[..], scratch: c.batch_index[..0],
+            apply_nodes: p.nodes[..],
             validation_end: candidates.len * (i + 1) / buckets,
             tables: CheckInstallTables { scopes: c.scopes[..0], symbols: p.symbols[..0],
                 variables: c.variables[..0], variable_lookup: c.variable_lookup[..0] },
@@ -8917,9 +8995,32 @@ fn check_body_batch_start(p: Program&, c: Checker&, declarations: i64, wait_for_
 
 }
 
-recursive fn check_body_batch_ready(c: Checker&, index: i64) -> bool {
+fn check_body_discard(p: Program&, c: Checker&, index: i64, invalidate_ready: bool = false) {
+    let out: CheckBodyBatch& = c.batch_out[index];
+    if out.status != CHECK_BODY_FALLBACK && out.status != CHECK_BODY_COMMITTED {
+        check_body_rollback(p.nodes[out.base..out.base + out.node_cap],
+            c.batch_relocs[out.reloc_at..out.reloc_at + out.reloc_count]);
+        out.status = CHECK_BODY_FALLBACK;
+        if invalidate_ready {
+            // An earlier dependency walk can have cached readiness for an
+            // uncommitted caller before another branch of its graph failed.
+            for i in 0..c.batch_out.len {
+                if c.batch_out[i].status == CHECK_BODY_READY { c.batch_out[i].status = CHECK_BODY_PENDING; }
+            }
+        }
+    }
+}
+
+fn check_body_discard_function(p: Program&, c: Checker&, id: i64) {
+    let symbol = p.nodes[id].symbol;
+    if symbol < 0 || symbol >= c.batch_index.len { return; }
+    let index = c.batch_index[symbol] as i64;
+    if index >= 0 { check_body_discard(p, c, index, true); }
+}
+
+recursive fn check_body_batch_ready(p: Program&, c: Checker&, index: i64) -> bool {
     let status = c.batch_out[index].status;
-    if status != CHECK_BODY_PENDING { return status == CHECK_BODY_READY; }
+    if status != CHECK_BODY_PENDING { return status == CHECK_BODY_READY || status == CHECK_BODY_COMMITTED; }
     c.batch_out[index].status = CHECK_BODY_VISITING;
     let base = c.batch_out[index].event_at;
     var at = c.batch_out[index].first_step;
@@ -8929,8 +9030,8 @@ recursive fn check_body_batch_ready(c: Checker&, index: i64) -> bool {
         if e.kind as i64 != CHECK_BODY_CALL { continue; }
         let target = c.batch_index[e.scope as i64] as i64;
         if target == -2 { continue; }
-        if target < 0 || !check_body_batch_ready(c, target) {
-            c.batch_out[index].status = CHECK_BODY_FALLBACK; return false;
+        if target < 0 || !check_body_batch_ready(p, c, target) {
+            check_body_discard(p, c, index); return false;
         }
         if !c.batch_out[target].installable { c.batch_out[index].installable = false; }
     }
@@ -8941,26 +9042,15 @@ inline fn check_body_relocate(c: Checker&, base: i64, id: i64) -> i64 {
     if id <= -10 { return c.batch_events[base - id - 10].mapped as i64; }
     return id;
 }
-fn check_body_apply(nodes: Node[:], proofs: i64[:], patches: const CheckBodyPatch[:], events: const CheckBodyEvent[:]) {
-    for i in 0..nodes.len {
-        let patch: const CheckBodyPatch& = patches[i];
-        if (patch.flags & CHECK_BODY_PATCHED) == 0 { continue; }
-        let n: Node& = nodes[i];
-        n.flags |= patch.flags & ~(CHECK_BODY_NONCONSTANT | CHECK_BODY_PATCHED);
-        if patch.type_id >= 0 { n.type_id = patch.type_id; }
-        if patch.scope >= 0 { n.scope = events[patch.scope].mapped; }
-        if patch.symbol != -1 {
-            var symbol = patch.symbol as i64;
-            if symbol <= -10 { symbol = events[-symbol - 10].mapped as i64; }
-            n.symbol = symbol as i32;
-        }
-        if patch.aux >= 0 { n.aux = patch.aux as i64; }
-        if patch.last >= 0 { n.last = patch.last; }
-        if patch.proof != -2 {
-            var proof = patch.proof as i64;
-            if proof <= -10 { proof = events[-proof - 10].mapped as i64; }
-            proofs[i] = proof;
-        }
+fn check_body_apply(nodes: Node[:], relocs: const CheckBodyReloc[:], events: const CheckBodyEvent[:]) {
+    for reloc in relocs {
+        let bits = reloc.bits as i64;
+        if (bits & CHECK_BODY_RELOC_MASK) == 0 { continue; }
+        let scope = (bits >> CHECK_BODY_SCOPE_SHIFT) & CHECK_BODY_EVENT_MASK;
+        let local = check_body_local_symbol(bits);
+        let n: Node& = nodes[bits & CHECK_BODY_OFFSET_MASK];
+        if scope > 0 { n.scope = events[scope - 1].mapped; }
+        if local > 0 { n.symbol = events[local - 1].mapped; }
     }
 }
 // Each replayed local is the sole declaration in a fresh scope. Retain
@@ -8973,7 +9063,6 @@ fn check_declare_committed_local(p: Program&, c: Checker&, node: i64, scope: i64
     if (n.flags & F_VAR) != 0 { symbol_flags = S_MUTABLE; }
     p.symbols.push(Symbol { name_token: token, type_id: ty, node: node, scope: scope,
         slot: slot, flags: symbol_flags, owner: owner });
-    // The node patch supplies type_id, flags and symbol at the flush.
     n.scope = scope as i32;
     let row: CheckScope& = c.scopes[scope];
     row.decl_count = 1;
@@ -8992,8 +9081,6 @@ fn check_declare_committed_local(p: Program&, c: Checker&, node: i64, scope: i64
 }
 recursive fn check_body_commit(p: Program&, c: Checker&, id: i64, index: i64) {
     let out = c.batch_out[index];
-    // Other syntax-preservation triggers are excluded by batch eligibility.
-    if c.optional_globals { check_function_syntax(p, c, id); }
     let path = c.need_path; let root_scope = p.nodes[id].scope;
     var previous_variable = c.scopes[root_scope].first_variable;
     var slot = check_list_count(p, p.nodes[id].first);
@@ -9015,10 +9102,9 @@ recursive fn check_body_commit(p: Program&, c: Checker&, id: i64, index: i64) {
             c.batch_events[out.event_at + i].mapped = scope as i32;
         } else if kind == CHECK_BODY_LOCAL {
             let scope = c.batch_events[out.event_at + e.scope as i64].mapped as i64;
-            let patch: const CheckBodyPatch& = c.batch_patches[out.patch_at + node - out.base];
             let proof = check_body_relocate(c, out.event_at, e.value as i64);
             let vi = c.variables.len;
-            let symbol = check_declare_committed_local(p, c, node, scope, id, slot, patch.type_id as i64, proof, previous_variable);
+            let symbol = check_declare_committed_local(p, c, node, scope, id, slot, p.nodes[node].type_id as i64, proof, previous_variable);
             previous_variable = vi; slot += 1;
             c.batch_events[out.event_at + i].mapped = symbol as i32;
         } else if kind == CHECK_BODY_CALL {
@@ -9034,9 +9120,7 @@ recursive fn check_body_commit(p: Program&, c: Checker&, id: i64, index: i64) {
         }
     }
     c.scopes[root_scope].first_variable = previous_variable;
-    if out.proof_count > 0 && out.base + out.proof_count > c.batch_proof_end {
-        c.batch_proof_end = out.base + out.proof_count;
-    }
+    c.batch_out[index].status = CHECK_BODY_COMMITTED;
     c.batch_pending_apply.push(index as i32);
     p.nodes[id].flags |= F_CHECKED;
     if out.returns { p.nodes[id].flags |= F_RETURNS; }
@@ -9077,17 +9161,15 @@ recursive fn check_body_plan(p: Program&, c: Checker&, id: i64, index: i64, slot
     c.need_path = path;
     p.nodes[id].flags |= F_CHECKED;
     if out.returns { p.nodes[id].flags |= F_RETURNS; }
-    if out.proof_count > 0 && out.base + out.proof_count > c.batch_proof_end {
-        c.batch_proof_end = out.base + out.proof_count;
-    }
+    c.batch_out[index].status = CHECK_BODY_COMMITTED;
     c.batch_pending_apply.push(index as i32);
     c.batch_committed += 1;
 }
 
 fn check_body_install(tokens: const Token[:], row: CheckBatchOut&, out: const CheckBodyBatch&) {
     let events = row.events[out.event_at..out.event_at + out.event_count];
-    let patches = row.patches[out.patch_at..out.patch_at + out.patch_count];
-    let nodes = row.apply_nodes[out.base..out.base + out.patch_count];
+    let relocs = row.relocs[out.reloc_at..out.reloc_at + out.reloc_count];
+    let nodes = row.apply_nodes[out.base..out.base + out.node_cap];
     let install = out.install;
     if install.function_node >= 0 {
         let scopes = row.tables.scopes[install.scope_base..install.scope_base + out.scope_count];
@@ -9117,7 +9199,7 @@ fn check_body_install(tokens: const Token[:], row: CheckBatchOut&, out: const Ch
                 let variable = install.variable_base + local_count;
                 var flags = 0;
                 if (n.flags & F_VAR) != 0 { flags = S_MUTABLE; }
-                symbols[local_count] = Symbol { name_token: token, type_id: patches[local_node].type_id as i64,
+                symbols[local_count] = Symbol { name_token: token, type_id: n.type_id as i64,
                     node: e.node as i64, scope: scope as i64, slot: install.first_slot + local_count,
                     flags: flags, owner: install.function_node };
                 n.scope = scope;
@@ -9137,32 +9219,10 @@ fn check_body_install(tokens: const Token[:], row: CheckBatchOut&, out: const Ch
             }
         }
     }
-    var first = 0; var end = 0;
-    if out.proof_count > 0 { first = out.base; end = first + out.proof_count; }
-    check_body_apply(nodes, row.apply_proofs[first..end], patches, events);
+    check_body_apply(nodes, relocs, events);
 }
 
 fn check_body_install_range(ctx: const CheckBatchCtx&, row: CheckBatchOut&) {
-    if ctx.install_proof_start >= 0 {
-        // Pending bodies are sorted by base. Give each bucket the new
-        // proof rows for its bodies, including gaps and the initial prefix.
-        let old_len = ctx.install_proof_start;
-        let new_len = row.apply_proofs.len;
-        var first = old_len;
-        var end = new_len;
-        if row.base > 0 {
-            first = ctx.install_batches[ctx.install_pending[row.base]].base;
-            if first < old_len { first = old_len; }
-            if first > new_len { first = new_len; }
-        }
-        if row.validation_end < ctx.install_pending.len {
-            end = ctx.install_batches[ctx.install_pending[row.validation_end]].base;
-            if end < old_len { end = old_len; }
-            if end > new_len { end = new_len; }
-        }
-        let proofs = row.apply_proofs[first..end];
-        for i in 0..proofs.len { proofs[i] = -2; }
-    }
     for at in row.base..row.validation_end {
         check_body_install(ctx.tokens, row, ctx.install_batches[ctx.install_pending[at] as i64]);
     }
@@ -9173,17 +9233,8 @@ fn check_body_install_range(ctx: const CheckBatchCtx&, row: CheckBatchOut&) {
 fn check_body_flush(p: Program&, c: Checker&) {
     let count = c.batch_pending_apply.len;
     if count == 0 { return; }
-    let old_len = c.node_nonnegative.len;
-    var proof_start = -1;
-    if c.batch_proof_end > old_len {
-        if count >= 32 && p.jobs > 1 && c.batch_proof_end - old_len >= 16384 {
-            c.batch_pending_apply[..].sort();
-            gp_grow_check_proofs(c.node_nonnegative, c.batch_proof_end);
-            proof_start = old_len;
-        } else { c.node_nonnegative.resize(c.batch_proof_end, -2); }
-    }
-    var row = CheckBatchOut { patches: c.batch_patches[..], events: c.batch_events[..],
-        apply_nodes: p.nodes[..], apply_proofs: c.node_nonnegative[..],
+    var row = CheckBatchOut { relocs: c.batch_relocs[..], events: c.batch_events[..], scratch: c.batch_index[..0],
+        apply_nodes: p.nodes[..],
         tables: CheckInstallTables { scopes: c.scopes[..], symbols: p.symbols[..],
             variables: c.variables[..], variable_lookup: c.variable_lookup[..] }, batches: c.batch_out[..0] };
     let tokens = p.tokens[..];
@@ -9193,8 +9244,7 @@ fn check_body_flush(p: Program&, c: Checker&) {
         }
     } else {
         var outputs: CheckBatchOut[>..] = [];
-        var buckets = p.jobs;
-        if proof_start < 0 { buckets *= 2; }
+        var buckets = p.jobs * 2;
         if buckets > count { buckets = count; }
         // Each index occurs once. Body windows were fenced at precheck, and
         // the planner gave each install its own symbol, scope and flow rows.
@@ -9208,11 +9258,10 @@ fn check_body_flush(p: Program&, c: Checker&) {
             nodes: p.nodes[..0], types: p.types[..0], symbols: p.symbols[..0], tokens: tokens, text: p.text[..0],
             scopes: c.scopes[..0], names: c.name_table[..0], link_scopes: c.link_scopes[..0], hashes: c.name_hashes[..0],
             functions: c.batch_index[..0], fixed_arrays: c.batch_index[..0], value_types: empty[..],
-            install_batches: c.batch_out[..], install_pending: c.batch_pending_apply[..], install_proof_start: proof_start };
+            install_batches: c.batch_out[..], install_pending: c.batch_pending_apply[..] };
         gp_check_dispatch(p.jobs, ctx, outputs[..]);
     }
     c.batch_pending_apply.clear();
-    c.batch_proof_end = 0;
 }
 
 fn check_body_commit_root(p: Program&, c: Checker&, id: i64, index: i64) {
@@ -9245,7 +9294,7 @@ fn check_body_batch_stats(p: Program&, c: Checker&) {
     var setting: u8[>..] = [];
     if !env("GOOSE_CHECK_BATCH_STATS", setting) { return; }
     var ready = 0;
-    for index in 0..c.batch_out.len { if check_body_batch_ready(c, index) { ready += 1; } }
+    for index in 0..c.batch_out.len { if check_body_batch_ready(p, c, index) { ready += 1; } }
     var line: u8[>..] = [];
     line.append("body precheck jobs="); line.format(p.jobs);
     line.append(" prechecked="); line.format(ready);
@@ -9276,9 +9325,14 @@ recursive fn check_function(p: Program&, c: Checker&, function_node: i64) {
         }
     }
     if n_right < 0 { p.nodes[function_node].flags |= F_CHECKED; return; }
-    if !c.in_unreached && c.parameter_default_contexts.len == 0 && n_sym >= 0 && n_sym < c.batch_index.len {
+    if n_sym >= 0 && n_sym < c.batch_index.len {
         let batch = c.batch_index[n_sym] as i64;
-        if batch >= 0 && check_body_batch_ready(c, batch) { check_body_commit_root(p, c, function_node, batch); return; }
+        if batch >= 0 {
+            if !c.in_unreached && c.parameter_default_contexts.len == 0 && check_body_batch_ready(p, c, batch) {
+                check_body_commit_root(p, c, function_node, batch); return;
+            }
+            check_body_discard(p, c, batch, true);
+        }
     }
     check_body_flush(p, c);
     check_function_syntax(p, c, function_node);
@@ -10333,9 +10387,9 @@ fn check_program_types(p: Program&, declarations_only: bool, scope_parents: i64[
     var unreached_marked: i64[>..] = [];
     var pointees: CheckPointee[>..] = [];
     var batch_out: CheckBodyBatch[>..] = []; var batch_index: i32[>..] = [];
-    var batch_patches: CheckBodyPatch[>..] = []; var batch_events: CheckBodyEvent[>..] = [];
+    var batch_relocs: CheckBodyReloc[>..] = []; var batch_events: CheckBodyEvent[>..] = [];
     var batch_pending_apply: i32[>..] = [];
-    var c = Checker { scopes: checker_scopes, variables: checker_variables, variable_lookup: checker_variable_lookup, roots: checker_roots, root_nodes: checker_root_nodes, root_symbols: checker_root_symbols, effects: checker_effects, effect_lists: checker_effect_lists, effect_keys: checker_effect_keys, effect_key_heads: checker_effect_key_heads, name_table: checker_name_table, link_scopes: checker_link_scopes, name_hashes: checker_name_hashes, linked: checker_linked, environments: checker_environments, environment_heads: checker_environment_heads, outer_exits: checker_outer_exits, syntax_nodes: checker_syntax_nodes, syntax_lookup: checker_syntax_lookup, node_nonnegative: checker_node_nonnegative, return_roots: checker_return_roots, return_root_lists: checker_return_root_lists, specializations: checker_specializations, specialization_rows: checker_specialization_rows, bindings: checker_bindings, choice_args: checker_choice_args, needs: checker_needs, need_frames: checker_need_frames, need_edges: checker_need_edges, contextual_floats: checker_contextual_floats, contextual_lookup: checker_contextual_lookup, checking: checker_checking, loop_stack: checker_loop_stack, integer_work: checker_integer_work, binding_work: checker_binding_work, flow_work: checker_flow_work, flow_trail: checker_flow_trail, flow_join: checker_flow_join, narrowed_variables: checker_narrowed_variables, outer_flows: checker_outer_flows, format_symbols: checker_format_symbols, operation_functions: checker_operation_functions, component_symbols: checker_component_symbols, exit_work: checker_exit_work, interval_work: checker_interval_work, render_cache: checker_render_cache, render_hooks: checker_render_hooks, parameter_default_contexts: parameter_default_contexts, logical_kills: logical_kills, literal_uses: literal_uses, pointees: pointees, unreached_marked: unreached_marked, batch_out: batch_out, batch_index: batch_index, batch_patches: batch_patches, batch_events: batch_events, batch_pending_apply: batch_pending_apply };
+    var c = Checker { scopes: checker_scopes, variables: checker_variables, variable_lookup: checker_variable_lookup, roots: checker_roots, root_nodes: checker_root_nodes, root_symbols: checker_root_symbols, effects: checker_effects, effect_lists: checker_effect_lists, effect_keys: checker_effect_keys, effect_key_heads: checker_effect_key_heads, name_table: checker_name_table, link_scopes: checker_link_scopes, name_hashes: checker_name_hashes, linked: checker_linked, environments: checker_environments, environment_heads: checker_environment_heads, outer_exits: checker_outer_exits, syntax_nodes: checker_syntax_nodes, syntax_lookup: checker_syntax_lookup, node_nonnegative: checker_node_nonnegative, return_roots: checker_return_roots, return_root_lists: checker_return_root_lists, specializations: checker_specializations, specialization_rows: checker_specialization_rows, bindings: checker_bindings, choice_args: checker_choice_args, needs: checker_needs, need_frames: checker_need_frames, need_edges: checker_need_edges, contextual_floats: checker_contextual_floats, contextual_lookup: checker_contextual_lookup, checking: checker_checking, loop_stack: checker_loop_stack, integer_work: checker_integer_work, binding_work: checker_binding_work, flow_work: checker_flow_work, flow_trail: checker_flow_trail, flow_join: checker_flow_join, narrowed_variables: checker_narrowed_variables, outer_flows: checker_outer_flows, format_symbols: checker_format_symbols, operation_functions: checker_operation_functions, component_symbols: checker_component_symbols, exit_work: checker_exit_work, interval_work: checker_interval_work, render_cache: checker_render_cache, render_hooks: checker_render_hooks, parameter_default_contexts: parameter_default_contexts, logical_kills: logical_kills, literal_uses: literal_uses, pointees: pointees, unreached_marked: unreached_marked, batch_out: batch_out, batch_index: batch_index, batch_relocs: batch_relocs, batch_events: batch_events, batch_pending_apply: batch_pending_apply };
     c.scopes.push(CheckScope { parent: -1, function_node: -1 });
     var source_id = p.first_decl_source;
     while source_id >= 0 {
@@ -10398,8 +10452,10 @@ fn check_program_types(p: Program&, declarations_only: bool, scope_parents: i64[
         if n.kind == N_FUNCTION && (n.flags & (F_THREAD | F_GENERIC)) == F_THREAD { check_function(p, c, symbol.node); }
     }
     check_body_flush(p, c);
-    check_unreached(p, c, declarations);
     check_body_batch_stats(p, c);
+    for index in 0..c.batch_out.len { check_body_discard(p, c, index); }
+    c.batch_deferred = 0;
+    check_unreached(p, c, declarations);
     check_defers(p, c);
     var pending_arrays = false;
     for t in p.types {
@@ -10416,9 +10472,13 @@ fn check_program_types(p: Program&, declarations_only: bool, scope_parents: i64[
     check_finish_components(p, c);
     check_validate_types(p);
     if !check_validate_parallel(p, c) { check_validate_program(p); }
-    for i in 0..c.scopes.len {
+    let scope_count = c.scopes.len;
+    gp_grow_check_scope_column(scope_parents, scope_count);
+    gp_grow_check_scope_column(scope_depths, scope_count);
+    gp_grow_check_scope_column(scope_functions, scope_count);
+    for i in 0..scope_count {
         let scope: const CheckScope& = c.scopes[i];
-        scope_parents.push(scope.parent); scope_depths.push(scope.depth); scope_functions.push(scope.function_node);
+        scope_parents[i] = scope.parent; scope_depths[i] = scope.depth; scope_functions[i] = scope.function_node;
     }
     var has_pool_ref = false;
     for tid in 0..p.types.len {

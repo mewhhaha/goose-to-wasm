@@ -6,7 +6,7 @@ inline fn wb_byte(out: u8[>..]&, value: i64) { out.push((value & 255) as u8); }
 
 fn wb_u(out: u8[>..]&, value: i64) {
     if (value as! u64) < 128 { out.push(value as u8); return; }
-    if (value as! u64) < 16384 { out.push(((value & 127) | 128) as u8); out.push((value >> 7) as u8); return; }
+    if (value as! u64) < 16384 { wb_pair(out, ((value & 127) | 128) as u8, (value >> 7) as u8); return; }
     var remaining = value as! u64;
     loop {
         var byte = (remaining & 127) as u8;
@@ -19,7 +19,7 @@ fn wb_u(out: u8[>..]&, value: i64) {
 
 fn wb_s(out: u8[>..]&, value: i64) {
     if value >= -64 && value < 64 { out.push((value & 127) as u8); return; }
-    if value >= -8192 && value < 8192 { out.push(((value & 127) | 128) as u8); out.push(((value >> 7) & 127) as u8); return; }
+    if value >= -8192 && value < 8192 { wb_pair(out, ((value & 127) | 128) as u8, ((value >> 7) & 127) as u8); return; }
     var remaining = value;
     loop {
         let byte = remaining & 127;
@@ -60,11 +60,10 @@ inline fn wb_s_width(value: i64) -> i64 {
     while rest < -64 || rest >= 64 { width++; rest >>= 7; }
     return width;
 }
-fn wb_counted_section(out: u8[>..]&, kind: i64, count: i64, payload: u8[:]) {
+fn wb_counted_section_header(out: u8[>..]&, kind: i64, count: i64, payload_len: i64) {
     wb_byte(out, kind);
-    wb_u(out, payload.len + wb_u_width(count));
+    wb_u(out, payload_len + wb_u_width(count));
     wb_u(out, count);
-    wb_raw(out, payload);
 }
 inline fn wb_slice_u(out: u8[:], at: i64&, value: i64) {
     var remaining = value as! u64;
@@ -85,21 +84,36 @@ inline fn wb_pair(out: u8[>..]&, first: u8, second: u8) {
     let bytes: u8[2] = [first, second];
     out.append(bytes);
 }
+inline fn wb_triplet(out: u8[>..]&, first: u8, second: u8, third: u8) {
+    let bytes: u8[3] = [first, second, third];
+    out.append(bytes);
+}
 inline fn wb_op(out: u8[>..]&, opcode: i64, argument: i64) {
-    if (argument as! u64) < 128 { wb_pair(out, (opcode & 255) as u8, argument as u8); return; }
-    out.push((opcode & 255) as u8);
-    if (argument as! u64) < 16384 { out.push(((argument & 127) | 128) as u8); out.push((argument >> 7) as u8); }
-    else { wb_u(out, argument); }
+    let op = (opcode & 255) as u8;
+    if (argument as! u64) < 128 { wb_pair(out, op, argument as u8); }
+    else if (argument as! u64) < 16384 { wb_triplet(out, op, ((argument & 127) | 128) as u8, (argument >> 7) as u8); }
+    else { out.push(op); wb_u(out, argument); }
+}
+fn wb_signed_op(out: u8[>..]&, opcode: u8, value: i64) {
+    if value >= -8192 && value < 8192 {
+        wb_triplet(out, opcode, ((value & 127) | 128) as u8, ((value >> 7) & 127) as u8);
+    } else {
+        var bytes: u8[11] = [0; 11];
+        bytes[0] = opcode;
+        var at = 1;
+        wb_slice_s(bytes, at, value);
+        out.append(bytes[..at]);
+    }
 }
 inline fn wb_i32(out: u8[>..]&, value: i64) {
     // Wasm's i32 immediate is signed even when its value is an address.
     let v = (value as! u32) as! i32;
     if v >= -64 && v < 64 { wb_pair(out, 0x41, (v & 127) as u8); }
-    else { out.push(0x41); wb_s(out, v); }
+    else { wb_signed_op(out, 0x41, v); }
 }
 inline fn wb_i64(out: u8[>..]&, value: i64) {
     if value >= -64 && value < 64 { wb_pair(out, 0x42, (value & 127) as u8); }
-    else { out.push(0x42); wb_s(out, value); }
+    else { wb_signed_op(out, 0x42, value); }
 }
 
 fn wb_f32(out: u8[>..]&, value: f64) {
@@ -117,11 +131,10 @@ fn wb_f64(out: u8[>..]&, value: f64) {
 }
 
 inline fn wb_mem(out: u8[>..]&, opcode: i64, alignment: i64, offset: i64) {
-    out.push((opcode & 255) as u8);
-    out.push((alignment & 127) as u8);
-    if (offset as! u64) < 128 { out.push(offset as u8); }
-    else if (offset as! u64) < 16384 { out.push(((offset & 127) | 128) as u8); out.push((offset >> 7) as u8); }
-    else { wb_u(out, offset); }
+    let op = (opcode & 255) as u8;
+    let align = (alignment & 127) as u8;
+    if (offset as! u64) < 128 { wb_triplet(out, op, align, offset as u8); }
+    else { wb_pair(out, op, align); wb_u(out, offset); }
 }
 
 fn wb_signature(out: u8[>..]&, args: u8[:], results: u8[:]) {
@@ -146,9 +159,10 @@ fn wb_export(out: u8[>..]&, name: u8[:], kind: i64, index: i64) {
 }
 
 fn wb_copy(out: u8[>..]&) {
-    wb_byte(out, 0xfc); wb_u(out, 10); wb_u(out, 0); wb_u(out, 0);
+    let bytes: u8[4] = [0xfc, 10, 0, 0];
+    out.append(bytes);
 }
-fn wb_fill(out: u8[>..]&) { wb_byte(out, 0xfc); wb_u(out, 11); wb_u(out, 0); }
+fn wb_fill(out: u8[>..]&) { wb_triplet(out, 0xfc, 11, 0); }
 fn wb_body(out: u8[>..]&, locals: i64[:], code: u8[:]) {
     var groups = 0; var previous = -1;
     for kind in locals { if kind != previous { groups++; previous = kind; } }
@@ -410,31 +424,8 @@ fn wb_reuse_body(out: u8[>..]&, locals: i64[>..]&, code: u8[>..]&, params: i64, 
             }
         }
     }
-    // Peephole pass 2: eliminate writes to locals with zero remaining reads,
-    // and drop any immediately preceding recorded global.get (0x23) feeding a dead local.set.
-    for segment in 0..2 {
-        var first_event = body_event_count; var limit = events.len;
-        if segment != 0 { first_event = 0; limit = body_event_count; }
-        for ei in first_event..limit {
-            let act = action[ei] as i64;
-            if act == 2 { continue; }
-            let event: const WbEvent& = events[ei];
-            let op = event.opcode as i64;
-            if op < 0x20 || op > 0x22 || reads[event.operand as i64] != 0 { continue; }
-            any_folded = true;
-            action[ei] = 2;
-            if op == 0x21 && act == 0 {
-                if ei > first_event {
-                    let prior: const WbEvent& = events[ei - 1];
-                    if prior.opcode == 0x23 && prior.start + wb_local_len(prior.operand) == event.start {
-                        action[ei - 1] = 2;
-                        continue;
-                    }
-                }
-                action[ei] = 3;
-            }
-        }
-    }
+    // Dead writes and span discovery share a pass. The preceding global.get
+    // of an omitted write is ignored by span discovery regardless of action.
     var undo_len: i64 = 0;
     // The first instruction may have no event (typically global.get in
     // the prelude). Keep its position for implicitly zeroed locals.
@@ -446,11 +437,27 @@ fn wb_reuse_body(out: u8[>..]&, locals: i64[>..]&, code: u8[>..]&, params: i64, 
         var first_event = body_event_count; var limit = events.len; var base = 0;
         if segment != 0 { first_event = 0; limit = body_event_count; base = prelude_bytes; }
         for event_index in first_event..limit {
-            if (action[event_index] as i64) >= 2 { continue; }
+            let act = action[event_index];
+            if act >= 2 { continue; }
             let event: const WbEvent& = events[event_index];
             let op = event.opcode as i64;
             if op >= 0x23 { continue; }
             let index = event.operand as i64;
+            if op >= 0x20 && reads[index] == 0 {
+                any_folded = true;
+                action[event_index] = 2;
+                if op == 0x21 && act == 0 {
+                    action[event_index] = 3;
+                    if event_index > first_event {
+                        let prior: const WbEvent& = events[event_index - 1];
+                        if prior.opcode == 0x23 && prior.start + wb_local_len(prior.operand) == event.start {
+                            action[event_index - 1] = 2;
+                            action[event_index] = 2;
+                        }
+                    }
+                }
+                continue;
+            }
             position++;
             if op >= 0x20 {
                 let local = index;

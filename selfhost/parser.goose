@@ -40,11 +40,15 @@ inline fn parse_ahead(c: ParseCursor&, ahead: i64 = 1) -> i64 {
 inline fn parse_next(c: ParseCursor&) -> i64 {
     let token = c.at;
     c.half_angle = false;
-    if c.at + 1 < c.end { c.at++; }
-    parse_refresh(c);
+    let next = token + 1;
+    if next < c.end {
+        c.at = next;
+        c.kind = c.tokens[next].kind;
+        if c.kind < 0 { parse_refresh(c); }
+    } else { parse_refresh(c); }
     return token;
 }
-fn parse_accept(c: ParseCursor&, kind: i64) -> bool {
+inline fn parse_accept(c: ParseCursor&, kind: i64) -> bool {
     if parse_kind(c) != kind { return false; }
     parse_next(c); return true;
 }
@@ -75,8 +79,10 @@ fn parse_expect_close(p: Program&, c: ParseCursor&, kind: i64, open_token: i64, 
     }
     return token;
 }
-fn parse_node(p: Program&, kind: i64, token: i64) -> i64 {
-    return new_node(p, kind, token);
+inline fn parse_node(p: Program&, kind: i64, token: i64) -> i64 {
+    let id = p.nodes.len;
+    p.nodes.push(Node { kind: kind as i32, token: token as i32 });
+    return id;
 }
 inline fn parse_append_node(p: Program&, node: Node) -> i64 {
     let id = p.nodes.len;
@@ -123,7 +129,8 @@ fn parse_deprecated(p: Program&, c: ParseCursor&) -> bool {
 fn parse_qualified(p: Program&, c: ParseCursor&, declaration: bool = false) -> i64 {
     let start = c.at;
     let absolute = parse_accept(c, T_COLONCOLON);
-    var token = parse_expect(p, c, T_IDENT, "expected identifier");
+    var token = if parse_kind(c) == T_IDENT { parse_next(c) }
+                else { parse_expect(p, c, T_IDENT, "expected identifier") };
     if !absolute && parse_accept(c, T_COLONCOLON) {
         if declaration { c.namespace_token = token; }
         token = parse_expect(p, c, T_IDENT, "expected identifier after ::");
@@ -314,18 +321,14 @@ recursive fn parse_type_list(p: Program&, c: ParseCursor&, closing: i64) -> i64 
     }
     return first;
 }
-fn parse_precedence(kind: i64) -> i64 {
-    if kind == T_MUL || kind == T_DIV || kind == T_MOD { return 10; }
-    if kind == T_PLUS || kind == T_MINUS { return 9; }
-    if kind == T_SHL || kind == T_SHR { return 8; }
-    if kind == T_BITAND { return 7; }
-    if kind == T_XOR { return 6; }
-    if kind == T_BITOR { return 5; }
-    if kind == T_LT || kind == T_GT || kind == T_LTEQ || kind == T_GTEQ { return 4; }
-    if kind == T_EQ || kind == T_NEQ || kind == T_DOTEQ || kind == T_DOTNEQ { return 3; }
-    if kind == T_ANDAND { return 2; }
-    if kind == T_OROR { return 1; }
-    return 0;
+// Indexed by token kind from T_DOTEQ through T_OROR.
+let PARSE_PRECEDENCE: u8[35] = [
+    3, 3, 9, 9, 10, 10, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    3, 3, 4, 4, 4, 4, 8, 8, 0, 0, 0, 0, 7, 5, 6, 2, 1,
+];
+inline fn parse_precedence(kind: i64) -> i64 {
+    if kind < T_DOTEQ || kind > T_OROR { return 0; }
+    return PARSE_PRECEDENCE[kind - T_DOTEQ];
 }
 recursive fn parse_subexpr(p: Program&, c: ParseCursor&, restricted: bool) -> i64 {
     let no_record = c.no_record; let statement = c.statement; let ended = c.ended;
@@ -1216,29 +1219,29 @@ fn parse_source(p: Program&, source_id: i64) -> i64 {
 
 // Relocate the fields initialized by parsing. Auxiliary and semantic fields
 // keep their default values except for the token spans and extern names below.
-inline fn parse_rebase_node(n: Node&, token_base: i64, node_base: i64) {
-    if n.token >= 0 { n.token = (n.token + token_base) as i32; }
-    if n.scope >= 0 { n.scope = (n.scope + token_base) as i32; } // Namespace token until checking.
-    if n.first >= 0 { n.first = (n.first + node_base) as i32; }
-    if n.last >= 0 { n.last = (n.last + node_base) as i32; }
-    if n.next >= 0 { n.next = (n.next + node_base) as i32; }
-    if n.right >= 0 { n.right = (n.right + node_base) as i32; }
-    if n.third >= 0 { n.third = (n.third + node_base) as i32; }
-    if n.expansion_binding >= 0 { n.expansion_binding = (n.expansion_binding + node_base) as i32; }
-
+inline fn parse_rebase_index(index: i32, base: i32) -> i32 {
+    return index + (base & ~(index >> 31));
+}
+inline fn parse_rebase_node(node: Node, token_base: i64, node_base: i64) -> Node {
+    var n = node;
+    let tb = token_base as i32;
+    let nb = node_base as i32;
+    let imported = n.kind == N_IMPORT;
     let deferred = n.kind == N_BLOCK && (n.flags & F_DEFERRED) != 0;
-    if n.kind == N_IMPORT || deferred {
-        if n.left >= 0 { n.left = (n.left + token_base) as i32; }
-        n.integer += token_base;
-        if n.kind == N_IMPORT { n.aux += token_base; }
-    } else {
-        if n.left >= 0 { n.left = (n.left + node_base) as i32; }
-        if n.kind == N_FUNCTION {
-            if n.integer >= 0 { n.integer += token_base; }
-            if n.aux >= 0 { n.aux += token_base; }
-        } else if (n.kind == N_NAME || n.kind == N_TYPE_NAME) && n.aux >= 0 {
-            // parse_qualified stores the first token and length of the spelling.
-            n.integer += token_base;
-        }
+    let function = n.kind == N_FUNCTION;
+    let qualified = (n.kind == N_NAME || n.kind == N_TYPE_NAME) && n.aux >= 0;
+    n.token = parse_rebase_index(n.token, tb);
+    n.scope = parse_rebase_index(n.scope, tb); // Namespace token until checking.
+    n.first = parse_rebase_index(n.first, nb);
+    n.last = parse_rebase_index(n.last, nb);
+    n.next = parse_rebase_index(n.next, nb);
+    n.left = parse_rebase_index(n.left, if imported || deferred { tb } else { nb });
+    n.right = parse_rebase_index(n.right, nb);
+    n.third = parse_rebase_index(n.third, nb);
+    n.expansion_binding = parse_rebase_index(n.expansion_binding, nb);
+    if imported || deferred || qualified || function && n.integer >= 0 {
+        n.integer = n.integer + token_base;
     }
+    if imported || function && n.aux >= 0 { n.aux = n.aux + token_base; }
+    return n;
 }
