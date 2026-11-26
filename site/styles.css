@@ -1,6 +1,5 @@
-/* Styled to match the official Goose documentation site (aardappel.github.io/goose):
-   clean light typography, sticky top bar, sticky sidebar table of contents,
-   hairline borders, Tango syntax colors, and burnt-orange (#c8461c) accents. */
+/* Official Goose documentation visual language (aardappel.github.io/goose)
+   paired with a clean, demo-first Bevy-style example showcase. */
 
 :root {
   --text: #1f2328;
@@ -11,8 +10,7 @@
   --nav-bg: #ffffff;
   --accent: #c8461c;
   --accent-hover: #a83814;
-  --toc-width: 18rem;
-  --stage-dark: #151820;
+  --toc-width: 15.5rem;
 }
 
 * { box-sizing: border-box; }
@@ -24,7 +22,7 @@ body {
   color: var(--text);
   background: #ffffff;
   font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  line-height: 1.55;
+  line-height: 1.5;
 }
 
 a { color: var(--link); text-decoration: none; }
@@ -39,33 +37,28 @@ code {
   border-radius: 4px;
 }
 
-button, select, input { font: inherit; }
-button, select {
+button, input { font: inherit; }
+button {
   color: var(--text);
   background: #ffffff;
   border: 1px solid var(--rule);
   border-radius: 4px;
-  padding: 0.36rem 0.72rem;
-  font-size: 0.875rem;
+  padding: 0.3rem 0.65rem;
+  font-size: 0.84rem;
   line-height: 1.35;
+  cursor: pointer;
 }
-button { cursor: pointer; }
-button:hover:enabled, select:hover {
-  background: var(--code-bg);
-  border-color: #afb8c1;
-}
+button:hover:enabled { background: var(--code-bg); border-color: #afb8c1; }
 button:disabled { opacity: 0.48; cursor: default; }
 :focus-visible { outline: 2px solid var(--link); outline-offset: 2px; }
 
-/* Sticky top bar matching official Goose docs. */
+/* Slim Goose top bar. */
 header.top {
   position: sticky;
   top: 0;
   z-index: 10;
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
-  gap: 0.5rem 1.5rem;
   padding: 0.5rem 1.25rem;
   background: var(--nav-bg);
   border-bottom: 1px solid var(--rule);
@@ -75,318 +68,223 @@ header.top .brand {
   align-items: center;
   gap: 0.5rem;
   font-weight: 600;
-  font-size: 1.1rem;
+  font-size: 1.05rem;
   color: var(--text);
 }
 header.top .brand:hover { text-decoration: none; }
-header.top .brand img { height: 1.6rem; width: auto; display: block; }
-header.top nav {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.2rem 1rem;
-  align-items: center;
-  margin-right: auto;
-}
-header.top nav a { color: var(--muted); font-size: 0.94rem; }
-header.top nav a:hover { color: var(--text); text-decoration: none; }
-header.top nav a[aria-current="page"] { color: var(--text); font-weight: 600; }
+header.top .brand img { height: 1.55rem; width: auto; display: block; }
+header.top .brand-sub { font-weight: 400; color: var(--muted); }
 
-/* Two-column page shell: sticky left sidebar + readable main stage. */
-.page { display: flex; align-items: flex-start; min-height: calc(100vh - 2.9rem); }
+/* Sidebar menu + full-space demo stage. */
+.page {
+  display: flex;
+  align-items: flex-start;
+  min-height: calc(100vh - 2.75rem);
+}
 
 aside.toc {
   flex: 0 0 var(--toc-width);
   position: sticky;
-  top: 2.9rem;
-  max-height: calc(100vh - 2.9rem);
+  top: 2.75rem;
+  max-height: calc(100vh - 2.75rem);
   overflow-y: auto;
-  padding: 1rem 0.85rem 2rem 1.1rem;
+  padding: 1rem 0.75rem 2rem 1rem;
   font-size: 0.875rem;
   border-right: 1px solid var(--rule);
   background: #ffffff;
 }
-.gallery { display: grid; gap: 1.25rem; }
-.gallery section { display: grid; gap: 0.15rem; }
+.gallery { display: grid; gap: 1.15rem; }
+.gallery section { display: grid; gap: 0.1rem; }
 .gallery h2 {
-  margin: 0 0 0.35rem;
-  padding: 0;
-  font-size: 0.85rem;
+  margin: 0 0 0.25rem;
+  padding: 0 0.5rem;
+  font-size: 0.78rem;
   font-weight: 600;
-  color: var(--text);
-  border: 0;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
 }
 .gallery a {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  align-items: baseline;
-  gap: 0.1rem 0.5rem;
-  padding: 0.42rem 0.55rem;
+  display: block;
+  padding: 0.34rem 0.55rem;
   border-left: 3px solid transparent;
   border-radius: 0 4px 4px 0;
   color: var(--muted);
   text-decoration: none;
+  line-height: 1.35;
 }
-.gallery a:hover {
-  color: var(--text);
-  background: var(--code-bg);
-  text-decoration: none;
-}
+.gallery a:hover { color: var(--text); background: var(--code-bg); text-decoration: none; }
 .gallery a[aria-current="true"] {
   color: var(--text);
+  font-weight: 600;
   background: var(--code-bg);
   border-left-color: var(--accent);
 }
-.gallery a[aria-current="true"] .example-name { font-weight: 600; }
-.example-name { font-size: 0.875rem; line-height: 1.3; }
-.size {
-  font-family: ui-monospace, "Cascadia Code", "SF Mono", Menlo, Consolas, monospace;
-  font-size: 0.72rem;
-  color: var(--muted);
-  font-variant-numeric: tabular-nums;
-  white-space: nowrap;
-}
-.tags {
-  grid-column: 1 / -1;
-  display: flex;
-  gap: 0.15rem 0.45rem;
-  flex-wrap: wrap;
-}
-.tags span { font-size: 0.72rem; color: var(--muted); }
 
-/* Main column. */
+/* Main showcase area: take up whatever space the demo needs, with comfortable padding. */
 main.workspace {
   flex: 1 1 auto;
   min-width: 0;
-  max-width: 66rem;
-  padding: 1.25rem 2rem 3.5rem;
-  margin: 0 auto;
+  padding: 1.25rem clamp(1.25rem, 3vw, 2.5rem) 2.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.85rem;
 }
 
-.stage-header {
-  display: grid;
-  gap: 0.75rem;
-  padding-bottom: 0.9rem;
-  margin-bottom: 1rem;
-  border-bottom: 1px solid var(--rule);
-}
-.stage-heading {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 0.5rem 1rem;
-  flex-wrap: wrap;
-}
-.stage-heading h1 {
+.demo-title {
   margin: 0;
-  font-size: clamp(1.35rem, 2.5vw, 1.85rem);
-  line-height: 1.25;
+  font-size: 1.15rem;
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--text);
   overflow-wrap: anywhere;
 }
-.metrics, .toolbar, .panel-actions {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.5rem;
-}
-.metrics { font-size: 0.82rem; color: var(--muted); }
-.metrics span {
-  white-space: nowrap;
-  display: inline-flex;
-  align-items: baseline;
-  gap: 0.3rem;
-}
-.metrics code {
-  color: var(--text);
-  border: 1px solid var(--rule);
-  font-variant-numeric: tabular-nums;
-}
 
-.toolbar label {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  font-size: 0.875rem;
-  color: var(--muted);
-}
-button.primary {
-  background: var(--accent);
-  color: #ffffff;
-  border-color: var(--accent);
-  font-weight: 600;
-  min-width: 4.8rem;
-}
-button.primary:hover:enabled {
-  background: var(--accent-hover);
-  border-color: var(--accent-hover);
-}
-
-/* Official Goose blockquote-style callout. */
 blockquote.notice {
-  margin: 0 0 1rem;
+  margin: 0;
+  max-width: 48rem;
   padding: 0.65rem 1rem;
   border-left: 4px solid var(--accent);
   background: var(--code-bg);
   border-radius: 0 6px 6px 0;
   color: var(--text);
-  font-size: 0.92rem;
+  font-size: 0.9rem;
 }
 
-/* Canvas stage. */
+/* Demo stage wraps tightly around the running demo, scaling smoothly within the viewport. */
 .stage {
   position: relative;
-  display: grid;
-  place-items: center;
-  align-content: center;
-  gap: 0.75rem;
-  min-height: 14rem;
-  background: var(--stage-dark);
-  border: 1px solid var(--rule);
-  border-radius: 6px;
-  overflow: hidden;
+  width: fit-content;
+  max-width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
 }
-.stage-media { width: 100%; display: grid; justify-items: center; }
-.stage-media:empty { display: none; }
+.stage-media {
+  max-width: 100%;
+  display: block;
+}
 .stage canvas {
   display: block;
-  width: 100% !important;
-  height: auto !important;
-  max-height: 74svh;
-  object-fit: contain;
+  max-width: 100%;
+  height: auto;
+  border: 1px solid var(--rule);
+  border-radius: 6px;
 }
 .stage canvas.gpu-surface {
-  width: min(100%, calc(74svh * var(--ratio))) !important;
+  width: min(100%, var(--natural-width, 960px));
   aspect-ratio: var(--ratio);
+  background: #151820;
+}
+.stage canvas.sw-single {
+  width: var(--natural-width, 640px);
+  max-width: 100%;
+  image-rendering: pixelated;
 }
 .stage canvas.pixel { image-rendering: pixelated; }
-.stage canvas:focus-visible { outline-offset: -3px; }
-.stage:fullscreen { border: 0; border-radius: 0; overflow: auto; }
-.stage:fullscreen canvas { max-height: 86svh; }
-.stage:fullscreen canvas.gpu-surface { width: min(100%, calc(86svh * var(--ratio))) !important; }
+.stage canvas:focus-visible { outline-offset: 2px; }
 
 .stage-message {
   position: absolute;
-  margin: 0;
+  inset: 0;
+  margin: auto;
+  width: fit-content;
+  height: fit-content;
   max-width: calc(100% - 2rem);
-  text-align: center;
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
   padding: 0.55rem 0.95rem;
   background: rgba(255, 255, 255, 0.94);
   color: var(--text);
   border: 1px solid var(--rule);
   border-radius: 6px;
-  font-size: 0.9rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+  font-size: 0.88rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.14);
 }
-
-.hint {
-  margin: 0.55rem 0 0;
-  font-size: 0.84rem;
-  color: var(--muted);
+.stage-message button {
+  background: var(--accent);
+  color: #ffffff;
+  border-color: var(--accent);
+  font-weight: 600;
+}
+.stage-message button:hover {
+  background: var(--accent-hover);
+  border-color: var(--accent-hover);
 }
 
 .life-controls {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  justify-content: center;
   gap: 0.6rem;
-  width: 100%;
-  padding: 0.55rem 0.9rem;
-  background: var(--code-bg);
-  color: var(--text);
-  border-top: 1px solid var(--rule);
-  font-size: 0.84rem;
+  margin-top: 0.55rem;
+  font-size: 0.82rem;
+  color: var(--muted);
 }
 .life-controls input { accent-color: var(--accent); }
 .life-controls output {
-  min-width: 11ch;
   font-family: ui-monospace, "Cascadia Code", "SF Mono", Menlo, Consolas, monospace;
-  font-size: 0.8rem;
-  color: var(--muted);
+  font-size: 0.78rem;
 }
 
 .stage figure { margin: 0; min-width: 0; }
 .stage figcaption {
-  color: var(--text);
+  color: var(--muted);
   font-size: 0.82rem;
   font-weight: 600;
-  line-height: 1.4;
-  margin-bottom: 0.45rem;
+  margin-bottom: 0.35rem;
 }
 .stage .maze-legend {
-  padding: 0.65rem 1rem 0.25rem;
-  margin: 0;
   font-weight: 400;
-  color: var(--muted);
-  background: var(--code-bg);
+  margin-bottom: 0.6rem;
 }
 .stage-grid {
   display: grid;
   grid-auto-columns: minmax(0, 1fr);
   grid-auto-flow: column;
   align-items: end;
-  gap: clamp(0.5rem, 2vw, 1rem);
-  width: 100%;
-  padding: clamp(0.65rem, 2vw, 1rem);
-  background: var(--code-bg);
+  gap: clamp(0.65rem, 2vw, 1.25rem);
+  max-width: 100%;
 }
 .stage-grid canvas {
-  border: 1px solid var(--rule);
-  border-radius: 4px;
+  width: 100%;
+  height: auto;
 }
 
-/* Inspector tabs styled like official documentation sections. */
-.inspector { margin-top: 1.5rem; }
-.tabs {
+/* Small disclosure underneath for source code. */
+.code-disclosure {
+  width: 100%;
+  max-width: 72rem;
+  margin-top: 0.25rem;
+}
+.code-disclosure > summary {
+  cursor: pointer;
+  font-size: 0.86rem;
+  color: var(--muted);
+  padding: 0.25rem 0;
+  user-select: none;
+}
+.code-disclosure > summary:hover { color: var(--text); }
+.code-disclosure > summary code { font-size: 0.84em; color: var(--muted); margin-left: 0.25rem; }
+.code-body { margin-top: 0.5rem; }
+.code-actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.15rem 0.4rem;
-  border-bottom: 1px solid var(--rule);
-}
-.tabs button {
-  background: transparent;
-  border: 0;
-  border-bottom: 2px solid transparent;
-  border-radius: 0;
-  padding: 0.5rem 0.7rem;
-  margin-bottom: -1px;
-  font-size: 0.9rem;
-  font-weight: 500;
+  align-items: center;
+  gap: 0.65rem;
+  margin-bottom: 0.45rem;
+  font-size: 0.82rem;
   color: var(--muted);
 }
-.tabs button:hover:enabled {
-  background: transparent;
-  color: var(--text);
-}
-.tabs button[aria-selected="true"] {
-  border-bottom-color: var(--accent);
-  color: var(--text);
-  font-weight: 600;
-}
+.code-actions a { margin-left: auto; }
 
-.panel { padding: 1rem 0 0.25rem; min-height: 6rem; font-size: 0.94rem; }
-.panel p { margin: 0 0 0.85rem; }
-.panel-actions { margin-bottom: 0.65rem; font-size: 0.84rem; color: var(--muted); }
-.source-link { margin-top: 0.75rem; font-size: 0.9rem; }
-
-.controls {
-  display: grid;
-  gap: 0.35rem 1rem;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
-  margin: 0.65rem 0 0.9rem;
-  padding: 0;
-  list-style: none;
-}
-.controls li {
-  border-left: 3px solid var(--rule);
-  padding: 0.22rem 0.6rem;
-  font-size: 0.88rem;
-}
-
-.panel pre {
+.source-code {
   margin: 0;
-  padding: 0.85rem 1rem;
+  padding: 0.8rem 1rem;
   overflow: auto;
-  max-height: 28rem;
+  max-height: 32rem;
   background: var(--code-bg);
   border: 1px solid var(--rule);
   border-radius: 6px;
@@ -412,48 +310,35 @@ blockquote.notice {
 .tok-st { color: #4e9a06; }
 .tok-nu { color: #0000cf; }
 
-.stderr { color: #a40000; }
-
-.file { padding: 0.55rem 0; border-bottom: 1px solid var(--rule); }
-.file summary { cursor: pointer; color: var(--text); font-size: 0.9rem; overflow-wrap: anywhere; }
-.file-preview {
-  display: flex;
-  align-items: start;
-  gap: 0.75rem;
-  flex-wrap: wrap;
-  padding: 0.65rem 0 0;
-}
-.file-preview img, .file-preview canvas {
-  max-width: min(100%, 24rem);
-  height: auto;
-  border: 1px solid var(--rule);
-  border-radius: 4px;
-  image-rendering: pixelated;
-}
-.file-preview pre { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
-#file-list > p { margin: 0.5rem 0 0; color: var(--muted); }
-
-footer {
-  margin-top: 3rem;
-  padding-top: 1rem;
-  border-top: 1px solid var(--rule);
-  color: var(--muted);
-  font-size: 0.85rem;
-}
-footer p { margin: 0; }
-
-@media (max-width: 64rem) {
+@media (max-width: 56rem) {
   .page { display: block; }
   aside.toc {
     position: static;
     max-height: none;
     border-right: 0;
     border-bottom: 1px solid var(--rule);
-    padding: 0.85rem 1.25rem 1.1rem;
+    padding: 0.75rem 1.25rem;
   }
+  .gallery { gap: 0.75rem; }
   .gallery section {
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr));
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.2rem 0.35rem;
   }
-  .gallery h2 { grid-column: 1 / -1; }
-  main.workspace { padding: 1.1rem 1.25rem 2.5rem; }
+  .gallery h2 { width: 100%; padding: 0; margin: 0 0 0.1rem; }
+  .gallery a {
+    border-left: 0;
+    border-bottom: 2px solid transparent;
+    border-radius: 4px;
+    padding: 0.25rem 0.5rem;
+  }
+  .gallery a[aria-current="true"] {
+    border-left-color: transparent;
+    border-bottom-color: var(--accent);
+  }
+  .stage-grid {
+    grid-auto-flow: row;
+    grid-template-columns: 1fr;
+  }
 }

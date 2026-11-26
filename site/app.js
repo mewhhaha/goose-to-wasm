@@ -2,19 +2,18 @@ import { loadGoose, runGoose, supportsJspi } from "./host/web/index.js";
 
 const $ = (id) => document.getElementById(id);
 const stageMedia = $("stage-media");
-const tabs = Array.from(document.querySelectorAll('[role="tab"]'));
+const codeDisclosure = $("code-disclosure");
 const jspi = supportsJspi();
 const decoder = new TextDecoder();
 const pageTitle = document.title;
+
 let manifest;
 let selected;
 let canvas;
 let activeRun;
-let latestRun;
 let life;
 let sourceRequest;
 let sourceText;
-let fileURLs = [];
 let queue = Promise.resolve();
 
 function element(tag, text, className) {
@@ -31,39 +30,41 @@ function fetchAsset(url, options) {
   });
 }
 
-function formatSize(bytes) {
-  return bytes < 1024 ? `${bytes} B` : `${(bytes / 1024).toFixed(1)} KB`;
-}
-
-function message(text = "") {
-  $("stage-message").textContent = text;
-  $("stage-message").hidden = !text;
+function setMessage(text = "", restartAction = null) {
+  const box = $("stage-message");
+  box.replaceChildren();
+  if (!text && !restartAction) {
+    box.hidden = true;
+    return;
+  }
+  if (text) box.append(element("span", text));
+  if (restartAction) {
+    const button = element("button", "Restart");
+    button.type = "button";
+    button.addEventListener("click", restartAction);
+    box.append(button);
+  }
+  box.hidden = false;
 }
 
 function enqueue(action) {
   queue = queue.then(action).catch((error) => {
-    message(error.message);
-    writeConsole("stderr", error.message + "\n");
-    updateButtons();
+    setMessage(error.message, selected ? () => enqueue(() => startRun(selected)) : null);
   });
 }
 
 function renderGallery() {
   const groups = [
-    ["gpu", "Interactive GPU (WebGL2)"],
-    ["software", "Software Graphics (Canvas)"],
+    ["gpu", "Interactive"],
+    ["software", "Software"],
   ];
   for (const [mode, label] of groups) {
     const section = element("section");
     section.append(element("h2", label));
     for (const example of manifest.examples.filter((item) => item.mode === mode)) {
-      const link = element("a");
+      const link = element("a", example.title);
       link.href = `#${example.id}`;
       link.dataset.example = example.id;
-      const tags = element("span", undefined, "tags");
-      tags.append(...example.tags.map((tag) => element("span", tag)));
-      link.append(element("span", example.title, "example-name"),
-        element("span", formatSize(example.wasmBytes), "size"), tags);
       section.append(link);
     }
     $("gallery").append(section);
@@ -83,49 +84,32 @@ function freshStage(example) {
   stopLife();
   life = undefined;
   $("life-controls").hidden = true;
-  const { width, height } = example.canvas ?? { width: 640, height: 360 };
+  const { width, height } = example.canvas ?? { width: 640, height: 400 };
   canvas = makeCanvas(example.title, width, height, example.mode === "software");
   if (example.mode === "gpu") {
     canvas.tabIndex = 0;
-    canvas.style.setProperty("--ratio", width / height);
+    canvas.style.setProperty("--ratio", `${width} / ${height}`);
+    canvas.style.setProperty("--natural-width", `${width}px`);
     canvas.classList.add("gpu-surface");
     canvas.addEventListener("pointerdown", (event) => event.currentTarget.focus({ preventScroll: true }));
+  } else {
+    canvas.classList.add("sw-single");
+    canvas.style.setProperty("--natural-width", `${Math.max(width, 640)}px`);
   }
   stageMedia.replaceChildren(canvas);
 }
 
-function showSelection() {
-  const example = selected;
+function showSelection(example) {
   for (const link of $("gallery").querySelectorAll("a")) {
     if (link.dataset.example === example.id) link.setAttribute("aria-current", "true");
     else link.removeAttribute("aria-current");
   }
   $("demo-title").textContent = example.title;
-  $("wasm-size").textContent = formatSize(example.wasmBytes);
-  $("wasm-size").title = `${example.wasmBytes.toLocaleString()} bytes`;
-  $("duration").textContent = "—";
-  $("fps").textContent = "—";
   $("compatibility").hidden = example.mode !== "gpu" || jspi;
-  $("focus-hint").textContent = example.pointerLock
-    ? "Click the canvas to focus and capture the mouse. Press Esc to release Pointer Lock."
-    : "Click the canvas to focus keyboard and mouse input.";
-  $("focus-hint").hidden = example.mode !== "gpu";
-  $("preset").replaceChildren(...(example.presets ?? []).map((preset, index) => new Option(preset.label, index)));
-  $("preset-field").hidden = !example.presets;
-
-  $("description").textContent = example.description;
-  $("control-list").replaceChildren(...(example.controls?.split(" · ") ?? []).map((control) => element("li", control)));
-  const upstream = $("upstream-source");
-  upstream.href = `${manifest.upstreamRepo}/blob/${manifest.upstreamRev}/samples/${example.file}`;
-  upstream.hidden = false;
-
+  $("code-filename").textContent = example.file;
+  $("upstream-source").href = `${manifest.upstreamRepo}/blob/${manifest.upstreamRev}/samples/${example.file}`;
   resetSource();
-  latestRun = undefined;
-  $("console-output").replaceChildren();
-  renderFiles();
   freshStage(example);
-  message(example.mode === "gpu" && !jspi ? "Choose a software demo to run here." : "Press Run to start.");
-  updateButtons();
 }
 
 function selectHash() {
@@ -136,30 +120,13 @@ function selectHash() {
     if (selected === example) return;
     await stopRun();
     selected = example;
-    showSelection();
+    showSelection(example);
+    if (example.mode === "gpu" && !jspi) {
+      setMessage("WebAssembly JSPI is required for this GPU example.");
+      return;
+    }
+    await startRun(example);
   });
-}
-
-function updateButtons() {
-  const gpuAvailable = selected?.mode !== "gpu" || jspi;
-  $("run").disabled = !selected || !gpuAvailable;
-  $("run").textContent = latestRun ? "Restart" : "Run";
-  $("stop").disabled = !activeRun || activeRun.example.mode !== "gpu";
-  $("screenshot").disabled = !latestRun?.hasImage && !activeRun?.loaded;
-  $("fullscreen").disabled = !selected || !$("stage").requestFullscreen;
-}
-
-function writeConsole(stream, text) {
-  if (!text) return;
-  const consoleOutput = $("console-output");
-  const atBottom = consoleOutput.scrollHeight - consoleOutput.scrollTop - consoleOutput.clientHeight < 12;
-  if (stream === "stderr") consoleOutput.append(element("span", text, "stderr"));
-  else consoleOutput.append(document.createTextNode(text));
-  if (atBottom) consoleOutput.scrollTop = consoleOutput.scrollHeight;
-}
-
-function streamOutput(stream) {
-  return (bytes, text) => writeConsole(stream, text ?? (typeof bytes === "string" ? bytes : decoder.decode(bytes)));
 }
 
 function snapshot(fs) {
@@ -169,46 +136,52 @@ function snapshot(fs) {
   ]));
 }
 
-function gpuScreenshot(run) {
-  return run.loaded?.host.gfx?.screenshotPngBytes() ?? null;
+function createAutoAudioContext(example) {
+  const AudioContext = window.AudioContext ?? window.webkitAudioContext;
+  if (!example.tags.includes("audio") || !AudioContext) return { audioContext: undefined, cleanup: null };
+  try {
+    const audioContext = new AudioContext();
+    const unlock = () => {
+      if (audioContext.state === "suspended") audioContext.resume().catch(() => {});
+    };
+    unlock();
+    window.addEventListener("pointerdown", unlock, { passive: true });
+    window.addEventListener("keydown", unlock, { passive: true });
+    return {
+      audioContext,
+      cleanup: () => {
+        window.removeEventListener("pointerdown", unlock);
+        window.removeEventListener("keydown", unlock);
+      },
+    };
+  } catch {
+    return { audioContext: undefined, cleanup: null };
+  }
 }
 
-function updateFps(run) {
-  const now = performance.now();
-  run.frames++;
-  if (now - run.fpsStart < 500) return;
-  $("fps").textContent = (run.frames * 1000 / (now - run.fpsStart)).toFixed(0);
-  run.frames = 0;
-  run.fpsStart = now;
-}
-
-async function startRun(example, preset, audioContext) {
+async function startRun(example) {
   let run;
+  const { audioContext, cleanup: cleanupAudioUnlock } = createAutoAudioContext(example);
   try {
     if (selected !== example) return;
     await stopRun();
     freshStage(example);
-    $("console-output").replaceChildren();
     $("demo-title").textContent = example.title;
-    $("fps").textContent = "—";
-    $("duration").textContent = "—";
-    run = { example, audioContext, files: {}, start: performance.now(), surface: canvas };
-    latestRun = activeRun = run;
-    renderFiles();
-    updateButtons();
-    message("Loading WebAssembly…");
+    run = { example, audioContext, cleanupAudioUnlock, surface: canvas, stopping: false };
+    activeRun = run;
+    setMessage("Loading…");
 
     const wasm = new URL(example.wasmUrl, import.meta.url);
-    const options = {
-      args: preset?.args ?? example.defaultArgs,
-      onStdout: streamOutput("stdout"),
-      onStderr: streamOutput("stderr"),
-    };
+    const options = { args: example.defaultArgs };
     if (example.mode === "gpu") {
       const files = Object.fromEntries(await Promise.all((example.dataFiles ?? []).map(async ({ url, path }) => {
         const response = await fetchAsset(url);
         return [path, new Uint8Array(await response.arrayBuffer())];
       })));
+      if (selected !== example) {
+        await disposeRun(run);
+        return;
+      }
       run.loaded = await loadGoose(wasm, {
         ...options,
         canvas: run.surface,
@@ -216,61 +189,56 @@ async function startRun(example, preset, audioContext) {
         audioContext,
         files,
         resourceDir: "/",
-        onTitle: (title) => { $("demo-title").textContent = title || example.title; },
-        onFrame: () => updateFps(run),
+        onTitle: (title) => {
+          if (selected === example) $("demo-title").textContent = title || example.title;
+        },
       });
-      run.loadMs = performance.now() - run.start;
-      run.fpsStart = performance.now();
-      run.frames = 0;
-      $("duration").textContent = `${run.loadMs.toFixed(1)} ms / …`;
-      message();
-      updateButtons();
+      setMessage();
       run.done = executeRun(run, () => run.loaded.runAsync());
     } else {
       run.done = executeRun(run, () => runGoose(wasm, options));
     }
   } catch (error) {
     if (run) await disposeRun(run);
+    else {
+      cleanupAudioUnlock?.();
+      if (audioContext && audioContext.state !== "closed") await audioContext.close().catch(() => {});
+    }
     throw error;
-  } finally {
-    if (!run && audioContext && audioContext.state !== "closed") await audioContext.close();
   }
 }
 
 async function executeRun(run, execute) {
   try {
     const result = await execute();
-    run.finishing = true;
-    run.files = snapshot(run.loaded?.host.fs ?? result.fs);
-    const runMs = result.durationMs ?? performance.now() - run.start;
-    const loadMs = run.loadMs ?? Math.max(0, performance.now() - run.start - runMs);
-    $("duration").textContent = `${loadMs.toFixed(1)} / ${runMs.toFixed(1)} ms`;
-
+    if (selected !== run.example) return;
+    const files = snapshot(run.loaded?.host.fs ?? result.fs);
     if (result.exitCode !== 0) {
-      message(`Exited with code ${result.exitCode}. See Console for output.`);
+      setMessage(`Exited with code ${result.exitCode}.`, () => enqueue(() => startRun(run.example)));
     } else if (run.example.mode === "software") {
-      renderSoftware(run, result.stdout);
-      run.hasImage = true;
-      message();
-    } else {
-      run.png ??= gpuScreenshot(run) ?? Object.entries(run.files).find(([path]) => path.endsWith(".png"))?.[1];
-      run.hasImage = Boolean(run.png);
-      if (run.png) await showLastFrame(run);
-      message(run.hasImage ? "" : "Demo stopped. Press Restart to play again.");
+      renderSoftware(run.example, files, result.stdout);
+      setMessage();
+    } else if (!run.stopping) {
+      const png = run.loaded?.host.gfx?.screenshotPngBytes() ?? null;
+      if (png) await showLastFrame(run.example, png);
+      setMessage("Stopped.", () => enqueue(() => startRun(run.example)));
     }
   } catch (error) {
-    run.finishing = true;
-    message(error.message);
-    writeConsole("stderr", error.message + "\n");
+    if (selected === run.example) {
+      setMessage(error.message, () => enqueue(() => startRun(run.example)));
+    }
   } finally {
     await disposeRun(run);
   }
 }
 
-async function showLastFrame(run) {
-  const image = await createImageBitmap(new Blob([run.png], { type: "image/png" }));
+async function showLastFrame(example, png) {
+  const image = await createImageBitmap(new Blob([png], { type: "image/png" }));
   try {
-    canvas = makeCanvas(run.example.title, image.width, image.height);
+    canvas = makeCanvas(example.title, image.width, image.height);
+    canvas.classList.add("gpu-surface");
+    canvas.style.setProperty("--ratio", `${image.width} / ${image.height}`);
+    canvas.style.setProperty("--natural-width", `${example.canvas?.width ?? image.width}px`);
     canvas.getContext("2d").drawImage(image, 0, 0);
     stageMedia.replaceChildren(canvas);
   } finally {
@@ -280,39 +248,26 @@ async function showLastFrame(run) {
 
 async function disposeRun(run) {
   try {
+    run.cleanupAudioUnlock?.();
     if (document.pointerLockElement === run.surface) document.exitPointerLock();
     await run.loaded?.dispose();
-  } catch (error) {
-    writeConsole("stderr", error.message + "\n");
   } finally {
     run.loaded = undefined;
-    try {
-      if (run.audioContext && run.audioContext.state !== "closed") await run.audioContext.close();
-    } catch (error) {
-      writeConsole("stderr", error.message + "\n");
+    if (run.audioContext && run.audioContext.state !== "closed") {
+      await run.audioContext.close().catch(() => {});
     }
-    if (run.example.mode === "gpu" && canvas === run.surface) freshStage(run.example);
     run.surface = undefined;
     run.audioContext = undefined;
-    activeRun = undefined;
+    if (activeRun === run) activeRun = undefined;
     document.title = pageTitle;
-    $("fps").textContent = "—";
-    renderFiles();
-    updateButtons();
   }
 }
 
 async function stopRun() {
   if (!activeRun) return;
   const run = activeRun;
-  if (run.loaded && !run.finishing) {
-    try {
-      run.png = gpuScreenshot(run);
-    } catch (error) {
-      writeConsole("stderr", error.message + "\n");
-    }
-    run.loaded.host.stop();
-  }
+  run.stopping = true;
+  if (run.loaded) run.loaded.host.stop();
   await run.done;
 }
 
@@ -350,7 +305,6 @@ function readNetpbm(bytes) {
   if (binary) {
     const length = width * height * (color ? 3 : 1) * (wide ? 2 : 1);
     if (!whitespace(bytes[offset])) throw new Error("Missing Netpbm raster delimiter");
-    // Read only the delimiter. A leading raster byte can itself be whitespace or '#'.
     if (bytes[offset++] === 13 && bytes[offset] === 10 && bytes.length - offset > length) offset++;
     if (bytes.length - offset < length) throw new Error("Truncated Netpbm raster");
   }
@@ -388,7 +342,6 @@ function showGrid(items) {
 }
 
 function filterOriginal(width, height) {
-  // The pinned sample only writes blurred.pgm and edges.pgm. Replay its seeded input.
   let seed = 99n;
   const rejectionFloor = (1n << 64n) % 21n;
   function nextRandom() {
@@ -475,11 +428,9 @@ function renderMaze(text) {
     return [label, surface];
   });
   showGrid(items);
-  const legend = element("figcaption", "Green start · Red goal · Amber path · Blue water · Purple path through water");
+  const legend = element("figcaption", "Green start · Red goal · Amber path · Blue water · Purple path through water", "maze-legend");
   const figure = element("figure");
   figure.append(legend, stageMedia.firstElementChild);
-  figure.style.width = "100%";
-  legend.className = "maze-legend";
   stageMedia.replaceChildren(figure);
 }
 
@@ -517,6 +468,8 @@ function renderLife(text) {
   const rows = frames[0].rows;
   canvas.width = rows[0].length * 40;
   canvas.height = rows.length * 40;
+  canvas.classList.add("sw-single");
+  canvas.style.setProperty("--natural-width", `${canvas.width}px`);
   life = { frames, index: 0, raf: null };
   $("life-position").max = frames.length - 1;
   $("life-controls").hidden = false;
@@ -524,17 +477,20 @@ function renderLife(text) {
   playLife();
 }
 
-function renderSoftware(run, stdout) {
-  switch (run.example.renderer) {
+function renderSoftware(example, files, stdout) {
+  switch (example.renderer) {
     case "ppm": {
-      const bytes = run.files[run.example.vfsImage];
+      const bytes = files[example.vfsImage];
       if (!bytes) throw new Error("The example produced no raytrace.ppm");
-      canvas = paintImage(readNetpbm(bytes), run.example.title);
+      const image = readNetpbm(bytes);
+      canvas = paintImage(image, example.title);
+      canvas.classList.add("sw-single");
+      canvas.style.setProperty("--natural-width", `${image.width * 2}px`);
       stageMedia.replaceChildren(canvas);
       break;
     }
     case "pgm-grid":
-      renderFilters(run.files);
+      renderFilters(files);
       break;
     case "life-ascii":
       renderLife(stdout);
@@ -543,27 +499,6 @@ function renderSoftware(run, stdout) {
       renderMaze(stdout);
       break;
   }
-}
-
-function activateTab(tab) {
-  for (const item of tabs) {
-    const active = item === tab;
-    item.setAttribute("aria-selected", String(active));
-    item.tabIndex = active ? 0 : -1;
-    $(item.getAttribute("aria-controls")).hidden = !active;
-  }
-  if (tab.id === "tab-source") loadSource();
-  if (tab.id === "tab-files") renderFiles();
-}
-
-function resetSource() {
-  sourceRequest?.abort();
-  sourceRequest = undefined;
-  sourceText = undefined;
-  $("copy-source").disabled = true;
-  $("source-status").textContent = "";
-  $("source-code").replaceChildren();
-  if (!$("source").hidden) loadSource();
 }
 
 const GOOSE_KEYWORDS = new Set([
@@ -598,11 +533,21 @@ function highlightGooseLine(line) {
   return fragment;
 }
 
+function resetSource() {
+  sourceRequest?.abort();
+  sourceRequest = undefined;
+  sourceText = undefined;
+  $("copy-source").disabled = true;
+  $("source-status").textContent = "";
+  $("source-code").replaceChildren();
+  if (codeDisclosure.open) loadSource();
+}
+
 async function loadSource() {
   if (!selected || sourceText !== undefined || sourceRequest) return;
   const request = new AbortController();
   sourceRequest = request;
-  $("source-status").textContent = "Loading source…";
+  $("source-status").textContent = "Loading…";
   try {
     const response = await fetchAsset(selected.sourceUrl, { signal: request.signal });
     const text = await response.text();
@@ -628,131 +573,9 @@ async function loadSource() {
   }
 }
 
-function download(blob, filename) {
-  const url = URL.createObjectURL(blob);
-  const link = element("a");
-  link.href = url;
-  link.download = filename;
-  link.click();
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
-}
-
-function previewFile(path, bytes, preview) {
-  const extension = path.split(".").at(-1).toLowerCase();
-  if (extension === "png") {
-    const image = element("img");
-    image.alt = path;
-    image.src = URL.createObjectURL(new Blob([bytes], { type: "image/png" }));
-    fileURLs.push(image.src);
-    preview.append(image);
-  } else if (extension === "ppm" || extension === "pgm") {
-    preview.append(paintImage(readNetpbm(bytes), path));
-  } else {
-    const shown = bytes.subarray(0, 128);
-    const hex = Array.from(shown, (value) => value.toString(16).padStart(2, "0"));
-    const rows = [];
-    for (let i = 0; i < hex.length; i += 16) rows.push(hex.slice(i, i + 16).join(" "));
-    if (shown.length < bytes.length) rows.push("…");
-    preview.append(element("pre", rows.join("\n") || "Empty file"));
-  }
-}
-
-function renderFiles() {
-  for (const url of fileURLs) URL.revokeObjectURL(url);
-  fileURLs = [];
-  const list = $("file-list");
-  list.replaceChildren();
-  $("refresh-files").disabled = !latestRun;
-  if (!latestRun) {
-    list.append(element("p", "Run the example to inspect its virtual files."));
-    return;
-  }
-  // Avoid copying large VFS assets on every frame. Refresh on demand while a demo runs.
-  const files = latestRun.loaded ? snapshot(latestRun.loaded.host.fs) : latestRun.files;
-  const entries = Object.entries(files).sort(([a], [b]) => a.localeCompare(b));
-  if (!entries.length) list.append(element("p", "No files in the virtual filesystem."));
-  for (const [path, bytes] of entries) {
-    const row = element("details", undefined, "file");
-    const summary = element("summary", `${path} · ${formatSize(bytes.byteLength)}`);
-    const preview = element("div", undefined, "file-preview");
-    const button = element("button", "Download");
-    button.addEventListener("click", () => download(new Blob([bytes]), path.split("/").at(-1)));
-    preview.append(button);
-    row.addEventListener("toggle", function renderPreview() {
-      if (!row.open) return;
-      row.removeEventListener("toggle", renderPreview);
-      try {
-        previewFile(path, bytes, preview);
-      } catch (error) {
-        preview.append(element("p", error.message));
-      }
-    });
-    row.append(summary, preview);
-    list.append(row);
-  }
-}
-
-function screenshotCanvas() {
-  const surfaces = Array.from(stageMedia.querySelectorAll("canvas"));
-  if (surfaces.length === 1) return surfaces[0];
-  const gap = 12;
-  const width = surfaces.reduce((total, surface) => total + surface.width + gap, gap);
-  const height = Math.max(...surfaces.map((surface) => surface.height)) + 44;
-  const composite = makeCanvas("Stage screenshot", width, height);
-  const context = composite.getContext("2d");
-  context.fillStyle = "#f6f8fa";
-  context.fillRect(0, 0, width, height);
-  context.fillStyle = "#1f2328";
-  context.font = "600 15px -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif";
-  let x = gap;
-  for (const surface of surfaces) {
-    context.fillText(surface.getAttribute("aria-label"), x, 24, surface.width);
-    context.drawImage(surface, x, 32);
-    x += surface.width + gap;
-  }
-  return composite;
-}
-
-async function takeScreenshot() {
-  const run = latestRun;
-  try {
-    const bytes = gpuScreenshot(run) ?? run.png;
-    const blob = bytes ? new Blob([bytes], { type: "image/png" })
-      : await new Promise((resolve) => screenshotCanvas().toBlob(resolve, "image/png"));
-    if (!blob) throw new Error("Could not capture the current canvas");
-    download(blob, `${run.example.id}.png`);
-  } catch (error) {
-    writeConsole("stderr", error.message + "\n");
-  }
-}
-
-$("run").addEventListener("click", () => {
-  const example = selected;
-  const preset = example.presets?.[$("preset").value];
-  let audioContext;
-  const AudioContext = window.AudioContext ?? window.webkitAudioContext;
-  if (example.tags.includes("audio") && AudioContext) {
-    // Resume during the user gesture, before fetching the WAD or Wasm.
-    try {
-      audioContext = new AudioContext();
-      audioContext.resume().catch((error) => writeConsole("stderr", error.message + "\n"));
-    } catch (error) {
-      writeConsole("stderr", error.message + "\n");
-    }
-  }
-  enqueue(() => startRun(example, preset, audioContext));
+codeDisclosure.addEventListener("toggle", () => {
+  if (codeDisclosure.open) loadSource();
 });
-$("stop").addEventListener("click", () => enqueue(stopRun));
-$("fullscreen").addEventListener("click", async () => {
-  try {
-    if (document.fullscreenElement) await document.exitFullscreen();
-    else await $("stage").requestFullscreen();
-  } catch (error) {
-    writeConsole("stderr", error.message + "\n");
-  }
-});
-$("screenshot").addEventListener("click", takeScreenshot);
-$("refresh-files").addEventListener("click", renderFiles);
 $("life-play").addEventListener("click", () => {
   if (life.raf === null) playLife();
   else stopLife();
@@ -767,34 +590,15 @@ $("copy-source").addEventListener("click", async () => {
     await navigator.clipboard.writeText(text);
     if (sourceText === text) $("source-status").textContent = "Copied";
   } catch {
-    if (sourceText === text) $("source-status").textContent = "Clipboard unavailable. Select and copy the source.";
+    if (sourceText === text) $("source-status").textContent = "Clipboard unavailable";
   }
-});
-
-tabs.forEach((tab, index) => {
-  tab.addEventListener("click", () => activateTab(tab));
-  tab.addEventListener("keydown", (event) => {
-    const target = {
-      ArrowLeft: (index + tabs.length - 1) % tabs.length,
-      ArrowRight: (index + 1) % tabs.length,
-      Home: 0,
-      End: tabs.length - 1,
-    }[event.key];
-    if (target === undefined) return;
-    event.preventDefault();
-    tabs[target].focus();
-    activateTab(tabs[target]);
-  });
 });
 
 try {
   manifest = await (await fetchAsset("./manifest.json")).json();
-  $("repository").href = manifest.upstreamRepo;
-  $("repository").title = `Upstream revision ${manifest.upstreamRev}`;
-  if ($("build-rev")) $("build-rev").textContent = manifest.upstreamRev.slice(0, 8);
   renderGallery();
   window.addEventListener("hashchange", selectHash);
   selectHash();
 } catch (error) {
-  message(error.message);
+  setMessage(error.message);
 }

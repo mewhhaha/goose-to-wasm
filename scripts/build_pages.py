@@ -31,7 +31,7 @@ def software(id, title, tags, renderer, description, **extra):
 EXAMPLES = [
     gpu(
         "30_mini_minecraft", "Mini Minecraft", ["gfx", "WebGL2", "3D Voxel"],
-        960, 600, ["mini_minecraft"],
+        1280, 800, ["mini_minecraft"],
         "WASD walk · Space jump/swim · Shift run · Ctrl sneak · Click canvas for mouse look · "
         "Left hold mine · Right/E place · 1-8/wheel slot · C craft · H help · Esc pause · F5/F9 save/load",
         "Explore, mine and build in a procedural voxel world with caves, crafting and a day–night cycle.",
@@ -47,14 +47,9 @@ EXAMPLES = [
     ),
     gpu(
         "28_physics_boxes", "Physics Boxes", ["gfx", "physics", "WebGL2", "Shadows"],
-        960, 540, ["physics_boxes", "--boxes", "400", "--rate", "8"],
+        1280, 720, ["physics_boxes", "--boxes", "400", "--rate", "8"],
         "Drag left mouse to orbit · Scroll wheel to zoom · Space explosion! · Up/Down change pour rate · Esc stop",
         "Instanced boxes rain into a walled arena with real-time shadows and rigid-body physics.",
-        presets=[
-            dict(label="400 boxes (default)", args=["physics_boxes", "--boxes", "400", "--rate", "8"]),
-            dict(label="1000 boxes", args=["physics_boxes", "--boxes", "1000", "--rate", "16"]),
-            dict(label="200 boxes (light)", args=["physics_boxes", "--boxes", "200", "--rate", "5"]),
-        ],
     ),
     gpu(
         "29_ui_todo", "Immediate-Mode UI To-Do & Color Mixer",
