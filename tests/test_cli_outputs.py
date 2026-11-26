@@ -1553,6 +1553,96 @@ fn main() {
         parsed = json.loads(deps.read_bytes().decode("utf-8"))
         self.assertTrue(any(row["path"].endswith("bin.dat") and row["text"] == "\u00ff\u00fe\u0080\u0000hello\u00e9" for row in parsed))
 
+    def test_direct_wasm_batch2_regressions(self):
+        source = self.work / "wasm_batch2_regressions.goose"
+        source.write_text("""\
+import exception;
+
+enum Part { Wheels { sizes: f64[], count: i64 }, Nothing }
+struct Cell { v: i64 }
+var cells: Cell[>..] = [];
+var default_ticks = 0;
+fn next_tick() -> i64 { default_ticks += 1; return default_ticks; }
+struct Ticket { id: i64 = next_tick() }
+struct SNode { key: i64, link: SNode&<u32> }
+reusable var gpool: SNode[>..] = [];
+
+fn adapt_limited(a: i64[..]) -> i64 { return a.len * 10 + a[0]; }
+fn apply_limited<F>(a: i64[>..]&) -> i64 { return F(copy(a)); }
+
+fn junk_grow() -> i64 {
+    var j: i64[>..] = [];
+    for i in 8 { j.push(0x7fff00007fff0000); }
+    return j[7] & 1;
+}
+
+fn local_snode_pool() -> i64 {
+    reusable var lp: SNode[>..] = [];
+    lp.alloc_index(SNode { key: 1, link: self });
+    lp.alloc_index(SNode { key: lp[lp.len - 1].link.key + 1, link: self });
+    return lp[1].link.key;
+}
+
+fn slice_pool_rebind_one() {
+    reusable[] var p: i64[>..] = [];
+    let s = p.alloc_slice(4);
+    p.free_slice(s);
+}
+
+fn slice_pool_rebind_two() -> i64 {
+    reusable[] var a: i64[>..] = [];
+    reusable[] var b: i64[>..] = [];
+    a.push(1);
+    let t = b.alloc_slice(3);
+    b.free_slice(t);
+    var r: i64[>..]& = a;
+    r .= b;
+    let u = r.alloc_slice(2);
+    u[0] = 7; u[1] = 8;
+    return a[0] * 100 + b[0] * 10 + b[1];
+}
+
+fn stop_now() -> i64 { exception::throw("boom"); }
+fn ref_take(a: i64&, b: i64) { assert(false); }
+
+fn main() {
+    let p: Part.. = Part.Wheels { count: 4, .. };
+    let wcount = match p { Wheels w => w.sizes.len * 10 + w.count, Nothing => -2 };
+    var limsrc: i64[>..] = [3, 4];
+    let lim = adapt_limited(copy(limsrc)) + apply_limited(limsrc) { x: i64[..] => x.len * 10 + x[1] };
+    reusable[] var tickets: Ticket[>..] = [];
+    let ts = tickets.alloc_slice(3);
+    let tsum = ts[0].id * 100 + ts[1].id * 10 + ts[2].id;
+    gpool.alloc_index(SNode { key: 5, link: self });
+    gpool.alloc_index(SNode { key: 6, link: self });
+    let z = junk_grow();
+    let lres = local_snode_pool();
+    slice_pool_rebind_one();
+    let sres = slice_pool_rebind_two();
+    for i in 12 { cells.push(Cell { v: 100 + i }); }
+    var relv: (Cell&<varint in cells>)[>..] = [cells[9], cells[10]];
+    relv.push(cells[11]);
+    var rsum = 0;
+    for c in relv { rsum = rsum * 100 + (c.v - 100); }
+    var marks = 0;
+    var x = 42;
+    fn mark() { marks += 1; }
+    fn run_ref() { ref_take(if true { mark(); x } else { x }, stop_now()); }
+    fn catch_ref(e: const u8[:]) { assert(e == "boom"); marks += 10; }
+    exception::try<const u8[:]>(run_ref, catch_ref);
+    print(wcount, " ", lim, " ", tsum, " ", z, " ", lres, " ", sres, " ", rsum, " ", marks);
+}
+""")
+        expected = b"4 47 123 0 2 178 91011 11\n"
+        for opt in ("-O0", "-O2"):
+            for tag, flags in (("w32", ()), ("w64", ("--wasm-memory64",))):
+                with self.subTest(opt=opt, tag=tag):
+                    module = self.work / f"b2_{tag}_{opt}.wasm"
+                    built = self._compile(source, "wasm-direct", opt, module, *flags)
+                    self.assertEqual(built.returncode, 0, built.stderr)
+                    ran = self._run_wasm("wasmtime", module)
+                    self.assertEqual((ran.returncode, ran.stdout), (0, expected), ran.stderr)
+
 
 if __name__ == "__main__":
     unittest.main()
