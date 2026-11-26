@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: 'Release tag to build and attach assets to (e.g. v2026.4-2)'
+        description: 'Release tag to build and attach assets to (e.g. v2026.4-3)'
         required: true
         type: string
       prerelease:
@@ -70,6 +70,7 @@ jobs:
           test "$(build/bin/goosew examples/squares.goose -O2 -o /tmp/squares-run.wasm --run)" = "sum=140"
           build/bin/goosew examples/squares.goose --target native -O2 --cc "$CC" -o /tmp/squares.c --run > /tmp/native.out
           test "$(cat /tmp/native.out)" = "sum=140"
+          build/bin/goosew host/web/demo/demo.goose --stdlib stdlib-web --target wasm-direct -O2 -o /tmp/web-demo.wasm
 
           # Build portable Wasm64 compiler binary
           build/bin/goosew selfhost/main.goose --stdlib stdlib --target wasm-direct --wasm-memory64 -O2 -o /tmp/goosew.wasm
@@ -81,17 +82,21 @@ jobs:
 
           # Linux x64 bundle
           LINUX_DIR="goose-to-wasm-${TAG}-linux-x64"
-          mkdir -p "/tmp/${LINUX_DIR}/bin"
+          mkdir -p "/tmp/${LINUX_DIR}/bin" "/tmp/${LINUX_DIR}/host"
           cp build/bin/goosew "/tmp/${LINUX_DIR}/bin/goosew"
           cp -r build/bin/stdlib "/tmp/${LINUX_DIR}/bin/stdlib"
+          cp -r stdlib-web "/tmp/${LINUX_DIR}/stdlib-web"
+          cp -r host/web "/tmp/${LINUX_DIR}/host/web"
           cp LICENSE README.md "/tmp/${LINUX_DIR}/"
           tar -czf "dist/${LINUX_DIR}.tar.gz" -C /tmp "${LINUX_DIR}"
 
           # Portable Wasm64 compiler bundle + standalone .wasm
           WASM_DIR="goose-to-wasm-${TAG}-wasm"
-          mkdir -p "/tmp/${WASM_DIR}/bin" "/tmp/${WASM_DIR}/scripts"
+          mkdir -p "/tmp/${WASM_DIR}/bin" "/tmp/${WASM_DIR}/scripts" "/tmp/${WASM_DIR}/host"
           cp /tmp/goosew.wasm "/tmp/${WASM_DIR}/bin/goosew.wasm"
           cp -r build/bin/stdlib "/tmp/${WASM_DIR}/bin/stdlib"
+          cp -r stdlib-web "/tmp/${WASM_DIR}/stdlib-web"
+          cp -r host/web "/tmp/${WASM_DIR}/host/web"
           cp scripts/run_wasmtime.py scripts/run_wasm.mjs "/tmp/${WASM_DIR}/scripts/"
           cp LICENSE README.md "/tmp/${WASM_DIR}/"
           tar -czf "dist/${WASM_DIR}.tar.gz" -C /tmp "${WASM_DIR}"
@@ -147,12 +152,15 @@ jobs:
           test "$(node scripts/run_wasm.mjs /tmp/squares.wasm)" = "sum=140"
           test "$(build/bin/goosew examples/squares.goose -O2 -o /tmp/squares-run.wasm --run)" = "sum=140"
           test "$(build/bin/goosew examples/squares.goose --target native -O2 -o /tmp/squares.c --run)" = "sum=140"
+          build/bin/goosew host/web/demo/demo.goose --stdlib stdlib-web --target wasm-direct -O2 -o /tmp/web-demo.wasm
 
           mkdir -p dist
           PKG="goose-to-wasm-${TAG}-macos-${ARCH}"
-          mkdir -p "/tmp/${PKG}/bin"
+          mkdir -p "/tmp/${PKG}/bin" "/tmp/${PKG}/host"
           cp build/bin/goosew "/tmp/${PKG}/bin/goosew"
           cp -r build/bin/stdlib "/tmp/${PKG}/bin/stdlib"
+          cp -r stdlib-web "/tmp/${PKG}/stdlib-web"
+          cp -r host/web "/tmp/${PKG}/host/web"
           cp LICENSE README.md "/tmp/${PKG}/"
           tar -czf "dist/${PKG}.tar.gz" -C /tmp "${PKG}"
           ls -lh dist/
@@ -229,14 +237,17 @@ jobs:
           python -c 'import os, pathlib; q = chr(34); p = "caf" + chr(233) + ".txt"; pathlib.Path(os.environ["TEMP"], "utf8_probe.goose").write_text(f"import os;\nfn main() {{ let p = {q}{p}{q}; let ok = write_file(p, {q}hi{q}); var out: u8[>..] = []; let rd = read_file(p, out); let rm = delete_file(p); print(ok, rd, rm, out); }}\n", encoding="utf-8")'
           $utf8Out = (.\build\bin\goosew.exe "$env:TEMP\utf8_probe.goose" --target native -O2 -o "$env:TEMP\utf8_probe.c" --run).Trim()
           if ($utf8Out -ne "truetruetruehi") { throw "Unexpected UTF-16 Win32 output: $utf8Out" }
+          .\build\bin\goosew.exe host\web\demo\demo.goose --stdlib stdlib-web --target wasm-direct -O2 -o "$env:TEMP\web-demo.wasm"
 
           New-Item -ItemType Directory -Force -Path dist | Out-Null
           $pkg = "goose-to-wasm-$($env:TAG)-windows-x64"
           $stage = Join-Path $env:TEMP $pkg
           if (Test-Path $stage) { Remove-Item -Recurse -Force $stage }
-          New-Item -ItemType Directory -Force -Path (Join-Path $stage "bin") | Out-Null
+          New-Item -ItemType Directory -Force -Path (Join-Path $stage "bin"), (Join-Path $stage "host") | Out-Null
           Copy-Item build\bin\goosew.exe (Join-Path $stage "bin\goosew.exe")
           Copy-Item -Recurse build\bin\stdlib (Join-Path $stage "bin\stdlib")
+          Copy-Item -Recurse stdlib-web (Join-Path $stage "stdlib-web")
+          Copy-Item -Recurse host\web (Join-Path $stage "host\web")
           Copy-Item LICENSE, README.md $stage
           Compress-Archive -Path $stage -DestinationPath "dist\$pkg.zip" -Force
           Get-ChildItem dist

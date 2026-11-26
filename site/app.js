@@ -82,12 +82,17 @@ function setMenu(open, { restoreFocus = true, focusInside = true } = {}) {
   }
 }
 
+const GROUPS = [
+  ["gpu", "Interactive"],
+  ["software", "Software"],
+];
+
 function renderGallery() {
-  const groups = [
-    ["gpu", "Interactive"],
-    ["software", "Software"],
-  ];
-  for (const [mode, label] of groups) {
+  const overview = element("a", "Overview", "menu-overview");
+  overview.href = "./";
+  overview.dataset.route = "overview";
+  $("gallery").append(overview);
+  for (const [mode, label] of GROUPS) {
     const section = element("section");
     const heading = element("h2", label);
     heading.id = `menu-${mode}`;
@@ -102,6 +107,43 @@ function renderGallery() {
     $("gallery").append(section);
   }
 }
+
+// The front page index of every example, from the same manifest as the menu.
+function renderDirectory() {
+  const revision = manifest.upstreamRev;
+  if (revision) {
+    $("upstream-rev").href = `${manifest.upstreamRepo}/commit/${revision}`;
+    $("upstream-rev").firstElementChild.textContent = revision.slice(0, 8);
+  }
+  for (const [mode, label] of GROUPS) {
+    const group = element("section", undefined, "directory-group");
+    const heading = element("h3", label);
+    heading.id = `directory-${mode}`;
+    group.setAttribute("aria-labelledby", heading.id);
+    const list = element("ul");
+    for (const example of manifest.examples.filter((item) => item.mode === mode)) {
+      const link = element("a");
+      link.href = `#${example.id}`;
+      link.append(element("span", example.title, "directory-title"),
+        element("span", example.description, "directory-text"),
+        element("code", example.file, "directory-file"));
+      const item = element("li");
+      item.append(link);
+      list.append(item);
+    }
+    group.append(heading, list);
+    $("directory").append(group);
+  }
+}
+
+// The logo and Overview keep a clean root URL without reloading the page.
+document.addEventListener("click", (event) => {
+  const link = event.target.closest('a[data-route="overview"]');
+  if (!link || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+  event.preventDefault();
+  if (location.hash) history.pushState(null, "", location.pathname + location.search);
+  selectHash();
+});
 
 $("gallery").addEventListener("click", (event) => {
   if (!event.target.closest("a") || !narrowScreen.matches) return;
@@ -166,11 +208,41 @@ function freshStage(example) {
   stageMedia.replaceChildren(canvas);
 }
 
-function showSelection(example) {
+function markCurrent(id) {
   for (const link of $("gallery").querySelectorAll("a")) {
-    if (link.dataset.example === example.id) link.setAttribute("aria-current", "true");
+    const current = id ? link.dataset.example === id : link.dataset.route === "overview";
+    if (current) link.setAttribute("aria-current", "true");
     else link.removeAttribute("aria-current");
   }
+}
+
+function setView(view) {
+  if (showcase.dataset.view === view) return;
+  showcase.dataset.view = view;
+  showcase.setAttribute("aria-labelledby", view === "overview" ? "overview-title" : "demo-title");
+  window.scrollTo({ top: 0, behavior: "instant" });
+}
+
+// Stops any demo, releases its canvas and source request, and shows the front page.
+async function showOverview() {
+  await stopRun();
+  selected = undefined;
+  stopLife();
+  life = undefined;
+  sourceRequest?.abort();
+  sourceRequest = undefined;
+  sourceText = undefined;
+  canvas = undefined;
+  stageMedia.replaceChildren();
+  setMessage();
+  markCurrent(null);
+  $("menu-toggle-label").textContent = "Overview";
+  setView("overview");
+}
+
+function showSelection(example) {
+  markCurrent(example.id);
+  setView("demo");
   $("demo-title").textContent = example.title;
   $("menu-toggle-label").textContent = example.title;
   $("compatibility").hidden = example.mode !== "gpu" || jspi;
@@ -183,8 +255,12 @@ function showSelection(example) {
 function selectHash() {
   setMenu(false, { restoreFocus: false });
   const id = location.hash.slice(1);
-  const example = manifest.examples.find((item) => item.id === id) ?? manifest.examples[0];
-  if (example.id !== id) history.replaceState(null, "", `#${example.id}`);
+  const example = manifest.examples.find((item) => item.id === id);
+  if (!example) {
+    if (id && id !== "overview") history.replaceState(null, "", location.pathname + location.search);
+    enqueue(showOverview);
+    return;
+  }
   enqueue(async () => {
     if (selected === example) return;
     await stopRun();
@@ -839,6 +915,19 @@ $("life-position").addEventListener("input", (event) => {
   stopLife();
   displayGeneration(Number(event.target.value));
 });
+for (const button of document.querySelectorAll("[data-copy]")) {
+  button.addEventListener("click", async () => {
+    let label;
+    try {
+      await navigator.clipboard.writeText($(button.dataset.copy).textContent);
+      label = "Copied";
+    } catch {
+      label = "Clipboard unavailable";
+    }
+    button.textContent = label;
+    setTimeout(() => { button.textContent = "Copy"; }, 2000);
+  });
+}
 $("copy-source").addEventListener("click", async () => {
   const text = sourceText;
   try {
@@ -852,9 +941,11 @@ $("copy-source").addEventListener("click", async () => {
 try {
   manifest = await (await fetchAsset("./manifest.json")).json();
   renderGallery();
+  renderDirectory();
   window.addEventListener("hashchange", selectHash);
+  window.addEventListener("popstate", selectHash);
   selectHash();
 } catch (error) {
-  $("demo-title").textContent = "Goose examples";
-  setMessage(error.message);
+  const notice = element("p", error.message, "notice");
+  $("directory").replaceChildren(notice);
 }

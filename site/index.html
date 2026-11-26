@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="description" content="Official Goose graphics examples, compiled to WebAssembly and running live in the browser.">
+  <meta name="description" content="The official Goose graphics samples, compiled unmodified to WebAssembly with the stdlib-web standard library and running live in the browser.">
   <meta name="theme-color" content="#ffffff">
   <meta name="color-scheme" content="light">
   <title>Goose examples</title>
@@ -16,13 +16,13 @@
 </head>
 <body>
   <header class="top">
-    <a class="brand" href="./">
+    <a class="brand" href="./" data-route="overview">
       <img src="./assets/goose-logo.png" alt="" width="64" height="64">
       <span class="brand-name">Goose</span>
       <span class="brand-sub">Examples</span>
     </a>
     <button class="menu-toggle" id="menu-toggle" type="button" aria-expanded="false" aria-controls="menu">
-      <span class="menu-toggle-label" id="menu-toggle-label">Examples</span>
+      <span class="menu-toggle-label" id="menu-toggle-label">Overview</span>
       <svg class="menu-toggle-icon" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true">
         <path d="M4 6l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
@@ -35,7 +35,91 @@
       <div class="gallery" id="gallery"></div>
     </nav>
 
-    <main class="showcase" aria-labelledby="demo-title">
+    <main class="showcase" data-view="overview" aria-labelledby="overview-title">
+      <article class="overview" id="overview">
+        <h1 id="overview-title">Goose examples in WebAssembly</h1>
+        <p class="lead">
+          All nine official graphics samples from upstream
+          <a href="https://github.com/aardappel/goose">aardappel/goose</a>
+          (<a id="upstream-rev" href="https://github.com/aardappel/goose/commit/1838de45b8823cac6c3e02a431f0134012212d39"><code>1838de45</code></a>)
+          are compiled unmodified to WebAssembly with
+          <a href="https://github.com/mewhhaha/goose-to-wasm">goose-to-wasm</a>
+          (<code>goosew</code> <code>v2026.4-3</code>), using the drop-in <code>stdlib-web</code> standard
+          library. There is no C compiler in the path and no edit to any Goose source file.
+        </p>
+
+        <section aria-labelledby="compile-title">
+          <h2 id="compile-title">Compile with stdlib-web</h2>
+          <div class="snippet">
+            <pre id="compile-command" class="snippet-code" tabindex="0" aria-label="Compile command"><code><span class="tok-fu">goosew</span> <span class="tok-st">31_mini_doom.goose</span> <span class="tok-dt">--stdlib</span> stdlib-web <span class="tok-dt">--target</span> wasm-direct <span class="tok-dt">-O2</span> <span class="tok-op">\</span>
+  <span class="tok-dt">--wasm-max-pages</span> <span class="tok-nu">32767</span> <span class="tok-dt">-o</span> <span class="tok-st">mini_doom.wasm</span></code></pre>
+            <button type="button" class="quiet snippet-copy" data-copy="compile-command">Copy</button>
+          </div>
+          <p>
+            <code>--stdlib stdlib-web</code> keeps the same Goose module names and APIs but binds the native
+            modules to browser APIs, and <code>embed_shader</code> packs each GLSL shader straight into the
+            <code>.wasm</code> module.
+          </p>
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr><th scope="col">Module</th><th scope="col">In the browser</th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code>gfx</code>, <code>embed_shader</code></td>
+                  <td>WebGL2 renderer, GLSL 450 to ES 3.00 transpiler, input, PNG screenshots, and a WebAssembly JSPI frame loop (<code>while gfx::frame()</code>)</td>
+                </tr>
+                <tr>
+                  <td><code>ui</code></td>
+                  <td>Immediate-mode widgets rendered on Canvas 2D, with embedded TTF fonts loaded through <code>FontFace</code></td>
+                </tr>
+                <tr>
+                  <td><code>physics</code></td>
+                  <td>Dependency-free 3D rigid-body box solver in JavaScript</td>
+                </tr>
+                <tr>
+                  <td><code>audio</code>, <code>os</code>, <code>slice_pool</code></td>
+                  <td>Web Audio mixer, virtual filesystem (<code>MemoryFS</code>, <code>LocalStorageFS</code>, <code>OPFSAdapter</code>), and a pure-Goose B+ span tree</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section aria-labelledby="run-title">
+          <h2 id="run-title">Run in the browser</h2>
+          <div class="snippet">
+            <pre id="run-snippet" class="snippet-code" tabindex="0" aria-label="JavaScript loader"><code><span class="tok-kw">import</span> { loadGoose } <span class="tok-kw">from</span> <span class="tok-st">"./host/web/index.js"</span>;
+
+<span class="tok-kw">const</span> canvas <span class="tok-op">=</span> document.<span class="tok-fu">querySelector</span>(<span class="tok-st">"canvas"</span>);
+<span class="tok-kw">const</span> loaded <span class="tok-op">=</span> <span class="tok-kw">await</span> <span class="tok-fu">loadGoose</span>(<span class="tok-st">"./gfx_cube.wasm"</span>, {
+  canvas,
+  asyncFrame: <span class="tok-cn">true</span>,
+});
+<span class="tok-kw">await</span> loaded.<span class="tok-fu">runAsync</span>();</code></pre>
+            <button type="button" class="quiet snippet-copy" data-copy="run-snippet">Copy</button>
+          </div>
+          <p>
+            <code>runGoose(...)</code> runs non-interactive software programs synchronously, start to finish,
+            in any browser. Interactive <code>while gfx::frame()</code> loops hand each frame back to the browser
+            through WebAssembly JSPI, available in Chrome 137 and later, or in Firefox and Safari with JSPI enabled.
+          </p>
+        </section>
+
+        <section aria-labelledby="examples-title">
+          <h2 id="examples-title">Examples</h2>
+          <div class="directory" id="directory"></div>
+        </section>
+
+        <footer class="overview-footer">
+          Built with the <a href="https://github.com/mewhhaha/goose-to-wasm/releases/tag/v2026.4-3">v2026.4-3 release</a>,
+          which bundles <code>goosew</code>, <code>stdlib</code>, <code>stdlib-web</code> and <code>host/web</code>.
+          Source on <a href="https://github.com/mewhhaha/goose-to-wasm">goose-to-wasm</a>; language and samples from
+          <a href="https://github.com/aardappel/goose">aardappel/goose</a>.
+        </footer>
+      </article>
+
       <h1 id="demo-title" class="demo-title">Loading examples</h1>
 
       <p class="notice" id="compatibility" hidden>

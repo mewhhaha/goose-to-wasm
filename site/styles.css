@@ -532,6 +532,143 @@ header.top {
 .tok-nu { color: #0000cf; }
 .tok-op { color: #ce5c00; font-weight: 600; }
 
+/* Front page ------------------------------------------------------------- */
+
+.showcase[data-view="overview"] > :not(.overview),
+.showcase:not([data-view="overview"]) > .overview { display: none !important; }
+.showcase > .overview { max-width: min(100%, 48rem); }
+
+.gallery .menu-overview { margin-bottom: -0.5rem; }
+
+.overview {
+  padding: 0.75rem 0 1rem;
+  font-size: 1rem;
+  line-height: 1.6;
+}
+.overview h1 {
+  margin: 0 0 1rem;
+  font-size: clamp(1.875rem, 1.4rem + 1.6vw, 2.5rem);
+  font-weight: 650;
+  line-height: 1.12;
+  letter-spacing: -0.025em;
+  text-wrap: balance;
+}
+.overview .lead {
+  max-width: 68ch;
+  margin: 0;
+  font-size: 1.0625rem;
+  color: var(--ink);
+  text-wrap: pretty;
+}
+.overview > section { margin-top: 2.75rem; }
+.overview h2 {
+  margin: 0 0 1rem;
+  padding-bottom: 0.4rem;
+  border-bottom: 1px solid var(--rule);
+  font-size: 1.25rem;
+  font-weight: 650;
+  line-height: 1.3;
+  letter-spacing: -0.015em;
+}
+.overview p { max-width: 68ch; margin: 1rem 0; text-wrap: pretty; }
+.overview :not(pre) > code {
+  padding: 0.1em 0.35em;
+  border-radius: 4px;
+  background: var(--surface);
+  font-size: 0.86em;
+  overflow-wrap: anywhere;
+}
+.overview a code { color: inherit; }
+
+/* Code snippets: the official code surface with a quiet copy button. */
+.snippet { position: relative; }
+.snippet-code {
+  margin: 0;
+  padding: 0.9rem 4.75rem 0.9rem 1rem;
+  overflow-x: auto;
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  font-size: var(--code-size);
+  line-height: var(--code-line);
+  font-variant-ligatures: none;
+  tab-size: 2;
+}
+.snippet-copy {
+  position: absolute;
+  top: 0.45rem;
+  right: 0.45rem;
+  background: var(--surface);
+}
+
+/* Module table, after the official site's tables. */
+.table-scroll { max-width: 100%; overflow-x: auto; margin-top: 1.25rem; }
+.overview table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+}
+.overview th,
+.overview td {
+  padding: 0.5rem 0.8rem;
+  border: 1px solid var(--rule);
+  text-align: left;
+  vertical-align: top;
+}
+.overview th { background: var(--surface); font-weight: 600; }
+.overview td:first-child { width: 11.5rem; }
+.overview td code { white-space: nowrap; overflow-wrap: normal; }
+
+/* Example directory: a hairline list, one row per example. */
+.directory { display: grid; gap: 1.75rem; }
+.directory h3 {
+  margin: 0 0 0.35rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--faint);
+}
+.directory ul { margin: 0; padding: 0; list-style: none; border-top: 1px solid var(--rule); }
+.directory li { border-bottom: 1px solid var(--rule); }
+.directory a {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.15rem 1.5rem;
+  padding: 0.8rem 0.75rem;
+  margin: 0 -0.75rem;
+  border-radius: 6px;
+  color: var(--ink);
+  transition: background-color 120ms;
+}
+.directory a:hover { background: var(--surface); text-decoration: none; }
+.directory a:hover .directory-title { color: var(--link); }
+.directory-title { font-weight: 600; transition: color 120ms; }
+.directory-text {
+  grid-column: 1;
+  color: var(--muted);
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  text-wrap: pretty;
+}
+.overview .directory-file {
+  padding: 0;
+  background: none;
+  grid-column: 2;
+  grid-row: 1;
+  align-self: baseline;
+  color: var(--faint);
+  font-size: 0.75rem;
+}
+
+.overview-footer {
+  margin-top: 3rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--rule);
+  color: var(--muted);
+  font-size: 0.875rem;
+  line-height: 1.6;
+}
+
 /* Narrow screens: header menu button with a slide-down drawer. -------------- */
 
 @media (max-width: 56rem) {
@@ -549,7 +686,7 @@ header.top {
     left: 0;
     right: 0;
     z-index: 25;
-    max-height: min(32rem, calc(100svh - var(--header) - 2rem));
+    max-height: calc(100svh - var(--header) - 2rem);
     padding: 0.75rem 0.75rem 1rem;
     border-right: 0;
     border-bottom: 1px solid var(--rule);
@@ -598,6 +735,13 @@ header.top {
   .code-bar { padding-left: 0.85rem; }
   .code-actions { width: 100%; margin: 0 0 0 -0.65rem; justify-content: flex-start; }
   .quiet, .code-expand { min-height: 44px; }
+
+  .overview { padding-top: 0.25rem; }
+  .overview > section { margin-top: 2.25rem; }
+  .overview td:first-child { width: auto; }
+  .snippet-code { padding-right: 1rem; padding-top: 3.1rem; }
+  .directory a { grid-template-columns: minmax(0, 1fr); }
+  .overview .directory-file { grid-column: 1; grid-row: auto; margin-top: 0.2rem; }
   .line-number { width: 2.75rem; margin-right: 0.75rem; padding-right: 0.65rem; }
   :root { --code-size: 0.78125rem; --preview-rows: 7; }
 }

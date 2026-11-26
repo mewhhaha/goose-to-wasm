@@ -4,7 +4,7 @@
 
 Compile Goose directly to **WebAssembly in milliseconds** — with no C compiler in your dev loop — and compile the exact same code to **native binaries or C libraries** when you ship.
 
-- **Latest release:** [`v2026.4-2`](https://github.com/mewhhaha/goose-to-wasm/releases/tag/v2026.4-2) (tracks upstream Goose `v2026.4`, installs binary **`goosew`**)
+- **Latest release:** [`v2026.4-3`](https://github.com/mewhhaha/goose-to-wasm/releases/tag/v2026.4-3) (tracks upstream Goose `v2026.4`, installs binary **`goosew`** + `stdlib`, `stdlib-web`, and `host/web`)
 - **Live browser showcase:** **[Play all 9 official Goose graphics examples in WebAssembly](https://mewhhaha.github.io/goose-to-wasm/)** — Mini Minecraft, Mini Doom (Freedoom E1M1), 3D Physics Boxes, Immediate-Mode UI, Spinning 3D Cube, Ray Tracer, Image Filters, Game of Life, and Maze Solver compiled with `goosew --stdlib stdlib-web --target wasm-direct` (WebGL2 + Web Audio + WebAssembly JSPI)
 - **Upstream-only language scope:** Strictly follows upstream [Goose](https://github.com/aardappel/goose) development as the language reference — this compiler will not diverge into its own dialect or add independent language extensions
 - **Everyday builds:** **23×–26× faster** than upstream C++ Goose (`2–7 ms` vs `51–177 ms` at `-O2`)
@@ -15,34 +15,34 @@ Compile Goose directly to **WebAssembly in milliseconds** — with no C compiler
 
 ## Quick Start
 
-### Option 1: Download a prebuilt release (`v2026.4-2`)
+### Option 1: Download a prebuilt release (`v2026.4-3`)
 
-Grab a bundle from [Releases](https://github.com/mewhhaha/goose-to-wasm/releases/tag/v2026.4-2):
+Grab a bundle from [Releases](https://github.com/mewhhaha/goose-to-wasm/releases/tag/v2026.4-3):
 
-- **Linux x64 (`goosew` + stdlib):** `goose-to-wasm-v2026.4-2-linux-x64.tar.gz`
-- **macOS Apple Silicon (`goosew` + stdlib):** `goose-to-wasm-v2026.4-2-macos-arm64.tar.gz`
-- **macOS Intel (`goosew` + stdlib):** `goose-to-wasm-v2026.4-2-macos-x64.tar.gz`
-- **Windows x64 (standalone `goosew.exe` + stdlib):** `goose-to-wasm-v2026.4-2-windows-x64.zip`
-- **Portable WebAssembly compiler (Wasm64 `goosew.wasm` + stdlib):** `goose-to-wasm-v2026.4-2-wasm.tar.gz` (or standalone `goosew-v2026.4-2-wasm64.wasm`)
+- **Linux x64 (`goosew` + `stdlib` + `stdlib-web` + `host/web`):** `goose-to-wasm-v2026.4-3-linux-x64.tar.gz`
+- **macOS Apple Silicon (`goosew` + `stdlib` + `stdlib-web` + `host/web`):** `goose-to-wasm-v2026.4-3-macos-arm64.tar.gz`
+- **macOS Intel (`goosew` + `stdlib` + `stdlib-web` + `host/web`):** `goose-to-wasm-v2026.4-3-macos-x64.tar.gz`
+- **Windows x64 (standalone `goosew.exe` + `stdlib` + `stdlib-web` + `host/web`):** `goose-to-wasm-v2026.4-3-windows-x64.zip`
+- **Portable WebAssembly compiler (Wasm64 `goosew.wasm` + `stdlib` + `stdlib-web` + `host/web`):** `goose-to-wasm-v2026.4-3-wasm.tar.gz` (or standalone `goosew-v2026.4-3-wasm64.wasm`)
 
 ```sh
 # Linux / macOS
-tar -xzf goose-to-wasm-v2026.4-2-linux-x64.tar.gz
-export PATH="$PWD/goose-to-wasm-v2026.4-2-linux-x64/bin:$PATH"
+tar -xzf goose-to-wasm-v2026.4-3-linux-x64.tar.gz
+export PATH="$PWD/goose-to-wasm-v2026.4-3-linux-x64/bin:$PATH"
 goosew --version
-# goose-to-wasm v2026.4-2 (Goose v2026.4)
+# goose-to-wasm v2026.4-3 (Goose v2026.4)
 ```
 
 ```powershell
 # Windows (PowerShell)
-Expand-Archive goose-to-wasm-v2026.4-2-windows-x64.zip -DestinationPath .
-$env:PATH = "$PWD\goose-to-wasm-v2026.4-2-windows-x64\bin;$env:PATH"
+Expand-Archive goose-to-wasm-v2026.4-3-windows-x64.zip -DestinationPath .
+$env:PATH = "$PWD\goose-to-wasm-v2026.4-3-windows-x64\bin;$env:PATH"
 goosew --version
 ```
 
 ```sh
 # Portable Wasm64 compiler (runs anywhere Wasmtime runs)
-python3 scripts/run_wasmtime.py goosew-v2026.4-2-wasm64.wasm -- --version
+python3 scripts/run_wasmtime.py goosew-v2026.4-3-wasm64.wasm -- --version
 ```
 
 > **Binary name (`goosew`):** The compiler binary is named `goosew` so it does not collide with the upstream C++ `goose` compiler (or other `goose` CLIs) on your `PATH`. If you want to invoke it as `goose`, rename or symlink it (e.g. `ln -s "$(command -v goosew)" ~/.local/bin/goose`).
@@ -172,14 +172,14 @@ app.goose:3:19: error: no overload matches this call's argument types and count:
 
 ## Compatibility & Documentation
 
-Releases are versioned **`v<goose-version>-<n>`** (currently **`v2026.4-2`**), strictly following upstream [Goose](https://github.com/aardappel/goose) (`aardappel/goose`) as the sole language reference. The intention of this repository is purely to track upstream Goose development as a fast alternative compiler — it will not go off on its own or fork the language (`10,799 / 10,801` conformance rows passing, `99.98%` — `6,022 / 6,022` native / **100%** of pinned upstream Goose tests).
+Releases are versioned **`v<goose-version>-<n>`** (currently **`v2026.4-3`**), strictly following upstream [Goose](https://github.com/aardappel/goose) (`aardappel/goose`) as the sole language reference. The intention of this repository is purely to track upstream Goose development as a fast alternative compiler — it will not go off on its own or fork the language (`10,797 / 10,801` conformance rows passing, 0 unexpected failures — `6,022 / 6,022` native / **100%** of pinned upstream Goose tests).
 
 - [Guide & CLI options](docs/GUIDE.md) — flags, targets, compaction, and host options
 - [Native Rust Wasmtime host](host/rust/README.md) — fast parallel Cranelift JIT, `.cwasm` caching, `--entry`, and Blot2 `env.blot_*` support
 - [Safe-Rust `wtime` host](host/wtime/README.md) — `#![forbid(unsafe_code)]` runner for Direct Goose Wasm32/Wasm64 and Blot2
-- [Web host & drop-in browser stdlib](host/web/README.md) — zero-dependency ESM browser runtime (`MemoryFS`/`LocalStorageFS`/`OPFS`, Web Audio, Web Worker) + drop-in [`stdlib-web/`](stdlib-web/README.md)
+- [Web host & drop-in browser stdlib](host/web/README.md) — zero-dependency ESM browser runtime (`MemoryFS`/`LocalStorageFS`/`OPFS`, WebGL2 `gfx`, Canvas 2D `ui`, 3D `physics`, Web Audio, Web Worker) + drop-in [`stdlib-web/`](stdlib-web/README.md)
 - [Compatibility tracker](docs/FEATURES.md) — feature-by-feature status vs upstream Goose & Blot2
-- [Self-hosted compiler & bootstrap](selfhost/README.md) — architecture, Snapshot 70 seed & fixed-point verification
+- [Self-hosted compiler & bootstrap](selfhost/README.md) — architecture, Snapshot 72 seed & fixed-point verification
 - [Conformance & qualification](tests/README.md) — test suites and qualification gates
 - [Examples](examples/README.md) — runnable Goose sample programs
 - [Contributing](CONTRIBUTING.md) · [Code of Conduct](CODE_OF_CONDUCT.md) · [Security policy](SECURITY.md) — local verification, PR workflow, and approval-gated CI
