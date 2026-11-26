@@ -85,7 +85,7 @@ fn cc_queue_type(p: Program&, node: i64) -> i64 {
     if (symbol.flags & S_BUILTIN) == 0 || symbol.index < 10 || symbol.index > 13 { return -1; }
     if symbol.index == 10 {
         if n.first < 0 { return -1; }
-        var ty = p.nodes[n.first].type_id;
+        var ty: i64 = p.nodes[n.first].type_id;
         while ty >= 0 && p.types[ty].kind == TY_REF { ty = p.types[ty].element; }
         return ty;
     }

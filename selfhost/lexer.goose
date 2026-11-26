@@ -159,7 +159,7 @@ fn lex_keyword(word: u8[:]) -> i64 {
 // parens, declaration and pending track the declaration that owns the next body.
 struct LexCursor { source: i64, at: i64, end: i64, line: i64 = 1, column: i64 = 1,
                    skeleton: bool = false, braces: i64 = 0, parens: i64 = 0,
-                   declaration: bool = true, pending: bool = false }
+                   declaration: bool = true, pending: bool = false, intern_names: bool = true }
 inline fn lex_peek(p: Program&, l: LexCursor&, ahead: i64 = 0) -> u8 {
     if l.at + ahead >= l.end { return 0; }
     return p.text[l.at + ahead];
@@ -205,10 +205,10 @@ fn lex_separator(p: Program&, l: LexCursor&, token: i64, radix: i64) {
     lex_take(p, l);
 }
 
-fn lex_source(p: Program&, source_id: i64, skeleton: bool = false) {
+fn lex_source(p: Program&, source_id: i64, skeleton: bool = false, intern_names: bool = true) {
     if source_id < 0 || source_id >= p.sources.len { diagnose_at(p, 0, 0, 0, "invalid source ID"); return; }
     let source = p.sources[source_id];
-    var l = LexCursor { source: source_id, at: source.text_start, end: source.text_start + source.text_len, skeleton: skeleton };
+    var l = LexCursor { source: source_id, at: source.text_start, end: source.text_start + source.text_len, skeleton: skeleton, intern_names: intern_names };
     p.sources[source_id].token_start = p.tokens.len;
     if lex_peek(p, l) == 239 && lex_peek(p, l, 1) == 187 && lex_peek(p, l, 2) == 191 {
         l.at += 3;
@@ -261,7 +261,7 @@ fn lex_skeleton(p: Program&, l: LexCursor&, token: i64) {
             l.pending = false;
             let close = lex_skip_body(p, l.at, l.end);
             if close >= 0 {
-                p.tokens[token].kind = T_LAZY_BODY; p.tokens[token].integer = close;
+                p.tokens[token].kind = T_LAZY_BODY as i16; p.tokens[token].integer = close;
                 while l.at < close {
                     if p.text[l.at] == '\n' { l.line++; l.column = 1; } else { l.column++; }
                     l.at++;
@@ -317,13 +317,15 @@ fn lex_tokens(p: Program&, l: LexCursor&) {
             }
             if depth != 0 {
                 let t = p.tokens.len;
-                p.tokens.push(Token { kind: T_EOF, source: source_id, start: start, end: l.at, line: l.line, column: l.column });
+                p.tokens.push(Token { kind: T_EOF as i16, source: source_id as i32,
+                    start: start as i32, end: l.at as i32, line: l.line as i32, column: l.column as i32 });
                 diagnose(p, t, "unterminated /* comment");
             }
             continue;
         }
         if l.at >= l.end {
-            p.tokens.push(Token { kind: T_EOF, source: source_id, start: l.at, end: l.at, line: l.line, column: l.column });
+            p.tokens.push(Token { kind: T_EOF as i16, source: source_id as i32,
+                start: l.at as i32, end: l.at as i32, line: l.line as i32, column: l.column as i32 });
             return;
         }
         if lex_alpha(c) {
@@ -341,8 +343,10 @@ fn lex_tokens(p: Program&, l: LexCursor&) {
             if LEX_KW_HASH[kslot] == h { kw = lex_keyword(p.text[start..at]); }
             l.column += at - start; l.at = at;
             let token_id = p.tokens.len;
-            p.tokens.push(Token { kind: kw, source: source_id, start: start, end: at, line: l.line, column: col });
-            if kw == T_IDENT { intern_ident(p, token_id, h); }
+            let hash: i64 = if kw == T_IDENT { h } else { 0 };
+            p.tokens.push(Token { integer: hash, kind: kw as i16, source: source_id as i32,
+                start: start as i32, end: at as i32, line: l.line as i32, column: col as i32 });
+            if kw == T_IDENT && l.intern_names { intern_ident(p, token_id, h); }
             if l.skeleton { lex_skeleton(p, l, token_id); }
             continue;
         }
@@ -357,10 +361,12 @@ fn lex_tokens(p: Program&, l: LexCursor&) {
             }
             let token_id = p.tokens.len;
             if pk == T_EOF {
-                p.tokens.push(Token { kind: -1, source: source_id, start: start, end: l.at, line: line, column: col });
+                p.tokens.push(Token { kind: -1, source: source_id as i32,
+                    start: start as i32, end: l.at as i32, line: line as i32, column: col as i32 });
                 diagnose(p, token_id, "illegal character in source text");
             } else {
-                p.tokens.push(Token { kind: pk, source: source_id, start: start, end: l.at, line: line, column: col });
+                p.tokens.push(Token { kind: pk as i16, source: source_id as i32,
+                    start: start as i32, end: l.at as i32, line: line as i32, column: col as i32 });
             }
             if l.skeleton { lex_skeleton(p, l, token_id); }
             continue;
@@ -388,12 +394,14 @@ fn lex_tokens(p: Program&, l: LexCursor&) {
             if simple {
                 l.column += at - start; l.at = at;
                 let token_id = p.tokens.len;
-                p.tokens.push(Token { kind: T_INTLIT, source: source_id, start: start, end: at, line: line, column: col, integer: bits as! i64 });
+                p.tokens.push(Token { integer: bits as! i64, kind: T_INTLIT as i16, source: source_id as i32,
+                    start: start as i32, end: at as i32, line: line as i32, column: col as i32 });
                 if l.skeleton { lex_skeleton(p, l, token_id); }
                 continue;
             }
         }
-        var t = Token { kind: T_EOF, source: source_id, start: l.at, end: l.at, line: l.line, column: l.column };
+        var t = Token { kind: T_EOF as i16, source: source_id as i32,
+            start: l.at as i32, end: l.at as i32, line: l.line as i32, column: l.column as i32 };
         let token_id = p.tokens.len;
         // Reserve the diagnostic's token before scanning a fallible literal.
         p.tokens.push(t);
@@ -418,7 +426,7 @@ fn lex_tokens(p: Program&, l: LexCursor&) {
                 lex_take(p, l);
             }
             if digits_start == l.at { diagnose(p, token_id, "expected digits in number"); }
-            t.kind = T_INTLIT;
+            t.kind = T_INTLIT as i16;
             t.integer = bits as! i64;
             if bits > 0x7fffffffffffffff { t.flags = 1; }
             var floating = false;
@@ -447,17 +455,17 @@ fn lex_tokens(p: Program&, l: LexCursor&) {
                 }
             } else if radix == 16 && floating { diagnose(p, token_id, "hexadecimal float requires a binary exponent"); }
             if floating {
-                t.kind = T_FLTLIT;
+                t.kind = T_FLTLIT as i16;
                 t.float_value = lex_float(p.text[t.start..l.at], radix);
             }
             else if overflow { diagnose(p, token_id, "integer literal exceeds u64"); }
         } else if c == '"' || c == '\'' {
             let quote = lex_take(p, l);
-            t.text_start = p.text.len;
-            t.kind = T_STRLIT;
+            t.text_start = p.text.len as i32;
+            t.kind = T_STRLIT as i16;
             if quote == '\'' {
                 let value = lex_escape(p, l, token_id);
-                t.kind = T_INTLIT;
+                t.kind = T_INTLIT as i16;
                 if value >= 0 { t.integer = value; }
                 if lex_peek(p, l) == '\'' { lex_take(p, l); }
                 else {
@@ -477,12 +485,12 @@ fn lex_tokens(p: Program&, l: LexCursor&) {
                 if lex_peek(p, l) == '"' { lex_take(p, l); }
                 else { diagnose(p, token_id, "unterminated string literal"); }
             }
-            t.text_len = p.text.len - t.text_start;
+            t.text_len = (p.text.len - t.text_start) as i32;
         } else {
-            t.kind = lex_punctuation(p, l);
+            t.kind = lex_punctuation(p, l) as i16;
             if t.kind == T_EOF { diagnose(p, token_id, "illegal character in source text"); t.kind = -1; }
         }
-        t.end = l.at;
+        t.end = l.at as i32;
         p.tokens[token_id] = t;
         if l.skeleton { lex_skeleton(p, l, token_id); }
     }

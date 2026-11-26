@@ -2082,6 +2082,140 @@ fn main() {
             run_w = subprocess.run([str(RUST_HOST), str(wasm_file)], stdin=subprocess.DEVNULL, capture_output=True, text=True, timeout=30)
             self.assertEqual((run_w.returncode, run_w.stdout.strip()), (0, expected), run_w.stderr)
 
+    def test_compiler_spmd_barrier_grow_and_multifile_determinism(self):
+        prog = """\
+let GP_COMPILER_PARALLEL_MARKER: i64 = 1;
+fn gp_native_available() -> bool { return false; }
+fn gp_barrier() {}
+fn gp_grow_i64(arr: i64[>..]&, new_len: i64) {
+    while arr.len < new_len { arr.push(0); }
+}
+struct SpmdCtx {
+    counts: i64[>..]&,
+    offsets: i64[>..]&,
+    dest: i64[>..]&,
+    total: i64&,
+}
+fn gp_parse_spmd_range(ctx: const SpmdCtx&, out: i64[:], worker_id: i64, worker_count: i64) {
+    let n = out.len;
+    let items: i64 = 16;
+    ctx.counts[worker_id] = items;
+    gp_barrier();
+    if worker_id == 0 {
+        var acc: i64 = 0;
+        for w in 0..worker_count {
+            ctx.offsets[w] = acc;
+            acc += ctx.counts[w];
+        }
+        gp_grow_i64(ctx.dest, acc);
+        ctx.total = acc;
+    }
+    gp_barrier();
+    let base = ctx.offsets[worker_id];
+    var local_sum: i64 = 0;
+    for k in 0..items {
+        let v = (worker_id + 1) * 100 + k * 7;
+        ctx.dest[base + k] = v;
+        local_sum += v;
+    }
+    if worker_id < n { out[worker_id] = local_sum; }
+}
+fn gp_parse_spmd_dispatch(jobs: i64, ctx: const SpmdCtx&, out: i64[:]) -> bool {
+    gp_parse_spmd_range(ctx, out, 0, 1);
+    return true;
+}
+fn main() {
+    if GP_COMPILER_PARALLEL_MARKER == 0 { return; }
+    let participants: i64 = if gp_native_available() { 4 } else { 1 };
+    var counts: i64[>..] = []; counts.resize(participants, 0);
+    var offsets: i64[>..] = []; offsets.resize(participants, 0);
+    var dest: i64[>..] = [];
+    var slots: i64[>..] = []; slots.resize(participants, 0);
+    var total: i64 = 0;
+    let ctx = SpmdCtx { counts: counts, offsets: offsets, dest: dest, total: total };
+    let ok = gp_parse_spmd_dispatch(participants, ctx, slots[..]);
+    var sum_dest: i64 = 0;
+    for v in dest { sum_dest += v; }
+    var sum_slots: i64 = 0;
+    for s in slots { sum_slots += s; }
+    print(if ok && dest.len == total && sum_dest == sum_slots && total == participants * 16 { 1 } else { 0 });
+}
+"""
+        src = self.work / "spmd_test.goose"
+        src.write_text(prog)
+        c_file = self.work / "spmd_test.c"
+        wasm_file = self.work / "spmd_test.wasm"
+        res_c = subprocess.run(
+            list(map(str, [COMPILER, src, "--stdlib", STDLIB, "--target", "native", "-O2", "-o", c_file])),
+            stdin=subprocess.DEVNULL, capture_output=True, text=True, timeout=60,
+        )
+        self.assertEqual(res_c.returncode, 0, res_c.stderr)
+        c_text = c_file.read_text()
+        self.assertIn("g_cpool_run_spmd(", c_text)
+        self.assertIn("g_cpool_barrier(", c_text)
+        self.assertIn("g_cpool_grow_array(", c_text)
+
+        cc = __import__("os").environ.get("CC", "clang")
+        flags = ["-std=gnu11", "-O2", "-lm", "-ldl", "-pthread"]
+        if sys.platform == "darwin":
+            flags = ["-std=gnu11", "-O2", "-lm", "-lpthread"]
+        elif sys.platform == "win32":
+            flags = ["-std=gnu11", "-O2", "-lm"]
+
+        mono_bin = self.work / "spmd_mono"
+        r = subprocess.run([cc, flags[0], flags[1], str(c_file), *flags[2:], "-o", str(mono_bin)],
+                           stdin=subprocess.DEVNULL, capture_output=True, text=True, timeout=60)
+        self.assertEqual(r.returncode, 0, r.stderr)
+        run_mono = subprocess.run([str(mono_bin)], stdin=subprocess.DEVNULL, capture_output=True, text=True, timeout=30)
+        self.assertEqual((run_mono.returncode, run_mono.stdout.strip()), (0, "1"), run_mono.stderr)
+
+        # Direct Wasm fallback (single-threaded, zero extra imports)
+        res_w = subprocess.run(
+            list(map(str, [COMPILER, src, "--stdlib", STDLIB, "--target", "wasm-direct", "-O2", "-o", wasm_file])),
+            stdin=subprocess.DEVNULL, capture_output=True, text=True, timeout=60,
+        )
+        self.assertEqual(res_w.returncode, 0, res_w.stderr)
+        if RUST_HOST.is_file():
+            run_w = subprocess.run([str(RUST_HOST), str(wasm_file)], stdin=subprocess.DEVNULL, capture_output=True, text=True, timeout=30)
+            self.assertEqual((run_w.returncode, run_w.stdout.strip()), (0, "1"), run_w.stderr)
+
+        # Multi-file bit-identity across --jobs 1, 4, 8, auto (Wasm + Native C)
+        mf = self.work / "multifile"
+        mf.mkdir()
+        (mf / "shared.goose").write_text("struct Pair { a: i64, b: i64 }\n")
+        imports = ["import shared;"]
+        calls = []
+        for idx in range(6):
+            mod = f"m{idx}"
+            imports.append(f"import {mod};")
+            fns = ["import shared;"]
+            for f in range(12):
+                fns.append(
+                    f"fn f_{idx}_{f}(x: i64) -> i64 {{\n"
+                    f"    let p = Pair {{ a: x + {f}, b: x ^ {idx + 1} }};\n"
+                    f"    var acc: i64 = p.a * 3 + p.b;\n"
+                    f"    for i in 0..4 {{ acc += (i + x) & 15; }}\n"
+                    f"    return acc;\n"
+                    f"}}\n"
+                )
+            (mf / f"{mod}.goose").write_text("\n".join(fns))
+            calls.append(f"    acc += f_{idx}_0(acc); acc += f_{idx}_11(acc);")
+        (mf / "main.goose").write_text(
+            "\n".join(imports) + "\nfn main() {\n    var acc: i64 = 7;\n" + "\n".join(calls) + "\n    print(acc);\n}\n"
+        )
+        for target, ext in (("wasm-direct", "wasm"), ("native", "c")):
+            outputs = []
+            for j in ("1", "4", "8", "auto"):
+                out = self.work / f"mf_{target}_{j}.{ext}"
+                r = subprocess.run(
+                    list(map(str, [COMPILER, mf / "main.goose", "--stdlib", STDLIB, "--target", target, "-O2", "--jobs", j, "-o", out])),
+                    stdin=subprocess.DEVNULL, capture_output=True, text=True, timeout=60,
+                )
+                self.assertEqual(r.returncode, 0, f"{target} j={j}: {r.stderr}")
+                outputs.append(out.read_bytes())
+            for blob in outputs[1:]:
+                self.assertEqual(blob, outputs[0], f"{target} output differed across --jobs")
+
 
 if __name__ == "__main__":
     unittest.main()

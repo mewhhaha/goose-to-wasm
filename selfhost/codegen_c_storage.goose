@@ -488,7 +488,7 @@ fn cc_place_type(p: Program&, node: i64) -> i64 {
     if n.kind == N_NAME && n.symbol >= 0 { return p.symbols[n.symbol].type_id; }
     if n.kind == N_MEMBER && n.symbol >= 0 { return p.nodes[n.symbol].type_id; }
     if n.kind == N_INDEX {
-        var array = p.nodes[n.left].type_id; while cc_kind(p, array) == TY_REF { array = p.types[array].element; }
+        var array: i64 = p.nodes[n.left].type_id; while cc_kind(p, array) == TY_REF { array = p.types[array].element; }
         if cc_kind(p, array) == TY_ARRAY || cc_kind(p, array) == TY_SLICE { return p.types[array].element; }
     }
     if n.kind == N_UNARY && n.integer == T_MUL && cc_kind(p, p.nodes[n.left].type_id) == TY_REF { return p.types[p.nodes[n.left].type_id].element; }

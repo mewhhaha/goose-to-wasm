@@ -53,7 +53,7 @@ fn validation_builtin(p: Program&, node: i64, index: i64) -> bool {
 fn validation_storage_value(p: Program&, node: i64) -> bool {
     if node < 0 || p.nodes[node].type_id < 0 { return false; }
     if validation_builtin(p, node, 15) { return false; }
-    let n: const Node& = p.nodes[node]; var type_id = n.type_id;
+    let n: const Node& = p.nodes[node]; var type_id: i64 = n.type_id;
     if p.types[type_id].kind == TY_REF {
         type_id = p.types[type_id].element;
         return validation_size_class(p, type_id) > 0;
@@ -138,7 +138,7 @@ recursive fn validation_element_owner(p: Program&, node: i64, depth: i64 = 0) ->
         return validation_element_owner(p, n.left, depth + 1);
     }
     if n.kind == N_INDEX {
-        var array = p.nodes[n.left].type_id;
+        var array: i64 = p.nodes[n.left].type_id;
         while array >= 0 && p.types[array].kind == TY_REF { array = p.types[array].element; }
         if array >= 0 && (p.types[array].kind == TY_ARRAY || p.types[array].kind == TY_SLICE) {
             let storage = p.types[array].element;
@@ -230,7 +230,7 @@ fn validation_element_layout(p: Program&, type_id: i64, token: i64) {
 
 fn validation_array_type(p: Program&, node: i64) -> i64 {
     if node < 0 { return -1; }
-    var type_id = p.nodes[node].type_id;
+    var type_id: i64 = p.nodes[node].type_id;
     while type_id >= 0 && p.types[type_id].kind == TY_REF { type_id = p.types[type_id].element; }
     if type_id >= 0 && (p.types[type_id].kind == TY_ARRAY || p.types[type_id].kind == TY_SLICE) { return type_id; }
     return -1;
@@ -299,7 +299,7 @@ fn validation_assignment(p: Program&, node: i64) {
     if validation_temporary_write(p, n.left, n.integer == T_DOTASSIGN) {
         diagnose(p, n.token, "a control-flow value is a read-only temporary"); return;
     }
-    var type_id = p.nodes[n.left].type_id;
+    var type_id: i64 = p.nodes[n.left].type_id;
     if n.integer == T_DOTASSIGN && type_id >= 0 && (p.types[type_id].kind == TY_REF || p.types[type_id].kind == TY_SLICE) { return; }
     while type_id >= 0 && p.types[type_id].kind == TY_REF { type_id = p.types[type_id].element; }
     if validation_frozen(p, type_id) {

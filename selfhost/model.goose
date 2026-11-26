@@ -278,22 +278,21 @@ struct Source {
     library: bool = false,
 }
 struct Token {
-    kind: i64 = 0, source: i64 = 0, start: i64 = 0, end: i64 = 0,
-    line: i64 = 1, column: i64 = 1, integer: i64 = 0,
-    float_value: f64 = 0.0, text_start: i64 = 0, text_len: i64 = 0,
-    flags: i64 = 0,
+    integer: i64 = 0, float_value: f64 = 0.0,
+    kind: i16 = 0, flags: u16 = 0, source: i32 = 0,
+    start: i32 = 0, end: i32 = 0,
+    line: i32 = 1, column: i32 = 1,
+    text_start: i32 = 0, text_len: i32 = 0,
 }
 struct Node {
-    kind: i64 = 0, token: i64 = -1,
-    first: i64 = -1, last: i64 = -1, next: i64 = -1,
-    left: i64 = -1, right: i64 = -1, third: i64 = -1,
-    type_id: i64 = -1, symbol: i64 = -1,
-    integer: i64 = 0, float_value: f64 = 0.0, flags: i64 = 0,
-    scope: i64 = -1, aux: i64 = -1,
-    origin: i64 = -1, captures: i64 = -1,
-    named_results: i64 = -1,
-    coerced_type: i64 = -1,
-    expansion_binding: i64 = -1,
+    integer: i64 = 0, float_value: f64 = 0.0, flags: i64 = 0, aux: i64 = -1,
+    kind: i32 = 0, token: i32 = -1,
+    first: i32 = -1, last: i32 = -1, next: i32 = -1,
+    left: i32 = -1, right: i32 = -1, third: i32 = -1,
+    type_id: i32 = -1, symbol: i32 = -1,
+    scope: i32 = -1, origin: i32 = -1,
+    captures: i32 = -1, named_results: i32 = -1,
+    coerced_type: i32 = -1, expansion_binding: i32 = -1,
 }
 // kind, element, count, flags and declaration identify a type for lookup
 // (type_find): whoever changes one of them on an existing type reindexes it.
@@ -444,8 +443,8 @@ fn intern_ident(p: Program&, token_id: i64, hash: u32) {
     loop {
         let entry = p.ident_table[slot];
         if entry == 0 {
-            let canonical = token_id + 1;
-            p.ident_table[slot] = canonical as i32;
+            let canonical = (token_id + 1) as i32;
+            p.ident_table[slot] = canonical;
             p.ident_count += 1;
             p.tokens[token_id].integer = h;
             p.tokens[token_id].text_start = canonical;
@@ -461,7 +460,7 @@ fn intern_ident(p: Program&, token_id: i64, hash: u32) {
             }
             if same {
                 p.tokens[token_id].integer = h;
-                p.tokens[token_id].text_start = entry as i64;
+                p.tokens[token_id].text_start = entry;
                 return;
             }
         }
@@ -757,19 +756,19 @@ fn root_struct_type(p: Program&, ty: i64) -> bool {
 }
 fn new_node(p: Program&, kind: i64, token: i64) -> i64 {
     let id = p.nodes.len;
-    p.nodes.push(Node { kind: kind, token: token });
+    p.nodes.push(Node { kind: kind as i32, token: token as i32 });
     return id;
 }
 fn append_child(p: Program&, parent: i64, child: i64) {
     if child < 0 { return; }
     let pnode: Node& = p.nodes[parent];
     let tail = pnode.last;
-    if tail < 0 { pnode.first = child; }
-    else { p.nodes[tail].next = child; }
+    if tail < 0 { pnode.first = child as i32; }
+    else { p.nodes[tail].next = child as i32; }
     var last = child;
     var nxt = p.nodes[last].next;
     while nxt >= 0 { last = nxt; nxt = p.nodes[last].next; }
-    pnode.last = last;
+    pnode.last = last as i32;
 }
 fn add_type(p: Program&, ty: Type) -> i64 {
     let id = p.types.len; p.types.push(ty); return id;

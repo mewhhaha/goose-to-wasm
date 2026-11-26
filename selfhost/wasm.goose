@@ -246,8 +246,29 @@ inline fn wb_patch_local_index(bytes: u8[:], start: i64, index: i64, width: i64)
     bytes[start + width - 1] = remaining as u8;
 }
 
-fn wb_reuse_body(out: u8[>..]&, locals: i64[>..]&, code: u8[>..]&, params: i64, events: WbEvent[:], body_event_count: i64, prelude_bytes: i64, no_regions: bool, s: WbReuseScratch&) {
-    if locals.len == 0 { wb_body(out, locals, code); return; }
+// Offset of a deferred immediate, relative to the byte stream currently
+// being copied. The request number is stable through every body rewrite.
+struct CgFixup { raw_off: i64, dummy_len: u8, req_idx: i64, enc_kind: u8 }
+
+inline fn wb_relocate_fixups(fixups: CgFixup[:], next: i64&, limit: i64, delta: i64) {
+    while next < fixups.len && fixups[next].raw_off < limit {
+        fixups[next].raw_off += delta;
+        next++;
+    }
+}
+inline fn wb_copy_body_run(out: u8[>..]&, bytes: u8[:], start: i64, end: i64, fixups: CgFixup[:], next: i64&) {
+    if start >= end { return; }
+    if next < fixups.len { wb_relocate_fixups(fixups, next, end, out.len - start); }
+    wb_raw(out, bytes[start..end]);
+}
+
+fn wb_reuse_body(out: u8[>..]&, locals: i64[>..]&, code: u8[>..]&, params: i64, events: WbEvent[:], body_event_count: i64, prelude_bytes: i64, no_regions: bool, s: WbReuseScratch&, fixups: CgFixup[:]) {
+    var next_fixup = 0;
+    if locals.len == 0 {
+        wb_body(out, locals, code);
+        wb_relocate_fixups(fixups, next_fixup, code.len, out.len - code.len);
+        return;
+    }
     let total = params + locals.len;
     if s.epoch > 1000000000 {
         s.arm.clear(); s.stamp.clear(); s.epoch = 1;
@@ -581,16 +602,16 @@ fn wb_reuse_body(out: u8[>..]&, locals: i64[>..]&, code: u8[>..]&, params: i64, 
                         wb_patch_local_index(bytes, start + 1, mapped, length - 1);
                         continue;
                     }
-                    if start > copied { wb_raw(out, bytes[copied..start]); }
+                    wb_copy_body_run(out, bytes, copied, start, fixups, next_fixup);
                     wb_op(out, opcode, mapped);
                     copied = start + length;
                 } else {
-                    if start > copied { wb_raw(out, bytes[copied..start]); }
+                    wb_copy_body_run(out, bytes, copied, start, fixups, next_fixup);
                     if act == 3 { wb_byte(out, 0x1a); }
                     copied = start + wb_local_len(old);
                 }
             }
         }
     }
-    if copied < bytes.len { wb_raw(out, bytes[copied..bytes.len]); }
+    wb_copy_body_run(out, bytes, copied, bytes.len, fixups, next_fixup);
 }

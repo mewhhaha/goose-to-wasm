@@ -1,3 +1,5 @@
+import model;
+
 // Compiler-internal deterministic multi-core pool interface.
 // In plain Goose and Wasm targets these run serially with zero extra imports;
 // the native C backend recognizes GP_COMPILER_PARALLEL_MARKER and backs the
@@ -11,6 +13,20 @@ fn gp_native_available() -> bool {
 
 fn gp_default_jobs() -> i64 {
     return 1;
+}
+
+fn gp_barrier() {}
+
+fn gp_grow_tokens(arr: Token[>..]&, new_len: i64) {
+    while arr.len < new_len { arr.push(Token {}); }
+}
+
+fn gp_grow_nodes(arr: Node[>..]&, new_len: i64) {
+    while arr.len < new_len { arr.push(Node {}); }
+}
+
+fn gp_grow_u8(arr: u8[>..]&, new_len: i64) {
+    while arr.len < new_len { arr.push(0); }
 }
 
 fn gp_effective_jobs(requested: i64) -> i64 {
