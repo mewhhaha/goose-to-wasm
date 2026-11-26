@@ -875,6 +875,37 @@ fn check_global_use(p: Program&, c: Checker&, symbol: i64, token: i64) -> bool {
     if !c.initializing_globals { return true; }
     diagnose(p, token, "global value is used before its initialization"); return false;
 }
+// from_bytes verifies every index and bound type anywhere inside its element
+// type against that type's named array length (§3.11), which reads the global
+// holding the array.
+fn check_from_bytes_indices(p: Program&, c: Checker&, ty: i64, token: i64) {
+    if ty < 0 { return; }
+    p.type_scan_stamp += 1; let stamp = p.type_scan_stamp;
+    if p.type_scan_marks.len < p.types.len { p.type_scan_marks.resize(p.types.len, 0); }
+    var work: i64[>..] = [ty]; p.type_scan_marks[ty] = stamp; var scanned = 0;
+    while scanned < work.len {
+        let current = work[scanned]; scanned += 1;
+        let t: const Type& = p.types[current];
+        if t.kind == TY_INT && t.index_type >= 0 && t.pool >= 0 {
+            var named = t.pool;
+            if p.symbols[named].component_owner >= 0 { named = p.symbols[named].component_owner; }
+            check_global_use(p, c, named, token);
+        }
+        if (t.kind == TY_ARRAY || t.kind == TY_SLICE || t.kind == TY_REF) && t.element >= 0 && p.type_scan_marks[t.element] != stamp {
+            p.type_scan_marks[t.element] = stamp; work.push(t.element);
+        }
+        if t.kind == TY_STRUCT || t.kind == TY_ENUM || t.kind == TY_TUPLE {
+            var part = t.first;
+            while part >= 0 {
+                let child = p.nodes[part].type_id;
+                if child >= 0 && (p.nodes[part].flags & F_PAD) == 0 && p.type_scan_marks[child] != stamp {
+                    p.type_scan_marks[child] = stamp; work.push(child);
+                }
+                part = p.nodes[part].next;
+            }
+        }
+    }
+}
 
 fn check_primitive_token(kind: i64) -> i64 {
     if kind == T_TBOOL { return TYPE_BOOL; }
@@ -4550,7 +4581,10 @@ recursive fn check_builtin(p: Program&, c: Checker&, node: i64, builtin: i64) ->
                 diagnose(p, n.token, "from_bytes requires a contiguous image without external references");
             } else if !check_image_links(p, element, element) {
                 diagnose(p, n.token, "from_bytes requires relative references to point at an element of the array or one of its variants");
+            } else if destination.array_kind == A_GROWSHRINK && check_type_property(p, element, 3) != 0 {
+                diagnose(p, n.token, "from_bytes grow-shrink array cannot hold relative references: a shrink would free what they still name");
             }
+            check_from_bytes_indices(p, c, element, n.token);
         }
         result = check_builtin_pair(p, type_argument, n.token); check_add_root(c, node, -2);
     } else if builtin == 36 || builtin == 37 {

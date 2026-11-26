@@ -1643,6 +1643,306 @@ fn main() {
                     ran = self._run_wasm("wasmtime", module)
                     self.assertEqual((ran.returncode, ran.stdout), (0, expected), ran.stderr)
 
+    def test_batch3_defer_and_checker_regressions(self):
+        reject_cases = [
+            (
+                "defer_reads_popped_ref",
+                """\
+fn main() {
+    var xs: i64[>..] = [1, 2];
+    let r = &xs[1];
+    defer { print(r); }
+    xs.pop(); xs.push(999);
+}
+""",
+                "array shrink invalidates",
+            ),
+            (
+                "defer_lifo_shrink_before_earlier_read",
+                """\
+fn main() {
+    var xs: i64[>..] = [1, 2];
+    let r = &xs[1];
+    defer { print(r); }
+    defer { xs.pop(); xs.push(888); }
+}
+""",
+                "array shrink invalidates",
+            ),
+            (
+                "defer_nested_block_shrink_before_outer_defer",
+                """\
+fn main() {
+    var xs: i64[>..] = [1, 2];
+    let r = &xs[0];
+    defer { print(r); }
+    { defer { xs.pop(); } }
+}
+""",
+                "array shrink invalidates",
+            ),
+            (
+                "defer_early_return_lifo_shrink",
+                """\
+fn f(cond: bool) {
+    var xs: i64[>..] = [1, 2];
+    let r = &xs[0];
+    defer { print(r); }
+    if cond {
+        defer { xs.pop(); }
+        return;
+    }
+}
+fn main() { f(true); }
+""",
+                "array shrink invalidates",
+            ),
+            (
+                "defer_block_tail_ref_invalidated",
+                """\
+fn main() {
+    var xs: i64[>..] = [1, 2];
+    let r: i64& .= { defer { xs.clear(); } xs[0] };
+    print(r);
+}
+""",
+                "array shrink invalidates",
+            ),
+            (
+                "defer_break_ref_invalidated",
+                """\
+fn main() {
+    var xs: i64[>..] = [1, 2];
+    let r: i64& .= block {
+        defer { xs.clear(); }
+        if xs.len > 0 { break xs[0]; }
+        xs[1]
+    };
+    print(r);
+}
+""",
+                "array shrink invalidates",
+            ),
+            (
+                "defer_return_ref_invalidated",
+                """\
+fn bad(xs: i64[>..]&) -> i64& {
+    defer { xs.clear(); }
+    return xs[0];
+}
+fn main() { var xs: i64[>..] = [1, 2]; print(bad(xs)); }
+""",
+                "array shrink invalidates",
+            ),
+            (
+                "defer_continue_shrinks_outer_ref",
+                """\
+fn main() {
+    var xs: i64[>..] = [1, 2];
+    let r = &xs[0];
+    for i in 3 {
+        defer { xs.clear(); }
+        if i == 0 { continue; }
+        print(r);
+    }
+}
+""",
+                "array shrink invalidates",
+            ),
+            (
+                "serialize_grow_shrink_refs",
+                """\
+struct N { v: i64, next: N&<u32>? }
+fn load(bytes: u8[:]) -> i64 {
+    var a, ok = from_bytes<N[>..<]>(bytes);
+    return if ok { a.len } else { -1 };
+}
+fn main() { print(load("")); }
+""",
+                "cannot hold relative references",
+            ),
+            (
+                "global_before_init_from_bytes_index",
+                """\
+type Id = u32 in nodes;
+struct Box<T> { value: T }
+fn load<T>() -> bool {
+    let image: u8[5] = [4, 0, 0, 0, 0];
+    let values, ok = from_bytes<T[>..]>(image);
+    ok
+}
+var first = load<Box<Box<Id>>>();
+var nodes: i64[>..] = [10];
+fn main() { print(first); }
+""",
+                "before its initialization",
+            ),
+            (
+                "holder_param_inexact_views",
+                """\
+struct Pair { a: const i32[:], b: const i32[:] }
+fn refill(dst: i32[>..]&, p: Pair) {
+    dst.clear();
+    for x in p.a { dst.push(x); }
+    for x in p.b { dst.push(x); }
+}
+fn main() {
+    let xs: i32[] = [1, 2];
+    let ys: i32[] = [3];
+    var out: i32[>..] = [9];
+    refill(out, Pair { a: xs, b: ys });
+    print(out.len);
+}
+""",
+                "array shrink invalidates",
+            ),
+            (
+                "holder_param_inexact_views_copy",
+                """\
+struct Pair { a: const i32[:], b: const i32[:] }
+fn refill(dst: i32[>..]&, p: Pair) {
+    let q = p;
+    dst.clear();
+    for x in q.a { dst.push(x); }
+}
+fn main() {
+    let xs: i32[] = [1, 2];
+    let ys: i32[] = [3];
+    var out: i32[>..] = [9];
+    refill(out, Pair { a: xs, b: ys });
+    print(out.len);
+}
+""",
+                "array shrink invalidates",
+            ),
+            (
+                "holder_param_inexact_views_slice_read",
+                """\
+struct Pair { a: const i32[:], b: const i32[:] }
+fn refill(dst: i32[>..]&, p: Pair) {
+    let s = p.a;
+    dst.clear();
+    print(s.len);
+}
+fn main() {
+    let xs: i32[] = [1, 2];
+    let ys: i32[] = [3];
+    var out: i32[>..] = [9];
+    refill(out, Pair { a: xs, b: ys });
+}
+""",
+                "array shrink invalidates",
+            ),
+        ]
+        for name, code, snippet in reject_cases:
+            with self.subTest(reject=name):
+                src = self.work / f"b3_{name}.goose"
+                src.write_text(code)
+                res = subprocess.run(
+                    list(map(str, [COMPILER, src, "--stdlib", SOURCE_STDLIB, "--check"])),
+                    stdin=subprocess.DEVNULL, capture_output=True, text=True, timeout=30,
+                )
+                self.assertNotEqual(res.returncode, 0, f"{name} was unexpectedly accepted")
+                self.assertIn(snippet, res.stderr)
+
+        accept_cases = [
+            (
+                "defer_clears_after_read",
+                """\
+fn main() {
+    var xs: i64[>..] = [1, 2];
+    let r = &xs[0];
+    defer { xs.clear(); }
+    print(r);
+}
+""",
+            ),
+            (
+                "defer_lifo_clear_after_later_read",
+                """\
+fn main() {
+    var xs: i64[>..] = [1, 2];
+    let r = &xs[0];
+    defer { xs.clear(); }
+    defer { print(r); }
+}
+""",
+            ),
+            (
+                "defer_early_return_dead_after",
+                """\
+fn f(cond: bool) {
+    var xs: i64[>..] = [1, 2];
+    let r = &xs[0];
+    defer { xs.clear(); }
+    if cond { return; }
+    print(r);
+}
+fn main() { f(true); }
+""",
+            ),
+            (
+                "defer_continue_loop_local_ref",
+                """\
+fn main() {
+    var xs: i64[>..] = [1, 2];
+    for i in 3 {
+        if xs.len == 0 { break; }
+        let r = &xs[0];
+        defer { xs.clear(); }
+        if i == 0 { continue; }
+        print(r);
+    }
+}
+""",
+            ),
+            (
+                "holder_param_caller_exact_after_put",
+                """\
+struct Pair { a: const i32[:], b: const i32[:] }
+fn put(out: Pair[>..]&, p: Pair) { out.push(p); }
+fn main() {
+    let xs: i32[] = [1, 2];
+    let ys: i32[] = [3];
+    var other: i32[>..] = [9];
+    var out: Pair[>..] = [];
+    put(out, Pair { a: xs, b: ys });
+    other.clear();
+    print(out[0].a.len);
+}
+""",
+            ),
+            (
+                "holder_param_out_deeper",
+                """\
+struct Pair { a: const i32[:], b: const i32[:] }
+fn refill(dst: i32[>..]&, p: Pair) {
+    dst.clear();
+    for x in p.a { dst.push(x); }
+}
+fn main() {
+    let xs: i32[] = [1, 2];
+    let ys: i32[] = [3];
+    let c = true;
+    if c {
+        var out: i32[>..] = [9];
+        refill(out, Pair { a: xs, b: ys });
+        print(out.len);
+    }
+}
+""",
+            ),
+        ]
+        for name, code in accept_cases:
+            with self.subTest(accept=name):
+                src = self.work / f"b3_ok_{name}.goose"
+                src.write_text(code)
+                res = subprocess.run(
+                    list(map(str, [COMPILER, src, "--stdlib", SOURCE_STDLIB, "--check"])),
+                    stdin=subprocess.DEVNULL, capture_output=True, text=True, timeout=30,
+                )
+                self.assertEqual(res.returncode, 0, f"{name} rejected:\n{res.stderr}")
+
 
 if __name__ == "__main__":
     unittest.main()

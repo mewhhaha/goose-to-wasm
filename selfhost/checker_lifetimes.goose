@@ -46,7 +46,7 @@ struct LifeBody { start: i64, captures: bool = false, globals: i64 = 0, global_c
 // been stored through, -1 at the last, -2 while this one has not. stores:
 // what life_class_stores last found for it, as of the frame's stored_version.
 // any_set: what life_class_any_set made of it for the call any_serial.
-struct LifeRoot { symbol: i64 = -1, frame: i64 = -1, node: i64 = -1, type_id: i64 = -1, depth: i64 = 0, temporary: bool = false, contents: i64 = 0, live_contents: i64 = 0, atoms: i64 = -1, slotread_set: i32 = -1, next_node: i64 = -1, class_frame: i64 = -1, class_index: i64 = -1, class_one: bool = false, map_serial: i64 = 0, map_class: i64 = -1, class_parent: i64 = -1, class_type: i64 = -1, class_next: i64 = -1, class_level: i64 = 0, stored: i64 = 0, stored_next: i64 = -2, stores: i64 = 0, stores_version: i64 = -1, any_set: i64 = 0, any_serial: i64 = 0, class_pointee: i64 = -1, class_holder: i64 = -1, class_empty: bool = false, class_mask: i64 = 0, first_kill: i64 = -1, any_held: i64 = 0, any_held_serial: i64 = 0, last_atom_set: i32 = -1 }
+struct LifeRoot { symbol: i64 = -1, frame: i64 = -1, node: i64 = -1, type_id: i64 = -1, depth: i64 = 0, temporary: bool = false, contents: i64 = 0, live_contents: i64 = 0, atoms: i64 = -1, slotread_set: i32 = -1, next_node: i64 = -1, class_frame: i64 = -1, class_index: i64 = -1, class_one: bool = false, map_serial: i64 = 0, map_class: i64 = -1, class_parent: i64 = -1, class_type: i64 = -1, class_next: i64 = -1, class_level: i64 = 0, stored: i64 = 0, stored_next: i64 = -2, stores: i64 = 0, stores_version: i64 = -1, any_set: i64 = 0, any_serial: i64 = 0, class_pointee: i64 = -1, class_holder: i64 = -1, class_empty: bool = false, class_mask: i64 = 0, first_kill: i64 = -1, any_held: i64 = 0, any_held_serial: i64 = 0, last_atom_set: i32 = -1, param_frame: i64 = -1 }
 // Element owner: -1 none, -2 inside elements with unknown owner, otherwise type ID.
 // reached: of a reference argument, life_reached of its expression (the
 // type of the storage it points into), for the stores a call makes through it.
@@ -54,7 +54,7 @@ struct LifeValue { type_id: i32 = -1, place: i32 = 0, refs: i32 = 0, contents: i
 let LIFE_EMPTY_VALUE = LifeValue {};
 struct LifeItem { value: LifeValue, next: i32 = -1 }
 // live is set and cleared through life_set_live, which mirrors it in live_bits.
-struct LifeCell { symbol: i32, frame: i32, root: i32, parameter: bool = false, refs: i32 = 0, live_refs: i32 = 0, contents: i32 = 0, initial: i32 = 0, committed: bool = false, readonly: bool = false, growshrink: bool = false, depth: i32 = 0, initialized: bool = false, live: bool = false, next_symbol: i32 = -1, next_frame: i32 = -1, next_capture_input: i32 = -1, next_parameter: i32 = -1 }
+struct LifeCell { symbol: i32, frame: i32, root: i32, parameter: bool = false, refs: i32 = 0, live_refs: i32 = 0, contents: i32 = 0, initial: i32 = 0, committed: bool = false, readonly: bool = false, growshrink: bool = false, depth: i32 = 0, initialized: bool = false, live: bool = false, next_symbol: i32 = -1, next_frame: i32 = -1, next_capture_input: i32 = -1, next_parameter: i32 = -1, param_bound_root: i32 = -1 }
 // first_other, last_other: discovery effects that need individual replay,
 // in insertion order. replay_version changes whenever a replayable leaf
 // is added or updated, invalidating a completed replay of this summary.
@@ -101,7 +101,7 @@ struct LifeFrame { store_read_pass: i64 = 0, store_reader: i64 = -1, function_no
     dep_clean_pass: i64 = -1, dep_dirty_pass: i64 = -1, dep_change_stamp: i64 = 0,
     dep_stored_ver: i64 = -1,
     validated_global_epoch: i64 = -1, summary_version: i64 = 0,
-    noncautious_ver: i32 = 0, has_deep_assume: bool = false, has_gs_assume: bool = false, val_stores_only: bool = false, val_stores_shallow: bool = false }
+    noncautious_ver: i32 = 0, defer_base: i32 = 0, has_deep_assume: bool = false, has_gs_assume: bool = false, val_stores_only: bool = false, val_stores_shallow: bool = false }
 // The live storage and killed fields are the two mutable inputs of a
 // concrete holder reached during a shrink check.
 struct LifeWalkRoot { root: i64 = 0, contents: i64 = 0, kills: i64 = -1 }
@@ -188,6 +188,8 @@ struct LifeHeldOwn { set: i32 = -1, result: i32 = 0, discovery: bool = false, st
 struct LifeExit { node: i32, next: i32, value: LifeValue, destination: i32 = 0, selected_result: i32 = -1 }
 struct LifeFuture { node: i64, frame: i64, scope: i64, loop_scope: i64 = -1, last: i64 = -1 }
 struct LifeFutureExit { frame: i64 = -1, scope: i64 = -1, before: i64 = 0 }
+struct LifeDefer { node: i32, scope: i32, frame: i32 }
+struct LifeDeferTarget { node: i32, defer_mark: i32 }
 // A question a shrink check has asked of a live cell, and its answer
 // (life_shrink_array): a reference's pointee type and what it refers to, or
 // a holder's type, place and contents.
@@ -503,6 +505,7 @@ struct Lifetimes {
     body_trans_globals: i64[>..]&,
     summary_l1: LifeSummarySlot[>..]&, assume_l1: LifeAssumeSlot[>..]&,
     val_kill_epoch: i64 = 0,
+    defers: LifeDefer[>..]&, defer_targets: LifeDeferTarget[>..]&, defer_run: LifeDefer[>..]&, defer_floor: i64 = 0,
 }
 
 fn life_same_effect(l: Lifetimes&, old: const LifeEffect&, effect: const LifeEffect&) -> bool {
@@ -3597,7 +3600,16 @@ fn life_leave_scope(p: Program&, l: Lifetimes&, scope: i64) {
 }
 fn life_future_reachable(l: Lifetimes&, index: i64, future: const LifeFuture&) -> bool {
     let exit = l.future_exit;
-    if future.frame != exit.frame || index >= exit.before { return true; }
+    if exit.frame < 0 || index >= exit.before { return true; }
+    if future.frame != exit.frame {
+        if exit.scope >= 0 { return true; }
+        var f = l.frames[future.frame].parent;
+        while f > 0 {
+            if f == exit.frame { return false; }
+            f = l.frames[f].parent;
+        }
+        return f != exit.frame;
+    }
     if exit.scope < 0 { return false; }
     let scope = if future.loop_scope >= 0 { future.loop_scope } else { future.scope };
     return !life_in_scope(l, scope, exit.scope);
@@ -4668,6 +4680,16 @@ recursive fn life_class_query_roots(p: Program&, l: Lifetimes&, frame: i64, inde
 // life_alias where either root may be a class root.
 recursive fn life_alias_deep(p: Program&, l: Lifetimes&, a: LifeAlt, b: LifeAlt) -> bool {
     if a.root == 0 || b.root == 0 { return false; }
+    if l.roots[a.root].param_frame >= 0 {
+        if !l.frames[l.roots[a.root].param_frame].active || l.roots[a.root].depth < l.roots[b.root].depth { return false; }
+        if a.target_type >= 0 && !a.byteview && b.exact && !b.byteview && l.roots[b.root].class_frame < 0 && l.roots[b.root].type_id >= 0 && !life_contains_memo(p, l, l.roots[b.root].type_id, a.target_type as i64) { return false; }
+        return true;
+    }
+    if l.roots[b.root].param_frame >= 0 {
+        if !l.frames[l.roots[b.root].param_frame].active || l.roots[b.root].depth < l.roots[a.root].depth { return false; }
+        if b.target_type >= 0 && !b.byteview && a.exact && !a.byteview && l.roots[a.root].class_frame < 0 && l.roots[a.root].type_id >= 0 && !life_contains_memo(p, l, l.roots[a.root].type_id, b.target_type as i64) { return false; }
+        return true;
+    }
     if a.root == b.root { return !(a.exact && b.exact && a.component >= 0 && b.component >= 0 && a.component != b.component); }
     if life_is_global_bound(l, a) && !a.byteview && b.exact && !b.byteview && b.root != 0 {
         var bty = b.target_type as i64;
@@ -4734,6 +4756,12 @@ fn life_place_candidates(l: Lifetimes&, places: i64) -> i64 {
 recursive fn life_class_alias(p: Program&, l: Lifetimes&, a: LifeAlt, b: LifeAlt) -> bool {
     var fa = l.roots[a.root].class_frame; if fa >= 0 && !l.frames[fa].active { fa = -1; }
     var fb = l.roots[b.root].class_frame; if fb >= 0 && !l.frames[fb].active { fb = -1; }
+    // A by-value holder parameter whose views are not of one array exactly
+    // only bounds those views inside the callee body (upstream RootArg::heldexact).
+    if fa >= 0 && l.roots[a.root].class_index < l.frames[fa].class_base && !l.roots[a.root].class_one && l.roots[a.root].class_holder >= 0 &&
+       l.roots[a.root].depth >= l.roots[b.root].depth { return true; }
+    if fb >= 0 && l.roots[b.root].class_index < l.frames[fb].class_base && !l.roots[b.root].class_one && l.roots[b.root].class_holder >= 0 &&
+       l.roots[b.root].depth >= l.roots[a.root].depth { return true; }
     if fa >= 0 && fa == fb {
         // A reference read out as a storage class may be to an argument
         // class whose type can hold its pointee (class_mask).
@@ -4861,6 +4889,16 @@ fn life_exact_same(p: Program&, l: Lifetimes&, a: LifeAlt, b: LifeAlt) -> bool {
 }
 fn life_alias(p: Program&, l: Lifetimes&, a: LifeAlt, b: LifeAlt) -> bool {
     if a.root == 0 || b.root == 0 { return false; }
+    if l.roots[a.root].param_frame >= 0 {
+        if !l.frames[l.roots[a.root].param_frame].active || l.roots[a.root].depth < l.roots[b.root].depth { return false; }
+        if a.target_type >= 0 && !a.byteview && b.exact && !b.byteview && l.roots[b.root].class_frame < 0 && l.roots[b.root].type_id >= 0 && !life_contains_memo(p, l, l.roots[b.root].type_id, a.target_type as i64) { return false; }
+        return true;
+    }
+    if l.roots[b.root].param_frame >= 0 {
+        if !l.frames[l.roots[b.root].param_frame].active || l.roots[b.root].depth < l.roots[a.root].depth { return false; }
+        if b.target_type >= 0 && !b.byteview && a.exact && !a.byteview && l.roots[a.root].class_frame < 0 && l.roots[a.root].type_id >= 0 && !life_contains_memo(p, l, l.roots[a.root].type_id, b.target_type as i64) { return false; }
+        return true;
+    }
     // Two known components of one root owner are separate storage.
     if a.root == b.root { return !(a.exact && b.exact && a.component >= 0 && b.component >= 0 && a.component != b.component); }
     if life_is_global_bound(l, a) && !a.byteview && b.exact && !b.byteview && b.root != 0 {
@@ -5293,6 +5331,11 @@ fn life_held_into(p: Program&, l: Lifetimes&, owners: i64, holder_type: i64, tar
                             l.walk_work.push(LifeWalk { root: orig.root, type_id: elem });
                         }
                     }
+                    continue;
+                }
+                if l.roots[orig.root].param_frame >= 0 {
+                    if !l.frames[l.roots[orig.root].param_frame].active { skipped_safe = true; continue; }
+                    if any_reaches && life_shrink_alt_overlaps(p, l, orig, target, slot_safe, use_safe) { return true; }
                     continue;
                 }
                 let stype = l.roots[orig.root].type_id;
@@ -6200,7 +6243,8 @@ fn life_readback(p: Program&, l: Lifetimes&, type_id: i64, places: i64) -> i64 {
         var excluded = false; var kept = false;
         for item in start..end {
             let r = l.scratch[item];
-            if (r.target_type < 0 || life_same(p, r.target_type, t.element)) && (r.root == 0 || r.byteview || !r.exact || life_class_holds(p, l, r.root as i64, t.element) || life_contains_memo(p, l, l.roots[r.root].type_id, t.element)) &&
+            if r.root != 0 && l.roots[r.root].param_frame >= 0 && !l.frames[l.roots[r.root].param_frame].active { continue; }
+            if (r.target_type < 0 || life_same(p, r.target_type, t.element)) && (r.root == 0 || r.byteview || !r.exact || l.roots[r.root].param_frame >= 0 || life_class_holds(p, l, r.root as i64, t.element) || life_contains_memo(p, l, l.roots[r.root].type_id, t.element)) &&
                (r.root == 0 || r.byteview || r.exact || r.from != r.root || l.roots[r.root].class_frame < 0 || l.roots[r.root].class_parent < 0 || life_holder_points(p, l, l.roots[r.root].class_type, t.element)) &&
                (!life_is_global_bound(l, r) || r.byteview || life_globals_contain(p, l, t.element)) {
                 var is_ref_slot = !global && (root_type_id >= 0 && life_is_ref(p, root_type_id) ||
@@ -6228,7 +6272,7 @@ fn life_readback(p: Program&, l: Lifetimes&, type_id: i64, places: i64) -> i64 {
                 // argument's storage holds that such a value can lie in
                 // (life_map_onto).
                 var target = r.target_type;
-                if target < 0 && r.exact && t.element >= 0 && l.roots[r.root].class_frame >= 0 && (l.roots[r.root].class_parent >= 0 || l.roots[r.root].class_index >= l.frames[l.roots[r.root].class_frame].class_base) { target = t.element as i32; }
+                if target < 0 && r.exact && t.element >= 0 && (l.roots[r.root].param_frame >= 0 || l.roots[r.root].class_frame >= 0 && (l.roots[r.root].class_parent >= 0 || l.roots[r.root].class_index >= l.frames[l.roots[r.root].class_frame].class_base)) { target = t.element as i32; }
                 life_build_add_alt(l, result, LifeAlt { root: r.root, from: alt.root, target_type: target, bound: bound, component: r.component, exact: r.exact, slotread: slotread, byteview: r.byteview });
             }
         }
@@ -8081,6 +8125,8 @@ recursive fn life_class_eval(p: Program&, l: Lifetimes&, target: i64, sets: i64)
     let function_node = l.frames[target].function_node;
     let previous_frame = l.frame; let previous_scope = l.scope; let previous_island = l.island;
     let hold_floor = l.hold_floor; let future_floor = l.future_floor; let conditional = l.conditional;
+    let defer_floor = l.defer_floor; let defers_len = l.defers.len; let defer_targets_len = l.defer_targets.len;
+    let saved_pending_defers = l.pending_defers; let saved_defer_base = l.frames[target].defer_base;
     let build_holds = l.build_holds; let construct_holds = l.construct_holds; let format_holds = l.format_holds;
     let saved_omit_cr = l.omit_construct_reads;
     let reading_place = l.reading_place; let sequence_path = l.sequence_path;
@@ -8111,6 +8157,7 @@ recursive fn life_class_eval(p: Program&, l: Lifetimes&, target: i64, sets: i64)
     l.frame = target; l.scope = p.nodes[function_node].scope; l.island = target;
     if !l.discovery { l.holder_grow_epoch += 1; }
     l.hold_floor = l.hold_count; l.future_floor = l.future_count; l.conditional = 0; l.reading_place = 0; l.sequence_path = -1;
+    l.defer_floor = l.defers.len; l.pending_defers = 0; l.frames[target].defer_base = l.defers.len as i32;
     l.build_holds = 0; l.construct_holds = 0; l.format_holds = 0;
     if l.nodes_prepared { l.omit_construct_reads = !l.full_reads && (l.hold_flags[function_node] & FH_CONSTRUCT_READ) == 0; }
     let classes = l.frames[target].classes; let class_count = l.frames[target].class_count;
@@ -8248,6 +8295,8 @@ recursive fn life_class_eval(p: Program&, l: Lifetimes&, target: i64, sets: i64)
     l.frame = previous_frame; l.scope = previous_scope; l.island = previous_island;
     if !l.discovery { l.holder_grow_epoch += 1; }
     l.hold_floor = hold_floor; l.future_floor = future_floor; l.conditional = conditional; l.reading_place = reading_place; l.sequence_path = sequence_path;
+    l.defers.resize(defers_len); l.defer_targets.resize(defer_targets_len);
+    l.defer_floor = defer_floor; l.pending_defers = saved_pending_defers; l.frames[target].defer_base = saved_defer_base;
     l.build_holds = build_holds; l.construct_holds = construct_holds; l.format_holds = format_holds;
     l.omit_construct_reads = saved_omit_cr;
 }
@@ -8943,11 +8992,42 @@ recursive fn life_function(p: Program&, l: Lifetimes&, function_node: i64, call:
                 // Binding a parameter makes its cell live, which only counts
                 // where the lexical frame is the one being entered.
                 var formal_reach = reach; if lexical == target { formal_reach = life_reach(l, lexical); }
-                let roots = life_parameter_roots(p, l, val_roots, fty, function_node, formal_reach);
+                var roots = life_parameter_roots(p, l, val_roots, fty, function_node, formal_reach);
                 if life_tf_is_ref(p, l, fty) {
                     let next = life_join(l, l.cells[cell].refs, roots);
                     if !life_equal(l, next, l.cells[cell].refs) { life_set_refs(l, cell, next); l.revision += 1; }
                     if !l.discovery && !l.frames[target].active { life_set_live_refs(l, cell, roots); }
+                } else if val_roots != 0 && life_tf_holds(p, l, fty) {
+                    // A by-value holder parameter whose views are not of one
+                    // array exactly (or in a recursive function) only bounds
+                    // those views inside the callee body (upstream heldexact).
+                    let first_alt = l.alts[l.sets[val_roots].first];
+                    let is_rec = (p.nodes[function_node].flags & F_RECURSIVE) != 0 && (p.nodes[function_node].flags & F_FORMAT_RAW) == 0;
+                    let held_exact = !is_rec && l.sets[val_roots].count == 1 && first_alt.exact &&
+                        (l.roots[first_alt.root].class_frame < 0 || l.roots[first_alt.root].class_one);
+                    if !held_exact {
+                        var has_nonstatic = false; var max_depth: i64 = 0; var any_bytes = false;
+                        var vi = l.sets[val_roots].first;
+                        while vi >= 0 {
+                            let va = l.alts[vi]; vi = va.next;
+                            if va.root != 0 && (l.roots[va.root].param_frame < 0 || l.frames[l.roots[va.root].param_frame].active) {
+                                has_nonstatic = true;
+                                if l.roots[va.root].depth > max_depth { max_depth = l.roots[va.root].depth; }
+                            }
+                            if va.byteview { any_bytes = true; }
+                        }
+                        if has_nonstatic {
+                            var pr = l.cells[cell].param_bound_root as i64;
+                            if pr < 0 {
+                                pr = l.roots.len;
+                                l.roots.push(LifeRoot { frame: target, depth: max_depth, param_frame: target });
+                                l.cells[cell].param_bound_root = pr as i32;
+                            } else if max_depth > l.roots[pr].depth {
+                                l.roots[pr].depth = max_depth;
+                            }
+                            roots = life_join(l, roots, life_single(l, pr, true, -1, false, any_bytes));
+                        }
+                    }
                 }
                 if roots != 0 { life_add_contents(p, l, l.cells[cell].root, roots); }
             }
@@ -8984,6 +9064,8 @@ recursive fn life_function(p: Program&, l: Lifetimes&, function_node: i64, call:
         if track_deps { l.dep_tainted = false; l.dep_root_floor = r_start; }
         l.frames[target].quiet_pass = -1;
         if l.discovery && l.class_frames > 0 && l.island == 0 && life_nearest_recursive(l, target) == 0 { l.frames[target].quiet_pass = l.pass; }
+        let saved_defer_base = l.frames[target].defer_base;
+        l.frames[target].defer_base = l.defers.len as i32;
         l.frames[target].active = true; l.frames[l.function_frames[function_node] as i64].function_active += 1; let temporary_base = l.temp_count;
         let body_node = p.nodes[function_node].right;
         if !l.discovery { l.frames[target].live_result = LIFE_EMPTY_VALUE; }
@@ -8993,6 +9075,7 @@ recursive fn life_function(p: Program&, l: Lifetimes&, function_node: i64, call:
             life_eval(p, l, body_node, destination, selected_result);
         }
         l.temp_count = temporary_base; l.frames[target].active = false; l.frames[l.function_frames[function_node] as i64].function_active -= 1;
+        l.frames[target].defer_base = saved_defer_base;
         l.frames[target].checked_revision = l.pass;
         if !l.discovery {
             l.frames[target].validated = true;
@@ -9421,9 +9504,16 @@ recursive fn life_eval_void(p: Program&, l: Lifetimes&, node: i64) {
     if kind == N_BLOCK && (n.flags & F_EARLY) == 0 && (n.type_id < 0 || n.type_id == TYPE_VOID) {
         let saved = l.scope; if n.scope >= 0 { l.scope = n.scope; }
         let disc = l.discovery;
-        let saved_defers = l.pending_defers;
+        let defer_mark = l.defers.len;
         var child = n.first;
         while child >= 0 {
+            if p.nodes[child].kind == N_DEFER {
+                if p.nodes[child].right >= 0 {
+                    l.defers.push(LifeDefer { node: child as i32, scope: l.scope as i32, frame: l.frame as i32 });
+                    l.pending_defers = l.defers.len - l.defer_floor;
+                }
+                child = p.nodes[child].next; continue;
+            }
             let cf = l.node_flags[child];
             if (cf & NF_INERT) == 0 {
                 let temporary_base = l.temp_count;
@@ -9436,13 +9526,12 @@ recursive fn life_eval_void(p: Program&, l: Lifetimes&, node: i64) {
                     life_eval_void(p, l, child);
                     l.future_count = futures;
                     l.future_exit = saved_exit;
-                    if p.nodes[child].kind == N_DEFER { l.pending_defers += 1; }
                 }
                 l.temp_count = temporary_base;
             }
             child = p.nodes[child].next;
         }
-        l.pending_defers = saved_defers;
+        if l.defers.len > defer_mark { life_run_defers(p, l, defer_mark, true, -1, -2); }
         if n.scope >= 0 && l.scope_has_cell[n.scope] != 0 {
             life_leave_scope(p, l, n.scope);
         }
@@ -9475,8 +9564,15 @@ recursive fn life_eval_void(p: Program&, l: Lifetimes&, node: i64) {
         life_eval_loop(p, l, cur, n, 0, -1, dummy); return;
     }
     if kind == N_BREAK { life_eval_break(p, l, n, 0, -1); return; }
+    if kind == N_CONTINUE {
+        if n.symbol >= 0 && l.defers.len > l.defer_floor {
+            let target_mark = life_defer_target_mark(l, n.symbol);
+            if target_mark >= 0 { life_run_defers(p, l, target_mark, false, l.frame, p.nodes[n.symbol].scope, n.symbol); }
+        }
+        return;
+    }
     if kind == N_INTEGER || kind == N_FLOAT || kind == N_NULL || kind == N_BOOL || kind == N_STRING ||
-       kind == N_EMPTY || kind == N_FUNCTION || kind == N_FUNCTION_VALUE || kind == N_IMPORT || kind == N_CONTINUE { return; }
+       kind == N_EMPTY || kind == N_FUNCTION || kind == N_FUNCTION_VALUE || kind == N_IMPORT { return; }
     life_eval(p, l, cur);
 }
 
@@ -9586,9 +9682,17 @@ recursive fn life_eval(p: Program&, l: Lifetimes&, node: i64, destination: i64 =
     if kind == N_RETURN { life_eval_return(p, l, n); return out; }
     if kind == N_TUPLE { life_eval_tuple(p, l, n, out); return out; }
     if kind == N_BREAK { life_eval_break(p, l, n, destination, selected_result); return out; }
+    if kind == N_CONTINUE {
+        if n.symbol >= 0 && l.defers.len > l.defer_floor {
+            let target_mark = life_defer_target_mark(l, n.symbol);
+            if target_mark >= 0 { life_run_defers(p, l, target_mark, false, l.frame, p.nodes[n.symbol].scope, n.symbol); }
+        }
+        return out;
+    }
     if kind == N_EXPR_STMT || kind == N_GUARD { life_eval_void(p, l, n.left); return out; }
-    // A defer body is evaluated where it is written (upstream CheckDefer):
-    // what it reads is live there, which covers every exit of its block.
+    // A defer body runs at the exits of its enclosing block (handled in
+    // life_eval_void / life_eval_block via life_run_defers); fallback if
+    // evaluated directly outside a block.
     if kind == N_DEFER { life_eval_void(p, l, n.right); return out; }
     if kind == N_BINARY || kind == N_RANGE { life_eval_binary(p, l, n); return out; }
     return out;
@@ -9935,7 +10039,12 @@ recursive fn life_eval_return(p: Program&, l: Lifetimes&, n: const Node&) {
     let old = l.frames[target_frame].result;
     let joined = life_merge(l, old, result);
     if old.readonly != joined.readonly || !life_equal(l, old.refs, joined.refs) || !life_equal(l, old.contents, joined.contents) || !life_equal(l, old.self_pools, joined.self_pools) || !life_equal(l, old.relative_roots, joined.relative_roots) { l.revision += 1; }
-    l.frames[target_frame].result = joined; life_pop_holds(l, held);
+    l.frames[target_frame].result = joined;
+    if l.defers.len > l.defer_floor {
+        let mark = l.frames[target_frame].defer_base as i64;
+        life_run_defers(p, l, mark, false, target_frame, -1);
+    }
+    life_pop_holds(l, held);
 }
 
 recursive fn life_eval_tuple(p: Program&, l: Lifetimes&, n: const Node&, out: LifeValue&) {
@@ -9961,7 +10070,93 @@ recursive fn life_bypasses_exit(p: Program&, node: i64) -> bool {
     return life_bypasses_exit(p, n.left) || life_bypasses_exit(p, n.right) || life_bypasses_exit(p, n.third);
 }
 
+fn life_push_active_defers(p: Program&, l: Lifetimes&, from: i64, to: i64) {
+    if l.discovery { return; }
+    var i = to - 1;
+    while i >= from {
+        let d = l.defers[i];
+        let body = p.nodes[d.node].right;
+        if body >= 0 {
+            let entry = LifeFuture { node: body, frame: d.frame as i64, scope: d.scope as i64, loop_scope: -1, last: -1 };
+            if l.future_count == l.futures.len { l.futures.push(entry); } else { l.futures[l.future_count] = entry; }
+            l.future_count += 1;
+        }
+        i -= 1;
+    }
+}
+
+fn life_defer_target_mark(l: Lifetimes&, target_node: i64) -> i64 {
+    var i = l.defer_targets.len - 1;
+    while i >= 0 {
+        if (l.defer_targets[i].node as i64) == target_node { return l.defer_targets[i].defer_mark as i64; }
+        i -= 1;
+    }
+    return -1;
+}
+
+recursive fn life_run_defers(p: Program&, l: Lifetimes&, mark: i64, pop: bool, exit_frame: i64, exit_scope: i64, continue_loop: i64 = -1) {
+    var from = mark;
+    if from < l.defer_floor { from = l.defer_floor; }
+    let top = l.defers.len;
+    if top <= from { return; }
+    let run_start = l.defer_run.len;
+    for i in from..top { l.defer_run.push(l.defers[i]); }
+    let run_count = l.defer_run.len - run_start;
+    l.defers.resize(from);
+    l.pending_defers = l.defers.len - l.defer_floor;
+    let saved_exit = l.future_exit;
+    let saved_futures = l.future_count;
+    let saved_frame = l.frame;
+    let saved_scope = l.scope;
+    let saved_temp = l.temp_count;
+    if exit_frame >= 0 {
+        l.future_exit = LifeFutureExit { frame: exit_frame, scope: exit_scope, before: saved_futures };
+    }
+    var k = run_count - 1;
+    while k >= 0 {
+        if !l.discovery {
+            if continue_loop >= 0 {
+                let ln: const Node& = p.nodes[continue_loop];
+                l.frame = saved_frame; l.scope = saved_scope;
+                life_push_future(l, ln.right, ln.scope);
+                life_push_future(l, ln.left, ln.scope);
+            }
+            var r = k - 1;
+            while r >= 0 {
+                let rd = l.defer_run[run_start + r];
+                let rbody = p.nodes[rd.node].right;
+                if rbody >= 0 {
+                    let entry = LifeFuture { node: rbody, frame: rd.frame as i64, scope: rd.scope as i64, loop_scope: -1, last: -1 };
+                    if l.future_count == l.futures.len { l.futures.push(entry); } else { l.futures[l.future_count] = entry; }
+                    l.future_count += 1;
+                }
+                r -= 1;
+            }
+            life_push_active_defers(p, l, l.defer_floor, from);
+        }
+        let d = l.defer_run[run_start + k];
+        l.frame = d.frame as i64;
+        l.scope = d.scope as i64;
+        l.temp_count = saved_temp;
+        life_eval_void(p, l, p.nodes[d.node].right);
+        l.future_count = saved_futures;
+        l.frame = saved_frame;
+        l.scope = saved_scope;
+        l.temp_count = saved_temp;
+        k -= 1;
+    }
+    l.future_exit = saved_exit;
+    if !pop {
+        for i in 0..run_count { l.defers.push(l.defer_run[run_start + i]); }
+    }
+    l.defer_run.resize(run_start);
+    l.pending_defers = l.defers.len - l.defer_floor;
+}
+
 fn life_block_future(p: Program&, l: Lifetimes&, child: i64) {
+    if l.defers.len > l.defer_floor {
+        life_push_active_defers(p, l, l.defer_floor, l.defers.len);
+    }
     let next = p.nodes[child].next;
     if next < 0 { return; }
     var last: i64 = -1;
@@ -10001,8 +10196,19 @@ recursive fn life_eval_block(p: Program&, l: Lifetimes&, node: i64, n: const Nod
     }
     let saved = l.scope; if n.scope >= 0 { l.scope = n.scope; }
     let depth = life_depth(l, saved); var child = n.first;
-    let saved_defers = l.pending_defers;
+    let defer_mark = l.defers.len;
+    let target_mark = l.defer_targets.len;
+    if (n.flags & F_EARLY) != 0 {
+        l.defer_targets.push(LifeDeferTarget { node: node as i32, defer_mark: defer_mark as i32 });
+    }
     while child >= 0 {
+        if p.nodes[child].kind == N_DEFER {
+            if p.nodes[child].right >= 0 {
+                l.defers.push(LifeDefer { node: child as i32, scope: l.scope as i32, frame: l.frame as i32 });
+                l.pending_defers = l.defers.len - l.defer_floor;
+            }
+            child = p.nodes[child].next; continue;
+        }
         let is_tail = child == n.last && (p.nodes[child].flags & F_TAIL) != 0;
         if !is_tail && l.nodes_prepared && child < l.node_flags.len && (l.node_flags[child] & NF_INERT) != 0 {
             child = p.nodes[child].next; continue;
@@ -10020,10 +10226,15 @@ recursive fn life_eval_block(p: Program&, l: Lifetimes&, node: i64, n: const Nod
         }
         l.future_exit = saved_exit;
         l.future_count = futures; l.temp_count = temporary_base;
-        if p.nodes[child].kind == N_DEFER { l.pending_defers += 1; }
         child = p.nodes[child].next;
     }
-    l.pending_defers = saved_defers;
+    if l.defers.len > defer_mark {
+        let held = l.hold_count;
+        if !l.discovery && out.type_id >= 0 { life_hold(l, out, node); }
+        life_run_defers(p, l, defer_mark, true, -1, -2);
+        if !l.discovery { life_pop_holds(l, held); }
+    }
+    l.defer_targets.resize(target_mark);
     if !l.nodes_prepared || node >= l.node_flags.len || (l.node_flags[node] & NF_HAS_EXIT) != 0 {
         let exit = life_find_exit(l, node);
         if exit >= 0 { out = life_merge(l, out, life_coerce(p, l, l.exits[exit].value, n.type_id)); }
@@ -10218,7 +10429,10 @@ recursive fn life_eval_loop(p: Program&, l: Lifetimes&, node: i64, n: const Node
     if !l.discovery && (n.right < 0 || (l.node_flags[n.right] & NF_MAY_SHRINK) != 0) {
         life_push_future(l, n.right, n.scope); life_push_future(l, n.left, n.scope);
     }
+    let target_mark = l.defer_targets.len;
+    l.defer_targets.push(LifeDeferTarget { node: node as i32, defer_mark: l.defers.len as i32 });
     life_eval_void(p, l, n.right); l.future_count = futures;
+    l.defer_targets.resize(target_mark);
     if (l.node_flags[node] & NF_HAS_EXIT) != 0 {
         let exit = life_find_exit(l, node);
         if exit >= 0 { out = life_merge(l, out, l.exits[exit].value); }
@@ -10232,16 +10446,24 @@ recursive fn life_eval_loop(p: Program&, l: Lifetimes&, node: i64, n: const Node
 }
 
 recursive fn life_eval_break(p: Program&, l: Lifetimes&, n: const Node&, destination: i64, selected_result: i64) {
-    if n.left < 0 { return; }
-    var receiving = destination; var projected = selected_result;
-    let before = life_find_exit(l, n.symbol);
-    if before >= 0 { receiving = l.exits[before].destination; projected = l.exits[before].selected_result; }
-    let value = life_eval(p, l, n.left, receiving, projected);
-    let index = life_find_exit(l, n.symbol);
-    if index >= 0 {
-        let merged = life_merge(l, l.exits[index].value, value);
-        l.exits[index].value = merged;
-    } else { life_add_exit(l, n.symbol, value); }
+    let held = l.hold_count;
+    if n.left >= 0 {
+        var receiving = destination; var projected = selected_result;
+        let before = life_find_exit(l, n.symbol);
+        if before >= 0 { receiving = l.exits[before].destination; projected = l.exits[before].selected_result; }
+        let value = life_eval(p, l, n.left, receiving, projected);
+        let index = life_find_exit(l, n.symbol);
+        if index >= 0 {
+            let merged = life_merge(l, l.exits[index].value, value);
+            l.exits[index].value = merged;
+        } else { life_add_exit(l, n.symbol, value); }
+        if !l.discovery { life_hold(l, value, n.left); }
+    }
+    if n.symbol >= 0 && l.defers.len > l.defer_floor {
+        let target_mark = life_defer_target_mark(l, n.symbol);
+        if target_mark >= 0 { life_run_defers(p, l, target_mark, false, l.frame, p.nodes[n.symbol].scope); }
+    }
+    if !l.discovery { life_pop_holds(l, held); }
 }
 
 recursive fn life_eval_binary(p: Program&, l: Lifetimes&, n: const Node&) {
@@ -11084,11 +11306,11 @@ inline fn life_queue_hold(l: Lifetimes&, work: i64[>..]&, node: i64, bits: u8) {
     l.hold_flags[node] |= bits;
     work.push(node);
 }
-recursive fn life_analyze_candidate_fn(p: Program&, l: Lifetimes&, fn_id: i64, omit_reads: bool, fn_state: u8[>..]&) {
+recursive fn life_analyze_candidate_fn(p: Program&, l: Lifetimes&, fn_id: i64, omit_reads: bool, fn_state: u8[>..]&, any_defer: bool = false) {
     if fn_state[fn_id] != 1 { return; }
     fn_state[fn_id] = 2;
     let body = p.nodes[fn_id].right;
-    life_analyze_node(p, l, body, omit_reads, fn_state);
+    life_analyze_node(p, l, body, omit_reads, fn_state, false, any_defer);
     var body_inert = (l.node_flags[body] & NF_INERT) != 0;
     let fn_no_cr = omit_reads || (!l.full_reads && (l.hold_flags[fn_id] & FH_CONSTRUCT_READ) == 0);
     if !body_inert && fn_no_cr && p.nodes[body].kind == N_BLOCK {
@@ -11106,7 +11328,7 @@ recursive fn life_analyze_candidate_fn(p: Program&, l: Lifetimes&, fn_id: i64, o
     if body_inert { l.node_flags[fn_id] |= NF_FN_INERT; }
     fn_state[fn_id] = 3;
 }
-recursive fn life_analyze_node(p: Program&, l: Lifetimes&, node: i64, omit_reads: bool, fn_state: u8[>..]&) {
+recursive fn life_analyze_node(p: Program&, l: Lifetimes&, node: i64, omit_reads: bool, fn_state: u8[>..]&, has_defer: bool = false, any_defer: bool = false) {
     if node < 0 || node >= l.node_flags.len { return; }
     let cur_flags = l.node_flags[node];
     if (cur_flags & NF_ANALYZED) != 0 { return; }
@@ -11115,13 +11337,17 @@ recursive fn life_analyze_node(p: Program&, l: Lifetimes&, node: i64, omit_reads
     let n: const Node& = p.nodes[node];
     let kind = n.kind;
     if kind == N_INTEGER || kind == N_FLOAT || kind == N_NULL || kind == N_BOOL || kind == N_EMPTY ||
-       kind == N_CONTINUE || kind == N_FUNCTION || kind == N_FUNCTION_VALUE || kind == N_IMPORT ||
+       (kind == N_CONTINUE && !has_defer) || kind == N_FUNCTION || kind == N_FUNCTION_VALUE || kind == N_IMPORT ||
        kind == N_STRUCT || kind == N_ENUM || kind == N_ALIAS || kind == N_NAMESPACE {
         if !needs_place { l.node_flags[node] = cur_flags | NF_ANALYZED | NF_INERT; }
         else { l.node_flags[node] = cur_flags | NF_ANALYZED; }
         return;
     }
     l.node_flags[node] = cur_flags | NF_ANALYZED;
+    if kind == N_CONTINUE {
+        l.node_flags[node] = (cur_flags | NF_ANALYZED | NF_MAY_SHRINK) & ~NF_INERT;
+        return;
+    }
     if kind == N_STRING { return; }
     let in_seq = (cur_flags & NF_IN_FOR_SEQ) != 0;
     var pure_place = false;
@@ -11137,9 +11363,9 @@ recursive fn life_analyze_node(p: Program&, l: Lifetimes&, node: i64, omit_reads
             inert = true;
         }
     } else if kind == N_MEMBER || kind == N_INDEX {
-        if n.left >= 0 { life_analyze_node(p, l, n.left, omit_reads, fn_state); if (l.node_flags[n.left] & NF_MAY_SHRINK) != 0 { may_shrink = true; } }
-        if n.right >= 0 { life_analyze_node(p, l, n.right, omit_reads, fn_state); if (l.node_flags[n.right] & NF_MAY_SHRINK) != 0 { may_shrink = true; } }
-        if n.third >= 0 { life_analyze_node(p, l, n.third, omit_reads, fn_state); if (l.node_flags[n.third] & NF_MAY_SHRINK) != 0 { may_shrink = true; } }
+        if n.left >= 0 { life_analyze_node(p, l, n.left, omit_reads, fn_state, has_defer, any_defer); if (l.node_flags[n.left] & NF_MAY_SHRINK) != 0 { may_shrink = true; } }
+        if n.right >= 0 { life_analyze_node(p, l, n.right, omit_reads, fn_state, has_defer, any_defer); if (l.node_flags[n.right] & NF_MAY_SHRINK) != 0 { may_shrink = true; } }
+        if n.third >= 0 { life_analyze_node(p, l, n.third, omit_reads, fn_state, has_defer, any_defer); if (l.node_flags[n.third] & NF_MAY_SHRINK) != 0 { may_shrink = true; } }
         var storage = n.type_id;
         if kind == N_MEMBER && n.symbol >= 0 { storage = p.nodes[n.symbol].type_id; }
         if kind == N_INDEX && n.left >= 0 {
@@ -11156,11 +11382,11 @@ recursive fn life_analyze_node(p: Program&, l: Lifetimes&, node: i64, omit_reads
             if no_cr && !needs_place && life_type_is_scalar(l, n.type_id) { inert = true; }
         }
     } else if kind == N_SLICE {
-        if n.left >= 0 { life_analyze_node(p, l, n.left, omit_reads, fn_state); if (l.node_flags[n.left] & NF_MAY_SHRINK) != 0 { may_shrink = true; } }
-        if n.right >= 0 { life_analyze_node(p, l, n.right, omit_reads, fn_state); if (l.node_flags[n.right] & NF_MAY_SHRINK) != 0 { may_shrink = true; } }
-        if n.third >= 0 { life_analyze_node(p, l, n.third, omit_reads, fn_state); if (l.node_flags[n.third] & NF_MAY_SHRINK) != 0 { may_shrink = true; } }
+        if n.left >= 0 { life_analyze_node(p, l, n.left, omit_reads, fn_state, has_defer, any_defer); if (l.node_flags[n.left] & NF_MAY_SHRINK) != 0 { may_shrink = true; } }
+        if n.right >= 0 { life_analyze_node(p, l, n.right, omit_reads, fn_state, has_defer, any_defer); if (l.node_flags[n.right] & NF_MAY_SHRINK) != 0 { may_shrink = true; } }
+        if n.third >= 0 { life_analyze_node(p, l, n.third, omit_reads, fn_state, has_defer, any_defer); if (l.node_flags[n.third] & NF_MAY_SHRINK) != 0 { may_shrink = true; } }
     } else if kind == N_UNARY {
-        if n.left >= 0 { life_analyze_node(p, l, n.left, omit_reads, fn_state); if (l.node_flags[n.left] & NF_MAY_SHRINK) != 0 { may_shrink = true; } }
+        if n.left >= 0 { life_analyze_node(p, l, n.left, omit_reads, fn_state, has_defer, any_defer); if (l.node_flags[n.left] & NF_MAY_SHRINK) != 0 { may_shrink = true; } }
         if n.integer == T_MUL {
             if !in_seq && n.left >= 0 && (l.node_flags[n.left] & NF_PURE_PLACE) != 0 {
                 pure_place = true;
@@ -11172,27 +11398,27 @@ recursive fn life_analyze_node(p: Program&, l: Lifetimes&, node: i64, omit_reads
             }
         }
     } else if kind == N_CAST {
-        if n.left >= 0 { life_analyze_node(p, l, n.left, omit_reads, fn_state); if (l.node_flags[n.left] & NF_MAY_SHRINK) != 0 { may_shrink = true; } }
+        if n.left >= 0 { life_analyze_node(p, l, n.left, omit_reads, fn_state, has_defer, any_defer); if (l.node_flags[n.left] & NF_MAY_SHRINK) != 0 { may_shrink = true; } }
         if !needs_place && life_type_is_scalar(l, n.type_id) && (n.left < 0 || (l.node_flags[n.left] & NF_INERT) != 0) {
             inert = true;
         }
     } else if kind == N_BINARY || kind == N_RANGE {
-        if n.left >= 0 { life_analyze_node(p, l, n.left, omit_reads, fn_state); if (l.node_flags[n.left] & NF_MAY_SHRINK) != 0 { may_shrink = true; } }
-        if n.right >= 0 { life_analyze_node(p, l, n.right, omit_reads, fn_state); if (l.node_flags[n.right] & NF_MAY_SHRINK) != 0 { may_shrink = true; } }
+        if n.left >= 0 { life_analyze_node(p, l, n.left, omit_reads, fn_state, has_defer, any_defer); if (l.node_flags[n.left] & NF_MAY_SHRINK) != 0 { may_shrink = true; } }
+        if n.right >= 0 { life_analyze_node(p, l, n.right, omit_reads, fn_state, has_defer, any_defer); if (l.node_flags[n.right] & NF_MAY_SHRINK) != 0 { may_shrink = true; } }
         if !needs_place && (n.left < 0 || (l.node_flags[n.left] & NF_INERT) != 0) &&
            (n.right < 0 || (l.node_flags[n.right] & NF_INERT) != 0) {
             inert = true;
         }
     } else if kind == N_EXPR_STMT || kind == N_GUARD {
-        if n.left >= 0 { life_analyze_node(p, l, n.left, omit_reads, fn_state); if (l.node_flags[n.left] & NF_MAY_SHRINK) != 0 { may_shrink = true; } }
+        if n.left >= 0 { life_analyze_node(p, l, n.left, omit_reads, fn_state, has_defer, any_defer); if (l.node_flags[n.left] & NF_MAY_SHRINK) != 0 { may_shrink = true; } }
         if n.left < 0 || (l.node_flags[n.left] & NF_INERT) != 0 { inert = true; }
     } else if kind == N_DEFER {
-        if n.right >= 0 { life_analyze_node(p, l, n.right, omit_reads, fn_state); if (l.node_flags[n.right] & NF_MAY_SHRINK) != 0 { may_shrink = true; } }
-        if n.right < 0 || (l.node_flags[n.right] & NF_INERT) != 0 { inert = true; }
+        if n.right >= 0 { life_analyze_node(p, l, n.right, omit_reads, fn_state, has_defer, any_defer); if (l.node_flags[n.right] & NF_MAY_SHRINK) != 0 { may_shrink = true; } }
+        else { inert = true; }
     } else if kind == N_VARIABLE {
         var init = n.right; var all_init_inert = true;
         while init >= 0 {
-            life_analyze_node(p, l, init, omit_reads, fn_state);
+            life_analyze_node(p, l, init, omit_reads, fn_state, has_defer, any_defer);
             if (l.node_flags[init] & NF_MAY_SHRINK) != 0 { may_shrink = true; }
             if (l.node_flags[init] & NF_INERT) == 0 { all_init_inert = false; }
             if n.first < 0 { break; }
@@ -11212,8 +11438,8 @@ recursive fn life_analyze_node(p: Program&, l: Lifetimes&, node: i64, omit_reads
             }
         }
     } else if kind == N_ASSIGN {
-        if n.left >= 0 { life_analyze_node(p, l, n.left, omit_reads, fn_state); if (l.node_flags[n.left] & NF_MAY_SHRINK) != 0 { may_shrink = true; } }
-        if n.right >= 0 { life_analyze_node(p, l, n.right, omit_reads, fn_state); if (l.node_flags[n.right] & NF_MAY_SHRINK) != 0 { may_shrink = true; } }
+        if n.left >= 0 { life_analyze_node(p, l, n.left, omit_reads, fn_state, has_defer, any_defer); if (l.node_flags[n.left] & NF_MAY_SHRINK) != 0 { may_shrink = true; } }
+        if n.right >= 0 { life_analyze_node(p, l, n.right, omit_reads, fn_state, has_defer, any_defer); if (l.node_flags[n.right] & NF_MAY_SHRINK) != 0 { may_shrink = true; } }
         if n.left >= 0 {
             let ln: const Node& = p.nodes[n.left];
             var ty = ln.type_id;
@@ -11235,7 +11461,7 @@ recursive fn life_analyze_node(p: Program&, l: Lifetimes&, node: i64, omit_reads
     } else if kind == N_CALL {
         var arg = n.first; var all_args_inert = true;
         while arg >= 0 {
-            life_analyze_node(p, l, arg, omit_reads, fn_state);
+            life_analyze_node(p, l, arg, omit_reads, fn_state, has_defer, any_defer);
             if (l.node_flags[arg] & NF_MAY_SHRINK) != 0 { may_shrink = true; }
             if (l.node_flags[arg] & NF_INERT) == 0 { all_args_inert = false; }
             arg = p.nodes[arg].next;
@@ -11243,7 +11469,7 @@ recursive fn life_analyze_node(p: Program&, l: Lifetimes&, node: i64, omit_reads
         if n.aux >= 0 && n.symbol >= 0 && (p.symbols[n.symbol].flags & S_BUILTIN) != 0 {
             let b = p.symbols[n.symbol].index;
             if b == 33 || b == 34 {
-                life_analyze_node(p, l, n.aux, omit_reads, fn_state);
+                life_analyze_node(p, l, n.aux, omit_reads, fn_state, has_defer, any_defer);
                 if (l.node_flags[n.aux] & NF_MAY_SHRINK) != 0 { may_shrink = true; }
             }
         }
@@ -11262,7 +11488,7 @@ recursive fn life_analyze_node(p: Program&, l: Lifetimes&, node: i64, omit_reads
                 }
             } else {
                 if (n.flags & F_DISPATCH) == 0 && sym.node >= 0 && sym.node < fn_state.len && fn_state[sym.node] == 1 {
-                    life_analyze_candidate_fn(p, l, sym.node, omit_reads, fn_state);
+                    life_analyze_candidate_fn(p, l, sym.node, omit_reads, fn_state, any_defer);
                 }
                 if (n.flags & F_DISPATCH) == 0 && sym.node >= 0 && sym.node < l.node_flags.len &&
                    (l.node_flags[sym.node] & NF_FN_INERT) != 0 {
@@ -11292,7 +11518,7 @@ recursive fn life_analyze_node(p: Program&, l: Lifetimes&, node: i64, omit_reads
     } else if kind == N_BLOCK {
         var child = n.first; var all_inert = true;
         while child >= 0 {
-            life_analyze_node(p, l, child, omit_reads, fn_state);
+            life_analyze_node(p, l, child, omit_reads, fn_state, has_defer, any_defer);
             if (l.node_flags[child] & NF_MAY_SHRINK) != 0 { may_shrink = true; }
             if (l.node_flags[child] & NF_INERT) == 0 { all_inert = false; }
             child = p.nodes[child].next;
@@ -11303,9 +11529,9 @@ recursive fn life_analyze_node(p: Program&, l: Lifetimes&, node: i64, omit_reads
             inert = true;
         }
     } else if kind == N_IF {
-        if n.left >= 0 { life_analyze_node(p, l, n.left, omit_reads, fn_state); if (l.node_flags[n.left] & NF_MAY_SHRINK) != 0 { may_shrink = true; } }
-        if n.right >= 0 { life_analyze_node(p, l, n.right, omit_reads, fn_state); if (l.node_flags[n.right] & NF_MAY_SHRINK) != 0 { may_shrink = true; } }
-        if n.third >= 0 { life_analyze_node(p, l, n.third, omit_reads, fn_state); if (l.node_flags[n.third] & NF_MAY_SHRINK) != 0 { may_shrink = true; } }
+        if n.left >= 0 { life_analyze_node(p, l, n.left, omit_reads, fn_state, has_defer, any_defer); if (l.node_flags[n.left] & NF_MAY_SHRINK) != 0 { may_shrink = true; } }
+        if n.right >= 0 { life_analyze_node(p, l, n.right, omit_reads, fn_state, has_defer, any_defer); if (l.node_flags[n.right] & NF_MAY_SHRINK) != 0 { may_shrink = true; } }
+        if n.third >= 0 { life_analyze_node(p, l, n.third, omit_reads, fn_state, has_defer, any_defer); if (l.node_flags[n.third] & NF_MAY_SHRINK) != 0 { may_shrink = true; } }
         if !needs_place && life_type_void_or_scalar(p, l, n.type_id) &&
            (n.left < 0 || (l.node_flags[n.left] & NF_INERT) != 0) &&
            (n.right < 0 || (l.node_flags[n.right] & NF_INERT) != 0) &&
@@ -11313,7 +11539,7 @@ recursive fn life_analyze_node(p: Program&, l: Lifetimes&, node: i64, omit_reads
             inert = true;
         }
     } else if kind == N_MATCH {
-        if n.left >= 0 { life_analyze_node(p, l, n.left, omit_reads, fn_state); if (l.node_flags[n.left] & NF_MAY_SHRINK) != 0 { may_shrink = true; } }
+        if n.left >= 0 { life_analyze_node(p, l, n.left, omit_reads, fn_state, has_defer, any_defer); if (l.node_flags[n.left] & NF_MAY_SHRINK) != 0 { may_shrink = true; } }
         var all_inert = n.left < 0 || (l.node_flags[n.left] & NF_INERT) != 0;
         var arm = n.first;
         while arm >= 0 {
@@ -11326,14 +11552,14 @@ recursive fn life_analyze_node(p: Program&, l: Lifetimes&, node: i64, omit_reads
             } else {
                 all_inert = false;
             }
-            if a.third >= 0 { life_analyze_node(p, l, a.third, omit_reads, fn_state); if (l.node_flags[a.third] & NF_MAY_SHRINK) != 0 { may_shrink = true; } if (l.node_flags[a.third] & NF_INERT) == 0 { all_inert = false; } }
-            if a.right >= 0 { life_analyze_node(p, l, a.right, omit_reads, fn_state); if (l.node_flags[a.right] & NF_MAY_SHRINK) != 0 { may_shrink = true; } if (l.node_flags[a.right] & NF_INERT) == 0 { all_inert = false; } }
+            if a.third >= 0 { life_analyze_node(p, l, a.third, omit_reads, fn_state, has_defer, any_defer); if (l.node_flags[a.third] & NF_MAY_SHRINK) != 0 { may_shrink = true; } if (l.node_flags[a.third] & NF_INERT) == 0 { all_inert = false; } }
+            if a.right >= 0 { life_analyze_node(p, l, a.right, omit_reads, fn_state, has_defer, any_defer); if (l.node_flags[a.right] & NF_MAY_SHRINK) != 0 { may_shrink = true; } if (l.node_flags[a.right] & NF_INERT) == 0 { all_inert = false; } }
             arm = a.next;
         }
         if !needs_place && all_inert && life_type_void_or_scalar(p, l, n.type_id) { inert = true; }
     } else if kind == N_WHILE || kind == N_LOOP || kind == N_FOR {
-        if n.left >= 0 { life_analyze_node(p, l, n.left, omit_reads, fn_state); if (l.node_flags[n.left] & NF_MAY_SHRINK) != 0 { may_shrink = true; } }
-        if n.right >= 0 { life_analyze_node(p, l, n.right, omit_reads, fn_state); if (l.node_flags[n.right] & NF_MAY_SHRINK) != 0 { may_shrink = true; } }
+        if n.left >= 0 { life_analyze_node(p, l, n.left, omit_reads, fn_state, has_defer, any_defer); if (l.node_flags[n.left] & NF_MAY_SHRINK) != 0 { may_shrink = true; } }
+        if n.right >= 0 { life_analyze_node(p, l, n.right, omit_reads, fn_state, has_defer, any_defer); if (l.node_flags[n.right] & NF_MAY_SHRINK) != 0 { may_shrink = true; } }
         if !needs_place && (l.node_flags[node] & NF_HAS_EXIT) == 0 && life_type_void_or_scalar(p, l, n.type_id) &&
            (n.scope < 0 || n.scope >= l.scope_has_cell.len || l.scope_has_cell[n.scope] == 0) &&
            (n.left < 0 || (l.node_flags[n.left] & NF_INERT) != 0) &&
@@ -11353,12 +11579,16 @@ recursive fn life_analyze_node(p: Program&, l: Lifetimes&, node: i64, omit_reads
     } else if kind == N_RETURN {
         var child = n.first; var count = 0; var all_inert = true;
         while child >= 0 {
-            life_analyze_node(p, l, child, omit_reads, fn_state);
+            life_analyze_node(p, l, child, omit_reads, fn_state, has_defer, any_defer);
             if (l.node_flags[child] & NF_MAY_SHRINK) != 0 { may_shrink = true; }
             if (l.node_flags[child] & NF_INERT) == 0 { all_inert = false; }
             count += 1; child = p.nodes[child].next;
         }
-        if count == 0 {
+        let nonlocal_ret = any_defer && n.symbol >= 0 && n.symbol < p.symbols.len &&
+            (n.scope < 0 || n.scope >= l.functions.len || l.functions[n.scope] != p.symbols[n.symbol].node);
+        if has_defer || nonlocal_ret {
+            may_shrink = true;
+        } else if count == 0 {
             inert = true;
         } else if count == 1 && all_inert && n.symbol >= 0 && n.symbol < p.symbols.len {
             let fn_id = p.symbols[n.symbol].node;
@@ -11368,25 +11598,26 @@ recursive fn life_analyze_node(p: Program&, l: Lifetimes&, node: i64, omit_reads
             }
         }
     } else if kind == N_BREAK {
+        if has_defer { may_shrink = true; }
         if n.left < 0 {
-            inert = true;
+            if !has_defer { inert = true; }
         } else {
-            life_analyze_node(p, l, n.left, omit_reads, fn_state);
+            life_analyze_node(p, l, n.left, omit_reads, fn_state, has_defer, any_defer);
             if (l.node_flags[n.left] & NF_MAY_SHRINK) != 0 { may_shrink = true; }
         }
     } else if kind == N_TUPLE || kind == N_ARRAY || kind == N_FILL || kind == N_RECORD {
         var child = n.first;
         while child >= 0 {
             var v = child; if kind == N_RECORD { v = p.nodes[child].right; }
-            if v >= 0 { life_analyze_node(p, l, v, omit_reads, fn_state); if (l.node_flags[v] & NF_MAY_SHRINK) != 0 { may_shrink = true; } }
+            if v >= 0 { life_analyze_node(p, l, v, omit_reads, fn_state, has_defer, any_defer); if (l.node_flags[v] & NF_MAY_SHRINK) != 0 { may_shrink = true; } }
             child = p.nodes[child].next;
         }
         if kind == N_FILL && n.first < 0 {
-            if n.left >= 0 { life_analyze_node(p, l, n.left, omit_reads, fn_state); if (l.node_flags[n.left] & NF_MAY_SHRINK) != 0 { may_shrink = true; } }
-            if n.right >= 0 { life_analyze_node(p, l, n.right, omit_reads, fn_state); if (l.node_flags[n.right] & NF_MAY_SHRINK) != 0 { may_shrink = true; } }
+            if n.left >= 0 { life_analyze_node(p, l, n.left, omit_reads, fn_state, has_defer, any_defer); if (l.node_flags[n.left] & NF_MAY_SHRINK) != 0 { may_shrink = true; } }
+            if n.right >= 0 { life_analyze_node(p, l, n.right, omit_reads, fn_state, has_defer, any_defer); if (l.node_flags[n.right] & NF_MAY_SHRINK) != 0 { may_shrink = true; } }
         }
     } else if kind == N_RESULT {
-        if n.left >= 0 { life_analyze_node(p, l, n.left, omit_reads, fn_state); if (l.node_flags[n.left] & NF_MAY_SHRINK) != 0 { may_shrink = true; } }
+        if n.left >= 0 { life_analyze_node(p, l, n.left, omit_reads, fn_state, has_defer, any_defer); if (l.node_flags[n.left] & NF_MAY_SHRINK) != 0 { may_shrink = true; } }
     }
     var bits = l.node_flags[node] & ~(NF_PURE_PLACE | NF_MAY_SHRINK | NF_INERT);
     if pure_place { bits |= NF_PURE_PLACE; }
@@ -11519,6 +11750,8 @@ fn life_prepare_nodes(p: Program&, l: Lifetimes&, full: bool) -> bool {
     l.sym_flags.clear(); l.sym_flags.resize(sym_count, 0);
     l.hold_flags.clear(); l.hold_flags.resize(node_count, if full { FH_CONSTRUCT_READ | FH_BUILD_HOLD | FH_FORMAT_RAW | FH_SC2_SITE } else { 0 });
     var fn_has_nested: u8[>..] = []; fn_has_nested.resize(node_count, 0);
+    var fn_has_defer: u8[>..] = []; fn_has_defer.resize(node_count, 0);
+    var any_defer = false;
     var place_work: i64[>..] = [];
     var hold_work: i64[>..] = [];
     var seq_work: i64[>..] = [];
@@ -11530,6 +11763,13 @@ fn life_prepare_nodes(p: Program&, l: Lifetimes&, full: bool) -> bool {
         let n: const Node& = p.nodes[id];
         let kind = n.kind;
         if n.captures >= 0 { has_cap = true; }
+        if kind == N_DEFER {
+            any_defer = true;
+            let sc = if n.scope >= 0 { n.scope } else if n.right >= 0 { p.nodes[n.right].scope } else { -1 };
+            if sc >= 0 && sc < l.functions.len && l.functions[sc] >= 0 && l.functions[sc] < node_count {
+                fn_has_defer[l.functions[sc]] = 1;
+            }
+        }
         if (n.flags & F_REFERENCE_CONTEXT) != 0 || n.coerced_type >= 0 && life_type_is_ref(l, n.coerced_type) {
             life_queue_place(l, place_work, id);
         }
@@ -11837,7 +12077,7 @@ fn life_prepare_nodes(p: Program&, l: Lifetimes&, full: bool) -> bool {
     for id in all_fns {
         let n: const Node& = p.nodes[id];
         if n.kind != N_FUNCTION || (n.flags & (F_CHECKED | F_GENERIC | F_EXTERN | F_RECURSIVE | F_CAPTURE | F_FORMAT_RAW)) != F_CHECKED { continue; }
-        if n.symbol < 0 || p.symbols[n.symbol].owner >= 0 || fn_has_nested[id] != 0 { continue; }
+        if n.symbol < 0 || p.symbols[n.symbol].owner >= 0 || fn_has_nested[id] != 0 || fn_has_defer[id] != 0 { continue; }
         if n.type_id < 0 || !life_type_void_or_scalar(p, l, p.types[n.type_id].element) { continue; }
         let fn_no_cr = omit_reads || (!full && (l.hold_flags[id] & FH_CONSTRUCT_READ) == 0);
         var params_ok = true; var formal = n.first;
@@ -11853,16 +12093,16 @@ fn life_prepare_nodes(p: Program&, l: Lifetimes&, full: bool) -> bool {
     }
     l.has_captures = has_cap;
     for fn_id in candidate_fns {
-        if fn_state[fn_id] == 1 { life_analyze_candidate_fn(p, l, fn_id, omit_reads, fn_state); }
+        if fn_state[fn_id] == 1 { life_analyze_candidate_fn(p, l, fn_id, omit_reads, fn_state, any_defer); }
     }
     for id in all_fns {
         if fn_state[id] != 0 { continue; }
-        life_analyze_node(p, l, p.nodes[id].right, omit_reads, fn_state);
+        life_analyze_node(p, l, p.nodes[id].right, omit_reads, fn_state, fn_has_defer[id] != 0, any_defer);
     }
     for s in 0..sym_count {
         let sym: const Symbol& = p.symbols[s];
         if (sym.flags & S_GLOBAL) != 0 && sym.node >= 0 && p.nodes[sym.node].kind == N_VARIABLE {
-            life_analyze_node(p, l, sym.node, omit_reads, fn_state);
+            life_analyze_node(p, l, sym.node, omit_reads, fn_state, false, any_defer);
         }
     }
     l.nodes_prepared = true;
@@ -11875,6 +12115,7 @@ fn life_check_attempt(p: Program&, scope_parent: const i64[>..]&, scope_depth: c
     var held_walks: LifeWalkMemo[>..] = [];
     var items: LifeItem[>..] = []; var pair_slots: LifePairSlot[>..] = []; var exits: LifeExit[>..] = [];
     var futures: LifeFuture[>..] = []; var holds: LifeHold[>..] = []; var temps: LifeTemp[>..] = []; var reads: LifeRead[>..] = []; var kills: LifeKill[>..] = []; var atoms: LifeAtom[>..] = []; var failures: LifeFailure[>..] = []; var effects: LifeEffect[>..] = [];
+    var defers: LifeDefer[>..] = []; var defer_targets: LifeDeferTarget[>..] = []; var defer_run: LifeDefer[>..] = [];
     var symbol_cells: i32[>..] = []; symbol_cells.resize(p.symbols.len, -1);
     var node_roots: i32[>..] = []; var function_frames: i32[>..] = []; var read_heads: i32[>..] = []; var visited: i32[>..] = []; var summary_slots: LifeSummarySlot[>..] = [];
     var effect_heads: i32[>..] = []; effect_heads.resize(2048, -1);
@@ -11960,7 +12201,8 @@ fn life_check_attempt(p: Program&, scope_parent: const i64[>..]&, scope_depth: c
         closure_start: closure_start, closure_count: closure_count, closure_data: closure_data,
         holder_ref_start: holder_ref_start, holder_ref_count: holder_ref_count, holder_ref_flags: holder_ref_flags, holder_ref_elems: holder_ref_elems,
         gs_start: gs_start, gs_count: gs_count, gs_elems: gs_elems,
-        body_trans_globals: body_trans_globals, summary_l1: summary_l1, assume_l1: assume_l1 };
+        body_trans_globals: body_trans_globals, summary_l1: summary_l1, assume_l1: assume_l1,
+        defers: defers, defer_targets: defer_targets, defer_run: defer_run };
     life_validate_pools(p, l, pool_references);
     if p.diagnostics.len > 0 { return true; }
     var standalone: LifeStandalone[>..] = []; let node_count = p.nodes.len;

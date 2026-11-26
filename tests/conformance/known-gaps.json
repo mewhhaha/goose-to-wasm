@@ -1,10 +1,19 @@
 {
  "schema": "goose-conformance-known-gaps-v1",
- "note": "Rows that fail on the qualified compiler: 0 upstream Goose gaps (100% parity across all upstream error, lifetime, storage, codegen, optimizer, typing, and stdlib suites) and 2 rows of the harvested upstream-differential contracts (wasm32 4-byte pointer overlap under frozen named-result aliasing), whose cause is listed under \"causes\". tests/conformance.py --known-gaps fails on any other failure and on a recorded gap that passes.",
+ "note": "Rows that fail on the qualified compiler: 2 intentional post-pin upstream soundness rows (upstream/storage/serialize in frozen pin 7124834879aaa75f still exercises from_bytes<Tree[>..<]>, which upstream HEAD banned in serialize_grow_shrink_refs and updated to from_bytes<i64[>..<]>) and 2 rows of the harvested upstream-differential contracts (wasm32 4-byte pointer overlap under frozen named-result aliasing), whose causes are listed under \"causes\". tests/conformance.py --known-gaps fails on any other failure and on a recorded gap that passes.",
  "causes": {
+  "upstream/storage/serialize": "Intentional post-pin upstream soundness refusal: frozen upstream pin 7124834879aaa75f line 350 tests `from_bytes<Tree[>..<]>(img)` where `Tree` holds relative references (`Tree&<u32>?`); upstream HEAD later banned relative references inside `from_bytes<T[>..<]>` (`serialize_grow_shrink_refs.goose`) and updated `test/storage/serialize.goose` to `from_bytes<i64[>..<]>(img)` (which passes).",
   "corpus/contracts/upstream-differential/harvest/packed_layout_boundaries/5e21f78e5a/wasm-direct": "Open: direct Wasm (wasm32) builds a multiple-result return over a returned local that a later result reads through a reference, so `return E.New { 0x0102030405060708 }, kept` gives 16909060 for kept where 64-bit upstream, native C, and --wasm-memory64 give 0 (24 frozen direct-Wasm corpus contracts under array-image/enum-image/packed-record currently assert upstream's aliased named-result behavior, so changing life_named_results_into requires re-pinning those contracts)."
  },
  "gaps": [
+  [
+   "upstream/storage/serialize",
+   0
+  ],
+  [
+   "upstream/storage/serialize",
+   2
+  ],
   [
    "corpus/contracts/upstream-differential/harvest/packed_layout_boundaries/5e21f78e5a/wasm-direct",
    0

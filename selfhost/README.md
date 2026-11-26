@@ -14,7 +14,7 @@ Bootstrap builds the checked-in C seed, uses it to compile the Goose compiler to
 
 An optional Clang IR profile is used only when its C hash, target triple, Clang major version, C basename and base flags match, and its data checksum is valid. If the profile is missing, mismatched or fails to compile, bootstrap builds without it and records the reason. The supplied profile targets Clang 23 and `x86_64-pc-linux-gnu`; it was trained on non-timed compiler workloads and contract fixtures, excluding the timed benchmark programs.
 
-Snapshot 70 supplies the checked-in seed and profile (`v2026.4-2`, `goosew` binary, audit fixes, Win32 UTF-16 runtime & full Direct Wasm host parity). Its two independent bootstrap builds verified and produced the same compiler. [Snapshot 70 evidence](results/2026-11-25/snapshot-70/README.md)
+Snapshot 71 supplies the checked-in seed and profile (joint GPT-6-Sol audit Batches 1–3: Direct Wasm host/stdlib/driver/native fixes, 13 Direct Wasm codegen fixes, LIFO `defer` lifetime soundness, and post-pin upstream checker checks). Its two independent bootstrap builds verified and produced the same compiler. [Snapshot 71 evidence](results/2026-11-26/snapshot-71/README.md)
 
 ## Development
 
@@ -23,7 +23,7 @@ python3 scripts/bootstrap.py --build-dir build/dev --jobs 8 \
   --cache-dir build/qualify-cache/bootstrap
 ```
 
-The development build compiles eight program units beside one runtime unit without the profile. The one unit default is the release build. The cache reuses seed C when the seed, options and staged input bytes match. With `--verify`, the resulting compiler generates fresh C for the fixed-point check on every run. Use `--source-dir` to build a separate copy of the compiler sources. Use the [snapshot 70 protocol](results/2026-11-25/snapshot-70/README.md) to freeze a seed and profile.
+The development build compiles eight program units beside one runtime unit without the profile. The one unit default is the release build. The cache reuses seed C when the seed, options and staged input bytes match. With `--verify`, the resulting compiler generates fresh C for the fixed-point check on every run. Use `--source-dir` to build a separate copy of the compiler sources. Use the [snapshot 71 protocol](results/2026-11-26/snapshot-71/README.md) to freeze a seed and profile.
 
 For local edits, `python3 scripts/bootstrap.py --reuse-toolchain build/toolchain.json` starts with the previously verified local compiler. It checks that executable against its receipt and verifies the new C fixed point before installation. [Measurements](../bench/results/2026-11-17/local-bootstrap/README.md)
 
