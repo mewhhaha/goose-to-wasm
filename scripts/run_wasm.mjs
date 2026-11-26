@@ -110,6 +110,51 @@ export function gooseFloat(value, bits = 64) {
   return (negative ? "-" : "") + text;
 }
 
+function cRound(x) {
+  if (!Number.isFinite(x) || x === 0) return x;
+  const a = Math.abs(x);
+  const t = Math.trunc(a);
+  const r = a - t >= 0.5 ? t + 1 : t;
+  return x < 0 ? -r : r;
+}
+
+const f64Buf = new ArrayBuffer(8);
+const f64View = new DataView(f64Buf);
+function pureFrexp(x) {
+  if (x === 0 || !Number.isFinite(x)) return [x, 0];
+  f64View.setFloat64(0, x, true);
+  let bits = f64View.getBigUint64(0, true);
+  let exp = Number((bits >> 52n) & 0x7ffn);
+  let adjust = 0;
+  if (exp === 0) {
+    f64View.setFloat64(0, x * 18014398509481984.0, true); // 2^54
+    bits = f64View.getBigUint64(0, true);
+    exp = Number((bits >> 52n) & 0x7ffn);
+    adjust = -54;
+  }
+  const e = exp - 1022 + adjust;
+  f64View.setBigUint64(0, (bits & 0x800fffffffffffffn) | (1022n << 52n), true);
+  return [f64View.getFloat64(0, true), e];
+}
+
+function pureLdexp(x, exp) {
+  if (x === 0 || !Number.isFinite(x) || exp === 0) return x;
+  let v = x;
+  let e = exp | 0;
+  while (e > 1023) {
+    v *= 8.98846567431158e307; // 2^1023
+    e -= 1023;
+    if (!Number.isFinite(v)) return v;
+  }
+  while (e < -1022) {
+    v *= 2.2250738585072014e-308; // 2^-1022
+    e += 1022;
+    if (v === 0) return v;
+  }
+  f64View.setBigUint64(0, BigInt(e + 1023) << 52n, true);
+  return v * f64View.getFloat64(0, true);
+}
+
 class ProgramExit extends Error {
   constructor(code) {
     super("program exit");
@@ -341,6 +386,83 @@ export async function runModule(bytes, input = "", programArguments = ["program"
         for (let i = 0; i + d < data.length; i++) if (a[data[i]] && b[data[i + d]]) return BigInt(i);
         return -1n;
       }),
+      gs_trim_memory: () => 0,
+      // stdlib/math.goose and stdlib/json.goose libm externs.
+      frexp: (x, ptr) => {
+        const [mant, exp] = pureFrexp(x);
+        const bytes = memoryView(ptr, 4);
+        new DataView(bytes.buffer, bytes.byteOffset, 4).setInt32(0, exp, true);
+        return mant;
+      },
+      ldexp: (x, exp) => pureLdexp(x, exp),
+      sin: (x) => Math.sin(x),
+      gs_sin: (x) => Math.sin(x),
+      gs_sinf: (x) => Math.fround(Math.sin(Math.fround(x))),
+      cos: (x) => Math.cos(x),
+      gs_cos: (x) => Math.cos(x),
+      gs_cosf: (x) => Math.fround(Math.cos(Math.fround(x))),
+      tan: (x) => Math.tan(x),
+      gs_tan: (x) => Math.tan(x),
+      gs_tanf: (x) => Math.fround(Math.tan(Math.fround(x))),
+      asin: (x) => Math.asin(x),
+      gs_asin: (x) => Math.asin(x),
+      gs_asinf: (x) => Math.fround(Math.asin(Math.fround(x))),
+      acos: (x) => Math.acos(x),
+      gs_acos: (x) => Math.acos(x),
+      gs_acosf: (x) => Math.fround(Math.acos(Math.fround(x))),
+      atan: (x) => Math.atan(x),
+      gs_atan: (x) => Math.atan(x),
+      gs_atanf: (x) => Math.fround(Math.atan(Math.fround(x))),
+      atan2: (y, x) => Math.atan2(y, x),
+      gs_atan2: (y, x) => Math.atan2(y, x),
+      gs_atan2f: (y, x) => Math.fround(Math.atan2(Math.fround(y), Math.fround(x))),
+      exp: (x) => Math.exp(x),
+      gs_exp: (x) => Math.exp(x),
+      gs_expf: (x) => Math.fround(Math.exp(Math.fround(x))),
+      exp2: (x) => Math.pow(2, x),
+      gs_exp2: (x) => Math.pow(2, x),
+      log: (x) => Math.log(x),
+      gs_log: (x) => Math.log(x),
+      gs_logf: (x) => Math.fround(Math.log(Math.fround(x))),
+      log2: (x) => Math.log2(x),
+      gs_log2: (x) => Math.log2(x),
+      gs_log2f: (x) => Math.fround(Math.log2(Math.fround(x))),
+      log10: (x) => Math.log10(x),
+      gs_log10: (x) => Math.log10(x),
+      gs_log10f: (x) => Math.fround(Math.log10(Math.fround(x))),
+      pow: (x, y) => Math.pow(x, y),
+      gs_pow: (x, y) => Math.pow(x, y),
+      gs_powf: (x, y) => Math.fround(Math.pow(Math.fround(x), Math.fround(y))),
+      gs_mul_add: (x, y, z) => x * y + z,
+      gs_mul_addf: (x, y, z) => Math.fround(Math.fround(Math.fround(x) * Math.fround(y)) + Math.fround(z)),
+      round: (x) => cRound(x),
+      gs_round: (x) => cRound(x),
+      roundf: (x) => Math.fround(cRound(Math.fround(x))),
+      gs_roundf: (x) => Math.fround(cRound(Math.fround(x))),
+      fmod: (x, y) => x % y,
+      gs_fmod: (x, y) => x % y,
+      fmodf: (x, y) => Math.fround(Math.fround(x) % Math.fround(y)),
+      gs_fmodf: (x, y) => Math.fround(Math.fround(x) % Math.fround(y)),
+      sinh: (x) => Math.sinh(x),
+      gs_sinh: (x) => Math.sinh(x),
+      cosh: (x) => Math.cosh(x),
+      gs_cosh: (x) => Math.cosh(x),
+      tanh: (x) => Math.tanh(x),
+      gs_tanh: (x) => Math.tanh(x),
+      asinh: (x) => Math.asinh(x),
+      gs_asinh: (x) => Math.asinh(x),
+      acosh: (x) => Math.acosh(x),
+      gs_acosh: (x) => Math.acosh(x),
+      atanh: (x) => Math.atanh(x),
+      gs_atanh: (x) => Math.atanh(x),
+      hypot: (x, y) => Math.hypot(x, y),
+      gs_hypot: (x, y) => Math.hypot(x, y),
+      cbrt: (x) => Math.cbrt(x),
+      gs_cbrt: (x) => Math.cbrt(x),
+      expm1: (x) => Math.expm1(x),
+      gs_expm1: (x) => Math.expm1(x),
+      log1p: (x) => Math.log1p(x),
+      gs_log1p: (x) => Math.log1p(x),
       // No process can be started from here: libc's system fails.
       system: () => -1,
     },

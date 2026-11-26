@@ -5016,8 +5016,8 @@ static void *g_external(const char *library,const char *name) {
     return p;
 }
 #else
-static int g_os_path_op(GSlice path,int op) { char *s=g_path(path); if(!s) return 0; if(op==0) return unlink(s)==0; if(op==1) return rmdir(s)==0; if(mkdir(s,0777)==0) return 1; return errno==EEXIST && g_os_kind(path)==2; }
-static int g_os_rename(GSlice from,GSlice to) { char *a=g_path(from),*b=g_path(to); if(!a || !b) return 0; return rename(a,b)==0; }
+static int g_os_path_op(GSlice path,int op) { char s[4096]; if(!g_path(path,s)) return 0; if(op==0) return unlink(s)==0; if(op==1) return rmdir(s)==0; if(mkdir(s,0777)==0) return 1; return errno==EEXIST && g_os_kind(path)==2; }
+static int g_os_rename(GSlice from,GSlice to) { char a[4096],b[4096]; if(!g_path(from,a) || !g_path(to,b)) return 0; return rename(a,b)==0; }
 static int g_os_resource(GRef out) {
     char path[4096]; ssize_t n=0;
 #ifdef __APPLE__

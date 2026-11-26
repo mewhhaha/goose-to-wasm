@@ -246,6 +246,36 @@ class WtimeHostExecutionTests(unittest.TestCase):
             self.assertEqual(run.returncode, 0, f"memory64={memory64}: {run.stderr}")
             self.assertEqual(run.stdout, expected)
 
+    def test_entry_i64_exit_code_negative_sleep_and_stdlib_math(self):
+        code = (
+            "import math;\n"
+            "import json;\n"
+            "import os;\n"
+            'extern fn bsleep(ms: i64) = "blot_sleep_ms";\n'
+            'export "run64" fn run64() -> i64 {\n'
+            "    sleep_ms(-1);\n"
+            "    bsleep(-1);\n"
+            "    let _ = trim_memory();\n"
+            "    let r = round(0.5) + round(-0.5) + mul_add(2.0, 3.0, 4.0) + (sin(0.5 as f32) as f64);\n"
+            '    var rdr = json::reader("12.5");\n'
+            "    var out: u8[>..] = [];\n"
+            "    json::format_number(out, rdr.read_number());\n"
+            "    print(out, \" \", r > 10.0);\n"
+            "    return 7;\n"
+            "}\n"
+        )
+        for memory64 in (False, True):
+            wasm = self._compile(code, memory64=memory64, library=True)
+            run = subprocess.run(
+                [str(WTIME_HOST), str(wasm), "--entry", "run64"],
+                stdin=subprocess.DEVNULL,
+                capture_output=True,
+                text=True,
+                timeout=15,
+            )
+            self.assertEqual(run.returncode, 7, f"memory64={memory64}: {run.stderr}")
+            self.assertEqual(run.stdout, "12.5 true\n")
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -35,14 +35,30 @@ fn driver_integer(out: u8[>..]&, value: i64) {
 }
 fn driver_json(out: u8[>..]&, text: const u8[:]) {
     out.push('"');
-    for byte in text {
-        if byte == '"' || byte == '\\' { out.push('\\'); out.push(byte); }
-        else if byte == 10 { out.append("\\n"); }
-        else if byte == 13 { out.append("\\r"); }
-        else if byte == 9 { out.append("\\t"); }
+    var i = 0;
+    while i < text.len {
+        let byte = text[i];
+        if byte == '"' || byte == '\\' { out.push('\\'); out.push(byte); i++; }
+        else if byte == 10 { out.append("\\n"); i++; }
+        else if byte == 13 { out.append("\\r"); i++; }
+        else if byte == 9 { out.append("\\t"); i++; }
         else if byte < 32 {
-            out.append("\\u00"); out.push("0123456789abcdef"[byte >> 4]); out.push("0123456789abcdef"[byte & 15]);
-        } else { out.push(byte); }
+            out.append("\\u00"); out.push("0123456789abcdef"[byte >> 4]); out.push("0123456789abcdef"[byte & 15]); i++;
+        } else if byte < 128 {
+            out.push(byte); i++;
+        } else if byte >= 0xc2 && byte <= 0xdf && i + 1 < text.len && (text[i + 1] & 0xc0) == 0x80 {
+            out.push(byte); out.push(text[i + 1]); i += 2;
+        } else if byte >= 0xe0 && byte <= 0xef && i + 2 < text.len &&
+                  (text[i + 1] & 0xc0) == 0x80 && (text[i + 2] & 0xc0) == 0x80 &&
+                  (byte != 0xe0 || text[i + 1] >= 0xa0) && (byte != 0xed || text[i + 1] <= 0x9f) {
+            out.push(byte); out.push(text[i + 1]); out.push(text[i + 2]); i += 3;
+        } else if byte >= 0xf0 && byte <= 0xf4 && i + 3 < text.len &&
+                  (text[i + 1] & 0xc0) == 0x80 && (text[i + 2] & 0xc0) == 0x80 && (text[i + 3] & 0xc0) == 0x80 &&
+                  (byte != 0xf0 || text[i + 1] >= 0x90) && (byte != 0xf4 || text[i + 1] <= 0x8f) {
+            out.push(byte); out.push(text[i + 1]); out.push(text[i + 2]); out.push(text[i + 3]); i += 4;
+        } else {
+            out.append("\\u00"); out.push("0123456789abcdef"[byte >> 4]); out.push("0123456789abcdef"[byte & 15]); i++;
+        }
     }
     out.push('"');
 }
@@ -118,18 +134,38 @@ fn driver_source_path(p: Program&, path: const u8[:]) -> bool {
 }
 // Refuses an output that would replace a source, an embedded file or another
 // output, before anything is written.
-fn driver_outputs_distinct(p: Program&, output: const u8[:], stats: const u8[:], dependencies: const u8[:], header: const u8[:] = "") -> bool {
+fn driver_outputs_distinct(p: Program&, output: const u8[:], stats: const u8[:], dependencies: const u8[:], header: const u8[:] = "", runtime: const u8[:] = "", shared_tmp: const u8[:] = "", run_binary: const u8[:] = "") -> bool {
     if output.len > 0 && driver_source_path(p, output) { driver_error("output would overwrite a source file"); return false; }
-    if header.len > 0 && (driver_source_path(p, header) || output.len > 0 && driver_same_path(header, output)) {
-        driver_error("header would overwrite a source file or the output"); return false;
+    if runtime.len > 0 && (driver_source_path(p, runtime) || output.len > 0 && driver_same_path(runtime, output)) {
+        driver_error("runtime output would overwrite a source file or the output"); return false;
+    }
+    if header.len > 0 && (driver_source_path(p, header) || output.len > 0 && driver_same_path(header, output) ||
+                          runtime.len > 0 && driver_same_path(header, runtime)) {
+        driver_error("header would overwrite a source file or another output"); return false;
+    }
+    if shared_tmp.len > 0 && (driver_source_path(p, shared_tmp) || output.len > 0 && driver_same_path(shared_tmp, output) ||
+                              runtime.len > 0 && driver_same_path(shared_tmp, runtime) ||
+                              header.len > 0 && driver_same_path(shared_tmp, header)) {
+        driver_error("temporary C output would overwrite a source file or another output"); return false;
+    }
+    if run_binary.len > 0 && (driver_source_path(p, run_binary) || output.len > 0 && driver_same_path(run_binary, output) ||
+                              runtime.len > 0 && driver_same_path(run_binary, runtime) ||
+                              header.len > 0 && driver_same_path(run_binary, header)) {
+        driver_error("temporary executable would overwrite a source file or another output"); return false;
     }
     if stats.len > 0 && (driver_source_path(p, stats) || output.len > 0 && driver_same_path(stats, output) ||
-                         header.len > 0 && driver_same_path(stats, header)) {
-        driver_error("statistics would overwrite a source file or the output"); return false;
+                         runtime.len > 0 && driver_same_path(stats, runtime) ||
+                         header.len > 0 && driver_same_path(stats, header) ||
+                         shared_tmp.len > 0 && driver_same_path(stats, shared_tmp) ||
+                         run_binary.len > 0 && driver_same_path(stats, run_binary)) {
+        driver_error("statistics would overwrite a source file or another output"); return false;
     }
     if dependencies.len > 0 && (driver_source_path(p, dependencies) || output.len > 0 && driver_same_path(dependencies, output) ||
+                                runtime.len > 0 && driver_same_path(dependencies, runtime) ||
                                 stats.len > 0 && driver_same_path(dependencies, stats) ||
-                                header.len > 0 && driver_same_path(dependencies, header)) {
+                                header.len > 0 && driver_same_path(dependencies, header) ||
+                                shared_tmp.len > 0 && driver_same_path(dependencies, shared_tmp) ||
+                                run_binary.len > 0 && driver_same_path(dependencies, run_binary)) {
         driver_error("dependency manifest would overwrite a source file or another output"); return false;
     }
     return true;
@@ -558,7 +594,7 @@ fn driver_split_build(command: u8[>..]&, cc: const u8[:], source: const u8[:], b
         driver_quote(command, cc); command.append(" -std=gnu11 -O2 ");
         if unit < 0 { command.append("-DG_RUNTIME_UNIT"); }
         else { command.append("-DG_UNITS="); driver_integer(command, units); command.append(" -DG_UNIT="); driver_integer(command, unit); }
-        command.append(" -c "); driver_quote(command, source); command.append(" -o ");
+        command.append(" -c -x c "); driver_quote(command, source); command.append(" -x none -o ");
         var object: u8[>..] = []; object.append(binary); object.append(".unit");
         if unit < 0 { object.append("-runtime"); } else { driver_integer(object, unit); }
         object.append(".o"); driver_quote(command, object); objects.push(' '); driver_quote(objects, object);
@@ -702,7 +738,14 @@ fn driver_main() -> i64 {
     if o.target == 0 { generate_wasm(p, output); } else { generate_c(p, output); }
     let generated = clock_ns();
     if p.diagnostics.len > 0 { driver_diagnostics(p, o); return 1; }
-    if !driver_outputs_distinct(p, paths[output_start..output_end], paths[stats_start..stats_end], paths[dependency_start..dependency_end], paths[header_start..header_end]) { return 1; }
+    var c_path: u8[>..] = [];
+    if link_shared { c_path.append(paths[output_start..output_end]); c_path.append(".goose.c"); }
+    var run_binary: u8[>..] = [];
+    if o.run && !link_shared && o.target == 1 {
+        run_binary.append(paths[output_start..output_end]);
+        if win { run_binary.append(".exe"); } else { run_binary.append(".bin"); }
+    }
+    if !driver_outputs_distinct(p, paths[output_start..output_end], paths[stats_start..stats_end], paths[dependency_start..dependency_end], paths[header_start..header_end], paths[runtime_start..runtime_end], c_path, run_binary) { return 1; }
     if runtime_end > runtime_start {
         var runtime_out: u8[>..] = [];
         generate_c_runtime(runtime_out);
@@ -714,13 +757,14 @@ fn driver_main() -> i64 {
         if !write_file(paths[header_start..header_end], header_out) { driver_error("cannot write header output"); return 1; }
     }
     if link_shared {
-        var c_path: u8[>..] = []; c_path.append(paths[output_start..output_end]); c_path.append(".goose.c");
         if !write_file(c_path, output) { driver_error("cannot write temporary C output"); return 1; }
         var shared_cmd: u8[>..] = [];
         driver_quote(shared_cmd, paths[cc_start..cc_end], win);
         shared_cmd.append(" -std=gnu11 -O2 -shared ");
         if !win { shared_cmd.append("-fPIC "); }
+        shared_cmd.append("-x c ");
         driver_quote(shared_cmd, c_path, win);
+        shared_cmd.append(" -x none");
         driver_link_flags(shared_cmd, win, mac);
         shared_cmd.append(" -o ");
         driver_quote(shared_cmd, paths[output_start..output_end], win);
@@ -737,27 +781,26 @@ fn driver_main() -> i64 {
     if !o.run || link_shared { return 0; }
     var command: u8[>..] = [];
     if o.target == 1 {
-        var binary: u8[>..] = []; binary.append(paths[output_start..output_end]);
-        if win { binary.append(".exe"); } else { binary.append(".bin"); }
         let units = if win { 1 } else { driver_units(output) };
-        if units > 1 { driver_split_build(command, paths[cc_start..cc_end], paths[output_start..output_end], binary, units, mac); }
+        if units > 1 { driver_split_build(command, paths[cc_start..cc_end], paths[output_start..output_end], run_binary, units, mac); }
         else {
-            driver_quote(command, paths[cc_start..cc_end], win); command.append(" -std=gnu11 -O2 ");
+            driver_quote(command, paths[cc_start..cc_end], win); command.append(" -std=gnu11 -O2 -x c ");
             driver_quote(command, paths[output_start..output_end], win);
-            driver_link_flags(command, win, mac); command.append(" -o "); driver_quote(command, binary, win);
+            command.append(" -x none");
+            driver_link_flags(command, win, mac); command.append(" -o "); driver_quote(command, run_binary, win);
         }
         let code = driver_exec(command, win); if code != 0 { return code; }
         command.clear();
         if win {
-            driver_quote(command, binary, true);
+            driver_quote(command, run_binary, true);
         } else {
             var has_sep = false;
-            for ch in binary { if ch == '/' || ch == '\\' { has_sep = true; break; } }
+            for ch in run_binary { if ch == '/' { has_sep = true; break; } }
             if !has_sep {
-                var exec_path: u8[>..] = []; exec_path.append("./"); exec_path.append(binary);
+                var exec_path: u8[>..] = []; exec_path.append("./"); exec_path.append(run_binary);
                 driver_quote(command, exec_path);
             } else {
-                driver_quote(command, binary);
+                driver_quote(command, run_binary);
             }
         }
     } else {

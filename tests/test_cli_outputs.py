@@ -1451,6 +1451,108 @@ fn main() {
                     ran = self._run_wasm(host, module, "--", str(sub), stdin=b"first line\r\nrest!")
                     self.assertEqual((ran.returncode, ran.stdout), (0, expected), ran.stderr)
 
+    def test_stdlib_math_json_format_flt_nul_and_read_line(self):
+        source = self.work / "stdlib_host_parity.goose"
+        source.write_text("""\
+import std;
+import math;
+import json;
+import os;
+fn main() {
+    let a64 = sin(0.5) + cos(0.5) + tan(0.25) + asin(0.5) + acos(0.5) + atan(0.5) + atan2(1.0, 2.0);
+    let b64 = exp(1.0) + log(2.0) + log2(8.0) + log10(100.0) + pow(2.0, 3.0) + mul_add(2.0, 3.0, 4.0);
+    let r64 = round(0.5) + round(-0.5) + round(-0.4) + round(0.49999999999999994);
+    let m64 = 5.5 % 2.0;
+    let a32: f32 = sin(0.5 as f32) + cos(0.5 as f32) + tan(0.25 as f32) + asin(0.5 as f32) + acos(0.5 as f32) + atan(0.5 as f32) + atan2(1.0 as f32, 2.0 as f32);
+    let b32: f32 = exp(1.0 as f32) + log(2.0 as f32) + log2(8.0 as f32) + log10(100.0 as f32) + pow(2.0 as f32, 3.0 as f32) + mul_add(2.0 as f32, 3.0 as f32, 4.0 as f32);
+    let r32: f32 = round(0.5 as f32) + round(-0.5 as f32) + round(-0.4 as f32);
+    var rdr = json::reader("12.5");
+    let jn = rdr.read_number();
+    var jout: u8[>..] = [];
+    json::format_number(jout, jn);
+    var jsub: u8[>..] = [];
+    json::format_number(jsub, 1e-309);
+    let _ = trim_memory();
+    var f1: u8[>..] = [];
+    format_flt(f1, 10000000000000.0, 6);
+    var f2: u8[>..] = [];
+    format_flt(f2, -0.0, 2);
+    var nul_path: u8[>..] = ['a', 0, 'b'];
+    var tmp: u8[>..] = [];
+    let nr = read_file(nul_path[..], tmp);
+    let nw = write_file(nul_path[..], "x");
+    let na = write_file_atomic(nul_path[..], "x");
+    var pre: u8[>..] = ['A', 13];
+    let l1 = read_line(pre);
+    let l2 = read_line(pre);
+    sleep_ms(-1);
+    print(a64 > 4.0 && b64 > 26.0, " ", r64, " ", m64, " ", a32 > (4.0 as f32) && b32 > (26.0 as f32), " ", r32, " ",
+          jout, " ", jsub, " ", f1, " ", f2, " ", nr, nw, na, " ", l1, l2, " ", pre.len, " ", pre[1] as i64);
+}
+""")
+        expected = b"true 0.0 1.5 true 0.0 12.5 1e-309 10000000000000.000000 -0.00 falsefalsefalse truefalse 2 13\n"
+        c_out = self.work / "stdlib_parity.c"
+        ran_nat = subprocess.run(
+            list(map(str, [COMPILER, source, "--stdlib", SOURCE_STDLIB, "--target", "native", "-O2", "-o", c_out, "--run"])),
+            cwd=self.work, input=b"\n", capture_output=True, timeout=60,
+        )
+        self.assertEqual((ran_nat.returncode, ran_nat.stdout), (0, expected), ran_nat.stderr)
+        self.assertNotIn("static char *g_path", c_out.read_text(encoding="utf-8"))
+        hosts = ["wasmtime", "v8"] + (["rust"] if RUST_HOST.is_file() else [])
+        for tag, flags in (("wasm32", ()), ("wasm64", ("--wasm-memory64",))):
+            module = self.work / f"stdlib_{tag}.wasm"
+            built = self._compile(source, "wasm-direct", "-O2", module, *flags)
+            self.assertEqual(built.returncode, 0, built.stderr)
+            for host in hosts:
+                with self.subTest(tag=tag, host=host):
+                    ran = self._run_wasm(host, module, stdin=b"\n")
+                    self.assertEqual((ran.returncode, ran.stdout), (0, expected), ran.stderr)
+
+    def test_driver_clobber_guards_non_c_run_and_utf8_json(self):
+        src = self.work / "dmain.goose"
+        src.write_text('export "f" fn f() -> i64 { return 42; }\nfn main() { print(42); }\n')
+        rt_clash = subprocess.run(
+            list(map(str, [COMPILER, src, "--stdlib", SOURCE_STDLIB, "--target", "native", "--emit-runtime", src, "-o", self.work / "o.c"])),
+            stdin=subprocess.DEVNULL, capture_output=True, text=True, timeout=30,
+        )
+        self.assertEqual(rt_clash.returncode, 1)
+        self.assertIn("runtime output would overwrite", rt_clash.stderr)
+        self.assertIn("export", src.read_text())
+
+        shared_src = self.work / "libclash.so.goose.c"
+        shared_src.write_text('export "f" fn f() -> i64 { return 1; }\n')
+        sh_clash = subprocess.run(
+            list(map(str, [COMPILER, shared_src, "--stdlib", SOURCE_STDLIB, "--target", "native", "--shared", "-o", self.work / "libclash.so"])),
+            stdin=subprocess.DEVNULL, capture_output=True, text=True, timeout=30,
+        )
+        self.assertEqual(sh_clash.returncode, 1)
+        self.assertIn("temporary C output would overwrite", sh_clash.stderr)
+        self.assertTrue(shared_src.is_file())
+
+        non_c = subprocess.run(
+            list(map(str, [COMPILER, src, "--stdlib", SOURCE_STDLIB, "--target", "native", "-o", self.work / "native.out", "--run"])),
+            stdin=subprocess.DEVNULL, capture_output=True, text=True, timeout=60,
+        )
+        self.assertEqual((non_c.returncode, non_c.stdout), (0, "42\n"), non_c.stderr)
+
+        bslash = subprocess.run(
+            list(map(str, [COMPILER, src, "--stdlib", SOURCE_STDLIB, "--target", "native", "-o", "x\\y.c", "--run"])),
+            cwd=self.work, stdin=subprocess.DEVNULL, capture_output=True, text=True, timeout=60,
+        )
+        self.assertEqual((bslash.returncode, bslash.stdout), (0, "42\n"), bslash.stderr)
+
+        bin_src = self.work / "embed_bin.goose"
+        bin_src.write_text('let data = embed_file("bin.dat");\nfn main() { print(data.len); }\n')
+        (self.work / "bin.dat").write_bytes(b"\xff\xfe\x80\x00hello\xc3\xa9")
+        deps = self.work / "deps.json"
+        dep_res = subprocess.run(
+            list(map(str, [COMPILER, bin_src, "--stdlib", SOURCE_STDLIB, "-o", self.work / "eb.wasm", "--wasm-deps", deps])),
+            stdin=subprocess.DEVNULL, capture_output=True, timeout=30,
+        )
+        self.assertEqual(dep_res.returncode, 0, dep_res.stderr)
+        parsed = json.loads(deps.read_bytes().decode("utf-8"))
+        self.assertTrue(any(row["path"].endswith("bin.dat") and row["text"] == "\u00ff\u00fe\u0080\u0000hello\u00e9" for row in parsed))
+
 
 if __name__ == "__main__":
     unittest.main()

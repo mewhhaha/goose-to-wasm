@@ -376,23 +376,45 @@ fn dispatch_import(
         ("env", "cosh" | "gs_cosh") => Ok(Out::F64(arg_f64(args, 0)?.cosh())),
         ("env", "tanh" | "gs_tanh") => Ok(Out::F64(arg_f64(args, 0)?.tanh())),
         ("env", "exp2" | "gs_exp2") => Ok(Out::F64(arg_f64(args, 0)?.exp2())),
-        ("env", "gs_sin") => Ok(Out::F64(arg_f64(args, 0)?.sin())),
-        ("env", "gs_cos") => Ok(Out::F64(arg_f64(args, 0)?.cos())),
-        ("env", "gs_tan") => Ok(Out::F64(arg_f64(args, 0)?.tan())),
-        ("env", "gs_asin") => Ok(Out::F64(arg_f64(args, 0)?.asin())),
-        ("env", "gs_acos") => Ok(Out::F64(arg_f64(args, 0)?.acos())),
-        ("env", "gs_atan") => Ok(Out::F64(arg_f64(args, 0)?.atan())),
-        ("env", "gs_atan2") => Ok(Out::F64(arg_f64(args, 0)?.atan2(arg_f64(args, 1)?))),
-        ("env", "gs_exp") => Ok(Out::F64(arg_f64(args, 0)?.exp())),
-        ("env", "gs_log") => Ok(Out::F64(arg_f64(args, 0)?.ln())),
-        ("env", "gs_log2") => Ok(Out::F64(arg_f64(args, 0)?.log2())),
-        ("env", "gs_log10") => Ok(Out::F64(arg_f64(args, 0)?.log10())),
-        ("env", "gs_pow") => Ok(Out::F64(arg_f64(args, 0)?.powf(arg_f64(args, 1)?))),
-        ("env", "gs_hypot") => Ok(Out::F64(arg_f64(args, 0)?.hypot(arg_f64(args, 1)?))),
-        ("env", "gs_cbrt") => Ok(Out::F64(arg_f64(args, 0)?.cbrt())),
-        ("env", "gs_expm1") => Ok(Out::F64(arg_f64(args, 0)?.exp_m1())),
-        ("env", "gs_log1p") => Ok(Out::F64(arg_f64(args, 0)?.ln_1p())),
-        ("env", "gs_fmod") => Ok(Out::F64(arg_f64(args, 0)? % arg_f64(args, 1)?)),
+        ("env", "sin" | "gs_sin") => Ok(Out::F64(arg_f64(args, 0)?.sin())),
+        ("env", "gs_sinf") => Ok(Out::F32(arg_f32(args, 0)?.sin())),
+        ("env", "cos" | "gs_cos") => Ok(Out::F64(arg_f64(args, 0)?.cos())),
+        ("env", "gs_cosf") => Ok(Out::F32(arg_f32(args, 0)?.cos())),
+        ("env", "tan" | "gs_tan") => Ok(Out::F64(arg_f64(args, 0)?.tan())),
+        ("env", "gs_tanf") => Ok(Out::F32(arg_f32(args, 0)?.tan())),
+        ("env", "asin" | "gs_asin") => Ok(Out::F64(arg_f64(args, 0)?.asin())),
+        ("env", "gs_asinf") => Ok(Out::F32(arg_f32(args, 0)?.asin())),
+        ("env", "acos" | "gs_acos") => Ok(Out::F64(arg_f64(args, 0)?.acos())),
+        ("env", "gs_acosf") => Ok(Out::F32(arg_f32(args, 0)?.acos())),
+        ("env", "atan" | "gs_atan") => Ok(Out::F64(arg_f64(args, 0)?.atan())),
+        ("env", "gs_atanf") => Ok(Out::F32(arg_f32(args, 0)?.atan())),
+        ("env", "atan2" | "gs_atan2") => Ok(Out::F64(arg_f64(args, 0)?.atan2(arg_f64(args, 1)?))),
+        ("env", "gs_atan2f") => Ok(Out::F32(arg_f32(args, 0)?.atan2(arg_f32(args, 1)?))),
+        ("env", "exp" | "gs_exp") => Ok(Out::F64(arg_f64(args, 0)?.exp())),
+        ("env", "gs_expf") => Ok(Out::F32(arg_f32(args, 0)?.exp())),
+        ("env", "log" | "gs_log") => Ok(Out::F64(arg_f64(args, 0)?.ln())),
+        ("env", "gs_logf") => Ok(Out::F32(arg_f32(args, 0)?.ln())),
+        ("env", "log2" | "gs_log2") => Ok(Out::F64(arg_f64(args, 0)?.log2())),
+        ("env", "gs_log2f") => Ok(Out::F32(arg_f32(args, 0)?.log2())),
+        ("env", "log10" | "gs_log10") => Ok(Out::F64(arg_f64(args, 0)?.log10())),
+        ("env", "gs_log10f") => Ok(Out::F32(arg_f32(args, 0)?.log10())),
+        ("env", "pow" | "gs_pow") => Ok(Out::F64(arg_f64(args, 0)?.powf(arg_f64(args, 1)?))),
+        ("env", "gs_powf") => Ok(Out::F32(arg_f32(args, 0)?.powf(arg_f32(args, 1)?))),
+        ("env", "gs_mul_add") => Ok(Out::F64(
+            arg_f64(args, 0)?.mul_add(arg_f64(args, 1)?, arg_f64(args, 2)?),
+        )),
+        ("env", "gs_mul_addf") => Ok(Out::F32(
+            arg_f32(args, 0)?.mul_add(arg_f32(args, 1)?, arg_f32(args, 2)?),
+        )),
+        ("env", "round" | "gs_round") => Ok(Out::F64(arg_f64(args, 0)?.round())),
+        ("env", "roundf" | "gs_roundf") => Ok(Out::F32(arg_f32(args, 0)?.round())),
+        ("env", "hypot" | "gs_hypot") => Ok(Out::F64(arg_f64(args, 0)?.hypot(arg_f64(args, 1)?))),
+        ("env", "cbrt" | "gs_cbrt") => Ok(Out::F64(arg_f64(args, 0)?.cbrt())),
+        ("env", "expm1" | "gs_expm1") => Ok(Out::F64(arg_f64(args, 0)?.exp_m1())),
+        ("env", "log1p" | "gs_log1p") => Ok(Out::F64(arg_f64(args, 0)?.ln_1p())),
+        ("env", "fmod" | "gs_fmod") => Ok(Out::F64(arg_f64(args, 0)? % arg_f64(args, 1)?)),
+        ("env", "fmodf" | "gs_fmodf") => Ok(Out::F32(arg_f32(args, 0)? % arg_f32(args, 1)?)),
+        ("env", "gs_trim_memory") => Ok(Out::Int(0)),
 
         // --- Standard Goose OS externs ---
         ("env", "gs_os_write_stdout") => {
@@ -661,8 +683,10 @@ fn dispatch_import(
             Ok(Out::Int(ns))
         }
         ("env", "gs_os_sleep_ms" | "blot_sleep_ms") => {
-            let ms = arg_u64(args, 0)?;
-            std::thread::sleep(Duration::from_millis(ms));
+            let ms = arg_i64(args, 0)?;
+            if ms > 0 {
+                std::thread::sleep(Duration::from_millis(ms as u64));
+            }
             Ok(Out::Void)
         }
         ("env", "gs_os_random_u64" | "blot_random_u64") => {
@@ -672,9 +696,10 @@ fn dispatch_import(
                     return Ok(Out::Int(u64::from_le_bytes(buf) as i64));
                 }
             }
-            let mix = state.lock().unwrap().start_instant.elapsed().as_nanos() as u64
+            let guard = state.lock().unwrap();
+            let mix = guard.start_instant.elapsed().as_nanos() as u64
                 ^ (u64::from(std::process::id()) << 32)
-                ^ state.lock().unwrap().next_owner.fetch_add(1, Ordering::Relaxed);
+                ^ guard.next_owner.fetch_add(1, Ordering::Relaxed);
             Ok(Out::Int(mix as i64))
         }
 
@@ -1338,13 +1363,11 @@ fn run_module(opts: &Options) -> Result<i32, String> {
             return Err(format!("export {export_name} is not a function"));
         };
         match store.invoke(func, &[]) {
-            Ok(RunOutcome::Returned(vals)) => {
-                if let Some(Value::I32(code)) = vals.first() {
-                    Ok(Some(*code))
-                } else {
-                    Ok(None)
-                }
-            }
+            Ok(RunOutcome::Returned(vals)) => match vals.first() {
+                Some(Value::I32(code)) => Ok(Some(*code)),
+                Some(Value::I64(code)) => Ok(Some(*code as i32)),
+                _ => Ok(None),
+            },
             Ok(other) => Err(format!("unexpected outcome from {export_name}: {other:?}")),
             Err(err) => {
                 if let Some(code) = state.lock().unwrap().exit_code {

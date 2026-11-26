@@ -30,7 +30,7 @@ def digest(path):
 
 def save(path, value):
     temporary = path.with_suffix('.tmp')
-    temporary.write_text(json.dumps(value, indent=2) + '\n')
+    temporary.write_text(json.dumps(value, indent=2) + '\n', encoding='utf-8')
     temporary.replace(path)
 
 
@@ -252,14 +252,14 @@ def main():
             row = {'c_sha256': c_hash, 'goose_optimization': optimization,
                    'profile_used': False, 'profile_reason': profile_reason}
             report['builds'][name] = row
-            text = staged_c.read_text() if args.jobs > 1 else ''
+            text = staged_c.read_text(encoding='utf-8') if args.jobs > 1 else ''
             runtime_end = text.find('\n#else /* program units */\n')
             if runtime_end >= 0:
                 # Development builds: units compile at once, and the profile,
                 # keyed by one translation unit's functions, does not apply.
                 row.update(units=args.jobs, profile_reason='compiled as ' + str(args.jobs) + ' units without profile')
                 def units():
-                    (stage / 'runtime.c').write_text(text[:runtime_end + 1] + '#endif\n')
+                    (stage / 'runtime.c').write_text(text[:runtime_end + 1] + '#endif\n', encoding='utf-8')
                     compiles = [([cc, *base_flags[:2], '-DG_RUNTIME_UNIT', '-c', 'runtime.c', '-o', 'runtime.o'], name + '-runtime')]
                     for unit in range(args.jobs):
                         compiles.append(([cc, *base_flags[:2], f'-DG_UNITS={args.jobs}', f'-DG_UNIT={unit}', '-c', 'seed.c',
@@ -329,7 +329,7 @@ def main():
             library_hashes = {p.relative_to(library).as_posix(): digest(p) for p in library.rglob('*') if p.is_file()}
             assets = {}
             for source in sources.glob('*.goose'):
-                for match in re.finditer(r'\bembed_file\(\s*"\.\./native/([^"\n]+)"\s*\)', source.read_text()):
+                for match in re.finditer(r'\bembed_file\(\s*"\.\./native/([^"\n]+)"\s*\)', source.read_text(encoding='utf-8')):
                     relative = Path(match.group(1))
                     if relative.is_absolute() or '..' in relative.parts:
                         raise RuntimeError('invalid native runtime asset path: ' + str(relative))

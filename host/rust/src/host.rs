@@ -203,6 +203,7 @@ fn handler_for(module: &str, name: &str) -> Option<Handler> {
         ("env", "gs_os_random_u64") => |_, _| Ok(Out::Integer(random_u64() as i64)),
         ("env", "gs_find_any") => find_any,
         ("env", "gs_find_pair") => find_pair,
+        ("env", "gs_trim_memory") => |_, _| Ok(Out::Integer(0)),
         // No process can be started from here: libc's system fails.
         ("env", "system") => |_, _| Ok(Out::Integer(-1)),
         ("wasi_snapshot_preview1", "args_sizes_get") => |caller, values| {
@@ -341,14 +342,31 @@ pub(crate) fn span(size: usize, pointer: i128, length: i128) -> Result<Range<usi
     Ok(pointer as usize..(pointer + length) as usize)
 }
 
+fn resolve_pointer(mem: &Memory, caller: &Caller<'_, Host>, size: usize, pointer: i128) -> i128 {
+    if pointer < 0 && !mem.ty(caller).is_64() && size > 0x8000_0000 {
+        i128::from((pointer as i32) as u32)
+    } else {
+        pointer
+    }
+}
+
 pub(crate) fn read_bytes(caller: &mut Caller<'_, Host>, pointer: i128, length: i128) -> Result<Vec<u8>> {
-    let data = memory(caller)?.data(&*caller);
-    Ok(data[span(data.len(), pointer, length)?].to_vec())
+    let mem = memory(caller)?;
+    let data = mem.data(&*caller);
+    let ptr = resolve_pointer(&mem, &*caller, data.len(), pointer);
+    Ok(data[span(data.len(), ptr, length)?].to_vec())
 }
 
 pub(crate) fn write_bytes(caller: &mut Caller<'_, Host>, pointer: i128, bytes: &[u8]) -> Result<()> {
-    let data = memory(caller)?.data_mut(&mut *caller);
-    let range = span(data.len(), pointer, bytes.len() as i128)?;
+    let mem = memory(caller)?;
+    let is_64 = mem.ty(&*caller).is_64();
+    let data = mem.data_mut(&mut *caller);
+    let ptr = if pointer < 0 && !is_64 && data.len() > 0x8000_0000 {
+        i128::from((pointer as i32) as u32)
+    } else {
+        pointer
+    };
+    let range = span(data.len(), ptr, bytes.len() as i128)?;
     data[range].copy_from_slice(bytes);
     Ok(())
 }
@@ -368,8 +386,15 @@ fn print(caller: &mut Caller<'_, Host>, text: &[u8]) -> Result<Out> {
 
 fn goose_write(caller: &mut Caller<'_, Host>, values: &[Val]) -> Result<Out> {
     let (pointer, length) = (integer(values, 0)?, integer(values, 1)?);
-    let (data, host) = memory(caller)?.data_and_store_mut(&mut *caller);
-    host.out.extend_from_slice(&data[span(data.len(), pointer.into(), length.into())?]);
+    let mem = memory(caller)?;
+    let is_64 = mem.ty(&*caller).is_64();
+    let (data, host) = mem.data_and_store_mut(&mut *caller);
+    let ptr = if pointer < 0 && !is_64 && data.len() > 0x8000_0000 {
+        i128::from((pointer as i32) as u32)
+    } else {
+        pointer.into()
+    };
+    host.out.extend_from_slice(&data[span(data.len(), ptr, length.into())?]);
     Ok(Out::Nothing)
 }
 
@@ -398,7 +423,7 @@ fn os_read_file(caller: &mut Caller<'_, Host>, values: &[Val]) -> Result<Out> {
     let control = arguments.integer()?;
     let path = read_bytes(caller, pointer, length)?;
     if path.contains(&0) {
-        return Err(failure("embedded null byte"));
+        return Ok(Out::Integer(0));
     }
     match fs::read(OsStr::from_bytes(&normalized_path(&path))) {
         Ok(contents) => {
@@ -417,7 +442,7 @@ fn os_write_file(caller: &mut Caller<'_, Host>, values: &[Val], append: bool) ->
     let path = &data[span(data.len(), path_pointer, path_length)?];
     let contents = &data[span(data.len(), pointer, length)?];
     if path.contains(&0) {
-        return Err(failure("embedded null byte"));
+        return Ok(Out::Integer(0));
     }
     let mut options = fs::OpenOptions::new();
     if append {
@@ -476,7 +501,7 @@ fn os_write_file_atomic(caller: &mut Caller<'_, Host>, values: &[Val]) -> Result
     let path = &data[span(data.len(), path_pointer, path_length)?];
     let contents = &data[span(data.len(), pointer, length)?];
     if path.contains(&0) {
-        return Err(failure("embedded null byte"));
+        return Ok(Out::Integer(0));
     }
     let target = PathBuf::from(OsStr::from_bytes(path));
     let mut tmp = target.as_os_str().to_os_string();

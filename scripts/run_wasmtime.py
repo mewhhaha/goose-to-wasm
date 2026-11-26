@@ -33,6 +33,64 @@ def f32(value: float) -> float:
         return math.copysign(math.inf, value)
 
 
+def c_round(value: float) -> float:
+    if not math.isfinite(value) or value == 0.0:
+        return value
+    a = abs(value)
+    t = math.trunc(a)
+    return math.copysign(t + 1.0 if a - t >= 0.5 else t, value)
+
+
+def c_fmod(x: float, y: float) -> float:
+    if math.isnan(x) or math.isnan(y) or math.isinf(x) or y == 0.0:
+        return math.nan
+    if math.isinf(y):
+        return x
+    return math.fmod(x, y)
+
+
+def c_pow(x: float, y: float) -> float:
+    if y == 0.0 or x == 1.0:
+        return 1.0
+    if math.isnan(x) or math.isnan(y):
+        return math.nan
+    try:
+        return math.pow(x, y)
+    except OverflowError:
+        odd = math.isfinite(y) and y == math.trunc(y) and int(y) % 2 != 0
+        return -math.inf if x < 0.0 and odd else math.inf
+    except ZeroDivisionError:
+        odd = math.isfinite(y) and y == math.trunc(y) and int(y) % 2 != 0
+        return math.copysign(math.inf, x) if odd else math.inf
+    except ValueError:
+        return math.nan
+
+
+def c_unary(fn, x: float, *, zero_neg_inf: bool = False, neg_one_neg_inf: bool = False,
+            signed_overflow: bool = False) -> float:
+    if math.isnan(x):
+        return math.nan
+    if zero_neg_inf and x == 0.0:
+        return -math.inf
+    if neg_one_neg_inf and x == -1.0:
+        return -math.inf
+    try:
+        return fn(x)
+    except OverflowError:
+        return math.copysign(math.inf, x) if signed_overflow else math.inf
+    except ValueError:
+        return math.nan
+
+
+def c_ldexp(x: float, exp: int) -> float:
+    if not math.isfinite(x) or x == 0.0:
+        return x
+    try:
+        return math.ldexp(x, exp)
+    except OverflowError:
+        return math.copysign(math.inf, x)
+
+
 def f32_scientific(magnitude: float) -> str:
     """The shortest scientific text of a positive finite f32, as native gs_fmt_f32 chooses it.
 
@@ -243,15 +301,24 @@ def run_module(data: bytes, stdin: bytes | str, *, timing: bool = True,
         if not isinstance(memory, wasmtime.Memory):
             raise RuntimeError("module does not export memory")
         start, size = pointer, length
+        total = memory.data_len(caller)
+        if start < 0 and not memory.type(caller).is_64 and total > 0x80000000:
+            start &= 0xffffffff
         if start < 0 or size < 0:
             raise RuntimeError("negative host address")
-        if start + size > memory.data_len(caller):
+        if start + size > total:
             raise RuntimeError("host write is outside exported memory")
         return bytes(memory.read(caller, start, start + size))
 
     def write_bytes(caller, pointer, value):
-        memory_bytes(caller, pointer, len(value))
-        caller.get("memory").write(caller, value, pointer)
+        memory = caller.get("memory")
+        if not isinstance(memory, wasmtime.Memory):
+            raise RuntimeError("module does not export memory")
+        start = pointer
+        if start < 0 and not memory.type(caller).is_64 and memory.data_len(caller) > 0x80000000:
+            start &= 0xffffffff
+        memory_bytes(caller, start, len(value))
+        memory.write(caller, value, start)
 
     def write64(caller, pointer, value):
         write_bytes(caller, pointer, struct.pack("<Q", value))
@@ -291,7 +358,7 @@ def run_module(data: bytes, stdin: bytes | str, *, timing: bool = True,
     def tried(action):
         try:
             return 1 if action() else 0
-        except OSError:
+        except (OSError, ValueError):
             return 0
 
     def read_file(caller, path, control):
@@ -484,6 +551,16 @@ def run_module(data: bytes, stdin: bytes | str, *, timing: bool = True,
     def exit_program(code):
         raise ProgramExit(code)
 
+    def host_frexp(caller, value, pointer):
+        if not math.isfinite(value) or value == 0.0:
+            mant, exp = value, 0
+        else:
+            mant, exp = math.frexp(value)
+        if pointer < 0:
+            pointer &= 0xffffffff
+        write_bytes(caller, pointer, struct.pack("<i", exp))
+        return mant
+
     def barrier(value):
         nonlocal sink
         sink = value
@@ -539,6 +616,78 @@ def run_module(data: bytes, stdin: bytes | str, *, timing: bool = True,
         ("env", "gs_os_random_u64"): (lambda: struct.unpack("<q", os.urandom(8))[0], False),
         ("env", "gs_find_any"): (sliced("sr", find_any), True),
         ("env", "gs_find_pair"): (sliced("srrr", find_pair), True),
+        ("env", "gs_trim_memory"): (lambda: 0, False),
+        # stdlib/math.goose and stdlib/json.goose libm externs.
+        ("env", "frexp"): (host_frexp, True),
+        ("env", "ldexp"): (c_ldexp, False),
+        ("env", "sin"): (lambda x: c_unary(math.sin, x), False),
+        ("env", "gs_sin"): (lambda x: c_unary(math.sin, x), False),
+        ("env", "gs_sinf"): (lambda x: f32(c_unary(math.sin, f32(x))), False),
+        ("env", "cos"): (lambda x: c_unary(math.cos, x), False),
+        ("env", "gs_cos"): (lambda x: c_unary(math.cos, x), False),
+        ("env", "gs_cosf"): (lambda x: f32(c_unary(math.cos, f32(x))), False),
+        ("env", "tan"): (lambda x: c_unary(math.tan, x), False),
+        ("env", "gs_tan"): (lambda x: c_unary(math.tan, x), False),
+        ("env", "gs_tanf"): (lambda x: f32(c_unary(math.tan, f32(x))), False),
+        ("env", "asin"): (lambda x: c_unary(math.asin, x), False),
+        ("env", "gs_asin"): (lambda x: c_unary(math.asin, x), False),
+        ("env", "gs_asinf"): (lambda x: f32(c_unary(math.asin, f32(x))), False),
+        ("env", "acos"): (lambda x: c_unary(math.acos, x), False),
+        ("env", "gs_acos"): (lambda x: c_unary(math.acos, x), False),
+        ("env", "gs_acosf"): (lambda x: f32(c_unary(math.acos, f32(x))), False),
+        ("env", "atan"): (lambda x: c_unary(math.atan, x), False),
+        ("env", "gs_atan"): (lambda x: c_unary(math.atan, x), False),
+        ("env", "gs_atanf"): (lambda x: f32(c_unary(math.atan, f32(x))), False),
+        ("env", "atan2"): (math.atan2, False),
+        ("env", "gs_atan2"): (math.atan2, False),
+        ("env", "gs_atan2f"): (lambda y, x: f32(math.atan2(f32(y), f32(x))), False),
+        ("env", "exp"): (lambda x: c_unary(math.exp, x), False),
+        ("env", "gs_exp"): (lambda x: c_unary(math.exp, x), False),
+        ("env", "gs_expf"): (lambda x: f32(c_unary(math.exp, f32(x))), False),
+        ("env", "exp2"): (lambda x: c_unary(math.exp2, x), False),
+        ("env", "gs_exp2"): (lambda x: c_unary(math.exp2, x), False),
+        ("env", "log"): (lambda x: c_unary(math.log, x, zero_neg_inf=True), False),
+        ("env", "gs_log"): (lambda x: c_unary(math.log, x, zero_neg_inf=True), False),
+        ("env", "gs_logf"): (lambda x: f32(c_unary(math.log, f32(x), zero_neg_inf=True)), False),
+        ("env", "log2"): (lambda x: c_unary(math.log2, x, zero_neg_inf=True), False),
+        ("env", "gs_log2"): (lambda x: c_unary(math.log2, x, zero_neg_inf=True), False),
+        ("env", "gs_log2f"): (lambda x: f32(c_unary(math.log2, f32(x), zero_neg_inf=True)), False),
+        ("env", "log10"): (lambda x: c_unary(math.log10, x, zero_neg_inf=True), False),
+        ("env", "gs_log10"): (lambda x: c_unary(math.log10, x, zero_neg_inf=True), False),
+        ("env", "gs_log10f"): (lambda x: f32(c_unary(math.log10, f32(x), zero_neg_inf=True)), False),
+        ("env", "pow"): (c_pow, False),
+        ("env", "gs_pow"): (c_pow, False),
+        ("env", "gs_powf"): (lambda x, y: f32(c_pow(f32(x), f32(y))), False),
+        ("env", "gs_mul_add"): (lambda x, y, z: x * y + z, False),
+        ("env", "gs_mul_addf"): (lambda x, y, z: f32(f32(f32(x) * f32(y)) + f32(z)), False),
+        ("env", "round"): (c_round, False),
+        ("env", "gs_round"): (c_round, False),
+        ("env", "roundf"): (lambda x: f32(c_round(f32(x))), False),
+        ("env", "gs_roundf"): (lambda x: f32(c_round(f32(x))), False),
+        ("env", "fmod"): (c_fmod, False),
+        ("env", "gs_fmod"): (c_fmod, False),
+        ("env", "fmodf"): (lambda x, y: f32(c_fmod(f32(x), f32(y))), False),
+        ("env", "gs_fmodf"): (lambda x, y: f32(c_fmod(f32(x), f32(y))), False),
+        ("env", "sinh"): (lambda x: c_unary(math.sinh, x, signed_overflow=True), False),
+        ("env", "gs_sinh"): (lambda x: c_unary(math.sinh, x, signed_overflow=True), False),
+        ("env", "cosh"): (lambda x: c_unary(math.cosh, x), False),
+        ("env", "gs_cosh"): (lambda x: c_unary(math.cosh, x), False),
+        ("env", "tanh"): (lambda x: c_unary(math.tanh, x), False),
+        ("env", "gs_tanh"): (lambda x: c_unary(math.tanh, x), False),
+        ("env", "asinh"): (lambda x: c_unary(math.asinh, x), False),
+        ("env", "gs_asinh"): (lambda x: c_unary(math.asinh, x), False),
+        ("env", "acosh"): (lambda x: c_unary(math.acosh, x), False),
+        ("env", "gs_acosh"): (lambda x: c_unary(math.acosh, x), False),
+        ("env", "atanh"): (lambda x: c_unary(math.atanh, x), False),
+        ("env", "gs_atanh"): (lambda x: c_unary(math.atanh, x), False),
+        ("env", "hypot"): (math.hypot, False),
+        ("env", "gs_hypot"): (math.hypot, False),
+        ("env", "cbrt"): (math.cbrt, False),
+        ("env", "gs_cbrt"): (math.cbrt, False),
+        ("env", "expm1"): (lambda x: c_unary(math.expm1, x), False),
+        ("env", "gs_expm1"): (lambda x: c_unary(math.expm1, x), False),
+        ("env", "log1p"): (lambda x: c_unary(math.log1p, x, neg_one_neg_inf=True), False),
+        ("env", "gs_log1p"): (lambda x: c_unary(math.log1p, x, neg_one_neg_inf=True), False),
         # No process can be started from here: libc's system fails.
         ("env", "system"): (lambda _command: -1, False),
         ("wasi_snapshot_preview1", "args_sizes_get"): (args_sizes, True),

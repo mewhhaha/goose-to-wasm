@@ -59,7 +59,7 @@ def main():
                 shutil.copy2(path, evidence / path.name)
         if result.returncode:
             return result.returncode
-        report = json.loads((stage / 'report.json').read_text())
+        report = json.loads((stage / 'report.json').read_text(encoding='utf-8'))
         install = build / 'bin'
         install.mkdir(exist_ok=True)
         exe_name = 'goosew.exe' if (stage / 'goosew.exe').is_file() else 'goosew'
@@ -87,7 +87,7 @@ def main():
                     'fixed_point': report.get('fixed_point', False)}
         if 'reused_toolchain' in report:
             metadata['reused_toolchain'] = report['reused_toolchain']
-        (build / 'toolchain.json').write_text(json.dumps(metadata, indent=2) + '\n')
+        (build / 'toolchain.json').write_text(json.dumps(metadata, indent=2) + '\n', encoding='utf-8')
     print(install / exe_name)
     return 0
 

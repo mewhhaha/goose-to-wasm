@@ -1048,28 +1048,135 @@ fn parse_uleb(s: u8[:]) -> i64, i64 {
     return 0, 0;
 }
 
-// v with a fixed number of decimals, rounded half up; infinities and NaN
-// in their text form (§3.7).
+// v with a fixed number of decimals, its exact value rounded half up;
+// infinities and NaN in their text form (§3.7).
 fn format_flt(out: u8[>..]&, v: f64, decimals: i64) {
     if v != v || v - v != 0.0 {
         format(out, v);
         return;
     }
     var x = v;
-    if x < 0.0 {
+    // The sign bit rather than x < 0.0: -0.0 writes its sign, as printf does.
+    if (float_text::bits_of(x) >> 63) != 0 {
         out.push('-');
         x = -x;
     }
-    var scale = 1.0;
-    for i in decimals { scale *= 10.0; }
-    // x is not negative, so truncation is floor and adding 0.5 first rounds
-    // half up: `as!`, since dropping the fraction is the point.
-    let scaled = (x * scale + 0.5) as! i64;
-    let iscale = scale as i64;
-    format_uint(out, (scaled / iscale) as u64, 10, 0, ' ');
-    if decimals > 0 {
+    let d = max(decimals, 0);
+    // x * 10^d, below 2^52, is x's scaled value rounded once, by at most
+    // y * 2^-53, and its fraction is exact. Only a fraction that close to
+    // a half can round the other way than the exact value would, and then
+    // the digits are worked out exactly. `as!`: the floor drops the
+    // fraction on purpose.
+    if d <= 18 {
+        let y = x * float_text::POW10[d];
+        if y < 4503599627370496.0 {
+            let n = y as! i64;
+            let frac = y - n;
+            if abs(frac - 0.5) > y * 2.3e-16 {
+                let scaled = if frac >= 0.5 { n + 1 } else { n };
+                let iscale = float_text::POW10_U64[d] as i64;
+                format_uint(out, (scaled / iscale) as u64, 10, 0, ' ');
+                if d > 0 {
+                    out.push('.');
+                    format_uint(out, (scaled % iscale) as u64, 10, d, '0');
+                }
+                return;
+            }
+        }
+    }
+    format_flt_exact(out, x, d);
+}
+
+// The decimal digits of x, finite and not negative, rounded half up at d
+// places. x is m * 2^e, which is the integer m * 2^e for e >= 0 and
+// m * 5^-e / 10^-e otherwise, so the product, worked out in limbs of nine
+// digits, holds every digit of x: up to 309 before the point and 767
+// significant ones after it.
+fn format_flt_exact(out: u8[>..]&, x: f64, d: i64) {
+    let b = float_text::bits_of(x);
+    let be = ((b >> 52) & 0x7FF) as i64;
+    var m = b & 0xFFFFFFFFFFFFF;
+    var e = -1074;
+    if be > 0 {
+        m |= 0x10000000000000;
+        e = be - 1075;
+    }
+    var limbs: u64[>..] = [m % 1000000000, (m / 1000000000) % 1000000000, m / 1000000000000000000];
+    var point = 0;
+    if e >= 0 {
+        while e > 0 {
+            let s = min(e, 29);
+            format_flt_mul(limbs, (1 as u64) << s);
+            e -= s;
+        }
+    } else {
+        point = -e;
+        var k = point;
+        while k > 0 {
+            let s = min(k, 13);
+            format_flt_mul(limbs, float_text::POW5[s]);
+            k -= s;
+        }
+    }
+    // The digits, most significant first, with at least one before the
+    // point.
+    var digits: u8[>..] = [];
+    var top = limbs.len - 1;
+    while top > 0 && limbs[top] == 0 { top -= 1; }
+    format_uint(digits, limbs[top], 10, 0, ' ');
+    var i = top;
+    while i > 0 {
+        i -= 1;
+        format_uint(digits, limbs[i], 10, 9, '0');
+    }
+    if digits.len <= point {
+        var lead: u8[>..] = [];
+        push_n(lead, '0', point + 1 - digits.len);
+        lead.append(digits);
+        digits.resize(0);
+        digits.append(lead);
+    }
+    // Keep d places; a dropped first digit of 5 or more rounds up, carrying
+    // through nines, and past the first digit as a new leading 1.
+    let whole = digits.len - point;
+    var keep = whole + min(d, point);
+    if d < point && digits[keep] >= '5' {
+        var j = keep;
+        loop {
+            if j == 0 {
+                insert_at(digits, 0, '1');
+                keep += 1;
+                break;
+            }
+            j -= 1;
+            if digits[j] != '9' {
+                digits[j] += 1;
+                break;
+            }
+            digits[j] = '0';
+        }
+    }
+    let int_end = keep - min(d, point);
+    out.append(digits[..int_end]);
+    if d > 0 {
         out.push('.');
-        format_uint(out, (scaled % iscale) as u64, 10, decimals, '0');
+        out.append(digits[int_end..keep]);
+        push_n(out, '0', d - min(d, point));
+    }
+}
+
+// limbs * f, for f below 2^31: each limb is below 10^9, so limb * f plus
+// the carry stays below 2^63.
+fn format_flt_mul(limbs: u64[>..]&, f: u64) {
+    var carry: u64 = 0;
+    for i in limbs.len {
+        let t = limbs[i] * f + carry;
+        limbs[i] = t % 1000000000;
+        carry = t / 1000000000;
+    }
+    while carry > 0 {
+        limbs.push(carry % 1000000000);
+        carry /= 1000000000;
     }
 }
 
@@ -1408,4 +1515,32 @@ fn push_utf8(out: u8[>..]&, cp: i64) {
         out.push((0x80 | ((cp >> 6) & 0x3F)) as u8);
         out.push((0x80 | (cp & 0x3F)) as u8);
     }
+}
+
+// ---- float text ------------------------------------------------------------------
+
+// 10^0 .. 10^22, each exact in binary64.
+const float_text::POW10: f64[23] = [1e0, 1e1, 1e2, 1e3, 1e4, 1e5, 1e6, 1e7, 1e8, 1e9, 1e10, 1e11,
+                                    1e12, 1e13, 1e14, 1e15, 1e16, 1e17, 1e18, 1e19, 1e20, 1e21,
+                                    1e22];
+
+// The powers of ten and of five that fit a u64.
+const float_text::POW10_U64: u64[20] = [1, 10, 100, 1000, 10000, 100000, 1000000, 10000000,
+                                        100000000, 1000000000, 10000000000, 100000000000,
+                                        1000000000000, 10000000000000, 100000000000000,
+                                        1000000000000000, 10000000000000000, 100000000000000000,
+                                        1000000000000000000, 10000000000000000000];
+const float_text::POW5: u64[28] = [1, 5, 25, 125, 625, 3125, 15625, 78125, 390625, 1953125, 9765625,
+                                   48828125, 244140625, 1220703125, 6103515625, 30517578125,
+                                   152587890625, 762939453125, 3814697265625, 19073486328125,
+                                   95367431640625, 476837158203125, 2384185791015625,
+                                   11920928955078125, 59604644775390625, 298023223876953125,
+                                   1490116119384765625, 7450580596923828125];
+
+// The bits of a double.
+fn float_text::bits_of(x: f64) -> u64 {
+    let a: f64[1] = [x];
+    let b = bytes_of(a);
+    return b[0] | (b[1] as u64) << 8 | (b[2] as u64) << 16 | (b[3] as u64) << 24 |
+        (b[4] as u64) << 32 | (b[5] as u64) << 40 | (b[6] as u64) << 48 | (b[7] as u64) << 56;
 }

@@ -181,6 +181,14 @@ class NativeHost(unittest.TestCase):
           (import "goose" "write" (func $write (param i32 i32)))
           (memory (export "memory") 0)
           (func (export "_start") (call $write (i32.const 0) (i32.const 0))))'''))
+        self.assertEqual(self.compare(self.module('''(module
+          (import "goose" "write" (func $write (param i32 i32)))
+          (memory (export "memory") 32769)
+          (func (export "_start")
+            (i32.store8 (i32.const -2147483648) (i32.const 111))
+            (i32.store8 (i32.const -2147483647) (i32.const 107))
+            (i32.store8 (i32.const -2147483646) (i32.const 10))
+            (call $write (i32.const -2147483648) (i32.const 3))))''')).stdout, b'ok\n')
 
     def test_duplicate_imports_and_invalid_signatures(self):
         path=self.module('''(module

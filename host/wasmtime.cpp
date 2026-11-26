@@ -166,6 +166,14 @@ struct Memory {
         item.found = wasmtime_caller_export_get(caller, "memory", 6, &item.value);
         if (!item.found || item.value.kind != WASMTIME_EXTERN_MEMORY) fail("module does not export memory");
     }
+    uint64_t address32(int32_t value) {
+        if (value < 0) {
+            size_t size = wasmtime_memory_data_size(context, &item.value.of.memory);
+            if (size > 0x80000000ULL) return uint64_t(uint32_t(value));
+            fail("negative host address");
+        }
+        return uint64_t(value);
+    }
     uint8_t *range(uint64_t pointer, uint64_t length) {
         size_t size = wasmtime_memory_data_size(context, &item.value.of.memory);
         if (pointer > size || length > size - pointer) fail("host write is outside exported memory");
@@ -248,7 +256,11 @@ static wasm_trap_t *callback(void *env, wasmtime_caller_t *caller, const wasmtim
         const auto &spec = *static_cast<const Spec *>(env);
         if (nresults) { r[0].kind = WASMTIME_I32; r[0].of.i32 = 0; }
         switch (spec.op) {
-        case Op::Write: state.output += Memory(caller).bytes(address(a[0].of.i32), address(a[1].of.i32)); break;
+        case Op::Write: {
+            Memory memory(caller);
+            state.output += memory.bytes(memory.address32(a[0].of.i32), address(a[1].of.i32));
+            break;
+        }
         case Op::I64: state.output += std::to_string(a[0].of.i64); break;
         case Op::U64: state.output += std::to_string(uint64_t(a[0].of.i64)); break;
         case Op::F64: state.output += goose_float(a[0].of.f64); break;
@@ -269,9 +281,11 @@ static wasm_trap_t *callback(void *env, wasmtime_caller_t *caller, const wasmtim
             else state.output += "false";
             break;
         case Op::Newline: state.output += '\n'; break;
-        case Op::Abort:
-            fail("goose runtime error: " + utf8_replacement(Memory(caller).bytes(
-                address(a[0].of.i32), address(a[1].of.i32))) + " (line " + std::to_string(a[2].of.i32) + ")");
+        case Op::Abort: {
+            Memory memory(caller);
+            fail("goose runtime error: " + utf8_replacement(memory.bytes(
+                memory.address32(a[0].of.i32), address(a[1].of.i32))) + " (line " + std::to_string(a[2].of.i32) + ")");
+        }
         case Op::Exit:
             state.exited = true; state.exit_code = a[0].of.i32;
             return wasmtime_trap_new("program exit", 12);

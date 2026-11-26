@@ -21,6 +21,7 @@ fn source_normalize(path: const u8[:], out: u8[>..]&) {
     var sizes: i64[>..] = [];
     var at = 0;
     let absolute = source_absolute(path);
+    let unc = path.len >= 2 && path[0] == '\\' && path[1] == '\\';
     while at < path.len {
         while at < path.len && (path[at] == '/' || path[at] == '\\') { at++; }
         let start = at;
@@ -30,7 +31,8 @@ fn source_normalize(path: const u8[:], out: u8[>..]&) {
         if length == 2 && path[start] == '.' && path[start + 1] == '.' {
             if starts.len > 0 {
                 let last = starts.len - 1;
-                if (last > 0 || sizes[0] != 2 || path[starts[0] + 1] != ':') &&
+                if (!unc || last >= 2) &&
+                   (last > 0 || sizes[0] != 2 || path[starts[0] + 1] != ':') &&
                    (sizes[last] != 2 || path[starts[last]] != '.' || path[starts[last] + 1] != '.') {
                     starts.pop(); sizes.pop(); continue;
                 }
@@ -39,9 +41,11 @@ fn source_normalize(path: const u8[:], out: u8[>..]&) {
         }
         starts.push(start); sizes.push(length);
     }
-    if absolute && path[0] == '/' { out.push('/'); }
+    let sep: u8 = if unc { '\\' } else { '/' };
+    if unc { out.append("\\\\"); }
+    else if absolute && (path[0] == '/' || path[0] == '\\') { out.push('/'); }
     for start, i in starts {
-        if out.len > 0 && out[out.len - 1] != '/' { out.push('/'); }
+        if out.len > 0 && out[out.len - 1] != '/' && out[out.len - 1] != '\\' { out.push(sep); }
         out.append(path[start..start + sizes[i]]);
     }
     if out.len == 0 { out.append("."); }
