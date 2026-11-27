@@ -2258,7 +2258,10 @@ class GuideCommand(unittest.TestCase):
         self.assertIn("Unqualified modules", default.stdout)
         self.assertIn("os::read_file", default.stdout)
         self.assertIn("import` never opens a namespace", default.stdout)
-        self.assertIn("json::parse", default.stdout)
+        self.assertIn("No `if let` in Goose", default.stdout)
+        self.assertIn("json::Node[>..]", default.stdout)
+        self.assertIn("cur .= cur.next", default.stdout)
+        self.assertIn("starts_with", default.stdout)
         self.assertIn("variable-size structs cannot be indexed", default.stdout)
         for heading in self.TOPICS.values():
             self.assertIn(heading, default.stdout)

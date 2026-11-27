@@ -50,6 +50,7 @@ fn guide_section_rules() {
     write_stdout("| `println(\"x=\", x)` | `print(\"x=\", x)` | Builtin is `print(...)` (no auto spaces); `format(buf, ...)` appends to `u8[>..]` |\n");
     write_stdout("| `let n = byte as i64;` (`byte: u8`) | `let n: i64 = byte;` | Safe widening (`u8->i64`, `i32->i64`, int->float) is implicit (`as` warns redundant) |\n");
     write_stdout("| `var r: i64& = null;` | `var r: i64? = null;` | `T&` is never null; nullable references use `T?` |\n");
+    write_stdout("| `if let v .= opt { ... }` | `if opt { ... }` or `guard opt else { return; }` | No `if let` in Goose; `if`/`while`/`guard` narrow `T?` directly to `T&` |\n");
     write_stdout("| `match e { V &x => ... }` on fixed `E` | `var xs: E..[>..] = [];` then `V &x =>` | Fixed enum `E` binds payload by value only; variable mode `E..` allows interior `&` |\n");
 }
 
@@ -103,7 +104,7 @@ fn guide_section_refs() {
     write_stdout("  - Typed parameter/field/local: pass lvalue directly without `&` (`fn inc(n: i64&)`, call `inc(x)`).\n");
     write_stdout("  - Inferred local: `let r .= xs[i];` or `let r = &xs[i];` keeps a reference; `let v = r;` copies fixed-size targets.\n");
     write_stdout("  - Reference identity: `a .== b`, `a .!= b`; rebind a `var` ref with `r .= other;` (`r = v;` assigns the target!).\n");
-    write_stdout("- **Optionals (`T?`):** Nullable reference (`null` or a `T&`). Test with `if r != null { ... }` or `if let v .= opt { ... }`.\n");
+    write_stdout("- **Optionals (`T?`):** Nullable reference (`null` or a `T&`). Narrow directly with `if opt { ... }`, `if opt != null { ... }`, `while cur { ... }`, or `guard opt else { return; }` (no `if let` syntax; inside the narrowed block `opt` acts as a `T&`).\n");
     write_stdout("- **Shrink rule:** You may `.pop()`, `.clear()`, `.resize()` (smaller), or reassign an array only when no live reference/slice points into it. Grow-only `T[>..]` can still shrink at points where the compiler proves nothing borrows it.\n");
     write_stdout("- **Relative references:** `Node&<u32>` (self-relative) and `Node&<u32 in pool>` (pool-relative) store 32-bit offsets for compact trees/graphs in a single array.\n");
     write_stdout("- **Index types & `checkfree`:** `u32 in arr` / `u32 upto arr` move bounds checks to construction; `checkfree fn` asks the compiler to prove zero runtime bounds checks remain.\n");
@@ -132,14 +133,14 @@ fn guide_section_control() {
 fn guide_section_stdlib() {
     write_stdout("\n## 6. Standard Library (`--stdlib`)\n\n");
     write_stdout("Stdlib modules are checked lazily (only reached functions are checked).\n\n");
-    write_stdout("**Unqualified modules** (no `namespace` — call directly without a `mod::` prefix):\n");
-    write_stdout("- `import std;` — `min`, `max`, `clamp`, `abs`, `rem`, `div_euclid`, `swap`, `hash`, `rng`, `sort`, `find`, `position`, `contains`, `split`, `each_utf8`, `push_utf8`, `parse_i64`, `parse_f64`.\n");
+    write_stdout("**Unqualified modules** (no `namespace` — call directly without a `mod::` prefix; avoid redefining these names when `std` is imported):\n");
+    write_stdout("- `import std;` — `min`, `max`, `clamp`, `abs`, `rem`, `div_euclid`, `swap`, `hash`, `rng`, `sort`, `find`, `position`, `contains`, `starts_with`, `ends_with`, `trim`, `trim_start`, `trim_end`, `split`, `each_utf8`, `push_utf8`, `parse_int`, `parse_flt`.\n");
     write_stdout("- `import os;` — `read_file(path, out)`, `write_file(path, data)`, `write_file_atomic`, `append_file`, `file_exists`, `delete_file`, `rename_file`, `make_dir`, `is_dir`, `list_dir`, `read_stdin(out)`, `read_line(out)`, `write_stdout(s)`, `write_stderr(s)`, `flush_stdout()`, `arg_count()`, `arg(i, out)`, `args()`, `env(name, out)`, `time_ns()`, `clock_ns()`, `sleep_ms(ms)`, `random_seed()`.\n");
     write_stdout("- `import dictionary;` — `dictionary<K, V>` hash map (`put`, `get`, `has`, `remove`, `clear`).\n");
     write_stdout("- `import slot_pool;` / `import slice_pool;` — reusable slot & byte-slice pools with O(1) free.\n");
     write_stdout("- `import math;` / `import vec;` — trig, `sqrt`, `pow`, `floor`/`ceil`, `vec2`/`vec3`/`vec4`, `dot`, `cross`, `normalize`.\n\n");
     write_stdout("**Namespaced modules** (declare `namespace <name>;` — qualify types & functions as `mod::Name`):\n");
-    write_stdout("- `import json;` — `json::Node`, `json::parse(text, doc, decoded) -> Node?, u8[>..]`, `json::member(n, key)`, `json::each`, `json::as_i64` / `as_f64` / `as_bool` / `as_string`, `json::format_string(out, s)`, `json::format_int`, `json::format_bool`.\n");
+    write_stdout("- `import json;` — `var doc: json::Node[>..] = []; var dec: u8[>..] = []; let root, err = json::parse(text, doc, dec);` (`root` is `json::Node?`). Access fields with `json::member(n, key) -> json::Node?`, extract two-value results `let v, ok = json::as_i64(n)` / `as_f64` / `as_bool` / `as_string`, walk array/object children via linked list `var cur .= n.first; while cur { ... cur .= cur.next; }`, and write JSON with `json::format_string(out, s)`, `json::format_int`, `json::format_bool`.\n");
     write_stdout("- `import regex;` / `import csv;` / `import binary;` / `import base64;` / `import exception;` / `import ffi;`.\n");
     write_stdout("- Browser apps (`--stdlib stdlib-web --wasm-bundled-host`): `gfx`, `audio`, `physics`, `ui`.\n");
 }
