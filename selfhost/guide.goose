@@ -42,6 +42,7 @@ fn guide_section_rules() {
     write_stdout("| `struct S { a: u8[>..], b: u8[>..] }` | `root struct S { a: u8[>..] = [], b: u8[>..] = [] }` | Multiple resizable fields need `root struct` (ordinary struct: at most 1 resizable tail) |\n");
     write_stdout("| `fn f(s: S)` for `root struct S` | `fn f(s: S&)` | `root struct` owners are local/global only and pass by reference |\n");
     write_stdout("| `os::read_file(p, b)` / `std::sort(a)` | `read_file(p, b)` / `sort(a)` | `os`, `std`, `math`, `vec`, `dictionary`, pools have no `namespace` — call unqualified (`json::`, `regex::`, `csv::`, `binary::`, `base64::`, `ffi::` use namespaces) |\n");
+    write_stdout("| Unqualified `Req` / `parse()` from `namespace http;` | `http::Req` / `http::parse()` (or omit `namespace`) | `namespace foo;` requires explicit `foo::` for types & calls from other files (`import` never opens a namespace) |\n");
     write_stdout("| `items[i]` on `struct Item { s: u8[] }` | Fixed `start, end: i64` + flat `buf: u8[>..]` (or `u8[..N]`) | Arrays of variable-size structs cannot be indexed — only iterated (`for x in items`) |\n");
     write_stdout("| `inc(&count)` for `fn inc(n: i64&)` | `inc(count)` | Typed `T&` slots bind lvalues without `&` (`&` warns redundant) |\n");
     write_stdout("| `let r = xs[i]; r = 5;` | `let r .= xs[i]; r = 5;` | Unannotated `=` copies fixed values; `.=` binds a reference |\n");
@@ -125,7 +126,7 @@ fn guide_section_control() {
     write_stdout("- **UFCS:** `a.foo(b)` resolves to `foo(a, b)` for both builtins and user/stdlib functions.\n");
     write_stdout("- **Loops & non-local returns:** `while cond { ... }`, `loop { ... break; }`, `for x in xs`, `for x, i in xs`, `for i in lo..hi`, `for i in n`. Use `return val from fn_name;` inside nested/callback functions.\n");
     write_stdout("- **Generics & `const for`:** `fn swap<T>(a: T&, b: T&)`, `struct Pair<T> { a: T, b: T }`, compile-time `const for` over fields/variants/types.\n");
-    write_stdout("- **Modules & namespaces:** `import foo;` loads `foo.goose`. Only a file declaring `namespace foo;` defines the `foo::` qualifier (calls may omit `foo::` when unambiguous). Files without `namespace` (such as `std` and `os`) export unqualified — do not write `os::...` or `std::...`. Avoid circular imports.\n");
+    write_stdout("- **Modules & namespaces:** `import foo;` only loads `foo.goose` — it creates no namespace and never opens one. If a file declares `namespace foo;`, other files must qualify both types and functions as `foo::Name` (only UFCS `x.f()` on a `foo::T` finds `foo::f`). Files without `namespace` (like `std`, `os`, `math`, `vec`, `dictionary`) declare into the global namespace and are used unqualified (never `os::...`). Use `::name` (e.g. `fn ::main()`) for global scope. Avoid circular imports.\n");
 }
 
 fn guide_section_stdlib() {
@@ -137,8 +138,9 @@ fn guide_section_stdlib() {
     write_stdout("- `import dictionary;` — `dictionary<K, V>` hash map (`put`, `get`, `has`, `remove`, `clear`).\n");
     write_stdout("- `import slot_pool;` / `import slice_pool;` — reusable slot & byte-slice pools with O(1) free.\n");
     write_stdout("- `import math;` / `import vec;` — trig, `sqrt`, `pow`, `floor`/`ceil`, `vec2`/`vec3`/`vec4`, `dot`, `cross`, `normalize`.\n\n");
-    write_stdout("**Namespaced modules** (declare `namespace <name>;` — qualify as `json::...`, `regex::...`, etc.):\n");
-    write_stdout("- `import json;` / `import regex;` / `import csv;` / `import binary;` / `import base64;` / `import exception;` / `import ffi;`.\n");
+    write_stdout("**Namespaced modules** (declare `namespace <name>;` — qualify types & functions as `mod::Name`):\n");
+    write_stdout("- `import json;` — `json::Node`, `json::parse(text, doc, decoded) -> Node?, u8[>..]`, `json::member(n, key)`, `json::each`, `json::as_i64` / `as_f64` / `as_bool` / `as_string`, `json::format_string(out, s)`, `json::format_int`, `json::format_bool`.\n");
+    write_stdout("- `import regex;` / `import csv;` / `import binary;` / `import base64;` / `import exception;` / `import ffi;`.\n");
     write_stdout("- Browser apps (`--stdlib stdlib-web --wasm-bundled-host`): `gfx`, `audio`, `physics`, `ui`.\n");
 }
 

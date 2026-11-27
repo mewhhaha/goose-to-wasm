@@ -2257,6 +2257,8 @@ class GuideCommand(unittest.TestCase):
         self.assertIn(version_token, default.stdout)
         self.assertIn("Unqualified modules", default.stdout)
         self.assertIn("os::read_file", default.stdout)
+        self.assertIn("import` never opens a namespace", default.stdout)
+        self.assertIn("json::parse", default.stdout)
         self.assertIn("variable-size structs cannot be indexed", default.stdout)
         for heading in self.TOPICS.values():
             self.assertIn(heading, default.stdout)
