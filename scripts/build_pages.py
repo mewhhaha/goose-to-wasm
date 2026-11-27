@@ -116,18 +116,14 @@ def build(args, scratch):
 
     for directory in ("host/web", "wasm", "samples", "data", "assets"):
         (output / directory).mkdir(parents=True)
-    for name in ("index.html", "styles.css", "app.js"):
+    # favicon-64.png is resized from upstream docs/logo/logo_black_fg_white_bg_square.png.
+    for name in ("index.html", "styles.css", "app.js", "favicon-64.png"):
         shutil.copyfile(site / name, output / name)
     for source in [*sorted(host.glob("*.js")), host / "package.json"]:
         shutil.copyfile(source, output / "host/web" / source.name)
-    logo_dir = samples.parent / "docs" / "logo"
-    for src_name, dst_name in (
-        ("logo_black_fg_trans_bg.png", "goose-logo.png"),
-        ("logo_black_fg_white_bg_square.png", "goose-favicon.png"),
-    ):
-        logo_src = logo_dir / src_name
-        if logo_src.is_file():
-            shutil.copyfile(logo_src, output / "assets" / dst_name)
+    logo_src = samples.parent / "docs" / "logo" / "logo_black_fg_trans_bg.png"
+    if logo_src.is_file():
+        shutil.copyfile(logo_src, output / "assets" / "goose-logo.png")
     (output / ".nojekyll").touch()
     shutil.copyfile(samples / "data" / WAD, output / "data" / WAD)
 
