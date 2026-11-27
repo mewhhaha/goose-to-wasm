@@ -493,7 +493,7 @@ fn cg_defer_bytes(m: CgModule&, kind: u8, bytes: u8[:]) -> i64 {
     m.batch.reqs_len++;
     let available = m.batch.payload.len - start;
     var reused = bytes.len; if reused > available { reused = available; }
-    copy_into(m.batch.payload[start..start + reused], bytes[..reused]);
+    copy_from(m.batch.payload[start..start + reused], bytes[..reused]);
     if reused < bytes.len { m.batch.payload.append(bytes[reused..]); }
     m.batch.payload_len += bytes.len;
     return request;
@@ -9298,11 +9298,11 @@ fn cg_save_wasm_body(batch: CgBatchScratch&, bucket: WasmBatchOut&, index: i64, 
         bucket.results[index] = WasmBodyResult {};
         return;
     }
-    copy_into(bucket.body[cursor.body..cursor.body + body.len], body);
-    if batch.calls_len > 0 { copy_into(bucket.region_calls[cursor.calls..cursor.calls + batch.calls_len], batch.calls[..batch.calls_len]); }
-    if batch.reqs_len > 0 { copy_into(bucket.reqs[cursor.reqs..cursor.reqs + batch.reqs_len], batch.reqs[..batch.reqs_len]); }
-    if batch.payload_len > 0 { copy_into(bucket.payload[cursor.payload..cursor.payload + batch.payload_len], batch.payload[..batch.payload_len]); }
-    if batch.fixups_len > 0 { copy_into(bucket.fixups[cursor.fixups..cursor.fixups + batch.fixups_len], batch.fixups[..batch.fixups_len]); }
+    copy_from(bucket.body[cursor.body..cursor.body + body.len], body);
+    if batch.calls_len > 0 { copy_from(bucket.region_calls[cursor.calls..cursor.calls + batch.calls_len], batch.calls[..batch.calls_len]); }
+    if batch.reqs_len > 0 { copy_from(bucket.reqs[cursor.reqs..cursor.reqs + batch.reqs_len], batch.reqs[..batch.reqs_len]); }
+    if batch.payload_len > 0 { copy_from(bucket.payload[cursor.payload..cursor.payload + batch.payload_len], batch.payload[..batch.payload_len]); }
+    if batch.fixups_len > 0 { copy_from(bucket.fixups[cursor.fixups..cursor.fixups + batch.fixups_len], batch.fixups[..batch.fixups_len]); }
     bucket.results[index] = WasmBodyResult { status: WASM_OK, maps_headers: batch.maps_headers, region_own: batch.region_own,
         body_len: body.len, calls_len: batch.calls_len, reqs_len: batch.reqs_len, payload_len: batch.payload_len, fixups_len: batch.fixups_len };
     cursor.body += body.len; cursor.calls += batch.calls_len;
@@ -9363,7 +9363,7 @@ fn cg_pack_wasm_range(buckets: WasmBatchOut[:], pack: CgPackBatch&, begin: i64, 
             while next_fixup < fixup_end {
                 let fixup = bucket.fixups[next_fixup];
                 let length = raw_start + fixup.raw_off - raw;
-                copy_into(pack.destination[at..at + length], bucket.body[raw..raw + length]);
+                copy_from(pack.destination[at..at + length], bucket.body[raw..raw + length]);
                 at += length; raw += length + fixup.dummy_len; next_fixup++;
                 // Replay has replaced the request index with the resolved immediate.
                 let value = fixup.req_idx;
@@ -9373,7 +9373,7 @@ fn cg_pack_wasm_range(buckets: WasmBatchOut[:], pack: CgPackBatch&, begin: i64, 
                 } else { wb_slice_s(pack.destination, at, value); }
             }
             let length = raw_end - raw;
-            copy_into(pack.destination[at..at + length], bucket.body[raw..raw_end]);
+            copy_from(pack.destination[at..at + length], bucket.body[raw..raw_end]);
             at += length; raw = raw_end;
         }
     }

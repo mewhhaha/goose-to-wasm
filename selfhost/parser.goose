@@ -837,6 +837,7 @@ recursive fn parse_function(p: Program&, c: ParseCursor&, nested: bool, inherite
     let start = c.at; var flags: i64 = 0; var symbol: i64 = -1;
     if inherited_extern { flags |= F_EXTERN; }
     if parse_deprecated(p, c) {
+        flags |= F_DEPRECATED;
         parse_next(c);
         parse_accept(c, T_STRLIT);
     }

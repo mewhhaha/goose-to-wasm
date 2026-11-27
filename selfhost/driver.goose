@@ -370,97 +370,109 @@ fn driver_diag_notes(out: u8[>..]&, tail: const u8[:], color: bool) {
         pos = nl + 1;
     }
 }
+fn driver_emit_diag_json(p: Program&, out: u8[>..]&, d: const Diagnostic&) {
+    out.append("{\"severity\":");
+    if d.severity == 0 { driver_json(out, "warning"); }
+    else if d.severity == 2 { driver_json(out, "note"); }
+    else { driver_json(out, "error"); }
+    out.append(",\"file\":");
+    var base: i64 = 0;
+    if d.source >= 0 && d.source < p.sources.len {
+        let s: const Source& = p.sources[d.source];
+        driver_json(out, p.text[s.path_start..s.path_start + s.path_len]);
+        base = s.text_start;
+    } else { driver_json(out, "<source>"); }
+    var rel_start = d.start - base; if rel_start < 0 { rel_start = 0; }
+    var rel_end = d.end - base; if rel_end < rel_start { rel_end = rel_start; }
+    out.append(",\"line\":"); driver_integer(out, d.line);
+    out.append(",\"column\":"); driver_integer(out, d.column);
+    out.append(",\"start\":"); driver_integer(out, rel_start);
+    out.append(",\"end\":"); driver_integer(out, rel_end);
+    let msg = p.messages[d.message_start..d.message_start + d.message_len];
+    var split: i64 = -1;
+    for i in 0..msg.len { if msg[i] == 10 { split = i; break; } }
+    out.append(",\"message\":");
+    if split >= 0 { driver_json(out, msg[0..split]); } else { driver_json(out, msg); }
+    out.append(",\"notes\":[");
+    if split >= 0 {
+        var pos = split + 1;
+        var ncount: i64 = 0;
+        while pos <= msg.len {
+            var nl = pos;
+            while nl < msg.len && msg[nl] != 10 { nl += 1; }
+            var line_start = pos;
+            if line_start + 2 <= nl && msg[line_start] == ' ' && msg[line_start + 1] == ' ' { line_start += 2; }
+            if nl > line_start {
+                if ncount > 0 { out.push(','); }
+                driver_json(out, msg[line_start..nl]);
+                ncount += 1;
+            }
+            pos = nl + 1;
+        }
+    }
+    out.append("]}");
+}
 fn driver_diagnostics_json(p: Program&) {
     var out: u8[>..] = [];
     out.push('[');
-    for d, di in p.diagnostics {
-        if di > 0 { out.push(','); }
-        out.append("{\"severity\":");
-        if d.severity == 0 { driver_json(out, "warning"); }
-        else if d.severity == 2 { driver_json(out, "note"); }
-        else { driver_json(out, "error"); }
-        out.append(",\"file\":");
-        var base: i64 = 0;
-        if d.source >= 0 && d.source < p.sources.len {
-            let s: const Source& = p.sources[d.source];
-            driver_json(out, p.text[s.path_start..s.path_start + s.path_len]);
-            base = s.text_start;
-        } else { driver_json(out, "<source>"); }
-        var rel_start = d.start - base; if rel_start < 0 { rel_start = 0; }
-        var rel_end = d.end - base; if rel_end < rel_start { rel_end = rel_start; }
-        out.append(",\"line\":"); driver_integer(out, d.line);
-        out.append(",\"column\":"); driver_integer(out, d.column);
-        out.append(",\"start\":"); driver_integer(out, rel_start);
-        out.append(",\"end\":"); driver_integer(out, rel_end);
-        let msg = p.messages[d.message_start..d.message_start + d.message_len];
-        var split: i64 = -1;
-        for i in 0..msg.len { if msg[i] == 10 { split = i; break; } }
-        out.append(",\"message\":");
-        if split >= 0 { driver_json(out, msg[0..split]); } else { driver_json(out, msg); }
-        out.append(",\"notes\":[");
-        if split >= 0 {
-            var pos = split + 1;
-            var ncount: i64 = 0;
-            while pos <= msg.len {
-                var nl = pos;
-                while nl < msg.len && msg[nl] != 10 { nl += 1; }
-                var line_start = pos;
-                if line_start + 2 <= nl && msg[line_start] == ' ' && msg[line_start + 1] == ' ' { line_start += 2; }
-                if nl > line_start {
-                    if ncount > 0 { out.push(','); }
-                    driver_json(out, msg[line_start..nl]);
-                    ncount += 1;
-                }
-                pos = nl + 1;
-            }
-        }
-        out.append("]}");
+    var emitted: i64 = 0;
+    for d in p.warnings {
+        if emitted > 0 { out.push(','); }
+        driver_emit_diag_json(p, out, d);
+        emitted += 1;
+    }
+    for d in p.diagnostics {
+        if emitted > 0 { out.push(','); }
+        driver_emit_diag_json(p, out, d);
+        emitted += 1;
     }
     out.append("]\n");
     write_stderr(out);
 }
+fn driver_emit_diag_text(p: Program&, d: const Diagnostic&, color: bool) {
+    var line: u8[>..] = [];
+    driver_ansi(line, color, "1");
+    if d.source >= 0 && d.source < p.sources.len {
+        let s: const Source& = p.sources[d.source]; line.append(p.text[s.path_start..s.path_start + s.path_len]);
+    } else { line.append("<source>"); }
+    line.push(':'); driver_integer(line, d.line); line.push(':'); driver_integer(line, d.column);
+    line.append(": ");
+    if d.severity == 0 {
+        driver_ansi(line, color, "1;33");
+        line.append("warning:");
+    } else if d.severity == 2 {
+        driver_ansi(line, color, "1;36");
+        line.append("note:");
+    } else {
+        driver_ansi(line, color, "1;31");
+        line.append("error:");
+    }
+    driver_ansi(line, color, "0");
+    line.push(' ');
+    let msg = p.messages[d.message_start..d.message_start + d.message_len];
+    var split: i64 = -1;
+    for i in 0..msg.len { if msg[i] == 10 { split = i; break; } }
+    if split >= 0 {
+        driver_ansi(line, color, "1");
+        line.append(msg[0..split]);
+        driver_ansi(line, color, "0");
+        line.push('\n');
+        driver_diag_snippet(p, d, line, color);
+        driver_diag_notes(line, msg[split + 1..], color);
+    } else {
+        driver_ansi(line, color, "1");
+        line.append(msg);
+        driver_ansi(line, color, "0");
+        line.push('\n');
+        driver_diag_snippet(p, d, line, color);
+    }
+    write_stderr(line);
+}
 fn driver_diagnostics(p: Program&, o: const DriverOptions&) {
     if o.error_format == 1 { driver_diagnostics_json(p); return; }
     let color = driver_use_color(o);
-    for d in p.diagnostics {
-        var line: u8[>..] = [];
-        driver_ansi(line, color, "1");
-        if d.source >= 0 && d.source < p.sources.len {
-            let s: const Source& = p.sources[d.source]; line.append(p.text[s.path_start..s.path_start + s.path_len]);
-        } else { line.append("<source>"); }
-        line.push(':'); driver_integer(line, d.line); line.push(':'); driver_integer(line, d.column);
-        line.append(": ");
-        if d.severity == 0 {
-            driver_ansi(line, color, "1;33");
-            line.append("warning:");
-        } else if d.severity == 2 {
-            driver_ansi(line, color, "1;36");
-            line.append("note:");
-        } else {
-            driver_ansi(line, color, "1;31");
-            line.append("error:");
-        }
-        driver_ansi(line, color, "0");
-        line.push(' ');
-        let msg = p.messages[d.message_start..d.message_start + d.message_len];
-        var split: i64 = -1;
-        for i in 0..msg.len { if msg[i] == 10 { split = i; break; } }
-        if split >= 0 {
-            driver_ansi(line, color, "1");
-            line.append(msg[0..split]);
-            driver_ansi(line, color, "0");
-            line.push('\n');
-            driver_diag_snippet(p, d, line, color);
-            driver_diag_notes(line, msg[split + 1..], color);
-        } else {
-            driver_ansi(line, color, "1");
-            line.append(msg);
-            driver_ansi(line, color, "0");
-            line.push('\n');
-            driver_diag_snippet(p, d, line, color);
-        }
-        write_stderr(line);
-    }
+    for d in p.warnings { driver_emit_diag_text(p, d, color); }
+    for d in p.diagnostics { driver_emit_diag_text(p, d, color); }
 }
 fn driver_dependencies(p: Program&, path: const u8[:]) -> bool {
     var out: u8[>..] = []; out.push('[');
@@ -709,7 +721,7 @@ fn driver_main() -> i64 {
     let cc_end = paths.len;
     var text: u8[>..] = []; var messages: u8[>..] = []; var sources: Source[>..] = [];
     var tokens: Token[>..] = []; var nodes: Node[>..] = []; var types: Type[>..] = [];
-    var symbols: Symbol[>..] = []; var diagnostics: Diagnostic[>..] = [];
+    var symbols: Symbol[>..] = []; var diagnostics: Diagnostic[>..] = []; var warnings: Diagnostic[>..] = [];
     var type_properties: i8[>..] = []; var builtin_symbols: i64[>..] = [];
     var type_buckets: TypeBucket[>..] = []; var type_links: TypeLink[>..] = []; var type_scan_marks: i64[>..] = []; var type_holds: i64[>..] = []; var enum_fixed_cache: i8[>..] = [];
     var inline_sites: InlineSite[>..] = []; var instantiation_stack: InstantiationSite[>..] = []; var region_profile: i64[>..] = [];
@@ -761,7 +773,7 @@ fn driver_main() -> i64 {
     }
     var p = Program { text: text, messages: messages, sources: sources, tokens: tokens,
                       nodes: nodes, types: types, node_extra_slots: node_extra_slots, node_extras: node_extras,
-                      token_columns: token_columns, symbols: symbols, diagnostics: diagnostics,
+                      token_columns: token_columns, symbols: symbols, diagnostics: diagnostics, warnings: warnings,
                       type_properties: type_properties, builtin_symbols: builtin_symbols,
                       type_buckets: type_buckets, type_links: type_links, type_scan_marks: type_scan_marks, type_holds: type_holds, enum_fixed_cache: enum_fixed_cache,
                       inline_sites: inline_sites, instantiation_stack: instantiation_stack, region_profile: region_profile, ident_table: ident_table,
@@ -799,6 +811,7 @@ fn driver_main() -> i64 {
     if o.dump_ir {
         driver_ir(p);
         if p.diagnostics.len > 0 { driver_diagnostics(p, o); return 1; }
+        if p.warnings.len > 0 { driver_diagnostics(p, o); }
         return 0;
     }
     if p.diagnostics.len > 0 { driver_diagnostics(p, o); return 1; }
@@ -808,7 +821,7 @@ fn driver_main() -> i64 {
         if p.diagnostics.len > 0 { driver_diagnostics(p, o); return 1; }
         if !driver_outputs_distinct(p, "", paths[stats_start..stats_end], "") { return 1; }
         var stored_check = false;
-        if cache_active {
+        if cache_active && p.warnings.len == 0 {
             let cdir = paths[cache_start..cache_end];
             if !is_dir(cdir) && !file_exists(cdir) {
                 var mkcmd: u8[>..] = [];
@@ -828,6 +841,7 @@ fn driver_main() -> i64 {
         if stats_end > stats_start && !driver_stats(p, paths[stats_start..stats_end], 0, parsed - started, checked - parsed, 0, 0, stored_check, false) {
             driver_error("cannot write statistics"); return 1;
         }
+        if p.warnings.len > 0 { driver_diagnostics(p, o); }
         return 0;
     }
     optimize_program(p); let optimized = clock_ns();
@@ -873,7 +887,7 @@ fn driver_main() -> i64 {
         if !write_file(paths[output_start..output_end], output) { driver_error("cannot write output"); return 1; }
     }
     var stored_artifact = false;
-    if cache_active {
+    if cache_active && p.warnings.len == 0 {
         let cdir = paths[cache_start..cache_end];
         if !is_dir(cdir) && !file_exists(cdir) {
             var mkcmd: u8[>..] = [];
@@ -894,6 +908,7 @@ fn driver_main() -> i64 {
         driver_error("cannot write statistics"); return 1;
     }
     if dependency_end > dependency_start && !driver_dependencies(p, paths[dependency_start..dependency_end]) { driver_error("cannot write dependency manifest"); return 1; }
+    if p.warnings.len > 0 { driver_diagnostics(p, o); }
     if !o.run || link_shared { return 0; }
     var command: u8[>..] = [];
     if o.target == 1 {

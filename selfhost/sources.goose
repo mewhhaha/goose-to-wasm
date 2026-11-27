@@ -627,7 +627,7 @@ fn gp_parse_spmd_dispatch(jobs: i64, ctx: const ParseSpmdCtx&, out: i64[:]) -> b
 fn gp_parse_spmd_range(ctx: const ParseSpmdCtx&, out: i64[:], worker_id: i64, worker_count: i64) {
     let _keep_out = out.len;
     var w_text: u8[>..] = []; var w_messages: u8[>..] = []; var w_sources: Source[>..] = [];
-    var w_tokens: Token[>..] = []; var w_nodes: Node[>..] = []; var w_diagnostics: Diagnostic[>..] = [];
+    var w_tokens: Token[>..] = []; var w_nodes: Node[>..] = []; var w_diagnostics: Diagnostic[>..] = []; var w_warnings: Diagnostic[>..] = [];
     var w_types: Type[>..] = []; var w_symbols: Symbol[>..] = [];
     var w_type_properties: i8[>..] = []; var w_builtin_symbols: i64[>..] = [];
     var w_type_buckets: TypeBucket[>..] = []; var w_type_links: TypeLink[>..] = [];
@@ -640,7 +640,7 @@ fn gp_parse_spmd_range(ctx: const ParseSpmdCtx&, out: i64[:], worker_id: i64, wo
     var local = Program {
         text: w_text, messages: w_messages, sources: w_sources, tokens: w_tokens, nodes: w_nodes,
         node_extra_slots: w_extra_slots, node_extras: w_extras, token_columns: w_token_columns,
-        diagnostics: w_diagnostics, types: w_types, symbols: w_symbols,
+        diagnostics: w_diagnostics, warnings: w_warnings, types: w_types, symbols: w_symbols,
         type_properties: w_type_properties, builtin_symbols: w_builtin_symbols,
         type_buckets: w_type_buckets, type_links: w_type_links,
         type_scan_marks: w_type_scan_marks, type_holds: w_type_holds, enum_fixed_cache: w_enum_fixed_cache,

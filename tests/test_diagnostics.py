@@ -342,6 +342,56 @@ class DiagnosticsAndHostImports(unittest.TestCase):
         res_bad = self.check_source(src, ("--check", "--error-format=xml"))
         self.assertEqual(res_bad.returncode, 2, res_bad.stderr)
 
+    def test_deprecation_and_decided_comparison_warnings(self):
+        dep_src = (
+            "import std;\n"
+            "deprecated \"use next_fn\" fn old_fn(x: i64) -> i64 { return x + 1; }\n"
+            "deprecated fn bare_fn() -> i64 { return 1; }\n"
+            "fn apply<F>(x: i64) -> i64 { return F(x); }\n"
+            "fn main() {\n"
+            "    var d = [0, 0];\n"
+            "    copy_into(d, [1, 2]);\n"
+            "    d.copy_into([3, 4]);\n"
+            "    print(old_fn(1), \" \", apply(2, old_fn), \" \", bare_fn());\n"
+            "}\n"
+        )
+        res = self.check_source(dep_src, ("--check", "--color=never"))
+        self.assertEqual(res.returncode, 0, res.stderr)
+        self.assertEqual(res.stderr.count("copy_into is deprecated: use copy_from"), 2, res.stderr)
+        self.assertEqual(res.stderr.count("old_fn is deprecated: use next_fn"), 2, res.stderr)
+        self.assertEqual(res.stderr.count("bare_fn is deprecated"), 1, res.stderr)
+        self.assertNotIn("error:", res.stderr)
+
+        res_json = self.check_source(dep_src, ("--check", "--error-format=json"))
+        self.assertEqual(res_json.returncode, 0, res_json.stderr)
+        items = json.loads(res_json.stderr)
+        self.assertEqual(len(items), 5, items)
+        self.assertTrue(all(item["severity"] == "warning" for item in items), items)
+
+        cmp_src = (
+            "var nodes: f64[>..];\n"
+            "type Id = u32 in nodes;\n"
+            "fn below(e: u32) -> bool { return e < 0; }\n"
+            "fn above(e: u32) -> bool { return e >= 0; }\n"
+            "fn id_below(e: Id) -> bool { return 0 > e; }\n"
+            "fn byte_top(b: u8) -> bool { return b <= 255; }\n"
+            "fn least(x: i8) -> bool { return x < -128; }\n"
+            "fn wide(e: u64) -> bool { return e > 100; }\n"
+            "fn zero(e: u64) -> bool { return e <= 0; }\n"
+            "fn negative<T>(x: T) -> bool { return x < 0; }\n"
+            "fn main() {\n"
+            "    nodes.push(1.0);\n"
+            "    print(below(1), above(1), id_below(0 as Id), byte_top(7), least(1), wide(1), zero(0), negative(1 as u32));\n"
+            "}\n"
+        )
+        res_cmp = self.check_source(cmp_src, ("--check", "--color=never"))
+        self.assertEqual(res_cmp.returncode, 0, res_cmp.stderr)
+        self.assertIn("warning: comparison is always false: u32 values are 0 to 4294967295", res_cmp.stderr)
+        self.assertIn("warning: comparison is always true: u32 values are 0 to 4294967295", res_cmp.stderr)
+        self.assertIn("warning: comparison is always true: u8 values are 0 to 255", res_cmp.stderr)
+        self.assertIn("warning: comparison is always false: i8 values are -128 to 127", res_cmp.stderr)
+        self.assertEqual(res_cmp.stderr.count("warning:"), 5, res_cmp.stderr)
+
 
 if __name__ == "__main__":
     unittest.main()

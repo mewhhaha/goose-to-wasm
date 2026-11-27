@@ -255,6 +255,8 @@ let F_ARRAY_JOIN: i64 = 17592186044416;
 // Bits 45 and 46 are the Wasm print-analysis cache. This storage bit
 // is omitted from the public IR dump.
 let F_HAS_EXTRA: i64 = 140737488355328;
+// A `deprecated` function declaration (spec §7.15).
+let F_DEPRECATED: i64 = 281474976710656;
 let TF_UNSIGNED: i64 = 1;
 let TF_OPTIONAL: i64 = 2;
 let TF_CONST: i64 = 4;
@@ -386,7 +388,7 @@ struct Program {
     tokens: Token[>..]&, nodes: Node[>..]&, types: Type[>..]&,
     node_extra_slots: i32[>..]&, node_extras: NodeExtra[>..]&,
     token_columns: TokenColumn[>..]&,
-    symbols: Symbol[>..]&, diagnostics: Diagnostic[>..]&,
+    symbols: Symbol[>..]&, diagnostics: Diagnostic[>..]&, warnings: Diagnostic[>..]&,
     // Memoized type properties (type * 8 + property, value + 1; 0 unknown)
     // and the builtin symbol of each builtin ID (-1 none yet).
     // Cached type predicates (checker: properties 0..6; C codegen: 7 = concrete),
@@ -652,6 +654,29 @@ fn diagnose(p: Program&, token: i64, message: const u8[:]) {
         let t = p.tokens[token];
         diagnose_at(p, t.source, t.start, t.end, message);
     } else { diagnose_at(p, 0, 0, 0, message); }
+}
+fn warn_at(p: Program&, source: i64, start: i64, end: i64, message: const u8[:]) {
+    for d in p.warnings {
+        if d.source == source && d.start == start &&
+           same_bytes(p.messages[d.message_start..d.message_start + d.message_len], message) { return; }
+    }
+    var line = 1; var column = 1;
+    if source >= 0 && source < p.sources.len {
+        let origin = p.sources[source].text_start;
+        for i in origin..start {
+            if p.text[i] == 10 { line += 1; column = 1; } else { column += 1; }
+        }
+    }
+    let at = p.messages.len;
+    p.messages.append(message);
+    p.warnings.push(Diagnostic { source: source, start: start, end: end,
+        line: line, column: column, message_start: at, message_len: message.len, severity: 0 });
+}
+fn warn(p: Program&, token: i64, message: const u8[:]) {
+    if token >= 0 && token < p.tokens.len {
+        let t = p.tokens[token];
+        warn_at(p, t.source, t.start, t.end, message);
+    } else { warn_at(p, 0, 0, 0, message); }
 }
 // Whether a node comes from a library module (resolved through --stdlib).
 // Unreached library functions are neither prepared nor checked.

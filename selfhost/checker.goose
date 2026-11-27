@@ -6177,6 +6177,102 @@ recursive fn check_funval_copy(p: Program&, c: Checker&, node: i64, expected: i6
     }
 }
 
+// A `deprecated` function (§7.15). Repeats the declaration's string when present.
+fn check_warn_deprecated_fn(p: Program&, at_tok: i64, fn_node: i64) {
+    if fn_node < 0 || (p.nodes[fn_node].flags & F_DEPRECATED) == 0 { return; }
+    if at_tok < 0 || library_token(p, at_tok) { return; }
+    var orig = fn_node;
+    while node_origin(p, orig) >= 0 { orig = node_origin(p, orig); }
+    let ntok = p.nodes[orig].token;
+    if ntok < 0 || ntok >= p.tokens.len { return; }
+    var msg: u8[>..] = [];
+    msg.append(token_text(p, ntok));
+    msg.append(" is deprecated");
+    let src = p.tokens[ntok].source;
+    var t = ntok - 1;
+    while t >= 0 && p.tokens[t].source == src {
+        let tk = p.tokens[t].kind;
+        if tk == T_SEMI || tk == T_LCURLY || tk == T_RCURLY || tk == T_RPAREN || tk == T_COMMA || tk == T_EOF { break; }
+        if tk == T_IDENT && token_is(p, t, "deprecated") {
+            if t + 1 < p.tokens.len && p.tokens[t + 1].kind == T_STRLIT && p.tokens[t + 1].source == src {
+                let st = p.tokens[t + 1];
+                if st.text_len > 0 {
+                    msg.append(": ");
+                    msg.append(p.text[st.text_start..st.text_start + st.text_len]);
+                }
+            }
+            break;
+        }
+        t -= 1;
+    }
+    warn(p, at_tok, msg);
+}
+
+fn check_in_generic(p: Program&, c: Checker&) -> bool {
+    var cur = c.function_node;
+    var depth = 0;
+    while cur >= 0 && depth < 32 {
+        var decl = cur;
+        while node_origin(p, decl) >= 0 { decl = node_origin(p, decl); }
+        if (p.nodes[decl].flags & F_GENERIC) != 0 || p.nodes[decl].third >= 0 { return true; }
+        let sym = p.nodes[decl].symbol;
+        if sym < 0 || sym >= p.symbols.len { break; }
+        cur = p.symbols[sym].owner;
+        depth += 1;
+    }
+    return false;
+}
+
+// An ordering comparison of an integer with a constant that the integer's
+// type alone decides (upstream TypeCheck::DecidedComparison).
+fn check_decided_comparison(p: Program&, c: Checker&, tok: i64, op: i64, left: i64, right: i64, orig_lt: i64, orig_rt: i64) {
+    if op != T_LT && op != T_LTEQ && op != T_GT && op != T_GTEQ { return; }
+    if tok < 0 || library_token(p, tok) || check_in_generic(p, c) { return; }
+    let lv = check_constant(p, c, left, 0);
+    let rv = check_constant(p, c, right, 0);
+    let lk = lv.valid && check_integer(lv.type_id) && !(lv.type_id == TYPE_U64 && lv.value < 0);
+    let rk = rv.valid && check_integer(rv.type_id) && !(rv.type_id == TYPE_U64 && rv.value < 0);
+    if lk == rk { return; }
+    var cmp_op = op;
+    var xt = orig_lt;
+    var k = rv.value;
+    if lk {
+        if op == T_LT { cmp_op = T_GT; }
+        else if op == T_GT { cmp_op = T_LT; }
+        else if op == T_LTEQ { cmp_op = T_GTEQ; }
+        else { cmp_op = T_LTEQ; }
+        xt = orig_rt;
+        k = lv.value;
+    }
+    let base = check_numeric_value_type(p, xt);
+    if !check_integer(base) { return; }
+    var lo: i64 = 0; var hi: i64 = 0; var hiknown = true;
+    var tname: const u8[:] = ""; var rtext: const u8[:] = "";
+    if base == TYPE_I8 { lo = -128; hi = 127; tname = "i8"; rtext = "-128 to 127"; }
+    else if base == TYPE_I16 { lo = -32768; hi = 32767; tname = "i16"; rtext = "-32768 to 32767"; }
+    else if base == TYPE_I32 { lo = -2147483648; hi = 2147483647; tname = "i32"; rtext = "-2147483648 to 2147483647"; }
+    else if base == TYPE_I64 { lo = -9223372036854775807 - 1; hi = 9223372036854775807; tname = "i64"; rtext = "-9223372036854775808 to 9223372036854775807"; }
+    else if base == TYPE_U8 { lo = 0; hi = 255; tname = "u8"; rtext = "0 to 255"; }
+    else if base == TYPE_U16 { lo = 0; hi = 65535; tname = "u16"; rtext = "0 to 65535"; }
+    else if base == TYPE_U32 { lo = 0; hi = 4294967295; tname = "u32"; rtext = "0 to 4294967295"; }
+    else if base == TYPE_U64 { lo = 0; hiknown = false; tname = "u64"; rtext = "0 or more"; }
+    else { return; }
+    var r: i64 = -1;
+    if cmp_op == T_LT { if lo >= k { r = 0; } else if hiknown && hi < k { r = 1; } }
+    else if cmp_op == T_LTEQ { if lo > k { r = 0; } else if hiknown && hi <= k { r = 1; } }
+    else if cmp_op == T_GT { if lo > k { r = 1; } else if hiknown && hi <= k { r = 0; } }
+    else if cmp_op == T_GTEQ { if lo >= k { r = 1; } else if hiknown && hi < k { r = 0; } }
+    if r < 0 { return; }
+    var msg: u8[>..] = [];
+    msg.append("comparison is always ");
+    if r == 1 { msg.append("true"); } else { msg.append("false"); }
+    msg.append(": ");
+    msg.append(tname);
+    msg.append(" values are ");
+    msg.append(rtext);
+    warn(p, tok, msg);
+}
+
 recursive fn check_call(p: Program&, c: Checker&, node: i64, expected: i64) -> i64 {
     let n_tok = p.nodes[node].token; let n_flags = p.nodes[node].flags;
     let n_sym = p.nodes[node].symbol; let n_third = p.nodes[node].third;
@@ -6233,7 +6329,7 @@ recursive fn check_call(p: Program&, c: Checker&, node: i64, expected: i64) -> i
     if n_third >= 0 {
         check_expression(p, c, n_third, -1); check_list_push(c, args, n_third);
     }
-    var first = -1; var bound_function = false;
+    var first = -1; var bound_function = false; var via_value = false;
     if (n_flags & F_SYNTHETIC) != 0 && n_sym >= 0 { first = n_sym; bound_function = true; }
     else if member { first = member_symbol; }
     else if callee_kind == N_NAME { first = check_lookup_name(p, c, callee_node, S_FUNCTION); }
@@ -6245,6 +6341,7 @@ recursive fn check_call(p: Program&, c: Checker&, node: i64, expected: i64) -> i
             if p.nodes[target].kind == N_FUNCTION || p.nodes[target].kind == N_FUNCTION_VALUE {
                 check_implicit_function_parameter(p, c, target, args.count);
                 first = p.nodes[target].symbol; bound_function = p.nodes[target].kind == N_FUNCTION_VALUE || node_origin(p, target) >= 0;
+                via_value = true;
             }
             else { diagnose(p, n_tok, "function parameter has no bound function value"); return -1; }
         } else if (p.symbols[first].flags & S_GLOBAL) == 0 {
@@ -6277,6 +6374,9 @@ recursive fn check_call(p: Program&, c: Checker&, node: i64, expected: i64) -> i
     let contextual = check_context_float_choice(p, c, node, callee_node, args, candidates, choice, expected);
     best = contextual.symbol; best_bindings = contextual.bindings;
     let original = p.symbols[best].node;
+    if (member || callee_kind == N_NAME && !via_value) && (n_flags & F_SYNTHETIC) == 0 {
+        check_warn_deprecated_fn(p, n_tok, original);
+    }
     // A block call produces its own temporary value. Only numeric literal
     // widths adapt here; a destination never turns its slice or owner tail
     // into a reference, nor supplies an empty array's element type.
@@ -6967,7 +7067,25 @@ recursive fn check_expression(p: Program&, c: Checker&, node: i64, expected: i64
                     else { diagnose(p, tok, "type name is not a runtime value"); }
                 }
                 else if (sflags & S_FUNCTION) != 0 {
-                    if snode >= 0 { check_prepare_function(p, c, snode); result = p.nodes[snode].type_id; }
+                    if snode >= 0 {
+                        check_prepare_function(p, c, snode);
+                        result = p.nodes[snode].type_id;
+                        // Naming a function as a value warns only when every overload is deprecated.
+                        var cur_fn = symbol;
+                        var fn_count: i64 = 0;
+                        var all_dep = true;
+                        var first_fn: i64 = -1;
+                        while cur_fn >= 0 {
+                            let fs: const Symbol& = p.symbols[cur_fn];
+                            if (fs.flags & S_FUNCTION) != 0 && (fs.flags & S_BUILTIN) == 0 && fs.node >= 0 && node_origin(p, fs.node) < 0 {
+                                fn_count += 1;
+                                if first_fn < 0 { first_fn = fs.node; }
+                                if (p.nodes[fs.node].flags & F_DEPRECATED) == 0 { all_dep = false; break; }
+                            }
+                            cur_fn = fs.next;
+                        }
+                        if fn_count > 0 && all_dep { check_warn_deprecated_fn(p, tok, first_fn); }
+                    }
                 } else {
                     if !check_global_use(p, c, symbol, tok) { return -1; }
                     if (sflags & S_GLOBAL) != 0 && snode >= 0 && (p.nodes[snode].flags & F_CHECKED) == 0 { check_variable(p, c, snode); }
@@ -7074,6 +7192,7 @@ recursive fn check_expression(p: Program&, c: Checker&, node: i64, expected: i64
             if !identity && lt >= 0 && rt >= 0 {
                 let comparison = op == T_EQ || op == T_NEQ || op == T_LT || op == T_LTEQ || op == T_GT || op == T_GTEQ || op == T_DOTEQ || op == T_DOTNEQ;
                 if check_numeric(lt) && check_numeric(rt) {
+                    let orig_lt = lt; let orig_rt = rt; let diag_before = p.diagnostics.len;
                     if !check_same_type(p, lt, rt) && op != T_SHL && op != T_SHR {
                         let lr = check_conversion(p, c, left, lt, rt); let rl = check_conversion(p, c, right, rt, lt);
                         var lc = false; var rc = false;
@@ -7112,6 +7231,10 @@ recursive fn check_expression(p: Program&, c: Checker&, node: i64, expected: i64
                             msg.append("`\n  help: convert one operand explicitly with `as ...`");
                             diagnose(p, tok, msg);
                         }
+                    }
+                    if p.diagnostics.len == diag_before && (op == T_LT || op == T_LTEQ || op == T_GT || op == T_GTEQ) &&
+                       check_integer(lt) && check_integer(rt) {
+                        check_decided_comparison(p, c, tok, op, left, right, orig_lt, orig_rt);
                     }
                     if (op == T_BITAND || op == T_BITOR || op == T_XOR || op == T_SHL || op == T_SHR) &&
                        (!check_integer(lt) || !check_integer(rt)) { diagnose(p, tok, "integer operator requires integer operands"); }
