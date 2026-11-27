@@ -25,7 +25,7 @@ fn guide_usage(version: const u8[:]) {
 
 fn guide_list_topics() {
     write_stdout("Topics:\n");
-    write_stdout("  rules     Top 10 rules to avoid common Goose mistakes\n");
+    write_stdout("  rules     Top rules to avoid common Goose mistakes\n");
     write_stdout("  types     Scalars, casts (as / as!), arrays, slices, and strings\n");
     write_stdout("  structs   Structs, resizable tails, root struct, enums, and match\n");
     write_stdout("  refs      References (&, .=), optionals (T?), lifetimes, and shrink rules\n");
@@ -35,12 +35,14 @@ fn guide_list_topics() {
 }
 
 fn guide_section_rules() {
-    write_stdout("\n## 1. Top 10 Rules (Avoid Common Mistakes)\n\n");
+    write_stdout("\n## 1. Top Rules (Avoid Common Mistakes)\n\n");
     write_stdout("| Don't write | Write instead | Why |\n");
     write_stdout("|---|---|---|\n");
     write_stdout("| `var r: Req = {};` | `var r = Req {};` or `Req { .. }` | Struct literals always name their type; bare `{}` is an empty block |\n");
     write_stdout("| `struct S { a: u8[>..], b: u8[>..] }` | `root struct S { a: u8[>..] = [], b: u8[>..] = [] }` | Multiple resizable fields need `root struct` (ordinary struct: at most 1 resizable tail) |\n");
     write_stdout("| `fn f(s: S)` for `root struct S` | `fn f(s: S&)` | `root struct` owners are local/global only and pass by reference |\n");
+    write_stdout("| `os::read_file(p, b)` / `std::sort(a)` | `read_file(p, b)` / `sort(a)` | `os`, `std`, `math`, `vec`, `dictionary`, pools have no `namespace` — call unqualified (`json::`, `regex::`, `csv::`, `binary::`, `base64::`, `ffi::` use namespaces) |\n");
+    write_stdout("| `items[i]` on `struct Item { s: u8[] }` | Fixed `start, end: i64` + flat `buf: u8[>..]` (or `u8[..N]`) | Arrays of variable-size structs cannot be indexed — only iterated (`for x in items`) |\n");
     write_stdout("| `inc(&count)` for `fn inc(n: i64&)` | `inc(count)` | Typed `T&` slots bind lvalues without `&` (`&` warns redundant) |\n");
     write_stdout("| `let r = xs[i]; r = 5;` | `let r .= xs[i]; r = 5;` | Unannotated `=` copies fixed values; `.=` binds a reference |\n");
     write_stdout("| `let s: string = \"hi\";` | `let s: const u8[:] = \"hi\";` / `var b: u8[>..] = [];` | No `string` type: literals are `const u8[:]`; builders are `u8[>..]` |\n");
@@ -87,6 +89,7 @@ fn guide_section_structs() {
     write_stdout("```\n\n");
     write_stdout("- Construct with `Point { x: 1.0, y: 2.0 }`, `Point {}` (when all fields have defaults), or `Point { x: 1.0, .. }`.\n");
     write_stdout("- `root struct` owners live only as locals or globals; they cannot be copied, returned by value, or nested in structs/arrays. Pass them as `Store&` or `const Store&`.\n");
+    write_stdout("- **Indexable arrays need fixed-size elements:** An array of variable-size structs (holding `u8[]`, `u8[..]`, or `E..`) can only be iterated (`for x in items`), not indexed (`items[i]`). For indexable records with text, use inline `u8[..N]` or store `start, end: i64` spans beside a flat `u8[>..]` buffer in a `root struct`.\n");
     write_stdout("- Enum literals: `Shape.Circle { r: 2.0 }`, `Shape.Dot` (generic: `Opt<i64>.Some { v: 1 }`).\n");
     write_stdout("- **Fixed mode (`Shape`)** is indexable and allows replacing variants in place (`a[i] = Shape.Dot;`). **Variable mode (`Shape..`)** packs each variant to its exact size and permits mutable payload references (`Rect &r => { r.w += 1.0; }`).\n");
     write_stdout("- Integer `match` supports literals, constants, half-open ranges `1..4`, lists `7, 10..12`, and requires `_`.\n");
@@ -122,17 +125,19 @@ fn guide_section_control() {
     write_stdout("- **UFCS:** `a.foo(b)` resolves to `foo(a, b)` for both builtins and user/stdlib functions.\n");
     write_stdout("- **Loops & non-local returns:** `while cond { ... }`, `loop { ... break; }`, `for x in xs`, `for x, i in xs`, `for i in lo..hi`, `for i in n`. Use `return val from fn_name;` inside nested/callback functions.\n");
     write_stdout("- **Generics & `const for`:** `fn swap<T>(a: T&, b: T&)`, `struct Pair<T> { a: T, b: T }`, compile-time `const for` over fields/variants/types.\n");
-    write_stdout("- **Modules:** `src/foo.goose` declares `namespace foo;` (optional if filename matches). Import with `import foo;` and call `foo::bar(...)` (or `bar(...)` when unambiguous). Avoid circular imports.\n");
+    write_stdout("- **Modules & namespaces:** `import foo;` loads `foo.goose`. Only a file declaring `namespace foo;` defines the `foo::` qualifier (calls may omit `foo::` when unambiguous). Files without `namespace` (such as `std` and `os`) export unqualified — do not write `os::...` or `std::...`. Avoid circular imports.\n");
 }
 
 fn guide_section_stdlib() {
     write_stdout("\n## 6. Standard Library (`--stdlib`)\n\n");
-    write_stdout("Stdlib modules are checked lazily (only functions your program reaches are checked).\n\n");
+    write_stdout("Stdlib modules are checked lazily (only reached functions are checked).\n\n");
+    write_stdout("**Unqualified modules** (no `namespace` — call directly without a `mod::` prefix):\n");
     write_stdout("- `import std;` — `min`, `max`, `clamp`, `abs`, `rem`, `div_euclid`, `swap`, `hash`, `rng`, `sort`, `find`, `position`, `contains`, `split`, `each_utf8`, `push_utf8`, `parse_i64`, `parse_f64`.\n");
     write_stdout("- `import os;` — `read_file(path, out)`, `write_file(path, data)`, `write_file_atomic`, `append_file`, `file_exists`, `delete_file`, `rename_file`, `make_dir`, `is_dir`, `list_dir`, `read_stdin(out)`, `read_line(out)`, `write_stdout(s)`, `write_stderr(s)`, `flush_stdout()`, `arg_count()`, `arg(i, out)`, `args()`, `env(name, out)`, `time_ns()`, `clock_ns()`, `sleep_ms(ms)`, `random_seed()`.\n");
     write_stdout("- `import dictionary;` — `dictionary<K, V>` hash map (`put`, `get`, `has`, `remove`, `clear`).\n");
     write_stdout("- `import slot_pool;` / `import slice_pool;` — reusable slot & byte-slice pools with O(1) free.\n");
-    write_stdout("- `import math;` / `import vec;` — trig, `sqrt`, `pow`, `floor`/`ceil`, `vec2`/`vec3`/`vec4`, `dot`, `cross`, `normalize`.\n");
+    write_stdout("- `import math;` / `import vec;` — trig, `sqrt`, `pow`, `floor`/`ceil`, `vec2`/`vec3`/`vec4`, `dot`, `cross`, `normalize`.\n\n");
+    write_stdout("**Namespaced modules** (declare `namespace <name>;` — qualify as `json::...`, `regex::...`, etc.):\n");
     write_stdout("- `import json;` / `import regex;` / `import csv;` / `import binary;` / `import base64;` / `import exception;` / `import ffi;`.\n");
     write_stdout("- Browser apps (`--stdlib stdlib-web --wasm-bundled-host`): `gfx`, `audio`, `physics`, `ui`.\n");
 }

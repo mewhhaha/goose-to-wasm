@@ -2226,7 +2226,7 @@ class GuideCommand(unittest.TestCase):
     """`goosew guide` prints a built-in version-matched cheatsheet and focused topic sections."""
 
     TOPICS = {
-        "rules": "## 1. Top 10 Rules",
+        "rules": "## 1. Top Rules",
         "types": "## 2. Scalars, Casts, Arrays, Slices & Strings",
         "structs": "## 3. Structs, `root struct`, Enums & `match`",
         "refs": "## 4. References, Optionals, Lifetimes & Memory Model",
@@ -2255,6 +2255,9 @@ class GuideCommand(unittest.TestCase):
         self.assertEqual(default.stdout, cheatsheet.stdout)
         self.assertEqual(default.stdout, all_topic.stdout)
         self.assertIn(version_token, default.stdout)
+        self.assertIn("Unqualified modules", default.stdout)
+        self.assertIn("os::read_file", default.stdout)
+        self.assertIn("variable-size structs cannot be indexed", default.stdout)
         for heading in self.TOPICS.values():
             self.assertIn(heading, default.stdout)
 
