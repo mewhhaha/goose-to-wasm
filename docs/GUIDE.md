@@ -32,14 +32,51 @@ Use `--goose` and `--stdlib` to select a compiler and library, `--cc` to select 
 
 Every function in your own source files is checked, including functions the program never calls. Modules found through `--stdlib` are libraries: the compiler parses and checks a library function only when the program reaches it, so an error inside an unused library function is not reported.
 
-## Optional Wasmtime host
+## Fast iteration on large projects (`--jobs`, `--cache-dir`, `--wasm-memory64`)
+
+When invoking `goosew` directly on multi-file codebases:
+
+```sh
+# Incremental typecheck & Direct Wasm64 dev build (deterministic across thread counts)
+goosew src/main.goose --target wasm-direct --wasm-memory64 --wasm-max-pages 65536 \
+  --cache-dir build/goose-cache --jobs auto -O0 -o build/app.wasm
+```
+
+- **`--jobs N|auto` (`-j N`):** Parallelizes source I/O, lex/parse, body typechecking, pure-function lifetimes, IR optimization, Direct Wasm emission, and Native C emission (`auto` by default) while guaranteeing SHA-256 bit-identical output across thread counts (`--jobs 1..N`).
+- **`--cache-dir DIR`:** Content-addressed build cache (`selfhost/cache.goose`) with two layers:
+  - **Whole-build cache:** SHA-256 keys compiler binary identity, target/opt/flags, entry + transitive imports, `embed_file`/`embed_shader` payloads, and shadowing probes — returning unchanged `--check` or `.wasm`/`.c` outputs in tens of milliseconds.
+  - **Incremental lifetime certificates (`l_<fp>.life`):** On edited-file rebuilds whose canonical lifetime skeleton is unchanged (comments, formatting, literal values, pure scalar `let`/`var`/`if` body logic, inert helpers), `goosew` reuses the validated lifetime certificate instead of re-running the full lifetime fixed point, while automatically re-analyzing whenever reference flow, borrowing, mutation, or control flow changes.
+- **`--wasm-memory64` & `--wasm-max-pages N`:** Targets 64-bit WebAssembly linear memory so large self-hosted programs and compilers can reserve gigabytes of virtual address space without exhausting wasm32's 4 GiB cap.
+- **`--library` & `--reachable-program`:** Compile library modules without a `main` function (checking only exported entrypoints and reachable code).
+- **`--error-format text|json`, `--color auto|always|never`, `--wasm-stats FILE`:** Structured diagnostics and per-stage compile/cache timing telemetry (`parse_ns`, `typecheck_ns`, `lifetime_ns`, `optimize_ns`, `backend_ns`, `cache_hit`, `life_cache_hit`).
+
+## Optional Wasmtime & `wtime` hosts
+
+### Native Rust Wasmtime host (recommended for Wasm64 & fast cold JIT)
+
+With Rust 1.97 or newer, build [`host/rust`](../host/rust/README.md):
+
+```sh
+cargo build --locked --release --manifest-path host/rust/Cargo.toml
+host/rust/target/release/goose-wasmtime --fast-jit build/app.wasm \
+  --cache build/app.cwasm -- arg1 arg2
+```
+
+- **`--fast-jit`** enables Wasmtime 50.0.1's **Winch** baseline compiler (`Strategy::Winch`, ~2× faster cold JIT than Cranelift `OptLevel::None` and ~4–5× faster than `OptLevel::Speed` on large `-O0` modules), automatically falling back to Cranelift `OptLevel::None + SinglePass` for modules that use proposals Winch does not yet support (`wasm_exceptions`, `wasm_tail_call`, `wasm_gc`, etc.).
+- **`--cache PATH`** persists the compiled `.cwasm` beside a mode-specific `.sha256` stamp (`winch-fast-jit:`, `cranelift-fast-jit:`, or bare digest for `OptLevel::Speed`).
+- **`--entry NAME`** invokes an exported function after `_start` (for `--library` modules such as Blot2's `blot_goose_main`).
+
+### Safe-Rust `wtime` host & legacy C++ Wasmtime host
+
+- For a zero-`unsafe` (`#![forbid(unsafe_code)]`) interpreter/register runner for Wasm32 and Wasm64 modules, see [`host/wtime/README.md`](../host/wtime/README.md).
+- To build the legacy C++ Wasmtime host instead:
 
 ```sh
 python scripts/build_wasmtime_host.py
 build/bin/goose-wasmtime build/squares.wasm
 ```
 
-The host builder uses the pinned Wasmtime SDK and a C++ compiler. See [host notes](../bench/wasmtime-host.md) for its configuration and historical measurements.
+See [host notes](../bench/wasmtime-host.md) for the legacy C++ host configuration and historical measurements.
 
 ## Contracts and scope
 

@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: 'Release tag to build and attach assets to (e.g. v2026.4-4)'
+        description: 'Release tag to build and attach assets to (e.g. v2026.4-5)'
         required: true
         type: string
       prerelease:
@@ -73,7 +73,7 @@ jobs:
           build/bin/goosew host/web/demo/demo.goose --stdlib stdlib-web --target wasm-direct -O2 -o /tmp/web-demo.wasm
 
           # Build portable Wasm64 compiler binary
-          build/bin/goosew selfhost/main.goose --stdlib stdlib --target wasm-direct --wasm-memory64 -O2 -o /tmp/goosew.wasm
+          build/bin/goosew selfhost/main.goose --stdlib stdlib --target wasm-direct --wasm-memory64 --wasm-max-pages 65536 -O2 -o /tmp/goosew.wasm
           python scripts/run_wasmtime.py /tmp/goosew.wasm -- --version
           python scripts/run_wasmtime.py /tmp/goosew.wasm -- examples/squares.goose --stdlib stdlib --target wasm-direct -O2 -o /tmp/squares-wasm.wasm
           test "$(node scripts/run_wasm.mjs /tmp/squares-wasm.wasm)" = "sum=140"

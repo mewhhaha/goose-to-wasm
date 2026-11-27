@@ -375,8 +375,11 @@ goosew selfhost/main.goose --stdlib stdlib --target wasm-direct -O2 --wasm-memor
 host/rust/target/release/goose-wasmtime goose64.wasm --cache goose64.cwasm -- program.goose --stdlib stdlib -o program.wasm
 ```
 
-`--cache` keeps Wasmtime's compiled module beside the SHA-256 of the module
-it came from and reuses it for the same bytes. The Rust host and the Python
+`--cache` keeps Wasmtime's compiled module beside a mode-tagged SHA-256 of the module
+it came from and reuses it for the same bytes. `--fast-jit` selects Wasmtime's Winch
+baseline compiler (`Strategy::Winch`, automatically falling back to Cranelift
+`OptLevel::None + SinglePass` for modules using exceptions, tail calls, or GC) for
+~4–5× faster cold compilation on large `-O0` modules. The Rust host and the Python
 runner each need a cache file of their own.
 
 The recorded 64-bit self-check under V8 fit in 16 GiB with equal regions. The

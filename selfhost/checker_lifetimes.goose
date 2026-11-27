@@ -514,6 +514,8 @@ struct Lifetimes {
     body_trans_globals: i64[>..]&,
     summary_l1: LifeSummarySlot[>..]&, assume_l1: LifeAssumeSlot[>..]&, list_l1: LifeListSlot[>..]&,
     list2_l1: LifeList2Slot[>..]&, atom_l1: LifeAtomL1[>..]&, typed_held_memo: LifeTypedHeldMemo[>..]&,
+    summary_l1_mask: i64 = 0, assume_l1_mask: i64 = 0, list_l1_mask: i64 = 0,
+    list2_l1_mask: i64 = 0, atom_l1_mask: i64 = 0, typed_held_mask: u64 = 0,
     val_kill_epoch: i64 = 0,
     defers: LifeDefer[>..]&, defer_targets: LifeDeferTarget[>..]&, defer_run: LifeDefer[>..]&, defer_floor: i64 = 0,
     bypass_memo: u8[>..]&,
@@ -821,7 +823,7 @@ inline fn life_summary_insert(l: Lifetimes&, key: i64, index: i64, frame: i64) {
     while l.summary_slots[slot].index >= 0 { slot = (slot + 1) & mask; }
     let ent = LifeSummarySlot { key: key, index: index as i32, frame: frame as i32 };
     l.summary_slots[slot] = ent;
-    l.summary_l1[key & 16383] = ent;
+    l.summary_l1[key & l.summary_l1_mask] = ent;
     l.summary_slot_count += 1;
 }
 // Discovery merges a frame's summary effects by site: 0 if none took it, 1 if
@@ -831,7 +833,7 @@ inline fn life_summary_insert(l: Lifetimes&, key: i64, index: i64, frame: i64) {
 fn life_effect_merge(l: Lifetimes&, effect: const LifeEffect&, frame: i64, key: i64, outside: bool, site: i64, out_slot: i64&) -> i64 {
     let walked = life_walked(l, frame, outside);
     let frame32 = frame as i32; let site32 = site as i32;
-    let l1_slot = key & 16383;
+    let l1_slot = key & l.summary_l1_mask;
     let l1 = l.summary_l1[l1_slot];
     if l1.index >= 0 && l1.key == key && l1.frame == frame32 {
         let previous = l1.index as i64;
@@ -1337,7 +1339,7 @@ fn life_effect(p: Program&, l: Lifetimes&, effect: const LifeEffect&) -> i64 {
             if sslot >= 0 {
                 let ent = LifeSummarySlot { key: skey, index: index as i32, frame: frame as i32 };
                 l.summary_slots[sslot] = ent;
-                l.summary_l1[skey & 16383] = ent;
+                l.summary_l1[skey & l.summary_l1_mask] = ent;
                 l.summary_slot_count += 1;
             } else {
                 life_summary_insert(l, skey, index, frame);
@@ -1473,7 +1475,7 @@ fn life_effect(p: Program&, l: Lifetimes&, effect: const LifeEffect&) -> i64 {
                     if sslot >= 0 {
                         let ent = LifeSummarySlot { key: skey, index: index as i32, frame: frame as i32 };
                         l.summary_slots[sslot] = ent;
-                        l.summary_l1[skey & 16383] = ent;
+                        l.summary_l1[skey & l.summary_l1_mask] = ent;
                         l.summary_slot_count += 1;
                     } else {
                         life_summary_insert(l, skey, index, frame);
@@ -2102,7 +2104,7 @@ fn life_list_set(l: Lifetimes&, start: i64, already_sorted: bool = false) -> i64
 fn life_intern_pair(l: Lifetimes&, a0: LifeAlt, a1: LifeAlt) -> i64 {
     let key = life_hash_finish(life_alt_hash_step(life_alt_hash_step(1469598103934665603, a0), a1));
     let key32 = (key & 0x7fffffff) as i32;
-    let s2 = key & 2047;
+    let s2 = key & l.list2_l1_mask;
     let e2: const LifeList2Slot& = l.list2_l1[s2];
     if e2.set >= 0 && e2.key == key32 && life_alt_same(e2.a0, a0) && life_alt_same(e2.a1, a1) { return e2.set as i64; }
     let pair: LifeAlt[2] = [a0, a1];
@@ -2116,11 +2118,11 @@ fn life_intern_list(l: Lifetimes&, alts: const LifeAlt[:]) -> i64 {
     let key32 = (key & 0x7fffffff) as i32;
     let count32 = count as i32;
     if count == 2 {
-        let s2 = key & 2047;
+        let s2 = key & l.list2_l1_mask;
         let e2: const LifeList2Slot& = l.list2_l1[s2];
         if e2.set >= 0 && e2.key == key32 && life_alt_same(e2.a0, alts[0]) && life_alt_same(e2.a1, alts[1]) { return e2.set as i64; }
     } else {
-        let l1_slot = key & 4095;
+        let l1_slot = key & l.list_l1_mask;
         let e1 = l.list_l1[l1_slot];
         if e1.set >= 0 && e1.key == key && e1.count == count32 {
             let first = l.sets[e1.set].first;
@@ -2140,7 +2142,7 @@ fn life_intern_list(l: Lifetimes&, alts: const LifeAlt[:]) -> i64 {
             let first = l.sets[entry.set].first;
             if count == 2 {
                 if life_alt_same(l.alts[first], alts[0]) && life_alt_same(l.alts[first + 1], alts[1]) {
-                    l.list2_l1[key & 2047] = LifeList2Slot { key: key32, set: entry.set, a0: alts[0], a1: alts[1] };
+                    l.list2_l1[key & l.list2_l1_mask] = LifeList2Slot { key: key32, set: entry.set, a0: alts[0], a1: alts[1] };
                     return entry.set;
                 }
             } else {
@@ -2148,7 +2150,7 @@ fn life_intern_list(l: Lifetimes&, alts: const LifeAlt[:]) -> i64 {
                 for alt, i in alts {
                     if !life_alt_same(l.alts[first + i], alt) { same = false; break; }
                 }
-                if same { l.list_l1[key & 4095] = entry; return entry.set; }
+                if same { l.list_l1[key & l.list_l1_mask] = entry; return entry.set; }
             }
         }
         slot = (slot + 1) & mask;
@@ -2167,8 +2169,8 @@ fn life_intern_list(l: Lifetimes&, alts: const LifeAlt[:]) -> i64 {
     let index = l.sets.len; l.sets.push(LifeSet { first: base as i32, count: count32, flags: fl });
     let ent = LifeListSlot { key: key, set: index as i32, count: count32 };
     l.list_slots[slot] = ent;
-    if count == 2 { l.list2_l1[key & 2047] = LifeList2Slot { key: key32, set: index as i32, a0: alts[0], a1: alts[1] }; }
-    else { l.list_l1[key & 4095] = ent; }
+    if count == 2 { l.list2_l1[key & l.list2_l1_mask] = LifeList2Slot { key: key32, set: index as i32, a0: alts[0], a1: alts[1] }; }
+    else { l.list_l1[key & l.list_l1_mask] = ent; }
     l.list_count += 1;
     return index;
 }
@@ -2288,7 +2290,7 @@ fn life_single(l: Lifetimes&, root: i64, exact: bool = true, from: i64 = -1, slo
     let wanted = LifeAlt { root: root as i32, from: from as i32, target_type: target_type as i32, bound: bound as i32, component: component as i32, exact: exact, slotread: slotread, byteview: byteview };
     let key = life_atom_hash(wanted);
     let key32 = (key & 0x7fffffff) as i32;
-    let a1_slot = key & 2047;
+    let a1_slot = key & l.atom_l1_mask;
     let ae1: const LifeAtomL1& = l.atom_l1[a1_slot];
     if ae1.set >= 0 && ae1.key == key32 && life_alt_same(ae1.alt, wanted) { return ae1.set as i64; }
     let la = l.roots[root].last_atom_set;
@@ -4103,7 +4105,7 @@ fn life_assume_sync_slot(l: Lifetimes&, at: i64) {
     else if a.open < 0 { state = 3; }
     let want_meta = life_assume_meta(frame, query, a.flag, 0);
     let key = life_assume_hash(frame, query, index, subject, a.flag);
-    let l1_slot = key & 16383;
+    let l1_slot = key & l.assume_l1_mask;
     if state == 1 || state == 2 {
         l.assume_l1[l1_slot] = LifeAssumeSlot { meta: want_meta | (state as i32), index: a.index, subject: a.subject, at: at as i32 };
     } else if l.assume_l1[l1_slot].at == (at as i32) {
@@ -4125,7 +4127,7 @@ fn life_assume_sync_slot(l: Lifetimes&, at: i64) {
 // -4 limit reached (caller returns life_cautious), >= 0 opened assume index.
 fn life_assume_probe(l: Lifetimes&, frame: i64, query: i64, index: i64, subject: i64, flag: bool) -> i64 {
     let key = life_assume_hash(frame, query, index, subject, flag);
-    let l1_slot = key & 16383;
+    let l1_slot = key & l.assume_l1_mask;
     let e1 = l.assume_l1[l1_slot];
     if e1.at >= 0 && (e1.meta & ~3) == life_assume_meta(frame, query, flag, 0) && e1.index == (index as i32) && e1.subject == (subject as i32) {
         let st1 = e1.meta & 3;
@@ -4443,7 +4445,7 @@ fn life_typed_held(p: Program&, l: Lifetimes&, set: i64, pointee: i64) -> i64 {
     if th_can {
         var th_h: u64 = (held as! u64) * 11400714819323198485 ^ (pointee as! u64) * 14029467366897019727 ^ (l.island as! u64) * 1609587929392839161;
         th_h ^= th_h >> 29;
-        th_slot = (th_h & 8191) as i64;
+        th_slot = (th_h & l.typed_held_mask) as i64;
         let te0: const LifeTypedHeldMemo& = l.typed_held_memo[th_slot];
         if te0.held == th_held32 && te0.pointee == th_pt32 && te0.island == th_isl32 && te0.epoch == th_gep { return te0.result as i64; }
         let te1: const LifeTypedHeldMemo& = l.typed_held_memo[th_slot ^ 1];
@@ -14777,11 +14779,15 @@ fn life_check_attempt(p: Program&, scope_parent: const i64[>..]&, scope_depth: c
     var holder_ref_start: i32[>..] = []; var holder_ref_count: i32[>..] = []; var holder_ref_flags: u8[>..] = []; var holder_ref_elems: i32[>..] = [];
     var gs_start: i32[>..] = []; var gs_count: i32[>..] = []; var gs_elems: i32[>..] = [];
     var body_trans_globals: i64[>..] = [];
+    let large_l1 = p.nodes.len >= 8192;
+    let list_l1_cap = if large_l1 { 4096 } else { 512 };
+    let list2_l1_cap = if large_l1 { 2048 } else { 256 };
+    let atom_l1_cap = if large_l1 { 2048 } else { 256 };
     var summary_l1: LifeSummarySlot[>..] = [];
     var assume_l1: LifeAssumeSlot[>..] = [];
-    var list_l1: LifeListSlot[>..] = []; list_l1.resize(4096, LifeListSlot {});
-    var list2_l1: LifeList2Slot[>..] = []; list2_l1.resize(2048, LifeList2Slot {});
-    var atom_l1: LifeAtomL1[>..] = []; atom_l1.resize(2048, LifeAtomL1 {});
+    var list_l1: LifeListSlot[>..] = []; list_l1.resize(list_l1_cap, LifeListSlot {});
+    var list2_l1: LifeList2Slot[>..] = []; list2_l1.resize(list2_l1_cap, LifeList2Slot {});
+    var atom_l1: LifeAtomL1[>..] = []; atom_l1.resize(atom_l1_cap, LifeAtomL1 {});
     var typed_held_memo: LifeTypedHeldMemo[>..] = [];
     var dep_roots: i64[>..] = []; var dep_callees: i64[>..] = []; var dep_callee_stamps: i64[>..] = [];
     var dep_root_stack: i64[>..] = []; var dep_callee_stack: i64[>..] = []; var dep_callee_stamp_stack: i64[>..] = [];
@@ -14830,6 +14836,7 @@ fn life_check_attempt(p: Program&, scope_parent: const i64[>..]&, scope_depth: c
         gs_start: gs_start, gs_count: gs_count, gs_elems: gs_elems,
         body_trans_globals: body_trans_globals, summary_l1: summary_l1, assume_l1: assume_l1, list_l1: list_l1,
         list2_l1: list2_l1, atom_l1: atom_l1, typed_held_memo: typed_held_memo,
+        list_l1_mask: list_l1_cap - 1, list2_l1_mask: list2_l1_cap - 1, atom_l1_mask: atom_l1_cap - 1,
         defers: defers, defer_targets: defer_targets, defer_run: defer_run, bypass_memo: bypass_memo,
         dirty_gcells: dirty_gcells, dirty_groots: dirty_groots,
         shared_reads: shared_reads, shared_alts: shared_alts,
@@ -14886,9 +14893,15 @@ fn life_check_attempt(p: Program&, scope_parent: const i64[>..]&, scope_depth: c
     l.summary_slots.resize(2048, LifeSummarySlot {});
     var offer_slots: i64 = 256; while offer_slots < 16384 && 16 * offer_slots < p.nodes.len { offer_slots *= 4; }
     l.offers.resize(offer_slots, LifeOffer {});
-    l.summary_l1.resize(16384, LifeSummarySlot {});
-    l.assume_l1.resize(16384, LifeAssumeSlot {});
-    l.typed_held_memo.resize(8192, LifeTypedHeldMemo {});
+    let summary_l1_cap = if large_l1 { 16384 } else { 512 };
+    let assume_l1_cap = if large_l1 { 16384 } else { 512 };
+    let typed_held_cap = if large_l1 { 8192 } else { 512 };
+    l.summary_l1.resize(summary_l1_cap, LifeSummarySlot {});
+    l.assume_l1.resize(assume_l1_cap, LifeAssumeSlot {});
+    l.typed_held_memo.resize(typed_held_cap, LifeTypedHeldMemo {});
+    l.summary_l1_mask = summary_l1_cap - 1;
+    l.assume_l1_mask = assume_l1_cap - 1;
+    l.typed_held_mask = (typed_held_cap - 1) as! u64;
     for id in 0..p.types.len {
         let t: const Type& = p.types[id];
         if t.kind == TY_INT && t.index_type >= 0 && t.pool >= 0 { l.index_types.push(id); }

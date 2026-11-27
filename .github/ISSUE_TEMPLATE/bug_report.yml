@@ -29,6 +29,6 @@ body:
     attributes:
       label: Compiler version & platform
       description: Output of `goosew --version` and your OS/arch.
-      placeholder: "goose-to-wasm v2026.4-4 (Goose v2026.4), Linux x86_64"
+      placeholder: "goose-to-wasm v2026.4-5 (Goose v2026.4), Linux x86_64"
     validations:
       required: true
