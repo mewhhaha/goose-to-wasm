@@ -448,6 +448,12 @@ struct Program {
     // Incremental build cache observation log (populated only when --cache-dir is active).
     cache_probes: CacheProbe[>..]&, cache_probe_text: u8[>..]&,
     record_cache_deps: bool = false,
+    // Incremental lifetime certificate cache state (spans into cache_probe_text).
+    cache_dir_start: i64 = 0, cache_dir_len: i64 = 0,
+    cache_compiler_start: i64 = 0, cache_compiler_len: i64 = 0,
+    life_cert_hex_start: i64 = 0, life_cert_hex_len: i64 = 0,
+    life_cert_data_start: i64 = 0, life_cert_data_len: i64 = 0,
+    life_cache_hit: bool = false,
 }
 fn program_note_cache_probe(p: Program&, kind: i64, path: const u8[:], data: const u8[:] = "") {
     if !p.record_cache_deps { return; }

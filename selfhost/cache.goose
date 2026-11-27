@@ -22,40 +22,125 @@ inline fn cache_rotr32(x: u32, n: u32) -> u32 {
 }
 
 inline fn cache_add32(a: u32, b: u32) -> u32 {
-    return (((a as u64) + (b as u64)) & 4294967295) as u32;
+    return ((a as u64) + (b as u64)) as! u32;
 }
 
-fn cache_sha256_block(h: u32[8]&, buf: const u8[:], base: i64) {
+fn cache_sha256_blocks(h: u32[8]&, buf: const u8[:], start: i64, end: i64) {
     var w: u32[64] = [0; 64];
-    let chunk: const u8[:] = buf[base..base + 64];
-    for i in 0..16 {
-        let j = i * 4;
-        w[i] = ((chunk[j] as u32) << 24) |
-               ((chunk[j + 1] as u32) << 16) |
-               ((chunk[j + 2] as u32) << 8) |
-               (chunk[j + 3] as u32);
+    var h0 = h[0]; var h1 = h[1]; var h2 = h[2]; var h3 = h[3];
+    var h4 = h[4]; var h5 = h[5]; var h6 = h[6]; var h7 = h[7];
+    var base = start;
+    while base + 64 <= end {
+        for i in 0..16 {
+            let j = base + i * 4;
+            w[i] = ((buf[j] as u32) << 24) |
+                   ((buf[j + 1] as u32) << 16) |
+                   ((buf[j + 2] as u32) << 8) |
+                   (buf[j + 3] as u32);
+        }
+        for i in 16..64 {
+            let wm15 = w[i - 15];
+            let wm2 = w[i - 2];
+            let s0 = cache_rotr32(wm15, 7) ^ cache_rotr32(wm15, 18) ^ (wm15 >> 3);
+            let s1 = cache_rotr32(wm2, 17) ^ cache_rotr32(wm2, 19) ^ (wm2 >> 10);
+            w[i] = w[i - 16] + s0 + w[i - 7] + s1;
+        }
+        var a = h0; var b = h1; var c = h2; var d = h3;
+        var e = h4; var f = h5; var g = h6; var hh = h7;
+        for i in 0..64 {
+            let s1 = cache_rotr32(e, 6) ^ cache_rotr32(e, 11) ^ cache_rotr32(e, 25);
+            let ch = (e & f) ^ ((~e) & g);
+            let t1 = hh + s1 + ch + CACHE_SHA256_K[i] + w[i];
+            let s0 = cache_rotr32(a, 2) ^ cache_rotr32(a, 13) ^ cache_rotr32(a, 22);
+            let maj = (a & b) ^ (a & c) ^ (b & c);
+            let t2 = s0 + maj;
+            hh = g; g = f; f = e; e = d + t1;
+            d = c; c = b; b = a; a = t1 + t2;
+        }
+        h0 += a; h1 += b; h2 += c; h3 += d;
+        h4 += e; h5 += f; h6 += g; h7 += hh;
+        base += 64;
     }
-    for i in 16..64 {
-        let s0 = cache_rotr32(w[i - 15], 7) ^ cache_rotr32(w[i - 15], 18) ^ (w[i - 15] >> 3);
-        let s1 = cache_rotr32(w[i - 2], 17) ^ cache_rotr32(w[i - 2], 19) ^ (w[i - 2] >> 10);
-        w[i] = cache_add32(cache_add32(w[i - 16], s0), cache_add32(w[i - 7], s1));
+    h[0] = h0; h[1] = h1; h[2] = h2; h[3] = h3;
+    h[4] = h4; h[5] = h5; h[6] = h6; h[7] = h7;
+}
+
+// Fast 256-bit ARX sponge (SipHash-1-4 round function on 4x u64 state),
+// finalized through SHA-256 to produce a 64-char hex digest.
+struct CacheSponge256 {
+    v0: u64 = 0x736f6d6570736575,
+    v1: u64 = 0x646f72616e646f6d,
+    v2: u64 = 0x6c7967656e657261,
+    v3: u64 = 0x7465646279746573,
+    words: u64 = 0,
+}
+
+inline fn cache_rotl64(x: u64, n: u64) -> u64 {
+    return (x << n) | (x >> (64 - n));
+}
+
+inline fn cache_sip_round(s: CacheSponge256&) {
+    s.v0 += s.v1; s.v1 = cache_rotl64(s.v1, 13) ^ s.v0; s.v0 = cache_rotl64(s.v0, 32);
+    s.v2 += s.v3; s.v3 = cache_rotl64(s.v3, 16) ^ s.v2;
+    s.v0 += s.v3; s.v3 = cache_rotl64(s.v3, 21) ^ s.v0;
+    s.v2 += s.v1; s.v1 = cache_rotl64(s.v1, 17) ^ s.v2; s.v2 = cache_rotl64(s.v2, 32);
+}
+
+inline fn cache_sp_i64(s: CacheSponge256&, value: i64) {
+    let m = value as! u64;
+    s.v3 ^= m;
+    cache_sip_round(s);
+    s.v0 ^= m;
+    s.words += 1;
+}
+
+inline fn cache_sp_u8(s: CacheSponge256&, v: u8) {
+    cache_sp_i64(s, (v as i64) + 256);
+}
+
+fn cache_sp_bytes(s: CacheSponge256&, data: const u8[:]) {
+    cache_sp_i64(s, data.len);
+    var pos: i64 = 0;
+    while pos + 8 <= data.len {
+        let w: u64 = (data[pos] as u64) |
+                     ((data[pos + 1] as u64) << 8) |
+                     ((data[pos + 2] as u64) << 16) |
+                     ((data[pos + 3] as u64) << 24) |
+                     ((data[pos + 4] as u64) << 32) |
+                     ((data[pos + 5] as u64) << 40) |
+                     ((data[pos + 6] as u64) << 48) |
+                     ((data[pos + 7] as u64) << 56);
+        cache_sp_i64(s, w as! i64);
+        pos += 8;
     }
-    var a = h[0]; var b = h[1]; var c = h[2]; var d = h[3];
-    var e = h[4]; var f = h[5]; var g = h[6]; var hh = h[7];
-    for i in 0..64 {
-        let s1 = cache_rotr32(e, 6) ^ cache_rotr32(e, 11) ^ cache_rotr32(e, 25);
-        let ch = (e & f) ^ ((~e) & g);
-        let t1 = cache_add32(cache_add32(cache_add32(hh, s1), ch), cache_add32(CACHE_SHA256_K[i], w[i]));
-        let s0 = cache_rotr32(a, 2) ^ cache_rotr32(a, 13) ^ cache_rotr32(a, 22);
-        let maj = (a & b) ^ (a & c) ^ (b & c);
-        let t2 = cache_add32(s0, maj);
-        hh = g; g = f; f = e; e = cache_add32(d, t1);
-        d = c; c = b; b = a; a = cache_add32(t1, t2);
+    if pos < data.len {
+        var tail: u64 = 0;
+        var sh: u64 = 0;
+        while pos < data.len {
+            tail |= (data[pos] as u64) << sh;
+            sh += 8;
+            pos += 1;
+        }
+        cache_sp_i64(s, tail as! i64);
     }
-    h[0] = cache_add32(h[0], a); h[1] = cache_add32(h[1], b);
-    h[2] = cache_add32(h[2], c); h[3] = cache_add32(h[3], d);
-    h[4] = cache_add32(h[4], e); h[5] = cache_add32(h[5], f);
-    h[6] = cache_add32(h[6], g); h[7] = cache_add32(h[7], hh);
+}
+
+fn cache_sp_finish_hex(s: CacheSponge256&, hex_out: u8[>..]&) {
+    cache_sp_i64(s, s.words as! i64);
+    s.v2 ^= 0xff;
+    cache_sip_round(s);
+    cache_sip_round(s);
+    cache_sip_round(s);
+    cache_sip_round(s);
+    var raw: u8[32] = [0; 32];
+    let lanes: u64[4] = [s.v0, s.v1, s.v2, s.v3];
+    for li in 0..4 {
+        let w = lanes[li];
+        for b in 0..8 {
+            raw[li * 8 + b] = ((w >> (b * 8)) & 255) as u8;
+        }
+    }
+    cache_sha256_hex(raw[..], hex_out);
 }
 
 fn cache_sha256_hex(data: const u8[:], hex_out: u8[>..]&) {
@@ -64,11 +149,7 @@ fn cache_sha256_hex(data: const u8[:], hex_out: u8[>..]&) {
         0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19,
     ];
     let full = (data.len / 64) * 64;
-    var at: i64 = 0;
-    while at < full {
-        cache_sha256_block(h, data, at);
-        at += 64;
-    }
+    if full > 0 { cache_sha256_blocks(h, data, 0, full); }
     var tail: u8[128] = [0; 128];
     let rem = data.len - full;
     for i in 0..rem { tail[i] = data[full + i]; }
@@ -78,8 +159,7 @@ fn cache_sha256_hex(data: const u8[:], hex_out: u8[>..]&) {
     for b in 0..8 {
         tail[total_len - 1 - b] = ((bit_len >> (b * 8)) & 255) as u8;
     }
-    cache_sha256_block(h, tail[..], 0);
-    if total_len == 128 { cache_sha256_block(h, tail[..], 64); }
+    cache_sha256_blocks(h, tail[..], 0, total_len);
     let digits = "0123456789abcdef";
     for word in h {
         var shift: u32 = 28;
@@ -136,7 +216,7 @@ fn cache_append_int_field(out: u8[>..]&, tag: const u8[:], value: i64) {
     out.append(tag); out.push('='); cache_append_int(out, value); out.push('\n');
 }
 
-fn cache_build_key(compiler_hex: const u8[:], mode: i64, opt: i64, debug: bool, library: bool,
+fn cache_build_key(compiler_hex: const u8[:], mode: i64, target: i64, opt: i64, debug: bool, library: bool,
                    memory64: bool, bundled_host: bool, region_stats: bool, reachable_program: bool,
                    initial_pages: i64, maximum_pages: i64, expansion_limit: i64, stack_reserve: i64,
                    source_path: const u8[:], stdlib_path: const u8[:], profile_hex: const u8[:],
@@ -145,6 +225,7 @@ fn cache_build_key(compiler_hex: const u8[:], mode: i64, opt: i64, debug: bool, 
     raw.append("GOOSEW_CACHE_KEY_V1\n");
     cache_append_field(raw, "compiler", compiler_hex);
     cache_append_int_field(raw, "mode", mode);
+    cache_append_int_field(raw, "target", target);
     cache_append_int_field(raw, "opt", opt);
     cache_append_int_field(raw, "debug", if debug { 1 } else { 0 });
     cache_append_int_field(raw, "library", if library { 1 } else { 0 });
@@ -218,7 +299,7 @@ fn cache_write_hit_stats(stats_path: const u8[:], mode: i64, functions: i64, mod
     out.append(",\"nodes\":"); cache_append_int(out, nodes);
     out.append(",\"types\":"); cache_append_int(out, types);
     out.append(",\"parse_ns\":0,\"typecheck_ns\":0,\"lifetime_ns\":0,\"optimize_ns\":0,\"backend_ns\":0");
-    out.append(",\"function_info\":[],\"function_names\":[],\"cache_complete\":true,\"cache_hit\":true}\n");
+    out.append(",\"function_info\":[],\"function_names\":[],\"cache_complete\":true,\"cache_hit\":true,\"life_cache_hit\":false}\n");
     return write_file(stats_path, out);
 }
 
@@ -405,12 +486,9 @@ fn cache_store_entry(p: Program&, cache_dir: const u8[:], key_hex: const u8[:], 
             }
         }
         if dup { continue; }
-        // Re-verify disk contents to prevent retaining a mid-build raced snapshot.
+        // Re-verify disk contents directly by byte equality to prevent retaining a raced snapshot.
         verify_buf.clear();
-        if !read_file(spath, verify_buf) || verify_buf.len != sdata.len { return false; }
-        verify_hex.clear();
-        cache_sha256_hex(verify_buf, verify_hex);
-        if !same_bytes(verify_hex, tmp_hex) { return false; }
+        if !read_file(spath, verify_buf) || verify_buf.len != sdata.len || !same_bytes(verify_buf, sdata) { return false; }
         let pstart = path_pool.len; path_pool.append(spath);
         let hstart = hex_pool.len; hex_pool.append(tmp_hex);
         entries.push(CacheEntryRec { kind: 0, path_start: pstart, path_len: spath.len, file_len: sdata.len, hex_start: hstart });
@@ -437,10 +515,7 @@ fn cache_store_entry(p: Program&, cache_dir: const u8[:], key_hex: const u8[:], 
             }
             if dup { continue; }
             verify_buf.clear();
-            if !read_file(ppath, verify_buf) || verify_buf.len != pdata.len { return false; }
-            verify_hex.clear();
-            cache_sha256_hex(verify_buf, verify_hex);
-            if !same_bytes(verify_hex, tmp_hex) { return false; }
+            if !read_file(ppath, verify_buf) || verify_buf.len != pdata.len || !same_bytes(verify_buf, pdata) { return false; }
             let pstart = path_pool.len; path_pool.append(ppath);
             let hstart = hex_pool.len; hex_pool.append(tmp_hex);
             entries.push(CacheEntryRec { kind: 0, path_start: pstart, path_len: ppath.len, file_len: pdata.len, hex_start: hstart });
@@ -481,10 +556,8 @@ fn cache_store_entry(p: Program&, cache_dir: const u8[:], key_hex: const u8[:], 
         var need_blob = true;
         if file_exists(bpath) {
             verify_buf.clear();
-            if read_file(bpath, verify_buf) && verify_buf.len == output.len {
-                verify_hex.clear();
-                cache_sha256_hex(verify_buf, verify_hex);
-                if same_bytes(verify_hex, blob_hex) { need_blob = false; }
+            if read_file(bpath, verify_buf) && verify_buf.len == output.len && same_bytes(verify_buf, output) {
+                need_blob = false;
             }
         }
         if need_blob && !write_file(bpath, output) { return false; }
@@ -531,4 +604,150 @@ fn cache_store_entry(p: Program&, cache_dir: const u8[:], key_hex: const u8[:], 
     var mpath: u8[>..] = [];
     cache_join_path(cache_dir, "m_", key_hex, ".manifest", mpath);
     return write_file(mpath, mbody);
+}
+
+// Content-addressed lifetime certificate (l_<fp_hex>.life):
+// Verified by SHA-256 footer and canonical symbol count before mutating Program.
+fn cache_try_load_life(p: Program&, cache_dir: const u8[:], fp_hex: const u8[:],
+                       canon_to_sym: const i64[:]) -> bool {
+    if !is_dir(cache_dir) || !cache_is_hex64(fp_hex) { return false; }
+    var lpath: u8[>..] = [];
+    cache_join_path(cache_dir, "l_", fp_hex, ".life", lpath);
+    var ltext: u8[>..] = [];
+    if !read_file(lpath, ltext) || ltext.len < 80 { return false; }
+    if ltext[ltext.len - 1] != '\n' { return false; }
+    let footer_start = ltext.len - 69;
+    if footer_start <= 0 { return false; }
+    if !same_bytes(ltext[footer_start..footer_start + 4], "END ") { return false; }
+    let footer_hex = ltext[footer_start + 4..footer_start + 68];
+    if !cache_is_hex64(footer_hex) { return false; }
+    var body_hex: u8[>..] = [];
+    cache_sha256_hex(ltext[..footer_start], body_hex);
+    if !same_bytes(body_hex, footer_hex) { return false; }
+
+    let body = ltext[..footer_start];
+    var pos: i64 = 0;
+    if !cache_expect(body, pos, "GOOSEW_LIFE_V1\nfp ") { return false; }
+    if pos + 65 > body.len { return false; }
+    if !same_bytes(body[pos..pos + 64], fp_hex) || body[pos + 64] != '\n' { return false; }
+    pos += 65;
+
+    if !cache_expect(body, pos, "syms ") { return false; }
+    let sym_count, ok_sc = cache_parse_uint(body, pos);
+    if !ok_sc || sym_count != canon_to_sym.len || !cache_expect(body, pos, "\n") { return false; }
+    if pos + sym_count + 1 > body.len || body[pos + sym_count] != '\n' { return false; }
+    let state_start = pos;
+    pos += sym_count + 1;
+
+    var list_count: i64 = 0;
+    for i in 0..sym_count {
+        let ch = body[state_start + i];
+        if ch == 'l' { list_count += 1; }
+        else if ch != 'p' && ch != 's' && ch != 'u' { return false; }
+    }
+
+    var list_starts: i64[>..] = [];
+    var list_lens: i64[>..] = [];
+    var list_owners: i64[>..] = [];
+    for _ in 0..list_count {
+        if !cache_expect(body, pos, "L ") { return false; }
+        let cnt, ok_cnt = cache_parse_uint(body, pos);
+        if !ok_cnt || cnt < 0 { return false; }
+        let start = list_owners.len;
+        for _ in 0..cnt {
+            if !cache_expect(body, pos, " ") { return false; }
+            let own, ok_o = cache_parse_uint(body, pos);
+            if !ok_o || own < 0 || own >= sym_count { return false; }
+            list_owners.push(own);
+        }
+        if !cache_expect(body, pos, "\n") { return false; }
+        list_starts.push(start);
+        list_lens.push(cnt);
+    }
+    if pos != body.len { return false; }
+
+    // Validation succeeded completely: now restore exact provenance onto p.symbols.
+    var li: i64 = 0;
+    for k in 0..sym_count {
+        let ch = body[state_start + k];
+        if ch == 'p' { continue; }
+        let sym = canon_to_sym[k];
+        if ch == 's' {
+            p.symbols[sym].provenance = -2;
+        } else if ch == 'u' {
+            p.symbols[sym].provenance = -1;
+        } else {
+            let st = list_starts[li];
+            let cnt = list_lens[li];
+            li += 1;
+            var proof: i64 = -2;
+            var j = cnt;
+            while j > 0 {
+                j -= 1;
+                let owner_sym = canon_to_sym[list_owners[st + j]];
+                let node = p.nodes.len;
+                p.nodes.push(Node { kind: N_BINDING as i32, next: proof as i32, symbol: owner_sym as i32 });
+                proof = node;
+            }
+            p.symbols[sym].provenance = proof;
+        }
+    }
+    return true;
+}
+
+fn cache_build_life_cert(p: Program&, fp_hex: const u8[:], canon_to_sym: const i64[:],
+                         sym_to_canon: const i32[:], out: u8[>..]&) -> bool {
+    if !cache_is_hex64(fp_hex) { return false; }
+    out.clear();
+    out.append("GOOSEW_LIFE_V1\nfp "); out.append(fp_hex); out.push('\n');
+    out.append("syms "); cache_append_int(out, canon_to_sym.len); out.push('\n');
+    let state_start = out.len;
+    out.resize(state_start + canon_to_sym.len, 'p');
+    out.push('\n');
+
+    var owners: i64[>..] = [];
+    for k in 0..canon_to_sym.len {
+        let sym = canon_to_sym[k];
+        if sym < 0 || sym >= p.symbols.len { out.clear(); return false; }
+        let fl = p.symbols[sym].flags;
+        if (fl & (S_PARAMETER | S_FUNCTION | S_BUILTIN | S_TYPE)) != 0 {
+            out[state_start + k] = 'p';
+            continue;
+        }
+        let prov = p.symbols[sym].provenance;
+        if prov == -2 {
+            out[state_start + k] = 's';
+        } else if prov == -1 {
+            out[state_start + k] = 'u';
+        } else if prov >= 0 {
+            out[state_start + k] = 'l';
+            owners.clear();
+            var at = prov;
+            while at >= 0 {
+                let own_sym = p.nodes[at].symbol as i64;
+                if own_sym < 0 || own_sym >= sym_to_canon.len { out.clear(); return false; }
+                let oc = sym_to_canon[own_sym] as i64;
+                if oc < 0 { out.clear(); return false; }
+                owners.push(oc);
+                at = p.nodes[at].next as i64;
+            }
+            out.append("L "); cache_append_int(out, owners.len);
+            for oc in owners { out.push(' '); cache_append_int(out, oc); }
+            out.push('\n');
+        } else {
+            out.clear();
+            return false;
+        }
+    }
+    var hex: u8[>..] = [];
+    cache_sha256_hex(out, hex);
+    out.append("END "); out.append(hex); out.push('\n');
+    return true;
+}
+
+fn cache_write_life_cert(cache_dir: const u8[:], fp_hex: const u8[:], cert_bytes: const u8[:]) -> bool {
+    if !is_dir(cache_dir) || !cache_is_hex64(fp_hex) || cert_bytes.len < 80 { return false; }
+    var lpath: u8[>..] = [];
+    cache_join_path(cache_dir, "l_", fp_hex, ".life", lpath);
+    return write_file(lpath, cert_bytes);
 }

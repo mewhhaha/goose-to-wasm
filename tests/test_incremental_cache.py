@@ -246,6 +246,267 @@ class IncrementalCache(unittest.TestCase):
             self.assertIn("output would overwrite a source file", r2.stderr)
             self.assertEqual((self.work / "helper.goose").read_text(), orig_helper)
 
+    def test_life_cert_comment_literal_scalar_and_inert_fn_edits(self):
+        # Program with grow-shrink array, references, slices, an NF_FN_INERT helper,
+        # and a non-inert mutator (bypasses pure fast path and exercises l_*.life).
+        src = self.work / "life_main.goose"
+        helper = self.work / "life_helper.goose"
+        out = self.work / "life.wasm"
+        out_plain = self.work / "life_plain.wasm"
+        stats = self.work / "life_st.json"
+
+        helper_v1 = (
+            "namespace life_helper;\n"
+            "fn score(s: const u8[:], k: i64) -> i64 {\n"
+            "    var sum: i64 = k;\n"
+            "    let n = s.len;\n"
+            "    for i in 0..n { sum += s[i] as i64; }\n"
+            "    return sum;\n"
+            "}\n"
+            "fn push_and_read(a: i64[>..<]&, tag: const u8[:]) -> i64 {\n"
+            "    a.push(10);\n"
+            "    a.push(20);\n"
+            "    let r: i64& = a[0];\n"
+            "    let first = r;\n"
+            "    a.pop();\n"
+            "    return first + score(tag, a.len);\n"
+            "}\n"
+        )
+        main_v1 = (
+            "import life_helper;\n"
+            "fn main() {\n"
+            "    var buf: i64[>..<] = [];\n"
+            '    print(life_helper::push_and_read(buf, "ab"));\n'
+            "}\n"
+        )
+        helper.write_text(helper_v1)
+        src.write_text(main_v1)
+
+        # Cold build writes exactly one .life certificate and matches uncached output.
+        rp = self.run_goose("life_main.goose", "-O0", "-o", str(out_plain))
+        self.assertEqual(rp.returncode, 0, rp.stderr)
+        r1 = self.run_goose(
+            "life_main.goose", "-O0", "-o", str(out),
+            "--cache-dir", str(self.cache), "--wasm-stats", str(stats),
+        )
+        self.assertEqual(r1.returncode, 0, r1.stderr)
+        st1 = json.loads(stats.read_text())
+        self.assertFalse(st1["cache_hit"])
+        self.assertFalse(st1["life_cache_hit"])
+        self.assertEqual(out.read_bytes(), out_plain.read_bytes())
+        certs = list(self.cache.glob("l_*.life"))
+        self.assertEqual(len(certs), 1)
+
+        # Cross-mode --check and -O2 reuse the exact same .life cert!
+        rc = self.run_goose(
+            "life_main.goose", "--check",
+            "--cache-dir", str(self.cache), "--wasm-stats", str(stats),
+        )
+        self.assertEqual(rc.returncode, 0, rc.stderr)
+        stc = json.loads(stats.read_text())
+        self.assertFalse(stc["cache_hit"])
+        self.assertTrue(stc["life_cache_hit"])
+
+        ro2 = self.run_goose(
+            "life_main.goose", "-O2", "-o", str(out),
+            "--cache-dir", str(self.cache), "--wasm-stats", str(stats),
+        )
+        self.assertEqual(ro2.returncode, 0, ro2.stderr)
+        self.assertTrue(json.loads(stats.read_text())["life_cache_hit"])
+        self.assertEqual(len(list(self.cache.glob("l_*.life"))), 1)
+
+        # 1. EOF comment edit -> lifetime cache hit + bit-identical -O0 Wasm.
+        helper.write_text(helper_v1 + "\n// trailing comment\n")
+        r_cmt = self.run_goose(
+            "life_main.goose", "-O0", "-o", str(out),
+            "--cache-dir", str(self.cache), "--wasm-stats", str(stats),
+        )
+        self.assertEqual(r_cmt.returncode, 0, r_cmt.stderr)
+        self.assertFalse(json.loads(stats.read_text())["cache_hit"])
+        self.assertTrue(json.loads(stats.read_text())["life_cache_hit"])
+        self.assertEqual(out.read_bytes(), out_plain.read_bytes())
+
+        # 2. String literal + integer literal edit -> lifetime hit + fresh Wasm matching uncached.
+        src.write_text(main_v1.replace('"ab"', '"xyz"'))
+        helper.write_text(helper_v1.replace("10", "77"))
+        rp2 = self.run_goose("life_main.goose", "-O0", "-o", str(out_plain))
+        self.assertEqual(rp2.returncode, 0, rp2.stderr)
+        r_lit = self.run_goose(
+            "life_main.goose", "-O0", "-o", str(out),
+            "--cache-dir", str(self.cache), "--wasm-stats", str(stats),
+        )
+        self.assertEqual(r_lit.returncode, 0, r_lit.stderr)
+        self.assertTrue(json.loads(stats.read_text())["life_cache_hit"])
+        self.assertEqual(out.read_bytes(), out_plain.read_bytes())
+
+        # 3. Adding scalar let/var + if { let ... } inside non-inert fn + rewriting NF_FN_INERT fn -> hit!
+        helper_v3 = (
+            "namespace life_helper;\n"
+            "fn score(s: const u8[:], k: i64) -> i64 {\n"
+            "    var acc: i64 = k * 3 + 7;\n"
+            "    let n = s.len;\n"
+            "    for i in 0..n { if s[i] > 0 { acc ^= (s[i] as i64) * 5; } }\n"
+            "    return acc;\n"
+            "}\n"
+            "fn push_and_read(a: i64[>..<]&, tag: const u8[:]) -> i64 {\n"
+            "    var dbg: i64 = 12 + 34;\n"
+            "    if dbg > 10 { let extra = dbg * 2; dbg = extra - 1; }\n"
+            "    a.push(77);\n"
+            "    a.push(20);\n"
+            "    let r: i64& = a[0];\n"
+            "    let first = r;\n"
+            "    a.pop();\n"
+            "    return (first + dbg) + score(tag, a.len);\n"
+            "}\n"
+        )
+        helper.write_text(helper_v3)
+        rp3 = self.run_goose("life_main.goose", "-O0", "-o", str(out_plain))
+        self.assertEqual(rp3.returncode, 0, rp3.stderr)
+        r_sc = self.run_goose(
+            "life_main.goose", "-O0", "-o", str(out),
+            "--cache-dir", str(self.cache), "--wasm-stats", str(stats),
+        )
+        self.assertEqual(r_sc.returncode, 0, r_sc.stderr)
+        self.assertTrue(json.loads(stats.read_text())["life_cache_hit"])
+        self.assertEqual(out.read_bytes(), out_plain.read_bytes())
+        self.assertEqual(len(list(self.cache.glob("l_*.life"))), 1)
+
+    def test_life_cert_soundness_rejects_all_lifetime_violations(self):
+        src = self.work / "sound.goose"
+        out = self.work / "sound.wasm"
+        stats = self.work / "sound_st.json"
+
+        # Seed cache with valid program using grow-shrink array, slice helper, and [r; 0] fill.
+        good = (
+            "struct Box { view: const u8[:] = \"\" }\n"
+            "var GLOBAL_VIEW: const u8[:] = \"\";\n"
+            "fn inspect(s: const u8[:]) -> i64 { return s.len; }\n"
+            "fn check_fill(a: i64[>..<]&) -> i64 {\n"
+            "    a.push(1);\n"
+            "    let r: i64& = a[0];\n"
+            "    let empty: i64&[0] = [r; 0];\n"
+            "    let v = r;\n"
+            "    a.pop();\n"
+            "    return v + empty.len;\n"
+            "}\n"
+            "fn main() {\n"
+            "    var xs: i64[>..<] = [];\n"
+            "    var bs: u8[>..<] = [65, 66];\n"
+            "    print(check_fill(xs) + inspect(bs[..]));\n"
+            "}\n"
+        )
+        src.write_text(good)
+        r0 = self.run_goose(
+            "sound.goose", "-O0", "-o", str(out),
+            "--cache-dir", str(self.cache), "--wasm-stats", str(stats),
+        )
+        self.assertEqual(r0.returncode, 0, r0.stderr)
+        self.assertEqual(len(list(self.cache.glob("l_*.life"))), 1)
+
+        # Attack A: dereferencing `r` (`let bad = *r;`) AFTER `a.pop()` — NF_INERT read of ref!
+        # Must MISS lifetime cache and REJECT!
+        src.write_text(good.replace("    a.pop();\n", "    a.pop();\n    let bad = r;\n"))
+        ra = self.run_goose("sound.goose", "--check", "--cache-dir", str(self.cache))
+        self.assertNotEqual(ra.returncode, 0, "Attack A (deref after pop) must be rejected")
+
+        # Attack B: editing an initially NF_FN_INERT helper `inspect` to escape its slice to a global!
+        src.write_text(good.replace("fn inspect(s: const u8[:]) -> i64 { return s.len; }",
+                                    "fn inspect(s: const u8[:]) -> i64 { GLOBAL_VIEW = s; return s.len; }"))
+        rb = self.run_goose("sound.goose", "--check", "--cache-dir", str(self.cache))
+        self.assertNotEqual(rb.returncode, 0, "Attack B (inert fn edited to escape slice) must be rejected")
+
+        # Attack C: changing zero-count N_FILL `[r; 0]` -> `[r; 1]` (stores grow-shrink element ref in array)!
+        src.write_text(good.replace("let empty: i64&[0] = [r; 0];", "let empty: i64&[1] = [r; 1];"))
+        rc = self.run_goose("sound.goose", "--check", "--cache-dir", str(self.cache))
+        self.assertNotEqual(rc.returncode, 0, "Attack C (zero-count fill changed to 1) must be rejected")
+
+        # Attack D: passing `r` into a function after `a.pop()`!
+        src.write_text(good.replace("    return v + empty.len;\n", "    return v + r + empty.len;\n"))
+        rd = self.run_goose("sound.goose", "--check", "--cache-dir", str(self.cache))
+        self.assertNotEqual(rd.returncode, 0, "Attack D (use of r in return after pop) must be rejected")
+
+        # Valid original still hits lifetime cache after all rejected builds!
+        src.write_text(good)
+        rok = self.run_goose(
+            "sound.goose", "--check",
+            "--cache-dir", str(self.cache), "--wasm-stats", str(stats),
+        )
+        self.assertEqual(rok.returncode, 0, rok.stderr)
+        self.assertTrue(json.loads(stats.read_text())["life_cache_hit"])
+
+    def test_life_cert_corrupt_recovers_cleanly_and_preserves_provenance(self):
+        # Program with NRVO-eligible local + static global + owner-list provenance.
+        src = self.work / "prov.goose"
+        out_c1 = self.work / "prov1.c"
+        out_c2 = self.work / "prov2.c"
+        out_w1 = self.work / "prov1.wasm"
+        out_w2 = self.work / "prov2.wasm"
+        stats = self.work / "prov_st.json"
+
+        code = (
+            'let STATIC_TAG: const u8[:] = "ok";\n'
+            "fn make_buf(n: i64) -> i64[>..] {\n"
+            "    var out: i64[>..] = [];\n"
+            "    for i in 0..n { out.push(i); }\n"
+            "    return out;\n"
+            "}\n"
+            "fn pick(a: i64[>..]&, b: i64[>..]&, cond: bool) -> i64 {\n"
+            "    var r: i64& = a[0];\n"
+            "    if cond { r .= b[0]; }\n"
+            "    return r;\n"
+            "}\n"
+            "fn main() {\n"
+            "    var x = make_buf(3);\n"
+            "    var y = make_buf(4);\n"
+            "    print(pick(x, y, true) + STATIC_TAG.len);\n"
+            "}\n"
+        )
+        src.write_text(code)
+        r0 = self.run_goose("prov.goose", "--target", "c", "-O0", "-o", str(out_c1))
+        self.assertEqual(r0.returncode, 0, r0.stderr)
+        rw0 = self.run_goose("prov.goose", "-O0", "-o", str(out_w1))
+        self.assertEqual(rw0.returncode, 0, rw0.stderr)
+
+        # Populate 32-bit Wasm .life cert via --check, and 64-bit C .life cert via --check --target c.
+        rc1 = self.run_goose("prov.goose", "--check", "--cache-dir", str(self.cache), "--wasm-stats", str(stats))
+        self.assertEqual(rc1.returncode, 0, rc1.stderr)
+        rc_c = self.run_goose("prov.goose", "--check", "--target", "c", "--cache-dir", str(self.cache), "--wasm-stats", str(stats))
+        self.assertEqual(rc_c.returncode, 0, rc_c.stderr)
+        certs = sorted(self.cache.glob("l_*.life"))
+        self.assertEqual(len(certs), 2)
+        good_certs = {c: c.read_bytes() for c in certs}
+
+        # Hit .life cert in native C and Wasm modes -> outputs must be bit-identical!
+        r_c = self.run_goose(
+            "prov.goose", "--target", "c", "-O0", "-o", str(out_c2),
+            "--cache-dir", str(self.cache), "--wasm-stats", str(stats),
+        )
+        self.assertEqual(r_c.returncode, 0, r_c.stderr)
+        self.assertTrue(json.loads(stats.read_text())["life_cache_hit"])
+        self.assertEqual(out_c2.read_bytes(), out_c1.read_bytes())
+
+        r_w = self.run_goose(
+            "prov.goose", "-O0", "-o", str(out_w2),
+            "--cache-dir", str(self.cache), "--wasm-stats", str(stats),
+        )
+        self.assertEqual(r_w.returncode, 0, r_w.stderr)
+        self.assertTrue(json.loads(stats.read_text())["life_cache_hit"])
+        self.assertEqual(out_w2.read_bytes(), out_w1.read_bytes())
+
+        # Corrupt all .life certs -> must fall back cleanly, repair Wasm cert, and keep bit-identical output!
+        for c, raw in good_certs.items():
+            c.write_bytes(raw[:-8] + b"0000000\n")
+        src.write_text(code + "\n// force manifest miss after cert corruption\n")
+        r_rec = self.run_goose(
+            "prov.goose", "-O0", "-o", str(out_w2),
+            "--cache-dir", str(self.cache), "--wasm-stats", str(stats),
+        )
+        self.assertEqual(r_rec.returncode, 0, r_rec.stderr)
+        self.assertFalse(json.loads(stats.read_text())["life_cache_hit"])
+        self.assertEqual(out_w2.read_bytes(), out_w1.read_bytes())
+        repaired = [c for c, raw in good_certs.items() if c.read_bytes() == raw]
+        self.assertEqual(len(repaired), 1)
+
 
 if __name__ == "__main__":
     unittest.main()

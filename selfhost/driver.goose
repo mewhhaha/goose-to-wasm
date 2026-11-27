@@ -566,7 +566,9 @@ fn driver_stats(p: Program&, path: const u8[:], bytes: i64, parsing: i64, checki
     }
     if cache_complete {
         out.append("],\"cache_complete\":true,\"cache_hit\":");
-        if cache_hit { out.append("true}\n"); } else { out.append("false}\n"); }
+        if cache_hit { out.append("true"); } else { out.append("false"); }
+        out.append(",\"life_cache_hit\":");
+        if p.life_cache_hit { out.append("true}\n"); } else { out.append("false}\n"); }
     } else {
         out.append("],\"cache_complete\":false}\n");
     }
@@ -734,13 +736,13 @@ fn driver_main() -> i64 {
     var cache_active = false;
     var cache_mode: i64 = if o.check { 2 } else { o.target };
     var cache_key: u8[>..] = [];
+    var compiler_hex: u8[>..] = [];
     if cache_end > cache_start && !o.tokens && !o.parse && !o.dump && !o.dump_ir && !o.run &&
        !o.shared && o.header_arg < 0 && o.emit_runtime_arg < 0 && dependency_end == dependency_start {
-        var compiler_hex: u8[>..] = [];
         let argv0: const u8[:] = if arguments.len > 0 { arguments[0] } else { "" };
         if cache_compiler_identity(argv0, win, compiler_hex) {
             let prof_slice: const u8[:] = if profile_hex.len > 0 { profile_hex } else { "NONE" };
-            cache_build_key(compiler_hex, cache_mode, o.optimization, o.debug, o.library, o.memory64,
+            cache_build_key(compiler_hex, cache_mode, o.target, o.optimization, o.debug, o.library, o.memory64,
                             o.bundled_host, o.region_stats, o.reachable_program,
                             o.initial_pages, o.maximum_pages, o.expansion_limit, o.stack_reserve,
                             paths[source_start..source_end], paths[stdlib_start..stdlib_end], prof_slice,
@@ -760,6 +762,14 @@ fn driver_main() -> i64 {
                       type_buckets: type_buckets, type_links: type_links, type_scan_marks: type_scan_marks, type_holds: type_holds, enum_fixed_cache: enum_fixed_cache,
                       inline_sites: inline_sites, instantiation_stack: instantiation_stack, region_profile: region_profile, ident_table: ident_table,
                       cache_probes: cache_probes, cache_probe_text: cache_probe_text, record_cache_deps: cache_active };
+    if cache_active {
+        p.cache_dir_start = p.cache_probe_text.len;
+        p.cache_probe_text.append(paths[cache_start..cache_end]);
+        p.cache_dir_len = p.cache_probe_text.len - p.cache_dir_start;
+        p.cache_compiler_start = p.cache_probe_text.len;
+        p.cache_probe_text.append(compiler_hex);
+        p.cache_compiler_len = p.cache_probe_text.len - p.cache_compiler_start;
+    }
     let link_shared = o.shared && !driver_ends_with(paths[output_start..output_end], ".c");
     p.dump_ir = o.dump_ir; p.optimization = o.optimization; p.jobs = gp_effective_jobs(o.jobs); p.debug = o.debug; p.library = o.library;
     p.c_host = o.header_arg >= 0 || o.shared; p.shared = o.shared;
@@ -801,6 +811,13 @@ fn driver_main() -> i64 {
                 if win { mkcmd.append("mkdir "); } else { mkcmd.append("mkdir -p "); }
                 driver_quote(mkcmd, cdir, win);
                 driver_exec(mkcmd, win);
+            }
+            if !p.life_cache_hit && p.life_cert_hex_len == 64 && p.life_cert_data_len > 0 {
+                cache_write_life_cert(
+                    cdir,
+                    p.cache_probe_text[p.life_cert_hex_start..p.life_cert_hex_start + p.life_cert_hex_len],
+                    p.cache_probe_text[p.life_cert_data_start..p.life_cert_data_start + p.life_cert_data_len],
+                );
             }
             stored_check = cache_store_entry(p, cdir, cache_key, 2, "");
         }
@@ -859,6 +876,13 @@ fn driver_main() -> i64 {
             if win { mkcmd.append("mkdir "); } else { mkcmd.append("mkdir -p "); }
             driver_quote(mkcmd, cdir, win);
             driver_exec(mkcmd, win);
+        }
+        if !p.life_cache_hit && p.life_cert_hex_len == 64 && p.life_cert_data_len > 0 {
+            cache_write_life_cert(
+                cdir,
+                p.cache_probe_text[p.life_cert_hex_start..p.life_cert_hex_start + p.life_cert_hex_len],
+                p.cache_probe_text[p.life_cert_data_start..p.life_cert_data_start + p.life_cert_data_len],
+            );
         }
         stored_artifact = cache_store_entry(p, cdir, cache_key, cache_mode, output);
     }

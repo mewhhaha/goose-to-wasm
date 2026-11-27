@@ -1,4 +1,5 @@
 import model;
+import cache;
 
 // Provenance is a property of an evaluated value, not of its syntax. All
 // links are stable arena IDs; recursive visits borrow the arenas below.
@@ -12513,12 +12514,15 @@ fn check_lifetimes(p: Program&, scope_parent: const i64[>..]&, scope_depth: cons
     if life_try_pure_fast_path(p, pool_references) { return; }
     let nodes = p.nodes.len; let types = p.types.len; let holds = p.type_holds.len;
     let messages = p.messages.len;
-    if life_check_attempt(p, scope_parent, scope_depth, scope_functions, pool_references, false) { return; }
+    var fp_hex: u8[>..] = [];
+    var canon_to_sym: i64[>..] = [];
+    var sym_to_canon: i32[>..] = [];
+    if life_check_attempt(p, scope_parent, scope_depth, scope_functions, pool_references, false, fp_hex, canon_to_sym, sym_to_canon) { return; }
     // Standalone parameters append synthetic nodes and types. Discard them and
     // any diagnostics from this attempt before rebuilding full class summaries.
     p.nodes.resize(nodes); p.types.resize(types); p.type_holds.resize(holds);
     p.diagnostics.clear(); p.messages.resize(messages);
-    life_check_attempt(p, scope_parent, scope_depth, scope_functions, pool_references, true);
+    life_check_attempt(p, scope_parent, scope_depth, scope_functions, pool_references, true, fp_hex, canon_to_sym, sym_to_canon);
 }
 // A concrete store summary is consumed only by replay. If the only facts
 // that grew reached every caller this round, the next pass would observe
@@ -13009,7 +13013,7 @@ fn life_holds_fast(p: Program&, l: Lifetimes&, ty: i64) -> bool {
     l.type_work.resize(wbase);
     return answer;
 }
-fn life_prepare_nodes(p: Program&, l: Lifetimes&, full: bool) -> bool {
+fn life_prepare_nodes(p: Program&, l: Lifetimes&, full: bool, all_fns: i64[>..]&) -> bool {
     let type_count = p.types.len;
     if l.type_canon.len < type_count { life_canon_types(p, l); }
     l.type_exact_canon.clear(); l.type_exact_canon.resize(type_count, 0);
@@ -13160,7 +13164,7 @@ fn life_prepare_nodes(p: Program&, l: Lifetimes&, full: bool) -> bool {
     var hold_work: i64[>..] = [];
     var seq_work: i64[>..] = [];
     var break_with_val: i64[>..] = [];
-    var all_fns: i64[>..] = [];
+    all_fns.clear();
     var has_cap = false;
     var has_replacement = full;
     var did_par = false;
@@ -13545,7 +13549,29 @@ fn life_prepare_nodes(p: Program&, l: Lifetimes&, full: bool) -> bool {
         if params_ok { candidate_fns.push(id); fn_state[id] = 1; }
     }
     l.has_captures = has_cap;
-    // Pre-build function LifeBody summaries in parallel and precompute capture_reads via reverse BFS.
+    for fn_id in candidate_fns {
+        if fn_state[fn_id] == 1 { life_analyze_candidate_fn(p, l, fn_id, omit_reads, fn_state, any_defer); }
+    }
+    for id in all_fns {
+        if fn_state[id] != 0 { continue; }
+        life_analyze_node(p, l, p.nodes[id].right, omit_reads, fn_state, fn_has_defer[id] != 0, any_defer);
+    }
+    for s in 0..sym_count {
+        let sym: const Symbol& = p.symbols[s];
+        if (sym.flags & S_GLOBAL) != 0 && sym.node >= 0 && p.nodes[sym.node].kind == N_VARIABLE {
+            life_analyze_node(p, l, sym.node, omit_reads, fn_state, false, any_defer);
+        }
+    }
+    l.nodes_prepared = true;
+    return omit_reads;
+}
+
+// Pre-build function LifeBody summaries in parallel and precompute capture_reads via reverse BFS.
+// Deferred until after an incremental lifetime certificate miss so cache hits avoid the work.
+fn life_prepare_bodies(p: Program&, l: Lifetimes&, all_fns: const i64[:], full: bool) {
+    let node_count = p.nodes.len;
+    let sym_count = p.symbols.len;
+    let has_cap = l.has_captures;
     if node_count >= 32768 && all_fns.len >= 64 {
         let b_buckets = if p.jobs > 1 { p.jobs * 2 } else { 1 };
         let b_per_cap = (all_fns.len / b_buckets) * 24 + 8192;
@@ -13774,24 +13800,930 @@ fn life_prepare_nodes(p: Program&, l: Lifetimes&, full: bool) -> bool {
             }
         }
     }
-    for fn_id in candidate_fns {
-        if fn_state[fn_id] == 1 { life_analyze_candidate_fn(p, l, fn_id, omit_reads, fn_state, any_defer); }
-    }
-    for id in all_fns {
-        if fn_state[id] != 0 { continue; }
-        life_analyze_node(p, l, p.nodes[id].right, omit_reads, fn_state, fn_has_defer[id] != 0, any_defer);
-    }
-    for s in 0..sym_count {
-        let sym: const Symbol& = p.symbols[s];
-        if (sym.flags & S_GLOBAL) != 0 && sym.node >= 0 && p.nodes[sym.node].kind == N_VARIABLE {
-            life_analyze_node(p, l, sym.node, omit_reads, fn_state, false, any_defer);
-        }
-    }
-    l.nodes_prepared = true;
-    return omit_reads;
 }
 
-fn life_check_attempt(p: Program&, scope_parent: const i64[>..]&, scope_depth: const i64[>..]&, scope_functions: const i64[>..]&, pool_references: const i64[:], full: bool) -> bool {
+// Content-addressed canonical lifetime fingerprint for sound incremental rebuilds.
+struct LifeFp {
+    sha: CacheSponge256&,
+    canon_ty: i32[>..]&,
+    canon_decl: i32[>..]&,
+    field_ord: i32[>..]&,
+    canon_fn: i32[>..]&,
+    fn_hashed: u8[>..]&,
+    sym_to_canon: i32[>..]&,
+    canon_to_sym: i64[>..]&,
+    canon_scope: i32[>..]&,
+    scope_is_real: u8[>..]&,
+    eff_depth: i32[>..]&,
+    canon_ctrl: i32[>..]&,
+    strict_inert: u8[>..]&,
+    fn_clean_inert: u8[>..]&,
+    inert_seen: i32[>..]&,
+    inert_work: i64[>..]&,
+    inert_globs: i64[>..]&,
+    inert_caps: i64[>..]&,
+    inert_seen_gen: i32 = 0,
+    next_ty: i64 = 0,
+    next_decl: i64 = 0,
+    next_fn: i64 = 0,
+    next_scope: i64 = 0,
+    next_ctrl: i64 = 0,
+}
+
+fn life_fp_ensure_sym(fp: LifeFp&, sym: i64) -> i64 {
+    if sym < 0 || sym >= fp.sym_to_canon.len { return -1; }
+    let existing = fp.sym_to_canon[sym] as i64;
+    if existing >= 0 { return existing; }
+    let id = fp.canon_to_sym.len;
+    fp.sym_to_canon[sym] = id as i32;
+    fp.canon_to_sym.push(sym);
+    return id;
+}
+
+fn life_fp_ensure_fn(fp: LifeFp&, fn_node: i64) -> i64 {
+    if fn_node < 0 || fn_node >= fp.canon_fn.len { return -1; }
+    let existing = fp.canon_fn[fn_node] as i64;
+    if existing >= 0 { return existing; }
+    let id = fp.next_fn;
+    fp.next_fn += 1;
+    fp.canon_fn[fn_node] = id as i32;
+    return id;
+}
+
+fn life_fp_ensure_scope(l: Lifetimes&, fp: LifeFp&, raw_sc: i64) -> i64 {
+    var sc = raw_sc;
+    while sc > 0 && sc < fp.scope_is_real.len && fp.scope_is_real[sc] == 0 {
+        sc = l.parents[sc];
+    }
+    if sc < 0 || sc >= fp.canon_scope.len { return -1; }
+    let existing = fp.canon_scope[sc] as i64;
+    if existing >= 0 { return existing; }
+    var par = if sc < l.parents.len { l.parents[sc] } else { -1 };
+    while par > 0 && par < fp.scope_is_real.len && fp.scope_is_real[par] == 0 {
+        par = l.parents[par];
+    }
+    let par_id = if par >= 0 && par < fp.canon_scope.len { fp.canon_scope[par] as i64 } else { -1 };
+    let d = if par >= 0 && par < fp.eff_depth.len && fp.eff_depth[par] >= 0 { (fp.eff_depth[par] as i64) + 1 } else { 0 };
+    let id = fp.next_scope;
+    fp.next_scope += 1;
+    fp.canon_scope[sc] = id as i32;
+    fp.eff_depth[sc] = d as i32;
+    cache_sp_u8(fp.sha, 'C');
+    cache_sp_i64(fp.sha, id);
+    cache_sp_i64(fp.sha, d);
+    cache_sp_i64(fp.sha, par_id);
+    return id;
+}
+
+fn life_fp_field_ord(p: Program&, fp: LifeFp&, field_node: i64) {
+    if field_node < 0 || field_node >= fp.field_ord.len {
+        cache_sp_i64(fp.sha, -1);
+        return;
+    }
+    let ord = fp.field_ord[field_node] as i64;
+    cache_sp_i64(fp.sha, ord);
+    if ord < 0 {
+        let tok = p.nodes[field_node].token as i64;
+        if tok >= 0 && tok < p.tokens.len {
+            let txt = token_text(p, tok);
+            cache_sp_i64(fp.sha, txt.len);
+            cache_sp_bytes(fp.sha, txt);
+        }
+    }
+}
+
+recursive fn life_fp_hash_type(p: Program&, l: Lifetimes&, fp: LifeFp&, tid: i64) {
+    if tid < 0 || tid >= fp.canon_ty.len {
+        cache_sp_u8(fp.sha, 'z');
+        return;
+    }
+    let existing = fp.canon_ty[tid] as i64;
+    if existing >= 0 {
+        cache_sp_u8(fp.sha, 'T');
+        cache_sp_i64(fp.sha, existing);
+        return;
+    }
+    let cid = fp.next_ty;
+    fp.next_ty += 1;
+    fp.canon_ty[tid] = cid as i32;
+    let t: const Type& = p.types[tid];
+    cache_sp_u8(fp.sha, 'D');
+    cache_sp_i64(fp.sha, cid);
+    cache_sp_i64(fp.sha, t.kind);
+    cache_sp_i64(fp.sha, t.count);
+    cache_sp_i64(fp.sha, t.array_kind);
+    cache_sp_i64(fp.sha, t.flags);
+    cache_sp_i64(fp.sha, t.storage);
+    cache_sp_i64(fp.sha, t.length_storage);
+    cache_sp_i64(fp.sha, t.size);
+    cache_sp_i64(fp.sha, t.align);
+    cache_sp_i64(fp.sha, t.padding);
+    cache_sp_u8(fp.sha, if t.length_explicit { 1 } else { 0 });
+    cache_sp_u8(fp.sha, if tid < l.type_flags.len { l.type_flags[tid] } else { 0 });
+    cache_sp_i64(fp.sha, if tid < l.size_classes.len { l.size_classes[tid] } else { -1 });
+    if t.declaration >= 0 && t.declaration < fp.canon_decl.len {
+        var did = fp.canon_decl[t.declaration] as i64;
+        if did < 0 {
+            did = fp.next_decl;
+            fp.next_decl += 1;
+            fp.canon_decl[t.declaration] = did as i32;
+        }
+        cache_sp_i64(fp.sha, did);
+        cache_sp_i64(fp.sha, p.nodes[t.declaration].flags & ~F_HAS_EXTRA);
+    } else {
+        cache_sp_i64(fp.sha, -1);
+    }
+    if t.pool >= 0 && t.pool < p.symbols.len {
+        let ps: const Symbol& = p.symbols[t.pool];
+        if ps.component_owner >= 0 {
+            cache_sp_u8(fp.sha, 2);
+            cache_sp_i64(fp.sha, life_fp_ensure_sym(fp, ps.component_owner));
+            life_fp_field_ord(p, fp, ps.component);
+        } else {
+            cache_sp_u8(fp.sha, 1);
+            cache_sp_i64(fp.sha, life_fp_ensure_sym(fp, t.pool));
+        }
+    } else {
+        cache_sp_u8(fp.sha, 0);
+    }
+    life_fp_hash_type(p, l, fp, t.index_type);
+    life_fp_hash_type(p, l, fp, t.prefix);
+    life_fp_hash_type(p, l, fp, t.tail);
+    life_fp_hash_type(p, l, fp, t.element);
+    if t.kind == TY_STRUCT || t.kind == TY_ENUM || t.kind == TY_TUPLE || t.kind == TY_FN {
+        var f = t.first;
+        var ord: i64 = 0;
+        while f >= 0 {
+            if f < fp.field_ord.len && fp.field_ord[f] < 0 { fp.field_ord[f] = ord as i32; }
+            let fn_n: const Node& = p.nodes[f];
+            cache_sp_i64(fp.sha, fn_n.kind as i64);
+            cache_sp_i64(fp.sha, fn_n.flags & ~F_HAS_EXTRA);
+            life_fp_hash_type(p, l, fp, fn_n.type_id as i64);
+            ord += 1;
+            f = fn_n.next as i64;
+        }
+        cache_sp_i64(fp.sha, ord);
+    }
+}
+
+fn life_fp_inert_effects(p: Program&, l: Lifetimes&, fp: LifeFp&, fn_node: i64, do_hash: bool) -> bool {
+    let start = p.nodes[fn_node].right as i64;
+    if start < 0 {
+        if do_hash { cache_sp_i64(fp.sha, 0); cache_sp_i64(fp.sha, 0); }
+        return true;
+    }
+    fp.inert_seen_gen += 1;
+    let gen = fp.inert_seen_gen;
+    fp.inert_work.clear();
+    fp.inert_globs.clear();
+    fp.inert_caps.clear();
+    let b0 = life_body(p, l, start);
+    if fp.inert_seen.len <= b0 { fp.inert_seen.resize(b0 + 64, 0); }
+    fp.inert_seen[b0] = gen;
+    fp.inert_work.push(b0);
+    var at = 0;
+    while at < fp.inert_work.len {
+        let bi = fp.inert_work[at]; at += 1;
+        let b: const LifeBody& = l.bodies[bi];
+        for gi in b.globals..b.globals + b.global_count {
+            let gs = l.body_globals[gi];
+            fp.inert_globs.push(life_fp_ensure_sym(fp, gs));
+        }
+        if b.captures {
+            for ci in b.named..b.named + b.named_count {
+                let cs = l.body_captures[ci];
+                fp.inert_caps.push(life_fp_ensure_sym(fp, cs));
+            }
+        }
+        for ki in b.calls..b.calls + b.call_count {
+            let target = l.body_calls[ki];
+            let nb = life_body(p, l, target);
+            if fp.inert_seen.len <= nb { fp.inert_seen.resize(nb + 64, 0); }
+            if fp.inert_seen[nb] != gen {
+                fp.inert_seen[nb] = gen;
+                fp.inert_work.push(nb);
+            }
+        }
+    }
+    if fp.inert_globs.len > 1 { fp.inert_globs[..].sort(); }
+    if fp.inert_caps.len > 1 { fp.inert_caps[..].sort(); }
+    if do_hash {
+        var gcnt: i64 = 0;
+        for i in 0..fp.inert_globs.len {
+            if i == 0 || fp.inert_globs[i] != fp.inert_globs[i - 1] {
+                cache_sp_i64(fp.sha, fp.inert_globs[i]);
+                gcnt += 1;
+            }
+        }
+        cache_sp_i64(fp.sha, gcnt);
+        var ccnt: i64 = 0;
+        for i in 0..fp.inert_caps.len {
+            if i == 0 || fp.inert_caps[i] != fp.inert_caps[i - 1] {
+                cache_sp_i64(fp.sha, fp.inert_caps[i]);
+                ccnt += 1;
+            }
+        }
+        cache_sp_i64(fp.sha, ccnt);
+    }
+    return fp.inert_globs.len == 0 && fp.inert_caps.len == 0;
+}
+
+recursive fn life_fp_mark_strict_inert(p: Program&, l: Lifetimes&, fp: LifeFp&, node: i64) -> bool {
+    if node < 0 || node >= fp.strict_inert.len { return true; }
+    let prev = fp.strict_inert[node];
+    if prev != 0 { return prev == 2; }
+    fp.strict_inert[node] = 1;
+    let nf = l.node_flags[node];
+    let n: const Node& = p.nodes[node];
+    let kind = n.kind as i64;
+    let base_ok = (nf & NF_INERT) != 0 && (nf & (NF_NEEDS_PLACE | NF_MAY_SHRINK | NF_HAS_EXIT)) == 0;
+    var ok = false;
+    if kind == N_INTEGER || kind == N_FLOAT || kind == N_BOOL || kind == N_NULL || kind == N_EMPTY {
+        ok = base_ok;
+    } else if kind == N_NAME {
+        ok = base_ok && n.symbol >= 0 && (n.symbol as i64) < l.sym_flags.len &&
+             (l.sym_flags[n.symbol] & SF_SCALAR_LOCAL) != 0;
+    } else if kind == N_UNARY {
+        let lok = life_fp_mark_strict_inert(p, l, fp, n.left as i64);
+        ok = base_ok && n.integer != T_BITAND && n.integer != T_MUL && lok;
+    } else if kind == N_BINARY || kind == N_RANGE {
+        let lok = life_fp_mark_strict_inert(p, l, fp, n.left as i64);
+        let rok = life_fp_mark_strict_inert(p, l, fp, n.right as i64);
+        ok = base_ok && lok && rok;
+    } else if kind == N_CAST {
+        let lok = life_fp_mark_strict_inert(p, l, fp, n.left as i64);
+        ok = base_ok && life_type_is_scalar(l, n.type_id as i64) && lok;
+    } else if kind == N_EXPR_STMT || kind == N_GUARD {
+        let lok = life_fp_mark_strict_inert(p, l, fp, n.left as i64);
+        ok = base_ok && lok;
+    } else if kind == N_VARIABLE {
+        var all_init = true;
+        var init = n.right as i64;
+        while init >= 0 {
+            if !life_fp_mark_strict_inert(p, l, fp, init) { all_init = false; }
+            if n.first < 0 { break; }
+            init = p.nodes[init].next as i64;
+        }
+        var all_sc = true;
+        if n.first < 0 {
+            if n.symbol < 0 || (n.symbol as i64) >= l.sym_flags.len || (l.sym_flags[n.symbol] & SF_SCALAR_LOCAL) == 0 {
+                all_sc = false;
+            }
+        } else {
+            var b = n.first as i64;
+            while b >= 0 {
+                let s = p.nodes[b].symbol as i64;
+                if s < 0 || s >= l.sym_flags.len || (l.sym_flags[s] & SF_SCALAR_LOCAL) == 0 { all_sc = false; }
+                b = p.nodes[b].next as i64;
+            }
+        }
+        ok = base_ok && all_init && all_sc;
+    } else if kind == N_ASSIGN {
+        let _lok = life_fp_mark_strict_inert(p, l, fp, n.left as i64);
+        let rok = life_fp_mark_strict_inert(p, l, fp, n.right as i64);
+        var lhs_ok = false;
+        if n.left >= 0 {
+            let ln: const Node& = p.nodes[n.left];
+            if ln.kind == N_NAME && ln.symbol >= 0 && (ln.symbol as i64) < l.sym_flags.len &&
+               (l.sym_flags[ln.symbol] & SF_SCALAR_LOCAL) != 0 {
+                lhs_ok = true;
+            }
+        }
+        ok = base_ok && rok && lhs_ok;
+    } else if kind == N_IF {
+        let cok = life_fp_mark_strict_inert(p, l, fp, n.left as i64);
+        let tok = life_fp_mark_strict_inert(p, l, fp, n.right as i64);
+        let eok = life_fp_mark_strict_inert(p, l, fp, n.third as i64);
+        ok = base_ok && cok && tok && eok;
+    } else if kind == N_BLOCK {
+        var all_c = true;
+        var c = n.first as i64;
+        while c >= 0 {
+            if !life_fp_mark_strict_inert(p, l, fp, c) { all_c = false; }
+            c = p.nodes[c].next as i64;
+        }
+        let no_cell = n.scope < 0 || (n.scope as i64) >= l.scope_has_cell.len || l.scope_has_cell[n.scope] == 0;
+        ok = base_ok && all_c && (n.flags & F_EARLY) == 0 && no_cell;
+    } else if kind == N_WHILE || kind == N_LOOP {
+        let cok = life_fp_mark_strict_inert(p, l, fp, n.left as i64);
+        let bok = life_fp_mark_strict_inert(p, l, fp, n.right as i64);
+        let no_cell = n.scope < 0 || (n.scope as i64) >= l.scope_has_cell.len || l.scope_has_cell[n.scope] == 0;
+        ok = base_ok && cok && bok && no_cell;
+    } else if kind == N_FOR {
+        let sok = life_fp_mark_strict_inert(p, l, fp, n.left as i64);
+        let bok = life_fp_mark_strict_inert(p, l, fp, n.right as i64);
+        let is_range = n.left >= 0 && p.nodes[n.left].kind == N_RANGE;
+        var all_sc = true;
+        var b = n.first as i64;
+        while b >= 0 {
+            let s = p.nodes[b].symbol as i64;
+            if s < 0 || s >= l.sym_flags.len || (l.sym_flags[s] & SF_SCALAR_LOCAL) == 0 { all_sc = false; }
+            b = p.nodes[b].next as i64;
+        }
+        let no_cell = n.scope < 0 || (n.scope as i64) >= l.scope_has_cell.len || l.scope_has_cell[n.scope] == 0;
+        ok = base_ok && sok && bok && is_range && all_sc && no_cell;
+    } else if kind == N_CALL {
+        var all_args = true;
+        var arg = n.first as i64;
+        while arg >= 0 {
+            if !life_fp_mark_strict_inert(p, l, fp, arg) { all_args = false; }
+            arg = p.nodes[arg].next as i64;
+        }
+        var callee_ok = false;
+        if n.symbol >= 0 && (n.symbol as i64) < p.symbols.len {
+            let sym: const Symbol& = p.symbols[n.symbol];
+            if (sym.flags & S_BUILTIN) != 0 {
+                let b = sym.index;
+                if (b == 33 || b == 34) && n.aux >= 0 { life_fp_mark_strict_inert(p, l, fp, n.aux as i64); }
+                if b == 3 || b == 4 || b == 5 || b == 6 || b == 38 || b == 39 { callee_ok = true; }
+            } else if (n.flags & F_DISPATCH) == 0 && sym.node >= 0 && sym.node < fp.fn_clean_inert.len {
+                callee_ok = fp.fn_clean_inert[sym.node] != 0;
+            }
+        } else if n.left >= 0 {
+            life_fp_mark_strict_inert(p, l, fp, n.left as i64);
+        }
+        ok = base_ok && all_args && callee_ok;
+    } else if kind == N_MEMBER || kind == N_INDEX || kind == N_SLICE || kind == N_RESULT {
+        life_fp_mark_strict_inert(p, l, fp, n.left as i64);
+        life_fp_mark_strict_inert(p, l, fp, n.right as i64);
+        life_fp_mark_strict_inert(p, l, fp, n.third as i64);
+    } else if kind == N_MATCH {
+        life_fp_mark_strict_inert(p, l, fp, n.left as i64);
+        var arm = n.first as i64;
+        while arm >= 0 {
+            life_fp_mark_strict_inert(p, l, fp, p.nodes[arm].third as i64);
+            life_fp_mark_strict_inert(p, l, fp, p.nodes[arm].right as i64);
+            arm = p.nodes[arm].next as i64;
+        }
+    } else if kind == N_RETURN || kind == N_TUPLE || kind == N_ARRAY || kind == N_MULTI_ASSIGN {
+        var c = n.first as i64;
+        while c >= 0 { life_fp_mark_strict_inert(p, l, fp, c); c = p.nodes[c].next as i64; }
+        if kind == N_MULTI_ASSIGN { life_fp_mark_strict_inert(p, l, fp, n.right as i64); }
+    } else if kind == N_FILL {
+        if n.first >= 0 {
+            var c = n.first as i64;
+            while c >= 0 { life_fp_mark_strict_inert(p, l, fp, c); c = p.nodes[c].next as i64; }
+        } else {
+            life_fp_mark_strict_inert(p, l, fp, n.left as i64);
+            life_fp_mark_strict_inert(p, l, fp, n.right as i64);
+        }
+    } else if kind == N_RECORD {
+        var c = n.first as i64;
+        while c >= 0 { life_fp_mark_strict_inert(p, l, fp, p.nodes[c].right as i64); c = p.nodes[c].next as i64; }
+    } else if kind == N_BREAK {
+        life_fp_mark_strict_inert(p, l, fp, n.left as i64);
+    } else if kind == N_DEFER {
+        life_fp_mark_strict_inert(p, l, fp, n.right as i64);
+    }
+    if ok { fp.strict_inert[node] = 2; }
+    return ok;
+}
+
+fn life_fp_declare_sym(p: Program&, l: Lifetimes&, fp: LifeFp&, sym: i64) {
+    if sym < 0 || sym >= p.symbols.len {
+        cache_sp_u8(fp.sha, 'z');
+        return;
+    }
+    let s: const Symbol& = p.symbols[sym];
+    if (s.flags & (S_GLOBAL | S_PARAMETER)) == 0 && sym < l.sym_flags.len && (l.sym_flags[sym] & SF_SCALAR_LOCAL) != 0 {
+        cache_sp_u8(fp.sha, 'S');
+        life_fp_hash_type(p, l, fp, s.type_id);
+        return;
+    }
+    let cid = life_fp_ensure_sym(fp, sym);
+    cache_sp_u8(fp.sha, 'V');
+    cache_sp_i64(fp.sha, cid);
+    cache_sp_i64(fp.sha, s.flags);
+    cache_sp_u8(fp.sha, if sym < l.sym_flags.len { l.sym_flags[sym] } else { 0 });
+    cache_sp_i64(fp.sha, life_fp_ensure_scope(l, fp, s.scope));
+    life_fp_hash_type(p, l, fp, s.type_id);
+}
+
+recursive fn life_fp_hash_fn(p: Program&, l: Lifetimes&, fp: LifeFp&, fn_node: i64) {
+    if fn_node < 0 || fn_node >= fp.fn_hashed.len { return; }
+    if fp.fn_hashed[fn_node] != 0 { return; }
+    fp.fn_hashed[fn_node] = 1;
+    let fid = life_fp_ensure_fn(fp, fn_node);
+    let n: const Node& = p.nodes[fn_node];
+    cache_sp_u8(fp.sha, 'F');
+    cache_sp_i64(fp.sha, fid);
+    cache_sp_i64(fp.sha, n.kind as i64);
+    cache_sp_i64(fp.sha, n.flags & ~F_HAS_EXTRA);
+    cache_sp_u8(fp.sha, l.node_flags[fn_node] & NF_FN_INERT);
+    cache_sp_u8(fp.sha, l.hold_flags[fn_node]);
+    life_fp_hash_type(p, l, fp, n.type_id as i64);
+    if n.symbol >= 0 && (n.symbol as i64) < p.symbols.len && p.symbols[n.symbol].owner >= 0 {
+        cache_sp_i64(fp.sha, life_fp_ensure_fn(fp, p.symbols[n.symbol].owner));
+    } else {
+        cache_sp_i64(fp.sha, -1);
+    }
+    cache_sp_i64(fp.sha, life_fp_ensure_scope(l, fp, n.scope as i64));
+    var cap: i64 = node_captures(p, fn_node) as i64;
+    var cap_cnt: i64 = 0;
+    while cap >= 0 {
+        let cs = p.nodes[cap].symbol as i64;
+        cache_sp_i64(fp.sha, life_fp_ensure_sym(fp, cs));
+        cap_cnt += 1;
+        cap = p.nodes[cap].next as i64;
+    }
+    cache_sp_i64(fp.sha, cap_cnt);
+    var formal = n.first as i64;
+    var pcnt: i64 = 0;
+    while formal >= 0 {
+        let fn_p: const Node& = p.nodes[formal];
+        let ps = fn_p.symbol as i64;
+        cache_sp_i64(fp.sha, fn_p.flags & ~F_HAS_EXTRA);
+        if ps >= 0 && ps < p.symbols.len {
+            let cid = life_fp_ensure_sym(fp, ps);
+            cache_sp_i64(fp.sha, cid);
+            cache_sp_i64(fp.sha, p.symbols[ps].flags);
+            cache_sp_u8(fp.sha, if ps < l.sym_flags.len { l.sym_flags[ps] } else { 0 });
+        } else {
+            cache_sp_i64(fp.sha, -1);
+        }
+        life_fp_hash_type(p, l, fp, fn_p.type_id as i64);
+        pcnt += 1;
+        formal = fn_p.next as i64;
+    }
+    cache_sp_i64(fp.sha, pcnt);
+    if (l.node_flags[fn_node] & NF_FN_INERT) != 0 {
+        cache_sp_u8(fp.sha, 'I');
+        life_fp_inert_effects(p, l, fp, fn_node, true);
+    } else if n.right >= 0 {
+        cache_sp_u8(fp.sha, 'B');
+        life_fp_mark_strict_inert(p, l, fp, n.right as i64);
+        life_fp_hash_node(p, l, fp, n.right as i64, false);
+    } else {
+        cache_sp_u8(fp.sha, 'E');
+    }
+}
+
+recursive fn life_fp_hash_node(p: Program&, l: Lifetimes&, fp: LifeFp&, node: i64, allow_collapse: bool) {
+    if node < 0 || node >= p.nodes.len {
+        cache_sp_u8(fp.sha, 0);
+        return;
+    }
+    if allow_collapse && node < fp.strict_inert.len && fp.strict_inert[node] == 2 {
+        let tid = p.nodes[node].type_id as i64;
+        let ctid = node_coerced_type(p, node);
+        if tid >= 0 && tid < fp.canon_ty.len && fp.canon_ty[tid] >= 0 && ctid < 0 {
+            let xw: u64 = 0x5800000000000000 | (fp.canon_ty[tid] as u64);
+            cache_sp_i64(fp.sha, xw as! i64);
+            return;
+        }
+        cache_sp_u8(fp.sha, 'X');
+        life_fp_hash_type(p, l, fp, tid);
+        life_fp_hash_type(p, l, fp, ctid);
+        return;
+    }
+    let n: const Node& = p.nodes[node];
+    let kind = n.kind as i64;
+    if kind == N_STRUCT || kind == N_ENUM || kind == N_ALIAS || kind == N_IMPORT || kind == N_NAMESPACE || kind == N_EXTERN {
+        return;
+    }
+    if kind == N_FUNCTION || kind == N_FUNCTION_VALUE {
+        if kind == N_FUNCTION_VALUE || (n.flags & (F_CHECKED | F_GENERIC)) == F_CHECKED {
+            life_fp_hash_fn(p, l, fp, node);
+        }
+        return;
+    }
+    let nf: u64 = if node < l.node_flags.len { l.node_flags[node] as u64 } else { 0 };
+    let hf: u64 = if node < l.hold_flags.len { l.hold_flags[node] as u64 } else { 0 };
+    let tid = n.type_id as i64;
+    let ctid = if (n.flags & F_HAS_EXTRA) != 0 { node_coerced_type(p, node) } else { -1 };
+    let tid_fast = tid >= 0 && tid < fp.canon_ty.len && fp.canon_ty[tid] >= 0;
+    if tid_fast && ctid < 0 {
+        let hdr: u64 = ((kind as u64) << 56) | (nf << 48) | (hf << 40) | (fp.canon_ty[tid] as u64);
+        cache_sp_i64(fp.sha, hdr as! i64);
+        cache_sp_i64(fp.sha, n.flags & ~F_HAS_EXTRA);
+    } else {
+        let hdr: u64 = 0x8000000000000000 | ((kind as u64) << 56) | (nf << 48) | (hf << 40);
+        cache_sp_i64(fp.sha, hdr as! i64);
+        cache_sp_i64(fp.sha, n.flags & ~F_HAS_EXTRA);
+        life_fp_hash_type(p, l, fp, tid);
+        life_fp_hash_type(p, l, fp, ctid);
+    }
+
+    if kind == N_INTEGER || kind == N_FLOAT || kind == N_BOOL || kind == N_NULL || kind == N_EMPTY || kind == N_STRING {
+        return;
+    } else if kind == N_NAME {
+        let s = n.symbol as i64;
+        if s < 0 || s >= p.symbols.len {
+            cache_sp_u8(fp.sha, 'z');
+        } else {
+            let sym: const Symbol& = p.symbols[s];
+            if (sym.flags & S_BUILTIN) != 0 {
+                cache_sp_u8(fp.sha, 'b'); cache_sp_i64(fp.sha, sym.index);
+            } else if (sym.flags & S_FUNCTION) != 0 {
+                cache_sp_u8(fp.sha, 'f'); cache_sp_i64(fp.sha, life_fp_ensure_fn(fp, sym.node));
+            } else if (sym.flags & S_TYPE) != 0 {
+                cache_sp_u8(fp.sha, 't'); life_fp_hash_type(p, l, fp, sym.type_id);
+            } else if (sym.flags & (S_GLOBAL | S_PARAMETER)) == 0 && s < l.sym_flags.len && (l.sym_flags[s] & SF_SCALAR_LOCAL) != 0 {
+                cache_sp_u8(fp.sha, 's'); life_fp_hash_type(p, l, fp, sym.type_id);
+            } else {
+                cache_sp_u8(fp.sha, 'y'); cache_sp_i64(fp.sha, life_fp_ensure_sym(fp, s));
+            }
+        }
+    } else if kind == N_UNARY {
+        var op_cls: i64 = 0;
+        if n.integer == T_BITAND { op_cls = 1; } else if n.integer == T_MUL { op_cls = 2; }
+        cache_sp_i64(fp.sha, op_cls);
+        life_fp_hash_node(p, l, fp, n.left as i64, true);
+    } else if kind == N_BINARY {
+        let is_cmp: i64 = if n.integer >= T_EQ && n.integer <= T_GTEQ { 1 } else { 0 };
+        cache_sp_i64(fp.sha, is_cmp);
+        life_fp_hash_node(p, l, fp, n.left as i64, true);
+        life_fp_hash_node(p, l, fp, n.right as i64, true);
+    } else if kind == N_RANGE {
+        life_fp_hash_node(p, l, fp, n.left as i64, true);
+        life_fp_hash_node(p, l, fp, n.right as i64, true);
+    } else if kind == N_CAST || kind == N_EXPR_STMT || kind == N_GUARD {
+        life_fp_hash_node(p, l, fp, n.left as i64, true);
+    } else if kind == N_RESULT {
+        cache_sp_i64(fp.sha, n.integer);
+        life_fp_hash_node(p, l, fp, n.left as i64, true);
+    } else if kind == N_MEMBER {
+        life_fp_hash_node(p, l, fp, n.left as i64, true);
+        if n.symbol >= 0 {
+            life_fp_field_ord(p, fp, n.symbol as i64);
+            life_fp_hash_type(p, l, fp, p.nodes[n.symbol].type_id as i64);
+        } else {
+            cache_sp_i64(fp.sha, -2);
+            cache_sp_i64(fp.sha, n.integer);
+        }
+    } else if kind == N_INDEX || kind == N_SLICE {
+        life_fp_hash_node(p, l, fp, n.left as i64, true);
+        life_fp_hash_node(p, l, fp, n.right as i64, true);
+        life_fp_hash_node(p, l, fp, n.third as i64, true);
+    } else if kind == N_ASSIGN {
+        let is_dot: i64 = if n.integer == T_DOTASSIGN { 1 } else { 0 };
+        cache_sp_i64(fp.sha, is_dot);
+        life_fp_hash_node(p, l, fp, n.left as i64, true);
+        life_fp_hash_node(p, l, fp, n.right as i64, true);
+    } else if kind == N_VARIABLE {
+        let orig = node_origin(p, node);
+        cache_sp_u8(fp.sha, if orig >= 0 && p.nodes[orig].kind == N_PARAM { 1 } else { 0 });
+        if n.first < 0 {
+            cache_sp_i64(fp.sha, 1);
+            life_fp_declare_sym(p, l, fp, n.symbol as i64);
+            life_fp_hash_node(p, l, fp, n.right as i64, true);
+        } else {
+            var b = n.first as i64;
+            var bcnt: i64 = 0;
+            while b >= 0 {
+                cache_sp_i64(fp.sha, p.nodes[b].flags & ~F_HAS_EXTRA);
+                life_fp_declare_sym(p, l, fp, p.nodes[b].symbol as i64);
+                bcnt += 1;
+                b = p.nodes[b].next as i64;
+            }
+            cache_sp_i64(fp.sha, bcnt);
+            var init = n.right as i64;
+            var icnt: i64 = 0;
+            while init >= 0 {
+                life_fp_hash_node(p, l, fp, init, true);
+                icnt += 1;
+                init = p.nodes[init].next as i64;
+            }
+            cache_sp_i64(fp.sha, icnt);
+        }
+    } else if kind == N_BLOCK {
+        let cid = fp.next_ctrl; fp.next_ctrl += 1;
+        fp.canon_ctrl[node] = cid as i32;
+        cache_sp_i64(fp.sha, cid);
+        cache_sp_i64(fp.sha, life_fp_ensure_scope(l, fp, n.scope as i64));
+        var c = n.first as i64;
+        var kept: i64 = 0;
+        while c >= 0 {
+            let is_tail = c == (n.last as i64) && (p.nodes[c].flags & F_TAIL) != 0;
+            if !is_tail && c < fp.strict_inert.len && fp.strict_inert[c] == 2 {
+                c = p.nodes[c].next as i64;
+                continue;
+            }
+            cache_sp_u8(fp.sha, if is_tail { 2 } else { 1 });
+            life_fp_hash_node(p, l, fp, c, is_tail);
+            kept += 1;
+            c = p.nodes[c].next as i64;
+        }
+        cache_sp_i64(fp.sha, kept);
+    } else if kind == N_IF {
+        cache_sp_i64(fp.sha, life_fp_ensure_scope(l, fp, n.scope as i64));
+        life_fp_hash_node(p, l, fp, n.left as i64, true);
+        life_fp_hash_node(p, l, fp, n.right as i64, true);
+        life_fp_hash_node(p, l, fp, n.third as i64, true);
+    } else if kind == N_WHILE || kind == N_LOOP {
+        let cid = fp.next_ctrl; fp.next_ctrl += 1;
+        fp.canon_ctrl[node] = cid as i32;
+        cache_sp_i64(fp.sha, cid);
+        cache_sp_i64(fp.sha, life_fp_ensure_scope(l, fp, n.scope as i64));
+        life_fp_hash_node(p, l, fp, n.left as i64, true);
+        life_fp_hash_node(p, l, fp, n.right as i64, true);
+    } else if kind == N_FOR {
+        let cid = fp.next_ctrl; fp.next_ctrl += 1;
+        fp.canon_ctrl[node] = cid as i32;
+        cache_sp_i64(fp.sha, cid);
+        cache_sp_i64(fp.sha, life_fp_ensure_scope(l, fp, n.scope as i64));
+        life_fp_hash_node(p, l, fp, n.left as i64, true);
+        var b = n.first as i64;
+        var bcnt: i64 = 0;
+        while b >= 0 {
+            cache_sp_i64(fp.sha, p.nodes[b].flags & ~F_HAS_EXTRA);
+            life_fp_declare_sym(p, l, fp, p.nodes[b].symbol as i64);
+            bcnt += 1;
+            b = p.nodes[b].next as i64;
+        }
+        cache_sp_i64(fp.sha, bcnt);
+        life_fp_hash_node(p, l, fp, n.right as i64, true);
+    } else if kind == N_MATCH {
+        let cid = fp.next_ctrl; fp.next_ctrl += 1;
+        fp.canon_ctrl[node] = cid as i32;
+        cache_sp_i64(fp.sha, cid);
+        cache_sp_i64(fp.sha, life_fp_ensure_scope(l, fp, n.scope as i64));
+        life_fp_hash_node(p, l, fp, n.left as i64, true);
+        var arm = n.first as i64;
+        var acnt: i64 = 0;
+        while arm >= 0 {
+            let a: const Node& = p.nodes[arm];
+            cache_sp_i64(fp.sha, a.flags & ~F_HAS_EXTRA);
+            cache_sp_i64(fp.sha, life_fp_ensure_scope(l, fp, a.scope as i64));
+            if a.left >= 0 {
+                let pat: const Node& = p.nodes[a.left];
+                cache_sp_u8(fp.sha, 1);
+                cache_sp_i64(fp.sha, pat.flags & ~F_HAS_EXTRA);
+                life_fp_hash_type(p, l, fp, pat.type_id as i64);
+                if pat.symbol >= 0 { life_fp_field_ord(p, fp, pat.symbol as i64); }
+                else { cache_sp_i64(fp.sha, pat.integer); }
+                if pat.left >= 0 {
+                    cache_sp_u8(fp.sha, 1);
+                    life_fp_declare_sym(p, l, fp, p.nodes[pat.left].symbol as i64);
+                } else {
+                    cache_sp_u8(fp.sha, 0);
+                }
+            } else {
+                cache_sp_u8(fp.sha, 0);
+            }
+            life_fp_hash_node(p, l, fp, a.third as i64, true);
+            life_fp_hash_node(p, l, fp, a.right as i64, true);
+            acnt += 1;
+            arm = a.next as i64;
+        }
+        cache_sp_i64(fp.sha, acnt);
+    } else if kind == N_RETURN {
+        cache_sp_i64(fp.sha, life_fp_ensure_scope(l, fp, n.scope as i64));
+        if n.symbol >= 0 && (n.symbol as i64) < p.symbols.len {
+            cache_sp_i64(fp.sha, life_fp_ensure_fn(fp, p.symbols[n.symbol].node));
+        } else {
+            cache_sp_i64(fp.sha, -1);
+        }
+        var c = n.first as i64;
+        var cnt: i64 = 0;
+        while c >= 0 { life_fp_hash_node(p, l, fp, c, true); cnt += 1; c = p.nodes[c].next as i64; }
+        cache_sp_i64(fp.sha, cnt);
+    } else if kind == N_BREAK || kind == N_CONTINUE {
+        cache_sp_i64(fp.sha, life_fp_ensure_scope(l, fp, n.scope as i64));
+        let tgt = if n.symbol >= 0 && (n.symbol as i64) < fp.canon_ctrl.len { fp.canon_ctrl[n.symbol] as i64 } else { -1 };
+        cache_sp_i64(fp.sha, tgt);
+        if kind == N_BREAK { life_fp_hash_node(p, l, fp, n.left as i64, true); }
+    } else if kind == N_DEFER {
+        cache_sp_i64(fp.sha, life_fp_ensure_scope(l, fp, n.scope as i64));
+        life_fp_hash_node(p, l, fp, n.right as i64, false);
+    } else if kind == N_TUPLE || kind == N_ARRAY {
+        var c = n.first as i64;
+        var cnt: i64 = 0;
+        while c >= 0 { life_fp_hash_node(p, l, fp, c, true); cnt += 1; c = p.nodes[c].next as i64; }
+        cache_sp_i64(fp.sha, cnt);
+    } else if kind == N_FILL {
+        if n.first >= 0 {
+            cache_sp_u8(fp.sha, 1);
+            var c = n.first as i64;
+            var cnt: i64 = 0;
+            while c >= 0 { life_fp_hash_node(p, l, fp, c, true); cnt += 1; c = p.nodes[c].next as i64; }
+            cache_sp_i64(fp.sha, cnt);
+        } else {
+            cache_sp_u8(fp.sha, 0);
+            let is_zero: u8 = if n.right >= 0 && p.nodes[n.right].kind == N_INTEGER && p.nodes[n.right].integer == 0 { 1 } else { 0 };
+            cache_sp_u8(fp.sha, is_zero);
+            life_fp_hash_node(p, l, fp, n.left as i64, true);
+            life_fp_hash_node(p, l, fp, n.right as i64, true);
+        }
+    } else if kind == N_RECORD {
+        var c = n.first as i64;
+        var cnt: i64 = 0;
+        while c >= 0 {
+            let cn: const Node& = p.nodes[c];
+            life_fp_field_ord(p, fp, cn.symbol as i64);
+            life_fp_hash_type(p, l, fp, cn.type_id as i64);
+            life_fp_hash_node(p, l, fp, cn.right as i64, true);
+            cnt += 1;
+            c = cn.next as i64;
+        }
+        cache_sp_i64(fp.sha, cnt);
+    } else if kind == N_CALL {
+        if n.symbol >= 0 && (n.symbol as i64) < p.symbols.len {
+            let sym: const Symbol& = p.symbols[n.symbol];
+            if (sym.flags & S_BUILTIN) != 0 {
+                cache_sp_u8(fp.sha, 'b'); cache_sp_i64(fp.sha, sym.index);
+                if (sym.index == 33 || sym.index == 34) && n.aux >= 0 {
+                    life_fp_hash_node(p, l, fp, n.aux as i64, true);
+                }
+            } else {
+                cache_sp_u8(fp.sha, 'f'); cache_sp_i64(fp.sha, life_fp_ensure_fn(fp, sym.node));
+                if sym.node >= 0 && (p.nodes[sym.node].flags & F_EXTERN) != 0 {
+                    life_fp_hash_type(p, l, fp, p.nodes[sym.node].type_id as i64);
+                }
+                if (n.flags & F_DISPATCH) != 0 {
+                    cache_sp_i64(fp.sha, n.aux as i64);
+                    var arm = n.third as i64;
+                    var dcnt: i64 = 0;
+                    while arm >= 0 {
+                        let fs = p.nodes[arm].symbol as i64;
+                        if fs >= 0 && fs < p.symbols.len {
+                            cache_sp_i64(fp.sha, life_fp_ensure_fn(fp, p.symbols[fs].node));
+                        } else {
+                            cache_sp_i64(fp.sha, -1);
+                        }
+                        dcnt += 1;
+                        arm = p.nodes[arm].next as i64;
+                    }
+                    cache_sp_i64(fp.sha, dcnt);
+                }
+            }
+        } else {
+            cache_sp_u8(fp.sha, 'i');
+            life_fp_hash_node(p, l, fp, n.left as i64, true);
+        }
+        var arg = n.first as i64;
+        var acnt: i64 = 0;
+        while arg >= 0 { life_fp_hash_node(p, l, fp, arg, true); acnt += 1; arg = p.nodes[arg].next as i64; }
+        cache_sp_i64(fp.sha, acnt);
+    } else if kind == N_MULTI_ASSIGN {
+        var c = n.first as i64;
+        var cnt: i64 = 0;
+        while c >= 0 { life_fp_hash_node(p, l, fp, c, true); cnt += 1; c = p.nodes[c].next as i64; }
+        cache_sp_i64(fp.sha, cnt);
+        life_fp_hash_node(p, l, fp, n.right as i64, true);
+    } else {
+        // Defensive catch-all so no residual AST node kind is silently dropped.
+        cache_sp_i64(fp.sha, n.integer);
+        var c = n.first as i64;
+        var cnt: i64 = 0;
+        while c >= 0 { life_fp_hash_node(p, l, fp, c, false); cnt += 1; c = p.nodes[c].next as i64; }
+        cache_sp_i64(fp.sha, cnt);
+        life_fp_hash_node(p, l, fp, n.left as i64, false);
+        life_fp_hash_node(p, l, fp, n.right as i64, false);
+        life_fp_hash_node(p, l, fp, n.third as i64, false);
+    }
+}
+
+fn life_compute_fingerprint(p: Program&, l: Lifetimes&, standalone: const LifeStandalone[:],
+                            pool_references: const i64[:], omit_reads: bool, orig_type_count: i64,
+                            fp_hex: u8[>..]&, canon_to_sym: i64[>..]&, sym_to_canon: i32[>..]&) {
+    fp_hex.clear();
+    canon_to_sym.clear();
+    sym_to_canon.clear();
+    sym_to_canon.resize(p.symbols.len, -1);
+
+    var sha = CacheSponge256 {};
+    var canon_ty: i32[>..] = []; canon_ty.resize(p.types.len, -1);
+    var canon_decl: i32[>..] = []; canon_decl.resize(p.nodes.len, -1);
+    var field_ord: i32[>..] = []; field_ord.resize(p.nodes.len, -1);
+    var canon_fn: i32[>..] = []; canon_fn.resize(p.nodes.len, -1);
+    var fn_hashed: u8[>..] = []; fn_hashed.resize(p.nodes.len, 0);
+    var canon_scope: i32[>..] = []; canon_scope.resize(l.parents.len, -1);
+    var scope_is_real: u8[>..] = []; scope_is_real.resize(l.parents.len, 0);
+    var eff_depth: i32[>..] = []; eff_depth.resize(l.parents.len, -1);
+    if scope_is_real.len > 0 {
+        scope_is_real[0] = 1;
+        canon_scope[0] = 0;
+        eff_depth[0] = 0;
+    }
+    for id in 0..p.nodes.len {
+        let n: const Node& = p.nodes[id];
+        let k = n.kind as i64;
+        if k == N_FUNCTION || k == N_FUNCTION_VALUE || k == N_BLOCK ||
+           k == N_WHILE || k == N_LOOP || k == N_FOR || k == N_MATCH || k == N_ARM {
+            if n.scope >= 0 && (n.scope as i64) < scope_is_real.len { scope_is_real[n.scope] = 1; }
+        }
+    }
+    for s in 0..p.symbols.len {
+        let sym: const Symbol& = p.symbols[s];
+        if (sym.flags & (S_FUNCTION | S_BUILTIN | S_TYPE)) != 0 { continue; }
+        if (sym.flags & (S_GLOBAL | S_PARAMETER)) != 0 || s >= l.sym_flags.len || (l.sym_flags[s] & SF_SCALAR_LOCAL) == 0 {
+            if sym.scope >= 0 && sym.scope < scope_is_real.len { scope_is_real[sym.scope] = 1; }
+        }
+    }
+    var canon_ctrl: i32[>..] = []; canon_ctrl.resize(p.nodes.len, -1);
+    var strict_inert: u8[>..] = []; strict_inert.resize(p.nodes.len, 0);
+    var fn_clean_inert: u8[>..] = []; fn_clean_inert.resize(p.nodes.len, 0);
+    var inert_seen: i32[>..] = []; inert_seen.resize(l.bodies.len + 64, 0);
+    var inert_work: i64[>..] = [];
+    var inert_globs: i64[>..] = [];
+    var inert_caps: i64[>..] = [];
+    var fp = LifeFp {
+        sha: sha, canon_ty: canon_ty, canon_decl: canon_decl, field_ord: field_ord,
+        canon_fn: canon_fn, fn_hashed: fn_hashed, sym_to_canon: sym_to_canon, canon_to_sym: canon_to_sym,
+        canon_scope: canon_scope, scope_is_real: scope_is_real, eff_depth: eff_depth,
+        canon_ctrl: canon_ctrl, strict_inert: strict_inert,
+        fn_clean_inert: fn_clean_inert, inert_seen: inert_seen, inert_work: inert_work,
+        inert_globs: inert_globs, inert_caps: inert_caps,
+        next_scope: if scope_is_real.len > 0 { 1 } else { 0 },
+    };
+
+    cache_sp_bytes(fp.sha, "GOOSEW_LIFE_FP_V1\n");
+    let comp_hex = p.cache_probe_text[p.cache_compiler_start..p.cache_compiler_start + p.cache_compiler_len];
+    cache_sp_bytes(fp.sha, comp_hex);
+    cache_sp_i64(fp.sha, p.pointer_bytes);
+    cache_sp_u8(fp.sha, if omit_reads { 1 } else { 0 });
+    cache_sp_u8(fp.sha, if l.has_captures { 1 } else { 0 });
+
+    // 1. Canonicalize all global symbols first in deterministic declaration order.
+    var glob_count: i64 = 0;
+    for s in 0..p.symbols.len {
+        if (p.symbols[s].flags & S_GLOBAL) != 0 {
+            life_fp_ensure_sym(fp, s);
+            glob_count += 1;
+        }
+    }
+    cache_sp_i64(fp.sha, glob_count);
+    for s in 0..p.symbols.len {
+        let sym: const Symbol& = p.symbols[s];
+        if (sym.flags & S_GLOBAL) == 0 { continue; }
+        cache_sp_i64(fp.sha, sym.flags);
+        life_fp_hash_type(p, l, fp, sym.type_id);
+        if sym.component_owner >= 0 {
+            cache_sp_u8(fp.sha, 1);
+            cache_sp_i64(fp.sha, life_fp_ensure_sym(fp, sym.component_owner));
+            life_fp_field_ord(p, fp, sym.component);
+        } else {
+            cache_sp_u8(fp.sha, 0);
+        }
+    }
+
+    // 2. Collect top-level & checked functions, and mark strictly clean NF_FN_INERT helpers.
+    var checked_fns: i64[>..] = [];
+    for s in 0..p.symbols.len {
+        let sym: const Symbol& = p.symbols[s];
+        if (sym.flags & S_FUNCTION) == 0 || sym.node < 0 || sym.node >= p.nodes.len { continue; }
+        let fn_n: const Node& = p.nodes[sym.node];
+        if fn_n.kind != N_FUNCTION || (fn_n.flags & (F_CHECKED | F_GENERIC)) != F_CHECKED { continue; }
+        if fn_n.symbol != s { continue; }
+        life_fp_ensure_fn(fp, sym.node);
+        checked_fns.push(sym.node);
+        if (l.node_flags[sym.node] & NF_FN_INERT) != 0 {
+            if life_fp_inert_effects(p, l, fp, sym.node, false) {
+                fp.fn_clean_inert[sym.node] = 1;
+            }
+        }
+    }
+
+    // 3. Hash pool references, index types, standalone pool-ref types, entry, and standalone roots.
+    cache_sp_i64(fp.sha, pool_references.len);
+    for node in pool_references { life_fp_hash_type(p, l, fp, p.nodes[node].type_id as i64); }
+    var idx_cnt: i64 = 0;
+    var pool_ref_cnt: i64 = 0;
+    for tid in 0..orig_type_count {
+        let t: const Type& = p.types[tid];
+        if t.kind == TY_INT && t.index_type >= 0 && t.pool >= 0 {
+            life_fp_hash_type(p, l, fp, tid);
+            idx_cnt += 1;
+        }
+        if t.kind == TY_REF && t.length_storage >= 0 && t.pool >= 0 {
+            life_fp_hash_type(p, l, fp, tid);
+            pool_ref_cnt += 1;
+        }
+    }
+    cache_sp_i64(fp.sha, idx_cnt);
+    cache_sp_i64(fp.sha, pool_ref_cnt);
+    cache_sp_i64(fp.sha, life_fp_ensure_fn(fp, p.entry));
+    cache_sp_i64(fp.sha, standalone.len);
+    for st in standalone { cache_sp_i64(fp.sha, life_fp_ensure_fn(fp, st.function_node)); }
+
+    // 4. Hash global variable initializers.
+    for s in 0..p.symbols.len {
+        let sym: const Symbol& = p.symbols[s];
+        if (sym.flags & S_GLOBAL) != 0 && sym.node >= 0 && p.nodes[sym.node].kind == N_VARIABLE {
+            cache_sp_u8(fp.sha, 'G');
+            cache_sp_i64(fp.sha, life_fp_ensure_sym(fp, s));
+            life_fp_mark_strict_inert(p, l, fp, sym.node);
+            life_fp_hash_node(p, l, fp, sym.node, false);
+        }
+    }
+
+    // 5. Hash all checked top-level functions first (their walks also hash lexical nested fns),
+    //    then any remaining checked functions (e.g. generic specializations).
+    for fn_node in checked_fns {
+        let sym = p.nodes[fn_node].symbol as i64;
+        if sym >= 0 && p.symbols[sym].owner < 0 { life_fp_hash_fn(p, l, fp, fn_node); }
+    }
+    for fn_node in checked_fns {
+        life_fp_hash_fn(p, l, fp, fn_node);
+    }
+
+    cache_sp_i64(fp.sha, fp.canon_to_sym.len);
+    cache_sp_finish_hex(fp.sha, fp_hex);
+}
+
+fn life_check_attempt(p: Program&, scope_parent: const i64[>..]&, scope_depth: const i64[>..]&, scope_functions: const i64[>..]&, pool_references: const i64[:], full: bool,
+                      fp_hex: u8[>..]&, canon_to_sym: i64[>..]&, sym_to_canon: i32[>..]&) -> bool {
     var scope_ranges: LifeScopeRange[>..] = [];
     var roots: LifeRoot[>..] = [LifeRoot {}]; var sets: LifeSet[>..] = [LifeSet {}];
     var alts: LifeAlt[>..] = []; var cells: LifeCell[>..] = []; var frames: LifeFrame[>..] = [LifeFrame {}];
@@ -13811,17 +14743,15 @@ fn life_check_attempt(p: Program&, scope_parent: const i64[>..]&, scope_depth: c
     var dep_groot_tys: i32[>..] = []; var dep_groot_refs: i32[>..] = []; var dep_groot_ty_stack: i32[>..] = [];
     var symbol_cells: i32[>..] = []; symbol_cells.resize(p.symbols.len, -1);
     var node_roots: i32[>..] = []; var function_frames: i32[>..] = []; var read_heads: i32[>..] = []; var visited: i32[>..] = []; var summary_slots: LifeSummarySlot[>..] = [];
-    var effect_heads: i32[>..] = []; effect_heads.resize(2048, -1);
+    var effect_heads: i32[>..] = [];
     node_roots.resize(p.nodes.len, -1); function_frames.resize(p.nodes.len, -1);
-    summary_slots.resize(2048, LifeSummarySlot {});
     var summaries: LifeSummary[>..] = []; var capture_reads: i8[>..] = [];
     var leaves: LifeLeaf[>..] = []; var leaf_slots: LifeLeafSlot[>..] = []; var leaf_stamps: i64[>..] = []; var leaf_floors: i32[>..] = [];
     var summary_reads: LifeReadEntry[>..] = []; var read_slots: i32[>..] = [];
     // (Chain 0 is frame 0's, the globals'.)
     var contexts: LifeContext[>..] = [LifeContext { frame: 0, parent: -1 }]; var context_heads: i32[>..] = [];
     var chain_replays: LifeChainReplay[>..] = [];
-    var offer_slots: i64 = 256; while offer_slots < 16384 && 16 * offer_slots < p.nodes.len { offer_slots *= 4; }
-    var offers: LifeOffer[>..] = []; offers.resize(offer_slots, LifeOffer {});
+    var offers: LifeOffer[>..] = [];
     var global_read_list: i64[>..] = [];
     var bodies: LifeBody[>..] = []; var body_slots: i64[>..] = []; var body_globals: i64[>..] = []; var body_calls: i64[>..] = [];
     var size_classes: i64[>..] = []; size_classes.resize(p.types.len, -1);
@@ -13847,12 +14777,12 @@ fn life_check_attempt(p: Program&, scope_parent: const i64[>..]&, scope_depth: c
     var holder_ref_start: i32[>..] = []; var holder_ref_count: i32[>..] = []; var holder_ref_flags: u8[>..] = []; var holder_ref_elems: i32[>..] = [];
     var gs_start: i32[>..] = []; var gs_count: i32[>..] = []; var gs_elems: i32[>..] = [];
     var body_trans_globals: i64[>..] = [];
-    var summary_l1: LifeSummarySlot[>..] = []; summary_l1.resize(16384, LifeSummarySlot {});
-    var assume_l1: LifeAssumeSlot[>..] = []; assume_l1.resize(16384, LifeAssumeSlot {});
+    var summary_l1: LifeSummarySlot[>..] = [];
+    var assume_l1: LifeAssumeSlot[>..] = [];
     var list_l1: LifeListSlot[>..] = []; list_l1.resize(4096, LifeListSlot {});
     var list2_l1: LifeList2Slot[>..] = []; list2_l1.resize(2048, LifeList2Slot {});
     var atom_l1: LifeAtomL1[>..] = []; atom_l1.resize(2048, LifeAtomL1 {});
-    var typed_held_memo: LifeTypedHeldMemo[>..] = []; typed_held_memo.resize(8192, LifeTypedHeldMemo {});
+    var typed_held_memo: LifeTypedHeldMemo[>..] = [];
     var dep_roots: i64[>..] = []; var dep_callees: i64[>..] = []; var dep_callee_stamps: i64[>..] = [];
     var dep_root_stack: i64[>..] = []; var dep_callee_stack: i64[>..] = []; var dep_callee_stamp_stack: i64[>..] = [];
     var dep_root_mark: i64[>..] = []; var dep_callee_mark: i64[>..] = [];
@@ -13912,6 +14842,7 @@ fn life_check_attempt(p: Program&, scope_parent: const i64[>..]&, scope_depth: c
         dep_groot_tys: dep_groot_tys, dep_groot_refs: dep_groot_refs, dep_groot_ty_stack: dep_groot_ty_stack };
     life_validate_pools(p, l, pool_references);
     if p.diagnostics.len > 0 { return true; }
+    let orig_type_count = p.types.len;
     var standalone: LifeStandalone[>..] = []; let node_count = p.nodes.len;
     for s in 0..p.symbols.len {
         let sym: const Symbol& = p.symbols[s];
@@ -13931,7 +14862,33 @@ fn life_check_attempt(p: Program&, scope_parent: const i64[>..]&, scope_depth: c
     while size_classes.len < p.types.len { size_classes.push(-1); }
     // Standalone argument synthesis is complete; evaluation only reads types.
     l.types_frozen = true;
-    let omit_reads = life_prepare_nodes(p, l, full);
+    var all_fns: i64[>..] = [];
+    let omit_reads = life_prepare_nodes(p, l, full, all_fns);
+    if !full && p.record_cache_deps && p.cache_compiler_len == 64 && p.cache_dir_len > 0 {
+        life_compute_fingerprint(p, l, standalone, pool_references, omit_reads, orig_type_count,
+                                 fp_hex, canon_to_sym, sym_to_canon);
+        let cdir = p.cache_probe_text[p.cache_dir_start..p.cache_dir_start + p.cache_dir_len];
+        if cache_try_load_life(p, cdir, fp_hex, canon_to_sym) {
+            for idx in 0..p.symbols.len {
+                let sym: const Symbol& = p.symbols[idx];
+                if (sym.flags & (S_PARAMETER | S_FUNCTION | S_BUILTIN | S_TYPE | S_GLOBAL)) != 0 { continue; }
+                if !life_is_ref(p, sym.type_id) && !life_holds(p, sym.type_id) {
+                    p.symbols[idx].provenance = -2;
+                }
+            }
+            p.life_cache_hit = true;
+            l.types_frozen = false;
+            return true;
+        }
+    }
+    life_prepare_bodies(p, l, all_fns, full);
+    l.effect_heads.resize(2048, -1);
+    l.summary_slots.resize(2048, LifeSummarySlot {});
+    var offer_slots: i64 = 256; while offer_slots < 16384 && 16 * offer_slots < p.nodes.len { offer_slots *= 4; }
+    l.offers.resize(offer_slots, LifeOffer {});
+    l.summary_l1.resize(16384, LifeSummarySlot {});
+    l.assume_l1.resize(16384, LifeAssumeSlot {});
+    l.typed_held_memo.resize(8192, LifeTypedHeldMemo {});
     for id in 0..p.types.len {
         let t: const Type& = p.types[id];
         if t.kind == TY_INT && t.index_type >= 0 && t.pool >= 0 { l.index_types.push(id); }
@@ -13985,6 +14942,19 @@ fn life_check_attempt(p: Program&, scope_parent: const i64[>..]&, scope_depth: c
     }
     l.frame = 0;
     l.types_frozen = false;
-    if p.diagnostics.len == 0 { life_export_provenance(p, l); }
+    if p.diagnostics.len == 0 {
+        life_export_provenance(p, l);
+        if p.record_cache_deps && fp_hex.len == 64 {
+            var cert_buf: u8[>..] = [];
+            if cache_build_life_cert(p, fp_hex, canon_to_sym, sym_to_canon, cert_buf) {
+                p.life_cert_hex_start = p.cache_probe_text.len;
+                p.cache_probe_text.append(fp_hex);
+                p.life_cert_hex_len = fp_hex.len;
+                p.life_cert_data_start = p.cache_probe_text.len;
+                p.cache_probe_text.append(cert_buf);
+                p.life_cert_data_len = cert_buf.len;
+            }
+        }
+    }
     return true;
 }
