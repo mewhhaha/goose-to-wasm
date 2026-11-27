@@ -27,7 +27,7 @@ struct LifeCaptureSpan { first: i64 = 0, count: i64 = 0, head: i64 = -1 }
 // owners: the functions that own the captured bindings it names, a span of
 // body_owners, each once. named: those bindings themselves, a span of
 // body_captures, sorted, each once. global_inputs caches the reachable frame-zero cells.
-struct LifeBody { start: i64, captures: bool = false, globals: i64 = 0, global_count: i64 = 0, calls: i64 = 0, call_count: i64 = 0, seen: i64 = 0, owners: i64 = 0, owner_count: i64 = 0, named: i64 = 0, named_count: i64 = 0, global_inputs: LifeCaptureSpan = LifeCaptureSpan {}, trans_globals: i64 = 0, trans_global_count: i64 = -1 }
+struct LifeBody { start: i64, captures: bool = false, globals: i64 = 0, global_count: i64 = 0, calls: i64 = 0, call_count: i64 = 0, seen: i64 = 0, owners: i64 = 0, owner_count: i64 = 0, named: i64 = 0, named_count: i64 = 0, global_inputs: LifeCaptureSpan = LifeCaptureSpan {}, trans_globals: i64 = 0, trans_global_count: i64 = -1, glob_bits_at: i32 = -1 }
 // class_frame, class_index: for a class root, the class-keyed frame it
 // belongs to and its class there (life_classify, life_class_new);
 // class_one: it stands for one root exactly at every call. map_serial,
@@ -100,6 +100,7 @@ struct LifeFrame { store_read_pass: i64 = 0, store_reader: i64 = -1, function_no
     dep_contents_stamp: i64 = 0, dep_global_epoch: i64 = 0, dep_rec_epoch: i64 = 0, dep_dest: i64 = 0,
     dep_clean_pass: i64 = -1, dep_dirty_pass: i64 = -1, dep_change_stamp: i64 = 0,
     dep_stored_ver: i64 = -1,
+    dep_groot_first: i32 = 0, dep_groot_count: i32 = 0,
     validated_global_epoch: i64 = -1, summary_version: i64 = 0,
     noncautious_ver: i32 = 0, defer_base: i32 = 0, has_deep_assume: bool = false, has_gs_assume: bool = false, val_stores_only: bool = false, val_stores_shallow: bool = false, has_concrete: bool = false }
 // The live storage and killed fields are the two mutable inputs of a
@@ -173,6 +174,9 @@ struct LifeMap { classes: i64 = 0, count: i64 = 0, base: i64 = 1, sets: i64 = 0,
 struct LifeRefers { holder: i64 = -1, pointee: i64 = -1, answer: bool = false }
 struct LifeMapped { serial: i32 = -1, key: i32 = -1, result: i32 = 0, epoch: i32 = -1 }
 struct LifeListSlot { key: i64 = -1, set: i32 = -1, count: i32 = 0 }
+struct LifeList2Slot { key: i32 = 0, set: i32 = -1, a0: LifeAlt = LifeAlt { root: 0 }, a1: LifeAlt = LifeAlt { root: 0 } }
+struct LifeAtomL1 { key: i32 = 0, set: i32 = -1, alt: LifeAlt = LifeAlt { root: 0 } }
+struct LifeTypedHeldMemo { held: i32 = -1, pointee: i32 = -1, island: i32 = -1, epoch: i64 = -1, result: i32 = 0 }
 struct LifeAssumeSlot { meta: i32 = 0, index: i32 = -1, subject: i32 = -1, at: i32 = -1 }
 struct LifeSummarySlot { key: i64 = -1, index: i32 = -1, frame: i32 = -1 }
 struct LifeLeafSlot { key: i64 = -1, leaf: i32 = -1, node: i32 = -1 }
@@ -507,7 +511,8 @@ struct Lifetimes {
     holder_ref_start: i32[>..]&, holder_ref_count: i32[>..]&, holder_ref_flags: u8[>..]&, holder_ref_elems: i32[>..]&,
     gs_start: i32[>..]&, gs_count: i32[>..]&, gs_elems: i32[>..]&,
     body_trans_globals: i64[>..]&,
-    summary_l1: LifeSummarySlot[>..]&, assume_l1: LifeAssumeSlot[>..]&,
+    summary_l1: LifeSummarySlot[>..]&, assume_l1: LifeAssumeSlot[>..]&, list_l1: LifeListSlot[>..]&,
+    list2_l1: LifeList2Slot[>..]&, atom_l1: LifeAtomL1[>..]&, typed_held_memo: LifeTypedHeldMemo[>..]&,
     val_kill_epoch: i64 = 0,
     defers: LifeDefer[>..]&, defer_targets: LifeDeferTarget[>..]&, defer_run: LifeDefer[>..]&, defer_floor: i64 = 0,
     bypass_memo: u8[>..]&,
@@ -518,6 +523,12 @@ struct Lifetimes {
     val_base_live_stamp: i64 = 0, has_global_capture: bool = false,
     future_global_syms: i32[>..]&, future_global_cells: i32[>..]&,
     body_sym_seen: i32[>..]&, body_sym_gen: i32 = 0,
+    holder_glob_idx: i32[>..]&, holder_glob_cells: i32[>..]&, holder_glob_words: i64 = 0,
+    body_glob_bits: u64[>..]&, live_glob_holder_bits: u64[>..]&, future_glob_bits: u64[>..]&,
+    fg_cells_gen: i64 = -1, fg_cells_gep: i64 = -1,
+    cap_owner_reach: u8[>..]&,
+    cls_other_sver: bool = false, cls_read_cls_first: i64 = -1, cls_read_nonone: bool = false,
+    dep_groot_tys: i32[>..]&, dep_groot_refs: i32[>..]&, dep_groot_ty_stack: i32[>..]&,
 }
 
 fn life_same_effect(l: Lifetimes&, old: const LifeEffect&, effect: const LifeEffect&) -> bool {
@@ -809,7 +820,7 @@ inline fn life_summary_insert(l: Lifetimes&, key: i64, index: i64, frame: i64) {
     while l.summary_slots[slot].index >= 0 { slot = (slot + 1) & mask; }
     let ent = LifeSummarySlot { key: key, index: index as i32, frame: frame as i32 };
     l.summary_slots[slot] = ent;
-    l.summary_l1[key & 2047] = ent;
+    l.summary_l1[key & 16383] = ent;
     l.summary_slot_count += 1;
 }
 // Discovery merges a frame's summary effects by site: 0 if none took it, 1 if
@@ -819,7 +830,7 @@ inline fn life_summary_insert(l: Lifetimes&, key: i64, index: i64, frame: i64) {
 fn life_effect_merge(l: Lifetimes&, effect: const LifeEffect&, frame: i64, key: i64, outside: bool, site: i64, out_slot: i64&) -> i64 {
     let walked = life_walked(l, frame, outside);
     let frame32 = frame as i32; let site32 = site as i32;
-    let l1_slot = key & 2047;
+    let l1_slot = key & 16383;
     let l1 = l.summary_l1[l1_slot];
     if l1.index >= 0 && l1.key == key && l1.frame == frame32 {
         let previous = l1.index as i64;
@@ -1278,6 +1289,72 @@ fn life_effect(p: Program&, l: Lifetimes&, effect: const LifeEffect&) -> i64 {
     var site: i64 = effect.node;
     if l.class_frames > 0 && (effect.kind == 1 || effect.kind == 2 || effect.kind == 3 || effect.kind == 8) { site = -2; }
     l.offer_count += 1;
+    // Fast path for the 99.8% case in Discovery: an island root frame is the
+    // sole frame on its chain, so skip the 6 MB offers table and far_cache.
+    if l.discovery && l.island > 0 && l.frame == l.island {
+        let frame = l.frame;
+        var external = false; var outside = false;
+        if pcount == 1 {
+            let home = l.roots[single_root].frame;
+            if home != frame { external = true; outside = true; }
+            else {
+                l.offer_recursive = true;
+                external = life_effect_recursive(l, effect.places, frame);
+            }
+        } else if (pset.flags & 6) != 0 {
+            external = true; outside = true;
+        } else {
+            let pf = pset.first as i64;
+            var has_self = false;
+            for pi in 0..pcount {
+                let r = l.alts[pf + pi].root as i64;
+                if r != 0 {
+                    let h = l.roots[r].frame;
+                    if h != frame { external = true; outside = true; break; }
+                    has_self = true;
+                }
+            }
+            if !external && has_self && l.frames[frame].recursive_call {
+                l.offer_recursive = true;
+                external = life_effect_recursive(l, effect.places, frame);
+            }
+        }
+        if !external { return 0; }
+        if !l.frames[frame].validated {
+            if l.summary_slots.len <= 2 * (l.summary_slot_count + 1) { life_summary_reserve(l); }
+            let skey = life_summary_key(frame, life_summary_base_hash(effect, site));
+            var sslot: i64 = -1;
+            let last = l.frames[frame].last_summary;
+            if last >= 0 {
+                let merged = life_effect_merge(l, effect, frame, skey, outside, site, sslot);
+                if merged != 0 { return if outside { 9223372036854775807 } else { 0 }; }
+            }
+            let index = l.effects.len; var entry = effect; entry.next = -1; entry.owner = frame as i32;
+            if l.summaries.len < index { l.summaries.resize(index, LifeSummary {}); }
+            l.summaries.push(LifeSummary { owner: frame as i32, kind: entry.kind as i32, node: site as i32, type_id: entry.value.type_id as i32, cell: entry.cell as i32, field: entry.field as i32 });
+            life_summary_seen(l, index, entry);
+            if sslot >= 0 {
+                let ent = LifeSummarySlot { key: skey, index: index as i32, frame: frame as i32 };
+                l.summary_slots[sslot] = ent;
+                l.summary_l1[skey & 16383] = ent;
+                l.summary_slot_count += 1;
+            } else {
+                life_summary_insert(l, skey, index, frame);
+            }
+            l.summaries[index].walked = life_walked(l, frame, outside);
+            l.effects.push(entry);
+            if last >= 0 { l.effects[last].next = index as i32; if last < l.summaries.len { l.summaries[last].after = index as i32; } }
+            else { l.frames[frame].first_summary = index; }
+            l.frames[frame].last_summary = index; l.revision += 1; l.frames[frame].summary_version += 1;
+            if life_replayable_leaf(l, entry.kind) { l.frames[frame].replay_version += 1; }
+            else {
+                let before = l.frames[frame].last_other;
+                if before >= 0 { l.summaries[before].other = index as i32; } else { l.frames[frame].first_other = index; }
+                l.frames[frame].last_other = index;
+            }
+        }
+        return if outside { 9223372036854775807 } else { 0 };
+    }
     // A repeated offer is recorded only where no frame of the chain is recursive.
     if l.discovery && life_offer_repeated(l, effect, site) { return -1; }
     let chain = l.frames[l.frame].chain;
@@ -1395,7 +1472,7 @@ fn life_effect(p: Program&, l: Lifetimes&, effect: const LifeEffect&) -> i64 {
                     if sslot >= 0 {
                         let ent = LifeSummarySlot { key: skey, index: index as i32, frame: frame as i32 };
                         l.summary_slots[sslot] = ent;
-                        l.summary_l1[skey & 2047] = ent;
+                        l.summary_l1[skey & 16383] = ent;
                         l.summary_slot_count += 1;
                     } else {
                         life_summary_insert(l, skey, index, frame);
@@ -2021,23 +2098,57 @@ fn life_list_set(l: Lifetimes&, start: i64, already_sorted: bool = false) -> i64
     }
     return life_intern_list(l, l.scratch[start..l.scratch.len]);
 }
+fn life_intern_pair(l: Lifetimes&, a0: LifeAlt, a1: LifeAlt) -> i64 {
+    let key = life_hash_finish(life_alt_hash_step(life_alt_hash_step(1469598103934665603, a0), a1));
+    let key32 = (key & 0x7fffffff) as i32;
+    let s2 = key & 2047;
+    let e2: const LifeList2Slot& = l.list2_l1[s2];
+    if e2.set >= 0 && e2.key == key32 && life_alt_same(e2.a0, a0) && life_alt_same(e2.a1, a1) { return e2.set as i64; }
+    let pair: LifeAlt[2] = [a0, a1];
+    return life_intern_list(l, pair[..]);
+}
 fn life_intern_list(l: Lifetimes&, alts: const LifeAlt[:]) -> i64 {
     let count = alts.len;
     var h: u64 = 1469598103934665603;
     for alt in alts { h = life_alt_hash_step(h, alt); }
     let key = life_hash_finish(h);
+    let key32 = (key & 0x7fffffff) as i32;
+    let count32 = count as i32;
+    if count == 2 {
+        let s2 = key & 2047;
+        let e2: const LifeList2Slot& = l.list2_l1[s2];
+        if e2.set >= 0 && e2.key == key32 && life_alt_same(e2.a0, alts[0]) && life_alt_same(e2.a1, alts[1]) { return e2.set as i64; }
+    } else {
+        let l1_slot = key & 4095;
+        let e1 = l.list_l1[l1_slot];
+        if e1.set >= 0 && e1.key == key && e1.count == count32 {
+            let first = l.sets[e1.set].first;
+            var same = true;
+            for alt, i in alts {
+                if !life_alt_same(l.alts[first + i], alt) { same = false; break; }
+            }
+            if same { return e1.set; }
+        }
+    }
     if 2 * (l.list_count + 1) > l.list_slots.len { life_list_rehash(l); }
-    let mask = l.list_slots.len - 1; var slot = key & mask; let count32 = count as i32;
+    let mask = l.list_slots.len - 1; var slot = key & mask;
     loop {
         let entry = l.list_slots[slot];
         if entry.set < 0 { break; }
         if entry.key == key && entry.count == count32 {
             let first = l.sets[entry.set].first;
-            var same = true;
-            for alt, i in alts {
-                if !life_alt_same(l.alts[first + i], alt) { same = false; break; }
+            if count == 2 {
+                if life_alt_same(l.alts[first], alts[0]) && life_alt_same(l.alts[first + 1], alts[1]) {
+                    l.list2_l1[key & 2047] = LifeList2Slot { key: key32, set: entry.set, a0: alts[0], a1: alts[1] };
+                    return entry.set;
+                }
+            } else {
+                var same = true;
+                for alt, i in alts {
+                    if !life_alt_same(l.alts[first + i], alt) { same = false; break; }
+                }
+                if same { l.list_l1[key & 4095] = entry; return entry.set; }
             }
-            if same { return entry.set; }
         }
         slot = (slot + 1) & mask;
     }
@@ -2053,7 +2164,10 @@ fn life_intern_list(l: Lifetimes&, alts: const LifeAlt[:]) -> i64 {
         l.alts.push(entry);
     }
     let index = l.sets.len; l.sets.push(LifeSet { first: base as i32, count: count32, flags: fl });
-    l.list_slots[slot] = LifeListSlot { key: key, set: index as i32, count: count32 };
+    let ent = LifeListSlot { key: key, set: index as i32, count: count32 };
+    l.list_slots[slot] = ent;
+    if count == 2 { l.list2_l1[key & 2047] = LifeList2Slot { key: key32, set: index as i32, a0: alts[0], a1: alts[1] }; }
+    else { l.list_l1[key & 4095] = ent; }
     l.list_count += 1;
     return index;
 }
@@ -2171,15 +2285,24 @@ fn life_single(l: Lifetimes&, root: i64, exact: bool = true, from: i64 = -1, slo
         return life_plain_atom(l, root, true);
     }
     let wanted = LifeAlt { root: root as i32, from: from as i32, target_type: target_type as i32, bound: bound as i32, component: component as i32, exact: exact, slotread: slotread, byteview: byteview };
+    let key = life_atom_hash(wanted);
+    let key32 = (key & 0x7fffffff) as i32;
+    let a1_slot = key & 2047;
+    let ae1: const LifeAtomL1& = l.atom_l1[a1_slot];
+    if ae1.set >= 0 && ae1.key == key32 && life_alt_same(ae1.alt, wanted) { return ae1.set as i64; }
     let la = l.roots[root].last_atom_set;
-    if la >= 0 && life_alt_same(l.alts[l.sets[la].first], wanted) { return la; }
+    if la >= 0 && life_alt_same(l.alts[l.sets[la].first], wanted) {
+        l.atom_l1[a1_slot] = LifeAtomL1 { key: key32, set: la, alt: wanted };
+        return la;
+    }
     if 2 * (l.atoms.len + 1) > l.atom_slots.len { life_atom_rehash(l); }
-    let key = life_atom_hash(wanted); let mask = l.atom_slots.len - 1; var slot = key & mask;
+    let mask = l.atom_slots.len - 1; var slot = key & mask;
     loop {
         let entry = l.atom_slots[slot];
         if entry.set < 0 { break; }
         if entry.key == key && life_alt_same(l.alts[entry.alt], wanted) {
             l.roots[root].last_atom_set = entry.set;
+            l.atom_l1[a1_slot] = LifeAtomL1 { key: key32, set: entry.set, alt: wanted };
             return entry.set;
         }
         slot = (slot + 1) & mask;
@@ -2189,6 +2312,7 @@ fn life_single(l: Lifetimes&, root: i64, exact: bool = true, from: i64 = -1, slo
     l.atoms.push(set as i32);
     l.atom_slots[slot] = LifeAtomSlot { key: key, alt: l.sets[set].first, set: set as i32 };
     l.roots[root].last_atom_set = set as i32;
+    l.atom_l1[a1_slot] = LifeAtomL1 { key: key32, set: set as i32, alt: wanted };
     return set;
 }
 inline fn life_atom_hash(alt: const LifeAlt&) -> i64 {
@@ -2305,7 +2429,19 @@ fn life_join_slow(l: Lifetimes&, a_in: i64, b_in: i64) -> i64 {
     if j1.a == a32 && j1.b == b32 { return j1.set as i64; }
     // Fast subset check avoids touching l.scratch on the common no-op joins.
     var set: i64 = -1;
-    if ca >= cb && life_subset(l, b, a) { set = a; }
+    if ca == 1 && cb == 1 {
+        let xa = l.alts[l.sets[a].first]; let xb = l.alts[l.sets[b].first];
+        if xa.root == xb.root {
+            let m = life_merged(xa, xb);
+            if life_alt_same(m, xa) { set = a; }
+            else if life_alt_same(m, xb) { set = b; }
+            else { set = life_single(l, m.root as i64, m.exact, m.from as i64, m.slotread, m.byteview, m.target_type as i64, m.bound as i64, m.component as i64); }
+        } else if xa.root < xb.root {
+            set = life_intern_pair(l, xa, xb);
+        } else {
+            set = life_intern_pair(l, xb, xa);
+        }
+    } else if ca >= cb && life_subset(l, b, a) { set = a; }
     else if cb >= ca && life_subset(l, a, b) { set = b; }
     if set < 0 {
         // Single linear two-pointer merge of two root-sorted spans into l.scratch.
@@ -2449,6 +2585,10 @@ fn life_cell(p: Program&, l: Lifetimes&, symbol: i64) -> i64 {
     if (p.symbols[symbol].flags & S_GLOBAL) != 0 {
         l.global_cells.push(index); l.global_epoch += 1;
         if (p.symbols[symbol].flags & S_CAPTURE) != 0 { l.has_global_capture = true; }
+        if symbol < l.holder_glob_idx.len {
+            let hidx = l.holder_glob_idx[symbol] as i64;
+            if hidx >= 0 { l.holder_glob_cells[hidx] = index as i32; }
+        }
     }
     if frame == 0 && depth > 0 { l.deep_cells.push(index); }
     l.cell_slots[slot] = index as i32;
@@ -2502,7 +2642,19 @@ inline fn life_mark_cell_read(l: Lifetimes&, cell: i64) {
 fn life_set_live(l: Lifetimes&, cell: i64, live: bool) {
     if l.cells[cell].live == live { return; }
     let ck: const LifeCellKey& = l.cell_keys[cell];
-    if ck.global { l.global_epoch += 1; if live { l.global_live_count += 1; } else { l.global_live_count -= 1; } }
+    if ck.global {
+        l.global_epoch += 1;
+        if live { l.global_live_count += 1; } else { l.global_live_count -= 1; }
+        let gsym = l.cells[cell].symbol as i64;
+        if gsym >= 0 && gsym < l.holder_glob_idx.len {
+            let hidx = l.holder_glob_idx[gsym] as i64;
+            if hidx >= 0 {
+                let bbit: u64 = (1 as u64) << (hidx & 63);
+                if live { l.live_glob_holder_bits[hidx >> 6] |= bbit; }
+                else { l.live_glob_holder_bits[hidx >> 6] &= ~bbit; }
+            }
+        }
+    }
     if !l.discovery && l.cells[cell].frame == 0 { l.global_live_epoch += 1; }
     l.cell_clock += 1;
     let d = ck.depth as i64;
@@ -2810,12 +2962,20 @@ fn life_class_stores(p: Program&, l: Lifetimes&, root: i64) -> i64 {
 // class root's storage also holds what the body stored through any class of
 // its frame, and inside an island storage outside it (a global, static data)
 // holds what the island stored of its class roots anywhere outside.
+inline fn life_note_class_storage_read(l: Lifetimes&, owner: i64, root: i64) {
+    if l.discovery && l.cls_act > 0 && owner == l.island {
+        if !l.roots[root].class_one { l.cls_read_nonone = true; }
+        if l.cls_read_cls_first == -1 { l.cls_read_cls_first = root; }
+        else if l.cls_read_cls_first != root { l.cls_read_cls_first = -2; }
+    }
+}
 fn life_overlay(p: Program&, l: Lifetimes&, places: i64, held: i64) -> i64 {
     if (l.sets[places].flags & 6) == 0 { return held; }
     var out = held; var outside = false; var bound: i64 = 0; var all_typed = true; var at = l.sets[places].first;
     while at >= 0 {
         let alt = l.alts[at]; at = alt.next; let owner = l.roots[alt.root].class_frame;
         if owner >= 0 {
+            life_note_class_storage_read(l, owner, alt.root as i64);
             if l.frames[owner].stored_first >= 0 {
                 if l.chk_dep_recording && owner != l.chk_island { l.chk_dep_overflow = true; }
                 out = life_join(l, out, life_class_stores(p, l, alt.root));
@@ -2831,7 +2991,26 @@ fn life_overlay(p: Program&, l: Lifetimes&, places: i64, held: i64) -> i64 {
     if outside && l.island > 0 && l.frames[l.island].class_stored != 0 { extra = life_join(l, extra, life_bound(l, l.frames[l.island].class_stored, bound)); }
     if outside && l.globals_root >= 0 {
         if l.chk_dep_recording { l.chk_dep_stack.push(l.globals_root as i32); }
-        if l.discovery && l.frame > 0 { life_push_dep_root(l, l.globals_root); }
+        if l.discovery && l.frame > 0 {
+            if l.island > 0 && all_typed {
+                var prev_dty: i64 = -1;
+                var dat = l.sets[places].first;
+                while dat >= 0 {
+                    let dalt = l.alts[dat]; dat = dalt.next;
+                    if l.roots[dalt.root].class_frame < 0 && l.roots[dalt.root].frame <= 0 {
+                        let raw_ty = l.roots[dalt.root].type_id;
+                        let ty = if l.types_frozen && l.nodes_prepared && raw_ty >= 0 { l.type_exact_canon[raw_ty] as i64 } else { raw_ty };
+                        if ty < 0 { life_push_dep_root(l, l.globals_root); }
+                        else if ty != prev_dty && life_tf_holds(p, l, ty) {
+                            prev_dty = ty;
+                            l.dep_groot_ty_stack.push(ty as i32);
+                        }
+                    }
+                }
+            } else {
+                life_push_dep_root(l, l.globals_root);
+            }
+        }
         var landed = l.roots[l.globals_root].contents; if !l.discovery { landed = l.roots[l.globals_root].live_contents; }
         if landed != 0 { extra = life_join(l, extra, life_bound(l, landed, bound)); }
     }
@@ -3266,6 +3445,82 @@ inline fn life_read_bucket(node: i64, symbol: i64, last: i64, count: i64) -> i64
 // of one stretch say, and which calls leave it, life_body has scanned once:
 // the same bodies are reached here, each asked for the binding in the sorted
 // list of those it names.
+fn life_body_ensure_glob_bits(p: Program&, l: Lifetimes&, b: i64) -> i64 {
+    let existing = l.bodies[b].glob_bits_at as i64;
+    if existing >= 0 { return existing; }
+    let w = l.holder_glob_words;
+    if w <= 0 { return -1; }
+    // Fast path: if every direct callee already has its transitive bitset (e.g.
+    // precomputed in life_prepare_nodes), just OR them without a full BFS.
+    let c_first = l.bodies[b].calls; let c_end = c_first + l.bodies[b].call_count;
+    var all_ready = true;
+    for call in c_first..c_end {
+        let target = l.body_calls[call];
+        let next = if target < l.node_body.len { l.node_body[target] as i64 } else { -1 };
+        if next < 0 || l.bodies[next].glob_bits_at < 0 { all_ready = false; break; }
+    }
+    let off = l.body_glob_bits.len;
+    l.body_glob_bits.resize(off + w, 0);
+    let g_first = l.bodies[b].globals; let g_end = g_first + l.bodies[b].global_count;
+    for g in g_first..g_end {
+        let sym = l.body_globals[g];
+        if sym >= 0 && sym < l.holder_glob_idx.len {
+            let hidx = l.holder_glob_idx[sym] as i64;
+            if hidx >= 0 { l.body_glob_bits[off + (hidx >> 6)] |= (1 as u64) << (hidx & 63); }
+        }
+    }
+    if all_ready {
+        for call in c_first..c_end {
+            let next = l.node_body[l.body_calls[call]] as i64;
+            let noff = l.bodies[next].glob_bits_at as i64;
+            for wi in 0..w { l.body_glob_bits[off + wi] |= l.body_glob_bits[noff + wi]; }
+        }
+        l.bodies[b].glob_bits_at = off as i32;
+        return off;
+    }
+    l.body_walks += 1; let walk = l.body_walks;
+    let rbase = l.body_reached.len;
+    l.bodies[b].seen = walk; l.body_reached.push(b);
+    var at = rbase;
+    while at < l.body_reached.len {
+        let idx = l.body_reached[at]; at += 1;
+        let body = l.bodies[idx];
+        if idx != b {
+            for g in body.globals..body.globals + body.global_count {
+                let sym = l.body_globals[g];
+                if sym >= 0 && sym < l.holder_glob_idx.len {
+                    let hidx = l.holder_glob_idx[sym] as i64;
+                    if hidx >= 0 { l.body_glob_bits[off + (hidx >> 6)] |= (1 as u64) << (hidx & 63); }
+                }
+            }
+        }
+        for call in body.calls..body.calls + body.call_count {
+            let target = l.body_calls[call];
+            let next = if target < l.node_body.len && l.node_body[target] >= 0 { l.node_body[target] as i64 } else { life_body_build(p, l, target) };
+            if l.bodies[next].seen != walk {
+                l.bodies[next].seen = walk;
+                let noff = l.bodies[next].glob_bits_at as i64;
+                if noff >= 0 {
+                    for wi in 0..w { l.body_glob_bits[off + wi] |= l.body_glob_bits[noff + wi]; }
+                } else if l.bodies[next].call_count == 0 {
+                    let gs = l.bodies[next].globals; let ge = gs + l.bodies[next].global_count;
+                    for g in gs..ge {
+                        let sym = l.body_globals[g];
+                        if sym >= 0 && sym < l.holder_glob_idx.len {
+                            let hidx = l.holder_glob_idx[sym] as i64;
+                            if hidx >= 0 { l.body_glob_bits[off + (hidx >> 6)] |= (1 as u64) << (hidx & 63); }
+                        }
+                    }
+                } else {
+                    l.body_reached.push(next);
+                }
+            }
+        }
+    }
+    l.body_reached.resize(rbase);
+    l.bodies[b].glob_bits_at = off as i32;
+    return off;
+}
 fn life_body_compute_trans_globals(p: Program&, l: Lifetimes&, b: i64) {
     if l.bodies[b].trans_global_count >= 0 { return; }
     let start = l.body_trans_globals.len;
@@ -3339,6 +3594,12 @@ fn life_reads_captured(p: Program&, l: Lifetimes&, first: i64, symbol: i64) -> b
     return found;
 }
 fn life_reads_global(p: Program&, l: Lifetimes&, first: i64, symbol: i64) -> bool {
+    if l.holder_glob_words > 0 && symbol >= 0 && symbol < l.holder_glob_idx.len {
+        let hidx = l.holder_glob_idx[symbol] as i64;
+        if hidx < 0 { return false; }
+        let off = life_body_ensure_glob_bits(p, l, first);
+        return (l.body_glob_bits[off + (hidx >> 6)] & ((1 as u64) << (hidx & 63))) != 0;
+    }
     if l.bodies[first].call_count == 0 {
         var low = l.bodies[first].globals; var high = low + l.bodies[first].global_count;
         while low < high {
@@ -3450,7 +3711,11 @@ fn life_body_build_one(p: Program&, l: Lifetimes&, start: i64, last: i64 = -1) -
                 if !listed { l.body_owners.push(owner); }
                 l.body_captures.push(n.symbol);
             }
-            if (flags & S_GLOBAL) != 0 { l.body_globals.push(n.symbol); }
+            if (flags & S_GLOBAL) != 0 {
+                if !l.nodes_prepared || n.symbol >= l.holder_glob_idx.len || l.holder_glob_idx[n.symbol] >= 0 {
+                    l.body_globals.push(n.symbol);
+                }
+            }
         }
         if current != last { life_read_child(l, l.body_work, n.next); }
         if n.kind == N_FUNCTION || n.kind == N_FUNCTION_VALUE || n.kind == N_IMPORT { continue; }
@@ -3510,12 +3775,12 @@ fn life_body_build(p: Program&, l: Lifetimes&, start: i64) -> i64 {
         cur = p.nodes[cur].next;
     }
     let chain_len = l.body_work.len - cbase;
-    if chain_len > 16 {
-        var idx = chain_len - 16;
+    if chain_len > 4 {
+        var idx = chain_len - 4;
         while idx > 0 {
             let cp = l.body_work[cbase + idx];
             life_body_build_one(p, l, cp);
-            idx -= 16;
+            idx -= 4;
         }
     }
     l.body_work.resize(cbase);
@@ -3613,14 +3878,29 @@ fn life_contained(p: Program&, l: Lifetimes&, function_node: i64) -> bool {
     if l.nodes_prepared && !l.has_captures { return true; }
     if l.contained.len < p.nodes.len { l.contained.resize(p.nodes.len, 0); }
     if l.contained[function_node] != 0 { return l.contained[function_node] == 1; }
+    let start = p.nodes[function_node].right;
+    if start < 0 { l.contained[function_node] = 1; return true; }
+    let use_reach = l.cap_owner_reach.len == p.nodes.len;
     let rbase = l.body_reached.len;
-    life_body_walk(p, l, p.nodes[function_node].right, false);
-    let walk = l.body_walks; var answer = true;
+    l.body_walks += 1; let walk = l.body_walks;
+    let first = life_body(p, l, start); l.bodies[first].seen = walk; l.body_reached.push(first);
+    var at = rbase;
+    while at < l.body_reached.len {
+        let index = l.body_reached[at]; at += 1;
+        let calls = l.bodies[index].calls; let count = l.bodies[index].call_count;
+        for call in calls..calls + count {
+            let callee = l.body_calls[call];
+            if use_reach && l.cap_owner_reach[callee] == 0 { continue; }
+            let next = life_body(p, l, callee);
+            if l.bodies[next].seen != walk { l.bodies[next].seen = walk; l.body_reached.push(next); }
+        }
+    }
+    var answer = true;
     for ri in rbase..l.body_reached.len {
         let index = l.body_reached[ri];
-        let first = l.bodies[index].owners; let count = l.bodies[index].owner_count;
-        for at in first..first + count {
-            let owner = l.body_owners[at];
+        let ofirst = l.bodies[index].owners; let ocount = l.bodies[index].owner_count;
+        for oit in ofirst..ofirst + ocount {
+            let owner = l.body_owners[oit];
             if owner < 0 || p.nodes[owner].right < 0 { answer = false; break; }
             let body = life_body(p, l, p.nodes[owner].right);
             if l.bodies[body].seen != walk { answer = false; break; }
@@ -3644,7 +3924,20 @@ fn life_global_capture_span(p: Program&, l: Lifetimes&, function_node: i64) -> L
     let known = l.bodies[body_index].global_inputs;
     if known.head == head { return known; }
     let first = l.global_read_list.len;
-    if l.bodies[body_index].call_count == 0 {
+    if l.holder_glob_words > 0 {
+        let off = life_body_ensure_glob_bits(p, l, body_index);
+        let w = l.holder_glob_words;
+        for wi in 0..w {
+            var bits = l.body_glob_bits[off + wi];
+            while bits != 0 {
+                let b = ctz(bits);
+                let hidx = (wi << 6) + b;
+                let cell = l.holder_glob_cells[hidx] as i64;
+                if cell >= 0 { l.global_read_list.push(cell); }
+                bits &= bits - 1;
+            }
+        }
+    } else if l.bodies[body_index].call_count == 0 {
         let gs = l.bodies[body_index].globals; let ge = gs + l.bodies[body_index].global_count;
         for at in gs..ge {
             let symbol = l.body_globals[at]; let cell = l.symbol_cells[symbol] as i64;
@@ -3809,7 +4102,7 @@ fn life_assume_sync_slot(l: Lifetimes&, at: i64) {
     else if a.open < 0 { state = 3; }
     let want_meta = life_assume_meta(frame, query, a.flag, 0);
     let key = life_assume_hash(frame, query, index, subject, a.flag);
-    let l1_slot = key & 2047;
+    let l1_slot = key & 16383;
     if state == 1 || state == 2 {
         l.assume_l1[l1_slot] = LifeAssumeSlot { meta: want_meta | (state as i32), index: a.index, subject: a.subject, at: at as i32 };
     } else if l.assume_l1[l1_slot].at == (at as i32) {
@@ -3831,7 +4124,7 @@ fn life_assume_sync_slot(l: Lifetimes&, at: i64) {
 // -4 limit reached (caller returns life_cautious), >= 0 opened assume index.
 fn life_assume_probe(l: Lifetimes&, frame: i64, query: i64, index: i64, subject: i64, flag: bool) -> i64 {
     let key = life_assume_hash(frame, query, index, subject, flag);
-    let l1_slot = key & 2047;
+    let l1_slot = key & 16383;
     let e1 = l.assume_l1[l1_slot];
     if e1.at >= 0 && (e1.meta & ~3) == life_assume_meta(frame, query, flag, 0) && e1.index == (index as i32) && e1.subject == (subject as i32) {
         let st1 = e1.meta & 3;
@@ -4143,6 +4436,20 @@ fn life_typed_held(p: Program&, l: Lifetimes&, set: i64, pointee: i64) -> i64 {
     if held == 0 { return 0; }
     let hfirst = l.sets[held].first as i64; let hcount = l.sets[held].count as i64;
     if hcount <= 0 { return 0; }
+    let th_can = l.types_frozen && (l.island == 0 || (l.island > 0 && l.frames[l.island].active));
+    var th_slot: i64 = -1;
+    let th_held32 = held as i32; let th_pt32 = pointee as i32; let th_isl32 = l.island as i32; let th_gep = l.global_epoch;
+    if th_can {
+        var th_h: u64 = (held as! u64) * 11400714819323198485 ^ (pointee as! u64) * 14029467366897019727 ^ (l.island as! u64) * 1609587929392839161;
+        th_h ^= th_h >> 29;
+        th_slot = (th_h & 8191) as i64;
+        let te0: const LifeTypedHeldMemo& = l.typed_held_memo[th_slot];
+        if te0.held == th_held32 && te0.pointee == th_pt32 && te0.island == th_isl32 && te0.epoch == th_gep { return te0.result as i64; }
+        let te1: const LifeTypedHeldMemo& = l.typed_held_memo[th_slot ^ 1];
+        if te1.held == th_held32 && te1.pointee == th_pt32 && te1.island == th_isl32 && te1.epoch == th_gep { return te1.result as i64; }
+    }
+    let tc0 = l.typed_count;
+    var th_other_owner = false;
     let start = l.scratch.len; var dropped = false; var root_changed = false; var globals_ok: i64 = -1;
     for hi in 0..hcount {
         let r: const LifeAlt& = l.alts[hfirst + hi];
@@ -4160,6 +4467,7 @@ fn life_typed_held(p: Program&, l: Lifetimes&, set: i64, pointee: i64) -> i64 {
             // pointee is that island's storage class of the pointee, as a
             // read there would make it (life_readback).
             let owner = l.roots[r.root].class_frame;
+            if owner >= 0 && owner != l.island { th_other_owner = true; }
             if owner >= 0 && l.frames[owner].active {
                 let own = l.roots[r.root].class_index; let base = l.frames[owner].class_base;
                 if r.exact && l.roots[r.root].class_parent < 0 && own >= base {
@@ -4190,16 +4498,25 @@ fn life_typed_held(p: Program&, l: Lifetimes&, set: i64, pointee: i64) -> i64 {
             }
         }
     }
-    if !dropped { return held; }
-    if !root_changed {
-        let res = life_list_set(l, start, true);
-        l.scratch.resize(start);
-        return res;
+    var res: i64 = held;
+    if dropped {
+        if !root_changed {
+            res = life_list_set(l, start, true);
+            l.scratch.resize(start);
+        } else {
+            var out = LifeBuild {};
+            for si in start..l.scratch.len { life_build_add_alt(l, out, l.scratch[si]); }
+            l.scratch.resize(start);
+            res = life_build_end(l, out);
+        }
     }
-    var out = LifeBuild {};
-    for si in start..l.scratch.len { life_build_add_alt(l, out, l.scratch[si]); }
-    l.scratch.resize(start);
-    return life_build_end(l, out);
+    if th_can && !th_other_owner && l.typed_count == tc0 {
+        let ent = LifeTypedHeldMemo { held: th_held32, pointee: th_pt32, island: th_isl32, epoch: th_gep, result: res as i32 };
+        let te0 = l.typed_held_memo[th_slot];
+        if te0.held < 0 || te0.epoch != th_gep { l.typed_held_memo[th_slot] = ent; }
+        else { l.typed_held_memo[th_slot ^ 1] = te0; l.typed_held_memo[th_slot] = ent; }
+    }
+    return res;
 }
 // What a storage class of one pointee type stands for at a call: what the
 // storage of its parent class's roots holds of that pointee. serial: the
@@ -5192,10 +5509,26 @@ fn life_mark_future_globals(p: Program&, l: Lifetimes&) {
         }
         if same && matched == l.last_future_nodes.len { return; }
     }
-    l.last_future_nodes.clear(); l.last_future_lasts.clear(); l.future_global_syms.clear();
-    if l.global_future_mark.len < p.symbols.len { l.global_future_mark.resize(p.symbols.len, 0); }
+    l.last_future_nodes.clear(); l.last_future_lasts.clear();
     l.body_walks += 1; let walk = l.body_walks;
     l.future_global_gen = walk;
+    let w = l.holder_glob_words;
+    if w > 0 {
+        for wi in 0..w { l.future_glob_bits[wi] = 0; }
+        for idx in l.future_floor..l.future_count {
+            let future: const LifeFuture& = l.futures[idx];
+            if !life_future_reachable(l, idx, future) { continue; }
+            let fn_n = future.node; let fn_last = future.last;
+            l.last_future_nodes.push(fn_n); l.last_future_lasts.push(fn_last);
+            if fn_n < 0 { continue; }
+            let b = life_body_span(p, l, fn_n, fn_last);
+            let off = life_body_ensure_glob_bits(p, l, b);
+            for wi in 0..w { l.future_glob_bits[wi] |= l.body_glob_bits[off + wi]; }
+        }
+        return;
+    }
+    l.future_global_syms.clear();
+    if l.global_future_mark.len < p.symbols.len { l.global_future_mark.resize(p.symbols.len, 0); }
     for idx in l.future_floor..l.future_count {
         let future: const LifeFuture& = l.futures[idx];
         if !life_future_reachable(l, idx, future) { continue; }
@@ -5869,28 +6202,66 @@ fn life_shrink_array(p: Program&, l: Lifetimes&, node: i64, given_receiver: cons
     var marked_globals = false;
     var any_into = false; var all_checked = true;
     var any_glob_into = false; var all_glob_checked = true; var all_glob_walks_global = true;
-    let fast_future_globals = l.class_frames > 0 && !skip_globals && !l.has_global_capture;
+    var fast_future_globals = l.class_frames > 0 && !skip_globals && !l.has_global_capture;
     var fg_pos: i64 = 0;
     var loc_idx: i64 = -1;
     var index: i64 = -1;
     if fast_future_globals {
-        life_mark_future_globals(p, l); marked_globals = true;
-        l.future_global_cells.clear();
-        for gsym in l.future_global_syms {
-            var ci = l.symbol_cells[gsym as i64] as i64;
-            while ci >= 0 {
-                if l.cells[ci].live && l.cell_keys[ci].global && life_is_holder_cell(l, ci) {
-                    l.future_global_cells.push(ci as i32);
+        let w = l.holder_glob_words;
+        if w > 0 {
+            life_mark_future_globals(p, l); marked_globals = true;
+            var any_fg: u64 = 0;
+            for wi in 0..w { any_fg |= l.live_glob_holder_bits[wi] & l.future_glob_bits[wi]; }
+            all_checked = false; all_glob_checked = false;
+            if any_fg == 0 {
+                fast_future_globals = false;
+                skip_globals = true;
+                index = life_next_local_holder(l, -1);
+            } else {
+                if l.fg_cells_gen != l.future_global_gen || l.fg_cells_gep != l.global_epoch {
+                    l.future_global_cells.clear();
+                    for wi in 0..w {
+                        var bits = l.live_glob_holder_bits[wi] & l.future_glob_bits[wi];
+                        while bits != 0 {
+                            let b = ctz(bits);
+                            let hidx = (wi << 6) + b;
+                            let ci = l.holder_glob_cells[hidx] as i64;
+                            if ci >= 0 && l.cells[ci].live && life_is_holder_cell(l, ci) {
+                                l.future_global_cells.push(ci as i32);
+                            }
+                            bits &= bits - 1;
+                        }
+                    }
+                    if l.future_global_cells.len > 1 { l.future_global_cells.sort(); }
+                    l.fg_cells_gen = l.future_global_gen; l.fg_cells_gep = l.global_epoch;
                 }
-                ci = l.cells[ci].next_symbol;
+                loc_idx = life_next_local_holder(l, -1);
+                let gcand = if fg_pos < l.future_global_cells.len { l.future_global_cells[fg_pos] as i64 } else { -1 };
+                if loc_idx >= 0 && (gcand < 0 || loc_idx < gcand) { index = loc_idx; loc_idx = life_next_local_holder(l, loc_idx); }
+                else if gcand >= 0 { index = gcand; fg_pos += 1; }
             }
+        } else {
+            life_mark_future_globals(p, l); marked_globals = true;
+            if l.fg_cells_gen != l.future_global_gen || l.fg_cells_gep != l.global_epoch {
+                l.future_global_cells.clear();
+                for gsym in l.future_global_syms {
+                    var ci = l.symbol_cells[gsym as i64] as i64;
+                    while ci >= 0 {
+                        if l.cells[ci].live && l.cell_keys[ci].global && life_is_holder_cell(l, ci) {
+                            l.future_global_cells.push(ci as i32);
+                        }
+                        ci = l.cells[ci].next_symbol;
+                    }
+                }
+                if l.future_global_cells.len > 1 { l.future_global_cells.sort(); }
+                l.fg_cells_gen = l.future_global_gen; l.fg_cells_gep = l.global_epoch;
+            }
+            all_checked = false; all_glob_checked = false;
+            loc_idx = life_next_local_holder(l, -1);
+            let gcand = if fg_pos < l.future_global_cells.len { l.future_global_cells[fg_pos] as i64 } else { -1 };
+            if loc_idx >= 0 && (gcand < 0 || loc_idx < gcand) { index = loc_idx; loc_idx = life_next_local_holder(l, loc_idx); }
+            else if gcand >= 0 { index = gcand; fg_pos += 1; }
         }
-        if l.future_global_cells.len > 1 { l.future_global_cells.sort(); }
-        all_checked = false; all_glob_checked = false;
-        loc_idx = life_next_local_holder(l, -1);
-        let gcand = if fg_pos < l.future_global_cells.len { l.future_global_cells[fg_pos] as i64 } else { -1 };
-        if loc_idx >= 0 && (gcand < 0 || loc_idx < gcand) { index = loc_idx; loc_idx = life_next_local_holder(l, loc_idx); }
-        else if gcand >= 0 { index = gcand; fg_pos += 1; }
     } else {
         index = if skip_globals { life_next_local_holder(l, -1) } else { life_next_holder(l, -1) };
     }
@@ -5918,7 +6289,14 @@ fn life_shrink_array(p: Program&, l: Lifetimes&, node: i64, given_receiver: cons
         if l.class_frames > 0 {
             if is_glob && (p.symbols[symbol].flags & S_CAPTURE) == 0 {
                 if !marked_globals { life_mark_future_globals(p, l); marked_globals = true; }
-                if l.global_future_mark[symbol] != l.future_global_gen { all_checked = false; all_glob_checked = false; continue; }
+                if l.holder_glob_words > 0 && symbol < l.holder_glob_idx.len {
+                    let hidx = l.holder_glob_idx[symbol] as i64;
+                    if hidx < 0 || (l.future_glob_bits[hidx >> 6] & ((1 as u64) << (hidx & 63))) == 0 {
+                        all_checked = false; all_glob_checked = false; continue;
+                    }
+                } else if l.global_future_mark[symbol] != l.future_global_gen {
+                    all_checked = false; all_glob_checked = false; continue;
+                }
             } else if !life_used_after(p, l, l.cells[candidate]) { all_checked = false; continue; }
         }
         let place = life_root_set(l, root);
@@ -6486,7 +6864,10 @@ fn life_readback(p: Program&, l: Lifetimes&, type_id: i64, places: i64) -> i64 {
         else {
             var source = root_contents;
             if global && l.class_frames > 0 { source = life_overlay(p, l, life_alt_set(l, alt), source); }
-            if root_class_frame >= 0 && l.frames[root_class_frame].stored_first >= 0 { source = life_join(l, source, life_class_stores(p, l, alt.root)); }
+            if root_class_frame >= 0 {
+                life_note_class_storage_read(l, root_class_frame, alt.root as i64);
+                if l.frames[root_class_frame].stored_first >= 0 { source = life_join(l, source, life_class_stores(p, l, alt.root)); }
+            }
             // A reference read out of storage reached through a parameter may
             // be to any argument whose type can hold its pointee. Out of an
             // ordinary root those arguments are alternatives of the value.
@@ -6532,6 +6913,7 @@ fn life_readback(p: Program&, l: Lifetimes&, type_id: i64, places: i64) -> i64 {
                 if mask != 0 && r.exact && l.roots[r.root].class_frame == root_class_frame && (l.roots[r.root].class_parent >= 0 || l.roots[r.root].class_index >= l.frames[root_class_frame].class_base) &&
                    (l.roots[r.root].class_mask | mask) != l.roots[r.root].class_mask {
                     l.roots[r.root].class_mask |= mask; l.revision += 1; l.frames[root_class_frame].stored_version += 1;
+                    if root_class_frame == l.island { l.cls_other_sver = true; }
                 }
                 l.scratch.push(r);
             }
@@ -6704,7 +7086,7 @@ inline fn life_has_class(l: Lifetimes&, set: i64) -> bool { return life_strip(l,
 // itself takes: the sources without class roots.
 fn life_keep_outside(l: Lifetimes&, sources: i64) -> i64 {
     let stored = life_join(l, l.frames[l.island].class_stored, sources);
-    if !life_equal(l, stored, l.frames[l.island].class_stored) { l.frames[l.island].class_stored = stored; l.frames[l.island].stored_version += 1; l.held_epoch += 1; l.revision += 1; }
+    if !life_equal(l, stored, l.frames[l.island].class_stored) { l.frames[l.island].class_stored = stored; l.frames[l.island].stored_version += 1; l.cls_other_sver = true; l.held_epoch += 1; l.revision += 1; }
     return life_strip(l, sources);
 }
 // A set without the roots below depth 0, kept with the set as life_strip's
@@ -7248,6 +7630,10 @@ fn life_reclaim_alts(l: Lifetimes&, standalone: const LifeStandalone[:]) {
     l.list_count = live_lists.len;
     var list_size: i64 = 1024; while list_size <= 2 * (l.list_count + 1) { list_size <<= 1; }
     l.list_slots.clear(); l.list_slots.resize(list_size, LifeListSlot {});
+    for i in 0..l.list_l1.len { l.list_l1[i] = LifeListSlot {}; }
+    for i in 0..l.list2_l1.len { l.list2_l1[i].set = -1; }
+    for i in 0..l.atom_l1.len { l.atom_l1[i].set = -1; }
+    for i in 0..l.typed_held_memo.len { l.typed_held_memo[i].held = -1; }
     let list_mask = list_size - 1;
     for entry in live_lists {
         var slot = entry.key & list_mask;
@@ -7297,6 +7683,12 @@ fn life_reclaim_alts(l: Lifetimes&, standalone: const LifeStandalone[:]) {
     }
     l.map_memo.clear();
     l.call_sigs.clear(); l.call_sig_slots.clear(); l.call_sig_data.clear(); l.chk_dep_roots.clear();
+    for fi in 0..l.frames.len {
+        if l.frames[fi].dep_groot_count > 0 {
+            l.frames[fi].dep_valid = false; l.frames[fi].dep_clean_pass = -1; l.frames[fi].dep_groot_count = 0;
+        }
+    }
+    l.dep_groot_tys.clear(); l.dep_groot_refs.clear();
     l.held_walks.clear(); l.walk_memo_roots.clear();
     l.shrink_clean.clear(); l.global_shrink_clean.clear();
     l.asked.clear();
@@ -7763,7 +8155,7 @@ fn life_classify_set(l: Lifetimes&, c: LifeClasses&, set: i64, reached: i64 = -1
         }
         var flags = 0; if all_slots { flags += 1; } if any_bytes { flags += 2; }
         let index = l.map_entries.len - c.sets; l.map_entries.push(LifeMapEntry { set: set as i32, type_id: reached as i32 }); l.class_scratch.push(depth);
-        l.key_scratch.append([-1, index, flags, -1, -1, 0]);
+        l.key_scratch.push(-1); l.key_scratch.push(index); l.key_scratch.push(flags); l.key_scratch.push(-1); l.key_scratch.push(-1); l.key_scratch.push(0);
         return;
     }
     l.key_scratch.push(count);
@@ -7791,7 +8183,7 @@ fn life_classify_set(l: Lifetimes&, c: LifeClasses&, set: i64, reached: i64 = -1
         }
         let key_tt = if alt.target_type >= 0 && l.types_frozen && l.nodes_prepared { l.type_exact_canon[alt.target_type] as i64 } else { alt.target_type as i64 };
         // Argument classes carry their depth rank separately from the alternative.
-        l.key_scratch.append([index, flags, key_tt, component, 0]);
+        l.key_scratch.push(index); l.key_scratch.push(flags); l.key_scratch.push(key_tt); l.key_scratch.push(component); l.key_scratch.push(0);
     }
 }
 // The rank code of a depth among a call's sorted depths: 0 for depth 0.
@@ -7877,6 +8269,7 @@ fn life_class_check(p: Program&, l: Lifetimes&, frame: i64, sets: i64, min_ver: 
         if a.open == 0 && a.answer != cautious {
             if life_class_answer(p, l, frame, sets, a.query as i64, a.index as i64, a.subject as i64, a.flag) != a.answer {
                 l.assumes[at].answer = cautious; life_assume_sync_slot(l, at); l.revision += 1; l.frames[frame].stored_version += 1; l.held_epoch += 1;
+                if frame == l.island { l.cls_other_sver = true; }
                 l.frames[frame].dep_change_stamp += 1; l.frames[frame].dep_valid = false; l.frames[frame].dep_clean_pass = -1;
                 if !l.frames[frame].active { l.frames[frame].validated = false; l.frames[frame].checked_revision = -1; }
                 if prev >= 0 {
@@ -8160,17 +8553,17 @@ fn life_map_set(p: Program&, l: Lifetimes&, set: i64, m: const LifeMap&, stored:
         }
     }
     if l.map_memo.len == 0 { l.map_memo.resize(16384, LifeMapped {}); }
-    let key_serial = if l.held_epoch == m.start_epoch { m.serial } else { 0 - 1 - m.call_serial };
-    let ks32 = key_serial as i32; let key32 = ((set << 2) | stored) as i32;
+    let same_ep = l.held_epoch == m.start_epoch;
+    let ks32 = m.serial as i32; let key32 = ((set << 2) | stored) as i32;
     let can_cache = set < 536870912 && l.held_epoch < 2147483647;
-    var mh: u64 = (set as! u64) * 11400714819323198485 ^ (key_serial as! u64) * 14029467366897019727 ^ (stored as! u64) * 1609587929392839161; mh ^= mh >> 29;
+    var mh: u64 = (set as! u64) * 11400714819323198485 ^ (m.serial as! u64) * 14029467366897019727 ^ (stored as! u64) * 1609587929392839161; mh ^= mh >> 29;
     let memo = (mh & ((l.map_memo.len - 1) as! u64)) as i64;
     let cur_ep = l.held_epoch as i32;
     if can_cache {
         let e0 = l.map_memo[memo];
-        if e0.serial == ks32 && e0.key == key32 && (e0.epoch < 0 || e0.epoch == cur_ep) { return e0.result as i64; }
+        if e0.serial == ks32 && e0.key == key32 && (e0.epoch < 0 || same_ep && e0.epoch == cur_ep) { return e0.result as i64; }
         let e1 = l.map_memo[memo ^ 1];
-        if e1.serial == ks32 && e1.key == key32 && (e1.epoch < 0 || e1.epoch == cur_ep) { return e1.result as i64; }
+        if e1.serial == ks32 && e1.key == key32 && (e1.epoch < 0 || same_ep && e1.epoch == cur_ep) { return e1.result as i64; }
     }
     let first = l.sets[set].first as i64; let count = l.sets[set].count as i64;
     var found = false; let end = m.classes + m.count;
@@ -8242,7 +8635,7 @@ fn life_map_set(p: Program&, l: Lifetimes&, set: i64, m: const LifeMap&, stored:
     if can_cache && l.held_epoch < 2147483647 {
         if fresh {
             life_map_memo_put(l, memo, ks32, key32, result as i32, -1, l.held_epoch as i32);
-        } else if l.held_epoch == m.start_epoch || key_serial < 0 {
+        } else if l.held_epoch == m.start_epoch {
             life_map_memo_put(l, memo, ks32, key32, result as i32, l.held_epoch as i32, l.held_epoch as i32);
         }
     }
@@ -8380,7 +8773,7 @@ inline fn life_cls_global_ok(l: Lifetimes&, dep_ge: i64) -> bool {
     return l.settled_global_epoch >= 0 && dep_ge == l.settled_global_epoch &&
         l.global_refs_epoch == l.settled_global_refs && l.global_live_count == l.settled_global_live;
 }
-fn life_class_frame_is_clean(l: Lifetimes&, frame: i64) -> bool {
+fn life_class_frame_is_clean(p: Program&, l: Lifetimes&, frame: i64) -> bool {
     if l.frames[frame].dep_clean_pass == l.pass { return true; }
     if l.frames[frame].dep_dirty_pass == l.pass { return false; }
     l.clean_gen += 1;
@@ -8390,6 +8783,8 @@ fn life_class_frame_is_clean(l: Lifetimes&, frame: i64) -> bool {
     while l.dep_callee_mark.len <= frame { l.dep_callee_mark.push(0); }
     l.dep_callee_mark[frame] = gen;
     var at = 0; var ok = true;
+    let groot = l.globals_root;
+    let groot_stamp: i64 = if groot >= 0 && groot < l.root_stamps.len { l.root_stamps[groot] } else { 0 };
     while at < l.clean_work.len {
         let cur = l.clean_work[at]; at += 1;
         let f: const LifeFrame& = l.frames[cur];
@@ -8401,6 +8796,14 @@ fn life_class_frame_is_clean(l: Lifetimes&, frame: i64) -> bool {
             ok = false; break;
         }
         let stamp = f.dep_contents_stamp;
+        if f.dep_groot_count > 0 && groot_stamp > stamp {
+            let cur_gc = l.roots[groot].contents;
+            let gf = f.dep_groot_first as i64; let ge = gf + (f.dep_groot_count as i64);
+            for gi in gf..ge {
+                if life_referable(p, l, cur_gc, l.dep_groot_tys[gi] as i64) != (l.dep_groot_refs[gi] as i64) { ok = false; break; }
+            }
+            if !ok { break; }
+        }
         let r_end = f.dep_roots_first + f.dep_roots_count;
         for i in f.dep_roots_first..r_end {
             let root = l.dep_roots[i];
@@ -8446,13 +8849,16 @@ recursive fn life_class_eval(p: Program&, l: Lifetimes&, target: i64, sets: i64)
     let saved_child_rev = l.cls_child_rev;
     let saved_cls_act = l.cls_act;
     let saved_cls_self_dirty = l.cls_self_dirty; let saved_unsealed = l.chk_saw_unsealed;
+    let saved_other_sver = l.cls_other_sver; let saved_read_cls_first = l.cls_read_cls_first; let saved_read_nonone = l.cls_read_nonone;
     let saved_r_floor = l.dep_root_floor;
     let r_start = l.dep_root_stack.len;
     let c_start = l.dep_callee_stack.len;
+    let g_start = l.dep_groot_ty_stack.len;
+    let groot_c0: i64 = if l.globals_root >= 0 { l.roots[l.globals_root].contents } else { 0 };
     let rev0 = l.revision;
     let sum0 = l.frames[target].summary_version;
     let stored0 = l.frames[target].stored_version;
-    let assumes0 = l.frames[target].assume_count;
+    let ncv0 = l.frames[target].noncautious_ver;
     let cs0 = l.frames[target].class_stored;
     let res0 = l.frames[target].result;
     let glob0 = l.global_epoch;
@@ -8507,11 +8913,14 @@ recursive fn life_class_eval(p: Program&, l: Lifetimes&, target: i64, sets: i64)
 
     l.cls_act = if track_cls && l.activations < 2147483647 { l.frames[target].activation as i32 } else { 0 };
     l.cls_self_dirty = false; l.chk_saw_unsealed = false;
+    l.cls_other_sver = false; l.cls_read_cls_first = -1; l.cls_read_nonone = false;
     l.frames[target].active = true; l.frames[l.function_frames[function_node] as i64].function_active += 1; let temporary_base = l.temp_count;
     life_eval(p, l, p.nodes[function_node].right, l.frames[target].class_destination, l.frames[target].selected_result);
     l.temp_count = temporary_base; l.frames[target].active = false; l.frames[l.function_frames[function_node] as i64].function_active -= 1;
     let self_dirty = l.cls_self_dirty; let body_unsealed = l.chk_saw_unsealed;
+    let body_other_sver = l.cls_other_sver; let body_read_cls_first = l.cls_read_cls_first; let body_read_nonone = l.cls_read_nonone;
     l.cls_act = saved_cls_act; l.cls_self_dirty = saved_cls_self_dirty; l.chk_saw_unsealed = saved_unsealed || body_unsealed;
+    l.cls_other_sver = saved_other_sver; l.cls_read_cls_first = saved_read_cls_first; l.cls_read_nonone = saved_read_nonone;
     l.frames[target].checked_revision = l.pass;
     if l.discovery { l.frames[target].discovered = true; } else { l.frames[target].validated = true; l.frames[target].validated_global_epoch = l.gcell_any_val_epoch; life_compact_effects(l, target); }
     if track_cls {
@@ -8523,12 +8932,13 @@ recursive fn life_class_eval(p: Program&, l: Lifetimes&, target: i64, sets: i64)
         l.cls_child_rev = saved_child_rev + total_rev;
         let rec1: i64 = if l.frames[target].recursive_call { 1 } else { 0 };
         let res1 = l.frames[target].result;
+        let ncv_changed = l.frames[target].noncautious_ver != ncv0;
         let meta_no_res = l.frames[target].summary_version != sum0 ||
-            l.frames[target].stored_version != stored0 || l.frames[target].assume_count != assumes0 ||
+            l.frames[target].stored_version != stored0 ||
             l.frames[target].class_stored != cs0 ||
             l.global_epoch != glob0 || rec1 != rec0 || l.failures.len != fail0;
         let own_changed = own_rev != 0 || meta_no_res || !life_value_same(l, res0, res1);
-        if own_changed {
+        if own_changed || ncv_changed {
             l.frames[target].dep_change_stamp += 1;
         }
         var callee_mid_changed = false;
@@ -8538,13 +8948,59 @@ recursive fn life_class_eval(p: Program&, l: Lifetimes&, target: i64, sets: i64)
                 callee_mid_changed = true; break;
             }
         }
+        var sver_ok = l.frames[target].stored_version == stored0;
+        if !sver_ok && !body_other_sver && l.frames[target].stored_count <= LIFE_STORED_ROOTS {
+            if body_read_cls_first == -1 { sver_ok = true; }
+            else {
+                sver_ok = true;
+                var sr = l.frames[target].stored_first;
+                while sr >= 0 {
+                    if body_read_cls_first != sr && (body_read_nonone || !l.roots[sr].class_one) {
+                        sver_ok = false; break;
+                    }
+                    sr = l.roots[sr].stored_next;
+                }
+            }
+        }
         let can_cert_clean = !self_dirty && l.activations < 2147483647 &&
-            l.frames[target].stored_version == stored0 &&
+            sver_ok &&
             l.frames[target].class_stored == cs0 &&
             !body_unsealed &&
             l.global_epoch == glob0 && rec1 == 0 &&
             l.failures.len == fail0 && l.frames[target].first_exit < 0;
         if ((!own_changed && was_discovered) || can_cert_clean) && !child_tainted && !callee_mid_changed {
+            var g_first = l.dep_groot_tys.len;
+            var g_count: i64 = 0;
+            if l.dep_groot_ty_stack.len > g_start {
+                let groot_now: i64 = if l.globals_root >= 0 { l.roots[l.globals_root].contents } else { 0 };
+                if l.globals_root >= 0 && groot_now != groot_c0 {
+                    l.dep_root_stack.push(l.globals_root);
+                } else {
+                    for gi in g_start..l.dep_groot_ty_stack.len {
+                        let gty = l.dep_groot_ty_stack[gi];
+                        var dup = false;
+                        for prev_i in g_first..l.dep_groot_tys.len {
+                            if l.dep_groot_tys[prev_i] == gty { dup = true; break; }
+                        }
+                        if !dup {
+                            let gref = life_referable(p, l, groot_c0, gty as i64) as i32;
+                            l.dep_groot_tys.push(gty);
+                            l.dep_groot_refs.push(gref);
+                        }
+                    }
+                    g_count = l.dep_groot_tys.len - g_first;
+                    let old_gc = l.frames[target].dep_groot_count as i64;
+                    if g_count > 0 && g_count <= old_gc {
+                        let old_gf = l.frames[target].dep_groot_first as i64;
+                        for gi in 0..g_count {
+                            l.dep_groot_tys[old_gf + gi] = l.dep_groot_tys[g_first + gi];
+                            l.dep_groot_refs[old_gf + gi] = l.dep_groot_refs[g_first + gi];
+                        }
+                        l.dep_groot_tys.resize(g_first); l.dep_groot_refs.resize(g_first);
+                        g_first = old_gf;
+                    }
+                }
+            }
             l.dep_gen += 1;
             var r_first = l.dep_roots.len;
             for i in r_start..l.dep_root_stack.len {
@@ -8583,10 +9039,12 @@ recursive fn life_class_eval(p: Program&, l: Lifetimes&, target: i64, sets: i64)
             l.frames[target].dep_roots_count = r_count;
             l.frames[target].dep_callees_first = c_first;
             l.frames[target].dep_callees_count = c_count;
+            l.frames[target].dep_groot_first = g_first as i32;
+            l.frames[target].dep_groot_count = g_count as i32;
             l.frames[target].dep_contents_stamp = stamp0;
             l.frames[target].dep_global_epoch = glob0;
             l.frames[target].dep_rec_epoch = rec0;
-            l.frames[target].dep_stored_ver = stored0;
+            l.frames[target].dep_stored_ver = l.frames[target].stored_version;
             l.frames[target].dep_clean_pass = -1;
             l.frames[target].dep_dirty_pass = -1;
         } else {
@@ -8596,6 +9054,7 @@ recursive fn life_class_eval(p: Program&, l: Lifetimes&, target: i64, sets: i64)
         l.dep_root_stack.resize(r_start);
         l.dep_callee_stack.resize(c_start);
         l.dep_callee_stamp_stack.resize(c_start);
+        l.dep_groot_ty_stack.resize(g_start);
         l.dep_root_floor = saved_r_floor;
         l.cls_dep_tainted = saved_cls_tainted || child_tainted;
         if child_min_back < saved_min_back { l.cls_min_back = child_min_back; } else { l.cls_min_back = saved_min_back; }
@@ -8913,7 +9372,7 @@ recursive fn life_class_call(p: Program&, l: Lifetimes&, function_node: i64, cal
     }
     var evaluate = !back_edge;
     if evaluate && l.discovery && l.frames[target].checked_revision == l.pass { evaluate = false; }
-    if evaluate && l.discovery && l.frames[target].dep_valid && life_class_frame_is_clean(l, target) {
+    if evaluate && l.discovery && l.frames[target].dep_valid && life_class_frame_is_clean(p, l, target) {
         l.frames[target].checked_revision = l.pass;
         evaluate = false;
     }
@@ -9054,7 +9513,7 @@ recursive fn life_class_call(p: Program&, l: Lifetimes&, function_node: i64, cal
     l.map_entries.resize(c.sets); l.map_depths.resize(c.depths);
     return result;
 }
-fn life_frame_is_clean(l: Lifetimes&, frame: i64) -> bool {
+fn life_frame_is_clean(p: Program&, l: Lifetimes&, frame: i64) -> bool {
     if l.frames[frame].dep_clean_pass == l.pass { return true; }
     if l.frames[frame].dep_dirty_pass == l.pass { return false; }
     l.clean_gen += 1;
@@ -9064,6 +9523,8 @@ fn life_frame_is_clean(l: Lifetimes&, frame: i64) -> bool {
     while l.dep_callee_mark.len <= frame { l.dep_callee_mark.push(0); }
     l.dep_callee_mark[frame] = gen;
     var at = 0; var ok = true;
+    let groot = l.globals_root;
+    let groot_stamp: i64 = if groot >= 0 && groot < l.root_stamps.len { l.root_stamps[groot] } else { 0 };
     while at < l.clean_work.len {
         let cur = l.clean_work[at]; at += 1;
         let f: const LifeFrame& = l.frames[cur];
@@ -9084,6 +9545,14 @@ fn life_frame_is_clean(l: Lifetimes&, frame: i64) -> bool {
             }
         }
         let stamp = f.dep_contents_stamp;
+        if f.dep_groot_count > 0 && groot_stamp > stamp {
+            let cur_gc = l.roots[groot].contents;
+            let gf = f.dep_groot_first as i64; let ge = gf + (f.dep_groot_count as i64);
+            for gi in gf..ge {
+                if life_referable(p, l, cur_gc, l.dep_groot_tys[gi] as i64) != (l.dep_groot_refs[gi] as i64) { ok = false; break; }
+            }
+            if !ok { break; }
+        }
         let r_end = f.dep_roots_first + f.dep_roots_count;
         for i in f.dep_roots_first..r_end {
             let root = l.dep_roots[i];
@@ -9261,7 +9730,7 @@ recursive fn life_function(p: Program&, l: Lifetimes&, function_node: i64, call:
            l.frames[target].dep_dest == destination &&
            l.frames[target].dep_in_rec == (life_nearest_recursive(l, l.frame) > 0) &&
            !(l.frames[target].quiet_pass >= 0 && life_nearest_recursive(l, l.frame) > 0) &&
-           life_frame_is_clean(l, target) {
+           life_frame_is_clean(p, l, target) {
             l.frames[target].checked_revision = l.pass;
             clean_skip = true;
         }
@@ -11916,7 +12385,12 @@ fn life_prep_bodies_chunk(ctx: const LifeBatchCtx&, out: LifePrepOut&, events: i
                     }
                     b_caps.push(n.symbol);
                 }
-                if (flags & S_GLOBAL) != 0 { b_globals.push(n.symbol); }
+                if (flags & S_GLOBAL) != 0 {
+                    let gty = symbols[n.symbol].type_id;
+                    if gty < 0 || gty >= ctx.state.len || (ctx.state[gty] & (TF_L_REF | TF_L_HOLDS)) != 0 {
+                        b_globals.push(n.symbol);
+                    }
+                }
             }
             if n.next >= 0 { work.push(n.next); }
             if n.kind == N_FUNCTION || n.kind == N_FUNCTION_VALUE || n.kind == N_IMPORT { continue; }
@@ -12650,6 +13124,32 @@ fn life_prepare_nodes(p: Program&, l: Lifetimes&, full: bool) -> bool {
     }
     let node_count = p.nodes.len;
     let sym_count = p.symbols.len;
+    l.holder_glob_idx.clear(); l.holder_glob_idx.resize(sym_count, -1);
+    var hg_count: i64 = 0;
+    for s in 0..sym_count {
+        let sym: const Symbol& = p.symbols[s];
+        if (sym.flags & S_GLOBAL) != 0 {
+            let ty = sym.type_id;
+            if ty < 0 || ty >= l.type_flags.len || (l.type_flags[ty] & (TF_L_REF | TF_L_HOLDS)) != 0 {
+                l.holder_glob_idx[s] = hg_count as i32;
+                hg_count += 1;
+            }
+        }
+    }
+    l.holder_glob_words = (hg_count + 63) >> 6;
+    l.holder_glob_cells.clear(); l.holder_glob_cells.resize(hg_count, -1);
+    l.live_glob_holder_bits.clear(); l.live_glob_holder_bits.resize(l.holder_glob_words, 0);
+    l.future_glob_bits.clear(); l.future_glob_bits.resize(l.holder_glob_words, 0);
+    for ci in l.global_cells {
+        let gsym = l.cells[ci].symbol as i64;
+        if gsym >= 0 && gsym < sym_count {
+            let hidx = l.holder_glob_idx[gsym] as i64;
+            if hidx >= 0 {
+                l.holder_glob_cells[hidx] = ci as i32;
+                if l.cells[ci].live { l.live_glob_holder_bits[hidx >> 6] |= (1 as u64) << (hidx & 63); }
+            }
+        }
+    }
     l.node_flags.clear(); l.node_flags.resize(node_count, 0);
     l.sym_flags.clear(); l.sym_flags.resize(sym_count, 0);
     l.hold_flags.clear(); l.hold_flags.resize(node_count, if full { FH_CONSTRUCT_READ | FH_BUILD_HOLD | FH_FORMAT_RAW | FH_SC2_SITE } else { 0 });
@@ -13096,17 +13596,127 @@ fn life_prepare_nodes(p: Program&, l: Lifetimes&, full: bool) -> bool {
                 l.bodies[cur_body].owner_count = l.body_owners.len - l.bodies[cur_body].owners;
             }
         }
+        if l.bodies.len > 0 && l.holder_glob_words > 0 {
+            let nb = l.bodies.len;
+            let h_words = l.holder_glob_words;
+            var disc: i32[>..] = []; disc.resize(nb, -1);
+            var low: i32[>..] = []; low.resize(nb, 0);
+            var on_stk: u8[>..] = []; on_stk.resize(nb, 0);
+            var tarj_stk: i32[>..] = [];
+            var dfs_u: i32[>..] = [];
+            var dfs_ci: i32[>..] = [];
+            var scc_nodes: i32[>..] = [];
+            var scc_id: i32[>..] = []; scc_id.resize(nb, 0);
+            var cur_scc: i32 = 0;
+            var timer: i32 = 0;
+            for root in 0..nb {
+                if disc[root] >= 0 { continue; }
+                disc[root] = timer; low[root] = timer; timer += 1;
+                on_stk[root] = 1; tarj_stk.push(root as i32);
+                dfs_u.push(root as i32); dfs_ci.push(0);
+                while dfs_u.len > 0 {
+                    let sp = dfs_u.len - 1;
+                    let u = dfs_u[sp] as i64;
+                    let ci = dfs_ci[sp] as i64;
+                    let ub: const LifeBody& = l.bodies[u];
+                    if ci < ub.call_count {
+                        dfs_ci[sp] = (ci + 1) as i32;
+                        let target = l.body_calls[ub.calls + ci];
+                        let v = if target >= 0 && target < l.node_body.len { l.node_body[target] as i64 } else { -1 };
+                        if v < 0 || v >= nb { continue; }
+                        if disc[v] < 0 {
+                            disc[v] = timer; low[v] = timer; timer += 1;
+                            on_stk[v] = 1; tarj_stk.push(v as i32);
+                            dfs_u.push(v as i32); dfs_ci.push(0);
+                        } else if on_stk[v] != 0 {
+                            if disc[v] < low[u] { low[u] = disc[v]; }
+                        }
+                    } else {
+                        dfs_u.resize(sp); dfs_ci.resize(sp);
+                        if sp > 0 {
+                            let parent = dfs_u[sp - 1] as i64;
+                            if low[u] < low[parent] { low[parent] = low[u]; }
+                        }
+                        if low[u] == disc[u] {
+                            scc_nodes.clear();
+                            cur_scc += 1;
+                            loop {
+                                let m = tarj_stk[tarj_stk.len - 1] as i64;
+                                tarj_stk.resize(tarj_stk.len - 1);
+                                on_stk[m] = 0;
+                                scc_id[m] = cur_scc;
+                                scc_nodes.push(m as i32);
+                                if m == u { break; }
+                            }
+                            var scc_ok = !any_b_ov;
+                            if scc_ok {
+                                for m32 in scc_nodes {
+                                    let mb: const LifeBody& = l.bodies[m32 as i64];
+                                    for k in mb.calls..mb.calls + mb.call_count {
+                                        let target = l.body_calls[k];
+                                        let v = if target >= 0 && target < l.node_body.len { l.node_body[target] as i64 } else { -1 };
+                                        if v < 0 || v >= nb || (scc_id[v] != cur_scc && l.bodies[v].glob_bits_at < 0) {
+                                            scc_ok = false; break;
+                                        }
+                                    }
+                                    if !scc_ok { break; }
+                                }
+                            }
+                            if scc_ok {
+                                let off = l.body_glob_bits.len;
+                                l.body_glob_bits.resize(off + h_words, 0);
+                                for m32 in scc_nodes {
+                                    let mb: const LifeBody& = l.bodies[m32 as i64];
+                                    for gi in mb.globals..mb.globals + mb.global_count {
+                                        let gs = l.body_globals[gi];
+                                        if gs >= 0 && gs < sym_count {
+                                            let hidx = l.holder_glob_idx[gs] as i64;
+                                            if hidx >= 0 { l.body_glob_bits[off + (hidx >> 6)] |= (1 as u64) << (hidx & 63); }
+                                        }
+                                    }
+                                    for k in mb.calls..mb.calls + mb.call_count {
+                                        let v = l.node_body[l.body_calls[k]] as i64;
+                                        if scc_id[v] != cur_scc {
+                                            let voff = l.bodies[v].glob_bits_at as i64;
+                                            for wi in 0..h_words { l.body_glob_bits[off + wi] |= l.body_glob_bits[voff + wi]; }
+                                        }
+                                    }
+                                }
+                                for m32 in scc_nodes { l.bodies[m32 as i64].glob_bits_at = off as i32; }
+                            }
+                        }
+                    }
+                }
+            }
+        }
         if has_cap && l.bodies.len > 0 {
             let nb = l.bodies.len;
             var rev_heads: i32[>..] = []; rev_heads.resize(nb, -1);
             var rev_caller: i32[>..] = [];
             var rev_next: i32[>..] = [];
             var cap_state: u8[>..] = []; cap_state.resize(nb, 0);
+            var co_state: u8[>..] = []; co_state.resize(nb, 0);
             var q2: i32[>..] = [];
             var q3: i32[>..] = [];
+            var qco: i32[>..] = [];
+            for s in 0..sym_count {
+                if (p.symbols[s].flags & S_CAPTURE) != 0 {
+                    let ow = p.symbols[s].owner;
+                    if ow >= 0 && ow < node_count {
+                        let ob = p.nodes[ow].right;
+                        if ob >= 0 && ob < l.node_body.len {
+                            let obi = l.node_body[ob] as i64;
+                            if obi >= 0 && obi < nb && co_state[obi] == 0 { co_state[obi] = 1; qco.push(obi as i32); }
+                        }
+                    }
+                }
+            }
             for bi in 0..nb {
                 let b: const LifeBody& = l.bodies[bi];
-                if b.captures { cap_state[bi] = 2; q2.push(bi as i32); }
+                if b.captures {
+                    cap_state[bi] = 2; q2.push(bi as i32);
+                    if co_state[bi] == 0 { co_state[bi] = 1; qco.push(bi as i32); }
+                }
                 var has_unk = any_b_ov;
                 for ci in b.calls..b.calls + b.call_count {
                     let target = l.body_calls[ci];
@@ -13121,6 +13731,7 @@ fn life_prepare_nodes(p: Program&, l: Lifetimes&, full: bool) -> bool {
                     }
                 }
                 if has_unk && cap_state[bi] == 0 { cap_state[bi] = 3; q3.push(bi as i32); }
+                if has_unk && co_state[bi] == 0 { co_state[bi] = 1; qco.push(bi as i32); }
             }
             var qi = 0;
             while qi < q2.len {
@@ -13142,11 +13753,24 @@ fn life_prepare_nodes(p: Program&, l: Lifetimes&, full: bool) -> bool {
                     e = rev_next[e] as i64;
                 }
             }
+            qi = 0;
+            while qi < qco.len {
+                let cur = qco[qi] as i64; qi += 1;
+                var e = rev_heads[cur] as i64;
+                while e >= 0 {
+                    let caller = rev_caller[e] as i64;
+                    if co_state[caller] == 0 { co_state[caller] = 1; qco.push(caller as i32); }
+                    e = rev_next[e] as i64;
+                }
+            }
             if l.capture_reads.len < node_count { l.capture_reads.resize(node_count, 0); }
+            l.cap_owner_reach.clear(); l.cap_owner_reach.resize(node_count, 1);
             for bi in 0..nb {
                 let st = cap_state[bi];
-                if st == 2 { l.capture_reads[l.bodies[bi].start] = 2; }
-                else if st == 0 { l.capture_reads[l.bodies[bi].start] = 1; }
+                let start_n = l.bodies[bi].start;
+                if st == 2 { l.capture_reads[start_n] = 2; }
+                else if st == 0 { l.capture_reads[start_n] = 1; }
+                if co_state[bi] == 0 { l.cap_owner_reach[start_n] = 0; }
             }
         }
     }
@@ -13181,6 +13805,10 @@ fn life_check_attempt(p: Program&, scope_parent: const i64[>..]&, scope_depth: c
     var gcell_val_epoch: i64[>..] = []; var root_read_act: i32[>..] = []; var cell_read_act: i32[>..] = [];
     var future_global_syms: i32[>..] = []; var future_global_cells: i32[>..] = [];
     var body_sym_seen: i32[>..] = [];
+    var holder_glob_idx: i32[>..] = []; var holder_glob_cells: i32[>..] = [];
+    var body_glob_bits: u64[>..] = []; var live_glob_holder_bits: u64[>..] = []; var future_glob_bits: u64[>..] = [];
+    var cap_owner_reach: u8[>..] = [];
+    var dep_groot_tys: i32[>..] = []; var dep_groot_refs: i32[>..] = []; var dep_groot_ty_stack: i32[>..] = [];
     var symbol_cells: i32[>..] = []; symbol_cells.resize(p.symbols.len, -1);
     var node_roots: i32[>..] = []; var function_frames: i32[>..] = []; var read_heads: i32[>..] = []; var visited: i32[>..] = []; var summary_slots: LifeSummarySlot[>..] = [];
     var effect_heads: i32[>..] = []; effect_heads.resize(2048, -1);
@@ -13219,8 +13847,12 @@ fn life_check_attempt(p: Program&, scope_parent: const i64[>..]&, scope_depth: c
     var holder_ref_start: i32[>..] = []; var holder_ref_count: i32[>..] = []; var holder_ref_flags: u8[>..] = []; var holder_ref_elems: i32[>..] = [];
     var gs_start: i32[>..] = []; var gs_count: i32[>..] = []; var gs_elems: i32[>..] = [];
     var body_trans_globals: i64[>..] = [];
-    var summary_l1: LifeSummarySlot[>..] = []; summary_l1.resize(2048, LifeSummarySlot {});
-    var assume_l1: LifeAssumeSlot[>..] = []; assume_l1.resize(2048, LifeAssumeSlot {});
+    var summary_l1: LifeSummarySlot[>..] = []; summary_l1.resize(16384, LifeSummarySlot {});
+    var assume_l1: LifeAssumeSlot[>..] = []; assume_l1.resize(16384, LifeAssumeSlot {});
+    var list_l1: LifeListSlot[>..] = []; list_l1.resize(4096, LifeListSlot {});
+    var list2_l1: LifeList2Slot[>..] = []; list2_l1.resize(2048, LifeList2Slot {});
+    var atom_l1: LifeAtomL1[>..] = []; atom_l1.resize(2048, LifeAtomL1 {});
+    var typed_held_memo: LifeTypedHeldMemo[>..] = []; typed_held_memo.resize(8192, LifeTypedHeldMemo {});
     var dep_roots: i64[>..] = []; var dep_callees: i64[>..] = []; var dep_callee_stamps: i64[>..] = [];
     var dep_root_stack: i64[>..] = []; var dep_callee_stack: i64[>..] = []; var dep_callee_stamp_stack: i64[>..] = [];
     var dep_root_mark: i64[>..] = []; var dep_callee_mark: i64[>..] = [];
@@ -13266,13 +13898,18 @@ fn life_check_attempt(p: Program&, scope_parent: const i64[>..]&, scope_depth: c
         closure_start: closure_start, closure_count: closure_count, closure_data: closure_data,
         holder_ref_start: holder_ref_start, holder_ref_count: holder_ref_count, holder_ref_flags: holder_ref_flags, holder_ref_elems: holder_ref_elems,
         gs_start: gs_start, gs_count: gs_count, gs_elems: gs_elems,
-        body_trans_globals: body_trans_globals, summary_l1: summary_l1, assume_l1: assume_l1,
+        body_trans_globals: body_trans_globals, summary_l1: summary_l1, assume_l1: assume_l1, list_l1: list_l1,
+        list2_l1: list2_l1, atom_l1: atom_l1, typed_held_memo: typed_held_memo,
         defers: defers, defer_targets: defer_targets, defer_run: defer_run, bypass_memo: bypass_memo,
         dirty_gcells: dirty_gcells, dirty_groots: dirty_groots,
         shared_reads: shared_reads, shared_alts: shared_alts,
         gcell_val_epoch: gcell_val_epoch, root_read_act: root_read_act, cell_read_act: cell_read_act,
         future_global_syms: future_global_syms, future_global_cells: future_global_cells,
-        body_sym_seen: body_sym_seen };
+        body_sym_seen: body_sym_seen,
+        holder_glob_idx: holder_glob_idx, holder_glob_cells: holder_glob_cells,
+        body_glob_bits: body_glob_bits, live_glob_holder_bits: live_glob_holder_bits, future_glob_bits: future_glob_bits,
+        cap_owner_reach: cap_owner_reach,
+        dep_groot_tys: dep_groot_tys, dep_groot_refs: dep_groot_refs, dep_groot_ty_stack: dep_groot_ty_stack };
     life_validate_pools(p, l, pool_references);
     if p.diagnostics.len > 0 { return true; }
     var standalone: LifeStandalone[>..] = []; let node_count = p.nodes.len;
