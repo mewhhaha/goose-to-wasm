@@ -8,7 +8,7 @@ fn guide_header(version: const u8[:]) {
     write_stdout(version);
     write_stdout(" (Goose v2026.4)\n\n");
     write_stdout("Quick, version-matched reference for humans and coding agents.\n");
-    write_stdout("Run `goosew guide --list` for topics, or `goosew guide <topic>` for one section.\n");
+    write_stdout("Run `goosew guide --list` for topics, `goosew guide <topic>` for one section, or `goosew guide idioms` for idiomatic Goose patterns.\n");
 }
 
 fn guide_usage(version: const u8[:]) {
@@ -32,6 +32,7 @@ fn guide_list_topics() {
     write_stdout("  control   Functions, UFCS, loops, multiple returns, generics, and modules\n");
     write_stdout("  stdlib    Standard library modules (std, os, json, regex, math, pools)\n");
     write_stdout("  cli       goosew build/check/cache/Wasm64/native C workflows & hosts\n");
+    write_stdout("  idioms    Idiomatic Goose patterns (zero-copy, guard, callbacks, recursion, pools, overloads)\n");
 }
 
 fn guide_section_rules() {
@@ -67,7 +68,7 @@ fn guide_section_types() {
     write_stdout("  - `T[>..<]` — **grow-shrink resizable** (stacks, queues; refs live only in locals).\n");
     write_stdout("- **Array members:** `.len`, `.cap`, `.push(v) -> T&`, `.append(slice_or_lit)`, `.pop() -> T`, `.pop_n(n)`, `.resize(n, v)`, `.clear()`, `.index_of(ref)`, `.range_index(slice)`, `dst.move_from(src)`.\n");
     write_stdout("- **Slices (`T[:]`, `const T[:]`):** Non-owning view `a[lo..hi]`, `a[..hi]`, `a[lo..]`, `a[..]` (full view). `==` / `!=` compare elements structurally across array kinds and slices.\n");
-    write_stdout("- **Strings:** Byte arrays/slices (`u8`). Literals are `const u8[:]` (read-only). Build text in `var s: u8[>..] = []; s.append(\"hi\"); format(s, \" \", n);` or write stdout with `print(...)` / `write_stdout(s)`.\n");
+    write_stdout("- **Strings & chars:** Byte arrays/slices (`u8`). Literals are `const u8[:]`, byte chars are `'a'`, `'%'`, `'\\n'` (prefer char literals over magic numbers). Borrow `const u8[:]` views instead of copying into `u8[>..]`; hoist loop scratch `var tmp: u8[>..] = [];` outside loops and reuse with `tmp.clear()`. Build text via `s.append(...)` / `format(s, ...)` or print with `print(...)` / `write_stdout(s)`.\n");
 }
 
 fn guide_section_structs() {
@@ -122,10 +123,10 @@ fn guide_section_control() {
     write_stdout("    return total;\n");
     write_stdout("}\n");
     write_stdout("```\n\n");
-    write_stdout("- **Expressions:** `if c { a } else { b }` and `match` are expressions. A block's final expression (no trailing `;`) is its value.\n");
+    write_stdout("- **Expressions & early exits:** `if c { a } else { b }` and `match` are expressions. A block's final expression (no trailing `;`) is its value. Prefer `guard cond else { return; }` (also narrows `T?` to `T&` for the rest of the block) over nested `if`s.\n");
     write_stdout("- **Multiple returns:** `fn f() -> i64, bool { return 42, true; }` and `let v, ok = f();`.\n");
-    write_stdout("- **UFCS:** `a.foo(b)` resolves to `foo(a, b)` for both builtins and user/stdlib functions.\n");
-    write_stdout("- **Loops & non-local returns:** `while cond { ... }`, `loop { ... break; }`, `for x in xs`, `for x, i in xs`, `for i in lo..hi`, `for i in n`. Use `return val from fn_name;` inside nested/callback functions.\n");
+    write_stdout("- **UFCS & trailing blocks:** `a.foo(b)` resolves to `foo(a, b)`. Pass callbacks as trailing blocks (`sort(xs) { a, b => a < b };`, `xs.filter() { it > 0 }`).\n");
+    write_stdout("- **Loops & non-local returns:** `while cond { ... }`, `loop { ... break; }`, `for x in xs` (copy for fixed elements), `for &x in xs` (mutate in place), `for x, i in xs`, `for i in lo..hi`, `for i in n`. Mark recursive cycles `recursive fn`. Use `return val from fn_name;` for long-distance returns.\n");
     write_stdout("- **Generics & `const for`:** `fn swap<T>(a: T&, b: T&)`, `struct Pair<T> { a: T, b: T }`, compile-time `const for` over fields/variants/types.\n");
     write_stdout("- **Modules & namespaces:** `import foo;` only loads `foo.goose` — it creates no namespace and never opens one. If a file declares `namespace foo;`, other files must qualify both types and functions as `foo::Name` (only UFCS `x.f()` on a `foo::T` finds `foo::f`). Files without `namespace` (like `std`, `os`, `math`, `vec`, `dictionary`) declare into the global namespace and are used unqualified (never `os::...`). Use `::name` (e.g. `fn ::main()`) for global scope. Avoid circular imports.\n");
 }
@@ -165,6 +166,61 @@ fn guide_section_cli() {
     write_stdout("```\n\n");
     write_stdout("- **Fast Wasm execution:** `goose-wasmtime --fast-jit build/app.wasm -- args...` (Wasmtime Winch baseline JIT), `goose-wtime build/app.wasm` (safe-Rust `wtime`), or `node scripts/run_wasm.mjs build/app.wasm`.\n");
     write_stdout("- **Useful flags:** `--stdlib DIR`, `--library`, `--reachable-program`, `--debug` (line-numbered range/overflow/tag checks), `--wasm-stats FILE`, `--color auto|always|never`, `--version`, `goosew guide <topic>`.\n");
+}
+
+fn guide_section_idioms() {
+    write_stdout("\n## Idiomatic Goose Patterns\n\n");
+    write_stdout("### 1. Zero-Copy Slices, Char Literals & Hoisted Scratch\n");
+    write_stdout("- Borrow `const u8[:]` slices into the input buffer instead of copying substrings into `u8[>..]` fields.\n");
+    write_stdout("- Hoist reusable `var scratch: u8[>..] = [];` outside hot loops and call `scratch.clear()` per iteration.\n");
+    write_stdout("- Write `'%'`, `'/'`, `'\\n'` instead of ASCII integers, and reuse `std` (`find`, `trim`, `starts_with`, `ends_with`, `parse_int`).\n");
+    write_stdout("- Stream output into caller-owned `out: u8[>..]&` via `format(out, ...)` rather than returning temporary buffers.\n\n");
+    write_stdout("### 2. Flat Errors & Narrowing (`guard`, trailing `bool`, `return ... from`)\n");
+    write_stdout("```goose\n");
+    write_stdout("import std;\n\n");
+    write_stdout("fn first_positive(xs: i64[:]) -> i64? {\n");
+    write_stdout("    for &x in xs { if x > 0 { return x; } }\n");
+    write_stdout("    return null;\n");
+    write_stdout("}\n\n");
+    write_stdout("fn parse_and_double(s: const u8[:]) -> i64, bool {\n");
+    write_stdout("    let n, ok = parse_int(trim(s));\n");
+    write_stdout("    guard ok else { return 0, false; }      // flat early exit\n");
+    write_stdout("    return n * 2, true;\n");
+    write_stdout("}\n");
+    write_stdout("```\n");
+    write_stdout("- `guard opt else { return; }` narrows an optional `T?` into a transparent `T&` for the rest of the block.\n");
+    write_stdout("- For deep error exits without plumbing `Result` through every frame, use `return err_val from entry_fn;`.\n\n");
+    write_stdout("### 3. Callbacks, Trailing Blocks & `for &x in xs`\n");
+    write_stdout("```goose\n");
+    write_stdout("import std;\n\n");
+    write_stdout("fn each_step<F>(lo: i64, hi: i64, step: i64) {\n");
+    write_stdout("    var i = lo;\n");
+    write_stdout("    while i < hi { F(i); i += step; }\n");
+    write_stdout("}\n\n");
+    write_stdout("fn first_mult7(lo: i64, hi: i64) -> i64 {\n");
+    write_stdout("    each_step(lo, hi, 3) { if it % 7 == 0 { return it; } };  // returns from first_mult7\n");
+    write_stdout("    return -1;\n");
+    write_stdout("}\n");
+    write_stdout("```\n");
+    write_stdout("- Trailing blocks (`{ it > 0 }` or `{ a, b => a < b }`) are compile-time inlined (no heap closures); `return` exits the enclosing function.\n");
+    write_stdout("- For stored handlers / strategy lists (no `std::function`), store an `enum Action { ... }` and dispatch with `match` or variant-typed overloads.\n");
+    write_stdout("- Use `for &x in xs { x *= 2; }` to mutate fixed-size elements in place (`for x in xs` yields a read-only copy).\n\n");
+    write_stdout("### 4. Recursion & the Context Pattern (`recursive fn` + `root struct`)\n");
+    write_stdout("- Mark recursive cycles `recursive fn` with explicit parameter/return types.\n");
+    write_stdout("- A recursive function cannot keep a growable `T[>..]` local alive across a recursive call. Own tables in the non-recursive entry function (or a `root struct`) and pass them by `&`, or share one grow-shrink `T[>..<]` stack with `let mark = stack.len; ... stack.resize(mark);`.\n\n");
+    write_stdout("### 5. Pools (`slot_pool` / `slice_pool`) vs Flat Arenas\n");
+    write_stdout("- Prefer a `root struct` holding fixed records (`Item { id, start, end }`) + a flat `u8[>..]` buffer when data is append-mostly or cleared per phase.\n");
+    write_stdout("- Use `slot_pool<T>` (O(1) freelist reuse for fixed `T`) and `slice_pool<u8>` (`alloc_slice`, `realloc_slice`, `free_slice`) when objects have non-nested lifetimes or grow independently.\n\n");
+    write_stdout("### 6. Overloads Instead of Traits & Zero-Boilerplate Serialization\n");
+    write_stdout("```goose\n");
+    write_stdout("import std;\n\n");
+    write_stdout("struct Point { x: i64, y: i64 }\n");
+    write_stdout("fn hash(p: Point) -> u64 { hash_combine(hash(p.x), hash(p.y)) }\n");
+    write_stdout("fn format(out: u8[>..]&, p: Point) { format(out, \"(\", p.x, \",\", p.y, \")\"); }\n");
+    write_stdout("```\n");
+    write_stdout("- Structural `==` and memberwise numeric `+ - * /` are built in; custom `hash` plugs into `dictionary<K, V>`, and custom `format` plugs into `print`/`str`/`format`.\n");
+    write_stdout("- Arrays with self-relative links (`Node&<u32>?`) serialize directly via `arr.to_bytes()` and load safely via `var loaded, ok = from_bytes<Node[>..]>(bytes);` (`bytes_of(a)` gives a zero-copy byte view).\n");
+    write_stdout("- Remember: `%` is Euclidean (`-7 % 3 == 2`; use `rem(a, b)` from `std` for C truncating remainder), and `if n != 0` is required on integers.\n");
 }
 
 fn driver_guide(version: const u8[:], arguments: u8[:][:]) -> i64 {
@@ -210,6 +266,7 @@ fn driver_guide(version: const u8[:], arguments: u8[:][:]) -> i64 {
     if arg == "control" { guide_section_control(); return 0; }
     if arg == "stdlib" { guide_section_stdlib(); return 0; }
     if arg == "cli" { guide_section_cli(); return 0; }
+    if arg == "idioms" { guide_section_idioms(); return 0; }
     write_stderr("goosew guide: unknown topic '");
     write_stderr(arg);
     write_stderr("' (run `goosew guide --list` for available topics)\n");

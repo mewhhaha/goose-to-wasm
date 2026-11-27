@@ -1026,7 +1026,7 @@ class WasmHostedCompiler(unittest.TestCase):
     def test_version_and_arguments(self):
         first, second = self.hosted("--version"), self.native("--version")
         self.assertEqual((first.returncode, first.stdout), (0, second.stdout))
-        for argv in (("guide", "--list"), ("guide", "rules"), ("guide", "--cheatsheet")):
+        for argv in (("guide", "--list"), ("guide", "rules"), ("guide", "idioms"), ("guide", "--cheatsheet")):
             with self.subTest(argv=argv):
                 a, b = self.hosted(*argv), self.native(*argv)
                 self.assertEqual((a.returncode, a.stdout, a.stderr), (0, b.stdout, b.stderr))
@@ -2233,7 +2233,10 @@ class GuideCommand(unittest.TestCase):
         "control": "## 5. Functions, Control Flow, Generics & Modules",
         "stdlib": "## 6. Standard Library (`--stdlib`)",
         "cli": "## 7. `goosew` CLI Workflows",
+        "idioms": "## Idiomatic Goose Patterns",
     }
+
+    DEFAULT_TOPICS = ("rules", "types", "structs", "refs", "control", "stdlib", "cli")
 
     def run_goosew(self, *args, cwd=ROOT):
         return subprocess.run(
@@ -2263,8 +2266,16 @@ class GuideCommand(unittest.TestCase):
         self.assertIn("cur .= cur.next", default.stdout)
         self.assertIn("starts_with", default.stdout)
         self.assertIn("variable-size structs cannot be indexed", default.stdout)
-        for heading in self.TOPICS.values():
-            self.assertIn(heading, default.stdout)
+        self.assertIn("goosew guide idioms", default.stdout)
+        for topic in self.DEFAULT_TOPICS:
+            self.assertIn(self.TOPICS[topic], default.stdout)
+        idioms = self.run_goosew("guide", "idioms")
+        self.assertEqual((idioms.returncode, idioms.stderr), (0, ""))
+        self.assertIn("## Idiomatic Goose Patterns", idioms.stdout)
+        self.assertIn("guard ok else", idioms.stdout)
+        self.assertIn("each_step<F>", idioms.stdout)
+        self.assertIn("slot_pool<T>", idioms.stdout)
+        self.assertIn("from_bytes", idioms.stdout)
 
     def test_topics_list_help_and_errors(self):
         listed = self.run_goosew("guide", "--list")

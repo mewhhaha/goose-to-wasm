@@ -49,7 +49,7 @@ goosew src/main.goose --target wasm-direct --wasm-memory64 --wasm-max-pages 6553
 - **`--wasm-memory64` & `--wasm-max-pages N`:** Targets 64-bit WebAssembly linear memory so large self-hosted programs and compilers can reserve gigabytes of virtual address space without exhausting wasm32's 4 GiB cap.
 - **`--library` & `--reachable-program`:** Compile library modules without a `main` function (checking only exported entrypoints and reachable code).
 - **`--error-format text|json`, `--color auto|always|never`, `--wasm-stats FILE`:** Structured diagnostics and per-stage compile/cache timing telemetry (`parse_ns`, `typecheck_ns`, `lifetime_ns`, `optimize_ns`, `backend_ns`, `cache_hit`, `life_cache_hit`).
-- **`goosew guide [topic|--cheatsheet|--list]`:** Prints a built-in, version-matched Goose language & `goosew` CLI cheatsheet (or one focused topic: `rules`, `types`, `structs`, `refs`, `control`, `stdlib`, `cli`) directly from both the native and portable Wasm compiler binaries.
+- **`goosew guide [topic|--cheatsheet|--list]`:** Prints a built-in, version-matched Goose language & `goosew` CLI cheatsheet (or one focused topic: `rules`, `types`, `structs`, `refs`, `control`, `stdlib`, `cli`, `idioms`) directly from both the native and portable Wasm compiler binaries.
 
 ## Optional Wasmtime & `wtime` hosts
 
