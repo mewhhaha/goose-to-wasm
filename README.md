@@ -64,6 +64,9 @@ export PATH="$PWD/build/bin:$PATH"
 ### Everyday commands
 
 ```sh
+# 0. Built-in Goose language & CLI cheatsheet (for humans and coding agents)
+goosew guide                  # or `goosew guide --cheatsheet`, `goosew guide --list`, `goosew guide <topic>`
+
 # 1. Fast type & lifetime check (--error-format=json & --color supported)
 goosew --check examples/sorting.goose
 

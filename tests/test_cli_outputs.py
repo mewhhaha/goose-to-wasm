@@ -1026,6 +1026,10 @@ class WasmHostedCompiler(unittest.TestCase):
     def test_version_and_arguments(self):
         first, second = self.hosted("--version"), self.native("--version")
         self.assertEqual((first.returncode, first.stdout), (0, second.stdout))
+        for argv in (("guide", "--list"), ("guide", "rules"), ("guide", "--cheatsheet")):
+            with self.subTest(argv=argv):
+                a, b = self.hosted(*argv), self.native(*argv)
+                self.assertEqual((a.returncode, a.stdout, a.stderr), (0, b.stdout, b.stderr))
 
     def test_locals_are_reused(self):
         # A local for every temporary gave the largest function 23,905 of them
@@ -2215,6 +2219,81 @@ fn main() {
                 outputs.append(out.read_bytes())
             for blob in outputs[1:]:
                 self.assertEqual(blob, outputs[0], f"{target} output differed across --jobs")
+
+
+@unittest.skipUnless(COMPILER.is_file(), "bootstrap the compiler first")
+class GuideCommand(unittest.TestCase):
+    """`goosew guide` prints a built-in version-matched cheatsheet and focused topic sections."""
+
+    TOPICS = {
+        "rules": "## 1. Top 10 Rules",
+        "types": "## 2. Scalars, Casts, Arrays, Slices & Strings",
+        "structs": "## 3. Structs, `root struct`, Enums & `match`",
+        "refs": "## 4. References, Optionals, Lifetimes & Memory Model",
+        "control": "## 5. Functions, Control Flow, Generics & Modules",
+        "stdlib": "## 6. Standard Library (`--stdlib`)",
+        "cli": "## 7. `goosew` CLI Workflows",
+    }
+
+    def run_goosew(self, *args, cwd=ROOT):
+        return subprocess.run(
+            list(map(str, [COMPILER, *args])),
+            cwd=cwd,
+            stdin=subprocess.DEVNULL,
+            capture_output=True,
+            text=True,
+            timeout=30,
+        )
+
+    def test_default_and_cheatsheet_match_and_include_version(self):
+        version_line = self.run_goosew("--version").stdout.strip()
+        version_token = version_line.split()[1]
+        default = self.run_goosew("guide")
+        cheatsheet = self.run_goosew("guide", "--cheatsheet")
+        all_topic = self.run_goosew("guide", "all")
+        self.assertEqual((default.returncode, default.stderr), (0, ""))
+        self.assertEqual(default.stdout, cheatsheet.stdout)
+        self.assertEqual(default.stdout, all_topic.stdout)
+        self.assertIn(version_token, default.stdout)
+        for heading in self.TOPICS.values():
+            self.assertIn(heading, default.stdout)
+
+    def test_topics_list_help_and_errors(self):
+        listed = self.run_goosew("guide", "--list")
+        self.assertEqual((listed.returncode, listed.stderr), (0, ""))
+        for topic, heading in self.TOPICS.items():
+            self.assertIn(topic, listed.stdout)
+            one = self.run_goosew("guide", topic)
+            self.assertEqual((one.returncode, one.stderr), (0, ""))
+            self.assertIn(heading, one.stdout)
+            for other_topic, other_heading in self.TOPICS.items():
+                if other_topic != topic:
+                    self.assertNotIn(other_heading, one.stdout)
+
+        helped = self.run_goosew("guide", "--help")
+        self.assertEqual((helped.returncode, helped.stderr), (0, ""))
+        self.assertIn("goosew guide --cheatsheet", helped.stdout)
+        self.assertIn("goosew guide --list", helped.stdout)
+
+        main_help = self.run_goosew("--help")
+        self.assertEqual(main_help.returncode, 0)
+        self.assertIn("goosew guide", main_help.stdout)
+
+        unknown = self.run_goosew("guide", "nonexistent")
+        self.assertEqual(unknown.returncode, 2)
+        self.assertIn("unknown topic", unknown.stderr)
+        self.assertIn("goosew guide --list", unknown.stderr)
+
+        too_many = self.run_goosew("guide", "rules", "types")
+        self.assertEqual(too_many.returncode, 2)
+        self.assertIn("at most one topic", too_many.stderr)
+
+    def test_guide_source_filename_still_compiles(self):
+        with tempfile.TemporaryDirectory() as directory:
+            work = Path(directory)
+            (work / "guide.goose").write_text("fn main() { print(42); }\n")
+            res = self.run_goosew("guide.goose", "--stdlib", SOURCE_STDLIB, "--check", cwd=work)
+            self.assertEqual((res.returncode, res.stderr), (0, ""))
 
 
 if __name__ == "__main__":
