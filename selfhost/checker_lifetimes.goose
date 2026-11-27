@@ -101,7 +101,7 @@ struct LifeFrame { store_read_pass: i64 = 0, store_reader: i64 = -1, function_no
     dep_clean_pass: i64 = -1, dep_dirty_pass: i64 = -1, dep_change_stamp: i64 = 0,
     dep_stored_ver: i64 = -1,
     validated_global_epoch: i64 = -1, summary_version: i64 = 0,
-    noncautious_ver: i32 = 0, defer_base: i32 = 0, has_deep_assume: bool = false, has_gs_assume: bool = false, val_stores_only: bool = false, val_stores_shallow: bool = false }
+    noncautious_ver: i32 = 0, defer_base: i32 = 0, has_deep_assume: bool = false, has_gs_assume: bool = false, val_stores_only: bool = false, val_stores_shallow: bool = false, has_concrete: bool = false }
 // The live storage and killed fields are the two mutable inputs of a
 // concrete holder reached during a shrink check.
 struct LifeWalkRoot { root: i64 = 0, contents: i64 = 0, kills: i64 = -1 }
@@ -213,6 +213,7 @@ struct LifeCellKey { root: i32, depth: i32, type_id: i32, element: i32, scope: i
 // (life_global_candidates): a span of candidate_alts, made at a global_epoch
 // and for a depth and whether later global declarations are included.
 struct LifeGlobalCandidates { epoch: i64 = -1, depth: i64 = 0, first: i64 = 0, count: i64 = 0, all_globals: bool = false }
+struct LifeSharedRead { epoch: i64 = -1, depth: i64 = 0, first: i32 = 0, count: i32 = 0, common_tt: i32 = -1, folded: bool = false, any_bytes: bool = false, excluded: bool = false, kept: bool = false }
 // A join of two sets and its result (life_join).
 struct LifeJoin { a: i32 = -1, b: i32 = -1, set: i32 = -1 }
 // The contents of a set of places (life_contents) as of contents_stamp
@@ -511,6 +512,9 @@ struct Lifetimes {
     defers: LifeDefer[>..]&, defer_targets: LifeDeferTarget[>..]&, defer_run: LifeDefer[>..]&, defer_floor: i64 = 0,
     bypass_memo: u8[>..]&,
     dirty_gcells: i32[>..]&, dirty_groots: i32[>..]&,
+    shared_reads: LifeSharedRead[>..]&, shared_alts: LifeAlt[>..]&, shared_epoch: i64 = -1,
+    gcell_val_epoch: i64[>..]&, gcell_any_val_epoch: i64 = 0,
+    root_read_act: i32[>..]&, cell_read_act: i32[>..]&, cls_act: i32 = 0, cls_self_dirty: bool = false,
 }
 
 fn life_same_effect(l: Lifetimes&, old: const LifeEffect&, effect: const LifeEffect&) -> bool {
@@ -2467,6 +2471,28 @@ inline fn life_mark_dirty_groot(l: Lifetimes&, root: i64) {
         l.dirty_groots.push(root as i32);
     }
 }
+inline fn life_bump_gval_cell(l: Lifetimes&, cell: i64) {
+    if !l.discovery && cell >= 0 {
+        l.gcell_any_val_epoch += 1;
+        if l.gcell_val_epoch.len <= cell { l.gcell_val_epoch.resize(cell + 1, 0); }
+        l.gcell_val_epoch[cell] = l.gcell_any_val_epoch;
+    }
+}
+inline fn life_mark_root_read(l: Lifetimes&, root: i64) {
+    if l.cls_act > 0 && !l.cls_self_dirty && root > 0 {
+        let rt: const LifeRoot& = l.roots[root];
+        if rt.frame == l.island || rt.class_frame == l.island {
+            if l.root_read_act.len <= root { l.root_read_act.resize(l.roots.len, 0); }
+            l.root_read_act[root] = l.cls_act;
+        }
+    }
+}
+inline fn life_mark_cell_read(l: Lifetimes&, cell: i64) {
+    if l.cls_act > 0 && !l.cls_self_dirty && cell >= 0 && l.cells[cell].frame == l.island {
+        if l.cell_read_act.len <= cell { l.cell_read_act.resize(l.cells.len, 0); }
+        l.cell_read_act[cell] = l.cls_act;
+    }
+}
 fn life_set_live(l: Lifetimes&, cell: i64, live: bool) {
     if l.cells[cell].live == live { return; }
     let ck: const LifeCellKey& = l.cell_keys[cell];
@@ -2516,8 +2542,10 @@ inline fn life_set_live_contents(l: Lifetimes&, root: i64, value: i64) {
         l.live_contents_stamp += 1;
         l.root_live_stamps[root] = l.live_contents_stamp;
         if value != 0 { l.holder_grow_epoch += 1; } else { l.val_kill_epoch += 1; }
+        if l.discovery && l.cls_act > 0 && root < l.root_read_act.len && l.root_read_act[root] == l.cls_act { l.cls_self_dirty = true; }
         if l.roots[root].frame == 0 && l.roots[root].class_frame < 0 {
             l.global_live_epoch += 1;
+            life_bump_gval_cell(l, l.roots[root].gcell as i64);
             life_mark_dirty_groot(l, root);
         }
     }
@@ -2531,6 +2559,7 @@ inline fn life_set_live_refs(l: Lifetimes&, cell: i64, value: i64) {
         if old != 0 && (value == 0 || !life_subset(l, old, value)) { l.val_kill_epoch += 1; }
         if l.cells[cell].frame == 0 {
             l.global_live_epoch += 1;
+            life_bump_gval_cell(l, cell);
             life_mark_dirty_gcell(l, cell);
         }
     }
@@ -2546,6 +2575,7 @@ inline fn life_clear_kills(l: Lifetimes&, root: i64) {
 fn life_set_refs(l: Lifetimes&, cell: i64, refs: i64) {
     let r32 = refs as i32;
     if l.cells[cell].refs == r32 { return; }
+    if l.discovery && l.cls_act > 0 && cell < l.cell_read_act.len && l.cell_read_act[cell] == l.cls_act { l.cls_self_dirty = true; }
     let ck: const LifeCellKey& = l.cell_keys[cell];
     if ck.global { l.global_epoch += 1; l.global_refs_epoch += 1; }
     if l.cells[cell].parameter { l.frames[l.cells[cell].frame].parameter_version += 1; }
@@ -2615,6 +2645,16 @@ fn life_note_temp(p: Program&, l: Lifetimes&, type_id: i64) {
     l.temp_count += 1;
 }
 fn life_temporary(p: Program&, l: Lifetimes&, node: i64) -> i64 {
+    let nr = l.node_roots[node] as i64;
+    if nr >= 0 {
+        let rt0: const LifeRoot& = l.roots[nr];
+        if rt0.frame == l.frame { life_note_temp(p, l, rt0.type_id); return life_root_set(l, nr); }
+        let nr2 = rt0.next_node;
+        if nr2 >= 0 {
+            let rt1: const LifeRoot& = l.roots[nr2];
+            if rt1.frame == l.frame { life_note_temp(p, l, rt1.type_id); return life_root_set(l, nr2); }
+        }
+    }
     // A node has one temporary in a frame; its temporaries in every frame
     // are also chained from node_roots.
     if 2 * (l.temporaries + 1) > l.temp_slots.len {
@@ -2677,11 +2717,22 @@ inline fn life_note_places_read(l: Lifetimes&, places: i64) {
             life_push_dep_root(l, l.alts[at].root as i64);
             at = l.alts[at].next;
         }
-    } else if (l.sets[places].flags & 2) != 0 {
-        let first = l.sets[places].first as i64; let count = l.sets[places].count as i64;
-        for i in 0..count {
-            let r = l.alts[first + i].root as i64;
-            if r > 0 && l.roots[r].frame <= 0 && l.roots[r].class_frame < 0 { life_push_dep_root(l, r); }
+    } else {
+        let need_g = (l.sets[places].flags & 2) != 0;
+        let need_self = l.cls_act > 0 && !l.cls_self_dirty;
+        if need_g || need_self {
+            let first = l.sets[places].first as i64; let count = l.sets[places].count as i64;
+            for i in 0..count {
+                let r = l.alts[first + i].root as i64;
+                if r > 0 {
+                    let rt: const LifeRoot& = l.roots[r];
+                    if need_g && rt.frame <= 0 && rt.class_frame < 0 { life_push_dep_root(l, r); }
+                    else if need_self && (rt.frame == l.island || rt.class_frame == l.island) {
+                        if l.root_read_act.len <= r { l.root_read_act.resize(l.roots.len, 0); }
+                        l.root_read_act[r] = l.cls_act;
+                    }
+                }
+            }
         }
     }
 }
@@ -2803,7 +2854,10 @@ fn life_contents(p: Program&, l: Lifetimes&, places: i64) -> i64 {
 }
 // Every change of a root's contents goes through here (life_contents).
 fn life_set_contents(l: Lifetimes&, root: i64, contents: i64) {
-    if l.roots[root].contents != contents { l.held_epoch += 1; }
+    if l.roots[root].contents != contents {
+        l.held_epoch += 1;
+        if l.discovery && l.cls_act > 0 && root < l.root_read_act.len && l.root_read_act[root] == l.cls_act { l.cls_self_dirty = true; }
+    }
     l.roots[root].contents = contents;
     life_mark_dirty_groot(l, root);
     if l.root_stamps.len <= root { l.root_stamps.resize(root + 1, 0); }
@@ -3361,23 +3415,25 @@ fn life_body_build_one(p: Program&, l: Lifetimes&, start: i64, last: i64 = -1) -
     var at = wbase;
     while at < l.body_work.len {
         let current = l.body_work[at]; at += 1;
-        let cached = l.node_body[current] as i64;
-        if last < 0 && cached >= 0 {
-            let cb = l.bodies[cached];
-            if cb.captures {
-                body.captures = true;
-                for oi in cb.owners..cb.owners + cb.owner_count {
-                    let owner = l.body_owners[oi]; var listed = false;
-                    for k in body.owners..l.body_owners.len { if l.body_owners[k] == owner { listed = true; break; } }
-                    if !listed { l.body_owners.push(owner); }
-                }
-                for ci in cb.named..cb.named + cb.named_count { let v = l.body_captures[ci]; l.body_captures.push(v); }
-            }
-            for gi in cb.globals..cb.globals + cb.global_count { let v = l.body_globals[gi]; l.body_globals.push(v); }
-            for ki in cb.calls..cb.calls + cb.call_count { let v = l.body_calls[ki]; l.body_calls.push(v); }
-            continue;
-        }
         let n: const Node& = p.nodes[current];
+        if last < 0 && current != start && (n.next >= 0 || n.kind == N_BLOCK) {
+            let cached = l.node_body[current] as i64;
+            if cached >= 0 {
+                let cb = l.bodies[cached];
+                if cb.captures {
+                    body.captures = true;
+                    for oi in cb.owners..cb.owners + cb.owner_count {
+                        let owner = l.body_owners[oi]; var listed = false;
+                        for k in body.owners..l.body_owners.len { if l.body_owners[k] == owner { listed = true; break; } }
+                        if !listed { l.body_owners.push(owner); }
+                    }
+                    for ci in cb.named..cb.named + cb.named_count { let v = l.body_captures[ci]; l.body_captures.push(v); }
+                }
+                for gi in cb.globals..cb.globals + cb.global_count { let v = l.body_globals[gi]; l.body_globals.push(v); }
+                for ki in cb.calls..cb.calls + cb.call_count { let v = l.body_calls[ki]; l.body_calls.push(v); }
+                continue;
+            }
+        }
         if n.kind == N_NAME && n.symbol >= 0 && n.symbol < p.symbols.len {
             let flags = p.symbols[n.symbol].flags;
             if (flags & S_CAPTURE) != 0 {
@@ -3401,26 +3457,35 @@ fn life_body_build_one(p: Program&, l: Lifetimes&, start: i64, last: i64 = -1) -
     }
     l.body_work.resize(wbase);
     // Each called node once.
-    l.body_calls[body.calls..l.body_calls.len].sort();
-    var kept = body.calls;
-    for index in body.calls..l.body_calls.len {
-        if index == body.calls || l.body_calls[index] != l.body_calls[kept - 1] { l.body_calls[kept] = l.body_calls[index]; kept += 1; }
+    if l.body_calls.len - body.calls > 1 {
+        l.body_calls[body.calls..l.body_calls.len].sort();
+        var kept = body.calls;
+        for index in body.calls..l.body_calls.len {
+            if index == body.calls || l.body_calls[index] != l.body_calls[kept - 1] { l.body_calls[kept] = l.body_calls[index]; kept += 1; }
+        }
+        l.body_calls.resize(kept, 0);
     }
-    l.body_calls.resize(kept, 0);
+    let kept = l.body_calls.len;
     // Each captured binding once, in order.
-    l.body_captures[body.named..l.body_captures.len].sort();
-    var named = body.named;
-    for index in body.named..l.body_captures.len {
-        if index == body.named || l.body_captures[index] != l.body_captures[named - 1] { l.body_captures[named] = l.body_captures[index]; named += 1; }
+    if l.body_captures.len - body.named > 1 {
+        l.body_captures[body.named..l.body_captures.len].sort();
+        var named = body.named;
+        for index in body.named..l.body_captures.len {
+            if index == body.named || l.body_captures[index] != l.body_captures[named - 1] { l.body_captures[named] = l.body_captures[index]; named += 1; }
+        }
+        l.body_captures.resize(named, 0);
     }
-    l.body_captures.resize(named, 0); body.named_count = named - body.named;
+    body.named_count = l.body_captures.len - body.named;
     // Each global once, in order (for binary search in life_reads_global).
-    l.body_globals[body.globals..l.body_globals.len].sort();
-    var gkept = body.globals;
-    for index in body.globals..l.body_globals.len {
-        if index == body.globals || l.body_globals[index] != l.body_globals[gkept - 1] { l.body_globals[gkept] = l.body_globals[index]; gkept += 1; }
+    if l.body_globals.len - body.globals > 1 {
+        l.body_globals[body.globals..l.body_globals.len].sort();
+        var gkept = body.globals;
+        for index in body.globals..l.body_globals.len {
+            if index == body.globals || l.body_globals[index] != l.body_globals[gkept - 1] { l.body_globals[gkept] = l.body_globals[index]; gkept += 1; }
+        }
+        l.body_globals.resize(gkept, 0);
     }
-    l.body_globals.resize(gkept, 0);
+    let gkept = l.body_globals.len;
     body.global_count = gkept - body.globals; body.call_count = kept - body.calls; body.owner_count = l.body_owners.len - body.owners;
     let index = l.bodies.len; l.bodies.push(body);
     if last < 0 { l.node_body[start] = index as i32; }
@@ -3597,13 +3662,15 @@ fn life_global_capture_span(p: Program&, l: Lifetimes&, function_node: i64) -> L
             cell = l.cells[cell].next_capture_input;
         }
     }
-    l.global_read_list[first..l.global_read_list.len].sort();
-    var kept = first;
-    for at in first..l.global_read_list.len {
-        if at == first || l.global_read_list[at] != l.global_read_list[kept - 1] { l.global_read_list[kept] = l.global_read_list[at]; kept += 1; }
+    if l.global_read_list.len - first > 1 {
+        l.global_read_list[first..l.global_read_list.len].sort();
+        var kept = first;
+        for at in first..l.global_read_list.len {
+            if at == first || l.global_read_list[at] != l.global_read_list[kept - 1] { l.global_read_list[kept] = l.global_read_list[at]; kept += 1; }
+        }
+        l.global_read_list.resize(kept);
     }
-    l.global_read_list.resize(kept);
-    let span = LifeCaptureSpan { first: first, count: kept - first, head: head };
+    let span = LifeCaptureSpan { first: first, count: l.global_read_list.len - first, head: head };
     l.bodies[body_index].global_inputs = span;
     return span;
 }
@@ -4251,6 +4318,7 @@ fn life_held_own(l: Lifetimes&, set: i64) -> i64 {
             if l.chk_dep_recording { l.chk_dep_stack.push(a.root); }
             if l.discovery {
                 if l.frame > 0 && (l.island == 0 || l.roots[a.root].frame <= 0 && l.roots[a.root].class_frame < 0) { life_push_dep_root(l, a.root as i64); }
+                else { life_mark_root_read(l, a.root as i64); }
                 let c = l.roots[a.root].contents;
                 return life_fold(l, c);
             }
@@ -4260,6 +4328,7 @@ fn life_held_own(l: Lifetimes&, set: i64) -> i64 {
         return life_single(l, a.root as i64, false, -1, false, a.byteview);
     }
     var slot: i64 = -1;
+    if l.discovery && l.cls_act > 0 && !l.cls_self_dirty { life_note_places_read(l, set); }
     if l.class_frames > 0 {
         if l.held_own_memo.len == 0 { l.held_own_memo.resize(64, LifeHeldOwn {}); }
         var h: u64 = (set as! u64) * 11400714819323198485;
@@ -6093,6 +6162,7 @@ fn life_class_candidates(p: Program&, l: Lifetimes&, owner: i64, pointee: i64) -
     var through_parameter = false; var ci = l.frames[l.frame].first_parameter;
     while ci >= 0 {
         let cell: const LifeCell& = l.cells[ci];
+        life_mark_cell_read(l, ci);
         if life_find(l, cell.refs, owner) >= 0 { through_parameter = true; break; }
         ci = cell.next_parameter;
     }
@@ -6100,6 +6170,7 @@ fn life_class_candidates(p: Program&, l: Lifetimes&, owner: i64, pointee: i64) -
     var result = LifeBuild {}; ci = l.frames[l.frame].first_parameter;
     while ci >= 0 {
         let cell: const LifeCell& = l.cells[ci]; let ty = p.symbols[cell.symbol].type_id;
+        life_mark_cell_read(l, ci);
         if ty >= 0 && p.types[ty].kind == TY_REF && life_contains(p, l, p.types[ty].element, pointee) {
             var at = l.sets[cell.refs].first;
             while at >= 0 { let alt = l.alts[at]; if l.roots[alt.root].depth <= l.roots[owner].depth { life_build_add_alt(l, result, LifeAlt { root: alt.root, bound: alt.bound, component: alt.component, exact: alt.exact }); } at = alt.next; }
@@ -6159,6 +6230,23 @@ fn life_fold_slow(l: Lifetimes&, set: i64) -> i64 {
         l.scratch.resize(start);
     }
     l.sets[set].folded = result as i32;
+    return result;
+}
+fn life_fold_force(l: Lifetimes&, set: i64) -> i64 {
+    if l.class_frames == 0 { return set; }
+    if l.globals_root < 0 { l.globals_root = l.roots.len; l.roots.push(LifeRoot { frame: 0 }); }
+    let start = l.scratch.len; var all_slots = true; var any_bytes = false; var first_g = true; var common_tt: i32 = -1;
+    var at = l.sets[set].first;
+    while at >= 0 {
+        let alt = l.alts[at]; at = alt.next; let root: const LifeRoot& = l.roots[alt.root];
+        if alt.root == l.globals_root || root.symbol >= 0 && root.frame == 0 && root.depth == 0 {
+            if alt.root != 0 && !alt.slotread { all_slots = false; } if alt.byteview { any_bytes = true; }
+            if first_g { common_tt = alt.target_type; first_g = false; } else if common_tt != alt.target_type { common_tt = -1; }
+        } else { var kept = alt; kept.next = -1; kept.bound = 0; l.scratch.push(kept); }
+    }
+    l.scratch.push(LifeAlt { root: l.globals_root as i32, target_type: common_tt, exact: false, slotread: all_slots, byteview: any_bytes });
+    let result = life_list_set(l, start, false);
+    l.scratch.resize(start);
     return result;
 }
 // Whether some global holds grow-shrink elements a reference to `pointee`
@@ -6242,6 +6330,7 @@ fn life_readback(p: Program&, l: Lifetimes&, type_id: i64, places: i64) -> i64 {
         let r: const LifeReadBack& = l.readbacks[memo];
         if r.type_id == type_id && r.places == places && r.epoch == l.global_epoch { return r.set; }
     }
+    var force_fold = false;
     var global_reads = 0; var global_depth = 0; var global_holder = false; var global_bound: i64 = 0;
     var result = LifeBuild {}; var at = l.sets[places].first;
     while at >= 0 {
@@ -6274,6 +6363,75 @@ fn life_readback(p: Program&, l: Lifetimes&, type_id: i64, places: i64) -> i64 {
         if shared && (global_reads == 0 || root_depth == global_depth) {
             global_reads += 1; global_depth = root_depth;
             if holder { global_holder = true; } if alt.bound > global_bound { global_bound = alt.bound; }
+        }
+        if shared && l.class_frames > 0 && l.types_frozen {
+            let elem = t.element;
+            while l.shared_reads.len <= elem { l.shared_reads.push(LifeSharedRead {}); }
+            if l.shared_epoch != l.global_epoch { l.shared_alts.clear(); l.shared_epoch = l.global_epoch; }
+            var sr = l.shared_reads[elem];
+            if sr.epoch != l.global_epoch || sr.depth != root_depth {
+                let sstart = l.scratch.len;
+                life_global_candidates(p, l, elem, root_depth);
+                let send = l.scratch.len;
+                var s_excl = false; var s_kept = false; var s_hp = false;
+                var s_gcnt: i64 = 0; var s_any_b = false; var s_first_g = true; var s_ctt: i32 = -1;
+                let astart = l.shared_alts.len;
+                for item in sstart..send {
+                    let r = l.scratch[item];
+                    if r.root != 0 && l.roots[r.root].param_frame >= 0 { s_hp = true; if !l.frames[l.roots[r.root].param_frame].active { continue; } }
+                    if (r.target_type < 0 || life_same(p, r.target_type, elem)) && (r.root == 0 || r.byteview || !r.exact || l.roots[r.root].param_frame >= 0 || life_class_holds(p, l, r.root as i64, elem) || life_contains_memo(p, l, l.roots[r.root].type_id, elem)) &&
+                       (r.root == 0 || r.byteview || r.exact || r.from != r.root || l.roots[r.root].class_frame < 0 || l.roots[r.root].class_parent < 0 || life_holder_points(p, l, l.roots[r.root].class_type, elem)) &&
+                       (!life_is_global_bound(l, r) || r.byteview || life_globals_contain(p, l, elem)) {
+                        if r.exact && l.roots[r.root].class_frame < 0 {
+                            let storage = life_alt_type(p, l, r);
+                            if !root_struct_type(p, storage) && life_gs_contains(p, l, storage, elem, r.byteview) {
+                                s_excl = true; continue;
+                            }
+                        }
+                        s_kept = true;
+                        var target = r.target_type;
+                        if target < 0 && r.exact && (l.roots[r.root].param_frame >= 0 || l.roots[r.root].class_frame >= 0 && (l.roots[r.root].class_parent >= 0 || l.roots[r.root].class_index >= l.frames[l.roots[r.root].class_frame].class_base)) { target = elem as i32; }
+                        let rr: const LifeRoot& = l.roots[r.root];
+                        if r.root == l.globals_root || rr.symbol >= 0 && rr.frame == 0 && rr.depth == 0 {
+                            s_gcnt += 1;
+                            if r.byteview { s_any_b = true; }
+                            if s_first_g { s_ctt = target; s_first_g = false; } else if s_ctt != target { s_ctt = -1; }
+                        }
+                        var kept_a = r; kept_a.target_type = target; kept_a.slotread = true;
+                        l.shared_alts.push(kept_a);
+                    }
+                }
+                l.scratch.resize(sstart);
+                let s_folded = s_gcnt > LIFE_GLOBAL_ALTS;
+                if s_folded {
+                    var w = astart;
+                    for si in astart..l.shared_alts.len {
+                        let ka = l.shared_alts[si];
+                        let rr: const LifeRoot& = l.roots[ka.root];
+                        if !(ka.root == l.globals_root || rr.symbol >= 0 && rr.frame == 0 && rr.depth == 0) {
+                            l.shared_alts[w] = ka; w += 1;
+                        }
+                    }
+                    l.shared_alts.resize(w);
+                }
+                sr = LifeSharedRead { epoch: l.global_epoch, depth: root_depth, first: astart as i32, count: (l.shared_alts.len - astart) as i32, common_tt: s_ctt, folded: s_folded, any_bytes: s_any_b, excluded: s_excl, kept: s_kept };
+                if !s_hp { l.shared_reads[elem] = sr; }
+            }
+            let sf = sr.first as i64; let sc = sr.count as i64;
+            for si in 0..sc {
+                let r = l.shared_alts[sf + si];
+                var bound = r.bound; if alt.bound > bound { bound = alt.bound; }
+                life_build_add_alt(l, result, LifeAlt { root: r.root, from: alt.root, target_type: r.target_type, bound: bound, component: r.component, exact: r.exact, slotread: true, byteview: r.byteview });
+            }
+            if sr.folded {
+                if l.globals_root < 0 { l.globals_root = l.roots.len; l.roots.push(LifeRoot { frame: 0 }); }
+                life_build_add_alt(l, result, LifeAlt { root: l.globals_root as i32, target_type: sr.common_tt, exact: false, slotread: true, byteview: sr.any_bytes });
+                force_fold = true;
+            }
+            if sr.excluded && !sr.kept {
+                life_build_add_alt(l, result, LifeAlt { root: alt.root, bound: alt.bound, exact: false, slotread: true });
+            }
+            at = alt.next; continue;
         }
         // The candidates are read once, here, and their set is not made.
         let start = l.scratch.len;
@@ -6375,7 +6533,8 @@ fn life_readback(p: Program&, l: Lifetimes&, type_id: i64, places: i64) -> i64 {
         l.scratch.resize(start);
         at = alt.next;
     }
-    let set = life_fold(l, life_build_end(l, result));
+    let raw_set = life_build_end(l, result);
+    let set = if force_fold { life_fold_force(l, raw_set) } else { life_fold(l, raw_set) };
     if slot >= 0 {
         // Grow on repeated misses. Small programs usually need only a few entries.
         if l.local_reads.len < 16384 {
@@ -6436,6 +6595,12 @@ fn life_load(p: Program&, l: Lifetimes&, type_id: i64, places: i64, slot: bool =
     if is_ref { out.refs = life_readback(p, l, type_id, places) as i32; }
     if !holds { out.contents = 0; }
     else if !is_ref {
+        if (l.sets[places].flags & 2) == 0 {
+            if out.contents == 0 { return out; }
+            out.contents = life_fold(l, out.contents) as i32;
+            if slot { out.contents = life_mark_slotread(l, out.contents) as i32; }
+            return out;
+        }
         // What follows depends only on the two sets and on slot (a root's
         // symbol does not change), and a list made again is the same set.
         if l.loaded.len == 0 { l.loaded.resize(64, LifeLoaded {}); }
@@ -6455,9 +6620,7 @@ fn life_load(p: Program&, l: Lifetimes&, type_id: i64, places: i64, slot: bool =
         }
         out.contents = life_fold(l, life_build_end(l, mutable)) as i32;
         if slot {
-            var contents = LifeBuild {}; var at = l.sets[out.contents].first;
-            while at >= 0 { var alt = l.alts[at]; at = alt.next; alt.slotread = true; life_build_add_alt(l, contents, alt); }
-            out.contents = life_build_end(l, contents) as i32;
+            out.contents = life_mark_slotread(l, out.contents) as i32;
         }
         l.loaded[memo] = LifeLoaded { contents: key, places: places, set: out.contents };
         // Entries keep their slots when the table grows, as joins do.
@@ -6764,7 +6927,10 @@ fn life_bind(p: Program&, l: Lifetimes&, node: i64, cell: i64, value: const Life
             if l.cells[cell].committed && depth != l.cells[cell].depth {
                 life_scope_error(p, l, node, 0);
             }
-            if !l.cells[cell].committed { l.cells[cell].committed = true; l.cells[cell].depth = depth as i32; l.cells[cell].initial = sources as i32; }
+            if !l.cells[cell].committed {
+                if !is_decl && l.discovery && l.cls_act > 0 { l.cls_self_dirty = true; }
+                l.cells[cell].committed = true; l.cells[cell].depth = depth as i32; l.cells[cell].initial = sources as i32;
+            }
         }
     }
     var kept = sources;
@@ -7833,7 +7999,7 @@ fn life_class_new(p: Program&, l: Lifetimes&, function_node: i64, call: i64, sel
     }
     l.frames.push(LifeFrame { function_node: function_node, parent: l.frame, lexical: 0, call: call, inputs: inputs, base: base, slice_slots: life_slice_slot_params(p, function_node), selected_result: selected_result, next_function: newest, home: l.frame,
         island: target, classes: classes, class_count: 3 * n, class_base: n, key: key, key_len: c.key_len, key_hash: c.hash, class_destination: place, result_class: result_class });
-    if newest >= 0 { l.frames[target].function_active = l.frames[newest].function_active; l.frames[target].inputs_kinds = l.frames[newest].inputs_kinds; l.frames[target].mixed_kinds = l.frames[newest].mixed_kinds; }
+    if newest >= 0 { l.frames[target].function_active = l.frames[newest].function_active; l.frames[target].inputs_kinds = l.frames[newest].inputs_kinds; l.frames[target].mixed_kinds = l.frames[newest].mixed_kinds; l.frames[target].has_concrete = l.frames[newest].has_concrete; }
     else { l.frames[target].mixed_kinds = true; }
     l.function_frames[function_node] = target as i32; l.class_frames += 1; l.class_list.push(target);
     if l.class_list.len > l.class_heads.len {
@@ -8169,7 +8335,6 @@ inline fn life_cls_global_ok(l: Lifetimes&, dep_ge: i64) -> bool {
         l.global_refs_epoch == l.settled_global_refs && l.global_live_count == l.settled_global_live;
 }
 fn life_class_frame_is_clean(l: Lifetimes&, frame: i64) -> bool {
-    if l.frames[frame].dep_in_rec { return false; }
     if l.frames[frame].dep_clean_pass == l.pass { return true; }
     if l.frames[frame].dep_dirty_pass == l.pass { return false; }
     l.clean_gen += 1;
@@ -8233,6 +8398,8 @@ recursive fn life_class_eval(p: Program&, l: Lifetimes&, target: i64, sets: i64)
     let saved_cls_tainted = l.cls_dep_tainted;
     let saved_min_back = l.cls_min_back;
     let saved_child_rev = l.cls_child_rev;
+    let saved_cls_act = l.cls_act;
+    let saved_cls_self_dirty = l.cls_self_dirty; let saved_unsealed = l.chk_saw_unsealed;
     let saved_r_floor = l.dep_root_floor;
     let r_start = l.dep_root_stack.len;
     let c_start = l.dep_callee_stack.len;
@@ -8291,21 +8458,22 @@ recursive fn life_class_eval(p: Program&, l: Lifetimes&, target: i64, sets: i64)
         if item >= 0 { item = l.items[item].next; }
         formal = p.nodes[formal].next;
     }
-    let body_rev0 = l.revision;
-    let body_first_cell = l.frames[target].first_cell;
-    let body_typed0 = l.frames[target].typed_first;
+
+    l.cls_act = if track_cls && l.activations < 2147483647 { l.frames[target].activation as i32 } else { 0 };
+    l.cls_self_dirty = false; l.chk_saw_unsealed = false;
     l.frames[target].active = true; l.frames[l.function_frames[function_node] as i64].function_active += 1; let temporary_base = l.temp_count;
     life_eval(p, l, p.nodes[function_node].right, l.frames[target].class_destination, l.frames[target].selected_result);
     l.temp_count = temporary_base; l.frames[target].active = false; l.frames[l.function_frames[function_node] as i64].function_active -= 1;
+    let self_dirty = l.cls_self_dirty; let body_unsealed = l.chk_saw_unsealed;
+    l.cls_act = saved_cls_act; l.cls_self_dirty = saved_cls_self_dirty; l.chk_saw_unsealed = saved_unsealed || body_unsealed;
     l.frames[target].checked_revision = l.pass;
-    if l.discovery { l.frames[target].discovered = true; } else { l.frames[target].validated = true; l.frames[target].validated_global_epoch = l.global_live_epoch; life_compact_effects(l, target); }
+    if l.discovery { l.frames[target].discovered = true; } else { l.frames[target].validated = true; l.frames[target].validated_global_epoch = l.gcell_any_val_epoch; life_compact_effects(l, target); }
     if track_cls {
         let my_chain = l.frames[target].chain;
         let child_min_back = l.cls_min_back;
         let child_tainted = l.cls_dep_tainted;
         let total_rev = l.revision - rev0;
         let own_rev = total_rev - l.cls_child_rev;
-        let body_own_rev = (l.revision - body_rev0) - l.cls_child_rev;
         l.cls_child_rev = saved_child_rev + total_rev;
         let rec1: i64 = if l.frames[target].recursive_call { 1 } else { 0 };
         let res1 = l.frames[target].result;
@@ -8324,13 +8492,13 @@ recursive fn life_class_eval(p: Program&, l: Lifetimes&, target: i64, sets: i64)
                 callee_mid_changed = true; break;
             }
         }
-        let res_empty = res1.place == 0 && res1.refs == 0 && res1.contents == 0 &&
-            res1.self_pools == 0 && res1.relative_roots == 0 && res1.tuple < 0 &&
-            res1.element_array == -1 && res1.reached == -1 && !res1.readonly;
-        let can_cert_p1 = !was_discovered && body_own_rev == 0 && !meta_no_res && rec1 == 0 && res_empty &&
-            l.frames[target].first_cell == body_first_cell && l.frames[target].typed_first == body_typed0 &&
-            l.frames[target].first_exit < 0;
-        if ((!own_changed && was_discovered) || can_cert_p1) && !child_tainted && !callee_mid_changed {
+        let can_cert_clean = !self_dirty && l.activations < 2147483647 &&
+            l.frames[target].stored_version == stored0 &&
+            l.frames[target].class_stored == cs0 &&
+            !body_unsealed &&
+            l.global_epoch == glob0 && rec1 == 0 &&
+            l.failures.len == fail0 && l.frames[target].first_exit < 0;
+        if ((!own_changed && was_discovered) || can_cert_clean) && !child_tainted && !callee_mid_changed {
             l.dep_gen += 1;
             var r_first = l.dep_roots.len;
             for i in r_start..l.dep_root_stack.len {
@@ -8688,22 +8856,26 @@ recursive fn life_class_call(p: Program&, l: Lifetimes&, function_node: i64, cal
     if evaluate && !l.discovery {
         // As for any frame: checked again only when a global it reads holds
         // other references than when it was last checked.
-        if l.frames[target].validated && l.frames[target].validated_global_epoch == l.global_live_epoch {
+        if l.frames[target].validated && l.frames[target].validated_global_epoch == l.gcell_any_val_epoch {
             evaluate = false;
         } else if l.frames[0].first_capture_input < 0 {
             if l.frames[target].validated && l.frames[target].capture_inputs < 0 {
-                l.frames[target].validated_global_epoch = l.global_live_epoch; evaluate = false;
+                l.frames[target].validated_global_epoch = l.gcell_any_val_epoch; evaluate = false;
             } else { l.frames[target].capture_inputs = -1; life_reset_validation(l.frames[target]); }
         } else if !l.frames[target].validated {
-            let span = life_global_capture_span(p, l, function_node);
-            if span.count == 0 { l.frames[target].capture_inputs = -1; }
-            else { l.frames[target].capture_inputs = life_capture_span_snapshot(p, l, span); }
+            l.frames[target].capture_inputs = -2;
             life_reset_validation(l.frames[target]);
         } else {
+            let e0 = l.frames[target].validated_global_epoch;
             let span = life_global_capture_span(p, l, function_node);
-            if span.count == 0 || l.frames[target].capture_inputs != -2 && life_global_captures_match(p, l, l.frames[target].capture_inputs, span) {
+            var g_unchanged = true;
+            for gi in span.first..span.first + span.count {
+                let gc = l.global_read_list[gi];
+                if gc < l.gcell_val_epoch.len && l.gcell_val_epoch[gc] > e0 { g_unchanged = false; break; }
+            }
+            if g_unchanged || l.frames[target].capture_inputs != -2 && life_global_captures_match(p, l, l.frames[target].capture_inputs, span) {
                 if span.count == 0 { l.frames[target].capture_inputs = -1; }
-                l.frames[target].validated_global_epoch = l.global_live_epoch; evaluate = false;
+                l.frames[target].validated_global_epoch = l.gcell_any_val_epoch; evaluate = false;
             } else {
                 let snap = life_capture_span_snapshot(p, l, span);
                 l.frames[target].capture_inputs = snap;
@@ -8937,6 +9109,11 @@ recursive fn life_function(p: Program&, l: Lifetimes&, function_node: i64, call:
     }
     // Only an active frame of the function is on the chain.
     let newest = l.function_frames[function_node] as i64;
+    if call >= 0 && lexical == 0 && l.frames.len > LIFE_CONCRETE_FRAMES && captures < 0 &&
+       fn_node.symbol >= 0 && owner < 0 && (newest < 0 || !l.frames[newest].has_concrete) &&
+       (!reads_captures || life_contained(p, l, function_node)) {
+        return life_class_call(p, l, function_node, call, arguments, destination, selected_result, receiver_sensitive);
+    }
     var target = -1; var active = l.frame; if newest < 0 || l.frames[newest].function_active == 0 { active = 0; }
     while active > 0 {
         if l.frames[active].classes < 0 && l.frames[active].function_node == function_node && l.frames[active].lexical == lexical && l.frames[active].selected_result == selected_result && (!receiver_sensitive || life_equal(l, l.frames[active].destination, destination)) && life_classes_equal(p, l, l.frames[active].inputs, arguments) { target = active; break; }
@@ -8999,12 +9176,13 @@ recursive fn life_function(p: Program&, l: Lifetimes&, function_node: i64, call:
        fn_node.symbol >= 0 && owner < 0 && (!reads_captures || life_contained(p, l, function_node)) {
         return life_class_call(p, l, function_node, call, arguments, destination, selected_result, receiver_sensitive);
     }
+    if l.discovery && l.island > 0 { l.cls_self_dirty = true; }
     if target >= 0 && l.discovery && l.island > 0 && l.frames[target].island != l.island { l.cls_dep_tainted = true; }
     if target < 0 {
         let incoming_depth = life_input_depth(p, l, arguments);
         let base = 2 + (if incoming_depth > reach { incoming_depth } else { reach });
         target = l.frames.len;
-        l.frames.push(LifeFrame { function_node: function_node, parent: l.frame, lexical: lexical, call: call, inputs: arguments, base: base, slice_slots: life_slice_slot_params(p, function_node), destination: destination, selected_result: selected_result, next_function: newest, home: l.frame, inputs_hash: key.hash, inputs_kinds: key.kinds, mixed_kinds: mixed, island: l.island });
+        l.frames.push(LifeFrame { function_node: function_node, parent: l.frame, lexical: lexical, call: call, inputs: arguments, base: base, slice_slots: life_slice_slot_params(p, function_node), destination: destination, selected_result: selected_result, next_function: newest, home: l.frame, inputs_hash: key.hash, inputs_kinds: key.kinds, mixed_kinds: mixed, island: l.island, has_concrete: true });
         if newest >= 0 { l.frames[target].function_active = l.frames[newest].function_active; }
         l.function_frames[function_node] = target as i32; life_index_frame(l, target);
     }
@@ -9036,28 +9214,34 @@ recursive fn life_function(p: Program&, l: Lifetimes&, function_node: i64, call:
             // reference arguments, and are read before this call's stores.
             life_reset_validation(l.frames[target]);
         } else if lexical == 0 {
-            if l.frames[target].validated && l.frames[target].validated_global_epoch == l.global_live_epoch {
+            if l.frames[target].validated && l.frames[target].validated_global_epoch == l.gcell_any_val_epoch {
                 if l.frames[target].first_effect >= 0 { life_replay(p, l, target); }
                 return l.frames[target].result;
             }
             if l.frames[0].first_capture_input < 0 {
                 if l.frames[target].validated && l.frames[target].capture_inputs < 0 {
-                    l.frames[target].validated_global_epoch = l.global_live_epoch;
+                    l.frames[target].validated_global_epoch = l.gcell_any_val_epoch;
                     if l.frames[target].first_effect >= 0 { life_replay(p, l, target); }
                     return l.frames[target].result;
                 }
                 l.frames[target].capture_inputs = -1;
                 life_reset_validation(l.frames[target]);
             } else if !l.frames[target].validated {
-                // First validation: defer capture snapshotting unless global_live_epoch later changes.
+                // First validation: defer capture snapshotting unless a read global later changes.
                 l.frames[target].capture_inputs = -2;
                 life_reset_validation(l.frames[target]);
             } else {
+                let e0 = l.frames[target].validated_global_epoch;
                 let span = life_global_capture_span(p, l, function_node);
-                if l.frames[target].validated && (span.count == 0 || l.frames[target].capture_inputs != -2 &&
+                var g_unchanged = true;
+                for gi in span.first..span.first + span.count {
+                    let gc = l.global_read_list[gi];
+                    if gc < l.gcell_val_epoch.len && l.gcell_val_epoch[gc] > e0 { g_unchanged = false; break; }
+                }
+                if l.frames[target].validated && (g_unchanged || l.frames[target].capture_inputs != -2 &&
                    life_global_captures_match(p, l, l.frames[target].capture_inputs, span)) {
                     if span.count == 0 { l.frames[target].capture_inputs = -1; }
-                    l.frames[target].validated_global_epoch = l.global_live_epoch;
+                    l.frames[target].validated_global_epoch = l.gcell_any_val_epoch;
                     if l.frames[target].first_effect >= 0 { life_replay(p, l, target); }
                     return l.frames[target].result;
                 }
@@ -9191,7 +9375,7 @@ recursive fn life_function(p: Program&, l: Lifetimes&, function_node: i64, call:
         l.frames[target].checked_revision = l.pass;
         if !l.discovery {
             l.frames[target].validated = true;
-            if lexical == 0 { l.frames[target].validated_global_epoch = l.global_live_epoch; }
+            if lexical == 0 { l.frames[target].validated_global_epoch = l.gcell_any_val_epoch; }
             life_compact_effects(l, target);
         }
         if l.discovery {
@@ -9745,8 +9929,10 @@ recursive fn life_eval(p: Program&, l: Lifetimes&, node: i64, destination: i64 =
         out.readonly = l.cells[cell].readonly;
         let holds = life_tf_holds(p, l, n.type_id);
         if l.discovery {
+            life_mark_cell_read(l, cell);
             if holds {
                 if l.frame > 0 && (l.island == 0 || root > 0 && l.roots[root].frame <= 0 && l.roots[root].class_frame < 0) { life_push_dep_root(l, root); }
+                else { life_mark_root_read(l, root); }
                 out.contents = l.roots[root].contents as i32;
             }
         } else {
@@ -11379,9 +11565,220 @@ struct LifeBatchCtx {
     program: const Program&,
     nodes: const Node[:], symbols: const Symbol[:], types: const Type[:],
     state: const u8[:], tokens: const Token[:], text: const u8[:],
+    parents: const i64[:], functions: const i64[:],
+    mode: i64 = 0, full: bool = false,
 }
-struct LifePureOut { first: i64, end: i64, ok: bool = false }
-struct LifeBatchOut { pure: LifePureOut }
+struct LifePureOut { first: i64 = 0, end: i64 = 0, ok: bool = false }
+struct LifePrepOut {
+    first: i64 = 0, end: i64 = 0,
+    any_defer: bool = false, has_cap: bool = false, has_replacement: bool = false,
+    ev_count: i64 = 0, overflow: bool = false,
+}
+struct LifeBatchOut { pure: LifePureOut = LifePureOut {}, prep: LifePrepOut = LifePrepOut {}, events: i64[:] }
+
+// Packed LifePrepOut event tags in high 32 bits of events[]:
+// 0=place, 1..7=hold(tag=bits), 8=seq, 9=break_val, 10=all_fn, 11=nested, 12=defer, 13=sc2_site.
+inline fn life_prep_ev(out: LifePrepOut&, events: i64[:], tag: i64, id: i64) {
+    let idx = out.ev_count;
+    if idx < events.len {
+        events[idx] = (tag << 32) | (id & 0xffffffff);
+        out.ev_count = idx + 1;
+    } else {
+        out.overflow = true;
+    }
+}
+
+fn life_prep_scan_chunk(ctx: const LifeBatchCtx&, out: LifePrepOut&, events: i64[:]) {
+    let nodes = ctx.nodes; let symbols = ctx.symbols; let types = ctx.types; let tflags = ctx.state;
+    let parents = ctx.parents; let functions = ctx.functions;
+    let node_count = nodes.len; let sym_count = symbols.len; let tf_len = tflags.len;
+    let full = ctx.full;
+    for id in out.first..out.end {
+        let n: const Node& = nodes[id];
+        let kind = n.kind;
+        if kind == N_DEFER {
+            out.any_defer = true;
+            let sc = if n.scope >= 0 { n.scope } else if n.right >= 0 { nodes[n.right].scope } else { -1 };
+            if sc >= 0 && sc < functions.len && functions[sc] >= 0 && functions[sc] < node_count {
+                life_prep_ev(out, events, 12, functions[sc]);
+            }
+        }
+        var coerced: i32 = -1;
+        if (n.flags & F_HAS_EXTRA) != 0 {
+            let extra: const NodeExtra& = node_extra_get(ctx.program, id);
+            if extra.captures >= 0 { out.has_cap = true; }
+            coerced = extra.coerced_type;
+        }
+        if (n.flags & F_REFERENCE_CONTEXT) != 0 || coerced >= 0 && coerced < tf_len && (tflags[coerced] & TF_L_REF) != 0 {
+            life_prep_ev(out, events, 0, id);
+        }
+        if kind == N_BREAK {
+            if n.left >= 0 && n.symbol >= 0 && n.symbol < node_count { life_prep_ev(out, events, 9, id); }
+        } else if kind == N_FUNCTION || kind == N_FUNCTION_VALUE {
+            if n.right >= 0 && (kind == N_FUNCTION_VALUE || (n.flags & F_CHECKED) != 0) { life_prep_ev(out, events, 10, id); }
+            if n.symbol >= 0 && n.symbol < sym_count && symbols[n.symbol].owner >= 0 && symbols[n.symbol].owner < node_count {
+                life_prep_ev(out, events, 11, symbols[n.symbol].owner);
+            }
+            if n.scope >= 0 && n.scope < parents.len {
+                let ps = parents[n.scope];
+                if ps >= 0 && ps < functions.len && functions[ps] >= 0 && functions[ps] < node_count {
+                    life_prep_ev(out, events, 11, functions[ps]);
+                }
+            }
+        } else if kind == N_UNARY && n.integer == T_BITAND {
+            if n.left >= 0 { life_prep_ev(out, events, 0, n.left); }
+        } else if kind == N_SLICE {
+            if n.left >= 0 { life_prep_ev(out, events, 0, n.left); }
+        } else if kind == N_FOR {
+            if n.left >= 0 {
+                if nodes[n.left].kind != N_RANGE { life_prep_ev(out, events, 0, n.left); }
+                life_prep_ev(out, events, 8, n.left);
+            }
+        } else if kind == N_ASSIGN {
+            if n.left >= 0 {
+                let ln: const Node& = nodes[n.left];
+                let simple_scalar_var = ln.kind == N_NAME && ln.symbol >= 0 && ln.symbol < sym_count &&
+                    (symbols[ln.symbol].flags & (S_GLOBAL | S_FUNCTION | S_BUILTIN | S_TYPE | S_CAPTURE)) == 0 &&
+                    symbols[ln.symbol].type_id >= 0 && symbols[ln.symbol].type_id < tf_len &&
+                    (tflags[symbols[ln.symbol].type_id] & TF_L_SCALAR) != 0;
+                if !simple_scalar_var { life_prep_ev(out, events, 0, n.left); }
+                var ty: i64 = ln.type_id;
+                if ty >= 0 && types[ty].kind == TY_REF && n.integer != T_DOTASSIGN { ty = types[ty].element; }
+                if ty >= 0 && ty < tf_len && (tflags[ty] & TF_L_REF) != 0 && n.right >= 0 { life_prep_ev(out, events, 0, n.right); }
+                if !full {
+                    let is_sc2_site = (ln.kind != N_NAME && ln.kind != N_INDEX && ln.kind != N_MEMBER && !(ln.kind == N_UNARY && ln.integer == T_MUL)) ||
+                        ty < 0 || (ty < tf_len && (tflags[ty] & TF_L_SC2) != 0);
+                    if is_sc2_site {
+                        out.has_replacement = true;
+                        life_prep_ev(out, events, 13, id);
+                        if n.right >= 0 { life_prep_ev(out, events, (FH_CONSTRUCT_READ | FH_BUILD_HOLD) as i64, n.right); }
+                    }
+                }
+            }
+        } else if kind == N_BINARY && n.integer >= T_EQ && n.integer <= T_GTEQ {
+            if n.left >= 0 {
+                var lt: i64 = nodes[n.left].type_id;
+                if lt >= 0 && types[lt].kind == TY_REF { lt = types[lt].element; }
+                if lt >= 0 && types[lt].kind == TY_ARRAY { life_prep_ev(out, events, 0, n.left); }
+            }
+        } else if kind == N_CAST {
+            if n.type_id >= 0 && n.type_id < tf_len && (tflags[n.type_id] & TF_L_REF) != 0 && n.left >= 0 { life_prep_ev(out, events, 0, n.left); }
+        } else if kind == N_MATCH {
+            var arm = n.first;
+            while arm >= 0 {
+                if nodes[arm].left >= 0 {
+                    let pat: const Node& = nodes[nodes[arm].left];
+                    if pat.left >= 0 && nodes[pat.left].symbol >= 0 && nodes[pat.left].symbol < sym_count {
+                        let pt = symbols[nodes[pat.left].symbol].type_id;
+                        if pt >= 0 && pt < tf_len && (tflags[pt] & TF_L_REF) != 0 {
+                            if n.left >= 0 { life_prep_ev(out, events, 0, n.left); }
+                            break;
+                        }
+                    }
+                }
+                arm = nodes[arm].next;
+            }
+        } else if kind == N_VARIABLE {
+            var binding: i64 = n.first; if binding < 0 { binding = id; }
+            var init = n.right;
+            let single_init = n.first >= 0 && init >= 0 && nodes[init].next < 0;
+            while binding >= 0 {
+                let s = nodes[binding].symbol;
+                if s >= 0 && s < sym_count && init >= 0 {
+                    let st = symbols[s].type_id;
+                    if st >= 0 && st < tf_len && (tflags[st] & TF_L_REF) != 0 { life_prep_ev(out, events, 0, init); }
+                }
+                if n.first < 0 { break; }
+                binding = nodes[binding].next;
+                if init >= 0 && !single_init { init = nodes[init].next; }
+            }
+        } else if kind == N_RECORD || kind == N_ARRAY || kind == N_FILL {
+            var child = n.first;
+            while child >= 0 {
+                var v = child; var expected = -1;
+                if kind == N_RECORD { v = nodes[child].right; expected = nodes[child].type_id; }
+                else if n.type_id >= 0 { expected = types[n.type_id].element; }
+                if expected >= 0 && expected < tf_len && (tflags[expected] & TF_L_REF) != 0 && v >= 0 { life_prep_ev(out, events, 0, v); }
+                child = nodes[child].next;
+            }
+            if kind == N_FILL && n.first < 0 && n.type_id >= 0 && n.left >= 0 {
+                let el = types[n.type_id].element;
+                if el >= 0 && el < tf_len && (tflags[el] & TF_L_REF) != 0 { life_prep_ev(out, events, 0, n.left); }
+            }
+        } else if kind == N_RETURN {
+            if n.symbol >= 0 && n.symbol < sym_count && symbols[n.symbol].node >= 0 {
+                let fn_n: const Node& = nodes[symbols[n.symbol].node];
+                if fn_n.type_id >= 0 {
+                    let expected = types[fn_n.type_id].element;
+                    var comp = -1;
+                    if expected >= 0 && types[expected].kind == TY_TUPLE { comp = types[expected].first; }
+                    var child = n.first;
+                    while child >= 0 {
+                        var tty = expected;
+                        if comp >= 0 { tty = nodes[comp].type_id; comp = nodes[comp].next; }
+                        if tty >= 0 && tty < tf_len && (tflags[tty] & TF_L_REF) != 0 { life_prep_ev(out, events, 0, child); }
+                        child = nodes[child].next;
+                    }
+                }
+            }
+        } else if kind == N_CALL && n.symbol >= 0 && n.symbol < sym_count {
+            let sym: const Symbol& = symbols[n.symbol];
+            if (sym.flags & S_BUILTIN) != 0 {
+                let b = sym.index;
+                if !full {
+                    if (b == 24 || b == 25 || b == 30 || b == 31) && n.first >= 0 {
+                        var ha = nodes[n.first].next;
+                        while ha >= 0 { life_prep_ev(out, events, FH_BUILD_HOLD as i64, ha); ha = nodes[ha].next; }
+                    }
+                    if (b == 33 || b == 34) && n.aux >= 0 { life_prep_ev(out, events, FH_BUILD_HOLD as i64, n.aux); }
+                }
+                if b != 21 && b != 22 && b != 3 && b != 4 && b != 5 && b != 6 && b != 38 && b != 39 {
+                    var arg = n.first;
+                    while arg >= 0 { life_prep_ev(out, events, 0, arg); arg = nodes[arg].next; }
+                }
+            } else {
+                let raw_fmt = sym.node >= 0 && (nodes[sym.node].flags & F_FORMAT_RAW) != 0;
+                if !full && raw_fmt {
+                    life_prep_ev(out, events, FH_FORMAT_RAW as i64, sym.node);
+                    if (n.flags & F_DISPATCH) != 0 {
+                        var arm = n.third;
+                        while arm >= 0 {
+                            let fs = nodes[arm].symbol;
+                            if fs >= 0 && fs < sym_count && symbols[fs].node >= 0 { life_prep_ev(out, events, FH_FORMAT_RAW as i64, symbols[fs].node); }
+                            arm = nodes[arm].next;
+                        }
+                    }
+                }
+                var arg = n.first; var formal = -1; var idx = 0;
+                if sym.node >= 0 { formal = nodes[sym.node].first; }
+                while arg >= 0 {
+                    var need = raw_fmt;
+                    if !need && (n.flags & F_DISPATCH) != 0 && idx == n.aux {
+                        var arm = n.third;
+                        while arm >= 0 {
+                            let fs = nodes[arm].symbol;
+                            if fs >= 0 && fs < sym_count && symbols[fs].node >= 0 {
+                                var f = nodes[symbols[fs].node].first; var o = 0;
+                                while f >= 0 && o < idx { f = nodes[f].next; o += 1; }
+                                if f >= 0 {
+                                    let ft = nodes[f].type_id;
+                                    if ft >= 0 && ft < tf_len && (tflags[ft] & TF_L_REF) != 0 { need = true; break; }
+                                }
+                            }
+                            arm = nodes[arm].next;
+                        }
+                    } else if !need && formal >= 0 {
+                        let ft = nodes[formal].type_id;
+                        if ft >= 0 && ft < tf_len && (tflags[ft] & TF_L_REF) != 0 { need = true; }
+                    }
+                    if need { life_prep_ev(out, events, 0, arg); }
+                    if formal >= 0 { formal = nodes[formal].next; }
+                    arg = nodes[arg].next; idx += 1;
+                }
+            }
+        }
+    }
+}
 
 fn life_pure_nodes(ctx: const LifeBatchCtx&, first: i64, end: i64) -> bool {
     let bad_flags = F_REUSABLE | F_REUSABLE_SLICES | F_REFERENCE | F_REFERENCE_CONTEXT | F_NONLOCAL | F_VARIABLE_MODE | F_ROOT | F_ARRAY_JOIN;
@@ -11427,6 +11824,10 @@ fn life_pure_nodes(ctx: const LifeBatchCtx&, first: i64, end: i64) -> bool {
 }
 
 fn gp_life_range(ctx: const LifeBatchCtx&, out: LifeBatchOut[:], begin: i64, end: i64) {
+    if ctx.mode == 1 {
+        for i in begin..end { life_prep_scan_chunk(ctx, out[i].prep, out[i].events); }
+        return;
+    }
     for i in begin..end {
         let bucket: LifePureOut& = out[i].pure;
         bucket.ok = life_pure_nodes(ctx, bucket.first, bucket.end);
@@ -11473,18 +11874,20 @@ fn life_try_pure_fast_path(p: Program&, pool_references: const i64[:]) -> bool {
     }
     // Resolve the recursive type cache before making it visible to workers.
     for tid in 0..p.types.len { life_type_is_pure_value(p, state, tid); }
+    var empty_i64: i64[>..] = [];
     let ctx = LifeBatchCtx { program: p, nodes: p.nodes[..], symbols: p.symbols[..], types: p.types[..],
-                             state: state[..], tokens: p.tokens[..], text: p.text[..] };
+                             state: state[..], tokens: p.tokens[..], text: p.text[..],
+                             parents: empty_i64[..], functions: empty_i64[..], mode: 0, full: false };
     if p.jobs > 1 && node_count >= 32768 {
         let buckets = p.jobs * 2;
         var out: LifeBatchOut[>..] = [];
         for i in 0..buckets {
             out.push(LifeBatchOut { pure: LifePureOut {
                 first: i * node_count / buckets, end: (i + 1) * node_count / buckets
-            } });
+            }, events: empty_i64[..] });
         }
         if !gp_life_dispatch(p.jobs, ctx, out[..]) { return false; }
-        for bucket in out { if !bucket.pure.ok { return false; } }
+        for bi in 0..out.len { if !out[bi].pure.ok { return false; } }
     } else if !life_pure_nodes(ctx, 0, node_count) { return false; }
     for index in 0..p.symbols.len {
         let flags = p.symbols[index].flags;
@@ -12122,6 +12525,47 @@ fn life_prepare_nodes(p: Program&, l: Lifetimes&, full: bool) -> bool {
     var all_fns: i64[>..] = [];
     var has_cap = false;
     var has_replacement = full;
+    var did_par = false;
+    if p.jobs > 1 && node_count >= 32768 {
+        let ctx = LifeBatchCtx { program: p, nodes: p.nodes[..], symbols: p.symbols[..], types: p.types[..],
+                                 state: l.type_flags[..], tokens: p.tokens[..], text: p.text[..],
+                                 parents: l.parents[..], functions: l.functions[..], mode: 1, full: full };
+        let buckets = p.jobs * 2;
+        var ev_buf: i64[>..] = [];
+        let per_cap = (node_count / buckets) / 3 + 8192;
+        ev_buf.resize(buckets * per_cap, 0);
+        var out: LifeBatchOut[>..] = [];
+        for bi in 0..buckets {
+            out.push(LifeBatchOut { prep: LifePrepOut { first: bi * node_count / buckets, end: (bi + 1) * node_count / buckets }, events: ev_buf[bi * per_cap..(bi + 1) * per_cap] });
+        }
+        gp_life_dispatch(p.jobs, ctx, out[..]);
+        var any_ov = false;
+        for bi in 0..buckets { if out[bi].prep.overflow { any_ov = true; break; } }
+        if !any_ov {
+            did_par = true;
+            for bi in 0..buckets {
+                let b: const LifePrepOut& = out[bi].prep;
+                if b.any_defer { any_defer = true; }
+                if b.has_cap { has_cap = true; }
+                if b.has_replacement { has_replacement = true; }
+                let evs = out[bi].events;
+                for ei in 0..b.ev_count {
+                    let ev = evs[ei];
+                    let tag = ev >> 32;
+                    let id = ev & 0xffffffff;
+                    if tag == 0 { life_queue_place(l, place_work, id); }
+                    else if tag < 8 { life_queue_hold(l, hold_work, id, tag as u8); }
+                    else if tag == 8 { life_mark_for_seq_subtree(p, l, id, seq_work); }
+                    else if tag == 9 { l.node_flags[p.nodes[id].symbol] |= NF_HAS_EXIT; break_with_val.push(id); }
+                    else if tag == 10 { all_fns.push(id); }
+                    else if tag == 11 { fn_has_nested[id] = 1; }
+                    else if tag == 12 { fn_has_defer[id] = 1; }
+                    else if tag == 13 { l.hold_flags[id] |= FH_SC2_SITE; }
+                }
+            }
+        }
+    }
+    if !did_par {
     for id in 0..node_count {
         let n: const Node& = p.nodes[id];
         let kind = n.kind;
@@ -12299,6 +12743,7 @@ fn life_prepare_nodes(p: Program&, l: Lifetimes&, full: bool) -> bool {
                 }
             }
         }
+    }
     }
     var pi = 0;
     while pi < place_work.len {
@@ -12489,6 +12934,8 @@ fn life_check_attempt(p: Program&, scope_parent: const i64[>..]&, scope_depth: c
     var defers: LifeDefer[>..] = []; var defer_targets: LifeDeferTarget[>..] = []; var defer_run: LifeDefer[>..] = [];
     var bypass_memo: u8[>..] = [];
     var dirty_gcells: i32[>..] = []; var dirty_groots: i32[>..] = [];
+    var shared_reads: LifeSharedRead[>..] = []; var shared_alts: LifeAlt[>..] = [];
+    var gcell_val_epoch: i64[>..] = []; var root_read_act: i32[>..] = []; var cell_read_act: i32[>..] = [];
     var symbol_cells: i32[>..] = []; symbol_cells.resize(p.symbols.len, -1);
     var node_roots: i32[>..] = []; var function_frames: i32[>..] = []; var read_heads: i32[>..] = []; var visited: i32[>..] = []; var summary_slots: LifeSummarySlot[>..] = [];
     var effect_heads: i32[>..] = []; effect_heads.resize(2048, -1);
@@ -12576,7 +13023,9 @@ fn life_check_attempt(p: Program&, scope_parent: const i64[>..]&, scope_depth: c
         gs_start: gs_start, gs_count: gs_count, gs_elems: gs_elems,
         body_trans_globals: body_trans_globals, summary_l1: summary_l1, assume_l1: assume_l1,
         defers: defers, defer_targets: defer_targets, defer_run: defer_run, bypass_memo: bypass_memo,
-        dirty_gcells: dirty_gcells, dirty_groots: dirty_groots };
+        dirty_gcells: dirty_gcells, dirty_groots: dirty_groots,
+        shared_reads: shared_reads, shared_alts: shared_alts,
+        gcell_val_epoch: gcell_val_epoch, root_read_act: root_read_act, cell_read_act: cell_read_act };
     life_validate_pools(p, l, pool_references);
     if p.diagnostics.len > 0 { return true; }
     var standalone: LifeStandalone[>..] = []; let node_count = p.nodes.len;
@@ -12643,7 +13092,7 @@ fn life_check_attempt(p: Program&, scope_parent: const i64[>..]&, scope_depth: c
     for index in 0..l.roots.len { l.roots[index].live_contents = l.roots[index].contents; }
     l.live_contents_stamp = 1;
     for index in 0..l.cells.len { life_set_live(l, index, false); }
-    l.live_epoch += 1; l.holder_grow_epoch += 1; l.global_live_epoch = 1; l.held_epoch += 1;
+    l.live_epoch += 1; l.holder_grow_epoch += 1; l.global_live_epoch = 1; l.gcell_any_val_epoch = 1; l.held_epoch += 1;
     if !life_check_roots(p, l, standalone, omit_reads) { return false; }
     for shrink in global_shrinks {
         l.frame = shrink.frame;
