@@ -373,6 +373,14 @@ struct TypeLink { next: i64 = -1, hash: i64 = 0 }
 struct InlineSite { first: i64 = 0, end: i64 = 0, site: i64 = -1 }
 // Active generic/stdlib instantiation frames for diagnostics (upstream 2b509397).
 struct InstantiationSite { decl_node: i64 = -1, call_token: i64 = -1 }
+let CACHE_PROBE_ABSENT_FILE: i64 = 0;
+let CACHE_PROBE_DIR: i64 = 1;
+let CACHE_PROBE_FILE: i64 = 2;
+struct CacheProbe {
+    kind: i64 = 0,
+    path_start: i64 = 0, path_len: i64 = 0,
+    data_start: i64 = 0, data_len: i64 = 0,
+}
 struct Program {
     text: u8[>..]&, messages: u8[>..]&, sources: Source[>..]&,
     tokens: Token[>..]&, nodes: Node[>..]&, types: Type[>..]&,
@@ -435,6 +443,21 @@ struct Program {
     region_profile: i64[>..]&, region_stats: bool = false, bundled_host: bool = false,
     // Interned T_IDENT lookup table: 1-based canonical token ID per slot (0 empty).
     ident_table: i32[>..]&, ident_count: i64 = 0,
+    // Incremental build cache observation log (populated only when --cache-dir is active).
+    cache_probes: CacheProbe[>..]&, cache_probe_text: u8[>..]&,
+    record_cache_deps: bool = false,
+}
+fn program_note_cache_probe(p: Program&, kind: i64, path: const u8[:], data: const u8[:] = "") {
+    if !p.record_cache_deps { return; }
+    let pstart = p.cache_probe_text.len;
+    p.cache_probe_text.append(path);
+    let dstart = p.cache_probe_text.len;
+    if data.len > 0 { p.cache_probe_text.append(data); }
+    p.cache_probes.push(CacheProbe {
+        kind: kind,
+        path_start: pstart, path_len: path.len,
+        data_start: dstart, data_len: data.len,
+    });
 }
 fn index_symbol_owners(p: Program&, owners: SymbolOwners&) {
     // Owner -1 names the initializer. Keep every list in symbol order

@@ -6,6 +6,7 @@ import checker;
 import optimizer;
 import codegen;
 import codegen_c;
+import cache;
 import os;
 
 // Process execution is an OS service; compiler stages run in this program.
@@ -17,6 +18,7 @@ struct DriverOptions {
     source_arg: i64 = -1, output_arg: i64 = -1, stdlib_arg: i64 = -1,
     stats_arg: i64 = -1, dependencies_arg: i64 = -1, cc_arg: i64 = -1, profile_arg: i64 = -1,
     emit_runtime_arg: i64 = -1, header_arg: i64 = -1,
+    cache_dir_arg: i64 = -1, cache_dir_eq: bool = false,
     region_stats: bool = false, bundled_host: bool = false,
     target: i64 = 0, target_set: bool = false, optimization: i64 = 0, jobs: i64 = 0, initial_pages: i64 = 16, maximum_pages: i64 = 256, memory64: bool = false,
     check: bool = false, parse: bool = false, tokens: bool = false,
@@ -224,10 +226,15 @@ fn driver_options(o: DriverOptions&, arguments: u8[:][:]) {
         else if driver_starts_with(a, "--color=") { driver_set_color(o, a[8..]); }
         else if driver_starts_with(a, "--jobs=") { driver_set_jobs(o, a[7..]); }
         else if driver_starts_with(a, "-j=") { driver_set_jobs(o, a[3..]); }
+        else if driver_starts_with(a, "--cache-dir=") {
+            if a.len == 12 { driver_error("missing option value"); o.bad = true; break; }
+            o.cache_dir_arg = at - 1; o.cache_dir_eq = true;
+        }
         else if same_bytes(a, "-o") || same_bytes(a, "--stdlib") || same_bytes(a, "--wasm-stats") ||
                 same_bytes(a, "--wasm-deps") || same_bytes(a, "--cc") || same_bytes(a, "--target") || same_bytes(a, "--wasm-region-profile") ||
                 same_bytes(a, "--wasm-initial-pages") || same_bytes(a, "--wasm-max-pages") || same_bytes(a, "--expansion-node-limit") ||
                 same_bytes(a, "--stack-reserve") || same_bytes(a, "--emit-runtime") || same_bytes(a, "--header") ||
+                same_bytes(a, "--cache-dir") ||
                 same_bytes(a, "--error-format") || same_bytes(a, "--color") || same_bytes(a, "--jobs") || same_bytes(a, "-j") {
             if at >= arguments.len { driver_error("missing option value"); o.bad = true; break; }
             let v = arguments[at]; at++;
@@ -239,6 +246,7 @@ fn driver_options(o: DriverOptions&, arguments: u8[:][:]) {
             else if same_bytes(a, "--cc") { o.cc_arg = at - 1; }
             else if same_bytes(a, "--emit-runtime") { o.emit_runtime_arg = at - 1; }
             else if same_bytes(a, "--header") { o.header_arg = at - 1; }
+            else if same_bytes(a, "--cache-dir") { o.cache_dir_arg = at - 1; o.cache_dir_eq = false; }
             else if same_bytes(a, "--error-format") { driver_set_error_format(o, v); }
             else if same_bytes(a, "--color") { driver_set_color(o, v); }
             else if same_bytes(a, "--jobs") || same_bytes(a, "-j") { driver_set_jobs(o, v); }
@@ -526,7 +534,8 @@ fn driver_ir(p: Program&) {
     }
     out.append("]}\n"); write_stdout(out);
 }
-fn driver_stats(p: Program&, path: const u8[:], bytes: i64, parsing: i64, checking: i64, optimizing: i64, backend: i64) -> bool {
+fn driver_stats(p: Program&, path: const u8[:], bytes: i64, parsing: i64, checking: i64, optimizing: i64, backend: i64,
+                cache_complete: bool = false, cache_hit: bool = false) -> bool {
     var out: u8[>..] = []; var functions = 0;
     for symbol in p.symbols {
         if (symbol.flags & S_FUNCTION) != 0 && symbol.node >= 0 && (p.nodes[symbol.node].flags & F_REACHABLE) != 0 { functions++; }
@@ -555,7 +564,12 @@ fn driver_stats(p: Program&, path: const u8[:], bytes: i64, parsing: i64, checki
         out.append(",\"source\":"); driver_json(out, p.text[s.path_start..s.path_start + s.path_len]);
         out.append(",\"line\":"); driver_integer(out, t.line); out.push('}');
     }
-    out.append("],\"cache_complete\":false}\n");
+    if cache_complete {
+        out.append("],\"cache_complete\":true,\"cache_hit\":");
+        if cache_hit { out.append("true}\n"); } else { out.append("false}\n"); }
+    } else {
+        out.append("],\"cache_complete\":false}\n");
+    }
     return write_file(path, out);
 }
 fn driver_is_windows() -> bool {
@@ -638,7 +652,7 @@ fn driver_exec(command: u8[>..]&, win: bool = false) -> i64 {
 }
 let GOOSE_TO_WASM_VERSION = "v2026.4-3";
 fn driver_help() {
-    write_stdout("goose-to-wasm "); write_stdout(GOOSE_TO_WASM_VERSION); write_stdout(" — fast Goose compiler (direct WebAssembly & native C)\nUsage: goosew source.goose [--target wasm-direct|native|c] -o output [-O0|-O1|-O2]\n  --check --parse --tokens --dump --debug --stdlib DIR --wasm-stats FILE --wasm-deps FILE\n  --jobs N|auto, -j N       Worker thread count for parallel compilation (default auto).\n  --error-format text|json  Diagnostic output format (default text).\n  --color auto|always|never Colorize text diagnostics (default auto; respects NO_COLOR).\n  --emit-runtime FILE  Write the standalone native C runtime unit and exit.\n  --header FILE        Emit a C host header (goose_init, goose_exit, exports) and separate-runtime C.\n  --shared             Build or emit a C shared library with exported symbols.\n  --standalone         Embed the native C runtime even when emitting with --header.\n  --wasm-memory64      Target WebAssembly memory64.\n  --wasm-bundled-host  Target the bundled host implementations for recognized imports.\n  --reachable-program  Check only functions a root reaches, and the signatures of the rest.\n  --expansion-node-limit N  Total const for expansion size (default 100000).\n  --stack-reserve SIZE  Address space reserved per data stack in a native program, from 64K to 256T\n                        with a K, M, G or T suffix (default 2G).\n  --run                Build native C with --cc and execute, or execute Wasm with GOOSE_WASM_HOST.\n  --version            Print compiler version.\n");
+    write_stdout("goose-to-wasm "); write_stdout(GOOSE_TO_WASM_VERSION); write_stdout(" — fast Goose compiler (direct WebAssembly & native C)\nUsage: goosew source.goose [--target wasm-direct|native|c] -o output [-O0|-O1|-O2]\n  --check --parse --tokens --dump --debug --stdlib DIR --wasm-stats FILE --wasm-deps FILE\n  --cache-dir DIR           Content-addressed incremental build cache directory.\n  --jobs N|auto, -j N       Worker thread count for parallel compilation (default auto).\n  --error-format text|json  Diagnostic output format (default text).\n  --color auto|always|never Colorize text diagnostics (default auto; respects NO_COLOR).\n  --emit-runtime FILE  Write the standalone native C runtime unit and exit.\n  --header FILE        Emit a C host header (goose_init, goose_exit, exports) and separate-runtime C.\n  --shared             Build or emit a C shared library with exported symbols.\n  --standalone         Embed the native C runtime even when emitting with --header.\n  --wasm-memory64      Target WebAssembly memory64.\n  --wasm-bundled-host  Target the bundled host implementations for recognized imports.\n  --reachable-program  Check only functions a root reaches, and the signatures of the rest.\n  --expansion-node-limit N  Total const for expansion size (default 100000).\n  --stack-reserve SIZE  Address space reserved per data stack in a native program, from 64K to 256T\n                        with a K, M, G or T suffix (default 2G).\n  --run                Build native C with --cc and execute, or execute Wasm with GOOSE_WASM_HOST.\n  --version            Print compiler version.\n");
 }
 fn driver_main() -> i64 {
     // Every path lives in one byte table: each array holds its own storage region.
@@ -666,6 +680,12 @@ fn driver_main() -> i64 {
     let runtime_start = paths.len; if o.emit_runtime_arg >= 0 { paths.append(arguments[o.emit_runtime_arg]); } let runtime_end = paths.len;
     let stats_start = paths.len; if o.stats_arg >= 0 { paths.append(arguments[o.stats_arg]); } let stats_end = paths.len;
     let dependency_start = paths.len; if o.dependencies_arg >= 0 { paths.append(arguments[o.dependencies_arg]); } let dependency_end = paths.len;
+    let cache_start = paths.len;
+    if o.cache_dir_arg >= 0 {
+        let raw_cd = arguments[o.cache_dir_arg];
+        if o.cache_dir_eq { paths.append(raw_cd[12..]); } else { paths.append(raw_cd); }
+    }
+    let cache_end = paths.len;
     let stdlib_start = paths.len;
     if o.stdlib_arg >= 0 { paths.append(arguments[o.stdlib_arg]); }
     else if !env("GOOSE_STDLIB", paths) {
@@ -690,11 +710,14 @@ fn driver_main() -> i64 {
     var ident_table: i32[>..] = [];
     var node_extra_slots: i32[>..] = []; var node_extras: NodeExtra[>..] = [];
     var token_columns: TokenColumn[>..] = [];
+    var cache_probes: CacheProbe[>..] = []; var cache_probe_text: u8[>..] = [];
+    var profile_hex: u8[>..] = [];
     // A region profile is lines of "index bytes", as a host writes them
     // (GOOSE_REGION_PROFILE): what each data region was seen to need.
     if o.profile_arg >= 0 {
         var profile_text: u8[>..] = [];
         if !read_file(arguments[o.profile_arg], profile_text) { driver_error("cannot read the region profile"); return 1; }
+        if cache_end > cache_start { cache_sha256_hex(profile_text, profile_hex); }
         var at = 0; var index: i64 = -1;
         while at < profile_text.len {
             while at < profile_text.len && (profile_text[at] < '0' || profile_text[at] > '9') { at++; }
@@ -708,12 +731,35 @@ fn driver_main() -> i64 {
             region_profile[index] = number; index = -1;
         }
     }
+    var cache_active = false;
+    var cache_mode: i64 = if o.check { 2 } else { o.target };
+    var cache_key: u8[>..] = [];
+    if cache_end > cache_start && !o.tokens && !o.parse && !o.dump && !o.dump_ir && !o.run &&
+       !o.shared && o.header_arg < 0 && o.emit_runtime_arg < 0 && dependency_end == dependency_start {
+        var compiler_hex: u8[>..] = [];
+        let argv0: const u8[:] = if arguments.len > 0 { arguments[0] } else { "" };
+        if cache_compiler_identity(argv0, win, compiler_hex) {
+            let prof_slice: const u8[:] = if profile_hex.len > 0 { profile_hex } else { "NONE" };
+            cache_build_key(compiler_hex, cache_mode, o.optimization, o.debug, o.library, o.memory64,
+                            o.bundled_host, o.region_stats, o.reachable_program,
+                            o.initial_pages, o.maximum_pages, o.expansion_limit, o.stack_reserve,
+                            paths[source_start..source_end], paths[stdlib_start..stdlib_end], prof_slice,
+                            cache_key);
+            cache_active = true;
+            let hit_out: const u8[:] = if cache_mode == 2 { "" } else { paths[output_start..output_end] };
+            let hit = cache_try_hit(paths[cache_start..cache_end], cache_key, cache_mode,
+                                    hit_out, paths[stats_start..stats_end]);
+            if hit == 1 { return 0; }
+            if hit < 0 { return 1; }
+        }
+    }
     var p = Program { text: text, messages: messages, sources: sources, tokens: tokens,
                       nodes: nodes, types: types, node_extra_slots: node_extra_slots, node_extras: node_extras,
                       token_columns: token_columns, symbols: symbols, diagnostics: diagnostics,
                       type_properties: type_properties, builtin_symbols: builtin_symbols,
                       type_buckets: type_buckets, type_links: type_links, type_scan_marks: type_scan_marks, type_holds: type_holds, enum_fixed_cache: enum_fixed_cache,
-                      inline_sites: inline_sites, instantiation_stack: instantiation_stack, region_profile: region_profile, ident_table: ident_table };
+                      inline_sites: inline_sites, instantiation_stack: instantiation_stack, region_profile: region_profile, ident_table: ident_table,
+                      cache_probes: cache_probes, cache_probe_text: cache_probe_text, record_cache_deps: cache_active };
     let link_shared = o.shared && !driver_ends_with(paths[output_start..output_end], ".c");
     p.dump_ir = o.dump_ir; p.optimization = o.optimization; p.jobs = gp_effective_jobs(o.jobs); p.debug = o.debug; p.library = o.library;
     p.c_host = o.header_arg >= 0 || o.shared; p.shared = o.shared;
@@ -747,7 +793,18 @@ fn driver_main() -> i64 {
         if p.has_checked_checkfree { optimize_program(p); }
         if p.diagnostics.len > 0 { driver_diagnostics(p, o); return 1; }
         if !driver_outputs_distinct(p, "", paths[stats_start..stats_end], "") { return 1; }
-        if stats_end > stats_start && !driver_stats(p, paths[stats_start..stats_end], 0, parsed - started, checked - parsed, 0, 0) {
+        var stored_check = false;
+        if cache_active {
+            let cdir = paths[cache_start..cache_end];
+            if !is_dir(cdir) && !file_exists(cdir) {
+                var mkcmd: u8[>..] = [];
+                if win { mkcmd.append("mkdir "); } else { mkcmd.append("mkdir -p "); }
+                driver_quote(mkcmd, cdir, win);
+                driver_exec(mkcmd, win);
+            }
+            stored_check = cache_store_entry(p, cdir, cache_key, 2, "");
+        }
+        if stats_end > stats_start && !driver_stats(p, paths[stats_start..stats_end], 0, parsed - started, checked - parsed, 0, 0, stored_check, false) {
             driver_error("cannot write statistics"); return 1;
         }
         return 0;
@@ -794,7 +851,18 @@ fn driver_main() -> i64 {
     } else {
         if !write_file(paths[output_start..output_end], output) { driver_error("cannot write output"); return 1; }
     }
-    if stats_end > stats_start && !driver_stats(p, paths[stats_start..stats_end], output.len, parsed - started, checked - parsed, optimized - checked, generated - optimized) {
+    var stored_artifact = false;
+    if cache_active {
+        let cdir = paths[cache_start..cache_end];
+        if !is_dir(cdir) && !file_exists(cdir) {
+            var mkcmd: u8[>..] = [];
+            if win { mkcmd.append("mkdir "); } else { mkcmd.append("mkdir -p "); }
+            driver_quote(mkcmd, cdir, win);
+            driver_exec(mkcmd, win);
+        }
+        stored_artifact = cache_store_entry(p, cdir, cache_key, cache_mode, output);
+    }
+    if stats_end > stats_start && !driver_stats(p, paths[stats_start..stats_end], output.len, parsed - started, checked - parsed, optimized - checked, generated - optimized, stored_artifact, false) {
         driver_error("cannot write statistics"); return 1;
     }
     if dependency_end > dependency_start && !driver_dependencies(p, paths[dependency_start..dependency_end]) { driver_error("cannot write dependency manifest"); return 1; }

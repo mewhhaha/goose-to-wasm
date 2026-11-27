@@ -150,6 +150,7 @@ fn source_embed_shader_file(p: Program&, node: i64, argument: i64) -> i64 {
     var normalized: u8[>..] = []; source_normalize(path, normalized);
     var contents: u8[>..] = [];
     if !read_file(normalized, contents) { diagnose(p, p.nodes[node].token, "cannot open embedded shader file"); return -1; }
+    program_note_cache_probe(p, CACHE_PROBE_FILE, normalized, contents);
     return source_embed_shader_blob(p, p.nodes[node].token, stage, contents);
 }
 fn source_embed_shader(p: Program&, node: i64) -> i64 {
@@ -235,6 +236,7 @@ fn source_import_path(p: Program&, node: i64, directory: const u8[:], root: cons
         if root_file {
             if index >= 0 { diagnose(p, n.token, "the package is declared twice"); return false; }
             if !is_dir(normalized) { diagnose(p, n.token, "the package source is not a directory"); return false; }
+            program_note_cache_probe(p, CACHE_PROBE_DIR, normalized);
             source_join(normalized, name, out);
             if !file_exists(out) { diagnose(p, n.token, "the package has no entry file named after it"); return false; }
             for package in packages {
@@ -267,6 +269,10 @@ fn source_import_path(p: Program&, node: i64, directory: const u8[:], root: cons
     }
     source_join(root, name, out);
     let local = file_exists(out);
+    if !local && p.record_cache_deps {
+        var norm_absent: u8[>..] = []; source_normalize(out, norm_absent);
+        program_note_cache_probe(p, CACHE_PROBE_ABSENT_FILE, norm_absent);
+    }
     var package_index = source_package(p, packages, n.integer);
     // A package's own name, from inside it, is its own file.
     if package_index == current_package { package_index = -1; }
@@ -317,6 +323,7 @@ struct ParseUniqueIdent {
 }
 struct ParseImportRec {
     path_start: i32 = 0, path_len: i32 = 0, tok_offset: i32 = 0,
+    absent_start: i32 = 0, absent_len: i32 = 0,
     library: bool = false,
 }
 fn gp_grow_parse_idents(arr: ParseUniqueIdent[>..]&, new_len: i64) {
@@ -360,13 +367,16 @@ struct ParseSpmdCtx {
 fn source_spmd_resolve_import(file_dir: const u8[:], file_library: bool,
                               root_dir: const u8[:], stdlib: const u8[:],
                               name: const u8[:], relative: bool,
-                              out: u8[>..]&, out_library: bool&) -> bool {
+                              out: u8[>..]&, out_library: bool&,
+                              absent_out: u8[>..]&) -> bool {
     out.clear();
+    absent_out.clear();
     out_library = file_library;
     let directory = if relative { file_dir } else if file_library { stdlib } else { root_dir };
     source_join(directory, name, out);
     if file_exists(out) { return true; }
     if !relative && !file_library && stdlib.len > 0 {
+        absent_out.append(out);
         out.clear();
         source_join(stdlib, name, out);
         if file_exists(out) { out_library = true; return true; }
@@ -555,6 +565,10 @@ fn source_spmd_midpoint(ctx: const ParseSpmdCtx&) {
         let f = ctx.files[fi];
         for k in 0..f.import_count {
             let rec = ctx.import_slab[fi * PARSE_SPMD_IMPORT_CAP + k];
+            if p.record_cache_deps && rec.absent_len > 0 {
+                let astart = fi * PARSE_SPMD_IMPORT_BYTES + rec.absent_start;
+                program_note_cache_probe(p, CACHE_PROBE_ABSENT_FILE, ctx.import_bytes[astart..astart + rec.absent_len]);
+            }
             let start = fi * PARSE_SPMD_IMPORT_BYTES + rec.path_start;
             let path = ctx.import_bytes[start..start + rec.path_len];
             source_request_normalized(p, work, ctx.seen, path, tok_base + rec.tok_offset, -1, rec.library);
@@ -622,6 +636,7 @@ fn gp_parse_spmd_range(ctx: const ParseSpmdCtx&, out: i64[:], worker_id: i64, wo
     var w_region_profile: i64[>..] = []; var w_ident_table: i32[>..] = [];
     var w_extra_slots: i32[>..] = []; var w_extras: NodeExtra[>..] = [];
     var w_token_columns: TokenColumn[>..] = [];
+    var w_cache_probes: CacheProbe[>..] = []; var w_cache_probe_text: u8[>..] = [];
     var local = Program {
         text: w_text, messages: w_messages, sources: w_sources, tokens: w_tokens, nodes: w_nodes,
         node_extra_slots: w_extra_slots, node_extras: w_extras, token_columns: w_token_columns,
@@ -631,12 +646,15 @@ fn gp_parse_spmd_range(ctx: const ParseSpmdCtx&, out: i64[:], worker_id: i64, wo
         type_scan_marks: w_type_scan_marks, type_holds: w_type_holds, enum_fixed_cache: w_enum_fixed_cache,
         inline_sites: w_inline_sites, instantiation_stack: w_instantiation_stack,
         dump_ir: ctx.p.dump_ir, region_profile: w_region_profile, ident_table: w_ident_table,
+        cache_probes: w_cache_probes, cache_probe_text: w_cache_probe_text,
     };
     var w_htab: i32[>..] = [];
     var imp_name: u8[>..] = [];
     var file_dir: u8[>..] = [];
     var resolved: u8[>..] = [];
     var normalized: u8[>..] = [];
+    var absent_raw: u8[>..] = [];
+    var absent_norm: u8[>..] = [];
     var reps: ParseIdentRep[>..] = [];
     if worker_id == 0 { source_spmd_seed_idents(ctx.p, reps); }
 
@@ -700,7 +718,7 @@ fn gp_parse_spmd_range(ctx: const ParseSpmdCtx&, out: i64[:], worker_id: i64, wo
                     if relative && file_dir.len == 0 { source_directory(path, file_dir); }
                     var library = f.library;
                     if !source_spmd_resolve_import(file_dir, f.library, ctx.root_dir, ctx.stdlib_buf,
-                                                   imp_name, relative, resolved, library) {
+                                                   imp_name, relative, resolved, library, absent_raw) {
                         ok = false; break;
                     }
                     normalized.clear();
@@ -709,11 +727,25 @@ fn gp_parse_spmd_range(ctx: const ParseSpmdCtx&, out: i64[:], worker_id: i64, wo
                     let start = file * PARSE_SPMD_IMPORT_BYTES + ib_used;
                     let dst: u8[:] = ctx.import_bytes[start..start + normalized.len];
                     dst.move_from(normalized[..]);
-                    ctx.import_slab[file * PARSE_SPMD_IMPORT_CAP + imp_count] = ParseImportRec {
-                        path_start: ib_used as i32, path_len: normalized.len as i32,
-                        tok_offset: (dn.token - w_tok_off) as i32, library: library,
-                    };
+                    let p_off = ib_used;
                     ib_used += normalized.len;
+                    var a_off: i64 = 0; var a_len: i64 = 0;
+                    if ctx.p.record_cache_deps && absent_raw.len > 0 {
+                        absent_norm.clear();
+                        source_normalize(absent_raw, absent_norm);
+                        if ib_used + absent_norm.len > PARSE_SPMD_IMPORT_BYTES { ok = false; break; }
+                        let astart = file * PARSE_SPMD_IMPORT_BYTES + ib_used;
+                        let adst: u8[:] = ctx.import_bytes[astart..astart + absent_norm.len];
+                        adst.move_from(absent_norm[..]);
+                        a_off = ib_used; a_len = absent_norm.len;
+                        ib_used += absent_norm.len;
+                    }
+                    ctx.import_slab[file * PARSE_SPMD_IMPORT_CAP + imp_count] = ParseImportRec {
+                        path_start: p_off as i32, path_len: normalized.len as i32,
+                        tok_offset: (dn.token - w_tok_off) as i32,
+                        absent_start: a_off as i32, absent_len: a_len as i32,
+                        library: library,
+                    };
                     imp_count += 1;
                 }
                 decl = dn.next;
