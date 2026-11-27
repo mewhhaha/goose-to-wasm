@@ -12,7 +12,7 @@ use std::path::PathBuf;
 use std::process::exit;
 
 use goose_wasmtime::pytext::normalized_path;
-use goose_wasmtime::run::{bytes_of, create_config_with_options, os_error_text, path_of, read_file, run_module_entry_with_options, Outcome, HOSTED_STACK_BYTES};
+use goose_wasmtime::run::{bytes_of, os_error_text, path_of, read_file, run_module_entry_with_hosted_options, Outcome, HOSTED_STACK_BYTES};
 
 const USAGE: &str = "usage: goose-wasmtime module.wasm [--entry name] [--fast-jit] [--timing-json path] [--cache path | --no-cache] [-- program arguments]";
 
@@ -62,7 +62,7 @@ fn options() -> Options {
         // A long option may be shortened to any prefix only it has.
         let named = |option: &[u8]| name.len() > 2 && option.starts_with(name);
         if (name == b"-h" || named(b"--help")) && value.is_none() {
-            println!("{USAGE}\n\nRun direct Goose WebAssembly with Wasmtime. Stdin is the program's input.\n\n  --entry name        invoke this exported function after _start\n  --fast-jit          use Cranelift OptLevel::None + SinglePass regalloc (~2x faster cold JIT)\n  --timing-json path  write engine timings to this file\n  --cache path        keep the compiled module in this file and reuse it for the same module bytes");
+            println!("{USAGE}\n\nRun direct Goose WebAssembly with Wasmtime. Stdin is the program's input.\n\n  --entry name        invoke this exported function after _start\n  --fast-jit          use Wasmtime Winch baseline compiler (falls back to Cranelift OptLevel::None + SinglePass)\n  --timing-json path  write engine timings to this file\n  --cache path        keep the compiled module in this file and reuse it for the same module bytes");
             exit(0);
         }
         if name == b"--no-cache" && value.is_none() {
@@ -123,11 +123,11 @@ fn run(options: &Options) -> Result<i64, String> {
     let resource_dir = module_resource_dir(&options.module);
     let outcome = if options.arguments.is_none() && options.entry.is_none() {
         let data = read_file(&options.module)?;
-        run_module_entry_with_options(
+        run_module_entry_with_hosted_options(
             &data,
             read_stdin()?,
             vec![b"program".to_vec()],
-            &create_config_with_options(false, options.fast_jit),
+            false,
             options.cache.as_deref(),
             None,
             resource_dir,
@@ -141,11 +141,11 @@ fn run(options: &Options) -> Result<i64, String> {
             if let Some(arguments) = &options.arguments {
                 program.extend(arguments.iter().cloned());
             }
-            run_module_entry_with_options(
+            run_module_entry_with_hosted_options(
                 &data,
                 read_stdin()?,
                 program,
-                &create_config_with_options(true, options.fast_jit),
+                true,
                 options.cache.as_deref(),
                 options.entry.as_deref(),
                 resource_dir.clone(),

@@ -25,4 +25,4 @@ sha2 = "0.10"
 [dependencies.wasmtime]
 version = "=50.0.1"
 default-features = false
-features = ["cranelift", "runtime", "parallel-compilation", "gc", "gc-drc", "demangle"]
+features = ["cranelift", "winch", "runtime", "parallel-compilation", "gc", "gc-drc", "demangle"]

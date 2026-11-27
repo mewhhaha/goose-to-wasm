@@ -67,7 +67,9 @@ struct CgModule {
     region_count: i64 = 0, global_region_count: i64 = 0, regions_enabled: bool = false,
     nonlocal_returns: bool = false, ordinary_owners: bool = false, safe_refs: bool = false, maps_headers: bool = false,
     region_table_address: i64 = 0, host_reserve: i64 = -1, host_reserve_type: i64 = -1,
-    start: i64 = -1, allocator: i64 = -1, float_wrap: i64 = -1, scalar: bool = false, resolver: i64 = -1, forward_helper: i64 = -1, header_helper: i64 = -1, prefix_helper: i64 = -1, pool_global: i64 = -1,
+    start: i64 = -1, allocator: i64 = -1, float_wrap: i64 = -1, scalar: bool = false, resolver: i64 = -1, forward_helper: i64 = -1,
+    copy_both_helper: i64 = -1, copy_src_helper: i64 = -1, copy_dst_helper: i64 = -1, resolve_slice_helper: i64 = -1,
+    header_helper: i64 = -1, prefix_helper: i64 = -1, pool_global: i64 = -1,
     span_scratch: i64 = -1, pool_state_fn: i64 = -1,
     spans_newnode: i64 = -1, spans_fix: i64 = -1, spans_delete: i64 = -1, spans_insert: i64 = -1,
     spans_near: i64 = -1, spans_release: i64 = -1, spans_alloc: i64 = -1, spans_free: i64 = -1, spans_regrow: i64 = -1,
@@ -375,7 +377,7 @@ fn cg_zero(out: u8[>..]&, wasm_type: i64) {
     else if wasm_type == 0x7e { wb_i64(out, 0); }
     else if wasm_type == 0x7d { wb_f32(out, 0.0); }
     else if wasm_type == 0x7c { wb_f64(out, 0.0); }
-    else if wasm_type == 0x7b { wb_byte(out, 0xfd); wb_u(out, 0x0c); for part in 0..16 { wb_byte(out, 0); } }
+    else if wasm_type == 0x7b { wb_i64(out, 0); wb_byte(out, 0xfd); wb_u(out, 0x12); }
 }
 fn cg_frame(f: CgBody&, bytes: i64, align: i64) -> i64 {
     f.frame_used = true;
@@ -866,7 +868,9 @@ fn cg_length_store(p: Program&, f: CgBody&, id: i64) {
 }
 recursive fn cg_pack_view(p: Program&, m: CgModule&, f: CgBody&, id: i64, node: i64) {
     if cg_type_kind(p, id) == TY_SLICE {
-        if m.resolver >= 0 && cg_wide {
+        if p.optimization == 0 && m.resolve_slice_helper >= 0 {
+            wb_op(f.code, 0x10, m.resolve_slice_helper);
+        } else if m.resolver >= 0 && cg_wide {
             // The slice with its pointer resolved: lane 0 replaced.
             let view = cg_save(f, ws()); cg_get(f, view); cg_get(f, view); ws_ptr(f.code); cg_resolve_pointer(m, f);
             wb_byte(f.code, 0xfd); wb_u(f.code, 0x1e); wb_byte(f.code, 0);
@@ -1205,6 +1209,15 @@ fn cg_clear_bytes(p: Program&, f: CgBody&, size: i64) {
     }
 }
 recursive fn cg_copy_ex(p: Program&, m: CgModule&, f: CgBody&, id: i64, destination: i64, source: i64, node: i64, resolve_dest: bool, resolve_src: bool) {
+    if p.optimization == 0 && m.copy_both_helper >= 0 && !m.regions_enabled &&
+       cg_aggregate(p, id) && !cg_has_owner(p, id) && (resolve_dest || resolve_src) {
+        let helper = if resolve_dest && resolve_src { m.copy_both_helper }
+                     else if resolve_src { m.copy_src_helper }
+                     else { m.copy_dst_helper };
+        cg_get(f, destination); cg_get(f, source); wa_const(f.code, cg_size(p, id));
+        wb_op(f.code, 0x10, helper);
+        return;
+    }
     var into = destination; if resolve_dest { into = cg_resolve_location(m, f, destination); }
     var from = source; if resolve_src { from = cg_resolve_location(m, f, source); }
     if m.regions_enabled && (cg_frame_owner(p, id) || cg_image_owner(p, id) || cg_enum_image(p, id)) {
@@ -7950,7 +7963,16 @@ fn cg_collect(p: Program&, m: CgModule&) {
         }
     }
     if m.pool_global >= 0 { m.pool_global = 5; if m.resolver >= 0 { m.pool_global = 9; } }
-    var thunk_base = m.start + 3; if m.resolver >= 0 { thunk_base += 2; }
+    var thunk_base = m.start + 3;
+    if m.resolver >= 0 {
+        thunk_base += 2;
+        if p.optimization == 0 {
+            m.copy_both_helper = thunk_base; thunk_base += 1;
+            m.copy_src_helper = thunk_base; thunk_base += 1;
+            m.copy_dst_helper = thunk_base; thunk_base += 1;
+            m.resolve_slice_helper = thunk_base; thunk_base += 1;
+        }
+    }
     if m.regions_enabled {
         m.header_helper = thunk_base; thunk_base += 1;
         var frames = false; for type_id in 0..p.types.len { if cg_frame_owner(p, type_id) { frames = true; } }
@@ -8721,9 +8743,9 @@ fn generate_wasm(p: Program&, out: u8[>..]&) {
         signatures: signatures, signature_bytes: signature_bytes, signature_slots: signature_slots, segments: segments, segment_slots: segment_slots, data: data, globals: globals, global_symbols: global_symbols, symbol_next: binding_next, global_regions: global_regions, region_functions: region_functions, region_calls: region_calls, region_memo: region_memo, abort_helpers: abort_helpers,
         stack_limit: (p.maximum_pages * 65536 / 2) & -8 };
     cg_collect(p, m); if p.diagnostics.len > 0 { return; }
-    if m.scalar { m.resolver = -1; m.forward_helper = -1; m.host_reserve = -1; }
+    if m.scalar { m.resolver = -1; m.forward_helper = -1; m.copy_both_helper = -1; m.copy_src_helper = -1; m.copy_dst_helper = -1; m.resolve_slice_helper = -1; m.host_reserve = -1; }
     cg_compute_header_pure(p, m);
-    var body_count = m.functions.len + m.thunk_count + 3; if m.resolver >= 0 { body_count += 2; } if m.header_helper >= 0 { body_count++; } if m.prefix_helper >= 0 { body_count++; } if m.raw_append >= 0 { body_count++; } if m.owner_view >= 0 { body_count++; } if m.update_length >= 0 { body_count++; } if m.spans_alloc >= 0 { body_count += 10; } if m.host_reserve >= 0 { body_count++; } if m.scalar { body_count = m.functions.len + 1; }
+    var body_count = m.functions.len + m.thunk_count + 3; if m.resolver >= 0 { body_count += 2; } if m.copy_both_helper >= 0 { body_count += 3; } if m.resolve_slice_helper >= 0 { body_count += 1; } if m.header_helper >= 0 { body_count++; } if m.prefix_helper >= 0 { body_count++; } if m.raw_append >= 0 { body_count++; } if m.owner_view >= 0 { body_count++; } if m.update_length >= 0 { body_count++; } if m.spans_alloc >= 0 { body_count += 10; } if m.host_reserve >= 0 { body_count++; } if m.scalar { body_count = m.functions.len + 1; }
     if !m.scalar { m.abort_base = m.imports.len + body_count; }
     if p.jobs > 1 && m.functions.len >= 64 {
         cg_emit_parallel(p, m, out, body_count);
@@ -8742,6 +8764,38 @@ fn cg_finish_module(p: Program&, m: CgModule&, out: u8[>..]&, body_count: i64, b
         if m.resolver >= 0 {
             body.clear(); cg_resolver_body(body); wb_u(bodies, body.len); wb_raw(bodies, body);
             body.clear(); cg_forward_helper_body(m, body); wb_u(bodies, body.len); wb_raw(bodies, body);
+        }
+        if m.copy_both_helper >= 0 {
+            // copy_both: (dst, src, size) -> resolve(dst), resolve(src), memory.copy
+            body.clear(); wb_u(body, 0);
+            wb_op(body, 0x20, 0); wb_op(body, 0x10, m.resolver);
+            wb_op(body, 0x20, 1); wb_op(body, 0x10, m.resolver);
+            wb_op(body, 0x20, 2); wb_copy(body); wb_byte(body, 0x0b);
+            wb_u(bodies, body.len); wb_raw(bodies, body);
+            // copy_src: (dst, src, size) -> dst, resolve(src), memory.copy
+            body.clear(); wb_u(body, 0);
+            wb_op(body, 0x20, 0);
+            wb_op(body, 0x20, 1); wb_op(body, 0x10, m.resolver);
+            wb_op(body, 0x20, 2); wb_copy(body); wb_byte(body, 0x0b);
+            wb_u(bodies, body.len); wb_raw(bodies, body);
+            // copy_dst: (dst, src, size) -> resolve(dst), src, memory.copy
+            body.clear(); wb_u(body, 0);
+            wb_op(body, 0x20, 0); wb_op(body, 0x10, m.resolver);
+            wb_op(body, 0x20, 1);
+            wb_op(body, 0x20, 2); wb_copy(body); wb_byte(body, 0x0b);
+            wb_u(bodies, body.len); wb_raw(bodies, body);
+        }
+        if m.resolve_slice_helper >= 0 {
+            body.clear(); wb_u(body, 0);
+            if cg_wide {
+                wb_op(body, 0x20, 0); wb_op(body, 0x20, 0); ws_ptr(body); wb_op(body, 0x10, m.resolver);
+                wb_byte(body, 0xfd); wb_u(body, 0x1e); wb_byte(body, 0);
+            } else {
+                wb_op(body, 0x20, 0); wb_byte(body, 0xa7); wb_op(body, 0x10, m.resolver); wb_byte(body, 0xad);
+                wb_op(body, 0x20, 0); wb_i64(body, -4294967296); wb_byte(body, 0x83); wb_byte(body, 0x84);
+            }
+            wb_byte(body, 0x0b);
+            wb_u(bodies, body.len); wb_raw(bodies, body);
         }
         if m.header_helper >= 0 { body.clear(); cg_header_publish_body(body); wb_u(bodies, body.len); wb_raw(bodies, body); }
         if m.prefix_helper >= 0 { body.clear(); cg_prefix_mapping_body(body); wb_u(bodies, body.len); wb_raw(bodies, body); }
@@ -8825,6 +8879,8 @@ fn cg_finish_module(p: Program&, m: CgModule&, out: u8[>..]&, body_count: i64, b
     }
     var reserve_signature = -1;
     if m.host_reserve >= 0 { var pair_address: u8[>..] = []; pair_address.push(wa() as u8); pair_address.push(wa() as u8); reserve_signature = cg_signature(m, pair_address, one_address); }
+    var resolve_slice_signature = -1;
+    if m.resolve_slice_helper >= 0 { var one_slice: u8[>..] = []; one_slice.push(ws() as u8); resolve_slice_signature = cg_signature(m, one_slice, one_slice); }
     var abort_signature = -1;
     if m.abort_helpers.len > 0 { abort_signature = cg_signature(m, one_i32, empty); }
     let out_mark = out.len;
@@ -8840,7 +8896,7 @@ fn cg_finish_module(p: Program&, m: CgModule&, out: u8[>..]&, body_count: i64, b
     wb_section(out, 2, section); section.clear();
     wb_u(section, total_bodies); for item in m.functions { wb_u(section, item.signature); }
     wb_u(section, start_signature);
-    if !m.scalar { wb_u(section, allocator_signature); wb_u(section, wrap_signature); if m.resolver >= 0 { wb_u(section, allocator_signature); wb_u(section, forward_signature); } if m.header_helper >= 0 { wb_u(section, header_signature); } if m.prefix_helper >= 0 { wb_u(section, prefix_signature); } if m.raw_append >= 0 { wb_u(section, append_signature); } if m.owner_view >= 0 { wb_u(section, view_signature); } if m.update_length >= 0 { wb_u(section, update_signature); } if m.spans_alloc >= 0 { wb_u(section, allocator_signature); wb_u(section, sp_new_sig); wb_u(section, sp_fix_sig); wb_u(section, sp_del_sig); wb_u(section, sp_fix_sig); wb_u(section, sp_near_sig); wb_u(section, sp_near_sig); wb_u(section, sp_alloc_sig); wb_u(section, sp_near_sig); wb_u(section, sp_regrow_sig); } for item in m.functions { if item.table_index >= 0 { wb_u(section, item.closure_signature); } } if m.host_reserve >= 0 { wb_u(section, reserve_signature); } for _ in m.abort_helpers { wb_u(section, abort_signature); } }
+    if !m.scalar { wb_u(section, allocator_signature); wb_u(section, wrap_signature); if m.resolver >= 0 { wb_u(section, allocator_signature); wb_u(section, forward_signature); } if m.copy_both_helper >= 0 { wb_u(section, forward_signature); wb_u(section, forward_signature); wb_u(section, forward_signature); } if m.resolve_slice_helper >= 0 { wb_u(section, resolve_slice_signature); } if m.header_helper >= 0 { wb_u(section, header_signature); } if m.prefix_helper >= 0 { wb_u(section, prefix_signature); } if m.raw_append >= 0 { wb_u(section, append_signature); } if m.owner_view >= 0 { wb_u(section, view_signature); } if m.update_length >= 0 { wb_u(section, update_signature); } if m.spans_alloc >= 0 { wb_u(section, allocator_signature); wb_u(section, sp_new_sig); wb_u(section, sp_fix_sig); wb_u(section, sp_del_sig); wb_u(section, sp_fix_sig); wb_u(section, sp_near_sig); wb_u(section, sp_near_sig); wb_u(section, sp_alloc_sig); wb_u(section, sp_near_sig); wb_u(section, sp_regrow_sig); } for item in m.functions { if item.table_index >= 0 { wb_u(section, item.closure_signature); } } if m.host_reserve >= 0 { wb_u(section, reserve_signature); } for _ in m.abort_helpers { wb_u(section, abort_signature); } }
     wb_section(out, 3, section); section.clear();
     if !m.scalar { wb_u(section, 1); wb_byte(section, 0x70); wb_byte(section, 0); wb_u(section, m.thunk_count); wb_section(out, 4, section); section.clear(); }
     var initial_pages = p.initial_pages; let static_pages = (m.next_data + 65535) / 65536;

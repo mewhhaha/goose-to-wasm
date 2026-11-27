@@ -11,7 +11,7 @@ use std::path::{Path, PathBuf};
 use std::time::Instant;
 
 use sha2::{Digest, Sha256};
-use wasmtime::{Config, Engine, Error, Extern, Func, Instance, Linker, Module, OptLevel, RegallocAlgorithm, Result, Store, Val};
+use wasmtime::{Config, Engine, Error, Extern, Func, Instance, Linker, Module, OptLevel, RegallocAlgorithm, Result, Store, Strategy, Val};
 
 use crate::host::{define_imports, failure, Host, HostFailure, ProgramExit};
 use crate::pytext::{normalized_path, repr_str};
@@ -49,6 +49,29 @@ pub fn create_config_with_options(hosted: bool, fast_jit: bool) -> Config {
     config.wasm_relaxed_simd(false);
     if hosted {
         // Wasmtime refuses a Wasm stack larger than its fiber stack size.
+        config.async_stack_size(HOSTED_STACK_BYTES + (1 << 20));
+        config.max_wasm_stack(HOSTED_STACK_BYTES);
+        config.memory_reservation(HOSTED_RESERVATION_BYTES);
+    }
+    config
+}
+
+pub fn create_winch_config(hosted: bool) -> Config {
+    let mut config = Config::new();
+    config.strategy(Strategy::Winch);
+    config.wasm_memory64(true);
+    config.wasm_simd(true);
+    config.wasm_bulk_memory(true);
+    config.wasm_multi_value(true);
+    // Proposals not yet supported by Wasmtime's Winch baseline compiler.
+    // Modules that use them fail fast during validation and fall back to
+    // Cranelift OptLevel::None + SinglePass.
+    config.wasm_tail_call(false);
+    config.wasm_exceptions(false);
+    config.wasm_function_references(false);
+    config.wasm_gc(false);
+    config.wasm_relaxed_simd(false);
+    if hosted {
         config.async_stack_size(HOSTED_STACK_BYTES + (1 << 20));
         config.max_wasm_stack(HOSTED_STACK_BYTES);
         config.memory_reservation(HOSTED_RESERVATION_BYTES);
@@ -131,6 +154,36 @@ pub fn run_module_entry_with_options(
     resource_dir: Option<Vec<u8>>,
     fast_jit: bool,
 ) -> std::result::Result<Outcome, String> {
+    let winch_config = fast_jit.then(|| create_winch_config(false));
+    run_module_entry_inner(data, stdin, arguments, config, winch_config.as_ref(), cache, entry, resource_dir, fast_jit)
+}
+
+pub fn run_module_entry_with_hosted_options(
+    data: &[u8],
+    stdin: Vec<u8>,
+    arguments: Vec<Vec<u8>>,
+    hosted: bool,
+    cache: Option<&Path>,
+    entry: Option<&str>,
+    resource_dir: Option<Vec<u8>>,
+    fast_jit: bool,
+) -> std::result::Result<Outcome, String> {
+    let config = create_config_with_options(hosted, fast_jit);
+    let winch_config = fast_jit.then(|| create_winch_config(hosted));
+    run_module_entry_inner(data, stdin, arguments, &config, winch_config.as_ref(), cache, entry, resource_dir, fast_jit)
+}
+
+fn run_module_entry_inner(
+    data: &[u8],
+    stdin: Vec<u8>,
+    arguments: Vec<Vec<u8>>,
+    config: &Config,
+    winch_config: Option<&Config>,
+    cache: Option<&Path>,
+    entry: Option<&str>,
+    resource_dir: Option<Vec<u8>>,
+    fast_jit: bool,
+) -> std::result::Result<Outcome, String> {
     let mut initial = Host::new(stdin, arguments);
     initial.resource_dir = resource_dir;
     let mut host = Some(initial);
@@ -139,10 +192,11 @@ pub fn run_module_entry_with_options(
     let started = Instant::now();
     let mut instantiated = started;
     let mut return_code: i64 = 0;
+    let mut optimization: &'static str = if fast_jit { "cranelift fast-jit" } else { "cranelift speed" };
     let result = (|| -> Result<()> {
-        let engine = Engine::new(config)?;
+        let (engine, module, selected_opt) = load_engine_and_module(config, winch_config, data, cache, fast_jit)?;
+        optimization = selected_opt;
         let store = store.insert(Store::new(&engine, host.take().expect("the host state is unused")));
-        let module = load_module(&engine, data, cache, fast_jit)?;
         let mut linker = Linker::new(&engine);
         define_imports(&mut linker, &module)?;
         let instance = *instance.insert(linker.instantiate(&mut *store, &module)?);
@@ -204,7 +258,7 @@ pub fn run_module_entry_with_options(
         stderr: String::from_utf8_lossy(&errors).into_owned() + &error,
         exit_code,
         timing: Timing {
-            optimization: if fast_jit { "cranelift fast-jit" } else { "cranelift speed" },
+            optimization,
             compile_instantiate_ns: (instantiated - started).as_nanos(),
             start_function_ns: (ended - instantiated).as_nanos(),
             engine_total_ns: (ended - started).as_nanos(),
@@ -231,15 +285,99 @@ fn call(store: &mut Store<Host>, function: Func, arguments: &[Val]) -> Result<Ve
     Ok(results)
 }
 
-fn load_module(engine: &Engine, data: &[u8], cache: Option<&Path>, fast_jit: bool) -> Result<Module> {
+fn cache_stamp_path(cache: &Path) -> PathBuf {
+    let mut stamp = cache.as_os_str().to_owned();
+    stamp.push(".sha256");
+    PathBuf::from(stamp)
+}
+
+fn save_cached_module(cache: &Path, stamp: &Path, expected: &str, module: &Module) -> Result<()> {
+    replace_file(cache, &module.serialize()?)?;
+    replace_file(stamp, format!("{expected}\n").as_bytes())?;
+    Ok(())
+}
+
+fn load_engine_and_module(
+    config: &Config,
+    winch_config: Option<&Config>,
+    data: &[u8],
+    cache: Option<&Path>,
+    fast_jit: bool,
+) -> Result<(Engine, Module, &'static str)> {
+    if !fast_jit {
+        let engine = Engine::new(config)?;
+        let module = load_module(&engine, data, cache, None)?;
+        return Ok((engine, module, "cranelift speed"));
+    }
+
+    let cached_info = cache.map(|path| {
+        let digest: String = Sha256::digest(data).iter().map(|byte| format!("{byte:02x}")).collect();
+        let stamp_path = cache_stamp_path(path);
+        let existing = if path.is_file() && stamp_path.is_file() {
+            fs::read_to_string(&stamp_path).ok().map(|text| text.trim().to_owned())
+        } else {
+            None
+        };
+        (path, stamp_path, digest, existing)
+    });
+
+    if let Some(wcfg) = winch_config {
+        if let Some((path, _, digest, existing)) = &cached_info {
+            let winch_stamp = format!("winch-fast-jit:{digest}");
+            let cranelift_stamp = format!("cranelift-fast-jit:{digest}");
+            if existing.as_deref() == Some(winch_stamp.as_str()) {
+                if let Ok(engine) = Engine::new(wcfg) {
+                    // SAFETY: the file is this host's own output for these module bytes and stamp.
+                    if let Ok(module) = unsafe { Module::deserialize_file(&engine, path) } {
+                        return Ok((engine, module, "winch fast-jit"));
+                    }
+                }
+            } else if existing.as_deref() == Some(cranelift_stamp.as_str()) {
+                let engine = Engine::new(config)?;
+                // SAFETY: the file is this host's own output for these module bytes and stamp.
+                if let Ok(module) = unsafe { Module::deserialize_file(&engine, path) } {
+                    return Ok((engine, module, "cranelift fast-jit"));
+                }
+            }
+        }
+        if let Ok(engine) = Engine::new(wcfg) {
+            if let Ok(module) = Module::from_binary(&engine, data) {
+                if let Some((path, stamp_path, digest, _)) = &cached_info {
+                    save_cached_module(path, stamp_path, &format!("winch-fast-jit:{digest}"), &module)?;
+                }
+                return Ok((engine, module, "winch fast-jit"));
+            }
+        }
+    }
+
+    let engine = Engine::new(config)?;
+    let module = if let Some((path, stamp_path, digest, existing)) = &cached_info {
+        let expected = format!("cranelift-fast-jit:{digest}");
+        if existing.as_deref() == Some(expected.as_str()) {
+            // SAFETY: the file is this host's own output for these module bytes and stamp.
+            if let Ok(module) = unsafe { Module::deserialize_file(&engine, path) } {
+                return Ok((engine, module, "cranelift fast-jit"));
+            }
+        }
+        let module = Module::from_binary(&engine, data)?;
+        save_cached_module(path, stamp_path, &expected, &module)?;
+        module
+    } else {
+        Module::from_binary(&engine, data)?
+    };
+    Ok((engine, module, "cranelift fast-jit"))
+}
+
+fn load_module(engine: &Engine, data: &[u8], cache: Option<&Path>, prefix: Option<&str>) -> Result<Module> {
     let Some(cache) = cache else {
         return Module::from_binary(engine, data);
     };
     let digest: String = Sha256::digest(data).iter().map(|byte| format!("{byte:02x}")).collect();
-    let expected = if fast_jit { format!("fast-jit:{digest}") } else { digest };
-    let mut stamp = cache.as_os_str().to_owned();
-    stamp.push(".sha256");
-    let stamp = PathBuf::from(stamp);
+    let expected = match prefix {
+        Some(tag) => format!("{tag}:{digest}"),
+        None => digest,
+    };
+    let stamp = cache_stamp_path(cache);
     if cache.is_file() && stamp.is_file() && fs::read_to_string(&stamp).is_ok_and(|text| text.trim() == expected) {
         // SAFETY: the file is this host's own output for these module bytes,
         // as the stamp beside it says; Wasmtime refuses one that another
@@ -249,8 +387,7 @@ fn load_module(engine: &Engine, data: &[u8], cache: Option<&Path>, fast_jit: boo
         }
     }
     let module = Module::from_binary(engine, data)?;
-    replace_file(cache, &module.serialize()?)?;
-    replace_file(&stamp, format!("{expected}\n").as_bytes())?;
+    save_cached_module(cache, &stamp, &expected, &module)?;
     Ok(module)
 }
 
@@ -374,11 +511,11 @@ mod tests {
         let cache = dir.join("mod.cwasm");
         let stamp = dir.join("mod.cwasm.sha256");
 
-        let fast = run_module_entry_with_options(
+        let fast = run_module_entry_with_hosted_options(
             wasm,
             Vec::new(),
             vec![b"program".to_vec()],
-            &create_config_with_options(false, true),
+            false,
             Some(&cache),
             None,
             None,
@@ -386,14 +523,29 @@ mod tests {
         )
         .expect("fast-jit run");
         assert_eq!(fast.exit_code, 0);
-        assert!(fast.timing.json().contains("\"cranelift fast-jit\""));
-        assert!(fs::read_to_string(&stamp).unwrap().starts_with("fast-jit:"));
+        assert!(fast.timing.json().contains("\"winch fast-jit\""));
+        assert!(fs::read_to_string(&stamp).unwrap().starts_with("winch-fast-jit:"));
 
-        let speed = run_module_entry_with_options(
+        // Warm reload from the Winch cache.
+        let fast_warm = run_module_entry_with_hosted_options(
             wasm,
             Vec::new(),
             vec![b"program".to_vec()],
-            &create_config_with_options(false, false),
+            false,
+            Some(&cache),
+            None,
+            None,
+            true,
+        )
+        .expect("warm fast-jit run");
+        assert_eq!(fast_warm.exit_code, 0);
+        assert!(fast_warm.timing.json().contains("\"winch fast-jit\""));
+
+        let speed = run_module_entry_with_hosted_options(
+            wasm,
+            Vec::new(),
+            vec![b"program".to_vec()],
+            false,
             Some(&cache),
             None,
             None,
@@ -402,7 +554,59 @@ mod tests {
         .expect("speed run over fast-jit cache");
         assert_eq!(speed.exit_code, 0);
         assert!(speed.timing.json().contains("\"cranelift speed\""));
-        assert!(!fs::read_to_string(&stamp).unwrap().starts_with("fast-jit:"));
+        let speed_stamp = fs::read_to_string(&stamp).unwrap();
+        assert!(!speed_stamp.starts_with("winch-fast-jit:"));
+        assert!(!speed_stamp.starts_with("cranelift-fast-jit:"));
+
+        let _ = fs::remove_dir_all(&dir);
+    }
+
+    #[test]
+    fn fast_jit_falls_back_to_cranelift_for_tail_calls() {
+        // Minimal valid Wasm module using return_call (0x12), which Winch does
+        // not support: _start tail-calls helper () -> ().
+        let wasm: &[u8] = &[
+            0x00, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00,
+            0x01, 0x04, 0x01, 0x60, 0x00, 0x00,
+            0x03, 0x03, 0x02, 0x00, 0x00,
+            0x07, 0x0a, 0x01, 0x06, b'_', b's', b't', b'a', b'r', b't', 0x00, 0x00,
+            0x0a, 0x09, 0x02,
+            0x04, 0x00, 0x12, 0x01, 0x0b,
+            0x02, 0x00, 0x0b,
+        ];
+        let dir = std::env::temp_dir().join(format!("goose_wasmtime_fallback_{}", std::process::id()));
+        let _ = fs::create_dir_all(&dir);
+        let cache = dir.join("tail.cwasm");
+        let stamp = dir.join("tail.cwasm.sha256");
+
+        let cold = run_module_entry_with_hosted_options(
+            wasm,
+            Vec::new(),
+            vec![b"program".to_vec()],
+            false,
+            Some(&cache),
+            None,
+            None,
+            true,
+        )
+        .expect("tail-call fallback cold run");
+        assert_eq!(cold.exit_code, 0);
+        assert!(cold.timing.json().contains("\"cranelift fast-jit\""));
+        assert!(fs::read_to_string(&stamp).unwrap().starts_with("cranelift-fast-jit:"));
+
+        let warm = run_module_entry_with_hosted_options(
+            wasm,
+            Vec::new(),
+            vec![b"program".to_vec()],
+            false,
+            Some(&cache),
+            None,
+            None,
+            true,
+        )
+        .expect("tail-call fallback warm run");
+        assert_eq!(warm.exit_code, 0);
+        assert!(warm.timing.json().contains("\"cranelift fast-jit\""));
 
         let _ = fs::remove_dir_all(&dir);
     }
