@@ -9,7 +9,7 @@ Compile Goose directly to **WebAssembly in milliseconds** — with no C compiler
 - **Upstream-only language scope:** Strictly follows upstream [Goose](https://github.com/aardappel/goose) development as the language reference — this compiler will not diverge into its own dialect or add independent language extensions
 - **Everyday builds:** **23×–26× faster** than upstream C++ Goose (`2–7 ms` vs `51–177 ms` at `-O2`)
 - **Multi-core throughput:** Up to **2.32M LOC/s** end-to-end wall time (**2.59M LOC/s** compile stages; **2.36M / 2.65M LOC/s** with PGO) compiling multi-file Goose directly to Wasm (`--jobs auto` hits **2.01M–2.15M LOC/s** wall, **1.35M LOC/s** emitting Native C; 100% SHA-256 bit-identical across thread counts with **-36% to -57%** lower peak RSS)
-- **Large projects:** **7.4×–8.2× faster** self-compilation (`0.46–0.56 s` Wasm64 and `0.55–0.59 s` Native C emit on our 47k-LOC compiler, down from `3.7–4.4 s`), and **11×–38× faster** edit-compile-run turnaround on [`mewhhaha/blot2`](https://github.com/mewhhaha/blot2) (**`2.79 s`** unprofiled / **`2.63 s`** PGO total cold `-O0` Wasm64 + `--fast-jit` + run vs `30.6 s` Clang `-O0` / `98.8 s` Clang `-O2`, with `-57%` smaller `9.45 MiB` `.wasm`, **`72 ms`** warm `.cwasm` runs, and **`41–71 ms`** unchanged `--cache-dir` rebuilds)
+- **Large projects:** **16×–19× faster** self-compilation (`0.26–0.29 s` unprofiled / `0.24–0.28 s` PGO Wasm64 and `0.23–0.26 s` `--check` on our 47.4k-LOC compiler, down from `4.38–4.71 s` upstream), and **13×–46× faster** edit-compile-run turnaround on [`mewhhaha/blot2`](https://github.com/mewhhaha/blot2) (**`2.36 s`** unprofiled / **`2.17 s`** PGO total cold `-O0` Wasm64 + `--fast-jit` + run vs `30.6 s` Clang `-O0` / `98.8 s` Clang `-O2`, with `-57%` smaller `9.45 MiB` `.wasm`, **`73 ms`** warm `.cwasm` runs, and **`41–72 ms`** unchanged `--cache-dir` rebuilds)
 - **Compatibility:** `10,799 / 10,801` conformance rows (`99.98%` — **6,022 / 6,022** native / **100%** of upstream C++ Goose tests, 2 documented frozen wasm32 contract gaps; `4,773 / 4,779` memory64) · [Feature & compatibility tracker](docs/FEATURES.md)
 
 ---
@@ -92,21 +92,21 @@ Skipping the C compiler and linker turns `-O2` builds on everyday Goose programs
 
 On larger Goose projects, combining `--check`, `--cache-dir`, and Direct Wasm (`--wasm-memory64` + `goose-wasmtime --fast-jit` or cached `.cwasm`) replaces half-minute to minute-and-a-half C rebuilds with under 3 seconds:
 
-![Large real-world Goose codebases: our own compiler and mewhhaha/blot2](bench/results/2026-11-27/blot2-turnaround/large_codebase_turnaround.svg)
+![Large real-world Goose codebases: our own compiler and mewhhaha/blot2](bench/results/2026-11-27/lifetime-campaign/large_codebase_turnaround.svg)
 
 - **Example 1 — This compiler ([`selfhost/`](selfhost/README.md), 47.4k LOC):**
-  `goosew --check selfhost/main.goose` finishes in **`0.43 s`** (**10.2× faster** than upstream's `4.38 s`), and emitting Direct Wasm64 takes **`0.56 s`** (`-O0`, unprofiled `--jobs 8`; **`0.46 s`** with fresh Clang-23 PGO, **10.3× faster** than upstream's `4.71 s` C emit) / **`0.60 s`** (`-O2`, **`0.51 s`** PGO). Even running **as portable WebAssembly** inside Wasmtime, it checks itself in **`1.11–1.39 s`** and self-compiles bit-identically in **`1.78 s`**.
+  `goosew --check selfhost/main.goose` finishes in **`0.26 s`** unprofiled (**`0.23 s`** PGO, **17.0×–18.8× faster** than upstream's `4.38 s`), and emitting Direct Wasm64 takes **`0.26 s`** (`-O0`, unprofiled `--jobs 8`; **`0.24 s`** with fresh Clang-23 PGO, **18.0×–19.4× faster** than upstream's `4.71 s` C emit) / **`0.29 s`** (`-O2`, **`0.28 s`** PGO). Even running **as portable WebAssembly** inside Wasmtime, it checks itself in **`1.11–1.39 s`** and self-compiles bit-identically in **`1.78 s`**.
 - **Example 2 — [`mewhhaha/blot2`](https://github.com/mewhhaha/blot2) (79.0k-LOC compiler written in Goose):**
-  Blot2 uses 57 native `env.blot_*` POSIX/fd/directory/atomic/copy host functions and builds as a library entry point (`blot_goose_main`). With de-bloated Direct Wasm64 (`9.45 MiB` at `-O0`, `13.07 MiB` at `-O2` — **-57% to -59% smaller**), [`goose-wasmtime --fast-jit`](host/rust/README.md) (or safe-Rust [`goose-wtime`](host/wtime/README.md)), and `--cache-dir`, it compiles and runs **byte-identically** to native `blotc-goose` (**16/16** compiling idiomatic `.blot` benchmarks match SHA-256) in **`2.79 s`** total matched unprofiled (**`2.10 s`** Wasm64 `-O0` emit + **`0.69 s`** parallel `--fast-jit` + run; **`2.63 s`** with fresh Clang-23 PGO: **`1.95 s`** emit + **`0.69 s`** JIT+run, down from `6.24 s` on Nov 25) vs **`30.6 s`** (`-O0` C) / **`98.8 s`** (`-O2` C). At `-O2`, cold edit → compile → `--fast-jit` → run takes **`3.08 s`** unprofiled (**`2.87 s`** PGO, down from `9.11 s`), safe-Rust `goose-wtime --execution register` takes **`1.82 s`** (`377 MiB` RSS, down from `3.73 s` / `892 MiB`), warm `.cwasm` runs compile `.blot` programs in **`72–113 ms`**, and unchanged `--cache-dir` rebuilds finish in **`41 ms`** (`--check`) / **`71 ms`** (`-O0` Wasm64):
+  Blot2 uses 57 native `env.blot_*` POSIX/fd/directory/atomic/copy host functions and builds as a library entry point (`blot_goose_main`). With de-bloated Direct Wasm64 (`9.45 MiB` at `-O0`, `13.07 MiB` at `-O2` — **-57% to -59% smaller**), [`goose-wasmtime --fast-jit`](host/rust/README.md) (or safe-Rust [`goose-wtime`](host/wtime/README.md)), and `--cache-dir`, it compiles and runs **byte-identically** to native `blotc-goose` (**16/16** compiling idiomatic `.blot` benchmarks match SHA-256) in **`2.36 s`** total matched unprofiled (**`1.75 s`** Wasm64 `-O0` emit + **`0.61 s`** parallel `--fast-jit` + run; **`2.17 s`** with fresh Clang-23 PGO: **`1.56 s`** emit + **`0.61 s`** JIT+run, down from `6.24 s` on Nov 25) vs **`30.6 s`** (`-O0` C) / **`98.8 s`** (`-O2` C). At `-O2`, cold edit → compile → `--fast-jit` → run takes **`2.65 s`** unprofiled (**`2.46 s`** PGO, down from `9.11 s`), safe-Rust `goose-wtime --execution register` takes **`1.83 s`** (`377 MiB` RSS, down from `3.73 s` / `892 MiB`), warm `.cwasm` runs compile `.blot` programs in **`73–117 ms`**, and unchanged `--cache-dir` rebuilds finish in **`41 ms`** (`--check`) / **`72 ms`** (`-O0` Wasm64):
 
   ```sh
-  # Compile Blot2 directly to Wasm64 (2.10 s unprofiled / 1.95 s PGO at -O0; 71 ms cached)
+  # Compile Blot2 directly to Wasm64 (1.75 s unprofiled / 1.56 s PGO at -O0; 72 ms cached)
   goosew compiler-goose/src/main.goose --stdlib blot-stdlib \
     --target wasm-direct --wasm-memory64 --wasm-max-pages 65536 \
     --library --reachable-program --expansion-node-limit 1000000 \
     --cache-dir build/goose-cache -O0 -o blot2.wasm
 
-  # Run via goose-wasmtime (0.69 s cold --fast-jit + run; 72 ms warm .cwasm runs)
+  # Run via goose-wasmtime (0.61 s cold --fast-jit + run; 73 ms warm .cwasm runs)
   host/rust/target/release/goose-wasmtime --fast-jit blot2.wasm \
     --entry blot_goose_main --cache blot2.cwasm -- \
     build-project benchmarks/idiomatic/fibonacci.blot fib.wasm \
@@ -129,7 +129,7 @@ Fast dev builds do not trade away runtime speed. Native `-O2` binaries match or 
 
 ![Compiled program runtime: Goose to Wasm Native -O2, Wasmtime, and wtime-aot vs upstream C++ Goose](bench/results/2026-11-25/runtime-with-wtime/runtime_speed.svg)
 
-*Pinned methodology, scripts, and raw JSON: [Blot2 `98f277f2` turnaround campaign — 2.63–2.79 s total, -57% Wasm64 & `--cache-dir` (2026-11-27)](bench/results/2026-11-27/blot2-turnaround/README.md) · [Multi-core compiler throughput campaign (2026-11-26)](bench/results/2026-11-26/compiler-throughput/README.md) · [Production runtime with `wtime-aot` (`v0.1.5`)](bench/results/2026-11-25/runtime-with-wtime/README.md) · [Release `v2026.4-5` chart provenance](bench/results/2026-11-25/release-v2026.4-5/README.md) · [Baseline `v2026.4-4` full suite](bench/results/2026-11-25/release-v2026.4-4/README.md).*
+*Pinned methodology, scripts, and raw JSON: [Lifetime optimization campaign — 2.17–2.36 s Blot2 turnaround & 0.24–0.26 s selfhost (2026-11-27)](bench/results/2026-11-27/lifetime-campaign/README.md) · [Blot2 `98f277f2` turnaround campaign — -57% Wasm64 & `--cache-dir` (2026-11-27)](bench/results/2026-11-27/blot2-turnaround/README.md) · [Multi-core compiler throughput campaign (2026-11-26)](bench/results/2026-11-26/compiler-throughput/README.md) · [Production runtime with `wtime-aot` (`v0.1.5`)](bench/results/2026-11-25/runtime-with-wtime/README.md) · [Release `v2026.4-5` chart provenance](bench/results/2026-11-25/release-v2026.4-5/README.md) · [Baseline `v2026.4-4` full suite](bench/results/2026-11-25/release-v2026.4-4/README.md).*
 
 ---
 
@@ -200,6 +200,7 @@ Releases are versioned **`v<goose-version>-<n>`** (currently **`v2026.4-4`**), s
 
 All dated compiler, runtime, Wasmtime, `wtime`, native C codegen, and Blot2 studies live under [`bench/results/`](bench/results/):
 
+- [Lifetime optimization campaign — 2.17–2.36 s Blot2 turnaround, 1.56–1.75 s emit & 0.24–0.26 s selfhost (2026-11-27)](bench/results/2026-11-27/lifetime-campaign/README.md)
 - [Blot2 `98f277f2` turnaround campaign — 2.63–2.79 s total (`--fast-jit`, -57% Wasm64, parallel lifetimes & `--cache-dir`) (2026-11-27)](bench/results/2026-11-27/blot2-turnaround/README.md)
 - [Multi-core compiler throughput campaign — 2.32M LOC/s wall, 2.59M LOC/s compile, 6.9× C backend & 7.5×–8.2× selfhost (2026-11-26)](bench/results/2026-11-26/compiler-throughput/README.md)
 - [Production runtime speed with `wtime-aot` `v0.1.5` (`x64` & safe Rust) (2026-11-25)](bench/results/2026-11-25/runtime-with-wtime/README.md)
