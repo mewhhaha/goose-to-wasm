@@ -1,10 +1,11 @@
 {
  "schema": "goose-conformance-known-gaps-v1",
- "note": "Rows of the direct Wasm target that fail when built with --wasm-memory64 (tests/conformance.py --wasm-memory64 --targets wasm-direct): three contracts written for 32-bit counts.",
+ "note": "Rows of the direct Wasm target that fail when built with --wasm-memory64 (tests/conformance.py --wasm-memory64 --targets wasm-direct): three contracts written for 32-bit counts and one post-pin upstream stdlib change (`std::abs(-0.0) == 0.0`).",
  "causes": {
   "corpus/owned-struct/capacity-error/4294967296": "With 64-bit memory a capacity of 2^32 is a count the backend holds, so the program is not stopped with \"array capacity out of range\" as the 32-bit contract expects (stderr_contains \"capacity\"); it stops where the capacity is reserved, with \"data region exhausted\". Same exit status and standard output.",
   "corpus/variable-enum-tail/capacity-error/4294967296": "With 64-bit memory a capacity of 2^32 is a count the backend holds, so the program is not stopped with \"array capacity out of range\" as the 32-bit contract expects (stderr_contains \"capacity\"); it stops where the capacity is reserved, with \"data region exhausted\". Same exit status and standard output.",
-  "corpus/runtime-limited/errors/1": "With 64-bit memory the runtime capacity read from input is a count the backend holds; the program stops where it is reserved, with \"data region exhausted\", not with a message that names the capacity. Same exit status and standard output."
+  "corpus/runtime-limited/errors/1": "With 64-bit memory the runtime capacity read from input is a count the backend holds; the program stops where it is reserved, with \"data region exhausted\", not with a message that names the capacity. Same exit status and standard output.",
+  "corpus/math-intrinsics/3": "Intentional post-pin upstream stdlib change (upstream HEAD 1838de4): frozen contract `tests/fixtures/math_intrinsics.goose` asserts the old 2e2bede `std::abs(-0.0) == -0.0` (`-inf`); upstream HEAD changed `std::abs(f32/f64)` to IEEE-754 `fabsf`/`fabs`, which clear the sign bit (`abs(-0.0) == 0.0`, `inf`)."
  },
  "gaps": [
   [
@@ -29,6 +30,14 @@
   ],
   [
    "corpus/runtime-limited/errors/1",
+   2
+  ],
+  [
+   "corpus/math-intrinsics/3",
+   0
+  ],
+  [
+   "corpus/math-intrinsics/3",
    2
   ]
  ]

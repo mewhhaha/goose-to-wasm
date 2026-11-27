@@ -186,6 +186,7 @@ fn handler_for(module: &str, name: &str) -> Option<Handler> {
         ("env", "gs_os_list_dir") => os_list_dir,
         ("env", "gs_os_read_line") => os_read_line,
         ("env", "gs_os_read_stdin") => os_read_stdin,
+        ("env", "gs_os_read_stdin_max") => os_read_stdin_max,
         ("env", "gs_os_write_stdout") => |caller, values| os_write(caller, values, false),
         ("env", "gs_os_write_stderr") => |caller, values| os_write(caller, values, true),
         ("env", "gs_os_arg_count") => |caller, _| Ok(Out::Integer(caller.data().arguments.len() as i64)),
@@ -201,6 +202,8 @@ fn handler_for(module: &str, name: &str) -> Option<Handler> {
             Ok(Out::Nothing)
         },
         ("env", "gs_os_random_u64") => |_, _| Ok(Out::Integer(random_u64() as i64)),
+        ("env", "gs_os_random_bytes") => os_random_bytes,
+        ("env", "gs_f64_digits") => f64_digits,
         ("env", "gs_find_any") => find_any,
         ("env", "gs_find_pair") => find_pair,
         ("env", "gs_trim_memory") => |_, _| Ok(Out::Integer(0)),
@@ -635,6 +638,75 @@ fn os_read_stdin(caller: &mut Caller<'_, Host>, values: &[Val]) -> Result<Out> {
     };
     append_bytes(caller, control, &rest)?;
     Ok(Out::Nothing)
+}
+
+fn os_read_stdin_max(caller: &mut Caller<'_, Host>, values: &[Val]) -> Result<Out> {
+    let control = integer(values, 0)?;
+    let limit = integer(values, 1)?;
+    if limit <= 0 {
+        return Ok(Out::Integer(0));
+    }
+    let chunk = {
+        let host = caller.data_mut();
+        if host.input_position >= host.input.len() {
+            return Ok(Out::Integer(0));
+        }
+        let end = host.input.len().min(host.input_position.saturating_add(limit as usize));
+        let owned = host.input[host.input_position..end].to_vec();
+        host.input_position = end;
+        owned
+    };
+    append_bytes(caller, control, &chunk)?;
+    Ok(Out::Integer(1))
+}
+
+fn os_random_bytes(caller: &mut Caller<'_, Host>, values: &[Val]) -> Result<Out> {
+    let mut arguments = Arguments::new(values, 1);
+    let (pointer, length) = arguments.slice()?;
+    if length > 0 {
+        let len = usize::try_from(length).map_err(|_| failure("invalid random_bytes length"))?;
+        let mut buf = vec![0u8; len];
+        let mut filled = false;
+        if let Ok(mut f) = fs::File::open("/dev/urandom") {
+            filled = f.read_exact(&mut buf).is_ok();
+        }
+        if !filled {
+            for chunk in buf.chunks_mut(8) {
+                let r = random_u64().to_le_bytes();
+                chunk.copy_from_slice(&r[..chunk.len()]);
+            }
+        }
+        write_bytes(caller, pointer, &buf)?;
+    }
+    Ok(Out::Integer(1))
+}
+
+fn f64_digits(caller: &mut Caller<'_, Host>, values: &[Val]) -> Result<Out> {
+    let x = float(values, 0)?;
+    let wide = values.len() > 3;
+    let (ptr, len, point_ptr) = if wide {
+        (integer(values, 1)?.into(), integer(values, 2)?.into(), address(integer(values, 3)?))
+    } else {
+        let packed = integer(values, 1)? as u64;
+        (((packed & 0xffff_ffff) as i128), ((packed >> 32) as i128), address(integer(values, 2)?))
+    };
+    if !x.is_finite() || x == 0.0 {
+        return Ok(Out::Integer(0));
+    }
+    let formatted = format!("{:e}", x.abs());
+    let (mantissa, exp_text) = formatted.split_once('e').unwrap_or((&formatted, "0"));
+    let dot = mantissa.find('.').unwrap_or(mantissa.len());
+    let raw: String = mantissa.chars().filter(|&c| c != '.').collect();
+    let leading = raw.bytes().take_while(|&b| b == b'0').count();
+    let exp: i64 = exp_text.parse().unwrap_or(0);
+    let point = exp + (dot as i64) - (leading as i64);
+    let trimmed = raw[leading..].trim_end_matches('0').as_bytes();
+    let n = trimmed.len().min(usize::try_from(len.max(0)).unwrap_or(0));
+    if n > 0 {
+        write_bytes(caller, ptr, &trimmed[..n])?;
+    }
+    write_bytes(caller, point_ptr, &point.to_le_bytes())?;
+    Ok(Out::Integer(n as i64))
 }
 
 fn os_resource_dir(caller: &mut Caller<'_, Host>, values: &[Val]) -> Result<Out> {

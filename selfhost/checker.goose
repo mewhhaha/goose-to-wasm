@@ -8894,7 +8894,6 @@ fn check_validate_program_nodes(p: Program&, first: i64, end: i64, elem_bad: con
             validation_function(p, node);
             if kind != N_TYPE_FN && (flags & F_CHECKED) != 0 {
                 if (flags & F_CHECKFREE) != 0 { p.has_checked_checkfree = true; }
-                validation_checkfree_calls(p, node);
             }
         }
         if kind == N_TYPE_ARRAY && tid >= 0 && tid < elem_bad.len && elem_bad[tid] { validation_element_layout(p, tid, tok); }

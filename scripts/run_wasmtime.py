@@ -435,6 +435,52 @@ def run_module(data: bytes, stdin: bytes | str, *, timing: bool = True,
             append_bytes(caller, control, input_bytes[input_position:])
             input_position = len(input_bytes)
 
+    def read_stdin_max(caller, control, limit):
+        nonlocal input_position
+        if limit <= 0 or input_position >= len(input_bytes):
+            return 0
+        end = min(len(input_bytes), input_position + limit)
+        append_bytes(caller, control, input_bytes[input_position:end])
+        input_position = end
+        return 1
+
+    def random_bytes_host(caller, *rest):
+        if len(rest) > 1:
+            ptr, length = rest[0], rest[1]
+        else:
+            packed = rest[0] & ((1 << 64) - 1)
+            ptr, length = packed & 0xffffffff, packed >> 32
+        if length > 0:
+            write_bytes(caller, ptr, os.urandom(length))
+        return 1
+
+    def f64_digits_host(caller, x, *rest):
+        if len(rest) > 2:
+            ptr, length, point_ptr = rest[0], rest[1], rest[2]
+        else:
+            packed = rest[0] & ((1 << 64) - 1)
+            ptr, length, point_ptr = packed & 0xffffffff, packed >> 32, rest[1]
+        if not math.isfinite(x) or x == 0.0:
+            return 0
+        shortest = repr(abs(x)).lower()
+        mantissa, exp_text = shortest.split("e") if "e" in shortest else (shortest, "0")
+        dot = mantissa.find(".")
+        if dot < 0:
+            dot = len(mantissa)
+        digits = mantissa.replace(".", "")
+        leading = 0
+        while leading < len(digits) and digits[leading] == "0":
+            leading += 1
+        point = int(exp_text) + dot - leading
+        digits = digits[leading:].rstrip("0").encode("ascii")
+        n = min(len(digits), length)
+        if n > 0:
+            write_bytes(caller, ptr, digits[:n])
+        if point_ptr < 0:
+            point_ptr &= 0xffffffff
+        write_bytes(caller, point_ptr, struct.pack("<q", point))
+        return n
+
     def program_argument(caller, index, control):
         if 0 <= index < len(program_arguments):
             append_bytes(caller, control, os.fsencode(program_arguments[index]))
@@ -603,6 +649,7 @@ def run_module(data: bytes, stdin: bytes | str, *, timing: bool = True,
         ("env", "gs_os_list_dir"): (sliced("sr", list_dir), True),
         ("env", "gs_os_read_line"): (read_line, True),
         ("env", "gs_os_read_stdin"): (read_stdin, True),
+        ("env", "gs_os_read_stdin_max"): (read_stdin_max, True),
         ("env", "gs_os_write_stdout"): (sliced("s", lambda _c, text: chunks.append(text)), True),
         ("env", "gs_os_write_stderr"): (sliced("s", lambda _c, text: errors.append(text)), True),
         ("env", "gs_os_flush_stdout"): (lambda: None, False),
@@ -614,6 +661,8 @@ def run_module(data: bytes, stdin: bytes | str, *, timing: bool = True,
         ("env", "gs_os_time_ns"): (time.time_ns, False),
         ("env", "gs_os_sleep_ms"): (lambda ms: time.sleep(ms / 1000.0) if ms > 0 else None, False),
         ("env", "gs_os_random_u64"): (lambda: struct.unpack("<q", os.urandom(8))[0], False),
+        ("env", "gs_os_random_bytes"): (random_bytes_host, True),
+        ("env", "gs_f64_digits"): (f64_digits_host, True),
         ("env", "gs_find_any"): (sliced("sr", find_any), True),
         ("env", "gs_find_pair"): (sliced("srrr", find_pair), True),
         ("env", "gs_trim_memory"): (lambda: 0, False),
@@ -646,6 +695,7 @@ def run_module(data: bytes, stdin: bytes | str, *, timing: bool = True,
         ("env", "gs_expf"): (lambda x: f32(c_unary(math.exp, f32(x))), False),
         ("env", "exp2"): (lambda x: c_unary(math.exp2, x), False),
         ("env", "gs_exp2"): (lambda x: c_unary(math.exp2, x), False),
+        ("env", "gs_exp2f"): (lambda x: f32(c_unary(math.exp2, f32(x))), False),
         ("env", "log"): (lambda x: c_unary(math.log, x, zero_neg_inf=True), False),
         ("env", "gs_log"): (lambda x: c_unary(math.log, x, zero_neg_inf=True), False),
         ("env", "gs_logf"): (lambda x: f32(c_unary(math.log, f32(x), zero_neg_inf=True)), False),
@@ -670,10 +720,13 @@ def run_module(data: bytes, stdin: bytes | str, *, timing: bool = True,
         ("env", "gs_fmodf"): (lambda x, y: f32(c_fmod(f32(x), f32(y))), False),
         ("env", "sinh"): (lambda x: c_unary(math.sinh, x, signed_overflow=True), False),
         ("env", "gs_sinh"): (lambda x: c_unary(math.sinh, x, signed_overflow=True), False),
+        ("env", "gs_sinhf"): (lambda x: f32(c_unary(math.sinh, f32(x), signed_overflow=True)), False),
         ("env", "cosh"): (lambda x: c_unary(math.cosh, x), False),
         ("env", "gs_cosh"): (lambda x: c_unary(math.cosh, x), False),
+        ("env", "gs_coshf"): (lambda x: f32(c_unary(math.cosh, f32(x))), False),
         ("env", "tanh"): (lambda x: c_unary(math.tanh, x), False),
         ("env", "gs_tanh"): (lambda x: c_unary(math.tanh, x), False),
+        ("env", "gs_tanhf"): (lambda x: f32(c_unary(math.tanh, f32(x))), False),
         ("env", "asinh"): (lambda x: c_unary(math.asinh, x), False),
         ("env", "gs_asinh"): (lambda x: c_unary(math.asinh, x), False),
         ("env", "acosh"): (lambda x: c_unary(math.acosh, x), False),
@@ -682,12 +735,16 @@ def run_module(data: bytes, stdin: bytes | str, *, timing: bool = True,
         ("env", "gs_atanh"): (lambda x: c_unary(math.atanh, x), False),
         ("env", "hypot"): (math.hypot, False),
         ("env", "gs_hypot"): (math.hypot, False),
+        ("env", "gs_hypotf"): (lambda x, y: f32(math.hypot(f32(x), f32(y))), False),
         ("env", "cbrt"): (math.cbrt, False),
         ("env", "gs_cbrt"): (math.cbrt, False),
+        ("env", "gs_cbrtf"): (lambda x: f32(math.cbrt(f32(x))), False),
         ("env", "expm1"): (lambda x: c_unary(math.expm1, x), False),
         ("env", "gs_expm1"): (lambda x: c_unary(math.expm1, x), False),
+        ("env", "gs_expm1f"): (lambda x: f32(c_unary(math.expm1, f32(x))), False),
         ("env", "log1p"): (lambda x: c_unary(math.log1p, x, neg_one_neg_inf=True), False),
         ("env", "gs_log1p"): (lambda x: c_unary(math.log1p, x, neg_one_neg_inf=True), False),
+        ("env", "gs_log1pf"): (lambda x: f32(c_unary(math.log1p, f32(x), neg_one_neg_inf=True)), False),
         # No process can be started from here: libc's system fails.
         ("env", "system"): (lambda _command: -1, False),
         ("wasi_snapshot_preview1", "args_sizes_get"): (args_sizes, True),

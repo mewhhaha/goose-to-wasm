@@ -347,6 +347,14 @@ export async function runModule(bytes, input = "", programArguments = ["program"
           stdinPosition = stdin.length;
         }
       },
+      gs_os_read_stdin_max: (control, max) => {
+        const limit = Number(BigInt.asIntN(64, max));
+        if (limit <= 0 || stdinPosition >= stdin.length) return 0;
+        const end = Math.min(stdin.length, stdinPosition + limit);
+        appendBytes(control, stdin.subarray(stdinPosition, end));
+        stdinPosition = end;
+        return 1;
+      },
       gs_os_write_stdout: sliced("s", (text) => { chunks.push(text); }),
       gs_os_write_stderr: sliced("s", (text) => { errors.push(text); }),
       gs_os_flush_stdout: () => {},
@@ -374,6 +382,36 @@ export async function runModule(bytes, input = "", programArguments = ["program"
         if (delay > 0) Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, delay);
       },
       gs_os_random_u64: () => randomBytes(8).readBigInt64LE(0),
+      gs_os_random_bytes: (...rest) => {
+        const wide = rest.length > 1;
+        let ptr, len;
+        if (wide) { ptr = rest[0]; len = address(rest[1]); }
+        else { const packed = BigInt.asUintN(64, rest[0]); ptr = Number(packed & 0xffffffffn); len = Number(packed >> 32n); }
+        if (len > 0) memoryView(ptr, len).set(randomBytes(len));
+        return 1;
+      },
+      gs_f64_digits: (x, ...rest) => {
+        const wide = rest.length > 2;
+        let ptr, len, pointPtr;
+        if (wide) { ptr = rest[0]; len = address(rest[1]); pointPtr = rest[2]; }
+        else {
+          const packed = BigInt.asUintN(64, rest[0]);
+          ptr = Number(packed & 0xffffffffn); len = Number(packed >> 32n); pointPtr = rest[1];
+        }
+        if (!Number.isFinite(x) || x === 0) return 0n;
+        const [mantissa, expText = "0"] = Math.abs(x).toString().toLowerCase().split("e");
+        const dot = mantissa.includes(".") ? mantissa.indexOf(".") : mantissa.length;
+        let digits = mantissa.replace(".", "");
+        let leading = 0;
+        while (digits[leading] === "0") leading++;
+        const point = Number(expText) + dot - leading;
+        digits = digits.slice(leading).replace(/0+$/, "");
+        const bytes = Buffer.from(digits);
+        const n = Math.min(bytes.length, len);
+        if (n > 0) memoryView(ptr, n).set(bytes.subarray(0, n));
+        write64(pointPtr, BigInt.asUintN(64, BigInt(point)));
+        return BigInt(n);
+      },
       // std's byte-set searches: a set's members are its first 256 bytes.
       gs_find_any: sliced("sr", (data, set) => {
         const members = byteSet(set);
@@ -421,6 +459,7 @@ export async function runModule(bytes, input = "", programArguments = ["program"
       gs_expf: (x) => Math.fround(Math.exp(Math.fround(x))),
       exp2: (x) => Math.pow(2, x),
       gs_exp2: (x) => Math.pow(2, x),
+      gs_exp2f: (x) => Math.fround(Math.pow(2, Math.fround(x))),
       log: (x) => Math.log(x),
       gs_log: (x) => Math.log(x),
       gs_logf: (x) => Math.fround(Math.log(Math.fround(x))),
@@ -445,10 +484,13 @@ export async function runModule(bytes, input = "", programArguments = ["program"
       gs_fmodf: (x, y) => Math.fround(Math.fround(x) % Math.fround(y)),
       sinh: (x) => Math.sinh(x),
       gs_sinh: (x) => Math.sinh(x),
+      gs_sinhf: (x) => Math.fround(Math.sinh(Math.fround(x))),
       cosh: (x) => Math.cosh(x),
       gs_cosh: (x) => Math.cosh(x),
+      gs_coshf: (x) => Math.fround(Math.cosh(Math.fround(x))),
       tanh: (x) => Math.tanh(x),
       gs_tanh: (x) => Math.tanh(x),
+      gs_tanhf: (x) => Math.fround(Math.tanh(Math.fround(x))),
       asinh: (x) => Math.asinh(x),
       gs_asinh: (x) => Math.asinh(x),
       acosh: (x) => Math.acosh(x),
@@ -457,12 +499,16 @@ export async function runModule(bytes, input = "", programArguments = ["program"
       gs_atanh: (x) => Math.atanh(x),
       hypot: (x, y) => Math.hypot(x, y),
       gs_hypot: (x, y) => Math.hypot(x, y),
+      gs_hypotf: (x, y) => Math.fround(Math.hypot(Math.fround(x), Math.fround(y))),
       cbrt: (x) => Math.cbrt(x),
       gs_cbrt: (x) => Math.cbrt(x),
+      gs_cbrtf: (x) => Math.fround(Math.cbrt(Math.fround(x))),
       expm1: (x) => Math.expm1(x),
       gs_expm1: (x) => Math.expm1(x),
+      gs_expm1f: (x) => Math.fround(Math.expm1(Math.fround(x))),
       log1p: (x) => Math.log1p(x),
       gs_log1p: (x) => Math.log1p(x),
+      gs_log1pf: (x) => Math.fround(Math.log1p(Math.fround(x))),
       // No process can be started from here: libc's system fails.
       system: () => -1,
     },

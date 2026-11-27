@@ -4179,12 +4179,18 @@ fn cc_statement_extern(p: Program&, out: u8[>..]&, function: i64, name: const u8
         cc_param(p, out, function, 1); cc_text(out, "-g_got);size_t g_n=fread(g_b,1,g_want,stdin);if(!g_n)break;g_bytes(&g_a,g_b,(int64_t)g_n);g_got+=(int64_t)g_n;}\nmemcpy(g_address(");
         cc_param(p, out, function, 0); cc_text(out, "),&g_a,sizeof g_a);\nreturn g_got>0;\n"); return true;
     }
+    if same_bytes(name, "gs_os_random_bytes") {
+        cc_text(out, "unsigned char *g_p=(unsigned char*)g_address("); cc_param(p, out, function, 0);
+        cc_text(out, ".base);int64_t g_n="); cc_param(p, out, function, 0);
+        cc_text(out, ".len,g_i=0;\nwhile(g_i<g_n){uint64_t g_r=g_os_random();int64_t g_k=g_n-g_i;if(g_k>8)g_k=8;memcpy(g_p+g_i,&g_r,(size_t)g_k);g_i+=g_k;}\nreturn 1;\n");
+        return true;
+    }
     return false;
 }
 fn cc_is_builtin_extern(p: Program&, function: i64, name: const u8[:]) -> bool {
     if (p.nodes[function].flags & F_LOCATED) != 0 { return true; }
     if cc_runtime_extern(name).len > 0 { return true; }
-    for s in ["gs_f64_digits", "gs_os_read_stdin_max", "gs_rotl32", "gs_rotr32", "gs_rotl64", "gs_rotr64",
+    for s in ["gs_f64_digits", "gs_os_read_stdin_max", "gs_os_random_bytes", "gs_rotl32", "gs_rotr32", "gs_rotl64", "gs_rotr64",
               "gs_byte_swap16", "gs_byte_swap32", "gs_byte_swap64",
               "gs_f32_from_bits", "gs_f64_from_bits", "gs_f32_to_bits", "gs_f64_to_bits",
               "gs_os_read_file", "gs_os_list_dir", "gs_os_getenv",

@@ -1486,8 +1486,12 @@ recursive fn cg_run_defers(p: Program&, m: CgModule&, f: CgBody&, mark: i64) {
 // a rotation whose i64 count wraps to i32 first; i32.rotl and i64.rotl take
 // the count modulo the width, as std's rotl does (upstream runtime_ext.h).
 // CG_CONST_TRUE lowers a 0-argument extern (os::trim_memory) directly to true.
+// CG_BSWAP16/32/64 lower std's byte swaps inline with zero host imports.
 let CG_WRAP_COUNT: i64 = 256;
 let CG_CONST_TRUE: i64 = 512;
+let CG_BSWAP16: i64 = 513;
+let CG_BSWAP32: i64 = 514;
+let CG_BSWAP64: i64 = 515;
 fn cg_intrinsic(p: Program&, function: i64) -> i64 {
     if (p.nodes[function].flags & F_EXTERN) == 0 { return 0; }
     var name = token_text(p, p.nodes[function].token);
@@ -1502,13 +1506,20 @@ fn cg_intrinsic(p: Program&, function: i64) -> i64 {
     let id = p.nodes[parameter].type_id; let w = cg_wasm_type(p, id);
     let count = p.nodes[parameter].next;
     if count >= 0 {
-        if p.nodes[count].next >= 0 || cg_wasm_type(p, p.nodes[count].type_id) != 0x7e { return 0; }
+        if p.nodes[count].next >= 0 { return 0; }
+        let w2 = cg_wasm_type(p, p.nodes[count].type_id);
+        if w == 0x7d && w2 == 0x7d && same_bytes(name, "copysignf") { return 0x98; }
+        if w == 0x7c && w2 == 0x7c && same_bytes(name, "copysign") { return 0xa6; }
+        if w2 != 0x7e { return 0; }
         if w == 0x7f && same_bytes(name, "gs_rotl32") { return CG_WRAP_COUNT | 0x77; }
         if w == 0x7f && same_bytes(name, "gs_rotr32") { return CG_WRAP_COUNT | 0x78; }
         if w == 0x7e && same_bytes(name, "gs_rotl64") { return 0x89; }
         if w == 0x7e && same_bytes(name, "gs_rotr64") { return 0x8a; }
         return 0;
     }
+    if same_bytes(name, "gs_byte_swap16") && id == TYPE_U16 { return CG_BSWAP16; }
+    if same_bytes(name, "gs_byte_swap32") && id == TYPE_U32 { return CG_BSWAP32; }
+    if same_bytes(name, "gs_byte_swap64") && id == TYPE_U64 { return CG_BSWAP64; }
     if same_bytes(name, "gs_clz") && id == TYPE_U64 { return 0x79; }
     if same_bytes(name, "gs_ctz") && id == TYPE_U64 { return 0x7a; }
     if same_bytes(name, "gs_popcount") && id == TYPE_U64 { return 0x7b; }
@@ -1993,7 +2004,25 @@ recursive fn cg_call(p: Program&, m: CgModule&, f: CgBody&, node: i64) {
         let opcode = cg_intrinsic(p, function);
         if opcode != 0 {
             if opcode == CG_CONST_TRUE { wb_i32(f.code, 1); }
-            else { if (opcode & CG_WRAP_COUNT) != 0 { wb_byte(f.code, 0xa7); } wb_byte(f.code, opcode & 255); }
+            else if opcode == CG_BSWAP16 {
+                let x = cg_save(f, 0x7f);
+                cg_get(f, x); wb_i32(f.code, 255); wb_byte(f.code, 0x71); wb_i32(f.code, 8); wb_byte(f.code, 0x74);
+                cg_get(f, x); wb_i32(f.code, 8); wb_byte(f.code, 0x76); wb_i32(f.code, 255); wb_byte(f.code, 0x71);
+                wb_byte(f.code, 0x72);
+            } else if opcode == CG_BSWAP32 {
+                let x = cg_save(f, 0x7f);
+                cg_get(f, x); wb_i32(f.code, 16711935); wb_byte(f.code, 0x71); wb_i32(f.code, 8); wb_byte(f.code, 0x78);
+                cg_get(f, x); wb_i32(f.code, -16711936); wb_byte(f.code, 0x71); wb_i32(f.code, 8); wb_byte(f.code, 0x77);
+                wb_byte(f.code, 0x72);
+            } else if opcode == CG_BSWAP64 {
+                let x = cg_save(f, 0x7e);
+                cg_get(f, x); wb_i64(f.code, 71777214294589695); wb_byte(f.code, 0x83); wb_i64(f.code, 8); wb_byte(f.code, 0x86);
+                cg_get(f, x); wb_i64(f.code, 8); wb_byte(f.code, 0x88); wb_i64(f.code, 71777214294589695); wb_byte(f.code, 0x83);
+                wb_byte(f.code, 0x84); cg_set(f, x);
+                cg_get(f, x); wb_i64(f.code, 281470681808895); wb_byte(f.code, 0x83); wb_i64(f.code, 16); wb_byte(f.code, 0x86);
+                cg_get(f, x); wb_i64(f.code, 16); wb_byte(f.code, 0x88); wb_i64(f.code, 281470681808895); wb_byte(f.code, 0x83);
+                wb_byte(f.code, 0x84); wb_i64(f.code, 32); wb_byte(f.code, 0x8a);
+            } else { if (opcode & CG_WRAP_COUNT) != 0 { wb_byte(f.code, 0xa7); } wb_byte(f.code, opcode & 255); }
         } else {
             let spc = cg_spc_target(p, m, function);
             if spc >= 0 {

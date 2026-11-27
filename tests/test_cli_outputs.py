@@ -697,6 +697,86 @@ fn main() {
             "array shrink invalidates",
         )
 
+    def test_run_based_checkfree_and_upgraded_stdlib(self):
+        # Run-based checkfree: checkfree callers can call plain helpers and
+        # upgraded stdlib modules (mat, quat, binary, math, std, os) without
+        # callee checkfree annotations, as long as nothing reached keeps a check.
+        ok_source = """\
+import math;
+import vec;
+import mat;
+import quat;
+import binary;
+import os;
+import std;
+
+fn sum_plain(xs: i64[:]) -> i64 {
+    var t = 0;
+    for i in xs.len { t += xs[i]; }
+    return t;
+}
+fn each_plain<F>(xs: i64[:]) {
+    for x in xs { F(x); }
+}
+checkfree fn run_checkfree(xs: i64[:]) -> i64 {
+    var total = sum_plain(xs);
+    each_plain(xs) { x => total += x; };
+    let a: double2x2 = [double2 { 1.0, 3.0 }, double2 { 2.0, 4.0 }];
+    let r = row(a, 1);
+    let q = angle_axis(PI / 2.0, double3 { 0.0, 0.0, 1.0 });
+    let rot = rotate(q, double3 { 1.0, 0.0, 0.0 });
+    let sw = byte_swap(0x12345678 as u32);
+    let cs = copysign(3.0, -1.0);
+    let csf = copysign(3.0 as f32, -1.0 as f32);
+    let h: f32 = hypot(3.0 as f32, 4.0 as f32);
+    let b = ascii::is_digit('7');
+    var rnd: u8[8] = [0; 8];
+    let ok = random_bytes(rnd);
+    print(total, " ", r.x, " ", round(rot.y), " ", sw, " ", cs, " ", csf, " ", h, " ", b, " ", ok);
+    return total;
+}
+fn main() {
+    let xs: i64[3] = [2, 3, 5];
+    let _ = run_checkfree(xs[..]);
+    let buf: u8[4] = [1, 2, 3, 4];
+    let rd, ok2 = binary::read_u32be(buf, 0);
+    print(rd, " ", ok2);
+}
+"""
+        self._run_both_backends(
+            "checkfree_and_stdlib",
+            ok_source,
+            "20 3.0 1.0 2018915346 -3.0 -3.0 5.0 true true\n16909060 true\n",
+        )
+
+        # Negative 1: transitive non-checkfree callee keeping a bounds check reports the call chain.
+        self._expect_rejected(
+            "checkfree_callee_chain",
+            """\
+var a: i64[>..] = [1, 2, 3];
+fn get(i: i64) -> i64 { return a[i]; }
+fn twice(i: i64) -> i64 { return get(i) + get(i); }
+checkfree fn sum_all(n: i64) -> i64 { return twice(n); }
+fn main() { print(sum_all(1)); }
+""",
+            "checkfree fn sum_all calls twice, which calls get, which keeps a bounds check",
+        )
+
+        # Negative 2: block passed into checkfree keeping a bounds check attributes the caller.
+        self._expect_rejected(
+            "checkfree_block_check",
+            """\
+checkfree fn each<F>(n: i64) { for i in 0..n { F(i); } }
+fn main() {
+    var a: i64[>..] = [1, 2, 3];
+    var t = 0;
+    each(3) { x => t += a[x]; };
+    print(t);
+}
+""",
+            "checkfree fn each keeps a bounds check in code written in fn main",
+        )
+
 
 @unittest.skipUnless(COMPILER.is_file(), "bootstrap the compiler first")
 class StackReserve(unittest.TestCase):

@@ -398,8 +398,6 @@ fn core() {
 OS = r'''
 import os;
 
-extern fn random_bytes(out: u8[:]) -> bool = "gs_os_random_bytes";
-
 fn contents(path: const u8[:], expected: const u8[:]) {
     var data: u8[>..] = [];
     assert(read_file(path, data) && data == expected);
