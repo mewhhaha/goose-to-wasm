@@ -3,8 +3,8 @@
 
 Both backends emit a root struct program the frontend accepts, and the direct
 Wasm module prints what the native executable does, in V8 and (when its
-bindings are installed) Wasmtime. A program whose only direct-Wasm refusal is
-slice_pool's span tree externs is refused by those externs, not its root owner.
+bindings are installed) Wasmtime, including stdlib slice_pool's root owner and
+span-tree externs.
 """
 from pathlib import Path
 import importlib.util
@@ -52,12 +52,18 @@ class RootStructBackends(unittest.TestCase):
                     self.assertEqual(result.returncode, 0, result.stderr)
                     self.assertEqual(result.stdout, EXPECTED)
 
-    def test_wasm_direct_refuses_slice_pool_by_its_externs(self):
-        emitted = self.compile(SLICE_POOL, "wasm-direct", 2, "-o", "pool.wasm")
-        self.assertEqual(emitted.returncode, 1, emitted.stderr)
-        self.assertIn("slice pool span tree externs are not supported by the direct Wasm backend", emitted.stderr)
-        self.assertNotIn("root struct", emitted.stderr)
-        self.assertFalse((self.work / "pool.wasm").exists())
+    def test_wasm_direct_emits_and_runs_slice_pool(self):
+        expected = b"0 [0, 0] 9\n2 10 8\n2 12\n13 0 0 0 1\n18 [103, 104, 105]\n2 4 [0, 0, 0]\n0 21 21\ntrue true\n99 799\n0 799 1\n"
+        for level in (0, 2):
+            wasm = self.work / f"pool-O{level}.wasm"
+            emitted = self.compile(SLICE_POOL, "wasm-direct", level, "-o", wasm)
+            self.assertEqual(emitted.returncode, 0, emitted.stderr)
+            self.assertTrue(wasm.is_file())
+            for engine, command in self.engines(wasm):
+                with self.subTest(level=level, engine=engine):
+                    result = subprocess.run(list(map(str, command)), capture_output=True)
+                    self.assertEqual(result.returncode, 0, result.stderr)
+                    self.assertEqual(result.stdout, expected)
 
     def test_native_emits_owner_storage(self):
         emitted = self.compile(OWNER, "native", 2, "-o", "owner.c")

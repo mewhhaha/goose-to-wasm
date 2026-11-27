@@ -1,14 +1,17 @@
 #!/usr/bin/env python3
-"""The slice pool's span tree externs lower to native C; direct Wasm refuses them.
+"""The slice pool's span tree externs lower to both native C and direct Wasm.
 
 stdlib/slice_pool_internal.goose declares runtime externs (gs_slice_pool_*)
-that take node[>..]& and tree& references. The frontend accepts them for
-either target; native C calls native/slice_pool.h, and the direct Wasm
-backend, which has no span tree, refuses them by name.
+that take node[>..]& and tree& references. Native C calls native/slice_pool.h,
+and the direct Wasm backend lowers them to internal checked 512-byte B+ span
+tree helpers with zero extra host imports.
 """
 from pathlib import Path
+import importlib.util
 import os
+import shutil
 import subprocess
+import sys
 import tempfile
 import unittest
 
@@ -16,6 +19,9 @@ ROOT = Path(__file__).resolve().parents[1]
 COMPILER = Path(os.environ.get('GOOSE_COMPILER', ROOT / 'build/bin/goosew')).resolve()
 STDLIB = ROOT / "stdlib"
 SOURCE = ROOT / "tests/fixtures/contracts/slice-pool/direct_externs.goose"
+SPANS = ROOT / "tests/fixtures/contracts/slice-pool/spans.goose"
+TRIM = ROOT / "tests/fixtures/contracts/slice-pool/trim.goose"
+CORRUPT = ROOT / "tests/fixtures/contracts/slice-pool/corrupt_tree.goose"
 
 
 @unittest.skipUnless(COMPILER.is_file(), "bootstrap the compiler first")
@@ -25,18 +31,81 @@ class SlicePoolBackends(unittest.TestCase):
         self.addCleanup(directory.cleanup)
         self.work = Path(directory.name)
 
-    def compile(self, target, *arguments):
-        command = [COMPILER, SOURCE, "--target", target, "-O2", "--stdlib", STDLIB, *arguments]
+    def compile(self, target, *arguments, source=SOURCE):
+        command = [COMPILER, source, "--target", target, "-O2", "--stdlib", STDLIB, *arguments]
         return subprocess.run(list(map(str, command)), cwd=self.work, capture_output=True, text=True)
 
-    def test_wasm_direct_checks_and_refuses_emission(self):
+    def engines(self, wasm):
+        if shutil.which("node"):
+            yield "V8", ["node", ROOT / "scripts/run_wasm.mjs", wasm]
+        if importlib.util.find_spec("wasmtime") is not None:
+            yield "Wasmtime", [sys.executable, ROOT / "scripts/run_wasmtime.py", wasm]
+
+    def test_wasm_direct_emits_and_runs_slice_pool_externs(self):
         checked = self.compile("wasm-direct", "--check")
         self.assertEqual(checked.returncode, 0, checked.stderr)
-        emitted = self.compile("wasm-direct", "-o", "pool.wasm")
-        self.assertEqual(emitted.returncode, 1, emitted.stderr)
-        self.assertIn("slice pool span tree externs are not supported by the direct Wasm backend", emitted.stderr)
-        self.assertNotIn("public exports", emitted.stderr)
-        self.assertFalse((self.work / "pool.wasm").exists())
+        cases = (
+            ("direct_externs", SOURCE, 0, "2 1 0 1\n0 1 0\n4\n", None),
+            ("spans", SPANS, 0, "0 [0, 0] 9\n2 10 8\n2 12\n13 0 0 0 1\n18 [103, 104, 105]\n2 4 [0, 0, 0]\n0 21 21\ntrue true\n99 799\n0 799 1\n", None),
+            ("trim", TRIM, 0, "true\ntrue true\ntrue true true 0\n5000 true\n", None),
+            ("corrupt", CORRUPT, "nonzero", "1 3\n", "slice pool span tree is corrupt (line 7)"),
+        )
+        for name, src, exp_rc, exp_out, exp_err in cases:
+            for tag, flags in (("O0", ("-O0",)), ("O2", ("-O2",)), ("mem64", ("--wasm-memory64", "-O2"))):
+                wasm = self.work / f"{name}-{tag}.wasm"
+                command = [COMPILER, src, "--target", "wasm-direct", "--stdlib", STDLIB, *flags, "-o", wasm]
+                emitted = subprocess.run(list(map(str, command)), cwd=self.work, capture_output=True, text=True)
+                self.assertEqual(emitted.returncode, 0, f"{name} {tag}: {emitted.stderr}")
+                self.assertTrue(wasm.is_file())
+                for engine, run_cmd in self.engines(wasm):
+                    with self.subTest(case=name, mode=tag, engine=engine):
+                        ran = subprocess.run(list(map(str, run_cmd)), cwd=self.work, capture_output=True, text=True)
+                        if exp_rc == "nonzero":
+                            self.assertNotEqual(ran.returncode, 0)
+                            self.assertIn(exp_err, ran.stderr)
+                        else:
+                            self.assertEqual(ran.returncode, exp_rc, ran.stderr)
+                        self.assertEqual(ran.stdout, exp_out)
+
+    def test_wasm_direct_mixed_non_region_slice_pool_and_trim_memory(self):
+        src = self.work / "mixed_pool.goose"
+        src.write_text(
+            "import slice_pool;\n"
+            "import os;\n"
+            "export fn probe() -> i64 {\n"
+            "    reusable[] var rpool: i64[>..] = [];\n"
+            "    let ra = rpool.alloc_slice(4);\n"
+            "    rpool.free_slice(ra);\n"
+            "    let rb = rpool.alloc_slice(4);\n"
+            "    var spool = slice_pool<i64> {};\n"
+            "    var runs: i64[:][>..] = [];\n"
+            "    for i in 100 { runs.push(spool.alloc_slice(2)); }\n"
+            "    for i in 50 { spool.free_slice(runs[2 * i]); }\n"
+            "    let reused = spool.alloc_slice(2);\n"
+            "    reused[0] = 77;\n"
+            "    assert(spool.tree.height > 0 && trim_memory());\n"
+            "    var bpool = slice_pool<u8> {};\n"
+            "    let x = bpool.alloc_slice(5000);\n"
+            "    let y = bpool.alloc_slice(30000);\n"
+            "    for i in y.len { y[i] = 9; }\n"
+            "    bpool.free_slice(y);\n"
+            "    assert(bpool.trim() && y[15000] == 0);\n"
+            "    return rb.len + reused[0] + x.len;\n"
+            "}\n"
+            "fn main() { print(probe()); }\n"
+        )
+        for tag, flags in (("O0", ("-O0",)), ("O2", ("-O2",)), ("mem64", ("--wasm-memory64", "-O2"))):
+            wasm = self.work / f"mixed-{tag}.wasm"
+            emitted = subprocess.run(
+                list(map(str, [COMPILER, src, "--target", "wasm-direct", "--stdlib", STDLIB, *flags, "-o", wasm])),
+                cwd=self.work, capture_output=True, text=True,
+            )
+            self.assertEqual(emitted.returncode, 0, f"mixed {tag}: {emitted.stderr}")
+            for engine, run_cmd in self.engines(wasm):
+                with self.subTest(mode=tag, engine=engine):
+                    ran = subprocess.run(list(map(str, run_cmd)), cwd=self.work, capture_output=True, text=True)
+                    self.assertEqual(ran.returncode, 0, ran.stderr)
+                    self.assertEqual(ran.stdout.strip(), "5081")
 
     def test_native_emits_the_span_tree(self):
         emitted = self.compile("native", "-o", "pool.c")

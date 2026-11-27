@@ -73,6 +73,9 @@ struct CgModule {
     span_scratch: i64 = -1, pool_state_fn: i64 = -1,
     spans_newnode: i64 = -1, spans_fix: i64 = -1, spans_delete: i64 = -1, spans_insert: i64 = -1,
     spans_near: i64 = -1, spans_release: i64 = -1, spans_alloc: i64 = -1, spans_free: i64 = -1, spans_regrow: i64 = -1,
+    spc_nodes_type: i64 = -1, spc_push: i64 = -1, spc_newnode: i64 = -1, spc_fix: i64 = -1,
+    spc_delete: i64 = -1, spc_insert: i64 = -1, spc_near: i64 = -1, spc_release: i64 = -1,
+    spc_place: i64 = -1, spc_free: i64 = -1, spc_regrow: i64 = -1, spc_trim: i64 = -1,
     owner_view: i64 = -1, update_length: i64 = -1,
     format_f32: i64 = -1, format_f64: i64 = -1, raw_append: i64 = -1, raw_append_type: i64 = -1,
 }
@@ -1482,16 +1485,21 @@ recursive fn cg_run_defers(p: Program&, m: CgModule&, f: CgBody&, mark: i64) {
 // The opcode an extern is, where it is one instruction. CG_WRAP_COUNT marks
 // a rotation whose i64 count wraps to i32 first; i32.rotl and i64.rotl take
 // the count modulo the width, as std's rotl does (upstream runtime_ext.h).
+// CG_CONST_TRUE lowers a 0-argument extern (os::trim_memory) directly to true.
 let CG_WRAP_COUNT: i64 = 256;
+let CG_CONST_TRUE: i64 = 512;
 fn cg_intrinsic(p: Program&, function: i64) -> i64 {
     if (p.nodes[function].flags & F_EXTERN) == 0 { return 0; }
-    var parameter = p.nodes[function].first;
-    if parameter < 0 { return 0; }
-    let id = p.nodes[parameter].type_id; let w = cg_wasm_type(p, id);
     var name = token_text(p, p.nodes[function].token);
     if p.nodes[function].integer >= 0 && p.nodes[function].integer < p.tokens.len && p.tokens[p.nodes[function].integer].kind == T_STRLIT {
         let token = p.tokens[p.nodes[function].integer]; name = p.text[token.text_start..token.text_start + token.text_len];
     }
+    var parameter = p.nodes[function].first;
+    if parameter < 0 {
+        if same_bytes(name, "gs_trim_memory") && cg_result_type(p, function) == TYPE_BOOL { return CG_CONST_TRUE; }
+        return 0;
+    }
+    let id = p.nodes[parameter].type_id; let w = cg_wasm_type(p, id);
     let count = p.nodes[parameter].next;
     if count >= 0 {
         if p.nodes[count].next >= 0 || cg_wasm_type(p, p.nodes[count].type_id) != 0x7e { return 0; }
@@ -1520,6 +1528,18 @@ fn cg_intrinsic(p: Program&, function: i64) -> i64 {
         if same_bytes(name, "trunc") { return 0x9d; } if same_bytes(name, "fabs") { return 0x99; }
     }
     return 0;
+}
+fn cg_spc_target(p: Program&, m: CgModule&, function: i64) -> i64 {
+    if (p.nodes[function].flags & F_EXTERN) == 0 || m.spc_place < 0 { return -1; }
+    let n = p.nodes[function]; var name = token_text(p, n.token);
+    if n.integer >= 0 && n.integer < p.tokens.len && p.tokens[n.integer].kind == T_STRLIT {
+        let t = p.tokens[n.integer]; name = p.text[t.text_start..t.text_start + t.text_len];
+    }
+    if same_bytes(name, "gs_slice_pool_place") { return m.spc_place; }
+    if same_bytes(name, "gs_slice_pool_free") { return m.spc_free; }
+    if same_bytes(name, "gs_slice_pool_regrow") { return m.spc_regrow; }
+    if same_bytes(name, "gs_slice_pool_trim") { return m.spc_trim; }
+    return -1;
 }
 fn cg_closure(p: Program&, m: CgModule&, f: CgBody&, symbol: i64, node: i64) {
     let index = cg_function(m, symbol);
@@ -1917,8 +1937,9 @@ recursive fn cg_call(p: Program&, m: CgModule&, f: CgBody&, node: i64) {
         f.work.push(producer); f.work.push(requested);
     }
     // An import takes a wide slice as its pointer and its count, two i64
-    // (cg_make_signature): a v128 cannot cross to the host.
-    let split = cg_wide && function >= 0 && (p.nodes[function].flags & F_EXTERN) != 0;
+    // (cg_make_signature): a v128 cannot cross to the host. Internal Wasm
+    // slice-pool externs keep slices packed as ws().
+    let split = cg_wide && function >= 0 && (p.nodes[function].flags & F_EXTERN) != 0 && !location_extern(p, function);
     var arg = n.first;
     while param >= 0 && arg >= 0 {
         let id = p.nodes[param].type_id;
@@ -1970,14 +1991,22 @@ recursive fn cg_call(p: Program&, m: CgModule&, f: CgBody&, node: i64) {
     f.work.resize(variant_plans);
     if function >= 0 {
         let opcode = cg_intrinsic(p, function);
-        if opcode != 0 { if (opcode & CG_WRAP_COUNT) != 0 { wb_byte(f.code, 0xa7); } wb_byte(f.code, opcode & 255); }
-        else {
-            var target = -1;
-            if index >= 0 { target = m.functions[index].index; cg_region_call(m, f, index, node); }
-            else { for item, i in m.imports { if item.symbol == n.symbol { target = i; } } }
-            if target < 0 { cg_body_fail(p, f, node, "wasm: call has no emitted function or import"); return; }
-            if (p.nodes[function].flags & F_LOCATED) != 0 { cg_line(p, f, node); }
-            wb_op(f.code, 0x10, target);
+        if opcode != 0 {
+            if opcode == CG_CONST_TRUE { wb_i32(f.code, 1); }
+            else { if (opcode & CG_WRAP_COUNT) != 0 { wb_byte(f.code, 0xa7); } wb_byte(f.code, opcode & 255); }
+        } else {
+            let spc = cg_spc_target(p, m, function);
+            if spc >= 0 {
+                cg_line(p, f, node);
+                wb_op(f.code, 0x10, spc);
+            } else {
+                var target = -1;
+                if index >= 0 { target = m.functions[index].index; cg_region_call(m, f, index, node); }
+                else { for item, i in m.imports { if item.symbol == n.symbol { target = i; } } }
+                if target < 0 { cg_body_fail(p, f, node, "wasm: call has no emitted function or import"); return; }
+                if (p.nodes[function].flags & F_LOCATED) != 0 { cg_line(p, f, node); }
+                wb_op(f.code, 0x10, target);
+            }
         }
     } else {
         var args: u8[>..] = [wa() as u8]; var returns: u8[>..] = [];
@@ -6842,6 +6871,788 @@ fn cg_emit_spans_regrow(p: Program&, m: CgModule&, out: u8[>..]&) {
     cg_get(f, 0); cg_get(f, 1); cg_get(f, 4); wb_op(code, 0x10, m.spans_alloc);
     wb_byte(code, 0x0b); wb_body(out, locals, code);
 }
+// Checked stdlib/slice_pool span-tree externs (gs_slice_pool_{place,free,regrow,trim}):
+// same 512-byte B+ max-augmented tree as native/slice_pool.h, backed directly
+// by the program's node[>..] and tree storage, aborting at the caller's line
+// on any out-of-range node index, count, height, or cycle.
+fn cg_spc_check_num(p: Program&, m: CgModule&, f: CgBody&, nlen: i64, id: i64) {
+    cg_get(f, id); wb_i64(f.code, 0); wb_byte(f.code, 0x57);
+    cg_get(f, id); cg_get(f, nlen); wb_byte(f.code, 0x59);
+    wb_byte(f.code, 0x72);
+    cg_trap_if(p, m, f, -1, "slice pool span tree is corrupt");
+}
+fn cg_spc_check_h(p: Program&, m: CgModule&, f: CgBody&, h: i64) {
+    cg_get(f, h); wb_i64(f.code, 24); wb_byte(f.code, 0x5a);
+    cg_trap_if(p, m, f, -1, "slice pool span tree is corrupt");
+}
+fn cg_spc_check_in(p: Program&, m: CgModule&, f: CgBody&, base: i64, nlen: i64, id: i64) -> i64 {
+    cg_spc_check_num(p, m, f, nlen, id);
+    cg_sp_node_ptr(f, base, id); let nd = cg_save(f, wa());
+    cg_get(f, nd); wb_mem(f.code, 0x29, 3, 0); wb_i64(f.code, 1); wb_byte(f.code, 0x7d);
+    wb_i64(f.code, 20); wb_byte(f.code, 0x5a);
+    cg_trap_if(p, m, f, -1, "slice pool span tree is corrupt");
+    return nd;
+}
+fn cg_spc_check_leaf(p: Program&, m: CgModule&, f: CgBody&, base: i64, nlen: i64, id: i64) -> i64 {
+    cg_spc_check_num(p, m, f, nlen, id);
+    cg_sp_node_ptr(f, base, id); let nd = cg_save(f, wa());
+    cg_get(f, nd); wb_mem(f.code, 0x29, 3, 0); wb_i64(f.code, 31); wb_byte(f.code, 0x56);
+    cg_trap_if(p, m, f, -1, "slice pool span tree is corrupt");
+    return nd;
+}
+fn cg_spc_dropnode(f: CgBody&, base: i64, tree: i64, node_id: i64) {
+    cg_sp_node_ptr(f, base, node_id);
+    cg_get(f, tree); wb_mem(f.code, 0x29, 3, 16);
+    wb_mem(f.code, 0x37, 3, 8);
+    cg_get(f, tree); cg_get(f, node_id); wb_mem(f.code, 0x37, 3, 16);
+}
+fn cg_spc_leaf_open(p: Program&, m: CgModule&, f: CgBody&, lf: i64, s_loc: i64) {
+    cg_get(f, lf); wb_mem(f.code, 0x29, 3, 0); let on = cg_save(f, 0x7e);
+    cg_get(f, on); wb_i64(f.code, 31); wb_byte(f.code, 0x5a);
+    cg_get(f, s_loc); cg_get(f, on); wb_byte(f.code, 0x56); wb_byte(f.code, 0x72);
+    cg_trap_if(p, m, f, -1, "slice pool span tree is corrupt");
+    cg_sp_open_arr(f, lf, on, s_loc, 16);
+    cg_sp_open_arr(f, lf, on, s_loc, 264);
+    cg_get(f, lf); cg_get(f, on); wb_i64(f.code, 1); wb_byte(f.code, 0x7c); wb_mem(f.code, 0x37, 3, 0);
+}
+fn cg_spc_leaf_close(p: Program&, m: CgModule&, f: CgBody&, lf: i64, k_loc: i64) {
+    cg_get(f, lf); wb_mem(f.code, 0x29, 3, 0); let on = cg_save(f, 0x7e);
+    cg_get(f, on); wb_i64(f.code, 31); wb_byte(f.code, 0x56);
+    cg_get(f, k_loc); cg_get(f, on); wb_byte(f.code, 0x5a); wb_byte(f.code, 0x72);
+    cg_trap_if(p, m, f, -1, "slice pool span tree is corrupt");
+    cg_get(f, on); wb_i64(f.code, 1); wb_byte(f.code, 0x7d); let nn = cg_save(f, 0x7e);
+    cg_get(f, lf); cg_get(f, nn); wb_mem(f.code, 0x37, 3, 0);
+    cg_sp_close_arr(f, lf, nn, k_loc, 16);
+    cg_sp_close_arr(f, lf, nn, k_loc, 264);
+}
+fn cg_spc_inner_open(p: Program&, m: CgModule&, f: CgBody&, inn: i64, s_loc: i64) {
+    cg_get(f, inn); wb_mem(f.code, 0x29, 3, 0); let on = cg_save(f, 0x7e);
+    cg_get(f, on); wb_i64(f.code, 20); wb_byte(f.code, 0x5a);
+    cg_get(f, s_loc); cg_get(f, on); wb_byte(f.code, 0x56); wb_byte(f.code, 0x72);
+    cg_trap_if(p, m, f, -1, "slice pool span tree is corrupt");
+    cg_sp_open_arr(f, inn, on, s_loc, 16);
+    cg_sp_open_arr(f, inn, on, s_loc, 176);
+    cg_sp_open_arr(f, inn, on, s_loc, 336);
+    cg_get(f, inn); cg_get(f, on); wb_i64(f.code, 1); wb_byte(f.code, 0x7c); wb_mem(f.code, 0x37, 3, 0);
+}
+fn cg_spc_inner_close(p: Program&, m: CgModule&, f: CgBody&, inn: i64, e_loc: i64) {
+    cg_get(f, inn); wb_mem(f.code, 0x29, 3, 0); let on = cg_save(f, 0x7e);
+    cg_get(f, on); wb_i64(f.code, 20); wb_byte(f.code, 0x56);
+    cg_get(f, e_loc); cg_get(f, on); wb_byte(f.code, 0x5a); wb_byte(f.code, 0x72);
+    cg_trap_if(p, m, f, -1, "slice pool span tree is corrupt");
+    cg_get(f, on); wb_i64(f.code, 1); wb_byte(f.code, 0x7d); let nn = cg_save(f, 0x7e);
+    cg_get(f, inn); cg_get(f, nn); wb_mem(f.code, 0x37, 3, 0);
+    cg_sp_close_arr(f, inn, nn, e_loc, 16);
+    cg_sp_close_arr(f, inn, nn, e_loc, 176);
+    cg_sp_close_arr(f, inn, nn, e_loc, 336);
+}
+fn cg_spc_scan_max(p: Program&, m: CgModule&, f: CgBody&, node_addr: i64, leaf_i32: i64, stop_i64: i64) -> i64 {
+    cg_get(f, node_addr); wb_mem(f.code, 0x29, 3, 0);
+    wb_i64(f.code, 31); wb_i64(f.code, 20); cg_get(f, leaf_i32); wb_byte(f.code, 0x1b);
+    wb_byte(f.code, 0x56);
+    cg_trap_if(p, m, f, -1, "slice pool span tree is corrupt");
+    return cg_sp_scan_max(p, f, node_addr, leaf_i32, stop_i64);
+}
+fn cg_spc_emit_newroot(p: Program&, m: CgModule&, f: CgBody&, nodes_loc: i64, tree_loc: i64, a_loc: i64, b_loc: i64, leaf_i32: i64, at_loc: i64) {
+    cg_get(f, nodes_loc); cg_get(f, tree_loc); cg_get(f, at_loc); wb_op(f.code, 0x10, m.spc_newnode); let r = cg_save(f, 0x7e);
+    cg_array_pointer(p, m, f, m.spc_nodes_type, nodes_loc); let base = cg_save(f, wa());
+    cg_sp_node_ptr(f, base, r); let rn = cg_save(f, wa());
+    cg_sp_node_ptr(f, base, a_loc); let an = cg_save(f, wa());
+    cg_sp_node_ptr(f, base, b_loc); let bn = cg_save(f, wa());
+    wb_i64(f.code, 9223372036854775807); let big = cg_save(f, 0x7e);
+    let ma = cg_spc_scan_max(p, m, f, an, leaf_i32, big);
+    let mb = cg_spc_scan_max(p, m, f, bn, leaf_i32, big);
+    cg_get(f, an); wb_mem(f.code, 0x29, 3, 16); let ka = cg_save(f, 0x7e);
+    cg_get(f, bn); wb_mem(f.code, 0x29, 3, 16); let kb = cg_save(f, 0x7e);
+    cg_get(f, rn); wb_i64(f.code, 2); wb_mem(f.code, 0x37, 3, 0);
+    cg_get(f, rn); cg_get(f, ka); wb_mem(f.code, 0x37, 3, 16);
+    cg_get(f, rn); cg_get(f, ma); wb_mem(f.code, 0x37, 3, 176);
+    cg_get(f, rn); cg_get(f, a_loc); wb_mem(f.code, 0x37, 3, 336);
+    cg_get(f, rn); cg_get(f, kb); wb_mem(f.code, 0x37, 3, 24);
+    cg_get(f, rn); cg_get(f, mb); wb_mem(f.code, 0x37, 3, 184);
+    cg_get(f, rn); cg_get(f, b_loc); wb_mem(f.code, 0x37, 3, 344);
+    cg_get(f, tree_loc); cg_get(f, r); wb_mem(f.code, 0x37, 3, 0);
+    cg_get(f, tree_loc); cg_get(f, tree_loc); wb_mem(f.code, 0x29, 3, 8); wb_i64(f.code, 1); wb_byte(f.code, 0x7c); wb_mem(f.code, 0x37, 3, 8);
+}
+fn cg_emit_spc_push(p: Program&, m: CgModule&, out: u8[>..]&) {
+    // Params: 0: nodes (wa), 1: at (i32) -> i64
+    var events: WbEvent[>..] = [];
+    var code: u8[>..] = []; var locals: i64[>..] = []; var slots: CgSlot[>..] = []; var addresses: CgFrameAddress[>..] = [];
+    var labels: i64[>..] = []; var exits: CgExit[>..] = []; var results: i64[>..] = []; var destinations: i64[>..] = []; var work: i64[>..] = []; var raw_slots: i64[>..] = []; var sequences: CgSequence[>..] = []; var constructions: CgConstruction[>..] = []; var construction_destinations: CgDestination[>..] = []; var receiving: CgReceiving[>..] = []; var defers: i64[>..] = []; var hoists: CgHoist[>..] = [];
+    var f = CgBody { events: events, code: code, locals: locals, slots: slots, addresses: addresses, labels: labels, exits: exits, results: results, destinations: destinations, work: work, raw_slots: raw_slots, sequences: sequences, constructions: constructions, construction_destinations: construction_destinations, receiving: receiving, hoists: hoists, params: 2, diagnostic_line: 1, defers: defers };
+    let id = m.spc_nodes_type;
+    cg_array_length(p, m, f, id, 0); let old = cg_save(f, wa());
+    cg_get(f, old); wa_extend(code); wb_i64(code, 1); wb_byte(code, 0x7c); let wide = cg_save(f, 0x7e);
+    cg_get(f, wide); wb_i64(code, wn_limit()); wb_byte(code, 0x56);
+    cg_trap_if(p, m, f, -1, "array length overflow");
+    cg_get(f, wide); wa_wrap(code); let new_len = cg_save(f, wa());
+    if m.regions_enabled && cg_region_value(p, id) {
+        wb_i64(code, 512); let bytes = cg_save(f, 0x7e);
+        let reserved = cg_region_reserve_at(p, m, f, 0, bytes, -1);
+        cg_get(f, reserved.cursor); wb_i32(code, 0); wa_const(code, 512); wb_fill(code);
+        cg_region_publish_at(f, reserved.limit, reserved.top);
+        cg_array_set_length(p, m, f, id, 0, new_len);
+    } else {
+        cg_array_reserve(p, m, f, id, 0, new_len, -1);
+        cg_array_pointer(p, m, f, id, 0); cg_get(f, old); wa_const(code, 9); wa_op(code, 0x74); wa_op(code, 0x6a);
+        wb_i32(code, 0); wa_const(code, 512); wb_fill(code);
+        cg_array_set_length(p, m, f, id, 0, new_len);
+    }
+    cg_get(f, old); wa_extend(code); wb_byte(code, 0x0b); wb_body(out, locals, code);
+}
+fn cg_emit_spc_newnode(p: Program&, m: CgModule&, out: u8[>..]&) {
+    // Params: 0: nodes (wa), 1: tree (wa), 2: at (i32) -> i64
+    var events: WbEvent[>..] = [];
+    var code: u8[>..] = []; var locals: i64[>..] = []; var slots: CgSlot[>..] = []; var addresses: CgFrameAddress[>..] = [];
+    var labels: i64[>..] = []; var exits: CgExit[>..] = []; var results: i64[>..] = []; var destinations: i64[>..] = []; var work: i64[>..] = []; var raw_slots: i64[>..] = []; var sequences: CgSequence[>..] = []; var constructions: CgConstruction[>..] = []; var construction_destinations: CgDestination[>..] = []; var receiving: CgReceiving[>..] = []; var defers: i64[>..] = []; var hoists: CgHoist[>..] = [];
+    var f = CgBody { events: events, code: code, locals: locals, slots: slots, addresses: addresses, labels: labels, exits: exits, results: results, destinations: destinations, work: work, raw_slots: raw_slots, sequences: sequences, constructions: constructions, construction_destinations: construction_destinations, receiving: receiving, hoists: hoists, params: 3, diagnostic_line: 2, defers: defers };
+    let id = m.spc_nodes_type;
+    cg_get(f, 1); wb_mem(code, 0x29, 3, 16); let chain = cg_save(f, 0x7e);
+    cg_get(f, chain); wb_i64(code, 0); wb_byte(code, 0x52); cg_begin(f, 0x04, 0x40);
+    cg_array_length(p, m, f, id, 0); wa_extend(code); let nlen = cg_save(f, 0x7e);
+    cg_spc_check_num(p, m, f, nlen, chain);
+    cg_array_pointer(p, m, f, id, 0); let base = cg_save(f, wa());
+    cg_get(f, 1); cg_sp_node_ptr(f, base, chain); wb_mem(code, 0x29, 3, 8); wb_mem(code, 0x37, 3, 16);
+    cg_get(f, chain); wb_byte(code, 0x0f);
+    cg_end(f);
+    cg_get(f, 0); cg_get(f, 2); wb_op(code, 0x10, m.spc_push); wb_byte(code, 0x0b); wb_body(out, locals, code);
+}
+fn cg_emit_spc_fix(p: Program&, m: CgModule&, out: u8[>..]&) {
+    // Params: 0: nodes (wa), 1: path (wa), 2: h (i64), 3: l (i64), 4: was (i64), 5: now (i64), 6: at (i32)
+    var events: WbEvent[>..] = [];
+    var code: u8[>..] = []; var locals: i64[>..] = []; var slots: CgSlot[>..] = []; var addresses: CgFrameAddress[>..] = [];
+    var labels: i64[>..] = []; var exits: CgExit[>..] = []; var results: i64[>..] = []; var destinations: i64[>..] = []; var work: i64[>..] = []; var raw_slots: i64[>..] = []; var sequences: CgSequence[>..] = []; var constructions: CgConstruction[>..] = []; var construction_destinations: CgDestination[>..] = []; var receiving: CgReceiving[>..] = []; var defers: i64[>..] = []; var hoists: CgHoist[>..] = [];
+    var f = CgBody { events: events, code: code, locals: locals, slots: slots, addresses: addresses, labels: labels, exits: exits, results: results, destinations: destinations, work: work, raw_slots: raw_slots, sequences: sequences, constructions: constructions, construction_destinations: construction_destinations, receiving: receiving, hoists: hoists, params: 7, diagnostic_line: 6, defers: defers };
+    cg_array_pointer(p, m, f, m.spc_nodes_type, 0); let base = cg_save(f, wa());
+    let done = cg_begin(f, 0x02, 0x40); let again = cg_begin(f, 0x03, 0x40);
+    cg_get(f, 3); wb_i64(code, 0); wb_byte(code, 0x57); cg_branch(p, f, done, true);
+    cg_get(f, 3); wb_i64(code, 1); wb_byte(code, 0x7d); let lm1 = cg_save(f, 0x7e);
+    cg_sp_load64(f, 1, lm1, 0); let pnode = cg_save(f, 0x7e);
+    cg_sp_node_ptr(f, base, pnode); let inn = cg_save(f, wa());
+    cg_sp_load64(f, 1, lm1, 192); let k = cg_save(f, 0x7e);
+    cg_sp_load64(f, 1, 3, 0); let cnode = cg_save(f, 0x7e);
+    cg_sp_node_ptr(f, base, cnode); let cn = cg_save(f, wa());
+    cg_sp_load64(f, inn, k, 176); let old_m = cg_save(f, 0x7e);
+    cg_get(f, 3); cg_get(f, 2); wb_byte(code, 0x51); let leaf = cg_save(f, 0x7f);
+    cg_get(f, cn); wb_mem(code, 0x29, 3, 16); let key = cg_save(f, 0x7e);
+    wb_i64(code, 0); let nm = cg_save(f, 0x7e);
+    cg_get(f, 5); cg_get(f, old_m); wb_byte(code, 0x59); cg_begin(f, 0x04, 0x40);
+    cg_get(f, 5); cg_set(f, nm);
+    cg_control(f, 0x05);
+    cg_get(f, 4); cg_get(f, old_m); wb_byte(code, 0x53); cg_begin(f, 0x04, 0x40);
+    cg_get(f, old_m); cg_set(f, nm);
+    cg_control(f, 0x05);
+    let scanned = cg_spc_scan_max(p, m, f, cn, leaf, 4);
+    cg_get(f, scanned); cg_set(f, nm);
+    cg_end(f); cg_end(f);
+    cg_sp_load64(f, inn, k, 16); cg_get(f, key); wb_byte(code, 0x51);
+    cg_get(f, nm); cg_get(f, old_m); wb_byte(code, 0x51); wb_byte(code, 0x71);
+    cg_branch(p, f, done, true);
+    cg_sp_slot_addr(f, inn, k, 16); cg_get(f, key); wb_mem(code, 0x37, 3, 0);
+    cg_sp_slot_addr(f, inn, k, 176); cg_get(f, nm); wb_mem(code, 0x37, 3, 0);
+    cg_get(f, old_m); cg_set(f, 4);
+    cg_get(f, nm); cg_set(f, 5);
+    cg_get(f, lm1); cg_set(f, 3);
+    cg_branch(p, f, again, false); cg_end(f); cg_end(f);
+    wb_byte(code, 0x0b); wb_body(out, locals, code);
+}
+fn cg_emit_spc_delete(p: Program&, m: CgModule&, out: u8[>..]&) {
+    // Params: 0: nodes (wa), 1: tree (wa), 2: path (wa), 3: h (i64), 4: k (i64), 5: at (i32)
+    var events: WbEvent[>..] = [];
+    var code: u8[>..] = []; var locals: i64[>..] = []; var slots: CgSlot[>..] = []; var addresses: CgFrameAddress[>..] = [];
+    var labels: i64[>..] = []; var exits: CgExit[>..] = []; var results: i64[>..] = []; var destinations: i64[>..] = []; var work: i64[>..] = []; var raw_slots: i64[>..] = []; var sequences: CgSequence[>..] = []; var constructions: CgConstruction[>..] = []; var construction_destinations: CgDestination[>..] = []; var receiving: CgReceiving[>..] = []; var defers: i64[>..] = []; var hoists: CgHoist[>..] = [];
+    var f = CgBody { events: events, code: code, locals: locals, slots: slots, addresses: addresses, labels: labels, exits: exits, results: results, destinations: destinations, work: work, raw_slots: raw_slots, sequences: sequences, constructions: constructions, construction_destinations: construction_destinations, receiving: receiving, hoists: hoists, params: 6, diagnostic_line: 5, defers: defers };
+    let id = m.spc_nodes_type;
+    cg_array_pointer(p, m, f, id, 0); let base = cg_save(f, wa());
+    cg_sp_load64(f, 2, 3, 0); let lf_id = cg_save(f, 0x7e);
+    cg_sp_node_ptr(f, base, lf_id); let lf = cg_save(f, wa());
+    cg_get(f, lf); wb_mem(code, 0x29, 3, 0); let lfn = cg_save(f, 0x7e);
+    cg_get(f, lfn); wb_i64(code, 31); wb_byte(code, 0x56);
+    cg_get(f, 4); cg_get(f, lfn); wb_byte(code, 0x5a); wb_byte(code, 0x72);
+    cg_trap_if(p, m, f, -1, "slice pool span tree is corrupt");
+    cg_sp_load64(f, lf, 4, 264); let c = cg_save(f, 0x7e);
+    cg_spc_leaf_close(p, m, f, lf, 4);
+    cg_get(f, lf); wb_mem(code, 0x29, 3, 0); wb_i64(code, 0); wb_byte(code, 0x55);
+    cg_get(f, 3); wb_byte(code, 0x50); wb_byte(code, 0x72); cg_begin(f, 0x04, 0x40);
+    cg_get(f, 0); cg_get(f, 2); cg_get(f, 3); cg_get(f, 3); cg_get(f, c); wb_i64(code, 0); cg_get(f, 5); wb_op(code, 0x10, m.spc_fix);
+    wb_byte(code, 0x0f); cg_end(f);
+    cg_spc_dropnode(f, base, 1, lf_id);
+    cg_get(f, 3); wb_i64(code, 1); wb_byte(code, 0x7d); let l = cg_save(f, 0x7e);
+    let ldone = cg_begin(f, 0x02, 0x40); let lagain = cg_begin(f, 0x03, 0x40);
+    cg_sp_load64(f, 2, l, 0); let in_id = cg_save(f, 0x7e);
+    cg_sp_node_ptr(f, base, in_id); let inn = cg_save(f, wa());
+    cg_sp_load64(f, 2, l, 192); let e = cg_save(f, 0x7e);
+    cg_get(f, inn); wb_mem(code, 0x29, 3, 0); let in_n = cg_save(f, 0x7e);
+    cg_get(f, in_n); wb_i64(code, 20); wb_byte(code, 0x56);
+    cg_get(f, e); cg_get(f, in_n); wb_byte(code, 0x5a); wb_byte(code, 0x72);
+    cg_trap_if(p, m, f, -1, "slice pool span tree is corrupt");
+    cg_sp_load64(f, inn, e, 176); let old_m = cg_save(f, 0x7e);
+    cg_spc_inner_close(p, m, f, inn, e);
+    cg_get(f, inn); wb_mem(code, 0x29, 3, 0); wb_i64(code, 0); wb_byte(code, 0x55); cg_begin(f, 0x04, 0x40);
+    cg_get(f, 0); cg_get(f, 2); cg_get(f, 3); cg_get(f, l); cg_get(f, old_m); wb_i64(code, 0); cg_get(f, 5); wb_op(code, 0x10, m.spc_fix);
+    cg_branch(p, f, ldone, false); cg_end(f);
+    cg_get(f, l); wb_byte(code, 0x50); cg_trap_if(p, m, f, -1, "slice pool span tree is corrupt");
+    cg_spc_dropnode(f, base, 1, in_id);
+    cg_get(f, l); wb_i64(code, 1); wb_byte(code, 0x7d); cg_set(f, l);
+    cg_branch(p, f, lagain, false); cg_end(f); cg_end(f);
+    cg_array_length(p, m, f, id, 0); wa_extend(code); let nlen = cg_save(f, 0x7e);
+    let rdone = cg_begin(f, 0x02, 0x40); let ragain = cg_begin(f, 0x03, 0x40);
+    cg_get(f, 1); wb_mem(code, 0x29, 3, 8); wb_i64(code, 0); wb_byte(code, 0x57); cg_branch(p, f, rdone, true);
+    cg_get(f, 1); wb_mem(code, 0x29, 3, 0); let r = cg_save(f, 0x7e);
+    cg_spc_check_num(p, m, f, nlen, r);
+    cg_sp_node_ptr(f, base, r); let rn = cg_save(f, wa());
+    cg_get(f, rn); wb_mem(code, 0x29, 3, 0); wb_i64(code, 1); wb_byte(code, 0x52); cg_branch(p, f, rdone, true);
+    cg_get(f, 1); cg_get(f, rn); wb_mem(code, 0x29, 3, 336); wb_mem(code, 0x37, 3, 0);
+    cg_get(f, 1); cg_get(f, 1); wb_mem(code, 0x29, 3, 8); wb_i64(code, 1); wb_byte(code, 0x7d); wb_mem(code, 0x37, 3, 8);
+    cg_spc_dropnode(f, base, 1, r);
+    cg_branch(p, f, ragain, false); cg_end(f); cg_end(f);
+    wb_byte(code, 0x0b); wb_body(out, locals, code);
+}
+fn cg_emit_spc_insert(p: Program&, m: CgModule&, out: u8[>..]&) {
+    // Params: 0: nodes (wa), 1: tree (wa), 2: path (wa), 3: h (i64), 4: k (i64), 5: idx (i64), 6: cnt (i64), 7: at (i32)
+    var events: WbEvent[>..] = [];
+    var code: u8[>..] = []; var locals: i64[>..] = []; var slots: CgSlot[>..] = []; var addresses: CgFrameAddress[>..] = [];
+    var labels: i64[>..] = []; var exits: CgExit[>..] = []; var results: i64[>..] = []; var destinations: i64[>..] = []; var work: i64[>..] = []; var raw_slots: i64[>..] = []; var sequences: CgSequence[>..] = []; var constructions: CgConstruction[>..] = []; var construction_destinations: CgDestination[>..] = []; var receiving: CgReceiving[>..] = []; var defers: i64[>..] = []; var hoists: CgHoist[>..] = [];
+    var f = CgBody { events: events, code: code, locals: locals, slots: slots, addresses: addresses, labels: labels, exits: exits, results: results, destinations: destinations, work: work, raw_slots: raw_slots, sequences: sequences, constructions: constructions, construction_destinations: construction_destinations, receiving: receiving, hoists: hoists, params: 8, diagnostic_line: 7, defers: defers };
+    let id = m.spc_nodes_type;
+    cg_array_pointer(p, m, f, id, 0); let base = cg_save(f, wa());
+    cg_sp_load64(f, 2, 3, 0); let lf_id = cg_save(f, 0x7e);
+    cg_sp_node_ptr(f, base, lf_id); let lf = cg_save(f, wa());
+    cg_get(f, lf); let o = cg_save(f, wa());
+    cg_get(f, 4); let s = cg_save(f, 0x7e);
+    wb_i64(code, 0); let nn = cg_save(f, 0x7e);
+    cg_get(f, lf); wb_mem(code, 0x29, 3, 0); wb_i64(code, 31); wb_byte(code, 0x51); cg_begin(f, 0x04, 0x40);
+    cg_get(f, 0); cg_get(f, 1); cg_get(f, 7); wb_op(code, 0x10, m.spc_newnode); cg_set(f, nn);
+    cg_get(f, nn); cg_get(f, lf_id); wb_byte(code, 0x51); cg_trap_if(p, m, f, -1, "slice pool span tree is corrupt");
+    cg_array_pointer(p, m, f, id, 0); cg_set(f, base);
+    cg_sp_node_ptr(f, base, lf_id); cg_set(f, lf); cg_get(f, lf); cg_set(f, o);
+    cg_sp_node_ptr(f, base, nn); let rlf = cg_save(f, wa());
+    cg_get(f, rlf); wb_i64(code, 16); wb_mem(code, 0x37, 3, 0);
+    cg_get(f, rlf); wa_add(code, 16); cg_get(f, lf); wa_add(code, 16 + 15 * 8); wa_const(code, 16 * 8); wb_copy(code);
+    cg_get(f, rlf); wa_add(code, 264); cg_get(f, lf); wa_add(code, 264 + 15 * 8); wa_const(code, 16 * 8); wb_copy(code);
+    cg_get(f, lf); wb_i64(code, 15); wb_mem(code, 0x37, 3, 0);
+    cg_get(f, 4); wb_i64(code, 15); wb_byte(code, 0x55); cg_begin(f, 0x04, 0x40);
+    cg_get(f, rlf); cg_set(f, o);
+    cg_get(f, 4); wb_i64(code, 15); wb_byte(code, 0x7d); cg_set(f, s);
+    cg_end(f); cg_end(f);
+    cg_spc_leaf_open(p, m, f, o, s);
+    cg_sp_slot_addr(f, o, s, 16); cg_get(f, 5); wb_mem(code, 0x37, 3, 0);
+    cg_sp_slot_addr(f, o, s, 264); cg_get(f, 6); wb_mem(code, 0x37, 3, 0);
+    cg_get(f, nn); wb_byte(code, 0x50); cg_begin(f, 0x04, 0x40);
+    cg_get(f, 0); cg_get(f, 2); cg_get(f, 3); cg_get(f, 3); wb_i64(code, 0); cg_get(f, 6); cg_get(f, 7); wb_op(code, 0x10, m.spc_fix);
+    wb_byte(code, 0x0f); cg_end(f);
+    cg_get(f, 3); wb_byte(code, 0x50); cg_begin(f, 0x04, 0x40);
+    cg_get(f, 2); wb_mem(code, 0x29, 3, 0); let a0 = cg_save(f, 0x7e);
+    wb_i32(code, 1); let one32 = cg_save(f, 0x7f);
+    cg_spc_emit_newroot(p, m, f, 0, 1, a0, nn, one32, 7);
+    wb_byte(code, 0x0f); cg_end(f);
+    cg_get(f, 0); cg_get(f, 2); cg_get(f, 3); cg_get(f, 3); wb_i64(code, 9223372036854775807); wb_i64(code, 0); cg_get(f, 7); wb_op(code, 0x10, m.spc_fix);
+    cg_get(f, 3); wb_i64(code, 1); wb_byte(code, 0x7d); let l = cg_save(f, 0x7e);
+    cg_sp_load64(f, 2, l, 192); wb_i64(code, 1); wb_byte(code, 0x7c); let kin = cg_save(f, 0x7e);
+    cg_get(f, nn); let child = cg_save(f, 0x7e);
+    wb_i32(code, 1); let leaf = cg_save(f, 0x7f);
+    wb_i64(code, 9223372036854775807); let big = cg_save(f, 0x7e);
+    let adone = cg_begin(f, 0x02, 0x40); let aagain = cg_begin(f, 0x03, 0x40);
+    cg_array_pointer(p, m, f, id, 0); cg_set(f, base);
+    cg_sp_load64(f, 2, l, 0); let in_id = cg_save(f, 0x7e);
+    cg_sp_node_ptr(f, base, in_id); let inn = cg_save(f, wa());
+    cg_sp_node_ptr(f, base, child); let chn = cg_save(f, wa());
+    cg_get(f, chn); wb_mem(code, 0x29, 3, 16); let ckey = cg_save(f, 0x7e);
+    let cmax = cg_spc_scan_max(p, m, f, chn, leaf, big);
+    cg_get(f, inn); let oi = cg_save(f, wa());
+    cg_get(f, kin); let si = cg_save(f, 0x7e);
+    wb_i64(code, 0); let nni = cg_save(f, 0x7e);
+    cg_get(f, inn); wb_mem(code, 0x29, 3, 0); wb_i64(code, 20); wb_byte(code, 0x51); cg_begin(f, 0x04, 0x40);
+    cg_get(f, 0); cg_get(f, 1); cg_get(f, 7); wb_op(code, 0x10, m.spc_newnode); cg_set(f, nni);
+    cg_get(f, nni); cg_get(f, in_id); wb_byte(code, 0x51); cg_trap_if(p, m, f, -1, "slice pool span tree is corrupt");
+    cg_array_pointer(p, m, f, id, 0); cg_set(f, base);
+    cg_sp_node_ptr(f, base, in_id); cg_set(f, inn); cg_get(f, inn); cg_set(f, oi);
+    cg_sp_node_ptr(f, base, nni); let rin = cg_save(f, wa());
+    cg_get(f, rin); wb_i64(code, 10); wb_mem(code, 0x37, 3, 0);
+    cg_get(f, rin); wa_add(code, 16); cg_get(f, inn); wa_add(code, 16 + 10 * 8); wa_const(code, 10 * 8); wb_copy(code);
+    cg_get(f, rin); wa_add(code, 176); cg_get(f, inn); wa_add(code, 176 + 10 * 8); wa_const(code, 10 * 8); wb_copy(code);
+    cg_get(f, rin); wa_add(code, 336); cg_get(f, inn); wa_add(code, 336 + 10 * 8); wa_const(code, 10 * 8); wb_copy(code);
+    cg_get(f, inn); wb_i64(code, 10); wb_mem(code, 0x37, 3, 0);
+    cg_get(f, kin); wb_i64(code, 10); wb_byte(code, 0x55); cg_begin(f, 0x04, 0x40);
+    cg_get(f, rin); cg_set(f, oi);
+    cg_get(f, kin); wb_i64(code, 10); wb_byte(code, 0x7d); cg_set(f, si);
+    cg_end(f); cg_end(f);
+    cg_spc_inner_open(p, m, f, oi, si);
+    cg_sp_slot_addr(f, oi, si, 16); cg_get(f, ckey); wb_mem(code, 0x37, 3, 0);
+    cg_sp_slot_addr(f, oi, si, 176); cg_get(f, cmax); wb_mem(code, 0x37, 3, 0);
+    cg_sp_slot_addr(f, oi, si, 336); cg_get(f, child); wb_mem(code, 0x37, 3, 0);
+    cg_get(f, nni); wb_byte(code, 0x50); cg_begin(f, 0x04, 0x40);
+    cg_get(f, 0); cg_get(f, 2); cg_get(f, 3); cg_get(f, l); wb_i64(code, 0); cg_get(f, cmax); cg_get(f, 7); wb_op(code, 0x10, m.spc_fix);
+    cg_branch(p, f, adone, false); cg_end(f);
+    cg_get(f, l); wb_byte(code, 0x50); cg_begin(f, 0x04, 0x40);
+    cg_get(f, 2); wb_mem(code, 0x29, 3, 0); let r0 = cg_save(f, 0x7e);
+    wb_i32(code, 0); let z32 = cg_save(f, 0x7f);
+    cg_spc_emit_newroot(p, m, f, 0, 1, r0, nni, z32, 7);
+    cg_branch(p, f, adone, false); cg_end(f);
+    cg_get(f, 0); cg_get(f, 2); cg_get(f, 3); cg_get(f, l); cg_get(f, big); wb_i64(code, 0); cg_get(f, 7); wb_op(code, 0x10, m.spc_fix);
+    cg_get(f, nni); cg_set(f, child);
+    wb_i32(code, 0); cg_set(f, leaf);
+    cg_get(f, l); wb_i64(code, 1); wb_byte(code, 0x7d); cg_set(f, l);
+    cg_sp_load64(f, 2, l, 192); wb_i64(code, 1); wb_byte(code, 0x7c); cg_set(f, kin);
+    cg_branch(p, f, aagain, false); cg_end(f); cg_end(f);
+    wb_byte(code, 0x0b); wb_body(out, locals, code);
+}
+fn cg_emit_spc_near(p: Program&, m: CgModule&, out: u8[>..]&) {
+    // Params: 0: nodes (wa), 1: tree (wa), 2: idx (i64), 3: end (i64), 4: at (i32)
+    var events: WbEvent[>..] = [];
+    var code: u8[>..] = []; var locals: i64[>..] = []; var slots: CgSlot[>..] = []; var addresses: CgFrameAddress[>..] = [];
+    var labels: i64[>..] = []; var exits: CgExit[>..] = []; var results: i64[>..] = []; var destinations: i64[>..] = []; var work: i64[>..] = []; var raw_slots: i64[>..] = []; var sequences: CgSequence[>..] = []; var constructions: CgConstruction[>..] = []; var construction_destinations: CgDestination[>..] = []; var receiving: CgReceiving[>..] = []; var defers: i64[>..] = []; var hoists: CgHoist[>..] = [];
+    var f = CgBody { events: events, code: code, locals: locals, slots: slots, addresses: addresses, labels: labels, exits: exits, results: results, destinations: destinations, work: work, raw_slots: raw_slots, sequences: sequences, constructions: constructions, construction_destinations: construction_destinations, receiving: receiving, hoists: hoists, params: 5, diagnostic_line: 4, defers: defers };
+    let id = m.spc_nodes_type;
+    let sc = m.span_scratch;
+    wa_const(code, sc); let pnode = cg_save(f, wa());
+    wa_const(code, sc + 384); let qnode = cg_save(f, wa());
+    cg_array_pointer(p, m, f, id, 0); let base = cg_save(f, wa());
+    cg_array_length(p, m, f, id, 0); wa_extend(code); let nlen = cg_save(f, 0x7e);
+    cg_get(f, 1); wb_mem(code, 0x29, 3, 8); let h = cg_save(f, 0x7e);
+    cg_spc_check_h(p, m, f, h);
+    cg_get(f, 1); wb_mem(code, 0x29, 3, 0); let i = cg_save(f, 0x7e);
+    wb_i64(code, 0); let l = cg_save(f, 0x7e);
+    let ddone = cg_begin(f, 0x02, 0x40); let dagain = cg_begin(f, 0x03, 0x40);
+    cg_get(f, l); cg_get(f, h); wb_byte(code, 0x59); cg_branch(p, f, ddone, true);
+    let inn = cg_spc_check_in(p, m, f, base, nlen, i);
+    cg_get(f, inn); wb_mem(code, 0x29, 3, 0); let in_n = cg_save(f, 0x7e);
+    wb_i64(code, 1); let k = cg_save(f, 0x7e);
+    let kdone = cg_begin(f, 0x02, 0x40); let kagain = cg_begin(f, 0x03, 0x40);
+    cg_get(f, k); cg_get(f, in_n); wb_byte(code, 0x59); cg_branch(p, f, kdone, true);
+    cg_sp_load64(f, inn, k, 16); cg_get(f, 2); wb_byte(code, 0x55); cg_branch(p, f, kdone, true);
+    cg_get(f, k); wb_i64(code, 1); wb_byte(code, 0x7c); cg_set(f, k);
+    cg_branch(p, f, kagain, false); cg_end(f); cg_end(f);
+    cg_get(f, k); wb_i64(code, 1); wb_byte(code, 0x7d); let km1 = cg_save(f, 0x7e);
+    cg_sp_slot_addr(f, pnode, l, 0); cg_get(f, i); wb_mem(code, 0x37, 3, 0);
+    cg_sp_slot_addr(f, pnode, l, 192); cg_get(f, km1); wb_mem(code, 0x37, 3, 0);
+    cg_sp_load64(f, inn, km1, 336); cg_set(f, i);
+    cg_get(f, l); wb_i64(code, 1); wb_byte(code, 0x7c); cg_set(f, l);
+    cg_branch(p, f, dagain, false); cg_end(f); cg_end(f);
+    cg_sp_slot_addr(f, pnode, h, 0); cg_get(f, i); wb_mem(code, 0x37, 3, 0);
+    let lf = cg_spc_check_leaf(p, m, f, base, nlen, i);
+    cg_get(f, lf); wb_mem(code, 0x29, 3, 0); let lf_n = cg_save(f, 0x7e);
+    wb_i64(code, 0); let lk = cg_save(f, 0x7e);
+    let ldone = cg_begin(f, 0x02, 0x40); let lagain = cg_begin(f, 0x03, 0x40);
+    cg_get(f, lk); cg_get(f, lf_n); wb_byte(code, 0x59); cg_branch(p, f, ldone, true);
+    cg_sp_load64(f, lf, lk, 16); cg_get(f, 2); wb_byte(code, 0x55); cg_branch(p, f, ldone, true);
+    cg_get(f, lk); wb_i64(code, 1); wb_byte(code, 0x7c); cg_set(f, lk);
+    cg_branch(p, f, lagain, false); cg_end(f); cg_end(f);
+    cg_get(f, lk); wb_i64(code, 1); wb_byte(code, 0x7d); let sk = cg_save(f, 0x7e);
+    cg_sp_slot_addr(f, pnode, h, 192); cg_get(f, sk); wb_mem(code, 0x37, 3, 0);
+    wa_const(code, sc + 960); cg_get(f, sk); wb_mem(code, 0x37, 3, 0);
+    wa_const(code, sc + 968); wb_i64(code, -1); wb_mem(code, 0x37, 3, 0);
+    wa_const(code, sc + 976); wb_i64(code, 0); wb_mem(code, 0x37, 3, 0);
+    wa_const(code, sc + 984); cg_get(f, h); wb_mem(code, 0x37, 3, 0);
+    cg_get(f, sk); wb_i64(code, 1); wb_byte(code, 0x7c); cg_get(f, lf_n); wb_byte(code, 0x53); cg_begin(f, 0x04, 0x40);
+    wa_const(code, sc + 968); cg_get(f, sk); wb_i64(code, 1); wb_byte(code, 0x7c); wb_mem(code, 0x37, 3, 0);
+    wa_const(code, sc + 976); wb_i64(code, 1); wb_mem(code, 0x37, 3, 0);
+    wb_byte(code, 0x0f); cg_end(f);
+    cg_get(f, h); wb_i64(code, 1); wb_byte(code, 0x7d); cg_set(f, l);
+    let udone = cg_begin(f, 0x02, 0x40); let uagain = cg_begin(f, 0x03, 0x40);
+    cg_get(f, l); wb_i64(code, 0); wb_byte(code, 0x53); cg_branch(p, f, udone, true);
+    cg_sp_load64(f, pnode, l, 0); let up_id = cg_save(f, 0x7e);
+    cg_sp_node_ptr(f, base, up_id); let up_in = cg_save(f, wa());
+    cg_sp_load64(f, pnode, l, 192); wb_i64(code, 1); wb_byte(code, 0x7c);
+    cg_get(f, up_in); wb_mem(code, 0x29, 3, 0); wb_byte(code, 0x53); cg_branch(p, f, udone, true);
+    cg_get(f, l); wb_i64(code, 1); wb_byte(code, 0x7d); cg_set(f, l);
+    cg_branch(p, f, uagain, false); cg_end(f); cg_end(f);
+    cg_get(f, l); wb_i64(code, 0); wb_byte(code, 0x53); cg_begin(f, 0x04, 0x40); wb_byte(code, 0x0f); cg_end(f);
+    cg_sp_load64(f, pnode, l, 0); let top_id = cg_save(f, 0x7e);
+    cg_sp_node_ptr(f, base, top_id); let top_in = cg_save(f, wa());
+    cg_sp_load64(f, pnode, l, 192); wb_i64(code, 1); wb_byte(code, 0x7c); let top_next = cg_save(f, 0x7e);
+    cg_sp_load64(f, top_in, top_next, 16); cg_get(f, 3); wb_byte(code, 0x52); cg_begin(f, 0x04, 0x40); wb_byte(code, 0x0f); cg_end(f);
+    cg_get(f, l); wb_i64(code, 1); wb_byte(code, 0x7c); wb_i64(code, 3); wb_byte(code, 0x86); wa_wrap(code); let cp_bytes = cg_save(f, wa());
+    cg_get(f, qnode); cg_get(f, pnode); cg_get(f, cp_bytes); wb_copy(code);
+    cg_get(f, qnode); wa_add(code, 192); cg_get(f, pnode); wa_add(code, 192); cg_get(f, cp_bytes); wb_copy(code);
+    cg_sp_slot_addr(f, qnode, l, 192); cg_get(f, top_next); wb_mem(code, 0x37, 3, 0);
+    let qdone = cg_begin(f, 0x02, 0x40); let qagain = cg_begin(f, 0x03, 0x40);
+    cg_get(f, l); cg_get(f, h); wb_byte(code, 0x59); cg_branch(p, f, qdone, true);
+    cg_sp_load64(f, qnode, l, 0); let qid = cg_save(f, 0x7e);
+    cg_sp_node_ptr(f, base, qid); let qin = cg_save(f, wa());
+    cg_sp_load64(f, qnode, l, 192); let qpos = cg_save(f, 0x7e);
+    cg_sp_load64(f, qin, qpos, 336); let qch = cg_save(f, 0x7e);
+    cg_get(f, l); wb_i64(code, 1); wb_byte(code, 0x7c); cg_set(f, l);
+    cg_get(f, l); cg_get(f, h); wb_byte(code, 0x53); cg_begin(f, 0x04, 0x40);
+    let _ = cg_spc_check_in(p, m, f, base, nlen, qch);
+    cg_control(f, 0x05);
+    let _ = cg_spc_check_leaf(p, m, f, base, nlen, qch);
+    cg_end(f);
+    cg_sp_slot_addr(f, qnode, l, 0); cg_get(f, qch); wb_mem(code, 0x37, 3, 0);
+    cg_sp_slot_addr(f, qnode, l, 192); wb_i64(code, 0); wb_mem(code, 0x37, 3, 0);
+    cg_branch(p, f, qagain, false); cg_end(f); cg_end(f);
+    wa_const(code, sc + 968); wb_i64(code, 0); wb_mem(code, 0x37, 3, 0);
+    wa_const(code, sc + 976); wb_i64(code, 2); wb_mem(code, 0x37, 3, 0);
+    wb_byte(code, 0x0b); wb_body(out, locals, code);
+}
+fn cg_emit_spc_release(p: Program&, m: CgModule&, out: u8[>..]&) {
+    // Params: 0: nodes (wa), 1: tree (wa), 2: idx (i64), 3: cnt (i64), 4: at (i32)
+    var events: WbEvent[>..] = [];
+    var code: u8[>..] = []; var locals: i64[>..] = []; var slots: CgSlot[>..] = []; var addresses: CgFrameAddress[>..] = [];
+    var labels: i64[>..] = []; var exits: CgExit[>..] = []; var results: i64[>..] = []; var destinations: i64[>..] = []; var work: i64[>..] = []; var raw_slots: i64[>..] = []; var sequences: CgSequence[>..] = []; var constructions: CgConstruction[>..] = []; var construction_destinations: CgDestination[>..] = []; var receiving: CgReceiving[>..] = []; var defers: i64[>..] = []; var hoists: CgHoist[>..] = [];
+    var f = CgBody { events: events, code: code, locals: locals, slots: slots, addresses: addresses, labels: labels, exits: exits, results: results, destinations: destinations, work: work, raw_slots: raw_slots, sequences: sequences, constructions: constructions, construction_destinations: construction_destinations, receiving: receiving, hoists: hoists, params: 5, diagnostic_line: 4, defers: defers };
+    let sc = m.span_scratch;
+    wa_const(code, sc); let pnode = cg_save(f, wa());
+    wa_const(code, sc + 384); let qnode = cg_save(f, wa());
+    cg_array_pointer(p, m, f, m.spc_nodes_type, 0); let base = cg_save(f, wa());
+    wa_const(code, sc + 960); wb_mem(code, 0x29, 3, 0); let k = cg_save(f, 0x7e);
+    wa_const(code, sc + 968); wb_mem(code, 0x29, 3, 0); let nk = cg_save(f, 0x7e);
+    wa_const(code, sc + 976); wb_mem(code, 0x29, 3, 0); let kind = cg_save(f, 0x7e);
+    wa_const(code, sc + 984); wb_mem(code, 0x29, 3, 0); let h = cg_save(f, 0x7e);
+    cg_sp_load64(f, pnode, h, 0); let lf_id = cg_save(f, 0x7e);
+    cg_sp_node_ptr(f, base, lf_id); let lf = cg_save(f, wa());
+    cg_get(f, qnode); cg_get(f, pnode); cg_get(f, kind); wb_i64(code, 2); wb_byte(code, 0x51); wb_byte(code, 0x1b);
+    let nl_path = cg_save(f, wa());
+    wa_const(code, 0); let nl = cg_save(f, wa());
+    wb_i32(code, 0); let prev = cg_save(f, 0x7f);
+    wb_i32(code, 0); let next = cg_save(f, 0x7f);
+    cg_get(f, k); wb_i64(code, 0); wb_byte(code, 0x59); cg_begin(f, 0x04, 0x40);
+    cg_sp_load64(f, lf, k, 16); cg_sp_load64(f, lf, k, 264); wb_byte(code, 0x7c); cg_get(f, 2); wb_byte(code, 0x51); cg_set(f, prev);
+    cg_end(f);
+    cg_get(f, kind); wb_i64(code, 0); wb_byte(code, 0x52); cg_begin(f, 0x04, 0x40);
+    cg_sp_load64(f, nl_path, h, 0); let nl_id = cg_save(f, 0x7e);
+    cg_sp_node_ptr(f, base, nl_id); cg_set(f, nl);
+    cg_get(f, 2); cg_get(f, 3); wb_byte(code, 0x7c); cg_sp_load64(f, nl, nk, 16); wb_byte(code, 0x51); cg_set(f, next);
+    cg_end(f);
+    cg_get(f, prev); cg_begin(f, 0x04, 0x40);
+    cg_sp_load64(f, lf, k, 264); let c = cg_save(f, 0x7e);
+    cg_get(f, c); cg_get(f, 3); wb_byte(code, 0x7c); let merged = cg_save(f, 0x7e);
+    cg_get(f, next); cg_begin(f, 0x04, 0x40);
+    cg_get(f, merged); cg_sp_load64(f, nl, nk, 264); wb_byte(code, 0x7c); cg_set(f, merged);
+    cg_end(f);
+    cg_sp_slot_addr(f, lf, k, 264); cg_get(f, merged); wb_mem(code, 0x37, 3, 0);
+    cg_get(f, next); cg_get(f, kind); wb_i64(code, 1); wb_byte(code, 0x51); wb_byte(code, 0x71); cg_begin(f, 0x04, 0x40);
+    cg_spc_leaf_close(p, m, f, lf, nk); cg_end(f);
+    cg_get(f, 0); cg_get(f, pnode); cg_get(f, h); cg_get(f, h); cg_get(f, c); cg_get(f, merged); cg_get(f, 4); wb_op(code, 0x10, m.spc_fix);
+    cg_get(f, next); cg_get(f, kind); wb_i64(code, 2); wb_byte(code, 0x51); wb_byte(code, 0x71); cg_begin(f, 0x04, 0x40);
+    cg_get(f, 0); cg_get(f, 1); cg_get(f, qnode); cg_get(f, h); cg_get(f, nk); cg_get(f, 4); wb_op(code, 0x10, m.spc_delete); cg_end(f);
+    cg_control(f, 0x05);
+    cg_get(f, next); cg_begin(f, 0x04, 0x40);
+    cg_sp_load64(f, nl, nk, 264); let nc = cg_save(f, 0x7e);
+    cg_get(f, nc); cg_get(f, 3); wb_byte(code, 0x7c); let nsum = cg_save(f, 0x7e);
+    cg_sp_slot_addr(f, nl, nk, 16); cg_get(f, 2); wb_mem(code, 0x37, 3, 0);
+    cg_sp_slot_addr(f, nl, nk, 264); cg_get(f, nsum); wb_mem(code, 0x37, 3, 0);
+    cg_get(f, 0); cg_get(f, nl_path); cg_get(f, h); cg_get(f, h); cg_get(f, nc); cg_get(f, nsum); cg_get(f, 4); wb_op(code, 0x10, m.spc_fix);
+    cg_control(f, 0x05);
+    cg_get(f, 0); cg_get(f, 1); cg_get(f, pnode); cg_get(f, h); cg_get(f, k); wb_i64(code, 1); wb_byte(code, 0x7c); cg_get(f, 2); cg_get(f, 3); cg_get(f, 4); wb_op(code, 0x10, m.spc_insert);
+    cg_end(f); cg_end(f);
+    wb_byte(code, 0x0b); wb_body(out, locals, code);
+}
+fn cg_emit_spc_place(p: Program&, m: CgModule&, out: u8[>..]&) {
+    // Params: 0: nodes (wa), 1: tree (wa), 2: len (i64), 3: cnt (i64), 4: at (i32) -> i64
+    var events: WbEvent[>..] = [];
+    var code: u8[>..] = []; var locals: i64[>..] = []; var slots: CgSlot[>..] = []; var addresses: CgFrameAddress[>..] = [];
+    var labels: i64[>..] = []; var exits: CgExit[>..] = []; var results: i64[>..] = []; var destinations: i64[>..] = []; var work: i64[>..] = []; var raw_slots: i64[>..] = []; var sequences: CgSequence[>..] = []; var constructions: CgConstruction[>..] = []; var construction_destinations: CgDestination[>..] = []; var receiving: CgReceiving[>..] = []; var defers: i64[>..] = []; var hoists: CgHoist[>..] = [];
+    var f = CgBody { events: events, code: code, locals: locals, slots: slots, addresses: addresses, labels: labels, exits: exits, results: results, destinations: destinations, work: work, raw_slots: raw_slots, sequences: sequences, constructions: constructions, construction_destinations: construction_destinations, receiving: receiving, hoists: hoists, params: 5, diagnostic_line: 4, defers: defers };
+    let id = m.spc_nodes_type;
+    if m.resolver >= 0 {
+        cg_get(f, 0); cg_resolve_pointer(m, f); cg_set(f, 0);
+        cg_get(f, 1); cg_resolve_pointer(m, f); cg_set(f, 1);
+    }
+    cg_array_length(p, m, f, id, 0); wa_extend(code); let nlen = cg_save(f, 0x7e);
+    cg_get(f, 3); wb_byte(code, 0x50);
+    cg_get(f, nlen); wb_byte(code, 0x50); wb_byte(code, 0x72);
+    cg_begin(f, 0x04, 0x40); cg_get(f, 2); wb_byte(code, 0x0f); cg_end(f);
+    let sc = m.span_scratch;
+    wa_const(code, sc); let pnode = cg_save(f, wa());
+    wa_const(code, sc + 768); let before = cg_save(f, wa());
+    cg_array_pointer(p, m, f, id, 0); let base = cg_save(f, wa());
+    cg_get(f, 1); wb_mem(code, 0x29, 3, 8); let h = cg_save(f, 0x7e);
+    cg_spc_check_h(p, m, f, h);
+    cg_get(f, 1); wb_mem(code, 0x29, 3, 0); let i = cg_save(f, 0x7e);
+    wb_i64(code, 0); let l = cg_save(f, 0x7e);
+    wb_i64(code, 0); let k = cg_save(f, 0x7e);
+    wa_const(code, 0); let lf = cg_save(f, wa());
+    wb_i32(code, 0); let found = cg_save(f, 0x7f);
+    let ddone = cg_begin(f, 0x02, 0x40); let dagain = cg_begin(f, 0x03, 0x40);
+    cg_get(f, l); cg_get(f, h); wb_byte(code, 0x59); cg_branch(p, f, ddone, true);
+    let inn = cg_spc_check_in(p, m, f, base, nlen, i);
+    cg_get(f, inn); wb_mem(code, 0x29, 3, 0); let in_n = cg_save(f, 0x7e);
+    wb_i64(code, 0); cg_set(f, k);
+    wb_i64(code, 0); let mx = cg_save(f, 0x7e);
+    let kdone = cg_begin(f, 0x02, 0x40); let kagain = cg_begin(f, 0x03, 0x40);
+    cg_get(f, k); cg_get(f, in_n); wb_byte(code, 0x59); cg_branch(p, f, kdone, true);
+    cg_sp_load64(f, inn, k, 176); let mv = cg_save(f, 0x7e);
+    cg_get(f, mv); cg_get(f, 3); wb_byte(code, 0x59); cg_branch(p, f, kdone, true);
+    cg_get(f, mv); cg_get(f, mx); wb_byte(code, 0x55); cg_begin(f, 0x04, 0x40); cg_get(f, mv); cg_set(f, mx); cg_end(f);
+    cg_get(f, k); wb_i64(code, 1); wb_byte(code, 0x7c); cg_set(f, k);
+    cg_branch(p, f, kagain, false); cg_end(f); cg_end(f);
+    cg_get(f, k); cg_get(f, in_n); wb_byte(code, 0x51); cg_branch(p, f, ddone, true);
+    cg_sp_slot_addr(f, pnode, l, 0); cg_get(f, i); wb_mem(code, 0x37, 3, 0);
+    cg_sp_slot_addr(f, pnode, l, 192); cg_get(f, k); wb_mem(code, 0x37, 3, 0);
+    cg_sp_slot_addr(f, before, l, 0); cg_get(f, mx); wb_mem(code, 0x37, 3, 0);
+    cg_sp_load64(f, inn, k, 336); cg_set(f, i);
+    cg_get(f, l); wb_i64(code, 1); wb_byte(code, 0x7c); cg_set(f, l);
+    cg_branch(p, f, dagain, false); cg_end(f); cg_end(f);
+    cg_get(f, l); cg_get(f, h); wb_byte(code, 0x51); cg_begin(f, 0x04, 0x40);
+    let chk_lf = cg_spc_check_leaf(p, m, f, base, nlen, i);
+    cg_get(f, chk_lf); cg_set(f, lf);
+    cg_get(f, lf); wb_mem(code, 0x29, 3, 0); let lf_n = cg_save(f, 0x7e);
+    wb_i64(code, 0); cg_set(f, k);
+    wb_i64(code, 0); let lmx = cg_save(f, 0x7e);
+    let ldone = cg_begin(f, 0x02, 0x40); let lagain = cg_begin(f, 0x03, 0x40);
+    cg_get(f, k); cg_get(f, lf_n); wb_byte(code, 0x59); cg_branch(p, f, ldone, true);
+    cg_sp_load64(f, lf, k, 264); let cv = cg_save(f, 0x7e);
+    cg_get(f, cv); cg_get(f, 3); wb_byte(code, 0x59); cg_branch(p, f, ldone, true);
+    cg_get(f, cv); cg_get(f, lmx); wb_byte(code, 0x55); cg_begin(f, 0x04, 0x40); cg_get(f, cv); cg_set(f, lmx); cg_end(f);
+    cg_get(f, k); wb_i64(code, 1); wb_byte(code, 0x7c); cg_set(f, k);
+    cg_branch(p, f, lagain, false); cg_end(f); cg_end(f);
+    cg_sp_slot_addr(f, before, h, 0); cg_get(f, lmx); wb_mem(code, 0x37, 3, 0);
+    cg_get(f, k); cg_get(f, lf_n); wb_byte(code, 0x53); cg_set(f, found);
+    cg_end(f);
+    cg_get(f, found); wb_byte(code, 0x45); cg_begin(f, 0x04, 0x40);
+    wb_i64(code, 0); cg_set(f, l);
+    cg_get(f, 1); wb_mem(code, 0x29, 3, 0); cg_set(f, i);
+    let tdone = cg_begin(f, 0x02, 0x40); let tagain = cg_begin(f, 0x03, 0x40);
+    cg_get(f, l); cg_get(f, h); wb_byte(code, 0x59); cg_branch(p, f, tdone, true);
+    let tin = cg_spc_check_in(p, m, f, base, nlen, i);
+    cg_get(f, tin); wb_mem(code, 0x29, 3, 0); wb_i64(code, 1); wb_byte(code, 0x7d); let last = cg_save(f, 0x7e);
+    cg_sp_slot_addr(f, pnode, l, 0); cg_get(f, i); wb_mem(code, 0x37, 3, 0);
+    cg_sp_slot_addr(f, pnode, l, 192); cg_get(f, last); wb_mem(code, 0x37, 3, 0);
+    cg_sp_load64(f, tin, last, 336); cg_set(f, i);
+    cg_get(f, l); wb_i64(code, 1); wb_byte(code, 0x7c); cg_set(f, l);
+    cg_branch(p, f, tagain, false); cg_end(f); cg_end(f);
+    cg_sp_slot_addr(f, pnode, h, 0); cg_get(f, i); wb_mem(code, 0x37, 3, 0);
+    let tlf = cg_spc_check_leaf(p, m, f, base, nlen, i);
+    cg_get(f, tlf); cg_set(f, lf);
+    cg_get(f, lf); wb_mem(code, 0x29, 3, 0); wb_i64(code, 1); wb_byte(code, 0x7d); cg_set(f, k);
+    cg_get(f, k); wb_i64(code, 0); wb_byte(code, 0x53); cg_begin(f, 0x04, 0x40); cg_get(f, 2); wb_byte(code, 0x0f); cg_end(f);
+    cg_sp_load64(f, lf, k, 16); let tidx = cg_save(f, 0x7e);
+    cg_sp_load64(f, lf, k, 264); let tcnt = cg_save(f, 0x7e);
+    cg_get(f, tidx); cg_get(f, tcnt); wb_byte(code, 0x7c); cg_get(f, 2); wb_byte(code, 0x52);
+    cg_begin(f, 0x04, 0x40); cg_get(f, 2); wb_byte(code, 0x0f); cg_end(f);
+    cg_get(f, tcnt); cg_get(f, 3); wb_byte(code, 0x57); cg_begin(f, 0x04, 0x40);
+    cg_get(f, 0); cg_get(f, 1); cg_get(f, pnode); cg_get(f, h); cg_get(f, k); cg_get(f, 4); wb_op(code, 0x10, m.spc_delete);
+    cg_control(f, 0x05);
+    cg_sp_slot_addr(f, lf, k, 16); cg_get(f, tidx); cg_get(f, 3); wb_byte(code, 0x7c); wb_mem(code, 0x37, 3, 0);
+    cg_get(f, tcnt); cg_get(f, 3); wb_byte(code, 0x7d); let trem = cg_save(f, 0x7e);
+    cg_sp_slot_addr(f, lf, k, 264); cg_get(f, trem); wb_mem(code, 0x37, 3, 0);
+    cg_get(f, 0); cg_get(f, pnode); cg_get(f, h); cg_get(f, h); cg_get(f, tcnt); cg_get(f, trem); cg_get(f, 4); wb_op(code, 0x10, m.spc_fix);
+    cg_end(f);
+    cg_get(f, tidx); wb_byte(code, 0x0f); cg_end(f);
+    cg_sp_slot_addr(f, pnode, h, 0); cg_get(f, i); wb_mem(code, 0x37, 3, 0);
+    cg_sp_slot_addr(f, pnode, h, 192); cg_get(f, k); wb_mem(code, 0x37, 3, 0);
+    cg_sp_load64(f, lf, k, 16); let idx = cg_save(f, 0x7e);
+    cg_sp_load64(f, lf, k, 264); let c = cg_save(f, 0x7e);
+    wb_i64(code, 0); let now = cg_save(f, 0x7e);
+    wb_i64(code, 0); let j = cg_save(f, 0x7e);
+    cg_get(f, c); cg_get(f, 3); wb_byte(code, 0x55); cg_begin(f, 0x04, 0x40);
+    cg_sp_slot_addr(f, lf, k, 16); cg_get(f, idx); cg_get(f, 3); wb_byte(code, 0x7c); wb_mem(code, 0x37, 3, 0);
+    cg_get(f, c); cg_get(f, 3); wb_byte(code, 0x7d); cg_set(f, now);
+    cg_sp_slot_addr(f, lf, k, 264); cg_get(f, now); wb_mem(code, 0x37, 3, 0);
+    cg_get(f, k); wb_i64(code, 1); wb_byte(code, 0x7c); cg_set(f, j);
+    cg_control(f, 0x05);
+    cg_get(f, lf); wb_mem(code, 0x29, 3, 0); wb_i64(code, 1); wb_byte(code, 0x55);
+    cg_get(f, h); wb_byte(code, 0x50); wb_byte(code, 0x72); cg_begin(f, 0x04, 0x40);
+    cg_spc_leaf_close(p, m, f, lf, k);
+    wb_i64(code, 0); cg_set(f, now);
+    cg_get(f, k); cg_set(f, j);
+    cg_control(f, 0x05);
+    cg_get(f, 0); cg_get(f, 1); cg_get(f, pnode); cg_get(f, h); cg_get(f, k); cg_get(f, 4); wb_op(code, 0x10, m.spc_delete);
+    cg_get(f, idx); wb_byte(code, 0x0f);
+    cg_end(f); cg_end(f);
+    cg_get(f, h); cg_set(f, l);
+    let fdone = cg_begin(f, 0x02, 0x40); let fagain = cg_begin(f, 0x03, 0x40);
+    cg_get(f, l); wb_i64(code, 0); wb_byte(code, 0x57); cg_branch(p, f, fdone, true);
+    cg_get(f, l); wb_i64(code, 1); wb_byte(code, 0x7d); let lm1 = cg_save(f, 0x7e);
+    cg_sp_load64(f, pnode, lm1, 0); let pin_id = cg_save(f, 0x7e);
+    cg_sp_node_ptr(f, base, pin_id); let pin = cg_save(f, wa());
+    cg_sp_load64(f, pnode, lm1, 192); let e = cg_save(f, 0x7e);
+    cg_sp_load64(f, pin, e, 176); let mx2 = cg_save(f, 0x7e);
+    cg_get(f, mx2); let nm = cg_save(f, 0x7e);
+    cg_sp_load64(f, pnode, l, 0); let ch_id = cg_save(f, 0x7e);
+    cg_sp_node_ptr(f, base, ch_id); let chn = cg_save(f, wa());
+    cg_get(f, chn); wb_mem(code, 0x29, 3, 16); let key = cg_save(f, 0x7e);
+    cg_get(f, c); cg_get(f, mx2); wb_byte(code, 0x51); cg_begin(f, 0x04, 0x40);
+    cg_get(f, l); cg_get(f, h); wb_byte(code, 0x51); let is_lf = cg_save(f, 0x7f);
+    cg_get(f, chn); wa_const(code, 264); wa_const(code, 176); cg_get(f, is_lf); wb_byte(code, 0x1b); wa_op(code, 0x6a);
+    let varr = cg_save(f, wa());
+    cg_get(f, chn); wb_mem(code, 0x29, 3, 0); let w = cg_save(f, 0x7e);
+    cg_get(f, w); wb_i64(code, 31); wb_i64(code, 20); cg_get(f, is_lf); wb_byte(code, 0x1b); wb_byte(code, 0x56);
+    cg_trap_if(p, m, f, -1, "slice pool span tree is corrupt");
+    cg_sp_load64(f, before, l, 0); let bf = cg_save(f, 0x7e);
+    cg_get(f, bf); cg_get(f, now); cg_get(f, bf); cg_get(f, now); wb_byte(code, 0x55); wb_byte(code, 0x1b); cg_set(f, nm);
+    let sdone = cg_begin(f, 0x02, 0x40); let sagain = cg_begin(f, 0x03, 0x40);
+    cg_get(f, j); cg_get(f, w); wb_byte(code, 0x59);
+    cg_get(f, nm); cg_get(f, c); wb_byte(code, 0x59); wb_byte(code, 0x72);
+    cg_branch(p, f, sdone, true);
+    cg_sp_load64(f, varr, j, 0); let vv = cg_save(f, 0x7e);
+    cg_get(f, vv); cg_get(f, nm); wb_byte(code, 0x55); cg_begin(f, 0x04, 0x40); cg_get(f, vv); cg_set(f, nm); cg_end(f);
+    cg_get(f, j); wb_i64(code, 1); wb_byte(code, 0x7c); cg_set(f, j);
+    cg_branch(p, f, sagain, false); cg_end(f); cg_end(f);
+    cg_end(f);
+    cg_sp_load64(f, pin, e, 16); cg_get(f, key); wb_byte(code, 0x51);
+    cg_get(f, nm); cg_get(f, mx2); wb_byte(code, 0x51); wb_byte(code, 0x71);
+    cg_branch(p, f, fdone, true);
+    cg_sp_slot_addr(f, pin, e, 16); cg_get(f, key); wb_mem(code, 0x37, 3, 0);
+    cg_sp_slot_addr(f, pin, e, 176); cg_get(f, nm); wb_mem(code, 0x37, 3, 0);
+    cg_get(f, mx2); cg_set(f, c);
+    cg_get(f, nm); cg_set(f, now);
+    cg_get(f, e); wb_i64(code, 1); wb_byte(code, 0x7c); cg_set(f, j);
+    cg_get(f, lm1); cg_set(f, l);
+    cg_branch(p, f, fagain, false); cg_end(f); cg_end(f);
+    cg_get(f, idx); wb_byte(code, 0x0b); wb_body(out, locals, code);
+}
+fn cg_emit_spc_free(p: Program&, m: CgModule&, out: u8[>..]&) {
+    // Params: 0: nodes (wa), 1: tree (wa), 2: idx (i64), 3: cnt (i64), 4: at (i32)
+    var events: WbEvent[>..] = [];
+    var code: u8[>..] = []; var locals: i64[>..] = []; var slots: CgSlot[>..] = []; var addresses: CgFrameAddress[>..] = [];
+    var labels: i64[>..] = []; var exits: CgExit[>..] = []; var results: i64[>..] = []; var destinations: i64[>..] = []; var work: i64[>..] = []; var raw_slots: i64[>..] = []; var sequences: CgSequence[>..] = []; var constructions: CgConstruction[>..] = []; var construction_destinations: CgDestination[>..] = []; var receiving: CgReceiving[>..] = []; var defers: i64[>..] = []; var hoists: CgHoist[>..] = [];
+    var f = CgBody { events: events, code: code, locals: locals, slots: slots, addresses: addresses, labels: labels, exits: exits, results: results, destinations: destinations, work: work, raw_slots: raw_slots, sequences: sequences, constructions: constructions, construction_destinations: construction_destinations, receiving: receiving, hoists: hoists, params: 5, diagnostic_line: 4, defers: defers };
+    let id = m.spc_nodes_type;
+    cg_get(f, 3); wb_i64(code, 0); wb_byte(code, 0x57); cg_begin(f, 0x04, 0x40); wb_byte(code, 0x0f); cg_end(f);
+    if m.resolver >= 0 {
+        cg_get(f, 0); cg_resolve_pointer(m, f); cg_set(f, 0);
+        cg_get(f, 1); cg_resolve_pointer(m, f); cg_set(f, 1);
+    }
+    cg_array_length(p, m, f, id, 0); wa_op(code, 0x45); cg_begin(f, 0x04, 0x40);
+    cg_get(f, 0); cg_get(f, 4); wb_op(code, 0x10, m.spc_push); wb_byte(code, 0x1a);
+    cg_get(f, 1); wb_i64(code, 0); wb_mem(code, 0x37, 3, 16);
+    cg_get(f, 1); wb_i64(code, 0); wb_mem(code, 0x37, 3, 8);
+    cg_get(f, 0); cg_get(f, 1); cg_get(f, 4); wb_op(code, 0x10, m.spc_newnode); let r = cg_save(f, 0x7e);
+    cg_get(f, 1); cg_get(f, r); wb_mem(code, 0x37, 3, 0);
+    cg_end(f);
+    cg_get(f, 0); cg_get(f, 1); cg_get(f, 2); cg_get(f, 2); cg_get(f, 3); wb_byte(code, 0x7c); cg_get(f, 4); wb_op(code, 0x10, m.spc_near);
+    cg_get(f, 0); cg_get(f, 1); cg_get(f, 2); cg_get(f, 3); cg_get(f, 4); wb_op(code, 0x10, m.spc_release);
+    wb_byte(code, 0x0b); wb_body(out, locals, code);
+}
+fn cg_emit_spc_regrow(p: Program&, m: CgModule&, out: u8[>..]&) {
+    // Params: 0: nodes (wa), 1: tree (wa), 2: len (i64), 3: idx (i64), 4: ol (i64), 5: cnt (i64), 6: at (i32) -> i64
+    var events: WbEvent[>..] = [];
+    var code: u8[>..] = []; var locals: i64[>..] = []; var slots: CgSlot[>..] = []; var addresses: CgFrameAddress[>..] = [];
+    var labels: i64[>..] = []; var exits: CgExit[>..] = []; var results: i64[>..] = []; var destinations: i64[>..] = []; var work: i64[>..] = []; var raw_slots: i64[>..] = []; var sequences: CgSequence[>..] = []; var constructions: CgConstruction[>..] = []; var construction_destinations: CgDestination[>..] = []; var receiving: CgReceiving[>..] = []; var defers: i64[>..] = []; var hoists: CgHoist[>..] = [];
+    var f = CgBody { events: events, code: code, locals: locals, slots: slots, addresses: addresses, labels: labels, exits: exits, results: results, destinations: destinations, work: work, raw_slots: raw_slots, sequences: sequences, constructions: constructions, construction_destinations: construction_destinations, receiving: receiving, hoists: hoists, params: 7, diagnostic_line: 6, defers: defers };
+    let id = m.spc_nodes_type;
+    if m.resolver >= 0 {
+        cg_get(f, 0); cg_resolve_pointer(m, f); cg_set(f, 0);
+        cg_get(f, 1); cg_resolve_pointer(m, f); cg_set(f, 1);
+    }
+    cg_array_length(p, m, f, id, 0); wa_op(code, 0x45); cg_begin(f, 0x04, 0x40);
+    cg_get(f, 0); cg_get(f, 1); cg_get(f, 3); cg_get(f, 4); cg_get(f, 6); wb_op(code, 0x10, m.spc_free);
+    cg_get(f, 0); cg_get(f, 1); cg_get(f, 2); cg_get(f, 5); cg_get(f, 6); wb_op(code, 0x10, m.spc_place); wb_byte(code, 0x0f);
+    cg_end(f);
+    let sc = m.span_scratch;
+    cg_get(f, 3); cg_get(f, 4); wb_byte(code, 0x7c); let end = cg_save(f, 0x7e);
+    cg_get(f, 0); cg_get(f, 1); cg_get(f, 3); cg_get(f, end); cg_get(f, 6); wb_op(code, 0x10, m.spc_near);
+    wa_const(code, sc + 976); wb_mem(code, 0x29, 3, 0); let kind = cg_save(f, 0x7e);
+    cg_get(f, kind); wb_i64(code, 0); wb_byte(code, 0x52); cg_begin(f, 0x04, 0x40);
+    wa_const(code, sc + 968); wb_mem(code, 0x29, 3, 0); let nk = cg_save(f, 0x7e);
+    wa_const(code, sc + 984); wb_mem(code, 0x29, 3, 0); let h = cg_save(f, 0x7e);
+    wa_const(code, sc + 384); wa_const(code, sc); cg_get(f, kind); wb_i64(code, 2); wb_byte(code, 0x51); wb_byte(code, 0x1b);
+    let nl_path = cg_save(f, wa());
+    cg_array_pointer(p, m, f, id, 0); let base = cg_save(f, wa());
+    cg_sp_load64(f, nl_path, h, 0); let nl_id = cg_save(f, 0x7e);
+    cg_sp_node_ptr(f, base, nl_id); let nl = cg_save(f, wa());
+    cg_sp_load64(f, nl, nk, 16); let nidx = cg_save(f, 0x7e);
+    cg_sp_load64(f, nl, nk, 264); let ncnt = cg_save(f, 0x7e);
+    cg_get(f, 5); cg_get(f, 4); wb_byte(code, 0x7d); let need = cg_save(f, 0x7e);
+    cg_get(f, nidx); cg_get(f, end); wb_byte(code, 0x51);
+    cg_get(f, ncnt); cg_get(f, need); wb_byte(code, 0x59);
+    cg_get(f, end); cg_get(f, ncnt); wb_byte(code, 0x7c); cg_get(f, 2); wb_byte(code, 0x51); wb_byte(code, 0x72);
+    wb_byte(code, 0x71); cg_begin(f, 0x04, 0x40);
+    cg_get(f, ncnt); cg_get(f, need); wb_byte(code, 0x57); cg_begin(f, 0x04, 0x40);
+    cg_get(f, 0); cg_get(f, 1); cg_get(f, nl_path); cg_get(f, h); cg_get(f, nk); cg_get(f, 6); wb_op(code, 0x10, m.spc_delete);
+    cg_control(f, 0x05);
+    cg_sp_slot_addr(f, nl, nk, 16); cg_get(f, nidx); cg_get(f, need); wb_byte(code, 0x7c); wb_mem(code, 0x37, 3, 0);
+    cg_get(f, ncnt); cg_get(f, need); wb_byte(code, 0x7d); let rem = cg_save(f, 0x7e);
+    cg_sp_slot_addr(f, nl, nk, 264); cg_get(f, rem); wb_mem(code, 0x37, 3, 0);
+    cg_get(f, 0); cg_get(f, nl_path); cg_get(f, h); cg_get(f, h); cg_get(f, ncnt); cg_get(f, rem); cg_get(f, 6); wb_op(code, 0x10, m.spc_fix);
+    cg_end(f);
+    cg_get(f, 3); wb_byte(code, 0x0f);
+    cg_end(f); cg_end(f);
+    cg_get(f, 0); cg_get(f, 1); cg_get(f, 3); cg_get(f, 4); cg_get(f, 6); wb_op(code, 0x10, m.spc_release);
+    cg_get(f, 0); cg_get(f, 1); cg_get(f, 2); cg_get(f, 5); cg_get(f, 6); wb_op(code, 0x10, m.spc_place);
+    wb_byte(code, 0x0b); wb_body(out, locals, code);
+}
+fn cg_emit_spc_trim(p: Program&, m: CgModule&, out: u8[>..]&) {
+    // Params: 0: nodes (wa), 1: tree (wa), 2: items (ws), 3: elem (i64), 4: at (i32) -> i32
+    var events: WbEvent[>..] = [];
+    var code: u8[>..] = []; var locals: i64[>..] = []; var slots: CgSlot[>..] = []; var addresses: CgFrameAddress[>..] = [];
+    var labels: i64[>..] = []; var exits: CgExit[>..] = []; var results: i64[>..] = []; var destinations: i64[>..] = []; var work: i64[>..] = []; var raw_slots: i64[>..] = []; var sequences: CgSequence[>..] = []; var constructions: CgConstruction[>..] = []; var construction_destinations: CgDestination[>..] = []; var receiving: CgReceiving[>..] = []; var defers: i64[>..] = []; var hoists: CgHoist[>..] = [];
+    var f = CgBody { events: events, code: code, locals: locals, slots: slots, addresses: addresses, labels: labels, exits: exits, results: results, destinations: destinations, work: work, raw_slots: raw_slots, sequences: sequences, constructions: constructions, construction_destinations: construction_destinations, receiving: receiving, hoists: hoists, params: 5, diagnostic_line: 4, defers: defers };
+    let id = m.spc_nodes_type;
+    if m.resolver >= 0 {
+        cg_get(f, 0); cg_resolve_pointer(m, f); cg_set(f, 0);
+        cg_get(f, 1); cg_resolve_pointer(m, f); cg_set(f, 1);
+    }
+    cg_array_length(p, m, f, id, 0); wa_extend(code); let nlen = cg_save(f, 0x7e);
+    cg_get(f, 2); ws_count(code); let items_len = cg_save(f, 0x7e);
+    cg_get(f, nlen); wb_byte(code, 0x50);
+    cg_get(f, items_len); wb_i64(code, 0); wb_byte(code, 0x57); wb_byte(code, 0x72);
+    cg_get(f, 3); wb_i64(code, 0); wb_byte(code, 0x57); wb_byte(code, 0x72);
+    cg_begin(f, 0x04, 0x40); wb_i32(code, 1); wb_byte(code, 0x0f); cg_end(f);
+    cg_get(f, 2); ws_ptr(code); cg_resolve_pointer(m, f); let items_ptr = cg_save(f, wa());
+    cg_get(f, items_len); cg_get(f, 3); wb_byte(code, 0x7f); let count = cg_save(f, 0x7e);
+    cg_array_pointer(p, m, f, id, 0); let base = cg_save(f, wa());
+    cg_get(f, 1); wb_mem(code, 0x29, 3, 8); let h = cg_save(f, 0x7e);
+    cg_spc_check_h(p, m, f, h);
+    cg_get(f, 1); wb_mem(code, 0x29, 3, 0); let root = cg_save(f, 0x7e);
+    cg_get(f, h); wb_i64(code, 0); wb_byte(code, 0x52); cg_begin(f, 0x04, 0x40);
+    let _ = cg_spc_check_in(p, m, f, base, nlen, root);
+    cg_control(f, 0x05);
+    let _ = cg_spc_check_leaf(p, m, f, base, nlen, root);
+    cg_end(f);
+    let sc = m.span_scratch;
+    wa_const(code, sc); let pnode = cg_save(f, wa());
+    cg_get(f, pnode); cg_get(f, root); wb_mem(code, 0x37, 3, 0);
+    cg_get(f, pnode); wb_i64(code, 0); wb_mem(code, 0x37, 3, 192);
+    wb_i64(code, 0); let l = cg_save(f, 0x7e);
+    wb_i64(code, 0); let visits = cg_save(f, 0x7e);
+    let wdone = cg_begin(f, 0x02, 0x40); let wagain = cg_begin(f, 0x03, 0x40);
+    cg_get(f, l); wb_i64(code, 0); wb_byte(code, 0x53); cg_branch(p, f, wdone, true);
+    cg_sp_load64(f, pnode, l, 0); let nid = cg_save(f, 0x7e);
+    cg_sp_node_ptr(f, base, nid); let nd = cg_save(f, wa());
+    cg_sp_load64(f, pnode, l, 192); let pos = cg_save(f, 0x7e);
+    cg_get(f, pos); wb_byte(code, 0x50); cg_begin(f, 0x04, 0x40);
+    cg_get(f, visits); wb_i64(code, 1); wb_byte(code, 0x7c); cg_set(f, visits);
+    cg_get(f, visits); cg_get(f, nlen); wb_byte(code, 0x59);
+    cg_trap_if(p, m, f, -1, "slice pool span tree is corrupt");
+    cg_end(f);
+    cg_get(f, l); cg_get(f, h); wb_byte(code, 0x51); cg_begin(f, 0x04, 0x40);
+    cg_get(f, nd); wb_mem(code, 0x29, 3, 0); let lfn = cg_save(f, 0x7e);
+    wb_i64(code, 0); let k = cg_save(f, 0x7e);
+    let kdone = cg_begin(f, 0x02, 0x40); let kagain = cg_begin(f, 0x03, 0x40);
+    cg_get(f, k); cg_get(f, lfn); wb_byte(code, 0x59); cg_branch(p, f, kdone, true);
+    cg_sp_load64(f, nd, k, 16); let idx = cg_save(f, 0x7e);
+    cg_sp_load64(f, nd, k, 264); let cnt = cg_save(f, 0x7e);
+    cg_get(f, idx); wb_i64(code, 0); wb_byte(code, 0x53);
+    cg_get(f, cnt); wb_i64(code, 0); wb_byte(code, 0x57); wb_byte(code, 0x72);
+    cg_get(f, idx); cg_get(f, count); wb_byte(code, 0x55); wb_byte(code, 0x72);
+    cg_get(f, cnt); cg_get(f, count); cg_get(f, idx); wb_byte(code, 0x7d); wb_byte(code, 0x55); wb_byte(code, 0x72);
+    cg_trap_if(p, m, f, -1, "slice pool span tree is corrupt");
+    cg_get(f, idx); cg_get(f, 3); wb_byte(code, 0x7e); let lo = cg_save(f, 0x7e);
+    cg_get(f, idx); cg_get(f, cnt); wb_byte(code, 0x7c); cg_get(f, 3); wb_byte(code, 0x7e); let hi = cg_save(f, 0x7e);
+    cg_get(f, lo); wb_i64(code, 12); wb_byte(code, 0x88);
+    wb_i64(code, 1); wb_i64(code, 0); cg_get(f, lo); wb_i64(code, 4095); wb_byte(code, 0x83); wb_i64(code, 0); wb_byte(code, 0x52); wb_byte(code, 0x1b);
+    wb_byte(code, 0x7c); let sp = cg_save(f, 0x7e);
+    cg_get(f, hi); wb_i64(code, 12); wb_byte(code, 0x88); let ep = cg_save(f, 0x7e);
+    cg_get(f, sp); cg_get(f, ep); wb_byte(code, 0x53); cg_begin(f, 0x04, 0x40);
+    cg_get(f, items_ptr); cg_get(f, sp); wb_i64(code, 12); wb_byte(code, 0x86); wa_wrap(code); wa_op(code, 0x6a);
+    wb_i32(code, 0);
+    cg_get(f, ep); cg_get(f, sp); wb_byte(code, 0x7d); wb_i64(code, 12); wb_byte(code, 0x86); wa_wrap(code);
+    wb_fill(code);
+    cg_end(f);
+    cg_get(f, k); wb_i64(code, 1); wb_byte(code, 0x7c); cg_set(f, k);
+    cg_branch(p, f, kagain, false); cg_end(f); cg_end(f);
+    cg_get(f, l); wb_i64(code, 1); wb_byte(code, 0x7d); cg_set(f, l);
+    cg_control(f, 0x05);
+    cg_get(f, pos); cg_get(f, nd); wb_mem(code, 0x29, 3, 0); wb_byte(code, 0x59); cg_begin(f, 0x04, 0x40);
+    cg_get(f, l); wb_i64(code, 1); wb_byte(code, 0x7d); cg_set(f, l);
+    cg_control(f, 0x05);
+    cg_sp_load64(f, nd, pos, 336); let ch = cg_save(f, 0x7e);
+    cg_sp_slot_addr(f, pnode, l, 192); cg_get(f, pos); wb_i64(code, 1); wb_byte(code, 0x7c); wb_mem(code, 0x37, 3, 0);
+    cg_get(f, l); wb_i64(code, 1); wb_byte(code, 0x7c); cg_set(f, l);
+    cg_get(f, l); cg_get(f, h); wb_byte(code, 0x53); cg_begin(f, 0x04, 0x40);
+    let _ = cg_spc_check_in(p, m, f, base, nlen, ch);
+    cg_control(f, 0x05);
+    let _ = cg_spc_check_leaf(p, m, f, base, nlen, ch);
+    cg_end(f);
+    cg_sp_slot_addr(f, pnode, l, 0); cg_get(f, ch); wb_mem(code, 0x37, 3, 0);
+    cg_sp_slot_addr(f, pnode, l, 192); wb_i64(code, 0); wb_mem(code, 0x37, 3, 0);
+    cg_end(f); cg_end(f);
+    cg_branch(p, f, wagain, false); cg_end(f); cg_end(f);
+    wb_i32(code, 1); wb_byte(code, 0x0b); wb_body(out, locals, code);
+}
 fn cg_allocate(p: Program&, m: CgModule&, f: CgBody&, node: i64) {
     if !f.scratch { wb_op(f.code, 0x10, m.allocator); return; }
     f.frame_used = true;
@@ -7836,7 +8647,18 @@ fn cg_collect(p: Program&, m: CgModule&) {
         if (fn_n.flags & F_REACHABLE) == 0 { continue; }
         if (fn_n.flags & F_THREAD) != 0 { cg_fail(p, fnode, "wasm: threads are unsupported by the direct host ABI"); }
         if (fn_n.flags & F_EXTERN) != 0 {
-            if location_extern(p, fnode) { cg_fail(p, fnode, "wasm: the slice pool span tree externs are not supported by the direct Wasm backend; use --target native\n  help: compile with `--target native` or `--target c` for slice-pool span-tree externs"); continue; }
+            if location_extern(p, fnode) {
+                let p0 = p.nodes[fnode].first;
+                let ok0 = p0 >= 0 && cg_type_kind(p, p.nodes[p0].type_id) == TY_REF;
+                var nty = -1;
+                if ok0 { nty = p.types[p.nodes[p0].type_id].element; }
+                if nty < 0 || cg_type_kind(p, nty) != TY_ARRAY || p.types[nty].array_kind != A_GROW || cg_size(p, p.types[nty].element) != 512 {
+                    cg_fail(p, fnode, "wasm: invalid slice pool span tree extern signature");
+                } else if m.spc_nodes_type < 0 {
+                    m.spc_nodes_type = nty;
+                }
+                continue;
+            }
             cg_importable(p, fnode);
             extern_fns.push(fnode);
         } else {
@@ -8006,10 +8828,12 @@ fn cg_collect(p: Program&, m: CgModule&) {
     if ps.helpers.raw_appends > 1 { m.raw_append_type = ps.helpers.raw_append_type; m.raw_append = thunk_base; thunk_base++; }
     if !m.ordinary_owners && ps.helpers.owner_indexes > 1 { m.owner_view = thunk_base; thunk_base++; }
     if !m.ordinary_owners && ps.helpers.owner_mutations > 1 { m.update_length = thunk_base; thunk_base++; }
-    if ps.helpers.slice_pool {
+    if ps.helpers.slice_pool || m.spc_nodes_type >= 0 {
         m.next_data = cg_align(m.next_data, 8);
         m.span_scratch = m.next_data;
         m.next_data += 992;
+    }
+    if ps.helpers.slice_pool {
         m.pool_state_fn = thunk_base; thunk_base++;
         m.spans_newnode = thunk_base; thunk_base++;
         m.spans_fix = thunk_base; thunk_base++;
@@ -8021,12 +8845,25 @@ fn cg_collect(p: Program&, m: CgModule&) {
         m.spans_free = thunk_base; thunk_base++;
         m.spans_regrow = thunk_base; thunk_base++;
     }
+    if m.spc_nodes_type >= 0 {
+        m.spc_push = thunk_base; thunk_base++;
+        m.spc_newnode = thunk_base; thunk_base++;
+        m.spc_fix = thunk_base; thunk_base++;
+        m.spc_delete = thunk_base; thunk_base++;
+        m.spc_insert = thunk_base; thunk_base++;
+        m.spc_near = thunk_base; thunk_base++;
+        m.spc_release = thunk_base; thunk_base++;
+        m.spc_place = thunk_base; thunk_base++;
+        m.spc_free = thunk_base; thunk_base++;
+        m.spc_regrow = thunk_base; thunk_base++;
+        m.spc_trim = thunk_base; thunk_base++;
+    }
     for i in 0..m.functions.len { if m.functions[i].table_index >= 0 { m.functions[i].thunk = thunk_base + m.functions[i].table_index; } }
     if m.regions_enabled {
         m.host_reserve_type = cg_host_reserve_type(p, m);
         if m.host_reserve_type >= 0 { m.host_reserve = thunk_base + m.thunk_count; }
     }
-    if m.functions.len == 1 && m.imports.len == 9 && m.pool_global < 0 && p.entry == m.functions[0].node && m.functions[0].capture_count == 0 {
+    if m.functions.len == 1 && m.imports.len == 9 && m.pool_global < 0 && m.spc_nodes_type < 0 && p.entry == m.functions[0].node && m.functions[0].capture_count == 0 {
         let entry = m.functions[0].node;
         var globals = false; for address in m.globals { if address >= 0 { globals = true; } }
         if !globals && (p.nodes[entry].flags & F_NONLOCAL) == 0 && p.nodes[entry].first < 0 && cg_result_type(p, entry) == TYPE_VOID && cg_scalar_body(p, entry, p.nodes[entry].right) { m.scalar = true; }
@@ -8745,7 +9582,7 @@ fn generate_wasm(p: Program&, out: u8[>..]&) {
     cg_collect(p, m); if p.diagnostics.len > 0 { return; }
     if m.scalar { m.resolver = -1; m.forward_helper = -1; m.copy_both_helper = -1; m.copy_src_helper = -1; m.copy_dst_helper = -1; m.resolve_slice_helper = -1; m.host_reserve = -1; }
     cg_compute_header_pure(p, m);
-    var body_count = m.functions.len + m.thunk_count + 3; if m.resolver >= 0 { body_count += 2; } if m.copy_both_helper >= 0 { body_count += 3; } if m.resolve_slice_helper >= 0 { body_count += 1; } if m.header_helper >= 0 { body_count++; } if m.prefix_helper >= 0 { body_count++; } if m.raw_append >= 0 { body_count++; } if m.owner_view >= 0 { body_count++; } if m.update_length >= 0 { body_count++; } if m.spans_alloc >= 0 { body_count += 10; } if m.host_reserve >= 0 { body_count++; } if m.scalar { body_count = m.functions.len + 1; }
+    var body_count = m.functions.len + m.thunk_count + 3; if m.resolver >= 0 { body_count += 2; } if m.copy_both_helper >= 0 { body_count += 3; } if m.resolve_slice_helper >= 0 { body_count += 1; } if m.header_helper >= 0 { body_count++; } if m.prefix_helper >= 0 { body_count++; } if m.raw_append >= 0 { body_count++; } if m.owner_view >= 0 { body_count++; } if m.update_length >= 0 { body_count++; } if m.spans_alloc >= 0 { body_count += 10; } if m.spc_place >= 0 { body_count += 11; } if m.host_reserve >= 0 { body_count++; } if m.scalar { body_count = m.functions.len + 1; }
     if !m.scalar { m.abort_base = m.imports.len + body_count; }
     if p.jobs > 1 && m.functions.len >= 64 {
         cg_emit_parallel(p, m, out, body_count);
@@ -8815,6 +9652,19 @@ fn cg_finish_module(p: Program&, m: CgModule&, out: u8[>..]&, body_count: i64, b
             body.clear(); cg_emit_spans_free(p, m, body); wb_u(bodies, body.len); wb_raw(bodies, body);
             body.clear(); cg_emit_spans_regrow(p, m, body); wb_u(bodies, body.len); wb_raw(bodies, body);
         }
+        if m.spc_place >= 0 {
+            body.clear(); cg_emit_spc_push(p, m, body); wb_u(bodies, body.len); wb_raw(bodies, body);
+            body.clear(); cg_emit_spc_newnode(p, m, body); wb_u(bodies, body.len); wb_raw(bodies, body);
+            body.clear(); cg_emit_spc_fix(p, m, body); wb_u(bodies, body.len); wb_raw(bodies, body);
+            body.clear(); cg_emit_spc_delete(p, m, body); wb_u(bodies, body.len); wb_raw(bodies, body);
+            body.clear(); cg_emit_spc_insert(p, m, body); wb_u(bodies, body.len); wb_raw(bodies, body);
+            body.clear(); cg_emit_spc_near(p, m, body); wb_u(bodies, body.len); wb_raw(bodies, body);
+            body.clear(); cg_emit_spc_release(p, m, body); wb_u(bodies, body.len); wb_raw(bodies, body);
+            body.clear(); cg_emit_spc_place(p, m, body); wb_u(bodies, body.len); wb_raw(bodies, body);
+            body.clear(); cg_emit_spc_free(p, m, body); wb_u(bodies, body.len); wb_raw(bodies, body);
+            body.clear(); cg_emit_spc_regrow(p, m, body); wb_u(bodies, body.len); wb_raw(bodies, body);
+            body.clear(); cg_emit_spc_trim(p, m, body); wb_u(bodies, body.len); wb_raw(bodies, body);
+        }
         var thunk_code: u8[>..] = []; var thunk_locals: i64[>..] = []; var thunk_results: i64[>..] = [];
         for item, i in m.functions { if item.table_index >= 0 { body.clear(); cg_emit_thunk(p, m, i, body, thunk_code, thunk_locals, thunk_results); wb_u(bodies, body.len); wb_raw(bodies, body); } }
         if m.host_reserve >= 0 {
@@ -8877,6 +9727,27 @@ fn cg_finish_module(p: Program&, m: CgModule&, out: u8[>..]&, body_count: i64, b
         var a_reg: u8[>..] = []; a_reg.push(wa() as u8); for _ in 0..4 { a_reg.push(0x7e); }
         sp_regrow_sig = cg_signature(m, a_reg, one_i64);
     }
+    var spc_push_sig = -1; var spc_new_sig = -1; var spc_fix_sig = -1; var spc_del_sig = -1; var spc_ins_sig = -1;
+    var spc_near_sig = -1; var spc_place_sig = -1; var spc_regrow_sig = -1; var spc_trim_sig = -1;
+    if m.spc_place >= 0 {
+        var a_push: u8[>..] = []; a_push.push(wa() as u8); a_push.push(0x7f);
+        spc_push_sig = cg_signature(m, a_push, one_i64);
+        var a_new: u8[>..] = []; a_new.push(wa() as u8); a_new.push(wa() as u8); a_new.push(0x7f);
+        spc_new_sig = cg_signature(m, a_new, one_i64);
+        var a_fix: u8[>..] = []; a_fix.push(wa() as u8); a_fix.push(wa() as u8); for _ in 0..4 { a_fix.push(0x7e); } a_fix.push(0x7f);
+        spc_fix_sig = cg_signature(m, a_fix, empty);
+        var a_del: u8[>..] = []; a_del.push(wa() as u8); a_del.push(wa() as u8); a_del.push(wa() as u8); a_del.push(0x7e); a_del.push(0x7e); a_del.push(0x7f);
+        spc_del_sig = cg_signature(m, a_del, empty);
+        var a_ins: u8[>..] = []; a_ins.push(wa() as u8); a_ins.push(wa() as u8); a_ins.push(wa() as u8); for _ in 0..4 { a_ins.push(0x7e); } a_ins.push(0x7f);
+        spc_ins_sig = cg_signature(m, a_ins, empty);
+        var a_near: u8[>..] = []; a_near.push(wa() as u8); a_near.push(wa() as u8); a_near.push(0x7e); a_near.push(0x7e); a_near.push(0x7f);
+        spc_near_sig = cg_signature(m, a_near, empty);
+        spc_place_sig = cg_signature(m, a_near, one_i64);
+        var a_reg: u8[>..] = []; a_reg.push(wa() as u8); a_reg.push(wa() as u8); for _ in 0..4 { a_reg.push(0x7e); } a_reg.push(0x7f);
+        spc_regrow_sig = cg_signature(m, a_reg, one_i64);
+        var a_trim: u8[>..] = []; a_trim.push(wa() as u8); a_trim.push(wa() as u8); a_trim.push(ws() as u8); a_trim.push(0x7e); a_trim.push(0x7f);
+        spc_trim_sig = cg_signature(m, a_trim, one_i32);
+    }
     var reserve_signature = -1;
     if m.host_reserve >= 0 { var pair_address: u8[>..] = []; pair_address.push(wa() as u8); pair_address.push(wa() as u8); reserve_signature = cg_signature(m, pair_address, one_address); }
     var resolve_slice_signature = -1;
@@ -8896,7 +9767,7 @@ fn cg_finish_module(p: Program&, m: CgModule&, out: u8[>..]&, body_count: i64, b
     wb_section(out, 2, section); section.clear();
     wb_u(section, total_bodies); for item in m.functions { wb_u(section, item.signature); }
     wb_u(section, start_signature);
-    if !m.scalar { wb_u(section, allocator_signature); wb_u(section, wrap_signature); if m.resolver >= 0 { wb_u(section, allocator_signature); wb_u(section, forward_signature); } if m.copy_both_helper >= 0 { wb_u(section, forward_signature); wb_u(section, forward_signature); wb_u(section, forward_signature); } if m.resolve_slice_helper >= 0 { wb_u(section, resolve_slice_signature); } if m.header_helper >= 0 { wb_u(section, header_signature); } if m.prefix_helper >= 0 { wb_u(section, prefix_signature); } if m.raw_append >= 0 { wb_u(section, append_signature); } if m.owner_view >= 0 { wb_u(section, view_signature); } if m.update_length >= 0 { wb_u(section, update_signature); } if m.spans_alloc >= 0 { wb_u(section, allocator_signature); wb_u(section, sp_new_sig); wb_u(section, sp_fix_sig); wb_u(section, sp_del_sig); wb_u(section, sp_fix_sig); wb_u(section, sp_near_sig); wb_u(section, sp_near_sig); wb_u(section, sp_alloc_sig); wb_u(section, sp_near_sig); wb_u(section, sp_regrow_sig); } for item in m.functions { if item.table_index >= 0 { wb_u(section, item.closure_signature); } } if m.host_reserve >= 0 { wb_u(section, reserve_signature); } for _ in m.abort_helpers { wb_u(section, abort_signature); } }
+    if !m.scalar { wb_u(section, allocator_signature); wb_u(section, wrap_signature); if m.resolver >= 0 { wb_u(section, allocator_signature); wb_u(section, forward_signature); } if m.copy_both_helper >= 0 { wb_u(section, forward_signature); wb_u(section, forward_signature); wb_u(section, forward_signature); } if m.resolve_slice_helper >= 0 { wb_u(section, resolve_slice_signature); } if m.header_helper >= 0 { wb_u(section, header_signature); } if m.prefix_helper >= 0 { wb_u(section, prefix_signature); } if m.raw_append >= 0 { wb_u(section, append_signature); } if m.owner_view >= 0 { wb_u(section, view_signature); } if m.update_length >= 0 { wb_u(section, update_signature); } if m.spans_alloc >= 0 { wb_u(section, allocator_signature); wb_u(section, sp_new_sig); wb_u(section, sp_fix_sig); wb_u(section, sp_del_sig); wb_u(section, sp_fix_sig); wb_u(section, sp_near_sig); wb_u(section, sp_near_sig); wb_u(section, sp_alloc_sig); wb_u(section, sp_near_sig); wb_u(section, sp_regrow_sig); } if m.spc_place >= 0 { wb_u(section, spc_push_sig); wb_u(section, spc_new_sig); wb_u(section, spc_fix_sig); wb_u(section, spc_del_sig); wb_u(section, spc_ins_sig); wb_u(section, spc_near_sig); wb_u(section, spc_near_sig); wb_u(section, spc_place_sig); wb_u(section, spc_near_sig); wb_u(section, spc_regrow_sig); wb_u(section, spc_trim_sig); } for item in m.functions { if item.table_index >= 0 { wb_u(section, item.closure_signature); } } if m.host_reserve >= 0 { wb_u(section, reserve_signature); } for _ in m.abort_helpers { wb_u(section, abort_signature); } }
     wb_section(out, 3, section); section.clear();
     if !m.scalar { wb_u(section, 1); wb_byte(section, 0x70); wb_byte(section, 0); wb_u(section, m.thunk_count); wb_section(out, 4, section); section.clear(); }
     var initial_pages = p.initial_pages; let static_pages = (m.next_data + 65535) / 65536;
