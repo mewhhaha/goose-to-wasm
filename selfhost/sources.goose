@@ -629,7 +629,7 @@ fn gp_parse_spmd_range(ctx: const ParseSpmdCtx&, out: i64[:], worker_id: i64, wo
     var w_text: u8[>..] = []; var w_messages: u8[>..] = []; var w_sources: Source[>..] = [];
     var w_tokens: Token[>..] = []; var w_nodes: Node[>..] = []; var w_diagnostics: Diagnostic[>..] = [];
     var w_types: Type[>..] = []; var w_symbols: Symbol[>..] = [];
-    var w_type_properties: i64[>..] = []; var w_builtin_symbols: i64[>..] = [];
+    var w_type_properties: i8[>..] = []; var w_builtin_symbols: i64[>..] = [];
     var w_type_buckets: TypeBucket[>..] = []; var w_type_links: TypeLink[>..] = [];
     var w_type_scan_marks: i64[>..] = []; var w_type_holds: i64[>..] = []; var w_enum_fixed_cache: i8[>..] = [];
     var w_inline_sites: InlineSite[>..] = []; var w_instantiation_stack: InstantiationSite[>..] = [];

@@ -704,7 +704,7 @@ fn driver_main() -> i64 {
     var text: u8[>..] = []; var messages: u8[>..] = []; var sources: Source[>..] = [];
     var tokens: Token[>..] = []; var nodes: Node[>..] = []; var types: Type[>..] = [];
     var symbols: Symbol[>..] = []; var diagnostics: Diagnostic[>..] = [];
-    var type_properties: i64[>..] = []; var builtin_symbols: i64[>..] = [];
+    var type_properties: i8[>..] = []; var builtin_symbols: i64[>..] = [];
     var type_buckets: TypeBucket[>..] = []; var type_links: TypeLink[>..] = []; var type_scan_marks: i64[>..] = []; var type_holds: i64[>..] = []; var enum_fixed_cache: i8[>..] = [];
     var inline_sites: InlineSite[>..] = []; var instantiation_stack: InstantiationSite[>..] = []; var region_profile: i64[>..] = [];
     var ident_table: i32[>..] = [];

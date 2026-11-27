@@ -10,15 +10,21 @@ struct RenderKey {
 fn render_reference(p: Program&, type_id: i64, flags: i64 = 0) -> i64 {
     // Const is shallow: a stored mutable reference keeps its pointee writable.
     if p.types[type_id].kind == TY_REF { return type_id; }
-    for t, id in p.types {
+    var id = type_find(p, TY_REF, type_id, 0, flags, -1);
+    while id >= 0 {
+        let t: const Type& = p.types[id];
         if t.kind == TY_REF && t.element == type_id && t.flags == flags && t.length_storage < 0 { return id; }
+        id = p.type_links[id].next;
     }
     return add_type(p, Type { kind: TY_REF, element: type_id, flags: flags, size: p.pointer_bytes, align: p.pointer_bytes });
 }
 fn render_output_type(p: Program&) -> i64 {
     var array = -1;
-    for t, id in p.types {
+    var id = type_find(p, TY_ARRAY, TYPE_U8, -1, 0, -1);
+    while id >= 0 {
+        let t: const Type& = p.types[id];
         if t.kind == TY_ARRAY && t.element == TYPE_U8 && t.array_kind == A_GROW && t.flags == 0 { array = id; break; }
+        id = p.type_links[id].next;
     }
     if array < 0 { array = add_type(p, Type { kind: TY_ARRAY, element: TYPE_U8, count: -1, size: 24, align: 4, array_kind: A_GROW }); }
     return render_reference(p, array);
@@ -189,7 +195,7 @@ recursive fn render_function(p: Program&, cache: RenderKey[>..]&, hooks: const i
         if t.element == TYPE_VOID { render_text(p, body, out, "null", token); return function_node; }
         var element_type = t.element;
         if (t.flags & TF_CONST) != 0 && p.types[element_type].kind == TY_SLICE && (p.types[element_type].flags & TF_CONST) == 0 {
-            var qualified = p.types[element_type]; qualified.flags |= TF_CONST; element_type = add_type(p, qualified);
+            var qualified = p.types[element_type]; qualified.flags |= TF_CONST; element_type = intern_type(p, qualified);
         }
         let child_type = render_reference(p, element_type, const_flags);
         let child = render_function(p, cache, hooks, element_type, child_type, quoted);

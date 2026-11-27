@@ -389,7 +389,9 @@ struct Program {
     symbols: Symbol[>..]&, diagnostics: Diagnostic[>..]&,
     // Memoized type properties (type * 8 + property, value + 1; 0 unknown)
     // and the builtin symbol of each builtin ID (-1 none yet).
-    type_properties: i64[>..]&, builtin_symbols: i64[>..]&,
+    // Cached type predicates (checker: properties 0..6; C codegen: 7 = concrete),
+    // stored as result + 1 so 0 means unknown.
+    type_properties: i8[>..]&, builtin_symbols: i64[>..]&,
     // Type identity index (type_find): its buckets, each indexed type's link,
     // and how many types are indexed so far.
     type_buckets: TypeBucket[>..]&, type_links: TypeLink[>..]&,
@@ -1025,6 +1027,22 @@ fn type_index_sync(p: Program&) {
 fn type_find(p: Program&, kind: i64, element: i64, count: i64, flags: i64, declaration: i64) -> i64 {
     type_index_sync(p);
     return p.type_buckets[type_hash(kind, element, count, flags, declaration) & (p.type_buckets.len - 1)].head;
+}
+fn intern_type(p: Program&, copy: Type) -> i64 {
+    var id = type_find(p, copy.kind, copy.element, copy.count, copy.flags, copy.declaration);
+    while id >= 0 {
+        let c: const Type& = p.types[id];
+        if c.kind == copy.kind && c.element == copy.element && c.count == copy.count &&
+           c.declaration == copy.declaration && c.first == copy.first && c.flags == copy.flags &&
+           c.name_token == copy.name_token && c.size == copy.size && c.align == copy.align &&
+           c.array_kind == copy.array_kind && c.storage == copy.storage &&
+           c.length_storage == copy.length_storage && c.padding == copy.padding &&
+           c.pool == copy.pool && c.index_type == copy.index_type &&
+           c.prefix == copy.prefix && c.tail == copy.tail &&
+           c.arguments == copy.arguments && c.length_explicit == copy.length_explicit { return id; }
+        id = p.type_links[id].next;
+    }
+    return add_type(p, copy);
 }
 fn type_reindex(p: Program&, id: i64) {
     if id < 0 || id >= p.type_indexed { return; }
