@@ -685,7 +685,7 @@ fn driver_main() -> i64 {
     var tokens: Token[>..] = []; var nodes: Node[>..] = []; var types: Type[>..] = [];
     var symbols: Symbol[>..] = []; var diagnostics: Diagnostic[>..] = [];
     var type_properties: i64[>..] = []; var builtin_symbols: i64[>..] = [];
-    var type_buckets: TypeBucket[>..] = []; var type_links: TypeLink[>..] = []; var type_scan_marks: i64[>..] = []; var type_holds: i64[>..] = [];
+    var type_buckets: TypeBucket[>..] = []; var type_links: TypeLink[>..] = []; var type_scan_marks: i64[>..] = []; var type_holds: i64[>..] = []; var enum_fixed_cache: i8[>..] = [];
     var inline_sites: InlineSite[>..] = []; var instantiation_stack: InstantiationSite[>..] = []; var region_profile: i64[>..] = [];
     var ident_table: i32[>..] = [];
     var node_extra_slots: i32[>..] = []; var node_extras: NodeExtra[>..] = [];
@@ -712,7 +712,7 @@ fn driver_main() -> i64 {
                       nodes: nodes, types: types, node_extra_slots: node_extra_slots, node_extras: node_extras,
                       token_columns: token_columns, symbols: symbols, diagnostics: diagnostics,
                       type_properties: type_properties, builtin_symbols: builtin_symbols,
-                      type_buckets: type_buckets, type_links: type_links, type_scan_marks: type_scan_marks, type_holds: type_holds,
+                      type_buckets: type_buckets, type_links: type_links, type_scan_marks: type_scan_marks, type_holds: type_holds, enum_fixed_cache: enum_fixed_cache,
                       inline_sites: inline_sites, instantiation_stack: instantiation_stack, region_profile: region_profile, ident_table: ident_table };
     let link_shared = o.shared && !driver_ends_with(paths[output_start..output_end], ".c");
     p.dump_ir = o.dump_ir; p.optimization = o.optimization; p.jobs = gp_effective_jobs(o.jobs); p.debug = o.debug; p.library = o.library;

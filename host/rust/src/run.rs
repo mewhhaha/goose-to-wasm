@@ -11,7 +11,7 @@ use std::path::{Path, PathBuf};
 use std::time::Instant;
 
 use sha2::{Digest, Sha256};
-use wasmtime::{Config, Engine, Error, Extern, Func, Instance, Linker, Module, OptLevel, Result, Store, Val};
+use wasmtime::{Config, Engine, Error, Extern, Func, Instance, Linker, Module, OptLevel, RegallocAlgorithm, Result, Store, Val};
 
 use crate::host::{define_imports, failure, Host, HostFailure, ProgramExit};
 use crate::pytext::{normalized_path, repr_str};
@@ -27,8 +27,17 @@ pub const HOSTED_RESERVATION_BYTES: u64 = 1 << 40;
 pub const WASMTIME_VERSION: &str = env!("GOOSE_WASMTIME_VERSION");
 
 pub fn create_config(hosted: bool) -> Config {
+    create_config_with_options(hosted, false)
+}
+
+pub fn create_config_with_options(hosted: bool, fast_jit: bool) -> Config {
     let mut config = Config::new();
-    config.cranelift_opt_level(OptLevel::Speed);
+    if fast_jit {
+        config.cranelift_opt_level(OptLevel::None);
+        config.cranelift_regalloc_algorithm(RegallocAlgorithm::SinglePass);
+    } else {
+        config.cranelift_opt_level(OptLevel::Speed);
+    }
     config.wasm_memory64(true);
     config.wasm_tail_call(true);
     config.wasm_exceptions(true);
@@ -48,6 +57,7 @@ pub fn create_config(hosted: bool) -> Config {
 }
 
 pub struct Timing {
+    pub optimization: &'static str,
     pub compile_instantiate_ns: u128,
     pub start_function_ns: u128,
     pub engine_total_ns: u128,
@@ -57,9 +67,9 @@ impl Timing {
     /// The JSON the Python runner writes, key for key.
     pub fn json(&self) -> String {
         format!(
-            "{{\n  \"engine\": \"Wasmtime\",\n  \"wasmtime\": \"{WASMTIME_VERSION}\",\n  \"optimization\": \"cranelift speed\",\n  \
+            "{{\n  \"engine\": \"Wasmtime\",\n  \"wasmtime\": \"{WASMTIME_VERSION}\",\n  \"optimization\": \"{}\",\n  \
              \"compile_instantiate_ns\": {},\n  \"start_function_ns\": {},\n  \"engine_total_ns\": {}\n}}\n",
-            self.compile_instantiate_ns, self.start_function_ns, self.engine_total_ns
+            self.optimization, self.compile_instantiate_ns, self.start_function_ns, self.engine_total_ns
         )
     }
 }
@@ -108,6 +118,19 @@ pub fn run_module_entry_with_resource_dir(
     entry: Option<&str>,
     resource_dir: Option<Vec<u8>>,
 ) -> std::result::Result<Outcome, String> {
+    run_module_entry_with_options(data, stdin, arguments, config, cache, entry, resource_dir, false)
+}
+
+pub fn run_module_entry_with_options(
+    data: &[u8],
+    stdin: Vec<u8>,
+    arguments: Vec<Vec<u8>>,
+    config: &Config,
+    cache: Option<&Path>,
+    entry: Option<&str>,
+    resource_dir: Option<Vec<u8>>,
+    fast_jit: bool,
+) -> std::result::Result<Outcome, String> {
     let mut initial = Host::new(stdin, arguments);
     initial.resource_dir = resource_dir;
     let mut host = Some(initial);
@@ -119,7 +142,7 @@ pub fn run_module_entry_with_resource_dir(
     let result = (|| -> Result<()> {
         let engine = Engine::new(config)?;
         let store = store.insert(Store::new(&engine, host.take().expect("the host state is unused")));
-        let module = load_module(&engine, data, cache)?;
+        let module = load_module(&engine, data, cache, fast_jit)?;
         let mut linker = Linker::new(&engine);
         define_imports(&mut linker, &module)?;
         let instance = *instance.insert(linker.instantiate(&mut *store, &module)?);
@@ -181,6 +204,7 @@ pub fn run_module_entry_with_resource_dir(
         stderr: String::from_utf8_lossy(&errors).into_owned() + &error,
         exit_code,
         timing: Timing {
+            optimization: if fast_jit { "cranelift fast-jit" } else { "cranelift speed" },
             compile_instantiate_ns: (instantiated - started).as_nanos(),
             start_function_ns: (ended - instantiated).as_nanos(),
             engine_total_ns: (ended - started).as_nanos(),
@@ -207,15 +231,16 @@ fn call(store: &mut Store<Host>, function: Func, arguments: &[Val]) -> Result<Ve
     Ok(results)
 }
 
-fn load_module(engine: &Engine, data: &[u8], cache: Option<&Path>) -> Result<Module> {
+fn load_module(engine: &Engine, data: &[u8], cache: Option<&Path>, fast_jit: bool) -> Result<Module> {
     let Some(cache) = cache else {
         return Module::from_binary(engine, data);
     };
     let digest: String = Sha256::digest(data).iter().map(|byte| format!("{byte:02x}")).collect();
+    let expected = if fast_jit { format!("fast-jit:{digest}") } else { digest };
     let mut stamp = cache.as_os_str().to_owned();
     stamp.push(".sha256");
     let stamp = PathBuf::from(stamp);
-    if cache.is_file() && stamp.is_file() && fs::read_to_string(&stamp).is_ok_and(|text| text.trim() == digest) {
+    if cache.is_file() && stamp.is_file() && fs::read_to_string(&stamp).is_ok_and(|text| text.trim() == expected) {
         // SAFETY: the file is this host's own output for these module bytes,
         // as the stamp beside it says; Wasmtime refuses one that another
         // build or configuration wrote, and it is then compiled again.
@@ -225,7 +250,7 @@ fn load_module(engine: &Engine, data: &[u8], cache: Option<&Path>) -> Result<Mod
     }
     let module = Module::from_binary(engine, data)?;
     replace_file(cache, &module.serialize()?)?;
-    replace_file(&stamp, format!("{digest}\n").as_bytes())?;
+    replace_file(&stamp, format!("{expected}\n").as_bytes())?;
     Ok(module)
 }
 
@@ -328,4 +353,57 @@ pub fn path_of(bytes: Vec<u8>) -> PathBuf {
 
 pub fn bytes_of(path: &Path) -> Vec<u8> {
     path.as_os_str().as_bytes().to_vec()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn fast_jit_runs_and_separates_cache_stamp() {
+        // Minimal valid Wasm module exporting _start () -> ()
+        let wasm: &[u8] = &[
+            0x00, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00,
+            0x01, 0x04, 0x01, 0x60, 0x00, 0x00,
+            0x03, 0x02, 0x01, 0x00,
+            0x07, 0x0a, 0x01, 0x06, b'_', b's', b't', b'a', b'r', b't', 0x00, 0x00,
+            0x0a, 0x04, 0x01, 0x02, 0x00, 0x0b,
+        ];
+        let dir = std::env::temp_dir().join(format!("goose_wasmtime_fastjit_{}", std::process::id()));
+        let _ = fs::create_dir_all(&dir);
+        let cache = dir.join("mod.cwasm");
+        let stamp = dir.join("mod.cwasm.sha256");
+
+        let fast = run_module_entry_with_options(
+            wasm,
+            Vec::new(),
+            vec![b"program".to_vec()],
+            &create_config_with_options(false, true),
+            Some(&cache),
+            None,
+            None,
+            true,
+        )
+        .expect("fast-jit run");
+        assert_eq!(fast.exit_code, 0);
+        assert!(fast.timing.json().contains("\"cranelift fast-jit\""));
+        assert!(fs::read_to_string(&stamp).unwrap().starts_with("fast-jit:"));
+
+        let speed = run_module_entry_with_options(
+            wasm,
+            Vec::new(),
+            vec![b"program".to_vec()],
+            &create_config_with_options(false, false),
+            Some(&cache),
+            None,
+            None,
+            false,
+        )
+        .expect("speed run over fast-jit cache");
+        assert_eq!(speed.exit_code, 0);
+        assert!(speed.timing.json().contains("\"cranelift speed\""));
+        assert!(!fs::read_to_string(&stamp).unwrap().starts_with("fast-jit:"));
+
+        let _ = fs::remove_dir_all(&dir);
+    }
 }

@@ -1898,15 +1898,34 @@ recursive fn check_finish_type_build(p: Program&, c: Checker&) {
 }
 fn check_enum_fixed_reason(p: Program&, type_id: i64) -> i64 {
     let t = p.types[type_id];
-    if t.kind != TY_ENUM || (t.flags & F_VARIABLE_MODE) != 0 { return 0; }
+    if t.kind != TY_ENUM || (t.flags & F_VARIABLE_MODE) != 0 || t.first < 0 { return 0; }
+    let head = t.first as i64;
+    if head < p.enum_fixed_cache.len && p.enum_fixed_cache[head] != 0 {
+        return (p.enum_fixed_cache[head] as i64) - 1;
+    }
     var reason = 0; var variant = t.first;
+    var complete = t.declaration >= 0 && (p.nodes[t.declaration].flags & F_CHECKED) != 0;
     while variant >= 0 {
         let payload = p.nodes[variant].type_id;
-        if payload >= 0 && !check_has_generic(p, payload, 0) {
-            if check_size_class(p, payload, 0) > 0 { return 1; }
-            if check_type_property(p, payload, 6) != 0 { reason = 2; }
+        if payload >= 0 {
+            if !check_has_generic(p, payload, 0) {
+                if check_size_class(p, payload, 0) > 0 { reason = 1; break; }
+                let skey = payload * 8 + 2;
+                if skey >= p.type_properties.len || p.type_properties[skey] == 0 { complete = false; }
+                if check_type_property(p, payload, 6) != 0 { reason = 2; }
+                else {
+                    let rkey = payload * 8 + 6;
+                    if rkey >= p.type_properties.len || p.type_properties[rkey] == 0 { complete = false; }
+                }
+            }
+        } else {
+            complete = false;
         }
         variant = p.nodes[variant].next;
+    }
+    if complete || reason == 1 {
+        while p.enum_fixed_cache.len <= head { p.enum_fixed_cache.push(0); }
+        p.enum_fixed_cache[head] = (reason + 1) as i8;
     }
     return reason;
 }

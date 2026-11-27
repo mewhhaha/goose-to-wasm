@@ -12,13 +12,14 @@ use std::path::PathBuf;
 use std::process::exit;
 
 use goose_wasmtime::pytext::normalized_path;
-use goose_wasmtime::run::{bytes_of, create_config, os_error_text, path_of, read_file, run_module_entry_with_resource_dir, Outcome, HOSTED_STACK_BYTES};
+use goose_wasmtime::run::{bytes_of, create_config_with_options, os_error_text, path_of, read_file, run_module_entry_with_options, Outcome, HOSTED_STACK_BYTES};
 
-const USAGE: &str = "usage: goose-wasmtime module.wasm [--entry name] [--timing-json path] [--cache path | --no-cache] [-- program arguments]";
+const USAGE: &str = "usage: goose-wasmtime module.wasm [--entry name] [--fast-jit] [--timing-json path] [--cache path | --no-cache] [-- program arguments]";
 
 struct Options {
     module: PathBuf,
     entry: Option<String>,
+    fast_jit: bool,
     timing_json: Option<PathBuf>,
     cache: Option<PathBuf>,
     /// What follows `--`: the program's arguments after its own name.
@@ -42,6 +43,7 @@ fn options() -> Options {
     });
     let (mut module, mut entry, mut timing_json, mut cache) = (None, None, None, None);
     let mut no_cache = false;
+    let mut fast_jit = false;
     let mut unrecognized: Vec<String> = Vec::new();
     let mut own = own.into_iter();
     while let Some(argument) = own.next() {
@@ -60,11 +62,15 @@ fn options() -> Options {
         // A long option may be shortened to any prefix only it has.
         let named = |option: &[u8]| name.len() > 2 && option.starts_with(name);
         if (name == b"-h" || named(b"--help")) && value.is_none() {
-            println!("{USAGE}\n\nRun direct Goose WebAssembly with Wasmtime. Stdin is the program's input.\n\n  --entry name        invoke this exported function after _start\n  --timing-json path  write engine timings to this file\n  --cache path        keep the compiled module in this file and reuse it for the same module bytes");
+            println!("{USAGE}\n\nRun direct Goose WebAssembly with Wasmtime. Stdin is the program's input.\n\n  --entry name        invoke this exported function after _start\n  --fast-jit          use Cranelift OptLevel::None + SinglePass regalloc (~2x faster cold JIT)\n  --timing-json path  write engine timings to this file\n  --cache path        keep the compiled module in this file and reuse it for the same module bytes");
             exit(0);
         }
         if name == b"--no-cache" && value.is_none() {
             no_cache = true;
+            continue;
+        }
+        if named(b"--fast-jit") && value.is_none() {
+            fast_jit = true;
             continue;
         }
         let slot = if named(b"--entry") {
@@ -94,7 +100,7 @@ fn options() -> Options {
     }
     let path = |spelling: Vec<u8>| path_of(normalized_path(&spelling));
     let entry = entry.map(|bytes| String::from_utf8_lossy(&bytes).into_owned());
-    Options { module: path(module), entry, timing_json: timing_json.map(path), cache: cache.map(path), arguments }
+    Options { module: path(module), entry, fast_jit, timing_json: timing_json.map(path), cache: cache.map(path), arguments }
 }
 
 fn read_stdin() -> Result<Vec<u8>, String> {
@@ -117,14 +123,15 @@ fn run(options: &Options) -> Result<i64, String> {
     let resource_dir = module_resource_dir(&options.module);
     let outcome = if options.arguments.is_none() && options.entry.is_none() {
         let data = read_file(&options.module)?;
-        run_module_entry_with_resource_dir(
+        run_module_entry_with_options(
             &data,
             read_stdin()?,
             vec![b"program".to_vec()],
-            &create_config(false),
+            &create_config_with_options(false, options.fast_jit),
             options.cache.as_deref(),
             None,
             resource_dir,
+            options.fast_jit,
         )?
     } else {
         // On a thread whose stack holds the Wasm stack the config allows.
@@ -134,14 +141,15 @@ fn run(options: &Options) -> Result<i64, String> {
             if let Some(arguments) = &options.arguments {
                 program.extend(arguments.iter().cloned());
             }
-            run_module_entry_with_resource_dir(
+            run_module_entry_with_options(
                 &data,
                 read_stdin()?,
                 program,
-                &create_config(true),
+                &create_config_with_options(true, options.fast_jit),
                 options.cache.as_deref(),
                 options.entry.as_deref(),
                 resource_dir.clone(),
+                options.fast_jit,
             )
         };
         std::thread::scope(|scope| {

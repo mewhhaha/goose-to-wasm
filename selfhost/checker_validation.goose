@@ -661,14 +661,39 @@ fn validation_checkfree_target(p: Program&, call: i64, symbol: i64, work: i64[>.
         diagnose(p, p.nodes[call].token, "a checkfree function can call only checkfree functions and blocks written in checkfree functions");
     }
 }
+fn validation_seen_insert(seen: i32[>..]&, count: i64&, node: i64) -> bool {
+    if 2 * (count + 1) > seen.len {
+        var next_len = seen.len * 2;
+        if next_len < 64 { next_len = 64; }
+        var grown: i32[>..] = []; grown.resize(next_len, -1);
+        let gmask = next_len - 1;
+        for entry in seen {
+            if entry < 0 { continue; }
+            var gslot = (((entry as i64) * 2654435761) >> 4) & gmask;
+            while grown[gslot] >= 0 { gslot = (gslot + 1) & gmask; }
+            grown[gslot] = entry;
+        }
+        seen.clear(); seen.append(grown);
+    }
+    let mask = seen.len - 1;
+    let n32 = node as i32;
+    var slot = ((node * 2654435761) >> 4) & mask;
+    loop {
+        let cur = seen[slot];
+        if cur == n32 { return false; }
+        if cur < 0 { seen[slot] = n32; count += 1; return true; }
+        slot = (slot + 1) & mask;
+    }
+    return false;
+}
 fn validation_checkfree_calls(p: Program&, function: i64) {
     if !validation_checkfree(p, function) { return; }
     var work: i64[>..] = [p.nodes[function].right];
-    var seen: bool[>..] = []; seen.resize(p.nodes.len, false);
+    var seen: i32[>..] = []; seen.resize(64, -1); var seen_count: i64 = 0;
     while work.len > 0 {
         let node = work.pop();
-        if node < 0 || node >= p.nodes.len || seen[node] { continue; }
-        seen[node] = true; let n: const Node& = p.nodes[node];
+        if node < 0 || node >= p.nodes.len || !validation_seen_insert(seen, seen_count, node) { continue; }
+        let n: const Node& = p.nodes[node];
         if n.kind == N_FUNCTION || n.kind == N_FUNCTION_VALUE || n.kind == N_STRUCT ||
            n.kind == N_ENUM || n.kind == N_ALIAS || n.kind == N_IMPORT { continue; }
         if n.kind == N_CALL {

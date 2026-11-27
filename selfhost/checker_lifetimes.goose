@@ -2916,23 +2916,7 @@ fn life_gs_value(p: Program&, l: Lifetimes&, value: const LifeValue&) -> bool {
             else if life_class_query(p, l, alt.root, 1, value.type_id, alt.byteview) { return true; }
         }
         if !class_root && !alt.slotread && life_is_ref(p, value.type_id) && life_gs_contains(p, l, storage, t.element, alt.byteview) { return true; }
-        if !class_root && !alt.slotread && !life_is_ref(p, value.type_id) {
-            // The holder's precise store record contains the roots; its
-            // type says which of their elements its reference slots reach.
-            var types: i64[>..] = [];
-            if storage >= 0 { types.push(storage); }
-            var index = 0;
-            while index < types.len {
-                let owner: const Type& = p.types[types[index]]; index += 1;
-                if owner.kind == TY_ARRAY {
-                    if owner.array_kind == A_GROWSHRINK && (alt.byteview || life_holder_views(p, l, value.type_id, owner.element)) { return true; }
-                    if owner.element >= 0 { var seen = false; for old in types { if old == owner.element { seen = true; } } if !seen { types.push(owner.element); } }
-                } else if owner.kind == TY_STRUCT || owner.kind == TY_ENUM {
-                    var field = owner.first;
-                    while field >= 0 { let ft = p.nodes[field].type_id; var seen = ft < 0; for old in types { if old == ft { seen = true; } } if !seen { types.push(ft); } field = p.nodes[field].next; }
-                }
-            }
-        }
+        if !class_root && !alt.slotread && !life_is_ref(p, value.type_id) && life_gs_holder(p, l, storage, value.type_id, alt.byteview) { return true; }
         if t.kind == TY_REF && t.element >= 0 && p.types[t.element].kind == TY_SLICE {
             if l.discovery && l.frame > 0 {
                 if l.island == 0 || alt.root > 0 && l.roots[alt.root].frame <= 0 && l.roots[alt.root].class_frame < 0 { life_push_dep_root(l, alt.root as i64); }
@@ -4841,7 +4825,24 @@ recursive fn life_class_alias(p: Program&, l: Lifetimes&, a: LifeAlt, b: LifeAlt
 // Whether a holder of type `holder` kept in storage of type `storage` may
 // view grow-shrink elements there (the type walk of life_gs_value).
 fn life_gs_holder(p: Program&, l: Lifetimes&, storage: i64, holder: i64, byteview: bool) -> bool {
-    var types: i64[>..] = []; if storage >= 0 { types.push(storage); }
+    if storage < 0 { return false; }
+    if l.types_frozen && l.nodes_prepared {
+        let co = l.type_exact_canon[storage] as i64;
+        var cnt = l.gs_count[co] as i64;
+        if cnt < 0 { life_build_gs_elems(p, l, co); cnt = l.gs_count[co] as i64; }
+        if cnt == 0 { return false; }
+        if byteview { return true; }
+        if holder < 0 { return false; }
+        let ch = l.type_exact_canon[holder] as i64;
+        if (l.type_flags[ch] & TF_L_HOLDS) == 0 { return false; }
+        let start = l.gs_start[co] as i64;
+        for i in start..start + cnt {
+            let elem = l.gs_elems[i] as i64;
+            if elem >= 0 && life_holder_views(p, l, holder, elem) { return true; }
+        }
+        return false;
+    }
+    var types: i64[>..] = [storage];
     var index = 0;
     while index < types.len {
         let owner: const Type& = p.types[types[index]]; index += 1;
@@ -4988,6 +4989,17 @@ fn life_alt_overlaps(p: Program&, l: Lifetimes&, x: LifeAlt, b: i64, slot_safe: 
 }
 fn life_holder_views(p: Program&, l: Lifetimes&, holder: i64, element: i64) -> bool {
     if holder < 0 || element < 0 { return false; }
+    if l.types_frozen && l.nodes_prepared {
+        let ch = l.type_exact_canon[holder] as i64;
+        if (l.type_flags[ch] & TF_L_HOLDS) == 0 { return false; }
+        var cnt = l.holder_ref_count[ch] as i64;
+        if cnt < 0 { life_build_holder_refs(p, l, ch); cnt = l.holder_ref_count[ch] as i64; }
+        let start = l.holder_ref_start[ch] as i64;
+        for i in start..start + cnt {
+            if life_contains(p, l, element, l.holder_ref_elems[i] as i64) { return true; }
+        }
+        return false;
+    }
     var work: i64[>..] = [holder]; var at = 0;
     while at < work.len {
         let t: const Type& = p.types[work[at]]; at += 1;

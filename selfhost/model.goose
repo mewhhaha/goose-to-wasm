@@ -391,6 +391,8 @@ struct Program {
     // Per type, life_holds_walk's answer (0 unknown, 1 no, 2 yes). Lifetime
     // analysis only adds types and nodes, so an answer stays valid.
     type_holds: i64[>..]&,
+    // Memoized check_enum_fixed_reason keyed by enum variant list head t.first (value + 1; 0 unknown).
+    enum_fixed_cache: i8[>..]&,
     entry: i64 = -1, first_decl_source: i64 = -1, initial_pages: i64 = 16, maximum_pages: i64 = 256,
     optimization: i64 = 0, jobs: i64 = 1, debug: bool = false,
     pointer_bytes: i64 = 4,

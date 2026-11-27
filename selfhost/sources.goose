@@ -617,7 +617,7 @@ fn gp_parse_spmd_range(ctx: const ParseSpmdCtx&, out: i64[:], worker_id: i64, wo
     var w_types: Type[>..] = []; var w_symbols: Symbol[>..] = [];
     var w_type_properties: i64[>..] = []; var w_builtin_symbols: i64[>..] = [];
     var w_type_buckets: TypeBucket[>..] = []; var w_type_links: TypeLink[>..] = [];
-    var w_type_scan_marks: i64[>..] = []; var w_type_holds: i64[>..] = [];
+    var w_type_scan_marks: i64[>..] = []; var w_type_holds: i64[>..] = []; var w_enum_fixed_cache: i8[>..] = [];
     var w_inline_sites: InlineSite[>..] = []; var w_instantiation_stack: InstantiationSite[>..] = [];
     var w_region_profile: i64[>..] = []; var w_ident_table: i32[>..] = [];
     var w_extra_slots: i32[>..] = []; var w_extras: NodeExtra[>..] = [];
@@ -628,7 +628,7 @@ fn gp_parse_spmd_range(ctx: const ParseSpmdCtx&, out: i64[:], worker_id: i64, wo
         diagnostics: w_diagnostics, types: w_types, symbols: w_symbols,
         type_properties: w_type_properties, builtin_symbols: w_builtin_symbols,
         type_buckets: w_type_buckets, type_links: w_type_links,
-        type_scan_marks: w_type_scan_marks, type_holds: w_type_holds,
+        type_scan_marks: w_type_scan_marks, type_holds: w_type_holds, enum_fixed_cache: w_enum_fixed_cache,
         inline_sites: w_inline_sites, instantiation_stack: w_instantiation_stack,
         dump_ir: ctx.p.dump_ir, region_profile: w_region_profile, ident_table: w_ident_table,
     };
