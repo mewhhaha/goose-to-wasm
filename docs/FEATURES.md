@@ -106,7 +106,7 @@ Next step: all three Blot2 compatibility milestones (lifetime precision, C-host/
 | `parse_uint` and base range checks | `eee6f2d0`, `d5ae5bbd`, `1838de4` | yes | `stdlib_parse_uint_range` passes; `stdlib/std.goose` synced to `1838de4`. |
 | `dictionary` | pin | yes | `stdlib_dictionary_refs` and all pinned dictionary tests pass (`-O0` and `-O2`) |
 | `csv`, `regex`, `exception` | pin, `1838de4` | yes | `stdlib_csv`, `stdlib_regex` (`-O0` and `-O2`, synced to `1838de4`), and `stdlib_exception` (`try<E, Body, Catch, Finally>` via `defer`) all pass (`upstream/stdlib/` 50/50) |
-| `os`, `base64`, `heap`, `vec`, `sort`, `byteset`; checkfree std leaves | pin, `d2de07bf`, `1838de4` | yes | `stdlib/os.goose` (`os::random_bytes`, `os::read_stdin_max`, `os::trim_memory`) synced to `1838de4`; `stdlib_os`, `stdlib_vec`, `stdlib_checkfree`, `checkfree_std_leaves` pass natively and on direct Wasm (`-O0`, `-O2`, `--wasm-memory64`). (`stdlib/json.goose` remains at `2e2bede` pure-Goose `shortest_digits` for `host/wtime` compatibility.) |
+| `os`, `json`, `base64`, `heap`, `vec`, `sort`, `byteset`; checkfree std leaves | pin, `d2de07bf`, `1838de4` | yes | `stdlib/os.goose` (`os::random_bytes`, `os::read_stdin_max`, `os::trim_memory`) and `stdlib/json.goose` (`float_text::shortest_digits` / `gs_f64_digits`, backed by exact ties-to-even Ryū across native C, `host/rust`, `host/wtime`, `host/wtime-aot`, standalone `wtime-aot` `x64`/`aarch64`, `run_wasmtime.py`, and `run_wasm.mjs`) synced to `1838de4`; `stdlib_os`, `stdlib_json` (`1838de4`), `stdlib_vec`, `stdlib_checkfree`, `checkfree_std_leaves` pass natively and on direct Wasm (`-O0`, `-O2`, `--wasm-memory64`). |
 
 ## Checker precision
 

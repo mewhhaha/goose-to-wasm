@@ -67,6 +67,25 @@ host/rust/target/release/goose-wasmtime --fast-jit build/app.wasm \
 - **`--cache PATH`** persists the compiled `.cwasm` beside a mode-specific `.sha256` stamp (`winch-fast-jit:`, `cranelift-fast-jit:`, or bare digest for `OptLevel::Speed`).
 - **`--entry NAME`** invokes an exported function after `_start` (for `--library` modules such as Blot2's `blot_goose_main`).
 
+### Zero-Clang native compilation & `wtime-aot` host (`--target aot-x64|aot-aarch64`, `--runner`)
+
+Goose's direct Wasm pipeline pairs directly with `wtime-aot` to produce static zero-`libc`, zero-Clang Linux executables (including Wasm64 programs and the self-hosted `goosew` compiler itself) or to run arbitrary multi-import Wasm64 modules (including 84-import Blot2) via [`host/wtime-aot`](../host/wtime-aot/README.md):
+
+```sh
+# Emit a standalone Linux x86-64 or AArch64 static ELF directly from Goose (zero Clang/LLVM)
+goosew examples/life.goose --target aot-x64 -O2 -o build/life --run
+goosew examples/life.goose --target aot-aarch64 -O2 -o build/life-arm64
+
+# Choose a specific Wasm runner with --run
+goosew examples/life.goose -O2 --run --runner winch
+goosew examples/life.goose -O2 --run --runner wtime-aot-fast
+goosew examples/life.goose -O2 --run --runner wtime
+
+# Build and run the wtime-aot-host runner (supports 84-import Blot2 & Wasm64)
+cargo build --release --manifest-path host/wtime-aot/Cargo.toml
+host/wtime-aot/target/release/goose-wtime-aot --fast --cache build/app.wtaot build/app.wasm -- arg1 arg2
+```
+
 ### Safe-Rust `wtime` host & legacy C++ Wasmtime host
 
 - For a zero-`unsafe` (`#![forbid(unsafe_code)]`) interpreter/register runner for Wasm32 and Wasm64 modules, see [`host/wtime/README.md`](../host/wtime/README.md).

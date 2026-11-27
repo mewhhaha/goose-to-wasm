@@ -21,7 +21,7 @@ struct DriverOptions {
     emit_runtime_arg: i64 = -1, header_arg: i64 = -1,
     cache_dir_arg: i64 = -1, cache_dir_eq: bool = false,
     region_stats: bool = false, bundled_host: bool = false,
-    target: i64 = 0, target_set: bool = false, optimization: i64 = 0, jobs: i64 = 0, initial_pages: i64 = 16, maximum_pages: i64 = 256, memory64: bool = false,
+    target: i64 = 0, target_set: bool = false, runner: i64 = 0, optimization: i64 = 0, jobs: i64 = 0, initial_pages: i64 = 16, maximum_pages: i64 = 256, memory64: bool = false,
     check: bool = false, parse: bool = false, tokens: bool = false,
     dump: bool = false, dump_ir: bool = false, run: bool = false, debug: bool = false, library: bool = false, shared: bool = false, standalone: bool = false, reachable_program: bool = false, expansion_limit: i64 = 100000, stack_reserve: i64 = 0,
     error_format: i64 = 0, color: i64 = 0,
@@ -139,7 +139,7 @@ fn driver_source_path(p: Program&, path: const u8[:]) -> bool {
 }
 // Refuses an output that would replace a source, an embedded file or another
 // output, before anything is written.
-fn driver_outputs_distinct(p: Program&, output: const u8[:], stats: const u8[:], dependencies: const u8[:], header: const u8[:] = "", runtime: const u8[:] = "", shared_tmp: const u8[:] = "", run_binary: const u8[:] = "") -> bool {
+fn driver_outputs_distinct(p: Program&, output: const u8[:], stats: const u8[:], dependencies: const u8[:], header: const u8[:] = "", runtime: const u8[:] = "", shared_tmp: const u8[:] = "", run_binary: const u8[:] = "", aot_tmp: const u8[:] = "") -> bool {
     if output.len > 0 && driver_source_path(p, output) { driver_error("output would overwrite a source file"); return false; }
     if runtime.len > 0 && (driver_source_path(p, runtime) || output.len > 0 && driver_same_path(runtime, output)) {
         driver_error("runtime output would overwrite a source file or the output"); return false;
@@ -153,6 +153,11 @@ fn driver_outputs_distinct(p: Program&, output: const u8[:], stats: const u8[:],
                               header.len > 0 && driver_same_path(shared_tmp, header)) {
         driver_error("temporary C output would overwrite a source file or another output"); return false;
     }
+    if aot_tmp.len > 0 && (driver_source_path(p, aot_tmp) || output.len > 0 && driver_same_path(aot_tmp, output) ||
+                           runtime.len > 0 && driver_same_path(aot_tmp, runtime) ||
+                           header.len > 0 && driver_same_path(aot_tmp, header)) {
+        driver_error("temporary Wasm output would overwrite a source file or another output"); return false;
+    }
     if run_binary.len > 0 && (driver_source_path(p, run_binary) || output.len > 0 && driver_same_path(run_binary, output) ||
                               runtime.len > 0 && driver_same_path(run_binary, runtime) ||
                               header.len > 0 && driver_same_path(run_binary, header)) {
@@ -162,6 +167,7 @@ fn driver_outputs_distinct(p: Program&, output: const u8[:], stats: const u8[:],
                          runtime.len > 0 && driver_same_path(stats, runtime) ||
                          header.len > 0 && driver_same_path(stats, header) ||
                          shared_tmp.len > 0 && driver_same_path(stats, shared_tmp) ||
+                         aot_tmp.len > 0 && driver_same_path(stats, aot_tmp) ||
                          run_binary.len > 0 && driver_same_path(stats, run_binary)) {
         driver_error("statistics would overwrite a source file or another output"); return false;
     }
@@ -170,6 +176,7 @@ fn driver_outputs_distinct(p: Program&, output: const u8[:], stats: const u8[:],
                                 stats.len > 0 && driver_same_path(dependencies, stats) ||
                                 header.len > 0 && driver_same_path(dependencies, header) ||
                                 shared_tmp.len > 0 && driver_same_path(dependencies, shared_tmp) ||
+                                aot_tmp.len > 0 && driver_same_path(dependencies, aot_tmp) ||
                                 run_binary.len > 0 && driver_same_path(dependencies, run_binary)) {
         driver_error("dependency manifest would overwrite a source file or another output"); return false;
     }
@@ -200,6 +207,24 @@ fn driver_set_jobs(o: DriverOptions&, v: const u8[:]) {
     if !ok || n < 1 || n > 64 { driver_error("--jobs must be auto or a number from 1 to 64"); o.bad = true; return; }
     o.jobs = n;
 }
+fn driver_set_target(o: DriverOptions&, v: const u8[:]) {
+    o.target_set = true;
+    if same_bytes(v, "wasm-direct") { o.target = 0; }
+    else if same_bytes(v, "native") || same_bytes(v, "c") { o.target = 1; }
+    else if same_bytes(v, "aot") || same_bytes(v, "aot-x64") || same_bytes(v, "wtime-aot") || same_bytes(v, "wtime-aot-x64") { o.target = 2; }
+    else if same_bytes(v, "aot-aarch64") || same_bytes(v, "wtime-aot-aarch64") { o.target = 3; }
+    else { driver_error("target must be wasm-direct, native, c, aot-x64 or aot-aarch64"); o.bad = true; }
+}
+fn driver_set_runner(o: DriverOptions&, v: const u8[:]) {
+    if same_bytes(v, "auto") { o.runner = 0; }
+    else if same_bytes(v, "wasmtime") { o.runner = 1; }
+    else if same_bytes(v, "winch") { o.runner = 2; }
+    else if same_bytes(v, "wtime-aot") { o.runner = 3; }
+    else if same_bytes(v, "wtime-aot-fast") { o.runner = 4; }
+    else if same_bytes(v, "wtime") { o.runner = 5; }
+    else if same_bytes(v, "node") { o.runner = 6; }
+    else { driver_error("--runner must be auto, wasmtime, winch, wtime-aot, wtime-aot-fast, wtime or node"); o.bad = true; }
+}
 fn driver_options(o: DriverOptions&, arguments: u8[:][:]) {
     var at = 1;
     while at < arguments.len {
@@ -227,12 +252,14 @@ fn driver_options(o: DriverOptions&, arguments: u8[:][:]) {
         else if driver_starts_with(a, "--color=") { driver_set_color(o, a[8..]); }
         else if driver_starts_with(a, "--jobs=") { driver_set_jobs(o, a[7..]); }
         else if driver_starts_with(a, "-j=") { driver_set_jobs(o, a[3..]); }
+        else if driver_starts_with(a, "--target=") { driver_set_target(o, a[9..]); }
+        else if driver_starts_with(a, "--runner=") { driver_set_runner(o, a[9..]); }
         else if driver_starts_with(a, "--cache-dir=") {
             if a.len == 12 { driver_error("missing option value"); o.bad = true; break; }
             o.cache_dir_arg = at - 1; o.cache_dir_eq = true;
         }
         else if same_bytes(a, "-o") || same_bytes(a, "--stdlib") || same_bytes(a, "--wasm-stats") ||
-                same_bytes(a, "--wasm-deps") || same_bytes(a, "--cc") || same_bytes(a, "--target") || same_bytes(a, "--wasm-region-profile") ||
+                same_bytes(a, "--wasm-deps") || same_bytes(a, "--cc") || same_bytes(a, "--target") || same_bytes(a, "--runner") || same_bytes(a, "--wasm-region-profile") ||
                 same_bytes(a, "--wasm-initial-pages") || same_bytes(a, "--wasm-max-pages") || same_bytes(a, "--expansion-node-limit") ||
                 same_bytes(a, "--stack-reserve") || same_bytes(a, "--emit-runtime") || same_bytes(a, "--header") ||
                 same_bytes(a, "--cache-dir") ||
@@ -251,12 +278,9 @@ fn driver_options(o: DriverOptions&, arguments: u8[:][:]) {
             else if same_bytes(a, "--error-format") { driver_set_error_format(o, v); }
             else if same_bytes(a, "--color") { driver_set_color(o, v); }
             else if same_bytes(a, "--jobs") || same_bytes(a, "-j") { driver_set_jobs(o, v); }
-            else if same_bytes(a, "--target") {
-                o.target_set = true;
-                if same_bytes(v, "wasm-direct") { o.target = 0; }
-                else if same_bytes(v, "native") || same_bytes(v, "c") { o.target = 1; }
-                else { driver_error("target must be wasm-direct, native or c"); o.bad = true; }
-            } else if same_bytes(a, "--stack-reserve") {
+            else if same_bytes(a, "--target") { driver_set_target(o, v); }
+            else if same_bytes(a, "--runner") { driver_set_runner(o, v); }
+            else if same_bytes(a, "--stack-reserve") {
                 // A whole page at least, 64 KB being the largest a platform
                 // uses, and at most the 2^48 bytes of goose_spec.md 10.4.
                 let size, ok = driver_size(v);
@@ -285,7 +309,7 @@ fn driver_options(o: DriverOptions&, arguments: u8[:][:]) {
     }
     // A 64-bit memory may declare up to 2^32 pages (2^48 bytes); an engine
     // has its own cap, V8's being 262,144 pages.
-    var page_limit = 65536; if o.memory64 && o.target == 0 { page_limit = 4294967296; }
+    var page_limit = 65536; if o.memory64 && o.target != 1 { page_limit = 4294967296; }
     if o.initial_pages < 1 || o.maximum_pages < o.initial_pages || o.maximum_pages > page_limit {
         driver_error("invalid memory page limits"); o.bad = true;
     }
@@ -665,9 +689,77 @@ fn driver_exec(command: u8[>..]&, win: bool = false) -> i64 {
     if (code & 127) != 0 { return 128 + (code & 127); }
     return (code >> 8) & 255;
 }
+fn driver_has_file(path: const u8[:]) -> bool {
+    return file_exists(path) && !is_dir(path);
+}
+fn driver_find_in_path(out: u8[>..]&, name: const u8[:], win: bool) -> bool {
+    var path_env: u8[>..] = [];
+    if !env("PATH", path_env) || path_env.len == 0 { return false; }
+    let sep: u8 = if win { ';' } else { ':' };
+    let slash: u8 = if win { '\\' } else { '/' };
+    var pos: i64 = 0;
+    var cand: u8[>..] = [];
+    while pos <= path_env.len {
+        var end = pos;
+        while end < path_env.len && path_env[end] != sep { end += 1; }
+        if end > pos {
+            cand.clear();
+            cand.append(path_env[pos..end]);
+            if cand[cand.len - 1] != '/' && cand[cand.len - 1] != '\\' { cand.push(slash); }
+            cand.append(name);
+            if driver_has_file(cand) { out.append(cand); return true; }
+        }
+        pos = end + 1;
+    }
+    return false;
+}
+fn driver_try_rel(out: u8[>..]&, base: const u8[:], rel: const u8[:]) -> bool {
+    if rel.len == 0 { return false; }
+    var cand: u8[>..] = [];
+    cand.append(base);
+    cand.append(rel);
+    if driver_has_file(cand) { out.append(cand); return true; }
+    return false;
+}
+fn driver_find_tool(out: u8[>..]&, env_var: const u8[:], name: const u8[:], repo_rel: const u8[:], win: bool) -> bool {
+    if env_var.len > 0 && env(env_var, out) && out.len > 0 { return true; }
+    out.clear();
+    var rdir: u8[>..] = [];
+    let has_rdir = resource_dir(rdir);
+    if has_rdir {
+        if driver_try_rel(out, rdir, name) { return true; }
+        if repo_rel.len > 0 {
+            var p2: u8[>..] = []; p2.append(rdir); p2.append("../../");
+            if driver_try_rel(out, p2, repo_rel) { return true; }
+            var p3: u8[>..] = []; p3.append(rdir); p3.append("../../../");
+            if driver_try_rel(out, p3, repo_rel) { return true; }
+            var p4: u8[>..] = []; p4.append(rdir); p4.append("../../../../");
+            if driver_try_rel(out, p4, repo_rel) { return true; }
+        }
+    }
+    var bbin: u8[>..] = []; bbin.append("build/bin/"); bbin.append(name);
+    if driver_has_file(bbin) { out.append(bbin); return true; }
+    if repo_rel.len > 0 && driver_has_file(repo_rel) { out.append(repo_rel); return true; }
+    if driver_find_in_path(out, name, win) { return true; }
+    return false;
+}
+fn driver_quote_exec(command: u8[>..]&, binary: const u8[:], win: bool) {
+    if win {
+        driver_quote(command, binary, true);
+        return;
+    }
+    var has_sep = false;
+    for ch in binary { if ch == '/' { has_sep = true; break; } }
+    if !has_sep {
+        var exec_path: u8[>..] = []; exec_path.append("./"); exec_path.append(binary);
+        driver_quote(command, exec_path);
+    } else {
+        driver_quote(command, binary);
+    }
+}
 let GOOSE_TO_WASM_VERSION = "v2026.4-6";
 fn driver_help() {
-    write_stdout("goose-to-wasm "); write_stdout(GOOSE_TO_WASM_VERSION); write_stdout(" — fast Goose compiler (direct WebAssembly & native C)\nUsage: goosew source.goose [--target wasm-direct|native|c] -o output [-O0|-O1|-O2]\n       goosew guide [topic|--cheatsheet|--list]\n  --check --parse --tokens --dump --debug --stdlib DIR --wasm-stats FILE --wasm-deps FILE\n  --cache-dir DIR           Content-addressed incremental build cache directory.\n  --jobs N|auto, -j N       Worker thread count for parallel compilation (default auto).\n  --error-format text|json  Diagnostic output format (default text).\n  --color auto|always|never Colorize text diagnostics (default auto; respects NO_COLOR).\n  --emit-runtime FILE  Write the standalone native C runtime unit and exit.\n  --header FILE        Emit a C host header (goose_init, goose_exit, exports) and separate-runtime C.\n  --shared             Build or emit a C shared library with exported symbols.\n  --standalone         Embed the native C runtime even when emitting with --header.\n  --wasm-memory64      Target WebAssembly memory64.\n  --wasm-bundled-host  Target the bundled host implementations for recognized imports.\n  --reachable-program  Check only functions a root reaches, and the signatures of the rest.\n  --expansion-node-limit N  Total const for expansion size (default 100000).\n  --stack-reserve SIZE  Address space reserved per data stack in a native program, from 64K to 256T\n                        with a K, M, G or T suffix (default 2G).\n  --run                Build native C with --cc and execute, or execute Wasm with GOOSE_WASM_HOST.\n  guide [topic]        Print Goose language & goosew CLI cheatsheet (--cheatsheet, --list).\n  --version            Print compiler version.\n");
+    write_stdout("goose-to-wasm "); write_stdout(GOOSE_TO_WASM_VERSION); write_stdout(" — fast Goose compiler (direct WebAssembly, wtime-aot & native C)\nUsage: goosew source.goose [--target wasm-direct|aot-x64|aot-aarch64|native|c] -o output [-O0|-O1|-O2]\n       goosew guide [topic|--cheatsheet|--list]\n  --check --parse --tokens --dump --debug --stdlib DIR --wasm-stats FILE --wasm-deps FILE\n  --cache-dir DIR           Content-addressed incremental build cache directory.\n  --jobs N|auto, -j N       Worker thread count for parallel compilation (default auto).\n  --error-format text|json  Diagnostic output format (default text).\n  --color auto|always|never Colorize text diagnostics (default auto; respects NO_COLOR).\n  --emit-runtime FILE  Write the standalone native C runtime unit and exit.\n  --header FILE        Emit a C host header (goose_init, goose_exit, exports) and separate-runtime C.\n  --shared             Build or emit a C shared library with exported symbols.\n  --standalone         Embed the native C runtime even when emitting with --header.\n  --wasm-memory64      Target WebAssembly memory64.\n  --wasm-bundled-host  Target the bundled host implementations for recognized imports.\n  --reachable-program  Check only functions a root reaches, and the signatures of the rest.\n  --expansion-node-limit N  Total const for expansion size (default 100000).\n  --stack-reserve SIZE  Address space reserved per data stack in a native program, from 64K to 256T\n                        with a K, M, G or T suffix (default 2G).\n  --runner MODE        Wasm runner for --run: auto, wasmtime, winch, wtime-aot, wtime-aot-fast, wtime, node.\n  --run                Build & run native C, run wtime-aot executable, or execute Wasm with --runner.\n  guide [topic]        Print Goose language & goosew CLI cheatsheet (--cheatsheet, --list).\n  --version            Print compiler version.\n");
 }
 fn driver_main() -> i64 {
     // Every path lives in one byte table: each array holds its own storage region.
@@ -691,7 +783,9 @@ fn driver_main() -> i64 {
     let output_start = paths.len;
     if o.output_arg >= 0 { paths.append(arguments[o.output_arg]); }
     if paths.len == output_start {
-        if o.target == 0 { paths.append("out.wasm"); } else { paths.append("out.c"); }
+        if o.target == 0 { paths.append("out.wasm"); }
+        else if o.target == 1 { paths.append("out.c"); }
+        else { paths.append("out"); }
     }
     let output_end = paths.len;
     let header_start = paths.len; if o.header_arg >= 0 { paths.append(arguments[o.header_arg]); } let header_end = paths.len;
@@ -753,7 +847,7 @@ fn driver_main() -> i64 {
     var cache_mode: i64 = if o.check { 2 } else { o.target };
     var cache_key: u8[>..] = [];
     var compiler_hex: u8[>..] = [];
-    if cache_end > cache_start && !o.tokens && !o.parse && !o.dump && !o.dump_ir && !o.run &&
+    if cache_end > cache_start && o.target <= 1 && !o.tokens && !o.parse && !o.dump && !o.dump_ir && !o.run &&
        !o.shared && o.header_arg < 0 && o.emit_runtime_arg < 0 && dependency_end == dependency_start {
         let argv0: const u8[:] = if arguments.len > 0 { arguments[0] } else { "" };
         if cache_compiler_identity(argv0, win, compiler_hex) {
@@ -847,17 +941,21 @@ fn driver_main() -> i64 {
     optimize_program(p); let optimized = clock_ns();
     if p.diagnostics.len > 0 { driver_diagnostics(p, o); return 1; }
     var output: u8[>..] = [];
-    if o.target == 0 { generate_wasm(p, output); } else { generate_c(p, output); }
+    if o.target == 1 { generate_c(p, output); } else { generate_wasm(p, output); }
     let generated = clock_ns();
     if p.diagnostics.len > 0 { driver_diagnostics(p, o); return 1; }
     var c_path: u8[>..] = [];
     if link_shared { c_path.append(paths[output_start..output_end]); c_path.append(".goose.c"); }
+    var aot_wasm_path: u8[>..] = [];
+    if o.target == 2 || o.target == 3 {
+        aot_wasm_path.append(paths[output_start..output_end]); aot_wasm_path.append(".goose.wasm");
+    }
     var run_binary: u8[>..] = [];
     if o.run && !link_shared && o.target == 1 {
         run_binary.append(paths[output_start..output_end]);
         if win { run_binary.append(".exe"); } else { run_binary.append(".bin"); }
     }
-    if !driver_outputs_distinct(p, paths[output_start..output_end], paths[stats_start..stats_end], paths[dependency_start..dependency_end], paths[header_start..header_end], paths[runtime_start..runtime_end], c_path, run_binary) { return 1; }
+    if !driver_outputs_distinct(p, paths[output_start..output_end], paths[stats_start..stats_end], paths[dependency_start..dependency_end], paths[header_start..header_end], paths[runtime_start..runtime_end], c_path, run_binary, aot_wasm_path) { return 1; }
     if runtime_end > runtime_start {
         var runtime_out: u8[>..] = [];
         generate_c_runtime(runtime_out);
@@ -882,6 +980,23 @@ fn driver_main() -> i64 {
         driver_quote(shared_cmd, paths[output_start..output_end], win);
         let code = driver_exec(shared_cmd, win);
         delete_file(c_path);
+        if code != 0 { return code; }
+    } else if o.target == 2 || o.target == 3 {
+        if !write_file(aot_wasm_path, output) { driver_error("cannot write temporary Wasm output"); return 1; }
+        var aot_bin: u8[>..] = [];
+        if !driver_find_tool(aot_bin, "WTIME_AOT_BIN", "wtime-aot", "../wtime/tools/wtime-aot/target/release/wtime-aot", win) {
+            delete_file(aot_wasm_path);
+            driver_error("wtime-aot not found; install wtime-aot, set WTIME_AOT_BIN, or place it beside goosew");
+            return 1;
+        }
+        var aot_cmd: u8[>..] = [];
+        driver_quote(aot_cmd, aot_bin, win);
+        if o.target == 3 { aot_cmd.append(" --backend aarch64 "); } else { aot_cmd.append(" --backend x64 "); }
+        driver_quote(aot_cmd, aot_wasm_path, win);
+        aot_cmd.append(" -o ");
+        driver_quote(aot_cmd, paths[output_start..output_end], win);
+        let code = driver_exec(aot_cmd, win);
+        delete_file(aot_wasm_path);
         if code != 0 { return code; }
     } else {
         if !write_file(paths[output_start..output_end], output) { driver_error("cannot write output"); return 1; }
@@ -922,32 +1037,63 @@ fn driver_main() -> i64 {
         }
         let code = driver_exec(command, win); if code != 0 { return code; }
         command.clear();
-        if win {
-            driver_quote(command, run_binary, true);
-        } else {
-            var has_sep = false;
-            for ch in run_binary { if ch == '/' { has_sep = true; break; } }
-            if !has_sep {
-                var exec_path: u8[>..] = []; exec_path.append("./"); exec_path.append(run_binary);
-                driver_quote(command, exec_path);
-            } else {
-                driver_quote(command, run_binary);
-            }
+        driver_quote_exec(command, run_binary, win);
+    } else if o.target == 2 || o.target == 3 {
+        driver_quote_exec(command, paths[output_start..output_end], win);
+        command.append(" --allow-files .");
+        if o.memory64 && o.maximum_pages > 65536 {
+            command.append(" --memory-limit-pages ");
+            driver_integer(command, o.maximum_pages);
         }
     } else {
         var host: u8[>..] = [];
-        if env("GOOSE_WASM_HOST", host) && host.len > 0 {
-            driver_quote(command, host, win); command.push(' '); driver_quote(command, paths[output_start..output_end], win);
-        } else if file_exists("build/bin/goose-wasmtime") {
-            driver_quote(command, "build/bin/goose-wasmtime", win); command.push(' '); driver_quote(command, paths[output_start..output_end], win);
-        } else if file_exists("host/rust/target/release/goose-wasmtime") {
-            driver_quote(command, "host/rust/target/release/goose-wasmtime", win); command.push(' '); driver_quote(command, paths[output_start..output_end], win);
-        } else if file_exists("scripts/run_wasm.mjs") {
-            driver_quote(command, "node", win); command.push(' '); driver_quote(command, "scripts/run_wasm.mjs", win);
-            command.push(' '); driver_quote(command, paths[output_start..output_end], win);
+        var script: u8[>..] = [];
+        let wasm_out = paths[output_start..output_end];
+        if o.runner == 1 || o.runner == 2 {
+            if !driver_find_tool(host, "", "goose-wasmtime", "host/rust/target/release/goose-wasmtime", win) {
+                driver_error("goose-wasmtime not found for --runner wasmtime|winch; build host/rust or place goose-wasmtime on PATH");
+                return 1;
+            }
+            driver_quote(command, host, win);
+            if o.runner == 2 { command.append(" --fast-jit"); }
+            command.push(' '); driver_quote(command, wasm_out, win);
+        } else if o.runner == 3 || o.runner == 4 {
+            if !driver_find_tool(host, "", "goose-wtime-aot", "host/wtime-aot/target/release/goose-wtime-aot", win) {
+                driver_error("goose-wtime-aot not found for --runner wtime-aot|wtime-aot-fast; build host/wtime-aot or place goose-wtime-aot on PATH");
+                return 1;
+            }
+            driver_quote(command, host, win);
+            if o.runner == 4 { command.append(" --fast"); }
+            command.push(' '); driver_quote(command, wasm_out, win);
+        } else if o.runner == 5 {
+            if !driver_find_tool(host, "", "goose-wtime", "host/wtime/target/release/goose-wtime", win) {
+                driver_error("goose-wtime not found for --runner wtime; build host/wtime or place goose-wtime on PATH");
+                return 1;
+            }
+            driver_quote(command, host, win); command.append(" --execution register "); driver_quote(command, wasm_out, win);
+        } else if o.runner == 6 {
+            if !driver_find_tool(script, "", "run_wasm.mjs", "scripts/run_wasm.mjs", win) {
+                driver_error("scripts/run_wasm.mjs not found for --runner node");
+                return 1;
+            }
+            driver_quote(command, "node", win); command.push(' '); driver_quote(command, script, win);
+            command.push(' '); driver_quote(command, wasm_out, win);
         } else {
-            driver_error("no Wasm runner found for --run; set GOOSE_WASM_HOST or pass --target c --run");
-            return 1;
+            if env("GOOSE_WASM_HOST", host) && host.len > 0 {
+                driver_quote(command, host, win); command.push(' '); driver_quote(command, wasm_out, win);
+            } else if driver_find_tool(host, "", "goose-wasmtime", "host/rust/target/release/goose-wasmtime", win) {
+                driver_quote(command, host, win); command.push(' '); driver_quote(command, wasm_out, win);
+            } else if driver_find_tool(host, "", "goose-wtime-aot", "host/wtime-aot/target/release/goose-wtime-aot", win) {
+                driver_quote(command, host, win); command.push(' '); driver_quote(command, wasm_out, win);
+            } else if driver_find_tool(host, "", "goose-wtime", "host/wtime/target/release/goose-wtime", win) {
+                driver_quote(command, host, win); command.append(" --execution register "); driver_quote(command, wasm_out, win);
+            } else if driver_find_tool(script, "", "run_wasm.mjs", "scripts/run_wasm.mjs", win) {
+                driver_quote(command, "node", win); command.push(' '); driver_quote(command, script, win);
+                command.push(' '); driver_quote(command, wasm_out, win);
+            } else {
+                driver_error("no Wasm runner found for --run; set GOOSE_WASM_HOST, pass --runner, or pass --target c --run");
+                return 1;
+            }
         }
     }
     return driver_exec(command, win);

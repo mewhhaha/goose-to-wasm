@@ -11,6 +11,7 @@ ROOT = Path(__file__).resolve().parents[1]
 COMPILER = Path(os.environ.get("GOOSE_COMPILER", ROOT / "build/bin/goosew"))
 STDLIB = ROOT / "stdlib"
 WTIME_HOST = ROOT / "host/wtime/target/release/goose-wtime"
+WTIME_AOT_HOST = ROOT / "host/wtime-aot/target/release/goose-wtime-aot"
 RUST_HOST = ROOT / "host/rust/target/release/goose-wasmtime"
 
 
@@ -275,6 +276,148 @@ class WtimeHostExecutionTests(unittest.TestCase):
             )
             self.assertEqual(run.returncode, 7, f"memory64={memory64}: {run.stderr}")
             self.assertEqual(run.stdout, "12.5 true\n")
+
+    def test_f64_digits_random_bytes_stdin_max_and_f32_math(self):
+        code = (
+            "import json;\n"
+            "import math;\n"
+            "import os;\n"
+            "fn main() {\n"
+            "    var out: u8[>..] = [];\n"
+            "    json::format_number(out, 1.5e300);\n"
+            '    out.push(\' \');\n'
+            "    json::format_number(out, 5e-324);\n"
+            "    var chunk1: u8[>..] = [];\n"
+            "    let ok1 = read_stdin(chunk1, 4);\n"
+            "    var chunk2: u8[>..] = [];\n"
+            "    let ok2 = read_stdin(chunk2, 10);\n"
+            "    var chunk3: u8[>..] = [];\n"
+            "    let ok3 = read_stdin(chunk3, 4);\n"
+            "    var rnd: u8[16] = [0; 16];\n"
+            "    let r_ok = random_bytes(rnd[..]);\n"
+            "    var nz = false;\n"
+            "    for b in rnd { if b != 0 { nz = true; } }\n"
+            "    let s = hypot(3.0 as f32, 4.0 as f32) + cbrt(27.0 as f32) + exp2(3.0 as f32)\n"
+            "          + expm1(0.0 as f32) + log1p(0.0 as f32) + sinh(0.0 as f32)\n"
+            "          + cosh(0.0 as f32) + tanh(0.0 as f32);\n"
+            '    print(out, "|", ok1, ":", chunk1, "|", ok2, ":", chunk2, "|", ok3, "|", r_ok && nz, "|", s);\n'
+            "}\n"
+        )
+        for memory64 in (False, True):
+            wasm = self._compile(code, memory64=memory64)
+            run = subprocess.run(
+                [str(WTIME_HOST), str(wasm)],
+                input="abcdef",
+                capture_output=True,
+                text=True,
+            )
+            self.assertEqual(run.returncode, 0, f"memory64={memory64}: {run.stderr}")
+            self.assertEqual(run.stdout, "1.5e300 5e-324|true:abcd|true:ef|false|true|17.0\n")
+
+
+@unittest.skipUnless(COMPILER.is_file(), "bootstrap the compiler first")
+@unittest.skipUnless(WTIME_AOT_HOST.is_file(), "build host/wtime-aot first")
+class WtimeAotHostExecutionTests(unittest.TestCase):
+    def setUp(self):
+        directory = tempfile.TemporaryDirectory()
+        self.addCleanup(directory.cleanup)
+        self.work = Path(directory.name)
+
+    def _compile(self, code: str, *, memory64: bool = False, library: bool = False) -> Path:
+        src = self.work / ("aot64.goose" if memory64 else "aot32.goose")
+        out = self.work / ("aot64.wasm" if memory64 else "aot32.wasm")
+        src.write_text(code)
+        cmd = [
+            str(COMPILER), str(src),
+            "--stdlib", str(STDLIB),
+            "--target", "wasm-direct",
+            "-O2", "-o", str(out),
+        ]
+        if memory64:
+            cmd.append("--wasm-memory64")
+        if library:
+            cmd.extend(["--library", "--reachable-program"])
+        res = subprocess.run(cmd, stdin=subprocess.DEVNULL, capture_output=True, text=True)
+        self.assertEqual(res.returncode, 0, res.stderr)
+        return out
+
+    def test_wasm32_and_wasm64_fast_cache_and_timing(self):
+        code = (
+            "import json;\n"
+            "import math;\n"
+            "import os;\n"
+            "fn main() {\n"
+            "    var out: u8[>..] = [];\n"
+            "    json::format_number(out, 1.5e300);\n"
+            "    out.push(' ');\n"
+            "    json::format_number(out, 5e-324);\n"
+            "    var chunk: u8[>..] = [];\n"
+            "    let ok = read_stdin(chunk, 4);\n"
+            "    var rnd: u8[16] = [0; 16];\n"
+            "    let r_ok = random_bytes(rnd[..]);\n"
+            "    var nz = false;\n"
+            "    for b in rnd { if b != 0 { nz = true; } }\n"
+            "    let s = hypot(3.0 as f32, 4.0 as f32) + cbrt(27.0 as f32);\n"
+            '    print(out, "|", ok, ":", chunk, "|", r_ok && nz, "|", s);\n'
+            "}\n"
+        )
+        expected = "1.5e300 5e-324|true:abcd|true|8.0\n"
+        for memory64 in (False, True):
+            wasm = self._compile(code, memory64=memory64)
+            cache = self.work / f"m{int(memory64)}.wtaot"
+            for label, extra in (
+                ("fast", ["--fast"]),
+                ("o2-cold", ["--cache", str(cache)]),
+                ("o2-warm", ["--cache", str(cache)]),
+            ):
+                timing = self.work / f"timing_{int(memory64)}_{label}.json"
+                run = subprocess.run(
+                    [str(WTIME_AOT_HOST), *extra, "--timing-json", str(timing), str(wasm)],
+                    input="abcdef",
+                    capture_output=True,
+                    text=True,
+                )
+                self.assertEqual(run.returncode, 0, f"memory64={memory64} {label}: {run.stderr}")
+                self.assertEqual(run.stdout, expected)
+                meta = json.loads(timing.read_text())
+                self.assertEqual(meta["engine"], "wtime-aot-host")
+                self.assertGreater(meta["compile_ns"], 0)
+                self.assertGreater(meta["run_ns"], 0)
+            self.assertTrue(cache.is_file())
+
+    def test_entry_and_blot_externs_wasm64(self):
+        payload = self.work / "aot-probe.txt"
+        code = (
+            'extern fn argument_count() -> i64 = "blot_argument_count";\n'
+            'extern fn argument_size(index: i64) -> i64 = "blot_argument_size";\n'
+            'extern fn argument_copy(index: i64, out: u8&, capacity: u64) -> i64 = "blot_argument_copy";\n'
+            'extern fn open_write(path: const u8&, exclusive: bool) -> i32 = "blot_open_write";\n'
+            'extern fn write_fd(fd: i32, first: const u8&, count: u64) -> i64 = "blot_write";\n'
+            'extern fn close_fd(fd: i32) -> i32 = "blot_close";\n'
+            'export "probe_main" fn probe_main() -> i32 {\n'
+            "    if argument_count() < 2 { return 2; }\n"
+            "    let n = argument_size(1);\n"
+            "    var path: u8[>..] = []; path.resize(n + 1, 0);\n"
+            "    let _ = argument_copy(1, path[0], n as u64);\n"
+            "    let fd = open_write(path[0], false);\n"
+            "    if fd < 0 { return 3; }\n"
+            '    let msg: u8[>..] = "hello-wtime-aot";\n'
+            "    let _ = write_fd(fd, msg[0], msg.len as u64);\n"
+            "    let _ = close_fd(fd);\n"
+            "    print(msg);\n"
+            "    return 0;\n"
+            "}\n"
+        )
+        wasm = self._compile(code, memory64=True, library=True)
+        run = subprocess.run(
+            [str(WTIME_AOT_HOST), "--fast", "--entry", "probe_main", str(wasm), "--", str(payload)],
+            stdin=subprocess.DEVNULL,
+            capture_output=True,
+            text=True,
+        )
+        self.assertEqual(run.returncode, 0, run.stderr)
+        self.assertEqual(run.stdout.strip(), "hello-wtime-aot")
+        self.assertEqual(payload.read_text(), "hello-wtime-aot")
 
 
 if __name__ == "__main__":

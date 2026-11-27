@@ -22,7 +22,7 @@ import time
 
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_CACHE = ROOT / "build" / "wtime-aot-cache"
-BACKENDS = ("rust", "x64")
+BACKENDS = ("rust", "x64", "aarch64")
 
 
 def find_wtime_aot(explicit: Path | str | None = None) -> Path:
@@ -192,7 +192,7 @@ def binary_command(
 def main() -> int:
     parser = argparse.ArgumentParser(
         description=__doc__,
-        usage="%(prog)s module.wasm [--backend rust|x64] [--cache DIR] [--timing-json PATH] [-- program arguments]",
+        usage="%(prog)s module.wasm [--backend rust|x64|aarch64] [--cache DIR] [--timing-json PATH] [-- program arguments]",
     )
     parser.add_argument("module", type=Path)
     parser.add_argument("--backend", choices=BACKENDS, default="rust")

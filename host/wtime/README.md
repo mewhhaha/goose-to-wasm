@@ -22,7 +22,7 @@ The binary is `host/wtime/target/release/goose-wtime`.
 ```sh
 goose-wtime module.wasm [--entry NAME] [--execution decoded|compact|register] \
             [--max-instructions N] [--max-memory-mb N] [--timing-json PATH] \
-            [-- program arguments...]
+            [--worker | -- program arguments...]
 ```
 
 - `--entry NAME`: invoke exported function `NAME` after `_start` (for example `--entry blot_goose_main` for Blot2 compiled with `--library --reachable-program`).
@@ -30,6 +30,7 @@ goose-wtime module.wasm [--entry NAME] [--execution decoded|compact|register] \
 - `--max-instructions`: instruction budget passed to `wtime_types::ResourceLimits` (default `100_000_000`; use e.g. `4_000_000_000` for large compiler modules like Blot2).
 - `--max-memory-mb`: linear memory cap in MiB (default `16384`).
 - `--timing-json PATH`: write `{"engine":"wtime","compile_ns":...,"instantiate_ns":...,"run_ns":...}` to `PATH`.
+- `--worker`: decode and validate the module once, then run sequential requests from a binary protocol on stdin and stdout. Each request supplies an absolute working directory and arguments and gets a fresh store, instance, and host state. Guest stdin is empty, and the reply includes exit status, stdout, and stderr. The protocol is documented in [worker.rs](src/worker.rs).
 
 ## Example: running Blot2 Wasm64 on `wtime`
 

@@ -1459,9 +1459,17 @@ fn main() {
             cwd=ROOT, stdin=subprocess.DEVNULL, capture_output=True, text=True, timeout=60,
         )
         self.assertEqual((ran.returncode, ran.stdout), (0, "sum=140\n"), ran.stderr)
-        missing_host = subprocess.run(
+        external_cwd = subprocess.run(
             list(map(str, [COMPILER, ROOT / "examples/squares.goose", "--stdlib", SOURCE_STDLIB, "--run"])),
             cwd=self.work, stdin=subprocess.DEVNULL, capture_output=True, text=True, timeout=60,
+        )
+        self.assertEqual((external_cwd.returncode, external_cwd.stdout), (0, "sum=140\n"), external_cwd.stderr)
+        isolated = self.work / "isolated_goosew"
+        isolated.write_bytes(COMPILER.read_bytes())
+        isolated.chmod(0o755)
+        missing_host = subprocess.run(
+            list(map(str, [isolated, ROOT / "examples/squares.goose", "--stdlib", SOURCE_STDLIB, "--run"])),
+            cwd=self.work, env={"PATH": ""}, stdin=subprocess.DEVNULL, capture_output=True, text=True, timeout=60,
         )
         self.assertEqual(missing_host.returncode, 1)
         self.assertIn("GOOSE_WASM_HOST", missing_host.stderr)
@@ -2393,6 +2401,119 @@ class GuideCommand(unittest.TestCase):
             (work / "guide.goose").write_text("fn main() { print(42); }\n")
             res = self.run_goosew("guide.goose", "--stdlib", SOURCE_STDLIB, "--check", cwd=work)
             self.assertEqual((res.returncode, res.stderr), (0, ""))
+
+
+@unittest.skipUnless(COMPILER.is_file(), "bootstrap the compiler first")
+class AotAndRunnerCliTests(unittest.TestCase):
+    """CLI --target aot-x64|aot-aarch64 and --runner selection."""
+
+    def setUp(self):
+        directory = tempfile.TemporaryDirectory()
+        self.addCleanup(directory.cleanup)
+        self.work = Path(directory.name)
+        self.src = self.work / "prog.goose"
+        self.src.write_text(
+            "fn main() {\n"
+            "    var s: i64 = 0;\n"
+            "    for i in 1..11 { s += i * i; }\n"
+            "    print(s);\n"
+            "}\n"
+        )
+
+    def test_invalid_target_and_runner_rejected(self):
+        bad_t = subprocess.run(
+            [str(COMPILER), str(self.src), "--stdlib", str(SOURCE_STDLIB), "--target", "bogus"],
+            stdin=subprocess.DEVNULL, capture_output=True, text=True,
+        )
+        self.assertEqual(bad_t.returncode, 2)
+        self.assertIn("aot-x64", bad_t.stderr)
+
+        bad_r = subprocess.run(
+            [str(COMPILER), str(self.src), "--stdlib", str(SOURCE_STDLIB), "--runner=bogus"],
+            stdin=subprocess.DEVNULL, capture_output=True, text=True,
+        )
+        self.assertEqual(bad_r.returncode, 2)
+        self.assertIn("wtime-aot", bad_r.stderr)
+
+    def test_runner_modes_with_wasm_direct(self):
+        available = [
+            ("winch", ROOT / "host/rust/target/release/goose-wasmtime"),
+            ("wasmtime", ROOT / "host/rust/target/release/goose-wasmtime"),
+            ("wtime-aot", ROOT / "host/wtime-aot/target/release/goose-wtime-aot"),
+            ("wtime-aot-fast", ROOT / "host/wtime-aot/target/release/goose-wtime-aot"),
+            ("wtime", ROOT / "host/wtime/target/release/goose-wtime"),
+        ]
+        for mode, binary in available:
+            if not binary.is_file():
+                continue
+            with self.subTest(runner=mode):
+                out = self.work / f"prog_{mode}.wasm"
+                res = subprocess.run(
+                    [
+                        str(COMPILER), str(self.src), "--stdlib", str(SOURCE_STDLIB),
+                        "-O2", "-o", str(out), "--run", "--runner", mode,
+                    ],
+                    cwd=self.work,
+                    stdin=subprocess.DEVNULL,
+                    capture_output=True,
+                    text=True,
+                    timeout=30,
+                )
+                self.assertEqual((res.returncode, res.stdout.strip()), (0, "385"), res.stderr)
+
+        # Node runner from a temp cwd (verifies scripts/run_wasm.mjs lookup via resource_dir)
+        out_node = self.work / "prog_node.wasm"
+        res_node = subprocess.run(
+            [
+                str(COMPILER), str(self.src), "--stdlib", str(SOURCE_STDLIB),
+                "-O2", "-o", str(out_node), "--run", "--runner=node",
+            ],
+            cwd=self.work,
+            stdin=subprocess.DEVNULL,
+            capture_output=True,
+            text=True,
+            timeout=30,
+        )
+        self.assertEqual((res_node.returncode, res_node.stdout.strip()), (0, "385"), res_node.stderr)
+
+    def test_aot_x64_and_aarch64_targets(self):
+        aot_bin = ROOT.parent / "wtime/tools/wtime-aot/target/release/wtime-aot"
+        if not aot_bin.is_file():
+            self.skipTest("wtime-aot binary not built")
+        # Build + run x64 static ELF for both wasm32 and wasm64
+        for mem64, name in ((False, "prog_x64_32"), (True, "prog_x64_64")):
+            out = self.work / name
+            cmd = [
+                str(COMPILER), str(self.src), "--stdlib", str(SOURCE_STDLIB),
+                "--target", "aot-x64", "-O2", "-o", str(out), "--run",
+            ]
+            if mem64:
+                cmd.append("--wasm-memory64")
+            res = subprocess.run(
+                cmd, cwd=self.work, stdin=subprocess.DEVNULL,
+                capture_output=True, text=True, timeout=30,
+            )
+            self.assertEqual((res.returncode, res.stdout.strip()), (0, "385"), res.stderr)
+            hdr = out.read_bytes()[:20]
+            self.assertEqual(hdr[:4], b"\x7fELF")
+            self.assertEqual(int.from_bytes(hdr[18:20], "little"), 62)  # EM_X86_64
+            self.assertFalse((self.work / f"{name}.goose.wasm").exists())
+
+        # Cross-compile AArch64 static ELF directly from Goose (zero Clang)
+        arm_out = self.work / "prog_arm64"
+        res_arm = subprocess.run(
+            [
+                str(COMPILER), str(self.src), "--stdlib", str(SOURCE_STDLIB),
+                "--target=aot-aarch64", "--wasm-memory64", "-O2", "-o", str(arm_out),
+            ],
+            cwd=self.work, stdin=subprocess.DEVNULL,
+            capture_output=True, text=True, timeout=30,
+        )
+        self.assertEqual(res_arm.returncode, 0, res_arm.stderr)
+        hdr = arm_out.read_bytes()[:20]
+        self.assertEqual(hdr[:4], b"\x7fELF")
+        self.assertEqual(int.from_bytes(hdr[18:20], "little"), 183)  # EM_AARCH64
+        self.assertFalse((self.work / "prog_arm64.goose.wasm").exists())
 
 
 if __name__ == "__main__":

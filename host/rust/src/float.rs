@@ -24,7 +24,7 @@ pub fn f64_text(value: f64) -> String {
 /// way between two such texts: Rust takes the upper one, Python the one
 /// whose last digit is even if both read back. That case is found exactly
 /// and decided Python's way.
-fn f64_shortest(magnitude: f64) -> (u64, i32) {
+pub fn f64_shortest(magnitude: f64) -> (u64, i32) {
     // `{:e}` gives d[.ddd]e[-]x.
     let scientific = format!("{magnitude:e}");
     let (mantissa, exponent) = scientific.split_once('e').expect("scientific text has an exponent");

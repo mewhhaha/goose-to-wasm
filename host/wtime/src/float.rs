@@ -18,7 +18,7 @@ pub fn f64_text(value: f64) -> String {
 
 /// The shortest digits that read back as a positive finite f64, as an
 /// integer, and the decimal exponent of the first of them.
-fn f64_shortest(magnitude: f64) -> (u64, i32) {
+pub fn f64_shortest(magnitude: f64) -> (u64, i32) {
     let scientific = format!("{magnitude:e}");
     let (mantissa, exponent) = scientific.split_once('e').expect("scientific text has an exponent");
     let exponent: i32 = exponent.parse().expect("scientific text has a decimal exponent");

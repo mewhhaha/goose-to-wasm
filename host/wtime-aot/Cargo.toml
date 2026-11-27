@@ -1,0 +1,9 @@
+[package]
+name = "goose-wtime-aot"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.99"
+description = "Direct Goose Wasm32/Wasm64 and Blot2 Wasm64 runner backed by wtime-aot StoreCdylib x86-64 AOT (zero Clang/LLVM)"
+
+[dependencies]
+wtime-aot-host = { path = "../../../wtime/tools/wtime-aot/host" }

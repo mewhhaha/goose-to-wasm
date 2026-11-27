@@ -693,14 +693,10 @@ fn f64_digits(caller: &mut Caller<'_, Host>, values: &[Val]) -> Result<Out> {
     if !x.is_finite() || x == 0.0 {
         return Ok(Out::Integer(0));
     }
-    let formatted = format!("{:e}", x.abs());
-    let (mantissa, exp_text) = formatted.split_once('e').unwrap_or((&formatted, "0"));
-    let dot = mantissa.find('.').unwrap_or(mantissa.len());
-    let raw: String = mantissa.chars().filter(|&c| c != '.').collect();
-    let leading = raw.bytes().take_while(|&b| b == b'0').count();
-    let exp: i64 = exp_text.parse().unwrap_or(0);
-    let point = exp + (dot as i64) - (leading as i64);
-    let trimmed = raw[leading..].trim_end_matches('0').as_bytes();
+    let (digits_num, exp) = crate::float::f64_shortest(x.abs());
+    let digits_str = digits_num.to_string();
+    let trimmed = digits_str.trim_end_matches('0').as_bytes();
+    let point = i64::from(exp) + 1;
     let n = trimmed.len().min(usize::try_from(len.max(0)).unwrap_or(0));
     if n > 0 {
         write_bytes(caller, ptr, &trimmed[..n])?;

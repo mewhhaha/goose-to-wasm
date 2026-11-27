@@ -158,13 +158,16 @@ fn guide_section_cli() {
     write_stdout("# 3. Large codebases: Direct Wasm64 + parallel workers + incremental .life cache\n");
     write_stdout("goosew src/main.goose --target wasm-direct --wasm-memory64 --wasm-max-pages 65536 \\\n");
     write_stdout("  --cache-dir build/cache --jobs auto -O0 -o build/app.wasm\n\n");
-    write_stdout("# 4. Ship native C executable or C host library\n");
+    write_stdout("# 4. Zero-Clang standalone native ELF via wtime-aot (x86-64 & AArch64)\n");
+    write_stdout("goosew src/main.goose --target aot-x64 -O2 -o build/app --run\n");
+    write_stdout("goosew src/main.goose --target aot-aarch64 -O2 -o build/app-arm64\n\n");
+    write_stdout("# 5. Ship native C executable or C host library\n");
     write_stdout("goosew src/main.goose --target native -O2 --run\n");
     write_stdout("goosew --emit-runtime goose_runtime.c\n");
     write_stdout("goosew src/lib.goose --header app.h -O2 -o app.c\n");
     write_stdout("goosew src/lib.goose --shared -O2 -o libapp.so\n");
     write_stdout("```\n\n");
-    write_stdout("- **Fast Wasm execution:** `goose-wasmtime --fast-jit build/app.wasm -- args...` (Wasmtime Winch baseline JIT), `goose-wtime build/app.wasm` (safe-Rust `wtime`), or `node scripts/run_wasm.mjs build/app.wasm`.\n");
+    write_stdout("- **Fast Wasm execution (`--runner`):** `goosew app.goose --run --runner winch|wtime-aot|wtime-aot-fast|wtime|wasmtime|node`, or run directly with `goose-wasmtime --fast-jit`, `goose-wtime-aot [--fast] [--cache PATH]`, `goose-wtime`, or `node scripts/run_wasm.mjs`.\n");
     write_stdout("- **Useful flags:** `--stdlib DIR`, `--library`, `--reachable-program`, `--debug` (line-numbered range/overflow/tag checks), `--wasm-stats FILE`, `--color auto|always|never`, `--version`, `goosew guide <topic>`.\n");
 }
 

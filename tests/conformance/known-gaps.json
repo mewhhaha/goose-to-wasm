@@ -1,10 +1,11 @@
 {
  "schema": "goose-conformance-known-gaps-v1",
- "note": "Rows that fail on the qualified compiler: 4 intentional post-pin upstream language/stdlib updates (`upstream/storage/serialize`, `upstream/errors_tc/checkfree_block`, `upstream/stdlib/parse_flt_reference`, `corpus/math-intrinsics/3`) and 2 rows of the harvested upstream-differential contracts (wasm32 4-byte pointer overlap under frozen named-result aliasing), whose causes are listed under \"causes\". tests/conformance.py --known-gaps fails on any other failure and on a recorded gap that passes.",
+ "note": "Rows that fail on the qualified compiler: 5 intentional post-pin upstream language/stdlib updates (`upstream/storage/serialize`, `upstream/errors_tc/checkfree_block`, `upstream/stdlib/parse_flt_reference`, `upstream/stdlib/stdlib_json`, `corpus/math-intrinsics/3`) and 2 rows of the harvested upstream-differential contracts (wasm32 4-byte pointer overlap under frozen named-result aliasing), whose causes are listed under \"causes\". tests/conformance.py --known-gaps fails on any other failure and on a recorded gap that passes.",
  "causes": {
   "upstream/storage/serialize": "Intentional post-pin upstream soundness refusal: frozen upstream pin 7124834879aaa75f line 350 tests `from_bytes<Tree[>..<]>(img)` where `Tree` holds relative references (`Tree&<u32>?`); upstream HEAD later banned relative references inside `from_bytes<T[>..<]>` (`serialize_grow_shrink_refs.goose`) and updated `test/storage/serialize.goose` to `from_bytes<i64[>..<]>(img)` (which passes).",
   "upstream/errors_tc/checkfree_block": "Intentional post-pin upstream language change (run-based checkfree, upstream HEAD 1838de4): frozen upstream pin 7124834879aaa75f passes `{ x => t += x; }` (which has zero bounds checks) to `checkfree fn each`, expecting rejection under the old syntactic rule; upstream HEAD changed `checkfree` to judge executed code (accepting `{ x => t += x; }` in `optimizer/checkfree_callees.goose` and updating `errors_tc/checkfree_block.goose` to `{ x => t += a[x]; }`, which this compiler rejects with upstream's exact message).",
   "upstream/stdlib/parse_flt_reference": "Intentional post-pin upstream stdlib upgrade (upstream HEAD 1838de4): frozen upstream pin 7124834879aaa75f compares `std::parse_flt` against a naive 19-digit/pow10 reference that has 1-ULP rounding errors; upstream HEAD upgraded `std::parse_flt` to correctly-rounded Eisel-Lemire + big-integer rounding and updated `test/stdlib/parse_flt_reference.goose` to compare against `float_text::round_exact` (which passes here with 300,000 generated / 255,240 valid / 0 differ).",
+  "upstream/stdlib/stdlib_json": "Intentional post-pin upstream stdlib upgrade (upstream HEAD 1838de4): frozen upstream pin 7124834879aaa75f line 318 directly calls `json::round_exact(...)`, an internal helper that upstream HEAD moved into `std.goose` as `float_text::round_exact` when upgrading `stdlib/json.goose` to use `float_text::shortest_digits` (`gs_f64_digits`); upstream HEAD's `test/stdlib/stdlib_json.goose` calls `float_text::round_exact` and passes bit-identically across native C, Wasm32/Wasm64 (`goose-wasmtime`, `goose-wtime`, `goose-wtime-aot`, `wtime-aot x64`, `run_wasmtime.py`, Node V8).",
   "corpus/math-intrinsics/3": "Intentional post-pin upstream stdlib change (upstream HEAD 1838de4): frozen contract `tests/fixtures/math_intrinsics.goose` asserts the old 2e2bede `std::abs(-0.0) == -0.0` (`-inf`); upstream HEAD changed `std::abs(f32/f64)` to IEEE-754 `fabsf`/`fabs`, which clear the sign bit (`abs(-0.0) == 0.0`, `inf`).",
   "corpus/contracts/upstream-differential/harvest/packed_layout_boundaries/5e21f78e5a/wasm-direct": "Open: direct Wasm (wasm32) builds a multiple-result return over a returned local that a later result reads through a reference, so `return E.New { 0x0102030405060708 }, kept` gives 16909060 for kept where 64-bit upstream, native C, and --wasm-memory64 give 0 (24 frozen direct-Wasm corpus contracts under array-image/enum-image/packed-record currently assert upstream's aliased named-result behavior, so changing life_named_results_into requires re-pinning those contracts)."
  },
@@ -27,6 +28,14 @@
   ],
   [
    "upstream/stdlib/parse_flt_reference",
+   2
+  ],
+  [
+   "upstream/stdlib/stdlib_json",
+   0
+  ],
+  [
+   "upstream/stdlib/stdlib_json",
    2
   ],
   [

@@ -8,6 +8,7 @@
 //!               [-- program arguments...]
 
 mod float;
+mod worker;
 
 use std::collections::{HashMap, HashSet};
 use std::ffi::OsStr;
@@ -22,7 +23,7 @@ use std::sync::{Arc, Mutex};
 use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
 
 use wtime_runtime::{
-    Caller, Config, Engine, ExecutionPolicy, External, Func, Linker, Memory, RunOutcome, Store,
+    Caller, Config, Engine, ExecutionPolicy, External, Func, Linker, Memory, Module, RunOutcome, Store,
     Value,
 };
 use wtime_types::{Error, ErrorKind, FeatureSet, ResourceLimits, ValType};
@@ -30,7 +31,7 @@ use wtime_types::{Error, ErrorKind, FeatureSet, ResourceLimits, ValType};
 const USAGE: &str = "\
 usage: goose-wtime module.wasm [--entry NAME] [--execution decoded|compact|register]
                    [--max-instructions N] [--max-memory-mb N] [--timing-json PATH]
-                   [-- program arguments...]";
+                   [--worker | -- program arguments...]";
 
 const SENTINEL_EXIT_PREFIX: &str = "__goose_wtime_exit__:";
 
@@ -42,6 +43,7 @@ struct Options {
     max_memory_mb: u64,
     timing_json: Option<PathBuf>,
     program_args: Vec<Vec<u8>>,
+    worker: bool,
 }
 
 struct DirCursor {
@@ -63,6 +65,13 @@ struct HostState {
     last_errno: AtomicI32,
     exit_code: Option<i32>,
     abort_message: Option<String>,
+    captured: Option<CapturedOutput>,
+}
+
+#[derive(Default)]
+struct CapturedOutput {
+    stdout: Vec<u8>,
+    stderr: Vec<u8>,
 }
 
 impl HostState {
@@ -81,6 +90,26 @@ impl HostState {
             last_errno: AtomicI32::new(0),
             exit_code: None,
             abort_message: None,
+            captured: None,
+        }
+    }
+
+    fn output(&mut self, stderr: bool, data: &[u8]) -> io::Result<usize> {
+        match (&mut self.captured, stderr) {
+            (Some(output), false) => output.stdout.write(data),
+            (Some(output), true) => output.stderr.write(data),
+            (None, false) => io::stdout().write(data),
+            (None, true) => io::stderr().write(data),
+        }
+    }
+
+    fn output_all(&mut self, stderr: bool, data: &[u8]) {
+        if self.captured.is_some() {
+            let _ = self.output(stderr, data);
+        } else if stderr {
+            let _ = io::stderr().write_all(data);
+        } else {
+            let _ = io::stdout().write_all(data);
         }
     }
 
@@ -285,27 +314,27 @@ fn dispatch_import(
             let ptr = arg_u64(args, 0)?;
             let len = arg_u64(args, 1)? as usize;
             let data = caller.store().read_memory(mem, ptr, len)?;
-            let _ = io::stdout().write_all(&data);
+            state.lock().unwrap().output_all(false, &data);
             Ok(Out::Void)
         }
         ("goose", "print_i64") => {
-            let _ = write!(io::stdout(), "{}", arg_i64(args, 0)?);
+            state.lock().unwrap().output_all(false, arg_i64(args, 0)?.to_string().as_bytes());
             Ok(Out::Void)
         }
         ("goose", "print_u64") => {
-            let _ = write!(io::stdout(), "{}", arg_u64(args, 0)?);
+            state.lock().unwrap().output_all(false, arg_u64(args, 0)?.to_string().as_bytes());
             Ok(Out::Void)
         }
         ("goose", "print_f64") => {
-            let _ = write!(io::stdout(), "{}", float::f64_text(arg_f64(args, 0)?));
+            state.lock().unwrap().output_all(false, float::f64_text(arg_f64(args, 0)?).as_bytes());
             Ok(Out::Void)
         }
         ("goose", "print_f32") => {
-            let _ = write!(io::stdout(), "{}", float::f32_text(arg_f32(args, 0)?));
+            state.lock().unwrap().output_all(false, float::f32_text(arg_f32(args, 0)?).as_bytes());
             Ok(Out::Void)
         }
         ("goose", "print_bool") => {
-            let _ = io::stdout().write_all(if arg_i64(args, 0)? != 0 {
+            state.lock().unwrap().output_all(false, if arg_i64(args, 0)? != 0 {
                 b"true"
             } else {
                 b"false"
@@ -313,7 +342,7 @@ fn dispatch_import(
             Ok(Out::Void)
         }
         ("goose", "newline") => {
-            let _ = io::stdout().write_all(b"\n");
+            state.lock().unwrap().output_all(false, b"\n");
             Ok(Out::Void)
         }
         ("goose", "format_f64") => {
@@ -373,9 +402,13 @@ fn dispatch_import(
         ("env", "asinh" | "gs_asinh") => Ok(Out::F64(arg_f64(args, 0)?.asinh())),
         ("env", "atanh" | "gs_atanh") => Ok(Out::F64(arg_f64(args, 0)?.atanh())),
         ("env", "sinh" | "gs_sinh") => Ok(Out::F64(arg_f64(args, 0)?.sinh())),
+        ("env", "gs_sinhf") => Ok(Out::F32(arg_f32(args, 0)?.sinh())),
         ("env", "cosh" | "gs_cosh") => Ok(Out::F64(arg_f64(args, 0)?.cosh())),
+        ("env", "gs_coshf") => Ok(Out::F32(arg_f32(args, 0)?.cosh())),
         ("env", "tanh" | "gs_tanh") => Ok(Out::F64(arg_f64(args, 0)?.tanh())),
+        ("env", "gs_tanhf") => Ok(Out::F32(arg_f32(args, 0)?.tanh())),
         ("env", "exp2" | "gs_exp2") => Ok(Out::F64(arg_f64(args, 0)?.exp2())),
+        ("env", "gs_exp2f") => Ok(Out::F32(arg_f32(args, 0)?.exp2())),
         ("env", "sin" | "gs_sin") => Ok(Out::F64(arg_f64(args, 0)?.sin())),
         ("env", "gs_sinf") => Ok(Out::F32(arg_f32(args, 0)?.sin())),
         ("env", "cos" | "gs_cos") => Ok(Out::F64(arg_f64(args, 0)?.cos())),
@@ -409,9 +442,13 @@ fn dispatch_import(
         ("env", "round" | "gs_round") => Ok(Out::F64(arg_f64(args, 0)?.round())),
         ("env", "roundf" | "gs_roundf") => Ok(Out::F32(arg_f32(args, 0)?.round())),
         ("env", "hypot" | "gs_hypot") => Ok(Out::F64(arg_f64(args, 0)?.hypot(arg_f64(args, 1)?))),
+        ("env", "gs_hypotf") => Ok(Out::F32(arg_f32(args, 0)?.hypot(arg_f32(args, 1)?))),
         ("env", "cbrt" | "gs_cbrt") => Ok(Out::F64(arg_f64(args, 0)?.cbrt())),
+        ("env", "gs_cbrtf") => Ok(Out::F32(arg_f32(args, 0)?.cbrt())),
         ("env", "expm1" | "gs_expm1") => Ok(Out::F64(arg_f64(args, 0)?.exp_m1())),
+        ("env", "gs_expm1f") => Ok(Out::F32(arg_f32(args, 0)?.exp_m1())),
         ("env", "log1p" | "gs_log1p") => Ok(Out::F64(arg_f64(args, 0)?.ln_1p())),
+        ("env", "gs_log1pf") => Ok(Out::F32(arg_f32(args, 0)?.ln_1p())),
         ("env", "fmod" | "gs_fmod") => Ok(Out::F64(arg_f64(args, 0)? % arg_f64(args, 1)?)),
         ("env", "fmodf" | "gs_fmodf") => Ok(Out::F32(arg_f32(args, 0)? % arg_f32(args, 1)?)),
         ("env", "gs_trim_memory") => Ok(Out::Int(0)),
@@ -421,18 +458,20 @@ fn dispatch_import(
             let mem = mem_of(state)?;
             let (ptr, len) = read_slice_arg(args, 0, args.len() > 1)?;
             let data = caller.store().read_memory(mem, ptr, len)?;
-            let _ = io::stdout().write_all(&data);
+            state.lock().unwrap().output_all(false, &data);
             Ok(Out::Void)
         }
         ("env", "gs_os_write_stderr") => {
             let mem = mem_of(state)?;
             let (ptr, len) = read_slice_arg(args, 0, args.len() > 1)?;
             let data = caller.store().read_memory(mem, ptr, len)?;
-            let _ = io::stderr().write_all(&data);
+            state.lock().unwrap().output_all(true, &data);
             Ok(Out::Void)
         }
         ("env", "gs_os_flush_stdout" | "bench_sink" | "emscripten_notify_memory_growth") => {
-            let _ = io::stdout().flush();
+            if state.lock().unwrap().captured.is_none() {
+                let _ = io::stdout().flush();
+            }
             Ok(Out::Void)
         }
         ("env", "gs_os_arg_count") => Ok(Out::Int(state.lock().unwrap().args.len() as i64)),
@@ -448,6 +487,20 @@ fn dispatch_import(
                 .unwrap_or_default();
             reserve_and_append(caller, state, header, &data, header_wide)?;
             Ok(Out::Void)
+        }
+        ("env", "getcwd") => {
+            let pointer = arg_u64(args, 0)?;
+            let capacity = arg_u64(args, 1)?;
+            let Ok(path) = std::env::current_dir() else {
+                return Ok(Out::Int(0));
+            };
+            let mut bytes = path.into_os_string().into_vec();
+            bytes.push(0);
+            if pointer == 0 || bytes.len() as u64 > capacity {
+                return Ok(Out::Int(0));
+            }
+            caller.store().write_memory(mem_of(state)?, pointer, &bytes)?;
+            Ok(Out::Int(pointer as i64))
         }
         ("env", "gs_os_read_file") => {
             let mem = mem_of(state)?;
@@ -583,6 +636,9 @@ fn dispatch_import(
             }
         }
         ("env", "gs_os_read_line") => {
+            if state.lock().unwrap().captured.is_some() {
+                return Ok(Out::Int(0));
+            }
             let header = arg_u64(args, 0)?;
             let mut stdin = io::stdin().lock();
             let mut line = Vec::new();
@@ -614,9 +670,28 @@ fn dispatch_import(
         ("env", "gs_os_read_stdin") => {
             let header = arg_u64(args, 0)?;
             let mut data = Vec::new();
-            let _ = io::stdin().lock().read_to_end(&mut data);
+            if state.lock().unwrap().captured.is_none() {
+                let _ = io::stdin().lock().read_to_end(&mut data);
+            }
             reserve_and_append(caller, state, header, &data, header_wide)?;
             Ok(Out::Void)
+        }
+        ("env", "gs_os_read_stdin_max") => {
+            let header = arg_u64(args, 0)?;
+            let limit = arg_i64(args, 1)?;
+            if limit <= 0 || state.lock().unwrap().captured.is_some() {
+                return Ok(Out::Int(0));
+            }
+            let max_bytes = usize::try_from(limit).unwrap_or(usize::MAX);
+            let mut data = Vec::new();
+            let mut stdin = io::stdin().lock().take(max_bytes as u64);
+            let _ = stdin.read_to_end(&mut data);
+            if data.is_empty() {
+                return Ok(Out::Int(0));
+            }
+            let ctrl_wide = params.first() == Some(&ValType::I64);
+            reserve_and_append(caller, state, header, &data, ctrl_wide)?;
+            Ok(Out::Int(1))
         }
         ("env", "gs_os_getenv") => {
             let mem = mem_of(state)?;
@@ -702,6 +777,49 @@ fn dispatch_import(
                 ^ guard.next_owner.fetch_add(1, Ordering::Relaxed);
             Ok(Out::Int(mix as i64))
         }
+        ("env", "gs_os_random_bytes") => {
+            let mem = mem_of(state)?;
+            let (ptr, len) = read_slice_arg(args, 0, args.len() > 1)?;
+            if len > 0 {
+                let mut buf = vec![0u8; len];
+                let mut filled = false;
+                if let Ok(mut f) = File::open("/dev/urandom") {
+                    filled = f.read_exact(&mut buf).is_ok();
+                }
+                if !filled {
+                    let guard = state.lock().unwrap();
+                    for chunk in buf.chunks_mut(8) {
+                        let mix = guard.start_instant.elapsed().as_nanos() as u64
+                            ^ (u64::from(std::process::id()) << 32)
+                            ^ guard.next_owner.fetch_add(1, Ordering::Relaxed);
+                        let raw = mix.to_le_bytes();
+                        chunk.copy_from_slice(&raw[..chunk.len()]);
+                    }
+                }
+                caller.store().write_memory(mem, ptr, &buf)?;
+            }
+            Ok(Out::Int(1))
+        }
+        ("env", "gs_f64_digits") => {
+            let mem = mem_of(state)?;
+            let x = arg_f64(args, 0)?;
+            let is_wide = args.len() > 3;
+            let (ptr, len) = read_slice_arg(args, 1, is_wide)?;
+            let point_ptr = arg_u64(args, if is_wide { 3 } else { 2 })?;
+            if !x.is_finite() || x == 0.0 {
+                return Ok(Out::Int(0));
+            }
+            let (digits_num, exp) = float::f64_shortest(x.abs());
+            let digits_str = digits_num.to_string();
+            let trimmed = digits_str.trim_end_matches('0').as_bytes();
+            let point = i64::from(exp) + 1;
+            let n = trimmed.len().min(len);
+            if n > 0 {
+                caller.store().write_memory(mem, ptr, &trimmed[..n])?;
+            }
+            caller.store().write_memory(mem, point_ptr, &point.to_le_bytes())?;
+            Ok(Out::Int(n as i64))
+        }
 
         // --- Blot2 host imports (env.blot_*) ---
         ("env", "blot_owner_id") => {
@@ -767,7 +885,7 @@ fn dispatch_import(
             let ptr = arg_u64(args, 0)?;
             let count = arg_u64(args, 1)? as usize;
             let data = caller.store().read_memory(mem, ptr, count)?;
-            let _ = io::stderr().write_all(&data);
+            state.lock().unwrap().output_all(true, &data);
             Ok(Out::Void)
         }
         ("env", "blot_atomic_load") => {
@@ -918,7 +1036,11 @@ fn dispatch_import(
             let count = arg_u64(args, 2)? as usize;
             let mut buf = vec![0u8; count];
             let res = if fd == 0 {
-                io::stdin().read(&mut buf)
+                if state.lock().unwrap().captured.is_some() {
+                    Ok(0)
+                } else {
+                    io::stdin().read(&mut buf)
+                }
             } else {
                 let mut guard = state.lock().unwrap();
                 match guard.files.get_mut(&fd) {
@@ -940,10 +1062,8 @@ fn dispatch_import(
             let ptr = arg_u64(args, 1)?;
             let count = arg_u64(args, 2)? as usize;
             let data = caller.store().read_memory(mem, ptr, count)?;
-            let res = if fd == 1 {
-                io::stdout().write(&data)
-            } else if fd == 2 {
-                io::stderr().write(&data)
+            let res = if fd == 1 || fd == 2 {
+                state.lock().unwrap().output(fd == 2, &data)
             } else {
                 let mut guard = state.lock().unwrap();
                 match guard.files.get_mut(&fd) {
@@ -1195,6 +1315,7 @@ fn parse_args() -> Result<Options, String> {
     let mut max_instructions: usize = 100_000_000;
     let mut max_memory_mb: u64 = 16_384;
     let mut timing_json: Option<PathBuf> = None;
+    let mut worker = false;
 
     let mut i = 0;
     while i < own.len() {
@@ -1202,6 +1323,8 @@ fn parse_args() -> Result<Options, String> {
         if arg == "-h" || arg == "--help" {
             println!("{USAGE}");
             std::process::exit(0);
+        } else if arg == "--worker" {
+            worker = true;
         } else if arg == "--entry" {
             i += 1;
             let Some(v) = own.get(i) else {
@@ -1251,6 +1374,9 @@ fn parse_args() -> Result<Options, String> {
         i += 1;
     }
 
+    if worker && (timing_json.is_some() || !program_tail.is_empty()) {
+        return Err("--worker takes arguments from stdin and does not support --timing-json".into());
+    }
     let module = module.ok_or_else(|| "missing module.wasm argument".to_string())?;
     let mut program_args = Vec::with_capacity(1 + program_tail.len());
     program_args.push(module.as_os_str().as_bytes().to_vec());
@@ -1263,10 +1389,18 @@ fn parse_args() -> Result<Options, String> {
         max_memory_mb,
         timing_json,
         program_args,
+        worker,
     })
 }
 
-fn run_module(opts: &Options) -> Result<i32, String> {
+struct LoadedModule {
+    engine: Engine,
+    module: Module,
+    resource_dir: Option<Vec<u8>>,
+    compile_ns: u64,
+}
+
+fn load_module(opts: &Options) -> Result<LoadedModule, String> {
     let bytes = fs::read(&opts.module)
         .map_err(|e| format!("failed to read {}: {e}", opts.module.display()))?;
     let max_bytes = opts.max_memory_mb.saturating_mul(1024 * 1024);
@@ -1311,15 +1445,24 @@ fn run_module(opts: &Options) -> Result<i32, String> {
                 bytes
             })
         });
-    let state = Arc::new(Mutex::new(HostState::new(
-        opts.program_args.clone(),
+    Ok(LoadedModule {
+        engine,
+        module,
         resource_dir,
-    )));
-    let mut store = Store::new(&engine);
-    let mut linker = Linker::new(&engine);
+        compile_ns,
+    })
+}
+
+fn execute_module(
+    loaded: &LoadedModule,
+    entry: Option<&str>,
+    state: &Arc<Mutex<HostState>>,
+) -> Result<(i32, u64, u64), String> {
+    let mut store = Store::new(&loaded.engine);
+    let mut linker = Linker::new(&loaded.engine);
 
     let mut defined: HashSet<(String, String)> = HashSet::new();
-    for (imp_mod, imp_name, _ty_idx, func_ty) in module.function_imports() {
+    for (imp_mod, imp_name, _ty_idx, func_ty) in loaded.module.function_imports() {
         let mod_str = imp_mod.to_string();
         let name_str = imp_name.to_string();
         if !defined.insert((mod_str.clone(), name_str.clone())) {
@@ -1327,7 +1470,7 @@ fn run_module(opts: &Options) -> Result<i32, String> {
         }
         let params = func_ty.params.clone();
         let results = func_ty.results.clone();
-        let st = Arc::clone(&state);
+        let st = Arc::clone(state);
         let f = store
             .create_host_func_with_caller(func_ty.clone(), move |caller, args| {
                 let out = dispatch_import(&mod_str, &name_str, caller, args, &st, &params)?;
@@ -1341,7 +1484,7 @@ fn run_module(opts: &Options) -> Result<i32, String> {
 
     let t1 = Instant::now();
     let instance = linker
-        .instantiate(&mut store, &module)
+        .instantiate(&mut store, &loaded.module)
         .map_err(|e| format!("wtime instantiate error: {e}"))?;
     let instantiate_ns = t1.elapsed().as_nanos() as u64;
 
@@ -1373,8 +1516,10 @@ fn run_module(opts: &Options) -> Result<i32, String> {
                 if let Some(code) = state.lock().unwrap().exit_code {
                     return Ok(Some(code));
                 }
-                if let Some(msg) = state.lock().unwrap().abort_message.clone() {
-                    let _ = writeln!(io::stderr(), "{msg}");
+                let mut guard = state.lock().unwrap();
+                if let Some(msg) = &guard.abort_message {
+                    let message = format!("{msg}\n");
+                    guard.output_all(true, message.as_bytes());
                     return Ok(Some(1));
                 }
                 Err(format!("wtime runtime error in {export_name}: {err}"))
@@ -1389,13 +1534,29 @@ fn run_module(opts: &Options) -> Result<i32, String> {
     }
     if state.lock().unwrap().exit_code.is_none()
         && state.lock().unwrap().abort_message.is_none()
-        && let Some(entry_name) = &opts.entry
+        && let Some(entry_name) = entry
     {
         if let Some(code) = invoke_export(&mut store, entry_name)? {
             exit_code = code;
         }
     }
     let run_ns = t2.elapsed().as_nanos() as u64;
+    Ok((exit_code, instantiate_ns, run_ns))
+}
+
+fn run_module(opts: &Options) -> Result<i32, String> {
+    let loaded = load_module(opts)?;
+    if opts.worker {
+        return worker::serve(opts, &loaded)
+            .map(|()| 0)
+            .map_err(|err| err.to_string());
+    }
+    let state = Arc::new(Mutex::new(HostState::new(
+        opts.program_args.clone(),
+        loaded.resource_dir.clone(),
+    )));
+    let (exit_code, instantiate_ns, run_ns) = execute_module(&loaded, opts.entry.as_deref(), &state)?;
+    let compile_ns = loaded.compile_ns;
 
     let _ = io::stdout().flush();
     let _ = io::stderr().flush();
