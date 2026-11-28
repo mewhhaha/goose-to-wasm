@@ -21,19 +21,20 @@ use std::sync::atomic::{AtomicI32, AtomicU64, Ordering};
 use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
 
 use wtime_aot_host::{
-    Caller, Config, Engine, Error, Extern, ExternType, Func, Linker, Memory, Module, OptLevel,
-    Store, StoreLimits, StoreLimitsBuilder, Val, ValType,
+    Cache, CacheConfig, Caller, Config, Engine, Error, Extern, ExternType, Func, Linker, Memory,
+    Module, OptLevel, Store, StoreLimits, StoreLimitsBuilder, Val, ValType,
 };
 
 const USAGE: &str = "\
 usage: goose-wtime-aot module.wasm [--entry NAME] [--fast] [--cache PATH]
-                       [--timing-json PATH] [-- program arguments...]";
+                       [--inc-cache DIR] [--timing-json PATH] [-- program arguments...]";
 
 struct Options {
     module: PathBuf,
     entry: Option<String>,
     fast: bool,
     cache: Option<PathBuf>,
+    inc_cache: Option<PathBuf>,
     timing_json: Option<PathBuf>,
     program_args: Vec<Vec<u8>>,
 }
@@ -1188,6 +1189,7 @@ fn parse_args() -> Result<Options, String> {
     let mut entry: Option<String> = None;
     let mut fast = false;
     let mut cache: Option<PathBuf> = None;
+    let mut inc_cache: Option<PathBuf> = None;
     let mut timing_json: Option<PathBuf> = None;
 
     let mut i = 0;
@@ -1210,6 +1212,12 @@ fn parse_args() -> Result<Options, String> {
                 return Err("missing value for --cache".into());
             };
             cache = Some(path_from_bytes(v));
+        } else if arg == "--inc-cache" {
+            i += 1;
+            let Some(v) = own.get(i) else {
+                return Err("missing value for --inc-cache".into());
+            };
+            inc_cache = Some(path_from_bytes(v));
         } else if arg == "--timing-json" {
             i += 1;
             let Some(v) = own.get(i) else {
@@ -1234,6 +1242,7 @@ fn parse_args() -> Result<Options, String> {
         entry,
         fast,
         cache,
+        inc_cache,
         timing_json,
         program_args,
     })
@@ -1256,6 +1265,13 @@ fn run_module(opts: &Options) -> Result<i32, String> {
         cfg.cranelift_opt_level(OptLevel::None);
     } else {
         cfg.cranelift_opt_level(OptLevel::Speed);
+    }
+    if let Some(inc_dir) = &opts.inc_cache {
+        let _ = fs::create_dir_all(inc_dir);
+        let mut ccfg = CacheConfig::new();
+        ccfg.with_directory(inc_dir);
+        let c = Cache::new(ccfg).map_err(|e| format!("wtime-aot-host cache error: {e}"))?;
+        cfg.cache(Some(c));
     }
     let engine = Engine::new(&cfg).map_err(|e| format!("wtime-aot-host engine error: {e}"))?;
 

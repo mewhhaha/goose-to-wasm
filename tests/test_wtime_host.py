@@ -419,6 +419,38 @@ class WtimeAotHostExecutionTests(unittest.TestCase):
         self.assertEqual(run.stdout.strip(), "hello-wtime-aot")
         self.assertEqual(payload.read_text(), "hello-wtime-aot")
 
+    def test_inc_cache_edited_module_reuses_and_matches_cold(self):
+        inc_dir = self.work / "inc-cache"
+        t1 = self.work / "inc1.json"
+        t2 = self.work / "inc2.json"
+        code_v1 = (
+            "fn helper_a(x: i64) -> i64 { return x * 3 + 1; }\n"
+            "fn helper_b(x: i64) -> i64 { return x * 5 + 2; }\n"
+            "fn main() { print(helper_a(7) + helper_b(11)); }\n"
+        )
+        code_v2 = code_v1.replace("x * 5 + 2", "x * 5 + 9")
+        w1 = self._compile(code_v1, memory64=True)
+        r1 = subprocess.run(
+            [str(WTIME_AOT_HOST), "--inc-cache", str(inc_dir), "--timing-json", str(t1), str(w1)],
+            stdin=subprocess.DEVNULL,
+            capture_output=True,
+            text=True,
+        )
+        self.assertEqual(r1.returncode, 0, r1.stderr)
+        self.assertEqual(r1.stdout.strip(), str(22 + 57))
+        self.assertTrue((inc_dir / "x64-inc").is_dir())
+
+        w2 = self._compile(code_v2, memory64=True)
+        r2 = subprocess.run(
+            [str(WTIME_AOT_HOST), "--inc-cache", str(inc_dir), "--timing-json", str(t2), str(w2)],
+            stdin=subprocess.DEVNULL,
+            capture_output=True,
+            text=True,
+        )
+        self.assertEqual(r2.returncode, 0, r2.stderr)
+        self.assertEqual(r2.stdout.strip(), str(22 + 64))
+        self.assertGreater(json.loads(t2.read_text())["compile_ns"], 0)
+
 
 if __name__ == "__main__":
     unittest.main()
