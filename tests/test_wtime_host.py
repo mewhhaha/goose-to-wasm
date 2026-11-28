@@ -451,6 +451,30 @@ class WtimeAotHostExecutionTests(unittest.TestCase):
         self.assertEqual(r2.stdout.strip(), str(22 + 64))
         self.assertGreater(json.loads(t2.read_text())["compile_ns"], 0)
 
+    def test_goosew_cache_dir_wires_wtime_aot_inc_cache(self):
+        cache_dir = self.work / "build-cache"
+        src = self.work / "wired.goose"
+        out = self.work / "wired.wasm"
+        src.write_text(
+            "fn f(x: i64) -> i64 { return x * 4 + 1; }\n"
+            "fn main() { print(f(10)); }\n"
+        )
+        cmd = [
+            str(COMPILER), str(src),
+            "--stdlib", str(STDLIB),
+            "--cache-dir", str(cache_dir),
+            "--runner", "wtime-aot",
+            "--run", "-o", str(out),
+        ]
+        r1 = subprocess.run(cmd, stdin=subprocess.DEVNULL, capture_output=True, text=True)
+        self.assertEqual(r1.returncode, 0, r1.stderr)
+        self.assertEqual(r1.stdout.strip(), "41")
+        self.assertTrue((cache_dir / "wtime-aot-inc" / "x64-inc").is_dir())
+        # Second identical run hits the goosew artifact cache and still executes via wtime-aot.
+        r2 = subprocess.run(cmd, stdin=subprocess.DEVNULL, capture_output=True, text=True)
+        self.assertEqual(r2.returncode, 0, r2.stderr)
+        self.assertEqual(r2.stdout.strip(), "41")
+
 
 if __name__ == "__main__":
     unittest.main()

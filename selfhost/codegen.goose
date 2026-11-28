@@ -5377,21 +5377,34 @@ recursive fn cg_builtin(p: Program&, m: CgModule&, f: CgBody&, node: i64, builti
 recursive fn cg_slice(p: Program&, m: CgModule&, f: CgBody&, node: i64) {
     let n: const Node& = p.nodes[node]; var id: i64 = p.nodes[n.left].type_id;
     if cg_type_kind(p, id) == TY_REF { id = p.types[id].element; }
-    cg_expr(p, m, f, n.left); cg_pack_view(p, m, f, p.nodes[n.left].type_id, node); let view = cg_save(f, ws());
-    if n.right >= 0 {
-        if (n.flags & F_FROM_END) != 0 { cg_get(f, view); ws_count(f.code); }
-        cg_to(p, m, f, n.right, TYPE_U64); if cg_diverges(p, n.right) { return; } if (n.flags & F_FROM_END) != 0 { wb_byte(f.code, 0x7d); }
-    } else { wb_i64(f.code, 0); }
+    cg_expr(p, m, f, n.left); cg_pack_view(p, m, f, p.nodes[n.left].type_id, node);
+    if n.right < 0 && n.third < 0 { return; }
+    let view = cg_save(f, ws());
+    if n.right < 0 {
+        if (n.flags & F_TO_END) != 0 { cg_get(f, view); ws_count(f.code); }
+        cg_to(p, m, f, n.third, TYPE_U64); if cg_diverges(p, n.third) { return; } if (n.flags & F_TO_END) != 0 { wb_byte(f.code, 0x7d); }
+        let end = cg_save(f, 0x7e);
+        if (n.flags & F_BOUNDS_PROVEN) == 0 {
+            cg_get(f, end); cg_get(f, view); ws_count(f.code); wb_byte(f.code, 0x56); cg_trap_if(p, m, f, node, "slice bounds out of range");
+        }
+        cg_get(f, view); ws_ptr(f.code); wa_extend(f.code);
+        cg_get(f, end); ws_pack(f); return;
+    }
+    if (n.flags & F_FROM_END) != 0 { cg_get(f, view); ws_count(f.code); }
+    cg_to(p, m, f, n.right, TYPE_U64); if cg_diverges(p, n.right) { return; } if (n.flags & F_FROM_END) != 0 { wb_byte(f.code, 0x7d); }
     let start = cg_save(f, 0x7e);
     if n.third >= 0 {
         if (n.flags & F_TO_END) != 0 { cg_get(f, view); ws_count(f.code); }
         cg_to(p, m, f, n.third, TYPE_U64); if cg_diverges(p, n.third) { return; } if (n.flags & F_TO_END) != 0 { wb_byte(f.code, 0x7d); }
-    }
-    else { cg_get(f, view); ws_count(f.code); }
+    } else { cg_get(f, view); ws_count(f.code); }
     let end = cg_save(f, 0x7e);
     if (n.flags & F_BOUNDS_PROVEN) == 0 {
-        cg_get(f, start); cg_get(f, end); wb_byte(f.code, 0x56);
-        cg_get(f, end); cg_get(f, view); ws_count(f.code); wb_byte(f.code, 0x56); wb_byte(f.code, 0x72); cg_trap_if(p, m, f, node, "slice bounds out of range");
+        if n.third < 0 {
+            cg_get(f, start); cg_get(f, end); wb_byte(f.code, 0x56); cg_trap_if(p, m, f, node, "slice bounds out of range");
+        } else {
+            cg_get(f, start); cg_get(f, end); wb_byte(f.code, 0x56);
+            cg_get(f, end); cg_get(f, view); ws_count(f.code); wb_byte(f.code, 0x56); wb_byte(f.code, 0x72); cg_trap_if(p, m, f, node, "slice bounds out of range");
+        }
     }
     if cg_encoded_scalar(p, p.types[id].element) {
         cg_get(f, view); ws_ptr(f.code); let base = cg_save(f, wa()); let pointer = cg_walk_elements(p, m, f, base, start, node); cg_get(f, pointer); wa_extend(f.code);

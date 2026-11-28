@@ -758,6 +758,72 @@ fn driver_quote_exec(command: u8[>..]&, binary: const u8[:], win: bool) {
         driver_quote(command, binary);
     }
 }
+fn driver_append_wtime_aot_inc_cache(command: u8[>..]&, cache_dir: const u8[:], win: bool) {
+    if cache_dir.len == 0 { return; }
+    var inc_dir: u8[>..] = [];
+    inc_dir.append(cache_dir);
+    if cache_dir[cache_dir.len - 1] != '/' && (!win || cache_dir[cache_dir.len - 1] != '\\') {
+        inc_dir.push('/');
+    }
+    inc_dir.append("wtime-aot-inc");
+    command.append(" --inc-cache ");
+    driver_quote(command, inc_dir, win);
+}
+fn driver_run_wasm(o: const DriverOptions&, wasm_out: const u8[:], cache_dir: const u8[:], win: bool) -> i64 {
+    var command: u8[>..] = [];
+    var host: u8[>..] = [];
+    var script: u8[>..] = [];
+    if o.runner == 1 || o.runner == 2 {
+        if !driver_find_tool(host, "", "goose-wasmtime", "host/rust/target/release/goose-wasmtime", win) {
+            driver_error("goose-wasmtime not found for --runner wasmtime|winch; build host/rust or place goose-wasmtime on PATH");
+            return 1;
+        }
+        driver_quote(command, host, win);
+        if o.runner == 2 { command.append(" --fast-jit"); }
+        command.push(' '); driver_quote(command, wasm_out, win);
+    } else if o.runner == 3 || o.runner == 4 {
+        if !driver_find_tool(host, "", "goose-wtime-aot", "host/wtime-aot/target/release/goose-wtime-aot", win) {
+            driver_error("goose-wtime-aot not found for --runner wtime-aot|wtime-aot-fast; build host/wtime-aot or place goose-wtime-aot on PATH");
+            return 1;
+        }
+        driver_quote(command, host, win);
+        if o.runner == 4 { command.append(" --fast"); }
+        else { driver_append_wtime_aot_inc_cache(command, cache_dir, win); }
+        command.push(' '); driver_quote(command, wasm_out, win);
+    } else if o.runner == 5 {
+        if !driver_find_tool(host, "", "goose-wtime", "host/wtime/target/release/goose-wtime", win) {
+            driver_error("goose-wtime not found for --runner wtime; build host/wtime or place goose-wtime on PATH");
+            return 1;
+        }
+        driver_quote(command, host, win); command.append(" --execution register "); driver_quote(command, wasm_out, win);
+    } else if o.runner == 6 {
+        if !driver_find_tool(script, "", "run_wasm.mjs", "scripts/run_wasm.mjs", win) {
+            driver_error("scripts/run_wasm.mjs not found for --runner node");
+            return 1;
+        }
+        driver_quote(command, "node", win); command.push(' '); driver_quote(command, script, win);
+        command.push(' '); driver_quote(command, wasm_out, win);
+    } else {
+        if env("GOOSE_WASM_HOST", host) && host.len > 0 {
+            driver_quote(command, host, win); command.push(' '); driver_quote(command, wasm_out, win);
+        } else if driver_find_tool(host, "", "goose-wasmtime", "host/rust/target/release/goose-wasmtime", win) {
+            driver_quote(command, host, win); command.push(' '); driver_quote(command, wasm_out, win);
+        } else if driver_find_tool(host, "", "goose-wtime-aot", "host/wtime-aot/target/release/goose-wtime-aot", win) {
+            driver_quote(command, host, win);
+            driver_append_wtime_aot_inc_cache(command, cache_dir, win);
+            command.push(' '); driver_quote(command, wasm_out, win);
+        } else if driver_find_tool(host, "", "goose-wtime", "host/wtime/target/release/goose-wtime", win) {
+            driver_quote(command, host, win); command.append(" --execution register "); driver_quote(command, wasm_out, win);
+        } else if driver_find_tool(script, "", "run_wasm.mjs", "scripts/run_wasm.mjs", win) {
+            driver_quote(command, "node", win); command.push(' '); driver_quote(command, script, win);
+            command.push(' '); driver_quote(command, wasm_out, win);
+        } else {
+            driver_error("no Wasm runner found for --run; set GOOSE_WASM_HOST, pass --runner, or pass --target c --run");
+            return 1;
+        }
+    }
+    return driver_exec(command, win);
+}
 let GOOSE_TO_WASM_VERSION = "v2026.4-6";
 fn driver_help() {
     write_stdout("goose-to-wasm "); write_stdout(GOOSE_TO_WASM_VERSION); write_stdout(" — fast Goose compiler (direct WebAssembly, wtime-aot & native C)\nUsage: goosew source.goose [--target wasm-direct|aot-x64|aot-aarch64|native|c] -o output [-O0|-O1|-O2]\n       goosew guide [topic|--cheatsheet|--list]\n  --check --parse --tokens --dump --debug --stdlib DIR --wasm-stats FILE --wasm-deps FILE\n  --cache-dir DIR           Content-addressed incremental build cache directory.\n  --jobs N|auto, -j N       Worker thread count for parallel compilation (default auto).\n  --error-format text|json  Diagnostic output format (default text).\n  --color auto|always|never Colorize text diagnostics (default auto; respects NO_COLOR).\n  --emit-runtime FILE  Write the standalone native C runtime unit and exit.\n  --header FILE        Emit a C host header (goose_init, goose_exit, exports) and separate-runtime C.\n  --shared             Build or emit a C shared library with exported symbols.\n  --standalone         Embed the native C runtime even when emitting with --header.\n  --wasm-memory64      Target WebAssembly memory64.\n  --wasm-bundled-host  Target the bundled host implementations for recognized imports.\n  --reachable-program  Check only functions a root reaches, and the signatures of the rest.\n  --expansion-node-limit N  Total const for expansion size (default 100000).\n  --stack-reserve SIZE  Address space reserved per data stack in a native program, from 64K to 256T\n                        with a K, M, G or T suffix (default 2G).\n  --runner MODE        Wasm runner for --run: auto, wasmtime, winch, wtime-aot, wtime-aot-fast, wtime, node.\n  --run                Build & run native C, run wtime-aot executable, or execute Wasm with --runner.\n  guide [topic]        Print Goose language & goosew CLI cheatsheet (--cheatsheet, --list).\n  --version            Print compiler version.\n");
@@ -848,7 +914,8 @@ fn driver_main() -> i64 {
     var cache_mode: i64 = if o.check { 2 } else { o.target };
     var cache_key: u8[>..] = [];
     var compiler_hex: u8[>..] = [];
-    if cache_end > cache_start && o.target <= 1 && !o.tokens && !o.parse && !o.dump && !o.dump_ir && !o.run &&
+    if cache_end > cache_start && o.target <= 1 && !o.tokens && !o.parse && !o.dump && !o.dump_ir &&
+       (!o.run || o.target == 0) &&
        !o.shared && o.header_arg < 0 && o.emit_runtime_arg < 0 && dependency_end == dependency_start {
         let argv0: const u8[:] = if arguments.len > 0 { arguments[0] } else { "" };
         if cache_compiler_identity(argv0, win, compiler_hex) {
@@ -862,7 +929,12 @@ fn driver_main() -> i64 {
             let hit_out: const u8[:] = if cache_mode == 2 { "" } else { paths[output_start..output_end] };
             let hit = cache_try_hit(paths[cache_start..cache_end], cache_key, cache_mode,
                                     hit_out, paths[stats_start..stats_end]);
-            if hit == 1 { return 0; }
+            if hit == 1 {
+                if o.run && o.target == 0 {
+                    return driver_run_wasm(o, paths[output_start..output_end], paths[cache_start..cache_end], win);
+                }
+                return 0;
+            }
             if hit < 0 { return 1; }
         }
     }
@@ -1051,55 +1123,7 @@ fn driver_main() -> i64 {
             driver_integer(command, o.maximum_pages);
         }
     } else {
-        var host: u8[>..] = [];
-        var script: u8[>..] = [];
-        let wasm_out = paths[output_start..output_end];
-        if o.runner == 1 || o.runner == 2 {
-            if !driver_find_tool(host, "", "goose-wasmtime", "host/rust/target/release/goose-wasmtime", win) {
-                driver_error("goose-wasmtime not found for --runner wasmtime|winch; build host/rust or place goose-wasmtime on PATH");
-                return 1;
-            }
-            driver_quote(command, host, win);
-            if o.runner == 2 { command.append(" --fast-jit"); }
-            command.push(' '); driver_quote(command, wasm_out, win);
-        } else if o.runner == 3 || o.runner == 4 {
-            if !driver_find_tool(host, "", "goose-wtime-aot", "host/wtime-aot/target/release/goose-wtime-aot", win) {
-                driver_error("goose-wtime-aot not found for --runner wtime-aot|wtime-aot-fast; build host/wtime-aot or place goose-wtime-aot on PATH");
-                return 1;
-            }
-            driver_quote(command, host, win);
-            if o.runner == 4 { command.append(" --fast"); }
-            command.push(' '); driver_quote(command, wasm_out, win);
-        } else if o.runner == 5 {
-            if !driver_find_tool(host, "", "goose-wtime", "host/wtime/target/release/goose-wtime", win) {
-                driver_error("goose-wtime not found for --runner wtime; build host/wtime or place goose-wtime on PATH");
-                return 1;
-            }
-            driver_quote(command, host, win); command.append(" --execution register "); driver_quote(command, wasm_out, win);
-        } else if o.runner == 6 {
-            if !driver_find_tool(script, "", "run_wasm.mjs", "scripts/run_wasm.mjs", win) {
-                driver_error("scripts/run_wasm.mjs not found for --runner node");
-                return 1;
-            }
-            driver_quote(command, "node", win); command.push(' '); driver_quote(command, script, win);
-            command.push(' '); driver_quote(command, wasm_out, win);
-        } else {
-            if env("GOOSE_WASM_HOST", host) && host.len > 0 {
-                driver_quote(command, host, win); command.push(' '); driver_quote(command, wasm_out, win);
-            } else if driver_find_tool(host, "", "goose-wasmtime", "host/rust/target/release/goose-wasmtime", win) {
-                driver_quote(command, host, win); command.push(' '); driver_quote(command, wasm_out, win);
-            } else if driver_find_tool(host, "", "goose-wtime-aot", "host/wtime-aot/target/release/goose-wtime-aot", win) {
-                driver_quote(command, host, win); command.push(' '); driver_quote(command, wasm_out, win);
-            } else if driver_find_tool(host, "", "goose-wtime", "host/wtime/target/release/goose-wtime", win) {
-                driver_quote(command, host, win); command.append(" --execution register "); driver_quote(command, wasm_out, win);
-            } else if driver_find_tool(script, "", "run_wasm.mjs", "scripts/run_wasm.mjs", win) {
-                driver_quote(command, "node", win); command.push(' '); driver_quote(command, script, win);
-                command.push(' '); driver_quote(command, wasm_out, win);
-            } else {
-                driver_error("no Wasm runner found for --run; set GOOSE_WASM_HOST, pass --runner, or pass --target c --run");
-                return 1;
-            }
-        }
+        return driver_run_wasm(o, paths[output_start..output_end], paths[cache_start..cache_end], win);
     }
     return driver_exec(command, win);
 }
