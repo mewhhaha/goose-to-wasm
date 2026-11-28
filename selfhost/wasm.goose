@@ -602,6 +602,47 @@ fn wb_reuse_body(out: u8[>..]&, locals: i64[>..]&, code: u8[>..]&, params: i64, 
         wb_u(out, ends_len); wb_byte(out, kind);
     }
 
+    // Peephole pass 2: after slot reuse maps two locals to the same slot,
+    // drop adjacent self-copies (`local.get X; local.set X`) and redundant
+    // self-tees (`local.get X; local.tee X` -> `local.get X`).
+    for segment in 0..2 {
+        var first_event = body_event_count; var limit = events.len;
+        if segment != 0 { first_event = 0; limit = body_event_count; }
+        var prev_ei: i64 = -1;
+        var prev_end: i64 = -1;
+        for ei in first_event..limit {
+            let act = action[ei] as i64;
+            let e: const WbEvent& = events[ei];
+            let estart = e.start as i64;
+            let op = e.opcode as i64;
+            if act == 2 {
+                if prev_ei >= 0 && estart == prev_end { prev_end = estart + wb_local_len(e.operand as i64); }
+                else { prev_ei = -1; }
+                continue;
+            }
+            if prev_ei >= 0 && estart == prev_end && (op == 0x21 && act <= 1 || op == 0x22 && act == 0) {
+                let a = first[events[prev_ei].operand as i64] as i64;
+                let b = first[e.operand as i64] as i64;
+                if a == b {
+                    any_folded = true;
+                    if op == 0x21 && act == 0 {
+                        action[prev_ei] = 2; action[ei] = 2;
+                        prev_ei = -1;
+                    } else {
+                        action[ei] = 2;
+                        prev_end = estart + wb_local_len(e.operand as i64);
+                    }
+                    continue;
+                }
+            }
+            if op == 0x20 && act == 0 {
+                prev_ei = ei; prev_end = estart + wb_local_len(e.operand as i64);
+            } else {
+                prev_ei = -1;
+            }
+        }
+    }
+
     var copied = 0;
     if !any_folded && changed && total < 128 {
         // All indexes fit in a single byte and every instruction stays in place.

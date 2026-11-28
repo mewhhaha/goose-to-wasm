@@ -12,7 +12,7 @@ Compile Goose directly to **WebAssembly in milliseconds** — with no C compiler
 | **Multi-core throughput (`--jobs`)** | **`2.01–2.32M LOC/s`** wall (bit-identical across threads) | Single-threaded |
 | **Self-compilation (`selfhost/`, 47.4k LOC)** | **`0.26–0.28 s`** (`0.23–0.26 s` PGO) | `4.38–4.71 s` (**17×–19× slower**) |
 | **Blot2 turnaround (`79.0k LOC`, edit → run)** | **`1.98 s`** cold · **`0.93 s`** edited (`.life` + Winch) | `30.6 s` Clang `-O0` · `98.8 s` `-O2` |
-| **Upstream conformance** | **`10,792 / 10,801`** (`0` unexpected · `4` post-pin upstream deltas) | Sole language reference (no dialect fork) |
+| **Upstream conformance** | **`10,790 / 10,801`** (`0` unexpected · `6` post-pin upstream deltas) | Sole language reference (no dialect fork) |
 
 ---
 
@@ -71,14 +71,17 @@ goosew guide                  # or `goosew guide --cheatsheet`, `goosew guide --
 goosew --check examples/sorting.goose
 
 # 2. Instant dev compile & run via Direct Wasm (2–7 ms, no C toolchain)
-goosew examples/squares.goose -O2 -o squares.wasm
-node scripts/run_wasm.mjs squares.wasm
-# sum=140
+goosew examples/squares.goose -O2 -o squares.wasm --run
+# or pick a runner explicitly: --runner auto|wasmtime|winch|wtime-aot|wtime-aot-fast|wtime|node
 
-# 3. Ship a native binary (via C)
+# 3. Ship a zero-Clang static x64/AArch64 binary via wtime-aot (5–19 ms AOT build)
+goosew examples/squares.goose --target aot-x64 -O2 -o squares --run
+goosew examples/squares.goose --target aot-aarch64 --wasm-memory64 -O2 -o squares-arm64
+
+# 4. Ship a native binary (via C)
 goosew examples/squares.goose --target c -O2 --run
 
-# 4. Embed in a C/C++/Rust host (exports + C header, no -rdynamic/-ldl)
+# 5. Embed in a C/C++/Rust host (exports + C header, no -rdynamic/-ldl)
 goosew --emit-runtime goose_runtime.c
 goosew app.goose --header app.h -O2 -o app.c
 ```
@@ -140,23 +143,23 @@ host/rust/target/release/goose-wasmtime --fast-jit blot2.wasm \
 
 ### 4. Production runtime speed
 
-Fast dev builds do not trade away production speed. Native `-O2` binaries match or edge out upstream C++ Goose (all bit-exact), and Direct Wasm runs near-native in Wasmtime or ahead-of-time via [`wtime-aot`](https://github.com/mewhhaha/wtime) (`4.7–16.4 ms` zero-LLVM `x64` builds beating native `-O2` on `life`, `sieve`, and `maze`):
+Fast dev builds do not trade away production speed. Native `-O2` binaries match or edge out upstream C++ Goose (all bit-exact), and Direct Wasm runs near-native in Wasmtime or ahead-of-time via [`wtime-aot`](https://github.com/mewhhaha/wtime) (`5.2–18.7 ms` zero-LLVM `x64` builds beating native `-O2` on `life`, `sieve`, and `maze`, with `-33%` to `-69%` smaller `-O2` `.wasm` modules and `-2.8%` faster standalone Wasm64 self-compilation in the [2026-11-28 report](bench/results/2026-11-28/wtime-aot-and-codegen/README.md)):
 
 ![Compiled program runtime: Goose to Wasm Native -O2, Wasmtime, and wtime-aot vs upstream C++ Goose](bench/results/2026-11-25/runtime-with-wtime/runtime_speed.svg)
 
-*\*Separate fresh Clang-23 PGO reference runs are labeled explicitly. Full methodology, pinned SHAs, raw JSON, and preserved rejected experiments live in the [2026-11-27 four-levers report](bench/results/2026-11-27/four-levers-campaign/README.md), [compiler throughput study](bench/results/2026-11-26/compiler-throughput/README.md), [runtime study](bench/results/2026-11-25/runtime-with-wtime/README.md), and the [archive](#benchmark--evidence-archive) below.*
+*\*Separate fresh Clang-23 PGO reference runs are labeled explicitly. Full methodology, pinned SHAs, raw JSON, and preserved rejected experiments live in the [2026-11-28 `wtime-aot` & codegen report](bench/results/2026-11-28/wtime-aot-and-codegen/README.md), [2026-11-27 four-levers report](bench/results/2026-11-27/four-levers-campaign/README.md), [compiler throughput study](bench/results/2026-11-26/compiler-throughput/README.md), [runtime study](bench/results/2026-11-25/runtime-with-wtime/README.md), and the [archive](#benchmark--evidence-archive) below.*
 
 ---
 
 ## Choosing a Target
 
-| | Direct Wasm (`--target wasm-direct`, default) | Native C (`--target c` / `--backend native`) |
-|---|---|---|
-| **Best for** | Instant edit-run dev loops, large-project iteration, browsers/sandboxes | Production binaries, servers, maximum single-thread speed, C libraries |
-| **Build time (examples)** | **2–7 ms** (no C compiler needed) | `135–440 ms` (cached runtime + Clang/GCC) |
-| **Build time (32k LOC)** | **0.57 s** | **`0.62 s`** C emit + parallel C compile |
-| **Runtime** | Near-native in Wasmtime (`host/rust`), safe-Rust `wtime` (`host/wtime`), or browsers | Matches or edges out upstream C++ Goose `-O2` |
-| **Features** | Core language, root structs, `reusable[]` slice pools, `defer`, `const if`, `env.*` imports, memory32 & memory64 | Everything in Direct Wasm plus threads, stdlib `slice_pool` C externs, `--header`, `--shared` |
+| | Direct Wasm (`--target wasm-direct`, default) | Native AOT (`--target aot-x64` / `aot-aarch64`) | Native C (`--target c` / `--backend native`) |
+|---|---|---|---|
+| **Best for** | Instant edit-run dev loops, large-project iteration, browsers/sandboxes | Zero-Clang static Linux `x64`/`aarch64` binaries & hosted Wasm64 AOT (`goose-wtime-aot`) | Production binaries, servers, maximum single-thread speed, C libraries |
+| **Build time (examples)** | **2–7 ms** (no C compiler needed) | **5–19 ms** (`wtime-aot`, zero LLVM/Clang) | `135–440 ms` (cached runtime + Clang/GCC) |
+| **Build time (57.5k LOC)** | **0.63 s** (`selfhost` `-O2` Wasm64) | **2.1 s** (`x64`) / **1.5 s** (`aarch64` cross) | **`0.62 s`** C emit + parallel C compile |
+| **Runtime** | Near-native in Wasmtime (`host/rust`), `goose-wtime-aot` (`host/wtime-aot`), safe-Rust `wtime` (`host/wtime`), or browsers | Zero-`libc` static ELF (`1.12 s` standalone self-compile; beats Clang `-O2` on `life`, `sieve`, `maze`) | Matches or edges out upstream C++ Goose `-O2` |
+| **Features** | Core language, root structs, `reusable[]` slice pools, `defer`, `const if`, `env.*` imports, memory32 & memory64 | Standalone Wasm32/Wasm64 + Goose OS/JSON imports (`--allow-files`), plus 84-import Blot2 via `host/wtime-aot` | Everything in Direct Wasm plus threads, stdlib `slice_pool` C externs, `--header`, `--shared` |
 
 ---
 
@@ -199,12 +202,13 @@ app.goose:3:19: error: no overload matches this call's argument types and count:
 
 ## Compatibility & Documentation
 
-Releases are versioned **`v<goose-version>-<n>`** (currently **`v2026.4-6`**) and strictly track upstream [Goose](https://github.com/aardappel/goose) as the sole language reference (`10,792 / 10,801` conformance rows passing, `0` unexpected failures, `6,017 / 6,022` native — all `4` post-pin upstream language/stdlib deltas documented in `tests/conformance/known-gaps.json`).
+Releases are versioned **`v<goose-version>-<n>`** (currently **`v2026.4-6`**) and strictly track upstream [Goose](https://github.com/aardappel/goose) as the sole language reference (`10,790 / 10,801` conformance rows passing, `0` unexpected failures — all `6` post-pin upstream language/stdlib deltas documented in `tests/conformance/known-gaps.json`).
 
 | Topic | Documentation |
 |---|---|
 | CLI flags, `--cache-dir`, targets & compaction | [docs/GUIDE.md](docs/GUIDE.md) |
 | Native Rust Wasmtime host (Winch `--fast-jit`, `.cwasm`, Blot2 imports) | [host/rust/README.md](host/rust/README.md) |
+| Native `wtime-aot` host (zero-LLVM x64 AOT, `--fast`, `--cache`, Blot2 imports) | [host/wtime-aot/README.md](host/wtime-aot/README.md) |
 | Safe-Rust `wtime` host (`#![forbid(unsafe_code)]`, Wasm32/Wasm64) | [host/wtime/README.md](host/wtime/README.md) |
 | Browser runtime & drop-in `stdlib-web` (WebGL2, Audio, JSPI) | [host/web/README.md](host/web/README.md) · [stdlib-web/README.md](stdlib-web/README.md) |
 | Upstream Goose & Blot2 compatibility tracker | [docs/FEATURES.md](docs/FEATURES.md) |
@@ -215,6 +219,8 @@ Releases are versioned **`v<goose-version>-<n>`** (currently **`v2026.4-6`**) an
 ### Benchmark & evidence archive
 
 <details><summary>All dated compiler, runtime, and Blot2 studies under <code>bench/results/</code></summary>
+
+- [`wtime-aot` integration & Direct Wasm codegen / BCE — `-33%` to `-69%` smaller `-O2` `.wasm`, `-10%` to `-27%` faster AOT builds, `-6%` `sudoku` & `-2.8%` standalone Wasm64 self-compile (2026-11-28)](bench/results/2026-11-28/wtime-aot-and-codegen/README.md)
 
 - [Four-levers optimization campaign — 1.87–1.98 s cold / 0.89–0.98 s edited Blot2 turnaround, `-62%` Wasm64 & Winch `--fast-jit` (2026-11-27)](bench/results/2026-11-27/four-levers-campaign/README.md)
 - [Lifetime optimization campaign — 2.17–2.36 s Blot2 turnaround, 1.56–1.75 s emit & 0.24–0.26 s selfhost (2026-11-27)](bench/results/2026-11-27/lifetime-campaign/README.md)

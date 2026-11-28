@@ -2516,5 +2516,182 @@ class AotAndRunnerCliTests(unittest.TestCase):
         self.assertFalse((self.work / "prog_arm64.goose.wasm").exists())
 
 
+@unittest.skipUnless(COMPILER.is_file() and RUST_HOST.is_file(), "bootstrap compiler and Rust host required")
+class WasmCodegenAndBceTests(unittest.TestCase):
+    """Correctness and soundness regressions for direct-Wasm codegen, peephole, and BCE passes."""
+
+    def setUp(self):
+        directory = tempfile.TemporaryDirectory()
+        self.addCleanup(directory.cleanup)
+        self.work = Path(directory.name)
+
+    def build_and_run(self, name, source, opt="-O2", extra_args=()):
+        src = self.work / f"{name}.goose"
+        out = self.work / f"{name}_{opt.lstrip('-')}.wasm"
+        src.write_text(source)
+        res = subprocess.run(
+            [str(COMPILER), str(src), "--stdlib", str(SOURCE_STDLIB), opt, *extra_args, "-o", str(out)],
+            stdin=subprocess.DEVNULL, capture_output=True, text=True, timeout=60,
+        )
+        self.assertEqual(res.returncode, 0, res.stderr)
+        run = subprocess.run(
+            [str(RUST_HOST), str(out)],
+            stdin=subprocess.DEVNULL, capture_output=True, text=True, timeout=30,
+        )
+        return out, run
+
+    def test_const_divmod_and_shifts_edge_cases(self):
+        src = """
+fn run_signed(a: i64) -> i64 {
+    var x = a;
+    let q1 = a / 1;
+    let r1 = a % 1;
+    let q2 = a / 2;
+    let r2 = a % 2;
+    let q8 = a / 8;
+    let r8 = a % 8;
+    let q9 = a / 9;
+    let r9 = a % 9;
+    x /= 3;
+    var y = a;
+    y %= 7;
+    print(q1, " ", r1, " ", q2, " ", r2, " ", q8, " ", r8, " ", q9, " ", r9, " ", x, " ", y);
+    return (q1 / 16) + r1 * 3 + (q2 / 8) + r2 * 5 + (q8 / 4) + r8 * 11 + (q9 / 4) + r9 * 13 + (x / 8) + y * 17;
+}
+fn run_small(a: i8, b: u8, c: i16, d: u16, e: i32, f: u32, g: u64) -> i64 {
+    let s1 = (a / 3) as i64 + (a % 3) as i64 + (a % 4) as i64;
+    let s2 = (b / 3) as i64 + (b % 3) as i64 + (b / 4) as i64 + (b % 4) as i64;
+    let s3 = (c / 5) as i64 + (c % 5) as i64 + (c % 8) as i64;
+    let s4 = (d / 7) as i64 + (d % 7) as i64 + (d / 8) as i64;
+    let s5 = (e / 9) as i64 + (e % 9) as i64 + (e % 16) as i64;
+    let s6 = (f / 9) as i64 + (f % 9) as i64 + (f / 16) as i64;
+    let s7 = ((g / 9) + (g % 9) + (g / 8) + (g % 8)) as i64;
+    let sh = ((a << 11) as i64) + ((b >> 11) as i64) + ((e << 35) as i64) + ((g >> 67) as i64);
+    return s1 + s2 + s3 + s4 + s5 + s6 + s7 + sh;
+}
+fn main() {
+    let min64: i64 = -9223372036854775807 - 1;
+    let vals: i64[9] = [0, 1, -1, 7, -7, -8, -9, -10, min64];
+    for v in vals { print(run_signed(v)); }
+    print(run_small((-128) as i8, 250 as u8, (-32768) as i16, 65000 as u16, (-2147483647 - 1) as i32, 4000000000 as u32, 1000000000000 as u64));
+    // Non-negative proven constant div/mod in a loop
+    var acc: i64 = 0;
+    for i in 0..81 { acc += (i / 9) * 100 + (i % 9) + (i / 8) + (i % 8); }
+    print(acc);
+}
+"""
+        _, r0 = self.build_and_run("divmod", src, "-O0")
+        out2, r2 = self.build_and_run("divmod", src, "-O2")
+        _, rdbg = self.build_and_run("divmod_dbg", src, "-O2", ("--debug",))
+        self.assertEqual(r0.returncode, 0, r0.stderr)
+        self.assertEqual((r2.returncode, r2.stdout), (0, r0.stdout), r2.stderr)
+        self.assertEqual((rdbg.returncode, rdbg.stdout), (0, r0.stdout), rdbg.stderr)
+        if __import__("shutil").which("wasm2wat"):
+            wat = subprocess.check_output(["wasm2wat", str(out2)], text=True)
+            self.assertIn("i64.div_u", wat)
+            self.assertIn("i64.rem_u", wat)
+
+    def test_direct_br_if_and_defer_safety(self):
+        src = """
+fn with_defer() -> i64 {
+    var acc: i64 = 0;
+    var i: i64 = 0;
+    while i < 10 {
+        defer { acc += 100; }
+        i += 1;
+        if i == 3 { continue; }
+        if i == 6 { break; }
+        acc += i;
+    }
+    return acc;
+}
+fn clean_branches() -> i64 {
+    var acc: i64 = 0;
+    for i in 0..20 {
+        guard i % 2 == 0 else { continue; }
+        if i > 12 { break; }
+        if i == 4 { continue; } else { acc += i; }
+    }
+    return acc;
+}
+fn main() {
+    print(with_defer(), " ", clean_branches());
+}
+"""
+        _, r0 = self.build_and_run("brif", src, "-O0")
+        _, r2 = self.build_and_run("brif", src, "-O2")
+        self.assertEqual(r0.returncode, 0, r0.stderr)
+        self.assertEqual((r2.returncode, r2.stdout), (0, r0.stdout), r2.stderr)
+        # defer runs on all 6 iterations (600) + i in {1,2,4,5} (12) = 612;
+        # clean_branches sums even i <= 12 except 4: 0+2+6+8+10+12 = 38.
+        self.assertEqual(r2.stdout.strip(), "612 38")
+
+    def test_const_fixed_scalar_arrays_data_copy(self):
+        src = """
+let G_I64: i64[6] = [-10, -1, 0, 1, 42, 999999999999];
+let G_U8: u8[6] = [0, 1, 127, 128, 254, 255];
+let G_F64: f64[4] = [-1.5, 0.0, 2.25, 100.5];
+let G_F32: f32[4] = [-0.5, 0.0, 1.5, 3.25];
+let G_BOOL: bool[4] = [true, false, true, true];
+fn main() {
+    let loc: i16[5] = [-300, -1, 0, 1, 300];
+    var sum: i64 = 0;
+    for x in G_I64 { sum += x; }
+    for x in G_U8 { sum += x as i64; }
+    for x in loc { sum += x as i64; }
+    for x in G_BOOL { if x { sum += 1; } }
+    let fsum = G_F64[0] + G_F64[1] + G_F64[2] + G_F64[3] + (G_F32[0] + G_F32[2] + G_F32[3]) as f64;
+    print(sum, " ", (fsum * 4.0) as i64);
+}
+"""
+        out0, r0 = self.build_and_run("constarr", src, "-O0")
+        out2, r2 = self.build_and_run("constarr", src, "-O2")
+        _, rdbg = self.build_and_run("constarr_dbg", src, "-O2", ("--debug",))
+        self.assertEqual((r0.returncode, r0.stdout.strip()), (0, "1000000000799 422"), r0.stderr)
+        self.assertEqual((r2.returncode, r2.stdout), (0, r0.stdout), r2.stderr)
+        self.assertEqual((rdbg.returncode, rdbg.stdout), (0, r0.stdout), rdbg.stderr)
+        if __import__("shutil").which("wasm2wat"):
+            wat = subprocess.check_output(["wasm2wat", str(out2)], text=True)
+            self.assertIn("memory.copy", wat)
+
+    def test_bce_soundness_overflow_and_le_only(self):
+        # 1. `i * i <= 1000` starting from `i = 4000000000` overflows i64 to negative;
+        #    bounds check on `flags[i]` MUST NOT be eliminated and must trap.
+        overflow_src = """
+fn main() {
+    var flags: u8[>..] = [];
+    flags.resize(1001, 1);
+    var i: i64 = 4000000000;
+    while i * i <= 1000 {
+        flags[i] = 0;
+        i += 1;
+    }
+    print(flags[0]);
+}
+"""
+        _, r_ovf = self.build_and_run("bce_sq_ovf", overflow_src, "-O2")
+        self.assertNotEqual(r_ovf.returncode, 0)
+        self.assertIn("out of bounds", r_ovf.stderr)
+
+        # 2. `let mid = xs.len / 2;` has `le_only = true`: `xs[mid - 1]` when `xs.len == 1`
+        #    evaluates `xs[-1]` and MUST trap (must not be misproved as `xs[xs.len - 1]`).
+        le_only_src = """
+fn bad(xs: i32[:]) -> i32 {
+    if xs.len >= 1 {
+        let mid = xs.len / 2;
+        return xs[mid - 1];
+    }
+    return 0;
+}
+fn main() {
+    var a: i32[1] = [7];
+    print(bad(a[..]));
+}
+"""
+        _, r_le = self.build_and_run("bce_le_only", le_only_src, "-O2")
+        self.assertNotEqual(r_le.returncode, 0)
+        self.assertIn("out of bounds", r_le.stderr)
+
+
 if __name__ == "__main__":
     unittest.main()

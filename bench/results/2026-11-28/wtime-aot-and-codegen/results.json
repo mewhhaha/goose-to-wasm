@@ -1,0 +1,668 @@
+{
+  "schema": "goose-to-wasm-wtime-aot-codegen-v1",
+  "date": "2026-11-28",
+  "cpu": 7,
+  "host": "Linux-7.3.5-2-cachyos-x86_64-with-glibc2.44",
+  "clang": "clang version 23.1.5",
+  "wasmtime_py": "50.0.1",
+  "baseline_goosew": "/home/mewhhaha/src/goose-to-wasm/build/qualify-wtime-cli-v2/bootstrap/bin/goosew",
+  "baseline_sha256": "ebd41d9f8f28d2bd3914a29a8890683a4bafb20224f53f8fbe163b16a9cf1770",
+  "candidate_goosew": "/home/mewhhaha/src/goose-to-wasm/build/qualify-wasm-opt-v2/bootstrap/bin/goosew",
+  "candidate_sha256": "6b68814041c653ac2edbb25e33f55b3cb363eaad79ee3cfbbc61f8c232cd128b",
+  "wtime_git_rev": "91d6cfe630b36c7573a62fcfbfb8f7d884cff385",
+  "wtime_aot_sha256": "928fa24170ed0a944d4f3cd2590d1d15271a24023089329c4156617c160a8004",
+  "goose_wtime_aot_sha256": "d15c11a42d532ae4e7334e6e71c638810da3d3f1772401e2cb3ef9d9ab2ad0c7",
+  "goose_wasmtime_sha256": "e0825f4c991a9b53abf7e2a83ed68922d4906b87ae38b3856089e5c780c08fed",
+  "suite_a_sizes_and_aot": {
+    "sorting": {
+      "base_wasm_bytes": 105557,
+      "cand_wasm_bytes": 70346,
+      "wasm_delta_pct": -33.36,
+      "base_x64_bin_bytes": 166520,
+      "cand_x64_bin_bytes": 146856,
+      "base_aot_cold_ms": 20.83,
+      "cand_aot_cold_ms": 18.74
+    },
+    "life": {
+      "base_wasm_bytes": 49877,
+      "cand_wasm_bytes": 20977,
+      "wasm_delta_pct": -57.94,
+      "base_x64_bin_bytes": 71640,
+      "cand_x64_bin_bytes": 53688,
+      "base_aot_cold_ms": 12.63,
+      "cand_aot_cold_ms": 10.34
+    },
+    "sudoku": {
+      "base_wasm_bytes": 48781,
+      "cand_wasm_bytes": 18706,
+      "wasm_delta_pct": -61.65,
+      "base_x64_bin_bytes": 65896,
+      "cand_x64_bin_bytes": 47848,
+      "base_aot_cold_ms": 9.09,
+      "cand_aot_cold_ms": 6.86
+    },
+    "sieve": {
+      "base_wasm_bytes": 46843,
+      "cand_wasm_bytes": 17926,
+      "wasm_delta_pct": -61.73,
+      "base_x64_bin_bytes": 65320,
+      "cand_x64_bin_bytes": 47240,
+      "base_aot_cold_ms": 8.94,
+      "cand_aot_cold_ms": 7.16
+    },
+    "maze": {
+      "base_wasm_bytes": 61526,
+      "cand_wasm_bytes": 31757,
+      "wasm_delta_pct": -48.38,
+      "base_x64_bin_bytes": 89256,
+      "cand_x64_bin_bytes": 70712,
+      "base_aot_cold_ms": 13.31,
+      "cand_aot_cold_ms": 11.78
+    },
+    "mandelbrot": {
+      "base_wasm_bytes": 41894,
+      "cand_wasm_bytes": 13091,
+      "wasm_delta_pct": -68.75,
+      "base_x64_bin_bytes": 50520,
+      "cand_x64_bin_bytes": 36488,
+      "base_aot_cold_ms": 7.14,
+      "cand_aot_cold_ms": 5.25
+    }
+  },
+  "suite_a_runtime": {
+    "sorting": {
+      "base_wasmtime": {
+        "median_wall_s": 0.04668820300139487,
+        "min_wall_s": 0.045675015018787235,
+        "max_wall_s": 0.0532732040155679,
+        "walls_s": [
+          0.053273,
+          0.047158,
+          0.045675,
+          0.046688,
+          0.046649
+        ]
+      },
+      "cand_wasmtime": {
+        "median_wall_s": 0.04596886096987873,
+        "min_wall_s": 0.04539425700204447,
+        "max_wall_s": 0.04627710796194151,
+        "walls_s": [
+          0.04617,
+          0.045394,
+          0.046277,
+          0.045536,
+          0.045969
+        ]
+      },
+      "base_wtime_aot_x64": {
+        "median_wall_s": 0.048683753004297614,
+        "min_wall_s": 0.046275258995592594,
+        "max_wall_s": 0.05011527700116858,
+        "walls_s": [
+          0.050115,
+          0.046657,
+          0.048684,
+          0.046275,
+          0.048702
+        ]
+      },
+      "cand_wtime_aot_x64": {
+        "median_wall_s": 0.04865739302476868,
+        "min_wall_s": 0.04633153701433912,
+        "max_wall_s": 0.055272613011766225,
+        "walls_s": [
+          0.049102,
+          0.048465,
+          0.055273,
+          0.046332,
+          0.048657
+        ]
+      },
+      "cand_native_o2": {
+        "median_wall_s": 0.035076106956694275,
+        "min_wall_s": 0.03438455500872806,
+        "max_wall_s": 0.03659592097392306,
+        "walls_s": [
+          0.035076,
+          0.034385,
+          0.035307,
+          0.036596,
+          0.034686
+        ]
+      }
+    },
+    "life": {
+      "base_wasmtime": {
+        "median_wall_s": 0.011730534955859184,
+        "min_wall_s": 0.011585997010115534,
+        "max_wall_s": 0.013438627996947616,
+        "walls_s": [
+          0.013439,
+          0.01168,
+          0.011731,
+          0.011764,
+          0.011586
+        ]
+      },
+      "cand_wasmtime": {
+        "median_wall_s": 0.012058462016284466,
+        "min_wall_s": 0.01169630599906668,
+        "max_wall_s": 0.012537987029645592,
+        "walls_s": [
+          0.011821,
+          0.012538,
+          0.012058,
+          0.012346,
+          0.011696
+        ]
+      },
+      "base_wtime_aot_x64": {
+        "median_wall_s": 0.004355913959443569,
+        "min_wall_s": 0.004253906023222953,
+        "max_wall_s": 0.0045216219732537866,
+        "walls_s": [
+          0.004372,
+          0.004254,
+          0.004522,
+          0.004356,
+          0.004272
+        ]
+      },
+      "cand_wtime_aot_x64": {
+        "median_wall_s": 0.004306014976464212,
+        "min_wall_s": 0.004273674974683672,
+        "max_wall_s": 0.004632140975445509,
+        "walls_s": [
+          0.004632,
+          0.004306,
+          0.004316,
+          0.00428,
+          0.004274
+        ]
+      },
+      "cand_native_o2": {
+        "median_wall_s": 0.005633629974909127,
+        "min_wall_s": 0.0055918010184541345,
+        "max_wall_s": 0.0056611900217831135,
+        "walls_s": [
+          0.005653,
+          0.005661,
+          0.005634,
+          0.005592,
+          0.005613
+        ]
+      }
+    },
+    "sudoku": {
+      "base_wasmtime": {
+        "median_wall_s": 0.004862099012825638,
+        "min_wall_s": 0.004751038970425725,
+        "max_wall_s": 0.005624710000120103,
+        "walls_s": [
+          0.005625,
+          0.004812,
+          0.004937,
+          0.004862,
+          0.004751
+        ]
+      },
+      "cand_wasmtime": {
+        "median_wall_s": 0.004573012003675103,
+        "min_wall_s": 0.004457001981791109,
+        "max_wall_s": 0.005103875999338925,
+        "walls_s": [
+          0.004573,
+          0.005104,
+          0.004457,
+          0.005029,
+          0.00455
+        ]
+      },
+      "base_wtime_aot_x64": {
+        "median_wall_s": 0.005727759038563818,
+        "min_wall_s": 0.005645490018650889,
+        "max_wall_s": 0.0058268680004402995,
+        "walls_s": [
+          0.00575,
+          0.005651,
+          0.005645,
+          0.005728,
+          0.005827
+        ]
+      },
+      "cand_wtime_aot_x64": {
+        "median_wall_s": 0.005429622950032353,
+        "min_wall_s": 0.00534952396992594,
+        "max_wall_s": 0.0054562719888053834,
+        "walls_s": [
+          0.00543,
+          0.005456,
+          0.005441,
+          0.00535,
+          0.005373
+        ]
+      },
+      "cand_native_o2": {
+        "median_wall_s": 0.004970697045791894,
+        "min_wall_s": 0.0049663379904814065,
+        "max_wall_s": 0.00527125399094075,
+        "walls_s": [
+          0.004978,
+          0.004971,
+          0.00497,
+          0.004966,
+          0.005271
+        ]
+      }
+    },
+    "sieve": {
+      "base_wasmtime": {
+        "median_wall_s": 0.0009096900466829538,
+        "min_wall_s": 0.000875350960996002,
+        "max_wall_s": 0.0017682010075077415,
+        "walls_s": [
+          0.001768,
+          0.00091,
+          0.000905,
+          0.00091,
+          0.000875
+        ]
+      },
+      "cand_wasmtime": {
+        "median_wall_s": 0.0009447099873796105,
+        "min_wall_s": 0.0008899210370145738,
+        "max_wall_s": 0.00161616294644773,
+        "walls_s": [
+          0.000945,
+          0.001616,
+          0.00089,
+          0.001431,
+          0.000906
+        ]
+      },
+      "base_wtime_aot_x64": {
+        "median_wall_s": 0.002800079993903637,
+        "min_wall_s": 0.0026829109992831945,
+        "max_wall_s": 0.0029431389993987978,
+        "walls_s": [
+          0.0028,
+          0.002943,
+          0.002799,
+          0.002878,
+          0.002683
+        ]
+      },
+      "cand_wtime_aot_x64": {
+        "median_wall_s": 0.002711420995183289,
+        "min_wall_s": 0.002698672004044056,
+        "max_wall_s": 0.0028617900097742677,
+        "walls_s": [
+          0.002699,
+          0.002779,
+          0.002862,
+          0.002703,
+          0.002711
+        ]
+      },
+      "cand_native_o2": {
+        "median_wall_s": 0.003028157982043922,
+        "min_wall_s": 0.0030057679978199303,
+        "max_wall_s": 0.003309104999061674,
+        "walls_s": [
+          0.003006,
+          0.003011,
+          0.003028,
+          0.003032,
+          0.003309
+        ]
+      }
+    },
+    "maze": {
+      "base_wasmtime": {
+        "median_wall_s": 0.0008615909609943628,
+        "min_wall_s": 0.0008331819553859532,
+        "max_wall_s": 0.0017901209648698568,
+        "walls_s": [
+          0.00179,
+          0.00086,
+          0.000833,
+          0.000889,
+          0.000862
+        ]
+      },
+      "cand_wasmtime": {
+        "median_wall_s": 0.0009511900134384632,
+        "min_wall_s": 0.0008158609853126109,
+        "max_wall_s": 0.0015662340447306633,
+        "walls_s": [
+          0.000951,
+          0.001566,
+          0.000816,
+          0.001466,
+          0.000855
+        ]
+      },
+      "base_wtime_aot_x64": {
+        "median_wall_s": 0.0025257529923692346,
+        "min_wall_s": 0.002467024023644626,
+        "max_wall_s": 0.0026765819638967514,
+        "walls_s": [
+          0.002664,
+          0.002677,
+          0.002526,
+          0.002467,
+          0.002478
+        ]
+      },
+      "cand_wtime_aot_x64": {
+        "median_wall_s": 0.002497682988177985,
+        "min_wall_s": 0.0024612839915789664,
+        "max_wall_s": 0.00263942196033895,
+        "walls_s": [
+          0.002488,
+          0.002639,
+          0.002461,
+          0.002498,
+          0.002516
+        ]
+      },
+      "cand_native_o2": {
+        "median_wall_s": 0.002927249006461352,
+        "min_wall_s": 0.002735121001023799,
+        "max_wall_s": 0.003037727961782366,
+        "walls_s": [
+          0.003038,
+          0.002981,
+          0.002927,
+          0.002788,
+          0.002735
+        ]
+      }
+    },
+    "mandelbrot": {
+      "base_wasmtime": {
+        "median_wall_s": 1.997166847,
+        "min_wall_s": 1.992138257,
+        "max_wall_s": 2.047803515,
+        "walls_s": [
+          2.047804,
+          1.992138,
+          1.997167,
+          1.995758,
+          2.014706
+        ]
+      },
+      "cand_wasmtime": {
+        "median_wall_s": 2.0053404,
+        "min_wall_s": 1.989955687,
+        "max_wall_s": 2.067021299,
+        "walls_s": [
+          2.00534,
+          1.989956,
+          1.99,
+          2.006756,
+          2.067021
+        ]
+      },
+      "base_wtime_aot_x64": {
+        "median_wall_s": 2.752519237,
+        "min_wall_s": 2.730833428,
+        "max_wall_s": 2.80201145,
+        "walls_s": [
+          2.730833,
+          2.802011,
+          2.752519,
+          2.787805,
+          2.736724
+        ]
+      },
+      "cand_wtime_aot_x64": {
+        "median_wall_s": 2.78950445,
+        "min_wall_s": 2.701212637,
+        "max_wall_s": 2.804075173,
+        "walls_s": [
+          2.801342,
+          2.804075,
+          2.767836,
+          2.789504,
+          2.701213
+        ]
+      },
+      "cand_native_o2": {
+        "median_wall_s": 2.696065268,
+        "min_wall_s": 2.667925771,
+        "max_wall_s": 2.759973202,
+        "walls_s": [
+          2.714411,
+          2.676076,
+          2.667926,
+          2.696065,
+          2.759973
+        ]
+      }
+    }
+  },
+  "suite_b_large_wasm64": {
+    "selfhost64": {
+      "base_wasm_bytes": 6905752,
+      "cand_wasm_bytes": 6643837,
+      "wasm_delta_pct": -3.79,
+      "base_x64_bin_bytes": 14902392,
+      "cand_x64_bin_bytes": 14818872,
+      "cand_aarch64_bin_bytes": 14007184,
+      "cand_aarch64_aot_ms": 1497.97,
+      "emit_o2_8j": {
+        "base_selfhost_o2": {
+          "median_wall_s": 0.6370197420474142,
+          "min_wall_s": 0.5962701910175383,
+          "max_wall_s": 0.6384578309953213,
+          "walls_s": [
+            0.638458,
+            0.63702,
+            0.59627
+          ]
+        },
+        "cand_selfhost_o2": {
+          "median_wall_s": 0.6263580279774033,
+          "min_wall_s": 0.6113675179658458,
+          "max_wall_s": 0.6285859239869751,
+          "walls_s": [
+            0.628586,
+            0.626358,
+            0.611368
+          ]
+        }
+      },
+      "wtime_aot_x64_build": {
+        "base_x64_aot": {
+          "median_wall_s": 2.052290211955551,
+          "min_wall_s": 2.049624370993115,
+          "max_wall_s": 2.1166784549714066,
+          "walls_s": [
+            2.116678,
+            2.05229,
+            2.049624
+          ]
+        },
+        "cand_x64_aot": {
+          "median_wall_s": 2.069608682009857,
+          "min_wall_s": 2.0679245779756457,
+          "max_wall_s": 2.1432251690421253,
+          "walls_s": [
+            2.067925,
+            2.069609,
+            2.143225
+          ]
+        }
+      },
+      "self_compile_x64_run": {
+        "base_selfhost_x64_run": {
+          "median_wall_s": 1.1506833370076492,
+          "min_wall_s": 1.1136949119972996,
+          "max_wall_s": 1.1631359180319123,
+          "walls_s": [
+            1.150683,
+            1.113695,
+            1.163136
+          ]
+        },
+        "cand_selfhost_x64_run": {
+          "median_wall_s": 1.11912102001952,
+          "min_wall_s": 1.0938286269665696,
+          "max_wall_s": 1.1423516880022362,
+          "walls_s": [
+            1.142352,
+            1.119121,
+            1.093829
+          ]
+        }
+      },
+      "self_compile_bit_exact_sha256": "537d2907bf9908d433c88d3f6e82d9c6a3318617f00212de74a476332b82376e"
+    },
+    "blot2": {
+      "base_o0_bytes": 8743794,
+      "cand_o0_bytes": 8525852,
+      "o0_delta_pct": -2.49,
+      "base_o2_bytes": 13407143,
+      "cand_o2_bytes": 13128338,
+      "o2_delta_pct": -2.08,
+      "emit_o0_8j": {
+        "base_blot2_o0": {
+          "median_wall_s": 1.9056766140274704,
+          "min_wall_s": 1.8794919599895366,
+          "max_wall_s": 1.9650939880521037,
+          "walls_s": [
+            1.905677,
+            1.965094,
+            1.879492
+          ]
+        },
+        "cand_blot2_o0": {
+          "median_wall_s": 1.8592510820017196,
+          "min_wall_s": 1.8209470879519358,
+          "max_wall_s": 1.8953914729645476,
+          "walls_s": [
+            1.820947,
+            1.895391,
+            1.859251
+          ]
+        }
+      },
+      "emit_o2_8j": {
+        "base_blot2_o2": {
+          "median_wall_s": 2.0445779230212793,
+          "min_wall_s": 2.0424233360099606,
+          "max_wall_s": 2.0627325620152988,
+          "walls_s": [
+            2.044578,
+            2.042423,
+            2.062733
+          ]
+        },
+        "cand_blot2_o2": {
+          "median_wall_s": 2.070734189997893,
+          "min_wall_s": 1.9990256419987418,
+          "max_wall_s": 2.0796758939977735,
+          "walls_s": [
+            2.070734,
+            1.999026,
+            2.079676
+          ]
+        }
+      },
+      "cases": {
+        "fibonacci": {
+          "sha256": "e60d8276e536de01a86bf04e50e341b26136d91b7f60aa6e1db3f51e6073f7d2",
+          "runs": {
+            "winch_cand_o0_cold": {
+              "median_wall_s": 1.0924252190161496,
+              "min_wall_s": 1.0806115720188245,
+              "max_wall_s": 1.1260443619685248,
+              "walls_s": [
+                1.126044,
+                1.080612,
+                1.092425
+              ]
+            },
+            "wtime_aot_fast_cand_o0_cold": {
+              "median_wall_s": 1.280412626976613,
+              "min_wall_s": 1.2759437029599212,
+              "max_wall_s": 1.2832610600162297,
+              "walls_s": [
+                1.280413,
+                1.283261,
+                1.275944
+              ]
+            },
+            "wtime_aot_o2_cand_o2_cold": {
+              "median_wall_s": 3.5301505780080333,
+              "min_wall_s": 3.4838833499816246,
+              "max_wall_s": 3.5786402450175956,
+              "walls_s": [
+                3.530151,
+                3.483883,
+                3.57864
+              ]
+            },
+            "wtime_aot_o2_cand_o2_warm": {
+              "median_wall_s": 0.08613205602159724,
+              "min_wall_s": 0.084506698010955,
+              "max_wall_s": 0.11231516097905114,
+              "walls_s": [
+                0.112315,
+                0.084507,
+                0.086132
+              ]
+            }
+          }
+        },
+        "matrix_multiply": {
+          "sha256": "1c9da72962f9115906f67cb5c52625c09d6fbfdf4e404a93cd1cd0c114e0b691",
+          "runs": {
+            "winch_cand_o0_cold": {
+              "median_wall_s": 1.1711188370245509,
+              "min_wall_s": 1.1380485039553605,
+              "max_wall_s": 1.1892833649762906,
+              "walls_s": [
+                1.171119,
+                1.138049,
+                1.189283
+              ]
+            },
+            "wtime_aot_fast_cand_o0_cold": {
+              "median_wall_s": 1.3915809130412526,
+              "min_wall_s": 1.3598526630084962,
+              "max_wall_s": 1.3916699119727127,
+              "walls_s": [
+                1.391581,
+                1.359853,
+                1.39167
+              ]
+            },
+            "wtime_aot_o2_cand_o2_cold": {
+              "median_wall_s": 3.6856273090234026,
+              "min_wall_s": 3.576373532996513,
+              "max_wall_s": 3.7515795339713804,
+              "walls_s": [
+                3.685627,
+                3.75158,
+                3.576374
+              ]
+            },
+            "wtime_aot_o2_cand_o2_warm": {
+              "median_wall_s": 0.11412684299284592,
+              "min_wall_s": 0.11370708397589624,
+              "max_wall_s": 0.11600310495123267,
+              "walls_s": [
+                0.114127,
+                0.116003,
+                0.113707
+              ]
+            }
+          }
+        }
+      }
+    }
+  }
+}

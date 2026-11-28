@@ -42,7 +42,7 @@ let OPT_FACT_ADDRESSED: u32 = 4;
 let OPT_FACT_INDEX_VAR: u32 = 8;
 struct OptFact { flags: u32 = 0, calls: i32 = 0, literal: i64 = -1 }
 struct OptBoundGuard { index_sym: i64, index_field: i64 = -1, index_is_ref: bool = false, arr_sym: i64, arr_field: i64, arr_imm_slice: bool = false, pos: bool = false }
-struct OptLenAlias { sym: i64, arr_sym: i64, arr_field: i64, arr_imm_slice: bool = false, delta: i64 = 0 }
+struct OptLenAlias { sym: i64, arr_sym: i64, arr_field: i64, arr_imm_slice: bool = false, delta: i64 = 0, le_only: bool = false }
 struct OptLenMin { arr_sym: i64, arr_field: i64, arr_imm_slice: bool = false, min_len: i64 = 0 }
 struct OptLenEq { a_sym: i64, a_field: i64, a_imm: bool = false, b_sym: i64, b_field: i64, b_imm: bool = false, ordered: bool = false, stable: bool = false }
 struct OptBoundsFacts {
@@ -86,7 +86,7 @@ struct OptBoundState {
     body: i64 = -1,
     inline_parent: i64 = -1, inline_parent_body: i64 = -1,
     // Scalar scratch outputs for zero-frame path/key matching.
-    path_sym: i64 = -1, path_field: i64 = -1, path_imm: bool = false, path_delta: i64 = 0,
+    path_sym: i64 = -1, path_field: i64 = -1, path_imm: bool = false, path_delta: i64 = 0, path_le_only: bool = false,
     key_sym: i64 = -1, key_field: i64 = -1, key_ref: bool = false,
 }
 struct OptBoundSnap {
@@ -472,6 +472,9 @@ recursive fn opt_collect(p: Program&, c: OptCollector&, node: i64) {
        kind == N_FUNCTION || kind == N_FUNCTION_VALUE { return; }
     if c.track_bounds && kind == N_INDEX {
         opt_mark_index_vars(c, n.right);
+    } else if c.track_bounds && kind == N_BINARY && (n.integer == T_DIV || n.integer == T_MOD) &&
+              n.right >= 0 && c.nodes[n.right].kind == N_INTEGER && c.nodes[n.right].integer > 0 {
+        opt_mark_index_vars(c, n.left);
     } else if c.track_bounds && kind == N_FOR && n.left >= 0 && c.nodes[n.left].kind == N_RANGE {
         opt_mark_index_vars(c, c.nodes[n.left].left);
     } else if c.track_bounds && kind == N_BINARY && (n.integer == T_LT || n.integer == T_LTEQ || n.integer == T_GT || n.integer == T_GTEQ) {
@@ -1177,7 +1180,13 @@ recursive fn opt_node<O>(p: Program&, o: O&, node: i64, depth: i64) {
         if (fact.flags & (OPT_FACT_WRITTEN | OPT_FACT_ADDRESSED)) == 0 && opt_literal(p, o, n.right) {
             opt_body_set_literal(o, n.symbol, n.right);
         }
-    } else if n.kind == N_BINARY { opt_fold_binary(p, o, node, n); }
+    } else if n.kind == N_BINARY {
+        if (n.integer == T_DIV || n.integer == T_MOD) && n.right >= 0 &&
+           opt_body_read(p, o, n.right).kind == N_INTEGER && opt_body_read(p, o, n.right).integer > 0 {
+            opt_body_note_index(p, o);
+        }
+        opt_fold_binary(p, o, node, n);
+    }
     else if n.kind == N_UNARY && n.left >= 0 {
         let value: const Node& = opt_body_read(p, o, n.left);
         if value.kind == N_INTEGER {
@@ -1549,19 +1558,19 @@ fn opt_mark_guard_pos(bs: OptBoundState&, sym: i64) {
     }
 }
 
-fn opt_add_alias_raw(bs: OptBoundState&, sym: i64, asym: i64, afield: i64, aimm: bool, delta: i64) {
+fn opt_add_alias_raw(bs: OptBoundState&, sym: i64, asym: i64, afield: i64, aimm: bool, delta: i64, le_only: bool = false) {
     if sym < 0 || asym < 0 || bs.alen >= 16 { return; }
     for i in 0..bs.alen {
         if bs.aliases[i].sym == sym {
-            bs.aliases[i].arr_sym = asym; bs.aliases[i].arr_field = afield; bs.aliases[i].arr_imm_slice = aimm; bs.aliases[i].delta = delta;
+            bs.aliases[i].arr_sym = asym; bs.aliases[i].arr_field = afield; bs.aliases[i].arr_imm_slice = aimm; bs.aliases[i].delta = delta; bs.aliases[i].le_only = le_only;
             return;
         }
     }
     if bs.alen < bs.aliases.len {
         bs.aliases[bs.alen].sym = sym; bs.aliases[bs.alen].arr_sym = asym; bs.aliases[bs.alen].arr_field = afield;
-        bs.aliases[bs.alen].arr_imm_slice = aimm; bs.aliases[bs.alen].delta = delta;
+        bs.aliases[bs.alen].arr_imm_slice = aimm; bs.aliases[bs.alen].delta = delta; bs.aliases[bs.alen].le_only = le_only;
     } else {
-        bs.aliases.push(OptLenAlias { sym: sym, arr_sym: asym, arr_field: afield, arr_imm_slice: aimm, delta: delta });
+        bs.aliases.push(OptLenAlias { sym: sym, arr_sym: asym, arr_field: afield, arr_imm_slice: aimm, delta: delta, le_only: le_only });
     }
     bs.alen++;
 }
@@ -1716,43 +1725,154 @@ fn opt_sym_has_guard(bs: OptBoundState&, sym: i64) -> bool {
     return false;
 }
 
-fn opt_upper_bound_const(p: Program&, node: i64) -> i64 {
+fn opt_sym_const_ub(bs: OptBoundState&, sym: i64) -> i64 {
+    if sym < 0 || bs.glen == 0 { return -1; }
+    var best: i64 = -1;
+    for i in 0..bs.glen {
+        let g: const OptBoundGuard& = bs.guards[i];
+        if g.index_sym == sym && g.index_field < 0 && g.arr_sym == -2 && g.arr_field > 0 {
+            let ub = g.arr_field - 1;
+            if best < 0 || ub < best { best = ub; }
+        }
+    }
+    return best;
+}
+
+recursive fn opt_upper_bound_const(p: Program&, node: i64) -> i64 {
     if node < 0 { return -1; }
     let cur = opt_unwrap_wide_cast(p, node);
     let n: const Node& = p.nodes[cur];
     if n.kind == N_INTEGER && n.integer >= 0 { return n.integer; }
     if n.type_id == TYPE_U8 { return 255; }
     if n.type_id == TYPE_U16 { return 65535; }
-    if n.kind == N_BINARY && n.integer == T_BITAND && n.left >= 0 && n.right >= 0 {
+    if n.kind == N_BINARY && n.left >= 0 && n.right >= 0 {
         let ty = n.type_id;
         let ok_ty = ty == TYPE_I64 || ty == TYPE_U64 || ty == TYPE_U32 || ty == TYPE_U16 || ty == TYPE_U8 || ty == TYPE_I32;
-        if ok_ty {
+        if !ok_ty { return -1; }
+        if n.integer == T_BITAND {
             var mask: i64 = -1;
             if p.nodes[n.right].kind == N_INTEGER && p.nodes[n.right].integer >= 0 { mask = p.nodes[n.right].integer; }
             else if p.nodes[n.left].kind == N_INTEGER && p.nodes[n.left].integer >= 0 { mask = p.nodes[n.left].integer; }
             if mask >= 0 && (ty != TYPE_I32 || mask <= 2147483647) { return mask; }
+        } else if n.integer == T_MOD && p.nodes[n.right].kind == N_INTEGER && p.nodes[n.right].integer > 0 {
+            let c = p.nodes[n.right].integer;
+            if ty != TYPE_I32 || c <= 2147483647 { return c - 1; }
+        } else if n.integer == T_DIV && p.nodes[n.right].kind == N_INTEGER && p.nodes[n.right].integer > 0 {
+            let lub = opt_upper_bound_const(p, n.left);
+            if lub >= 0 { return lub / p.nodes[n.right].integer; }
+        } else if n.integer == T_SHR && p.nodes[n.right].kind == N_INTEGER && p.nodes[n.right].integer >= 0 && p.nodes[n.right].integer < 63 {
+            let lub = opt_upper_bound_const(p, n.left);
+            if lub >= 0 { return lub >> p.nodes[n.right].integer; }
         }
     }
     return -1;
 }
 
-fn opt_is_nonneg(p: Program&, o: const OptBoundsFacts&, bs: OptBoundState&, node: i64) -> bool {
+recursive fn opt_upper_bound_const_bs(p: Program&, bs: OptBoundState&, node: i64) -> i64 {
+    if node < 0 { return -1; }
+    let cur = opt_unwrap_wide_cast(p, node);
+    let n: const Node& = p.nodes[cur];
+    if n.kind == N_INTEGER && n.integer >= 0 { return n.integer; }
+    if n.kind == N_NAME && n.symbol >= 0 {
+        let sub = opt_sym_const_ub(bs, n.symbol);
+        if sub >= 0 { return sub; }
+    }
+    if n.kind == N_BLOCK && n.first >= 0 {
+        let s1 = n.first;
+        let n1: const Node& = p.nodes[s1];
+        if n1.next < 0 && n1.kind == N_BREAK && n1.left >= 0 {
+            return opt_upper_bound_const_bs(p, bs, n1.left);
+        }
+        if n1.kind == N_VARIABLE && n1.first < 0 && n1.symbol >= 0 && n1.right >= 0 && n1.next >= 0 {
+            let s2 = n1.next;
+            let n2: const Node& = p.nodes[s2];
+            if n2.next < 0 && n2.kind == N_BREAK && n2.left >= 0 && !opt_sym_has_guard(bs, n1.symbol) {
+                let arg_ub = opt_upper_bound_const_bs(p, bs, n1.right);
+                if arg_ub >= 0 && arg_ub <= 1048576 {
+                    let saved_glen = bs.glen;
+                    opt_add_guard_raw(bs, n1.symbol, -1, false, -2, arg_ub + 1, true);
+                    let res = opt_upper_bound_const_bs(p, bs, n2.left);
+                    bs.glen = saved_glen;
+                    return res;
+                }
+            }
+        }
+    }
+    if n.type_id == TYPE_U8 { return 255; }
+    if n.type_id == TYPE_U16 { return 65535; }
+    if n.kind == N_BINARY && n.left >= 0 && n.right >= 0 {
+        let ty = n.type_id;
+        let ok_ty = ty == TYPE_I64 || ty == TYPE_U64 || ty == TYPE_U32 || ty == TYPE_U16 || ty == TYPE_U8 || ty == TYPE_I32;
+        if !ok_ty { return -1; }
+        if n.integer == T_BITAND {
+            var mask: i64 = -1;
+            if p.nodes[n.right].kind == N_INTEGER && p.nodes[n.right].integer >= 0 { mask = p.nodes[n.right].integer; }
+            else if p.nodes[n.left].kind == N_INTEGER && p.nodes[n.left].integer >= 0 { mask = p.nodes[n.left].integer; }
+            if mask >= 0 && (ty != TYPE_I32 || mask <= 2147483647) { return mask; }
+        } else if n.integer == T_MOD && p.nodes[n.right].kind == N_INTEGER && p.nodes[n.right].integer > 0 {
+            let c = p.nodes[n.right].integer;
+            if ty != TYPE_I32 || c <= 2147483647 { return c - 1; }
+        } else if n.integer == T_DIV && p.nodes[n.right].kind == N_INTEGER && p.nodes[n.right].integer > 0 {
+            let lub = opt_upper_bound_const_bs(p, bs, n.left);
+            if lub >= 0 { return lub / p.nodes[n.right].integer; }
+        } else if n.integer == T_SHR && p.nodes[n.right].kind == N_INTEGER && p.nodes[n.right].integer >= 0 && p.nodes[n.right].integer < 63 {
+            let lub = opt_upper_bound_const_bs(p, bs, n.left);
+            if lub >= 0 { return lub >> p.nodes[n.right].integer; }
+        } else if (n.integer == T_PLUS || n.integer == T_MUL) && (ty == TYPE_I64 || ty == TYPE_U64) {
+            let lub = opt_upper_bound_const_bs(p, bs, n.left);
+            if lub >= 0 && lub <= 1048576 {
+                let rub = opt_upper_bound_const_bs(p, bs, n.right);
+                if rub >= 0 && rub <= 1048576 {
+                    if n.integer == T_PLUS { return lub + rub; }
+                    let prod = lub * rub;
+                    if prod <= 1048576 { return prod; }
+                }
+            }
+        }
+    }
+    return -1;
+}
+
+recursive fn opt_is_nonneg(p: Program&, o: const OptBoundsFacts&, bs: OptBoundState&, node: i64) -> bool {
     if node < 0 { return false; }
     let cur = opt_unwrap_wide_cast(p, node);
     let kind = p.nodes[cur].kind;
     if kind == N_INTEGER && p.nodes[cur].integer >= 0 { return true; }
     if opt_type_unsigned(p, p.nodes[cur].type_id) { return true; }
-    if kind == N_NAME && p.nodes[cur].symbol >= 0 && opt_has_nonneg(bs, p.nodes[cur].symbol) { return true; }
+    if kind == N_NAME && p.nodes[cur].symbol >= 0 {
+        let sym = p.nodes[cur].symbol;
+        if opt_has_nonneg(bs, sym) { return true; }
+        for ai in 0..bs.alen {
+            if bs.aliases[ai].sym == sym && bs.aliases[ai].delta == 0 { return true; }
+        }
+        return false;
+    }
     if (kind == N_CALL || kind == N_MEMBER) && opt_len_target_into(p, o, bs, cur) { return true; }
-    if kind == N_BINARY && p.nodes[cur].integer == T_BITAND && opt_upper_bound_const(p, cur) >= 0 { return true; }
+    if kind == N_BINARY {
+        let op = p.nodes[cur].integer; let l = p.nodes[cur].left; let r = p.nodes[cur].right;
+        let ty = p.nodes[cur].type_id;
+        if op == T_BITAND && opt_upper_bound_const(p, cur) >= 0 { return true; }
+        if ty >= 0 && p.types[ty].kind == TY_INT {
+            if op == T_MOD && r >= 0 && p.nodes[r].kind == N_INTEGER && p.nodes[r].integer > 0 { return true; }
+            if op == T_DIV && l >= 0 && r >= 0 && p.nodes[r].kind == N_INTEGER && p.nodes[r].integer > 0 && opt_is_nonneg(p, o, bs, l) { return true; }
+            if op == T_SHR && l >= 0 && opt_is_nonneg(p, o, bs, l) { return true; }
+            if (op == T_MUL || op == T_PLUS) && ty == TYPE_I64 && l >= 0 && r >= 0 {
+                let lub = opt_upper_bound_const_bs(p, bs, l);
+                if lub >= 0 && lub <= 1048576 {
+                    let rub = opt_upper_bound_const_bs(p, bs, r);
+                    if rub >= 0 && rub <= 1048576 && opt_is_nonneg(p, o, bs, l) && opt_is_nonneg(p, o, bs, r) { return true; }
+                }
+            }
+        }
+    }
     return false;
 }
 
 recursive fn opt_len_expr_into(p: Program&, o: const OptBoundsFacts&, bs: OptBoundState&, node: i64) -> bool {
-    if node < 0 { bs.path_sym = -1; return false; }
+    if node < 0 { bs.path_sym = -1; bs.path_le_only = false; return false; }
     let kind = p.nodes[node].kind;
     if kind == N_CALL || kind == N_MEMBER {
-        if opt_len_target_into(p, o, bs, node) { bs.path_delta = 0; return true; }
+        if opt_len_target_into(p, o, bs, node) { bs.path_delta = 0; bs.path_le_only = false; return true; }
         return false;
     }
     if kind == N_CAST && p.nodes[node].left >= 0 {
@@ -1761,18 +1881,18 @@ recursive fn opt_len_expr_into(p: Program&, o: const OptBoundsFacts&, bs: OptBou
         if (dst == TYPE_I64 || dst == TYPE_U64) && (src == TYPE_I64 || src == TYPE_U64) {
             return opt_len_expr_into(p, o, bs, p.nodes[node].left);
         }
-        bs.path_sym = -1; return false;
+        bs.path_sym = -1; bs.path_le_only = false; return false;
     }
     if kind == N_NAME && p.nodes[node].symbol >= 0 && bs.alen > 0 {
         let sym = p.nodes[node].symbol;
         for i in 0..bs.alen {
             let a: const OptLenAlias& = bs.aliases[i];
             if a.sym == sym {
-                bs.path_sym = a.arr_sym; bs.path_field = a.arr_field; bs.path_imm = a.arr_imm_slice; bs.path_delta = a.delta;
+                bs.path_sym = a.arr_sym; bs.path_field = a.arr_field; bs.path_imm = a.arr_imm_slice; bs.path_delta = a.delta; bs.path_le_only = a.le_only;
                 return true;
             }
         }
-        bs.path_sym = -1; return false;
+        bs.path_sym = -1; bs.path_le_only = false; return false;
     }
     if kind == N_BINARY && p.nodes[node].integer == T_MINUS && p.nodes[node].left >= 0 && p.nodes[node].right >= 0 &&
        p.nodes[p.nodes[node].right].kind == N_INTEGER && p.nodes[p.nodes[node].right].integer >= 0 && p.nodes[p.nodes[node].right].integer <= 1048576 {
@@ -1782,7 +1902,7 @@ recursive fn opt_len_expr_into(p: Program&, o: const OptBoundsFacts&, bs: OptBou
             return true;
         }
     }
-    bs.path_sym = -1; return false;
+    bs.path_sym = -1; bs.path_le_only = false; return false;
 }
 
 fn opt_match_inbounds_into(p: Program&, o: const OptBoundsFacts&, bs: OptBoundState&, node: i64) -> bool {
@@ -1800,10 +1920,10 @@ fn opt_match_inbounds_into(p: Program&, o: const OptBoundsFacts&, bs: OptBoundSt
     let right = p.nodes[cur].right;
     if kind != N_BINARY || left < 0 || right < 0 { bs.path_sym = -1; return false; }
     if op == T_BITAND && (ty == TYPE_I64 || ty == TYPE_U64) && bs.mlen > 0 {
-        if opt_len_expr_into(p, o, bs, right) && bs.path_delta == -1 && opt_has_len_min_raw(bs, bs.path_sym, bs.path_field, 1) { return true; }
-        if opt_len_expr_into(p, o, bs, left) && bs.path_delta == -1 && opt_has_len_min_raw(bs, bs.path_sym, bs.path_field, 1) { return true; }
+        if opt_len_expr_into(p, o, bs, right) && !bs.path_le_only && bs.path_delta == -1 && opt_has_len_min_raw(bs, bs.path_sym, bs.path_field, 1) { return true; }
+        if opt_len_expr_into(p, o, bs, left) && !bs.path_le_only && bs.path_delta == -1 && opt_has_len_min_raw(bs, bs.path_sym, bs.path_field, 1) { return true; }
     } else if op == T_MOD && opt_type_unsigned(p, ty) {
-        if opt_len_expr_into(p, o, bs, right) && bs.path_delta == 0 { return true; }
+        if opt_len_expr_into(p, o, bs, right) && !bs.path_le_only && bs.path_delta == 0 { return true; }
     }
     bs.path_sym = -1; return false;
 }
@@ -2071,7 +2191,8 @@ fn opt_invalidate_call(p: Program&, bs: OptBoundState&, node: i64) {
         if (an.flags & F_REFERENCE_CONTEXT) != 0 {
             var root: i64 = -1;
             if an.kind == N_NAME { root = an.symbol; } else { root = check_place_root(p, arg); }
-            if root >= 0 && p.symbols[root].type_id >= 0 && p.types[p.symbols[root].type_id].kind != TY_REF {
+            if root >= 0 && p.symbols[root].type_id >= 0 && p.types[p.symbols[root].type_id].kind != TY_REF &&
+               !(p.types[p.symbols[root].type_id].kind == TY_SLICE && (p.symbols[root].flags & (S_MUTABLE | S_GLOBAL)) == 0) {
                 opt_kill_sym(bs, root);
             }
         }
@@ -2258,9 +2379,10 @@ recursive fn opt_diverges(p: Program&, node: i64) -> bool {
     return false;
 }
 
-// Counts the maximum number of `sym++` / `sym += 1` increments on any path through
-// `node`; returns -1 if `sym` is modified in any other way or taken by reference.
-recursive fn opt_count_unit_incs(p: Program&, bs: OptBoundState&, node: i64, sym: i64) -> i64 {
+// Counts the maximum number of `sym++` / `sym += 1` (or bounded positive step
+// when `allow_step` is true) increments on any path through `node`; returns -1
+// if `sym` is modified in any other way or taken by reference.
+recursive fn opt_count_unit_incs(p: Program&, o: const OptBoundsFacts&, bs: OptBoundState&, node: i64, sym: i64, allow_step: bool = false, loop_body: i64 = -1) -> i64 {
     if node < 0 { return 0; }
     if bs.scan_budget <= 0 { return -1; }
     bs.scan_budget--;
@@ -2278,11 +2400,28 @@ recursive fn opt_count_unit_incs(p: Program&, bs: OptBoundState&, node: i64, sym
         if check_place_root(p, left) == sym {
             if p.nodes[left].kind != N_NAME || p.nodes[left].symbol != sym { return -1; }
             if op == T_INC { return 1; }
-            if op == T_PLUSEQ && right >= 0 && p.nodes[right].kind == N_INTEGER && p.nodes[right].integer == 1 { return 1; }
+            if op == T_PLUSEQ && right >= 0 {
+                if p.nodes[right].kind == N_INTEGER {
+                    let rv = p.nodes[right].integer;
+                    if rv == 1 || allow_step && rv >= 0 && rv <= 1048576 { return 1; }
+                } else if allow_step && p.nodes[right].kind == N_NAME && p.nodes[right].symbol >= 0 &&
+                          p.nodes[right].symbol != sym && opt_has_nonneg(bs, p.nodes[right].symbol) {
+                    let ssym = p.nodes[right].symbol;
+                    let sub = opt_sym_const_ub(bs, ssym);
+                    if sub >= 0 && sub <= 1048576 {
+                        if opt_sym_immutable(o, ssym) { return 1; }
+                        let saved_budget = bs.scan_budget;
+                        bs.scan_budget = 64;
+                        let step_mod = opt_subtree_modifies_sym(p, bs, loop_body, ssym);
+                        bs.scan_budget = saved_budget;
+                        if !step_mod { return 1; }
+                    }
+                }
+            }
             if op == T_ASSIGN && right >= 0 && p.nodes[right].kind == N_INTEGER && p.nodes[right].integer >= 0 { return 0; }
             return -1;
         }
-        return opt_count_unit_incs(p, bs, right, sym);
+        return opt_count_unit_incs(p, o, bs, right, sym, allow_step, loop_body);
     }
     if kind == N_MULTI_ASSIGN {
         var target = first;
@@ -2293,9 +2432,9 @@ recursive fn opt_count_unit_incs(p: Program&, bs: OptBoundState&, node: i64, sym
     }
     if kind == N_UNARY && op == T_BITAND && check_place_root(p, left) == sym { return -1; }
     if kind == N_IF {
-        let c = opt_count_unit_incs(p, bs, left, sym); if c < 0 { return -1; }
-        let a = opt_count_unit_incs(p, bs, right, sym); if a < 0 { return -1; }
-        let b = opt_count_unit_incs(p, bs, third, sym); if b < 0 { return -1; }
+        let c = opt_count_unit_incs(p, o, bs, left, sym, allow_step, loop_body); if c < 0 { return -1; }
+        let a = opt_count_unit_incs(p, o, bs, right, sym, allow_step, loop_body); if a < 0 { return -1; }
+        let b = opt_count_unit_incs(p, o, bs, third, sym, allow_step, loop_body); if b < 0 { return -1; }
         var branch = a; if b > branch { branch = b; }
         return c + branch;
     }
@@ -2308,7 +2447,7 @@ recursive fn opt_count_unit_incs(p: Program&, bs: OptBoundState&, node: i64, sym
     while child >= 0 {
         let ck = p.nodes[child].kind;
         if ck < N_INTEGER || ck > N_STRING {
-            let c = opt_count_unit_incs(p, bs, child, sym); if c < 0 { return -1; }
+            let c = opt_count_unit_incs(p, o, bs, child, sym, allow_step, loop_body); if c < 0 { return -1; }
             total += c;
         }
         child = p.nodes[child].next;
@@ -2316,21 +2455,21 @@ recursive fn opt_count_unit_incs(p: Program&, bs: OptBoundState&, node: i64, sym
     if left >= 0 && kind != N_RECORD && kind != N_VARIABLE {
         let lk = p.nodes[left].kind;
         if lk < N_INTEGER || lk > N_STRING {
-            let c = opt_count_unit_incs(p, bs, left, sym); if c < 0 { return -1; }
+            let c = opt_count_unit_incs(p, o, bs, left, sym, allow_step, loop_body); if c < 0 { return -1; }
             total += c;
         }
     }
     if right >= 0 {
         let rk = p.nodes[right].kind;
         if rk < N_INTEGER || rk > N_STRING {
-            let c = opt_count_unit_incs(p, bs, right, sym); if c < 0 { return -1; }
+            let c = opt_count_unit_incs(p, o, bs, right, sym, allow_step, loop_body); if c < 0 { return -1; }
             total += c;
         }
     }
     if third >= 0 {
         let tk = p.nodes[third].kind;
         if tk < N_INTEGER || tk > N_STRING {
-            let c = opt_count_unit_incs(p, bs, third, sym); if c < 0 { return -1; }
+            let c = opt_count_unit_incs(p, o, bs, third, sym, allow_step, loop_body); if c < 0 { return -1; }
             total += c;
         }
     }
@@ -2433,6 +2572,50 @@ recursive fn opt_cond_requires_pos(p: Program&, o: const OptBoundsFacts&, bs: Op
     return false;
 }
 
+// Returns 1 if `cond` bounds `sym < K` or `sym <= K` (0 <= K <= 1048576),
+// 2 if `cond` bounds `sym * sym <= K` or `sym * sym < K` (0 <= K <= 1048576),
+// 0 otherwise.
+recursive fn opt_cond_const_bound(p: Program&, o: const OptBoundsFacts&, bs: OptBoundState&, cond: i64, sym: i64) -> i64 {
+    if cond < 0 { return 0; }
+    let kind = p.nodes[cond].kind;
+    let op = p.nodes[cond].integer;
+    let left = p.nodes[cond].left;
+    let right = p.nodes[cond].right;
+    if kind != N_BINARY || left < 0 || right < 0 { return 0; }
+    if op == T_ANDAND {
+        let a = opt_cond_const_bound(p, o, bs, left, sym);
+        if a == 1 { return 1; }
+        let b = opt_cond_const_bound(p, o, bs, right, sym);
+        if b > a { return b; }
+        return a;
+    }
+    var expr = -1; var lim: i64 = -1;
+    if (op == T_LT || op == T_LTEQ) && p.nodes[right].kind == N_INTEGER {
+        expr = left; lim = p.nodes[right].integer + (if op == T_LTEQ { 1 } else { 0 });
+    } else if (op == T_GT || op == T_GTEQ) && p.nodes[left].kind == N_INTEGER {
+        expr = right; lim = p.nodes[left].integer + (if op == T_GTEQ { 1 } else { 0 });
+    }
+    if expr < 0 || lim <= 0 || lim > 1048577 { return 0; }
+    if opt_index_key_into(p, o, bs, expr) && bs.key_sym == sym && bs.key_field < 0 { return 1; }
+    let en: const Node& = p.nodes[expr];
+    if en.kind == N_BINARY && en.integer == T_MUL && en.type_id == TYPE_I64 && en.left >= 0 && en.right >= 0 &&
+       p.nodes[en.left].kind == N_NAME && p.nodes[en.right].kind == N_NAME &&
+       p.nodes[en.left].symbol == sym && p.nodes[en.right].symbol == sym {
+        return 2;
+    }
+    return 0;
+}
+
+fn opt_isqrt_lt(ub: i64) -> i64 {
+    // Largest integer `s >= 0` with `s * s < ub` (for `1 <= ub <= 1048577`).
+    var lo: i64 = 0; var hi: i64 = 1025;
+    while lo < hi {
+        let mid = (lo + hi + 1) >> 1;
+        if mid * mid < ub { lo = mid; } else { hi = mid - 1; }
+    }
+    return lo;
+}
+
 // Checks whether a `while` condition bounds `sym < some_arr.len` (or `<= some_arr.len - 1`).
 recursive fn opt_cond_bounds_sym(p: Program&, o: const OptBoundsFacts&, bs: OptBoundState&, cond: i64, sym: i64) -> bool {
     if cond < 0 { return false; }
@@ -2516,9 +2699,9 @@ fn opt_path_stable(p: Program&, o: const OptBoundsFacts&, bs: OptBoundState&, sy
 }
 
 fn opt_note_len_order(p: Program&, o: const OptBoundsFacts&, bs: OptBoundState&, shorter: i64, longer: i64) {
-    if !opt_len_expr_into(p, o, bs, shorter) || bs.path_delta != 0 { return; }
+    if !opt_len_expr_into(p, o, bs, shorter) || bs.path_le_only || bs.path_delta != 0 { return; }
     let a = bs.path_sym; let af = bs.path_field; let ai = bs.path_imm;
-    if !opt_len_expr_into(p, o, bs, longer) || bs.path_delta != 0 { return; }
+    if !opt_len_expr_into(p, o, bs, longer) || bs.path_le_only || bs.path_delta != 0 { return; }
     let b = bs.path_sym; let bf = bs.path_field; let bi = bs.path_imm;
     let stable = opt_path_stable(p, o, bs, a, af, ai) && opt_path_stable(p, o, bs, b, bf, bi);
     opt_add_len_eq_raw(bs, a, af, ai, b, bf, bi, true, stable);
@@ -2595,15 +2778,41 @@ recursive fn opt_harvest_cond_pass(p: Program&, o: const OptBoundsFacts&, bs: Op
         if cmp == T_EQ &&
            (lk == N_CALL || lk == N_MEMBER || lk == N_NAME && bs.alen > 0 || lk == N_CAST) &&
            (rk == N_CALL || rk == N_MEMBER || rk == N_NAME && bs.alen > 0 || rk == N_CAST) &&
-           opt_len_expr_into(p, o, bs, left) && bs.path_delta == 0 {
+           opt_len_expr_into(p, o, bs, left) && !bs.path_le_only && bs.path_delta == 0 {
             let a_sym = bs.path_sym; let a_field = bs.path_field; let a_imm = bs.path_imm;
-            if opt_len_expr_into(p, o, bs, right) && bs.path_delta == 0 {
+            if opt_len_expr_into(p, o, bs, right) && !bs.path_le_only && bs.path_delta == 0 {
                 opt_add_len_eq_raw(bs, a_sym, a_field, a_imm, bs.path_sym, bs.path_field, bs.path_imm);
             }
         }
         return;
     }
     if cmp != T_LT && cmp != T_LTEQ && cmp != T_GT && cmp != T_GTEQ { return; }
+    // Constant upper-bound guards: `sym < K`, `sym <= K`, or `sym * sym <= K` (with prior safe bound).
+    var c_expr = -1; var c_ub: i64 = -1;
+    if (cmp == T_LT || cmp == T_LTEQ) && p.nodes[right].kind == N_INTEGER {
+        c_expr = left; c_ub = p.nodes[right].integer + (if cmp == T_LTEQ { 1 } else { 0 });
+    } else if (cmp == T_GT || cmp == T_GTEQ) && p.nodes[left].kind == N_INTEGER {
+        c_expr = right; c_ub = p.nodes[left].integer + (if cmp == T_GTEQ { 1 } else { 0 });
+    }
+    if c_expr >= 0 && c_ub > 0 && c_ub <= 1048577 {
+        if opt_index_key_into(p, o, bs, c_expr) {
+            let nonneg = opt_key_unsigned_raw(p, bs.key_sym, bs.key_field) || (bs.key_field < 0 && opt_has_nonneg(bs, bs.key_sym));
+            if nonneg { opt_add_guard_raw(bs, bs.key_sym, bs.key_field, bs.key_ref, -2, c_ub, true); }
+        } else {
+            let en: const Node& = p.nodes[c_expr];
+            if en.kind == N_BINARY && en.integer == T_MUL && en.type_id == TYPE_I64 && en.left >= 0 && en.right >= 0 &&
+               p.nodes[en.left].kind == N_NAME && p.nodes[en.right].kind == N_NAME &&
+               p.nodes[en.left].symbol >= 0 && p.nodes[en.left].symbol == p.nodes[en.right].symbol {
+                let msym = p.nodes[en.left].symbol;
+                let pre_ub = opt_sym_const_ub(bs, msym);
+                if opt_has_nonneg(bs, msym) && pre_ub >= 0 && pre_ub <= 1048577 {
+                    let sq = opt_isqrt_lt(c_ub);
+                    opt_add_guard_raw(bs, msym, -1, false, -2, sq + 1, true);
+                }
+            }
+        }
+        return;
+    }
     var ok = false;
     if cmp == T_LT || cmp == T_LTEQ {
         let rk = p.nodes[right].kind;
@@ -2649,6 +2858,9 @@ fn opt_harvest_cond(p: Program&, o: const OptBoundsFacts&, bs: OptBoundState&, c
         let rk = p.nodes[cn.right].kind;
         if lk == N_INTEGER || rk == N_INTEGER {
             opt_harvest_cond_pass(p, o, bs, cond, truthy, 0, cond_mutated);
+            if cop != T_EQ && cop != T_NEQ {
+                opt_harvest_cond_pass(p, o, bs, cond, truthy, 1, cond_mutated);
+            }
             return;
         }
         if cop == T_EQ || cop == T_NEQ {
@@ -2915,9 +3127,9 @@ fn opt_check_index<B>(p: Program&, o: const OptBoundsFacts&, bs: OptBoundState&,
                 }
             }
         }
-        // 2. Constant / u8 / u16 / constant-bitmask upper bound against fixed array or LenMin.
-        if !proven && (rk == N_INTEGER || rk == N_BINARY && p.nodes[right].integer == T_BITAND || rk == N_CAST || rty == TYPE_U8 || rty == TYPE_U16) {
-            let ub = opt_upper_bound_const(p, right);
+        // 2. Constant / u8 / u16 / constant-bitmask / div-mod-shift / bounded-arithmetic upper bound against fixed array or LenMin.
+        if !proven && (rk == N_INTEGER || rk == N_BINARY || rk == N_CAST || rk == N_BLOCK || rty == TYPE_U8 || rty == TYPE_U16) {
+            let ub = opt_upper_bound_const_bs(p, bs, right);
             if ub >= 0 {
                 var sty: i64 = p.nodes[left].type_id;
                 if sty >= 0 && p.types[sty].kind == TY_REF { sty = p.types[sty].element; }
@@ -2930,7 +3142,7 @@ fn opt_check_index<B>(p: Program&, o: const OptBoundsFacts&, bs: OptBoundState&,
         }
         // 3. `arr[arr.len - k]` when `arr.len >= k`.
         if !proven && has_path && bs.mlen > 0 && rk == N_BINARY && p.nodes[right].integer == T_MINUS {
-            if opt_len_expr_into(p, o, bs, right) && bs.path_sym == psym && bs.path_field == pfield &&
+            if opt_len_expr_into(p, o, bs, right) && !bs.path_le_only && bs.path_sym == psym && bs.path_field == pfield &&
                bs.path_delta < 0 && opt_has_len_min_raw(bs, psym, pfield, -bs.path_delta) {
                 proven = true;
             }
@@ -2949,6 +3161,7 @@ fn opt_check_index<B>(p: Program&, o: const OptBoundsFacts&, bs: OptBoundState&,
     if bs.checkfree >= 0 && !proven { opt_bound_diagnose(p, o, sink, bs, node, -1, false); }
     if has_key {
         if has_path { opt_add_guard_raw(bs, ksym, kfield, kref, psym, pfield, pimm); }
+        if fixed_count > 0 && kfield < 0 { opt_add_guard_raw(bs, ksym, -1, false, -2, fixed_count, true); }
         if kfield < 0 { opt_add_nonneg(bs, ksym); }
     }
 }
@@ -3131,29 +3344,35 @@ recursive fn opt_prove_while<B>(p: Program&, o: const OptBoundsFacts&, bs: OptBo
     let n: const Node& = p.nodes[node];
     let left = n.left; let right = n.right;
     let snap = opt_snap_push(bs);
-    // Ascending unit-step induction: `var i = 0; while i < arr.len { ... i++; }`
+    // Ascending induction: `var i = 0; while i < arr.len { ... i++; }`,
+    // `while j <= K { ... j += step; }`, or `while i * i <= K { ... i++; }`.
     var ks0: i64 = -1; var ks1: i64 = -1; var ks2: i64 = -1; var ks3: i64 = -1;
+    var ksq0 = false; var ksq1 = false; var ksq2 = false; var ksq3 = false;
     var keep_count: i64 = 0;
     for ni in 0..bs.nlen {
         let nsym = bs.nonneg[ni];
-        if keep_count < 4 && nsym >= 0 && p.symbols[nsym].type_id == TYPE_I64 &&
-           opt_cond_bounds_sym(p, o, bs, left, nsym) {
-            var ok = false;
-            if opt_sym_immutable(o, nsym) { ok = true; }
-            else {
-                bs.scan_budget = 64;
-                if !opt_subtree_modifies_sym(p, bs, left, nsym) {
-                    bs.scan_budget = 128;
-                    let incs = opt_count_unit_incs(p, bs, right, nsym);
-                    ok = incs >= 0 && incs <= 1;
+        if keep_count < 4 && nsym >= 0 && p.symbols[nsym].type_id == TYPE_I64 {
+            let cbound = opt_cond_const_bound(p, o, bs, left, nsym);
+            let pre_ub = if cbound == 2 { opt_sym_const_ub(bs, nsym) } else { -1 };
+            let bounded = opt_cond_bounds_sym(p, o, bs, left, nsym) || cbound == 1 || cbound == 2 && pre_ub >= 0 && pre_ub <= 1048576;
+            if bounded {
+                var ok = false;
+                if opt_sym_immutable(o, nsym) { ok = true; }
+                else {
+                    bs.scan_budget = 64;
+                    if !opt_subtree_modifies_sym(p, bs, left, nsym) {
+                        bs.scan_budget = 128;
+                        let incs = opt_count_unit_incs(p, o, bs, right, nsym, cbound == 1, right);
+                        ok = incs >= 0 && incs <= 1;
+                    }
                 }
-            }
-            if ok {
-                if keep_count == 0 { ks0 = nsym; }
-                else if keep_count == 1 { ks1 = nsym; }
-                else if keep_count == 2 { ks2 = nsym; }
-                else { ks3 = nsym; }
-                keep_count++;
+                if ok {
+                    if keep_count == 0 { ks0 = nsym; ksq0 = cbound == 2; }
+                    else if keep_count == 1 { ks1 = nsym; ksq1 = cbound == 2; }
+                    else if keep_count == 2 { ks2 = nsym; ksq2 = cbound == 2; }
+                    else { ks3 = nsym; ksq3 = cbound == 2; }
+                    keep_count++;
+                }
             }
         }
     }
@@ -3194,10 +3413,10 @@ recursive fn opt_prove_while<B>(p: Program&, o: const OptBoundsFacts&, bs: OptBo
         bs.scan_budget = 64; opt_invalidate_subtree(p, o, bs, left);
         bs.scan_budget = 128; opt_invalidate_subtree(p, o, bs, right);
     }
-    if ks0 >= 0 { opt_add_nonneg(bs, ks0); }
-    if ks1 >= 0 { opt_add_nonneg(bs, ks1); }
-    if ks2 >= 0 { opt_add_nonneg(bs, ks2); }
-    if ks3 >= 0 { opt_add_nonneg(bs, ks3); }
+    if ks0 >= 0 { opt_add_nonneg(bs, ks0); if ksq0 { opt_add_guard_raw(bs, ks0, -1, false, -2, 1048578, true); } }
+    if ks1 >= 0 { opt_add_nonneg(bs, ks1); if ksq1 { opt_add_guard_raw(bs, ks1, -1, false, -2, 1048578, true); } }
+    if ks2 >= 0 { opt_add_nonneg(bs, ks2); if ksq2 { opt_add_guard_raw(bs, ks2, -1, false, -2, 1048578, true); } }
+    if ks3 >= 0 { opt_add_nonneg(bs, ks3); if ksq3 { opt_add_guard_raw(bs, ks3, -1, false, -2, 1048578, true); } }
     if dg0_sym >= 0 { opt_add_guard_raw(bs, dg0_sym, -1, false, dg0_asym, dg0_afield, dg0_aimm); opt_add_nonneg(bs, dg0_sym); }
     if dg1_sym >= 0 { opt_add_guard_raw(bs, dg1_sym, -1, false, dg1_asym, dg1_afield, dg1_aimm); opt_add_nonneg(bs, dg1_sym); }
     let cany0 = bs.mut_any_gen;
@@ -3210,10 +3429,10 @@ recursive fn opt_prove_while<B>(p: Program&, o: const OptBoundsFacts&, bs: OptBo
     let lma_dirty = bs.mut_arrays_gen != lma0; let lmr_dirty = bs.mut_refs_gen != lmr0; let lmg_dirty = bs.mut_grow_gen != lmg0;
     opt_snap_pop(bs, snap);
     if snap >= 0 { opt_replay_mutations(bs, lms0, lms1, lmf0, lmf1, lma_dirty, lmr_dirty, lmg_dirty); }
-    if ks0 >= 0 { opt_add_nonneg(bs, ks0); }
-    if ks1 >= 0 { opt_add_nonneg(bs, ks1); }
-    if ks2 >= 0 { opt_add_nonneg(bs, ks2); }
-    if ks3 >= 0 { opt_add_nonneg(bs, ks3); }
+    if ks0 >= 0 { opt_add_nonneg(bs, ks0); if ksq0 { opt_add_guard_raw(bs, ks0, -1, false, -2, 1048578, true); } }
+    if ks1 >= 0 { opt_add_nonneg(bs, ks1); if ksq1 { opt_add_guard_raw(bs, ks1, -1, false, -2, 1048578, true); } }
+    if ks2 >= 0 { opt_add_nonneg(bs, ks2); if ksq2 { opt_add_guard_raw(bs, ks2, -1, false, -2, 1048578, true); } }
+    if ks3 >= 0 { opt_add_nonneg(bs, ks3); if ksq3 { opt_add_guard_raw(bs, ks3, -1, false, -2, 1048578, true); } }
     if dg0_sym >= 0 { opt_add_guard_raw(bs, dg0_sym, -1, false, dg0_asym, dg0_afield, dg0_aimm); opt_add_nonneg(bs, dg0_sym); }
     if dg1_sym >= 0 { opt_add_guard_raw(bs, dg1_sym, -1, false, dg1_asym, dg1_afield, dg1_aimm); opt_add_nonneg(bs, dg1_sym); }
     if !bs.has_break && (node >= o.function_states.len || (o.function_states[node] & OPT_HAS_BREAK) == 0) {
@@ -3287,8 +3506,13 @@ recursive fn opt_prove_var<B>(p: Program&, o: const OptBoundsFacts&, bs: OptBoun
     let rk = p.nodes[right].kind;
     if (rk == N_CALL || rk == N_MEMBER || rk == N_BINARY && p.nodes[right].integer == T_MINUS || rk == N_CAST || rk == N_NAME && bs.alen > 0) &&
        opt_len_expr_into(p, o, bs, right) && bs.path_delta <= 0 {
-        opt_add_alias_raw(bs, sym, bs.path_sym, bs.path_field, bs.path_imm, bs.path_delta);
+        opt_add_alias_raw(bs, sym, bs.path_sym, bs.path_field, bs.path_imm, bs.path_delta, bs.path_le_only);
         if bs.path_delta == 0 && opt_is_index_var(o, sym) { opt_add_nonneg(bs, sym); }
+    } else if rk == N_BINARY && p.nodes[right].integer == T_DIV && p.nodes[right].left >= 0 && p.nodes[right].right >= 0 &&
+              p.nodes[p.nodes[right].right].kind == N_INTEGER && p.nodes[p.nodes[right].right].integer >= 1 &&
+              opt_len_expr_into(p, o, bs, p.nodes[right].left) && bs.path_delta == 0 {
+        opt_add_alias_raw(bs, sym, bs.path_sym, bs.path_field, bs.path_imm, 0, true);
+        if opt_is_index_var(o, sym) { opt_add_nonneg(bs, sym); }
     }
     if opt_is_index_var(o, sym) {
         if (rk == N_BINARY && (p.nodes[right].integer == T_BITAND || p.nodes[right].integer == T_MOD) || rk == N_CAST) &&
@@ -3309,8 +3533,14 @@ recursive fn opt_prove_var<B>(p: Program&, o: const OptBoundsFacts&, bs: OptBoun
         } else if rk == N_INTEGER && p.nodes[right].integer >= 0 {
             opt_add_guard_raw(bs, sym, -1, false, -2, p.nodes[right].integer + 1, true);
             opt_add_nonneg(bs, sym);
-        } else if opt_is_nonneg(p, o, bs, right) {
-            opt_add_nonneg(bs, sym);
+        } else {
+            let ub = opt_upper_bound_const_bs(p, bs, right);
+            if ub >= 0 && ub <= 1048576 {
+                opt_add_guard_raw(bs, sym, -1, false, -2, ub + 1, true);
+                opt_add_nonneg(bs, sym);
+            } else if opt_is_nonneg(p, o, bs, right) {
+                opt_add_nonneg(bs, sym);
+            }
         }
     }
     if rk == N_ARRAY || rk == N_FILL {
@@ -3500,6 +3730,12 @@ recursive fn opt_prove_bounds<B>(p: Program&, o: const OptBoundsFacts&, bs: OptB
         if op != T_ANDAND && op != T_OROR {
             if left >= 0 { let lk = p.nodes[left].kind; if lk < N_INTEGER || lk > N_NAME { opt_prove_bounds(p, o, bs, sink, left); } }
             if right >= 0 { let rk = p.nodes[right].kind; if rk < N_INTEGER || rk > N_NAME { opt_prove_bounds(p, o, bs, sink, right); } }
+            if (op == T_DIV || op == T_MOD) && (n.flags & F_BOUNDS_PROVEN) == 0 && left >= 0 && right >= 0 &&
+               n.type_id >= 0 && p.types[n.type_id].kind == TY_INT && !opt_type_unsigned(p, n.type_id) &&
+               p.nodes[right].kind == N_INTEGER && p.nodes[right].integer > 0 &&
+               opt_is_nonneg(p, o, bs, left) {
+                opt_bound_proven(p, sink, node);
+            }
             return;
         }
         if left >= 0 && right >= 0 {
