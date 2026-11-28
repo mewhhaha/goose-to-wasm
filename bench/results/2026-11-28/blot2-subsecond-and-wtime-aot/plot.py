@@ -14,6 +14,7 @@ import statistics
 
 import matplotlib
 matplotlib.use("Agg")
+from matplotlib.patches import Patch
 import matplotlib.pyplot as plt
 
 DIR = Path(__file__).resolve().parent
@@ -92,38 +93,48 @@ rows = [
     ("Edited compile.goose + --inc-cache\n(.life + per-fn O2 x64, PGO*)", cp_emit, c_fib_inc, EMERALD, PURPLE),
 ]
 
-fig, ax1 = plt.subplots(figsize=(8.8, 4.7), layout="constrained")
-fig.suptitle(
-    "Blot2 (79.0k LOC): breaking 1 second from Goose edit to O2 native x64 run",
-    x=0.01, ha="left", fontsize=12.0, weight="bold", color=INK,
-)
-
-y = [i * 1.15 for i in range(len(rows))]
-bh = 0.56
-for idx, (lbl, em, run, c_em, c_run) in enumerate(rows):
-    yi = y[idx]
-    ax1.barh(yi, em, height=bh, color=c_em, label="goosew -O0 Wasm64 emit" if idx == 1 else ("goosew -O0 emit (PGO*)" if idx == 4 else None))
-    ax1.barh(yi, run, left=em, height=bh, color=c_run, label=("wtime-aot O2 cold" if idx == 0 else ("goose-wasmtime Winch" if idx == 1 else ("goose-wtime-aot O2 --inc-cache" if idx == 2 else None))))
-    tot = em + run
-    ax1.annotate(
-        f"{tot:.3f} s  ({em*1000:.0f} + {run*1000:.0f} ms)",
-        (tot, yi), xytext=(6, 0), textcoords="offset points",
-        va="center", fontsize=9.1, weight="bold" if tot < 1.0 else "normal",
-        color=EMERALD if tot < 0.80 else INK,
-        bbox=HALO,
+with matplotlib.rc_context({"hatch.linewidth": 1.4}):
+    fig, ax1 = plt.subplots(figsize=(8.8, 4.7), layout="constrained")
+    fig.suptitle(
+        "Blot2 (79.0k LOC): breaking 1 second from Goose edit to O2 native x64 run",
+        x=0.01, ha="left", fontsize=12.0, weight="bold", color=INK,
     )
 
-ax1.axvline(1.0, color=RED, linestyle="--", linewidth=1.25, alpha=0.8)
-ax1.text(1.03, -0.44, "1.0 s", color=RED, fontsize=9.1, weight="bold", va="bottom", bbox=HALO)
-ax1.set_title("End-to-end edit -> compile -> run fibonacci.blot (seconds, 8 cores, median of 5 alt. rounds)", fontsize=9.6, loc="left", color=SLATE, pad=12)
-ax1.set_xlabel("Seconds (upstream C++ Goose: 30.6 s Clang -O0 · 98.8 s Clang -O2 · bit-exact sha e60d8276…)", fontsize=8.8, color=SLATE)
-ax1.set_yticks(y, labels=[r[0] for r in rows], fontsize=9.1, color=INK)
-ax1.set_ylim(y[-1] + 0.65, -0.78)
-ax1.set_xlim(0, max(r[1] + r[2] for r in rows) * 1.48)
-ax1.legend(frameon=True, facecolor="#ffffff", edgecolor="#e2e8f0", fontsize=8.7, loc="lower right", ncol=1)
-clean_ax(ax1, "x")
+    y = [i * 1.15 for i in range(len(rows))]
+    bh = 0.56
+    stripe_kw = {"edgecolor": "#ffffff", "hatch": "////", "linewidth": 0.6}
+    for idx, (lbl, em, run, c_em, c_run) in enumerate(rows):
+        yi = y[idx]
+        ax1.barh(yi, em, height=bh, color=c_em)
+        ax1.barh(yi, run, left=em, height=bh, facecolor=c_run, **stripe_kw)
+        tot = em + run
+        ax1.annotate(
+            f"{tot:.3f} s  ({em*1000:.0f} + {run*1000:.0f} ms)",
+            (tot, yi), xytext=(6, 0), textcoords="offset points",
+            va="center", fontsize=9.1, weight="bold" if tot < 1.0 else "normal",
+            color=EMERALD if tot < 0.80 else INK,
+            bbox=HALO,
+        )
 
-save(fig, "blot2_subsecond_turnaround")
+    ax1.axvline(1.0, color=RED, linestyle="--", linewidth=1.25, alpha=0.8)
+    ax1.text(1.03, -0.44, "1.0 s", color=RED, fontsize=9.1, weight="bold", va="bottom", bbox=HALO)
+    ax1.set_title("End-to-end edit -> compile -> run fibonacci.blot (seconds, 8 cores, median of 5 alt. rounds)", fontsize=9.6, loc="left", color=SLATE, pad=12)
+    ax1.set_xlabel("Seconds (upstream C++ Goose: 30.6 s Clang -O0 · 98.8 s Clang -O2 · bit-exact sha e60d8276…)", fontsize=8.8, color=SLATE)
+    ax1.set_yticks(y, labels=[r[0] for r in rows], fontsize=9.1, color=INK)
+    ax1.set_ylim(y[-1] + 0.65, -0.78)
+    ax1.set_xlim(0, max(r[1] + r[2] for r in rows) * 1.48)
+    legend_handles = [
+        Patch(facecolor=BASE_MUTED, edgecolor="none", label="goosew -O0 emit (cold)"),
+        Patch(facecolor=TEAL, edgecolor="none", label="goosew -O0 emit (.life hit)"),
+        Patch(facecolor=EMERALD, edgecolor="none", label="goosew -O0 emit (.life, PGO*)"),
+        Patch(facecolor=AMBER, label="wtime-aot O2 cold", **stripe_kw),
+        Patch(facecolor=BLUE, label="goose-wasmtime Winch", **stripe_kw),
+        Patch(facecolor=PURPLE, label="goose-wtime-aot O2 --inc-cache", **stripe_kw),
+    ]
+    ax1.legend(handles=legend_handles, frameon=True, facecolor="#ffffff", edgecolor="#e2e8f0", fontsize=8.5, loc="lower right", ncol=1)
+    clean_ax(ax1, "x")
+
+    save(fig, "blot2_subsecond_turnaround")
 
 
 # =============================================================================

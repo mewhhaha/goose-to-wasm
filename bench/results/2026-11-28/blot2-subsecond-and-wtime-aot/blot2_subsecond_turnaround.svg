@@ -169,7 +169,7 @@ L 494.189731 75.21742
 L 494.189731 99.948702
 L 421.553025 99.948702
 z
-" clip-path="url(#padba60b5b8)" style="fill: #d97706"/>
+" clip-path="url(#padba60b5b8)" style="fill: url(#h4a803f1a6a); stroke: #ffffff; stroke-width: 0.6; stroke-linejoin: miter"/>
    </g>
    <g id="patch_5">
     <path d="M 183.252672 126.004874
@@ -185,7 +185,7 @@ L 313.318141 126.004874
 L 313.318141 150.736157
 L 260.887908 150.736157
 z
-" clip-path="url(#padba60b5b8)" style="fill: #2563eb"/>
+" clip-path="url(#padba60b5b8)" style="fill: url(#h7ace7018a5); stroke: #ffffff; stroke-width: 0.6; stroke-linejoin: miter"/>
    </g>
    <g id="patch_7">
     <path d="M 183.252672 176.792329
@@ -201,7 +201,7 @@ L 296.446483 176.792329
 L 296.446483 201.523611
 L 262.399334 201.523611
 z
-" clip-path="url(#padba60b5b8)" style="fill: #6d28d9"/>
+" clip-path="url(#padba60b5b8)" style="fill: url(#h970666c055); stroke: #ffffff; stroke-width: 0.6; stroke-linejoin: miter"/>
    </g>
    <g id="patch_9">
     <path d="M 183.252672 227.579784
@@ -217,7 +217,7 @@ L 292.541698 227.579784
 L 292.541698 252.311066
 L 260.887908 252.311066
 z
-" clip-path="url(#padba60b5b8)" style="fill: #6d28d9"/>
+" clip-path="url(#padba60b5b8)" style="fill: url(#h970666c055); stroke: #ffffff; stroke-width: 0.6; stroke-linejoin: miter"/>
    </g>
    <g id="patch_11">
     <path d="M 183.252672 278.367239
@@ -233,7 +233,7 @@ L 290.216062 278.367239
 L 290.216062 303.098521
 L 258.562271 303.098521
 z
-" clip-path="url(#padba60b5b8)" style="fill: #6d28d9"/>
+" clip-path="url(#padba60b5b8)" style="fill: url(#h970666c055); stroke: #ffffff; stroke-width: 0.6; stroke-linejoin: miter"/>
    </g>
    <g id="line2d_20">
     <path d="M 327.496072 319.438832
@@ -311,76 +311,87 @@ z
    </g>
    <g id="legend_1">
     <g id="patch_19">
-     <path d="M 470.531098 315.088833
-L 637.34952 315.088833
-Q 639.08952 315.088833 639.08952 313.348833
-L 639.08952 248.965434
-Q 639.08952 247.225434 637.34952 247.225434
-L 470.531098 247.225434
-Q 468.791098 247.225434 468.791098 248.965434
-L 468.791098 313.348833
-Q 468.791098 315.088833 470.531098 315.088833
+     <path d="M 474.506004 315.188832
+L 637.48952 315.188832
+Q 639.18952 315.188832 639.18952 313.488833
+L 639.18952 237.834848
+Q 639.18952 236.134848 637.48952 236.134848
+L 474.506004 236.134848
+Q 472.806004 236.134848 472.806004 237.834848
+L 472.806004 313.488833
+Q 472.806004 315.188832 474.506004 315.188832
 z
 " style="fill: #ffffff; opacity: 0.8; stroke: #e2e8f0; stroke-linejoin: miter"/>
     </g>
     <g id="patch_20">
-     <path d="M 472.271098 257.316075
-L 489.671098 257.316075
-L 489.671098 251.226075
-L 472.271098 251.226075
+     <path d="M 476.206004 245.99352
+L 493.206004 245.99352
+L 493.206004 240.04352
+L 476.206004 240.04352
 z
-" style="fill: #d97706"/>
+" style="fill: #94a3b8"/>
     </g>
     <g id="text_21">
-     <text style="font-size: 8.7px; font-family: 'DejaVu Sans'; text-anchor: start" x="496.631098" y="257.316075" transform="rotate(-0 496.631098 257.316075)">wtime-aot O2 cold</text>
+     <text style="font-size: 8.5px; font-family: 'DejaVu Sans'; text-anchor: start" x="500.006004" y="245.99352" transform="rotate(-0 500.006004 245.99352)">goosew -O0 emit (cold)</text>
     </g>
     <g id="patch_21">
-     <path d="M 472.271098 270.366754
-L 489.671098 270.366754
-L 489.671098 264.276754
-L 472.271098 264.276754
+     <path d="M 476.206004 258.744184
+L 493.206004 258.744184
+L 493.206004 252.794184
+L 476.206004 252.794184
 z
 " style="fill: #0f766e"/>
     </g>
     <g id="text_22">
-     <text style="font-size: 8.7px; font-family: 'DejaVu Sans'; text-anchor: start" x="496.631098" y="270.366754" transform="rotate(-0 496.631098 270.366754)">goosew -O0 Wasm64 emit</text>
+     <text style="font-size: 8.5px; font-family: 'DejaVu Sans'; text-anchor: start" x="500.006004" y="258.744184" transform="rotate(-0 500.006004 258.744184)">goosew -O0 emit (.life hit)</text>
     </g>
     <g id="patch_22">
-     <path d="M 472.271098 283.417434
-L 489.671098 283.417434
-L 489.671098 277.327434
-L 472.271098 277.327434
-z
-" style="fill: #2563eb"/>
-    </g>
-    <g id="text_23">
-     <text style="font-size: 8.7px; font-family: 'DejaVu Sans'; text-anchor: start" x="496.631098" y="283.417434" transform="rotate(-0 496.631098 283.417434)">goose-wasmtime Winch</text>
-    </g>
-    <g id="patch_23">
-     <path d="M 472.271098 296.468114
-L 489.671098 296.468114
-L 489.671098 290.378114
-L 472.271098 290.378114
-z
-" style="fill: #6d28d9"/>
-    </g>
-    <g id="text_24">
-     <text style="font-size: 8.7px; font-family: 'DejaVu Sans'; text-anchor: start" x="496.631098" y="296.468114" transform="rotate(-0 496.631098 296.468114)">goose-wtime-aot O2 --inc-cache</text>
-    </g>
-    <g id="patch_24">
-     <path d="M 472.271098 309.518793
-L 489.671098 309.518793
-L 489.671098 303.428793
-L 472.271098 303.428793
+     <path d="M 476.206004 271.494848
+L 493.206004 271.494848
+L 493.206004 265.544848
+L 476.206004 265.544848
 z
 " style="fill: #059669"/>
     </g>
+    <g id="text_23">
+     <text style="font-size: 8.5px; font-family: 'DejaVu Sans'; text-anchor: start" x="500.006004" y="271.494848" transform="rotate(-0 500.006004 271.494848)">goosew -O0 emit (.life, PGO*)</text>
+    </g>
+    <g id="patch_23">
+     <path d="M 476.206004 284.245512
+L 493.206004 284.245512
+L 493.206004 278.295512
+L 476.206004 278.295512
+z
+" style="fill: url(#h4a803f1a6a); stroke: #ffffff; stroke-width: 0.6; stroke-linejoin: miter"/>
+    </g>
+    <g id="text_24">
+     <text style="font-size: 8.5px; font-family: 'DejaVu Sans'; text-anchor: start" x="500.006004" y="284.245512" transform="rotate(-0 500.006004 284.245512)">wtime-aot O2 cold</text>
+    </g>
+    <g id="patch_24">
+     <path d="M 476.206004 296.996176
+L 493.206004 296.996176
+L 493.206004 291.046176
+L 476.206004 291.046176
+z
+" style="fill: url(#h7ace7018a5); stroke: #ffffff; stroke-width: 0.6; stroke-linejoin: miter"/>
+    </g>
     <g id="text_25">
-     <text style="font-size: 8.7px; font-family: 'DejaVu Sans'; text-anchor: start" x="496.631098" y="309.518793" transform="rotate(-0 496.631098 309.518793)">goosew -O0 emit (PGO*)</text>
+     <text style="font-size: 8.5px; font-family: 'DejaVu Sans'; text-anchor: start" x="500.006004" y="296.996176" transform="rotate(-0 500.006004 296.996176)">goose-wasmtime Winch</text>
+    </g>
+    <g id="patch_25">
+     <path d="M 476.206004 309.74684
+L 493.206004 309.74684
+L 493.206004 303.79684
+L 476.206004 303.79684
+z
+" style="fill: url(#h970666c055); stroke: #ffffff; stroke-width: 0.6; stroke-linejoin: miter"/>
+    </g>
+    <g id="text_26">
+     <text style="font-size: 8.5px; font-family: 'DejaVu Sans'; text-anchor: start" x="500.006004" y="309.74684" transform="rotate(-0 500.006004 309.74684)">goose-wtime-aot O2 --inc-cache</text>
     </g>
    </g>
   </g>
-  <g id="text_26">
+  <g id="text_27">
    <text style="font-weight: 700; font-size: 12px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #0f172a" x="19.17576" y="24.958125" transform="rotate(-0 19.17576 24.958125)">Blot2 (79.0k LOC): breaking 1 second from Goose edit to O2 native x64 run</text>
   </g>
  </g>
@@ -388,5 +399,169 @@ z
   <clipPath id="padba60b5b8">
    <rect x="183.252672" y="53.135917" width="460.186848" height="266.302915"/>
   </clipPath>
+ </defs>
+ <defs>
+  <pattern id="h4a803f1a6a" patternUnits="userSpaceOnUse" x="0" y="0" width="72" height="72">
+   <rect x="0" y="0" width="73" height="73" fill="#d97706"/>
+   <path d="M -36 36
+L 36 -36
+M -33 39
+L 39 -33
+M -30 42
+L 42 -30
+M -27 45
+L 45 -27
+M -24 48
+L 48 -24
+M -21 51
+L 51 -21
+M -18 54
+L 54 -18
+M -15 57
+L 57 -15
+M -12 60
+L 60 -12
+M -9 63
+L 63 -9
+M -6 66
+L 66 -6
+M -3 69
+L 69 -3
+M 0 72
+L 72 0
+M 3 75
+L 75 3
+M 6 78
+L 78 6
+M 9 81
+L 81 9
+M 12 84
+L 84 12
+M 15 87
+L 87 15
+M 18 90
+L 90 18
+M 21 93
+L 93 21
+M 24 96
+L 96 24
+M 27 99
+L 99 27
+M 30 102
+L 102 30
+M 33 105
+L 105 33
+M 36 108
+L 108 36
+" style="fill: #ffffff; stroke: #ffffff; stroke-width: 1.4; stroke-linecap: butt; stroke-linejoin: miter"/>
+  </pattern>
+  <pattern id="h7ace7018a5" patternUnits="userSpaceOnUse" x="0" y="0" width="72" height="72">
+   <rect x="0" y="0" width="73" height="73" fill="#2563eb"/>
+   <path d="M -36 36
+L 36 -36
+M -33 39
+L 39 -33
+M -30 42
+L 42 -30
+M -27 45
+L 45 -27
+M -24 48
+L 48 -24
+M -21 51
+L 51 -21
+M -18 54
+L 54 -18
+M -15 57
+L 57 -15
+M -12 60
+L 60 -12
+M -9 63
+L 63 -9
+M -6 66
+L 66 -6
+M -3 69
+L 69 -3
+M 0 72
+L 72 0
+M 3 75
+L 75 3
+M 6 78
+L 78 6
+M 9 81
+L 81 9
+M 12 84
+L 84 12
+M 15 87
+L 87 15
+M 18 90
+L 90 18
+M 21 93
+L 93 21
+M 24 96
+L 96 24
+M 27 99
+L 99 27
+M 30 102
+L 102 30
+M 33 105
+L 105 33
+M 36 108
+L 108 36
+" style="fill: #ffffff; stroke: #ffffff; stroke-width: 1.4; stroke-linecap: butt; stroke-linejoin: miter"/>
+  </pattern>
+  <pattern id="h970666c055" patternUnits="userSpaceOnUse" x="0" y="0" width="72" height="72">
+   <rect x="0" y="0" width="73" height="73" fill="#6d28d9"/>
+   <path d="M -36 36
+L 36 -36
+M -33 39
+L 39 -33
+M -30 42
+L 42 -30
+M -27 45
+L 45 -27
+M -24 48
+L 48 -24
+M -21 51
+L 51 -21
+M -18 54
+L 54 -18
+M -15 57
+L 57 -15
+M -12 60
+L 60 -12
+M -9 63
+L 63 -9
+M -6 66
+L 66 -6
+M -3 69
+L 69 -3
+M 0 72
+L 72 0
+M 3 75
+L 75 3
+M 6 78
+L 78 6
+M 9 81
+L 81 9
+M 12 84
+L 84 12
+M 15 87
+L 87 15
+M 18 90
+L 90 18
+M 21 93
+L 93 21
+M 24 96
+L 96 24
+M 27 99
+L 99 27
+M 30 102
+L 102 30
+M 33 105
+L 105 33
+M 36 108
+L 108 36
+" style="fill: #ffffff; stroke: #ffffff; stroke-width: 1.4; stroke-linecap: butt; stroke-linejoin: miter"/>
+  </pattern>
  </defs>
 </svg>
