@@ -116,8 +116,8 @@ def build(args, scratch):
 
     for directory in ("host/web", "wasm", "samples", "data", "assets"):
         (output / directory).mkdir(parents=True)
-    # Favicon combines webassembly.org/css/webassembly.svg with upstream docs/logo/logo_white_fg_trans_bg.png.
-    for name in ("index.html", "styles.css", "app.js", "favicon-goose-wasm-64.png"):
+    # Serve the vector logo and the PNG favicon fallback.
+    for name in ("index.html", "styles.css", "app.js", "goose-wasm.svg", "favicon-goose-wasm-64.png"):
         shutil.copyfile(site / name, output / name)
     for source in [*sorted(host.glob("*.js")), host / "package.json"]:
         shutil.copyfile(source, output / "host/web" / source.name)
