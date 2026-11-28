@@ -6,16 +6,15 @@ Reads pinned measurements from ./results.json and writes:
   2. runtime_comparison.svg        — Suite A: Wasmtime, wtime-aot x64 (Base vs Cand), and Native Clang -O2
   3. large_wasm64_comparison.svg   — Suite B: selfhost (57.5k LOC) & blot2 (79.0k LOC) sizes and build/self-compile times
   4. blot2_hosted_engines.svg      — Suite B: 84-import blot2 hosted execution (Winch vs goose-wtime-aot)
+  5. readme_overview.svg          — Root README elapsed-time comparison against upstream Goose
 """
 from __future__ import annotations
 
 import json
 from pathlib import Path
-import statistics
 
 import matplotlib
 matplotlib.use("Agg")
-from matplotlib.patches import FancyBboxPatch
 import matplotlib.pyplot as plt
 
 DIR = Path(__file__).resolve().parent
@@ -323,151 +322,68 @@ save(fig, "blot2_hosted_engines")
 
 
 # =============================================================================
-# 5. readme_overview.svg — Mobile-friendly hero summary chart for root README.md
+# 5. readme_overview.svg — Elapsed-time comparison against upstream Goose
 # =============================================================================
 v4_ref = json.loads((ROOT / "bench/results/2026-11-25/release-v2026.4-4/results.json").read_text())
 fl_ref = json.loads((ROOT / "bench/results/2026-11-27/four-levers-campaign/results.json").read_text())
-sc_ref = json.loads((ROOT / "bench/results/2026-11-26/compiler-throughput/batch4_scaling.json").read_text())
-s250_ref = json.loads((ROOT / "bench/results/2026-11-26/compiler-throughput/batch4_scale_250k.json").read_text())
 
-s2_ex = v4_ref["suite2_examples_build"]
-dev_exs = ["squares", "sieve", "sudoku", "vm", "life", "tour", "maze", "sorting"]
-dev_up_ms = [s2_ex[e]["upstream_build_o2"]["median_wall_s"] * 1000.0 for e in dev_exs]
-dev_gw_ms = [s2_ex[e]["g2w_wasm_o2"]["median_wall_s"] * 1000.0 for e in dev_exs]
-dev_ratios = [u / g for u, g in zip(dev_up_ms, dev_gw_ms)]
-dev_med_ratio = statistics.median(dev_ratios)
+examples = v4_ref["suite2_examples_build"]
+workloads = ("squares", "sieve", "sudoku", "vm", "life", "tour", "maze", "sorting")
+upstream_examples_s = [examples[name]["upstream_build_o2"]["median_wall_s"] for name in workloads]
+goosew_examples_s = [examples[name]["g2w_wasm_o2"]["median_wall_s"] for name in workloads]
 
-s1_sc = v4_ref["suite1_selfcompile"]
-up_sh_chk = s1_sc["upstream_check"]["median_wall_s"]
-up_sh_emit = s1_sc["upstream_emit_c"]["median_wall_s"]
+upstream_selfhost = v4_ref["suite1_selfcompile"]
+unprofiled = fl_ref["paired_unprofiled_j8"]
+upstream_selfhost_s = [upstream_selfhost[key]["median_wall_s"] for key in ("upstream_check", "upstream_emit_c")]
+goosew_selfhost_s = [unprofiled[key]["lever4"]["median_ms"] / 1000 for key in ("selfhost_check", "selfhost_o0_wasm64")]
 
-fl_u = fl_ref["paired_unprofiled_j8"]
-fl_p = fl_ref["paired_pgo_reference_j8"]
-fl_jit = fl_ref["blot2_jit_and_run"]
-fl_inc = fl_ref["blot2_incremental_and_edits"]["lever4_unprofiled"]
+winch_ms = fl_ref["blot2_jit_and_run"]["cold_l4_o0_winch_fib"]["median_ms"]
+edited = fl_ref["blot2_incremental_and_edits"]["lever4_unprofiled"]["edited_file_life_hits"]
+blot_cold_s = (unprofiled["blot2_o0_wasm64"]["lever4"]["median_ms"] + winch_ms) / 1000
+blot_edited_s = (edited["compile_goose_o0_scalar_if_let"]["median_ms"] + winch_ms) / 1000
+# Upstream full rebuilds reported in the November 27 campaign.
+blot_upstream_s = [30.64, 98.831]
 
-gw_sh_chk = fl_u["selfhost_check"]["lever4"]["median_ms"] / 1000.0
-gw_sh_chk_pgo = fl_p["selfhost_check"]["lever4_pgo"]["median_ms"] / 1000.0
-gw_sh_o0 = fl_u["selfhost_o0_wasm64"]["lever4"]["median_ms"] / 1000.0
-gw_sh_o0_pgo = fl_p["selfhost_o0_wasm64"]["lever4_pgo"]["median_ms"] / 1000.0
+fig, ax = plt.subplots(figsize=(6.7, 4.8))
+fig.subplots_adjust(left=0.15, right=0.98, bottom=0.15, top=0.82)
+fig.text(0.15, 0.965, "Goose build and turnaround times", va="top", fontsize=16, weight="bold", color=INK)
+fig.text(0.15, 0.91, "Below the equal-time line, goosew is faster.", va="top", fontsize=10.5, color=SLATE)
 
-b_winch_s = fl_jit["cold_l4_o0_winch_fib"]["median_ms"] / 1000.0
-b_cold_s = fl_u["blot2_o0_wasm64"]["lever4"]["median_ms"] / 1000.0 + b_winch_s
-b_edit_s = fl_inc["edited_file_life_hits"]["compile_goose_o0_scalar_if_let"]["median_ms"] / 1000.0 + b_winch_s
-b_up_dbg = 30.64
-b_up_rel = 98.831
+ax.set(xscale="log", yscale="log", xlim=(0.032, 180), ylim=(0.001, 180))
+ax.set_xticks([0.1, 1, 10, 100], ["100 ms", "1 s", "10 s", "100 s"])
+ax.set_yticks([0.001, 0.01, 0.1, 1, 10, 100], ["1 ms", "10 ms", "100 ms", "1 s", "10 s", "100 s"])
+ax.tick_params(which="minor", bottom=False, left=False)
+ax.set_xlabel("Upstream C++ Goose elapsed time", color=INK, labelpad=9)
+ax.set_ylabel("goosew elapsed time", color=INK, labelpad=9)
+clean_ax(ax, "both")
 
-loc_j8 = sc_ref["nopgo"]["jobs"]["8"]["wall_loc_per_sec"] / 1e6
-loc_250 = next(r for r in s250_ref["runs"] if r["label"] == "batch4d-nopgo j=12")["wall_loc_per_sec"] / 1e6
-aot_min_ms = min(sa_sz[e]["cand_aot_cold_ms"] for e in exs6)
-aot_max_ms = max(sa_sz[e]["cand_aot_cold_ms"] for e in exs6)
+for speedup in (1, 10, 100):
+    upstream = ax.get_xlim()
+    ax.plot(upstream, [seconds / speedup for seconds in upstream], linestyle="--",
+            linewidth=1, color=SLATE if speedup == 1 else BASE_MUTED, zorder=1)
 
-fig = plt.figure(figsize=(10.8, 6.4))
-ax = fig.add_axes([0.23, 0.30, 0.75, 0.57])
-ax_kpi = fig.add_axes([0.02, 0.03, 0.96, 0.20])
+for upstream, speedup, label in [(13, 1, "Equal time"), (0.65, 10, "10× faster"), (6, 100, "100× faster")]:
+    ax.annotate(label, (upstream, upstream / speedup), xytext=(0, 5), textcoords="offset points",
+                fontsize=8.5, color=SLATE, ha="center")
 
-fig.text(
-    0.02, 0.955, "goosew vs Upstream C++ Goose — Speedup Overview",
-    ha="left", va="top", fontsize=14.4, weight="bold", color=INK,
-)
-fig.text(
-    0.02, 0.908, "Speedup over Upstream C++ Goose (× faster, higher is better · pinned Ryzen 7 7800X3D dated evidence)",
-    ha="left", va="top", fontsize=9.8, color=SLATE,
-)
+ax.scatter(upstream_examples_s, goosew_examples_s, s=30, color=TEAL, edgecolors="white", linewidths=0.6, zorder=4)
+ax.text(0.055, 0.014, "Everyday builds\n8 examples · -O2", fontsize=10, color=TEAL, weight="bold")
 
-rows = [
-    (
-        "Everyday -O2 dev builds\n(8 examples · Direct Wasm)",
-        dev_med_ratio,
-        TEAL,
-        f"{min(dev_ratios):.0f}×–{max(dev_ratios):.0f}× faster  ({min(dev_gw_ms):.0f}–{max(dev_gw_ms):.0f} ms vs {min(dev_up_ms):.0f}–{max(dev_up_ms):.0f} ms)",
-    ),
-    (
-        "Self-check (selfhost/)\n(47.4k LOC · --jobs 8)",
-        up_sh_chk / gw_sh_chk,
-        NAVY,
-        f"{up_sh_chk/gw_sh_chk:.1f}× faster  ({gw_sh_chk:.2f} s vs {up_sh_chk:.2f} s · {up_sh_chk/gw_sh_chk_pgo:.1f}× PGO*)",
-    ),
-    (
-        "Self-compile (selfhost/)\n(47.4k LOC · Wasm64 -O0)",
-        up_sh_emit / gw_sh_o0,
-        BLUE,
-        f"{up_sh_emit/gw_sh_o0:.1f}× faster  ({gw_sh_o0:.2f} s vs {up_sh_emit:.2f} s C · {up_sh_emit/gw_sh_o0_pgo:.1f}× PGO*)",
-    ),
-    (
-        "Blot2 cold edit → run\n(79.0k LOC · vs Clang -O0)",
-        b_up_dbg / b_cold_s,
-        TEAL,
-        f"{b_up_dbg/b_cold_s:.1f}× faster  ({b_cold_s:.2f} s vs {b_up_dbg:.1f} s Clang -O0)",
-    ),
-    (
-        "Blot2 edited (.life + Winch)\n(79.0k LOC · vs Clang -O0)",
-        b_up_dbg / b_edit_s,
-        EMERALD,
-        f"{b_up_dbg/b_edit_s:.1f}× faster  ({b_edit_s:.2f} s vs {b_up_dbg:.1f} s Clang -O0)",
-    ),
-    (
-        "Blot2 cold edit → run\n(79.0k LOC · vs Clang -O2)",
-        b_up_rel / b_cold_s,
-        PURPLE,
-        f"{b_up_rel/b_cold_s:.0f}× faster  ({b_cold_s:.2f} s vs {b_up_rel:.1f} s Clang -O2)",
-    ),
-    (
-        "Blot2 edited (.life + Winch)\n(79.0k LOC · vs Clang -O2)",
-        b_up_rel / b_edit_s,
-        EMERALD,
-        f"{b_up_rel/b_edit_s:.0f}× faster  ({b_edit_s:.2f} s vs {b_up_rel:.1f} s Clang -O2)",
-    ),
-]
+ax.scatter(upstream_selfhost_s, goosew_selfhost_s, s=44, marker="D", color=BLUE,
+           edgecolors="white", linewidths=0.6, zorder=4)
+ax.annotate("Self-host check / compile", (min(upstream_selfhost_s), min(goosew_selfhost_s)),
+            xytext=(-9, 0), textcoords="offset points", ha="right", va="center",
+            fontsize=9.5, color=BLUE, weight="bold")
 
-oy = [i * 1.08 for i in range(len(rows))]
-ovals = [r[1] for r in rows]
-obars = ax.barh(oy, ovals, height=0.64, color=[r[2] for r in rows])
+for seconds, label, marker in [(blot_cold_s, "Blot2 cold build + run", "s"),
+                               (blot_edited_s, "Blot2 edited build + run", "^")]:
+    ax.plot(blot_upstream_s, [seconds, seconds], color=PURPLE, alpha=0.45, linewidth=1)
+    ax.scatter(blot_upstream_s, [seconds, seconds], s=48, marker=marker, color=PURPLE, zorder=4)
+    ax.annotate(label, (blot_upstream_s[0], seconds), xytext=(-7, 0), textcoords="offset points",
+                ha="right", va="center", fontsize=9.5, color=PURPLE, weight="bold")
 
-ax.axvline(1.0, color=BASE_WARM, linestyle="--", linewidth=1.3, zorder=3)
-ax.text(
-    2.4, oy[-1] + 0.78, "1× Upstream C++ Goose baseline",
-    fontsize=8.3, color=BASE_WARM, style="italic", weight="bold", va="bottom",
-)
-
-for yv, val, col, lbl in zip(oy, ovals, [r[2] for r in rows], [r[3] for r in rows]):
-    ax.text(val + 1.8, yv, lbl, va="center", ha="left", fontsize=9.1, weight="bold", color=INK)
-
-ax.set_yticks(oy, labels=[r[0] for r in rows], fontsize=9.1, color=INK)
-ax.set_ylim(oy[-1] + 0.98, -0.58)
-ax.set_xlim(0, max(ovals) * 1.56)
-ax.set_xlabel("Speedup factor vs Upstream C++ Goose (*separate fresh Clang-23 PGO ref. run)", fontsize=8.6, color=SLATE, labelpad=6)
-ax.set_xticks([0, 20, 40, 60, 80, 100, 120])
-ax.set_xticklabels(["0×", "20×", "40×", "60×", "80×", "100×", "120×"], fontsize=8.8, color=SLATE)
-clean_ax(ax, "x")
-
-# Bottom KPI cards spanning full figure width
-ax_kpi.set_xlim(0.0, 3.08)
-ax_kpi.set_ylim(0.0, 1.0)
-ax_kpi.axis("off")
-
-cards = [
-    ("MULTI-CORE THROUGHPUT (--jobs)", f"{loc_j8:.2f}–{loc_250:.2f}M LOC/s", "wall · bit-identical across threads\nUpstream C++: single-threaded", TEAL),
-    ("ZERO-CLANG AOT (wtime-aot)", f"{aot_min_ms:.1f}–{aot_max_ms:.1f} ms", "static x64 ELF builds (no LLVM)\n-33% to -69% smaller -O2 .wasm", PURPLE),
-    ("UPSTREAM CONFORMANCE", "10,790 / 10,801", "0 unexpected · 6 post-pin deltas\nsole language reference (no fork)", NAVY),
-]
-for idx, (kicker, big, sub, accent) in enumerate(cards):
-    x0 = idx * 1.04
-    box = FancyBboxPatch(
-        (x0 + 0.02, 0.06), 0.96, 0.88,
-        boxstyle="round,pad=0.02,rounding_size=0.06",
-        facecolor="#f8fafc", edgecolor="#cbd5e1", linewidth=1.0,
-    )
-    ax_kpi.add_patch(box)
-    bar = FancyBboxPatch(
-        (x0 + 0.02, 0.88), 0.96, 0.06,
-        boxstyle="round,pad=0.0,rounding_size=0.03",
-        facecolor=accent, edgecolor="none",
-    )
-    ax_kpi.add_patch(bar)
-    ax_kpi.text(x0 + 0.06, 0.75, kicker, fontsize=8.2, weight="bold", color=SLATE, va="center", ha="left")
-    ax_kpi.text(x0 + 0.06, 0.50, big, fontsize=15.0, weight="bold", color=accent, va="center", ha="left")
-    ax_kpi.text(x0 + 0.06, 0.21, sub, fontsize=8.4, color=INK, va="center", ha="left", linespacing=1.35)
+for seconds, label in zip(blot_upstream_s, ("Clang -O0", "Clang -O2")):
+    ax.annotate(label, (seconds, blot_cold_s), xytext=(0, 8), textcoords="offset points",
+                ha="center", fontsize=8.5, color=SLATE)
 
 save(fig, "readme_overview")
-
