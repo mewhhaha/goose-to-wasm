@@ -6,13 +6,20 @@ Compile Goose directly to **WebAssembly in milliseconds** — with no C compiler
 
 **[Latest release: `v2026.4-6`](https://github.com/mewhhaha/goose-to-wasm/releases/tag/v2026.4-6)** (tracks upstream Goose `v2026.4`) · **[Play all 9 official Goose examples in your browser](https://mewhhaha.github.io/goose-to-wasm/)** (WebGL2 + Web Audio + JSPI) · **[Compatibility tracker](docs/FEATURES.md)**
 
-| Metric | `goosew` (`v2026.4-6`, benchmarks on `v2026.4-5`) | Upstream C++ Goose |
+![goosew vs Upstream C++ Goose — Speedup Overview](bench/results/2026-11-28/wtime-aot-and-codegen/readme_overview.svg)
+
+<details><summary>Summary numbers (text table)</summary>
+
+| Metric | `goosew` (`v2026.4-6`) | Upstream C++ Goose |
 |---|---|---|
 | **Everyday `-O2` dev builds** | **`2–7 ms`** (Direct Wasm) | `51–177 ms` (**23×–26× slower**) |
 | **Multi-core throughput (`--jobs`)** | **`2.01–2.32M LOC/s`** wall (bit-identical across threads) | Single-threaded |
 | **Self-compilation (`selfhost/`, 47.4k LOC)** | **`0.26–0.28 s`** (`0.23–0.26 s` PGO) | `4.38–4.71 s` (**17×–19× slower**) |
 | **Blot2 turnaround (`79.0k LOC`, edit → run)** | **`1.98 s`** cold · **`0.93 s`** edited (`.life` + Winch) | `30.6 s` Clang `-O0` · `98.8 s` `-O2` |
+| **Zero-Clang AOT (`wtime-aot x64`)** | **`5.2–18.7 ms`** cold builds · **`-33%` to `-69%`** smaller `.wasm` | Requires Clang + linker |
 | **Upstream conformance** | **`10,790 / 10,801`** (`0` unexpected · `6` post-pin upstream deltas) | Sole language reference (no dialect fork) |
+
+</details>
 
 ---
 
