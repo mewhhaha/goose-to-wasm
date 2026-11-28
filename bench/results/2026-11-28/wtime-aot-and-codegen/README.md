@@ -30,16 +30,20 @@ Paired alternating evaluation of the **Direct Wasm codegen, local-reuse peephole
 
 ### Binary size & `wtime-aot --backend x64` cold AOT build
 
+![Direct Wasm codegen and BCE: -O2 binary sizes and wtime-aot x64 cold builds](wasm_size_and_aot_build.svg)
+
 | Program | `.wasm` Base → Cand | `.wasm` Δ | `x64` ELF Base → Cand | `wtime-aot x64` Cold Build | Build Δ |
 |---|---:|---:|---:|---:|---:|
 | `sorting` | `105,557 → 70,346 B` | **`-33.4%`** | `166.5 → 146.9 KB` | `20.83 → 18.74 ms` | **`-10.0%`** |
 | `life` | `49,877 → 20,977 B` | **`-57.9%`** | `71.6 → 53.7 KB` | `12.63 → 10.34 ms` | **`-18.1%`** |
-| `sudoku` | `48,781 → 18,706 B` | **`-61.6%`** | `65.9 → 47.8 KB` | `9.09 → 6.86 ms` | **`-24.5%`** |
+| `sudoku` | `48,781 → 18,706 B` | **`-61.7%`** | `65.9 → 47.8 KB` | `9.09 → 6.86 ms` | **`-24.5%`** |
 | `sieve` | `46,843 → 17,926 B` | **`-61.7%`** | `65.3 → 47.2 KB` | `8.94 → 7.16 ms` | **`-19.9%`** |
 | `maze` | `61,526 → 31,757 B` | **`-48.4%`** | `89.3 → 70.7 KB` | `13.31 → 11.78 ms` | **`-11.5%`** |
 | `mandelbrot` | `41,894 → 13,091 B` | **`-68.8%`** | `50.5 → 36.5 KB` | `7.14 → 5.25 ms` | **`-26.5%`** |
 
 ### Runtime speed (all bit-exact; Mandelbrot checksum `1038538536`)
+
+![Suite A runtime speed comparison across Wasmtime, wtime-aot x64, and Native -O2](runtime_comparison.svg)
 
 | Program | Wasmtime Base → Cand (cached)* | `wtime-aot x64` Base → Cand | Candidate Native `-O2` (ref) |
 |---|---:|---:|---:|
@@ -54,6 +58,8 @@ Paired alternating evaluation of the **Direct Wasm codegen, local-reuse peephole
 
 ## Suite B — Large Real-World Wasm64 Workloads (3 alternating rounds)
 
+![Suite B large Wasm64 workloads: selfhost and blot2 Baseline vs Candidate](large_wasm64_comparison.svg)
+
 ### `selfhost/` (57.5k LOC Wasm64, `--wasm-max-pages 262144`)
 
 | Metric | Baseline (`e0d95bd`) | Candidate | Delta |
@@ -61,7 +67,7 @@ Paired alternating evaluation of the **Direct Wasm codegen, local-reuse peephole
 | `-O2` emit (`--jobs 8`, unpinned) | `0.637 s` | **`0.626 s`** | `-1.7%` |
 | `.wasm` size (`-O2`, memory64) | `6.59 MiB` (`6,905,752 B`) | **`6.34 MiB`** (`6,643,837 B`) | **`-3.8%`** |
 | `wtime-aot --backend x64` build (CPU 7) | `2.052 s` (`14.21 MiB` ELF) | `2.070 s` (`14.13 MiB` ELF) | `+0.8%` |
-| Standalone `x64` ELF self-compile (CPU 7) | `1.151 s` | **`1.119 s`** (bit-exact `537d2907bf99…`) | **`-2.8%`** |
+| Standalone `x64` ELF self-compile (CPU 7) | `1.151 s` | **`1.119 s`** (bit-exact `537d2907bf99…`) | **`-2.7%`** |
 | `wtime-aot --backend aarch64` cross-build (CPU 7) | — | **`1.498 s`** (`13.36 MiB` static AArch64 ELF) | — |
 
 ### `blot2` (79.0k LOC Wasm64, 84 C/host imports)
@@ -73,6 +79,8 @@ Paired alternating evaluation of the **Direct Wasm codegen, local-reuse peephole
 | `-O2` `.wasm` size | `12.79 MiB` (`13,407,143 B`) | **`12.52 MiB`** (`13,128,338 B`) | **`-2.1%`** |
 
 Pinned single-core (CPU 7) hosted execution of candidate `blot2` on `goose-wtime-aot` vs `goose-wasmtime --fast-jit` (Winch), bit-exact SHA-256 verified across every engine:
+
+![84-import blot2 Wasm64 hosted execution: goose-wasmtime Winch vs goose-wtime-aot](blot2_hosted_engines.svg)
 
 | Blot2 benchmark | Output SHA-256 | Winch `-O0` cold (CPU 7) | `goose-wtime-aot --fast` `-O0` cold (CPU 7) | `goose-wtime-aot` O2 cold (CPU 7) | `goose-wtime-aot` O2 `--cache` warm (CPU 7) |
 |---|---|---:|---:|---:|---:|
@@ -94,6 +102,7 @@ Pinned single-core (CPU 7) hosted execution of candidate `blot2` on `goose-wtime
 
 ```sh
 .venv/bin/python bench/results/2026-11-28/wtime-aot-and-codegen/measure.py < /dev/null
+python3 bench/results/2026-11-28/wtime-aot-and-codegen/plot.py < /dev/null
 ```
 
 Raw measurements: [`results.json`](results.json).

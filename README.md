@@ -143,9 +143,11 @@ host/rust/target/release/goose-wasmtime --fast-jit blot2.wasm \
 
 ### 4. Production runtime speed
 
-Fast dev builds do not trade away production speed. Native `-O2` binaries match or edge out upstream C++ Goose (all bit-exact), and Direct Wasm runs near-native in Wasmtime or ahead-of-time via [`wtime-aot`](https://github.com/mewhhaha/wtime) (`5.2–18.7 ms` zero-LLVM `x64` builds beating native `-O2` on `life`, `sieve`, and `maze`, with `-33%` to `-69%` smaller `-O2` `.wasm` modules and `-2.8%` faster standalone Wasm64 self-compilation in the [2026-11-28 report](bench/results/2026-11-28/wtime-aot-and-codegen/README.md)):
+Fast dev builds do not trade away production speed. Native `-O2` binaries match or edge out upstream C++ Goose (all bit-exact), and Direct Wasm runs near-native in Wasmtime or ahead-of-time via [`wtime-aot`](https://github.com/mewhhaha/wtime) (`5.2–18.7 ms` zero-LLVM `x64` builds beating native `-O2` on `life`, `sieve`, and `maze`, with `-33%` to `-69%` smaller `-O2` `.wasm` modules and `-2.7%` faster standalone Wasm64 self-compilation in the [2026-11-28 report](bench/results/2026-11-28/wtime-aot-and-codegen/README.md)):
 
 ![Compiled program runtime: Goose to Wasm Native -O2, Wasmtime, and wtime-aot vs upstream C++ Goose](bench/results/2026-11-25/runtime-with-wtime/runtime_speed.svg)
+
+![Direct Wasm codegen and BCE: -O2 binary sizes and wtime-aot x64 cold builds](bench/results/2026-11-28/wtime-aot-and-codegen/wasm_size_and_aot_build.svg)
 
 *\*Separate fresh Clang-23 PGO reference runs are labeled explicitly. Full methodology, pinned SHAs, raw JSON, and preserved rejected experiments live in the [2026-11-28 `wtime-aot` & codegen report](bench/results/2026-11-28/wtime-aot-and-codegen/README.md), [2026-11-27 four-levers report](bench/results/2026-11-27/four-levers-campaign/README.md), [compiler throughput study](bench/results/2026-11-26/compiler-throughput/README.md), [runtime study](bench/results/2026-11-25/runtime-with-wtime/README.md), and the [archive](#benchmark--evidence-archive) below.*
 
@@ -220,7 +222,7 @@ Releases are versioned **`v<goose-version>-<n>`** (currently **`v2026.4-6`**) an
 
 <details><summary>All dated compiler, runtime, and Blot2 studies under <code>bench/results/</code></summary>
 
-- [`wtime-aot` integration & Direct Wasm codegen / BCE — `-33%` to `-69%` smaller `-O2` `.wasm`, `-10%` to `-27%` faster AOT builds, `-6%` `sudoku` & `-2.8%` standalone Wasm64 self-compile (2026-11-28)](bench/results/2026-11-28/wtime-aot-and-codegen/README.md)
+- [`wtime-aot` integration & Direct Wasm codegen / BCE — `-33%` to `-69%` smaller `-O2` `.wasm`, `-10%` to `-27%` faster AOT builds, `-6%` `sudoku` & `-2.7%` standalone Wasm64 self-compile (2026-11-28)](bench/results/2026-11-28/wtime-aot-and-codegen/README.md)
 
 - [Four-levers optimization campaign — 1.87–1.98 s cold / 0.89–0.98 s edited Blot2 turnaround, `-62%` Wasm64 & Winch `--fast-jit` (2026-11-27)](bench/results/2026-11-27/four-levers-campaign/README.md)
 - [Lifetime optimization campaign — 2.17–2.36 s Blot2 turnaround, 1.56–1.75 s emit & 0.24–0.26 s selfhost (2026-11-27)](bench/results/2026-11-27/lifetime-campaign/README.md)
