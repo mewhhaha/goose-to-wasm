@@ -4,13 +4,13 @@
 
 Compile Goose directly to **WebAssembly in milliseconds** — with no C compiler in your dev loop — and compile the exact same code to **native binaries or C libraries** when you ship.
 
-**[Latest release: `v2026.4-7`](https://github.com/mewhhaha/goose-to-wasm/releases/tag/v2026.4-7)** (tracks upstream Goose `v2026.4`) · **[Play all 9 official Goose examples in your browser](https://mewhhaha.github.io/goose-to-wasm/)** (WebGL2 + Web Audio + JSPI) · **[Compatibility tracker](docs/FEATURES.md)**
+**[Latest release: `v2026.4-8`](https://github.com/mewhhaha/goose-to-wasm/releases/tag/v2026.4-8)** (tracks upstream Goose `v2026.4`) · **[Play all 9 official Goose examples in your browser](https://mewhhaha.github.io/goose-to-wasm/)** (WebGL2 + Web Audio + JSPI) · **[Compatibility tracker](docs/FEATURES.md)**
 
 ![Median build time across eight Goose examples at -O2 was 3.4 ms with goosew Direct Wasm and 79.3 ms with upstream native builds.](bench/results/2026-11-28/wtime-aot-and-codegen/readme_overview.svg)
 
 <details><summary>Summary numbers (text table)</summary>
 
-| Metric | `goosew` (`v2026.4-7`) | Upstream C++ Goose |
+| Metric | `goosew` (`v2026.4-8`, benchmarks on `v2026.4-7`) | Upstream C++ Goose |
 |---|---|---|
 | **Everyday `-O2` dev builds** | **`2–7 ms`** (Direct Wasm) | `51–177 ms` (**23×–26× slower**) |
 | **Multi-core throughput (`--jobs`)** | **`2.01–2.32M LOC/s`** wall (bit-identical across threads) | Single-threaded |
@@ -25,36 +25,36 @@ Compile Goose directly to **WebAssembly in milliseconds** — with no C compiler
 
 ## Quick Start
 
-### Option 1: Download a prebuilt release (`v2026.4-7`)
+### Option 1: Download a prebuilt release (`v2026.4-8`)
 
-Every archive from [Releases](https://github.com/mewhhaha/goose-to-wasm/releases/tag/v2026.4-7) includes `goosew`, `stdlib`, `stdlib-web`, and `host/web`:
+Every archive from [Releases](https://github.com/mewhhaha/goose-to-wasm/releases/tag/v2026.4-8) includes `goosew`, `stdlib`, `stdlib-web`, and `host/web`:
 
 | Platform | Archive |
 |---|---|
-| Linux x64 | `goose-to-wasm-v2026.4-7-linux-x64.tar.gz` |
-| macOS Apple Silicon | `goose-to-wasm-v2026.4-7-macos-arm64.tar.gz` |
-| macOS Intel | `goose-to-wasm-v2026.4-7-macos-x64.tar.gz` |
-| Windows x64 | `goose-to-wasm-v2026.4-7-windows-x64.zip` |
-| Portable Wasm64 | `goose-to-wasm-v2026.4-7-wasm.tar.gz` · `goosew-v2026.4-7-wasm64.wasm` |
+| Linux x64 | `goose-to-wasm-v2026.4-8-linux-x64.tar.gz` |
+| macOS Apple Silicon | `goose-to-wasm-v2026.4-8-macos-arm64.tar.gz` |
+| macOS Intel | `goose-to-wasm-v2026.4-8-macos-x64.tar.gz` |
+| Windows x64 | `goose-to-wasm-v2026.4-8-windows-x64.zip` |
+| Portable Wasm64 | `goose-to-wasm-v2026.4-8-wasm.tar.gz` · `goosew-v2026.4-8-wasm64.wasm` |
 
 ```sh
 # Linux / macOS
-tar -xzf goose-to-wasm-v2026.4-7-linux-x64.tar.gz
-export PATH="$PWD/goose-to-wasm-v2026.4-7-linux-x64/bin:$PATH"
+tar -xzf goose-to-wasm-v2026.4-8-linux-x64.tar.gz
+export PATH="$PWD/goose-to-wasm-v2026.4-8-linux-x64/bin:$PATH"
 goosew --version
-# goose-to-wasm v2026.4-7 (Goose v2026.4)
+# goose-to-wasm v2026.4-8 (Goose v2026.4)
 ```
 
 ```powershell
 # Windows (PowerShell)
-Expand-Archive goose-to-wasm-v2026.4-7-windows-x64.zip -DestinationPath .
-$env:PATH = "$PWD\goose-to-wasm-v2026.4-7-windows-x64\bin;$env:PATH"
+Expand-Archive goose-to-wasm-v2026.4-8-windows-x64.zip -DestinationPath .
+$env:PATH = "$PWD\goose-to-wasm-v2026.4-8-windows-x64\bin;$env:PATH"
 goosew --version
 ```
 
 ```sh
 # Portable Wasm64 compiler (runs anywhere Wasmtime runs)
-python3 scripts/run_wasmtime.py goosew-v2026.4-7-wasm64.wasm -- --version
+python3 scripts/run_wasmtime.py goosew-v2026.4-8-wasm64.wasm -- --version
 ```
 
 > **Binary name (`goosew`):** Named `goosew` so it does not collide with upstream C++ `goose` on your `PATH`. Symlink or rename it if you prefer `goose`.
@@ -214,7 +214,7 @@ app.goose:3:19: error: no overload matches this call's argument types and count:
 
 ## Compatibility & Documentation
 
-Releases are versioned **`v<goose-version>-<n>`** (currently **`v2026.4-7`**) and strictly track upstream [Goose](https://github.com/aardappel/goose) as the sole language reference (`10,790 / 10,801` conformance rows passing, `0` unexpected failures — all `6` post-pin upstream language/stdlib deltas documented in `tests/conformance/known-gaps.json`).
+Releases are versioned **`v<goose-version>-<n>`** (currently **`v2026.4-8`**) and strictly track upstream [Goose](https://github.com/aardappel/goose) as the sole language reference (`10,790 / 10,801` conformance rows passing, `0` unexpected failures — all `6` post-pin upstream language/stdlib deltas documented in `tests/conformance/known-gaps.json`).
 
 | Topic | Documentation |
 |---|---|
@@ -224,7 +224,7 @@ Releases are versioned **`v<goose-version>-<n>`** (currently **`v2026.4-7`**) an
 | Safe-Rust `wtime` host (`#![forbid(unsafe_code)]`, Wasm32/Wasm64) | [host/wtime/README.md](host/wtime/README.md) |
 | Browser runtime & drop-in `stdlib-web` (WebGL2, Audio, JSPI) | [host/web/README.md](host/web/README.md) · [stdlib-web/README.md](stdlib-web/README.md) |
 | Upstream Goose & Blot2 compatibility tracker | [docs/FEATURES.md](docs/FEATURES.md) |
-| Self-hosted compiler, Snapshot 76 seed & bootstrap | [selfhost/README.md](selfhost/README.md) |
+| Self-hosted compiler, Snapshot 77 seed & bootstrap | [selfhost/README.md](selfhost/README.md) |
 | Conformance, qualification & runnable examples | [tests/README.md](tests/README.md) · [examples/README.md](examples/README.md) |
 | Contributing, Code of Conduct & Security | [CONTRIBUTING.md](CONTRIBUTING.md) · [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) · [SECURITY.md](SECURITY.md) |
 

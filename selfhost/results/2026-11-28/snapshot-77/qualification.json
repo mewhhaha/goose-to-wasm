@@ -1,0 +1,168 @@
+{
+ "schema": "goose-qualification-v1",
+ "started": "2026-11-28T14:38:10+0100",
+ "head": "f350466a959b0ab628ad525b66be974c8d36be22",
+ "dirty": true,
+ "since": "origin/main",
+ "units_pass": false,
+ "stages": [
+  {
+   "stage": "bootstrap",
+   "command": [
+    "/home/mewhhaha/src/goose-to-wasm-release-tmp/.venv/bin/python",
+    "scripts/bootstrap.py",
+    "--verify",
+    "--build-dir",
+    "/home/mewhhaha/src/goose-to-wasm-release-tmp/build/qualify-release-v2026.4-8-clean/bootstrap",
+    "--cache-dir",
+    "/home/mewhhaha/src/goose-to-wasm/build/qualify-cache/bootstrap"
+   ],
+   "exit": 0,
+   "seconds": 1.1,
+   "log": "/home/mewhhaha/src/goose-to-wasm-release-tmp/build/qualify-release-v2026.4-8-clean/bootstrap.log"
+  },
+  {
+   "stage": "conformance",
+   "command": [
+    "/home/mewhhaha/src/goose-to-wasm-release-tmp/.venv/bin/python",
+    "tests/conformance.py",
+    "--compiler",
+    "/home/mewhhaha/src/goose-to-wasm-release-tmp/build/qualify-release-v2026.4-8-clean/bootstrap/bin/goosew",
+    "--levels",
+    "0",
+    "2",
+    "--cc",
+    "gcc",
+    "--known-gaps",
+    "tests/conformance/known-gaps.json",
+    "--native-cache",
+    "/home/mewhhaha/src/goose-to-wasm/build/qualify-cache/native",
+    "--output-dir",
+    "/home/mewhhaha/src/goose-to-wasm-release-tmp/build/qualify-release-v2026.4-8-clean/conformance",
+    "--jobs",
+    "8"
+   ],
+   "exit": 0,
+   "seconds": 99.4,
+   "log": "/home/mewhhaha/src/goose-to-wasm-release-tmp/build/qualify-release-v2026.4-8-clean/conformance.log",
+   "summary": "{'selected': 10801, 'passed': 10790, 'failed': 11}",
+   "gaps": "{'open_gaps': 11, 'unexpected_failures': 0, 'fixed_gaps': 0}",
+   "native_cache": "{'native_builds': 3302, 'cache_hits': 3238}"
+  },
+  {
+   "stage": "native-checks",
+   "command": [
+    "/home/mewhhaha/src/goose-to-wasm-release-tmp/.venv/bin/python",
+    "native/tests/check.py",
+    "--output",
+    "/home/mewhhaha/src/goose-to-wasm-release-tmp/build/qualify-release-v2026.4-8-clean/native"
+   ],
+   "exit": 0,
+   "seconds": 22.4,
+   "log": "/home/mewhhaha/src/goose-to-wasm-release-tmp/build/qualify-release-v2026.4-8-clean/native-checks.log",
+   "summary": "54 steps ok"
+  },
+  {
+   "stage": "conformance-memory64",
+   "command": [
+    "/home/mewhhaha/src/goose-to-wasm-release-tmp/.venv/bin/python",
+    "tests/conformance.py",
+    "--compiler",
+    "/home/mewhhaha/src/goose-to-wasm-release-tmp/build/qualify-release-v2026.4-8-clean/bootstrap/bin/goosew",
+    "--levels",
+    "0",
+    "2",
+    "--cc",
+    "gcc",
+    "--known-gaps",
+    "tests/conformance/known-gaps-memory64.json",
+    "--native-cache",
+    "/home/mewhhaha/src/goose-to-wasm/build/qualify-cache/native",
+    "--output-dir",
+    "/home/mewhhaha/src/goose-to-wasm-release-tmp/build/qualify-release-v2026.4-8-clean/conformance-memory64",
+    "--jobs",
+    "4",
+    "--targets",
+    "wasm-direct",
+    "--wasm-memory64"
+   ],
+   "exit": 0,
+   "seconds": 48.9,
+   "log": "/home/mewhhaha/src/goose-to-wasm-release-tmp/build/qualify-release-v2026.4-8-clean/conformance-memory64.log",
+   "summary": "{'selected': 4779, 'passed': 4771, 'failed': 8}",
+   "gaps": "{'open_gaps': 8, 'unexpected_failures': 0, 'fixed_gaps': 0}",
+   "native_cache": "{'native_builds': 0, 'cache_hits': 0}"
+  },
+  {
+   "stage": "equivalence",
+   "command": [
+    "/home/mewhhaha/src/goose-to-wasm-release-tmp/.venv/bin/python",
+    "tests/output_equivalence.py",
+    "--baseline",
+    "/home/mewhhaha/src/goose-to-wasm/build/bin/goosew",
+    "--candidate",
+    "/home/mewhhaha/src/goose-to-wasm-release-tmp/build/qualify-release-v2026.4-8-clean/bootstrap/bin/goosew",
+    "--output-dir",
+    "/home/mewhhaha/src/goose-to-wasm-release-tmp/build/qualify-release-v2026.4-8-clean/equivalence",
+    "--selfhost",
+    "/home/mewhhaha/src/goose-to-wasm-release-tmp/build/qualify-release-v2026.4-8-clean/frozen/selfhost",
+    "--jobs",
+    "4"
+   ],
+   "exit": 0,
+   "seconds": 47.1,
+   "log": "/home/mewhhaha/src/goose-to-wasm-release-tmp/build/qualify-release-v2026.4-8-clean/equivalence.log",
+   "summary": "{\"compared\": 10061, \"differing\": 0, \"seconds\": {\"baseline\": 90.622, \"candidate\": 87.735}}",
+   "differing": []
+  },
+  {
+   "stage": "unit-tests",
+   "command": [
+    "/home/mewhhaha/src/goose-to-wasm-release-tmp/.venv/bin/python",
+    "-m",
+    "unittest",
+    "--durations",
+    "10",
+    "tests.test_conformance_runner",
+    "tests.test_bootstrap_optimization",
+    "tests.test_native_units",
+    "tests.test_driver_outputs",
+    "tests.test_cli_outputs",
+    "tests.test_root_struct_backends",
+    "tests.test_slice_pool_backends",
+    "tests.test_loop_ordinals",
+    "tests.test_dynamic_remainder",
+    "tests.test_descending_while",
+    "tests.test_zero_stores",
+    "tests.test_owner_view_host",
+    "tests.test_ordinary_owner_modes",
+    "tests.test_aggregate_print",
+    "tests.test_while_unroll",
+    "tests.test_fixed_memory_frames",
+    "tests.test_holder_walks",
+    "tests.test_data_segments",
+    "tests.test_fixed_memory_ops",
+    "tests.test_diagnostics",
+    "tests.test_wtime_host",
+    "tests.test_web_stdlib"
+   ],
+   "exit": 0,
+   "seconds": 127.7,
+   "log": "/home/mewhhaha/src/goose-to-wasm-release-tmp/build/qualify-release-v2026.4-8-clean/unit-tests.log"
+  }
+ ],
+ "bootstrap": {
+  "fixed_point": true,
+  "generated_c_sha256": "8056c33fbc200c4a57d4c7c30ad04417642f4f15c81d44c24b671abcde916b7e",
+  "next_generation_c_sha256": "8056c33fbc200c4a57d4c7c30ad04417642f4f15c81d44c24b671abcde916b7e",
+  "third_generation_c_sha256": null,
+  "executable_sha256": "847fc044bd4549f9d51d13db8f2d4e2f1eb08c5fba680655268953a844b36d34",
+  "profile_used": true,
+  "cached": {
+   "build-seed": true
+  }
+ },
+ "seconds": 128.9,
+ "status": "passed",
+ "failed": []
+}

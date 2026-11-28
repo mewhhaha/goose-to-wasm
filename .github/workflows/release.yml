@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: 'Release tag to build and attach assets to (e.g. v2026.4-7)'
+        description: 'Release tag to build and attach assets to (e.g. v2026.4-8)'
         required: true
         type: string
       prerelease:
