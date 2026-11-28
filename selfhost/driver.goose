@@ -607,7 +607,8 @@ fn driver_stats(p: Program&, path: const u8[:], bytes: i64, parsing: i64, checki
         out.append(",\"life_cache_hit\":");
         if p.life_cache_hit { out.append("true}\n"); } else { out.append("false}\n"); }
     } else {
-        out.append("],\"cache_complete\":false}\n");
+        out.append("],\"cache_complete\":false,\"life_cache_hit\":");
+        if p.life_cache_hit { out.append("true}\n"); } else { out.append("false}\n"); }
     }
     return write_file(path, out);
 }
@@ -915,7 +916,7 @@ fn driver_main() -> i64 {
         if p.diagnostics.len > 0 { driver_diagnostics(p, o); return 1; }
         if !driver_outputs_distinct(p, "", paths[stats_start..stats_end], "") { return 1; }
         var stored_check = false;
-        if cache_active && p.warnings.len == 0 {
+        if cache_active {
             let cdir = paths[cache_start..cache_end];
             if !is_dir(cdir) && !file_exists(cdir) {
                 var mkcmd: u8[>..] = [];
@@ -930,7 +931,9 @@ fn driver_main() -> i64 {
                     p.cache_probe_text[p.life_cert_data_start..p.life_cert_data_start + p.life_cert_data_len],
                 );
             }
-            stored_check = cache_store_entry(p, cdir, cache_key, 2, "");
+            if p.warnings.len == 0 {
+                stored_check = cache_store_entry(p, cdir, cache_key, 2, "");
+            }
         }
         if stats_end > stats_start && !driver_stats(p, paths[stats_start..stats_end], 0, parsed - started, checked - parsed, 0, 0, stored_check, false) {
             driver_error("cannot write statistics"); return 1;
@@ -1002,7 +1005,7 @@ fn driver_main() -> i64 {
         if !write_file(paths[output_start..output_end], output) { driver_error("cannot write output"); return 1; }
     }
     var stored_artifact = false;
-    if cache_active && p.warnings.len == 0 {
+    if cache_active {
         let cdir = paths[cache_start..cache_end];
         if !is_dir(cdir) && !file_exists(cdir) {
             var mkcmd: u8[>..] = [];
@@ -1017,7 +1020,9 @@ fn driver_main() -> i64 {
                 p.cache_probe_text[p.life_cert_data_start..p.life_cert_data_start + p.life_cert_data_len],
             );
         }
-        stored_artifact = cache_store_entry(p, cdir, cache_key, cache_mode, output);
+        if p.warnings.len == 0 {
+            stored_artifact = cache_store_entry(p, cdir, cache_key, cache_mode, output);
+        }
     }
     if stats_end > stats_start && !driver_stats(p, paths[stats_start..stats_end], output.len, parsed - started, checked - parsed, optimized - checked, generated - optimized, stored_artifact, false) {
         driver_error("cannot write statistics"); return 1;

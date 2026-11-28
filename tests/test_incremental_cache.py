@@ -507,6 +507,57 @@ class IncrementalCache(unittest.TestCase):
         repaired = [c for c, raw in good_certs.items() if c.read_bytes() == raw]
         self.assertEqual(len(repaired), 1)
 
+    def test_life_cert_writes_and_hits_with_warnings(self):
+        src = self.work / "warn_life.goose"
+        out = self.work / "warn_life.wasm"
+        stats = self.work / "warn_life_st.json"
+        code = (
+            "fn f(x: u8) -> bool {\n"
+            "    let bad = x < 0;\n"
+            "    return bad;\n"
+            "}\n"
+            "fn main() {\n"
+            "    var xs: i64[>..<] = [1, 2];\n"
+            "    let r: i64& = xs[0];\n"
+            "    print(r, f(5));\n"
+            "}\n"
+        )
+        src.write_text(code)
+        r1 = self.run_goose(
+            "warn_life.goose", "-O0", "-o", str(out),
+            "--cache-dir", str(self.cache), "--wasm-stats", str(stats),
+        )
+        self.assertEqual(r1.returncode, 0, r1.stderr)
+        self.assertIn("warning:", r1.stderr)
+        st1 = json.loads(stats.read_text())
+        self.assertFalse(st1.get("cache_hit", False))
+        self.assertFalse(st1["life_cache_hit"])
+        self.assertFalse(st1.get("cache_complete", False))
+        self.assertEqual(len(list(self.cache.glob("l_*.life"))), 1)
+
+        # Second run (and edited-comment run) must still emit warning AND hit .life cert!
+        src.write_text(code + "\n// edit\n")
+        r2 = self.run_goose(
+            "warn_life.goose", "-O0", "-o", str(out),
+            "--cache-dir", str(self.cache), "--wasm-stats", str(stats),
+        )
+        self.assertEqual(r2.returncode, 0, r2.stderr)
+        self.assertIn("warning:", r2.stderr)
+        st2 = json.loads(stats.read_text())
+        self.assertFalse(st2.get("cache_hit", False))
+        self.assertTrue(st2["life_cache_hit"])
+
+        # --check with warnings must also hit .life cert and emit the warning.
+        rc = self.run_goose(
+            "warn_life.goose", "--check",
+            "--cache-dir", str(self.cache), "--wasm-stats", str(stats),
+        )
+        self.assertEqual(rc.returncode, 0, rc.stderr)
+        self.assertIn("warning:", rc.stderr)
+        stc = json.loads(stats.read_text())
+        self.assertFalse(stc.get("cache_hit", False))
+        self.assertTrue(stc["life_cache_hit"])
+
 
 if __name__ == "__main__":
     unittest.main()
