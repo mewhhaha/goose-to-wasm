@@ -114,16 +114,13 @@ def build(args, scratch):
     if output.exists():
         shutil.rmtree(output)
 
-    for directory in ("host/web", "wasm", "samples", "data", "assets"):
+    for directory in ("host/web", "wasm", "samples", "data"):
         (output / directory).mkdir(parents=True)
-    # Serve the vector logo and the PNG favicon fallback.
-    for name in ("index.html", "styles.css", "app.js", "goose-wasm.svg", "favicon-goose-wasm-64.png"):
+    for name in ("index.html", "styles.css", "app.js"):
         shutil.copyfile(site / name, output / name)
+    shutil.copyfile(ROOT / "favicon.svg", output / "favicon.svg")
     for source in [*sorted(host.glob("*.js")), host / "package.json"]:
         shutil.copyfile(source, output / "host/web" / source.name)
-    logo_src = samples.parent / "docs" / "logo" / "logo_black_fg_trans_bg.png"
-    if logo_src.is_file():
-        shutil.copyfile(logo_src, output / "assets" / "goose-logo.png")
     (output / ".nojekyll").touch()
     shutil.copyfile(samples / "data" / WAD, output / "data" / WAD)
 
