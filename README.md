@@ -6,7 +6,7 @@ Compile Goose directly to **WebAssembly in milliseconds** — with no C compiler
 
 **[Latest release: `v2026.4-6`](https://github.com/mewhhaha/goose-to-wasm/releases/tag/v2026.4-6)** (tracks upstream Goose `v2026.4`) · **[Play all 9 official Goose examples in your browser](https://mewhhaha.github.io/goose-to-wasm/)** (WebGL2 + Web Audio + JSPI) · **[Compatibility tracker](docs/FEATURES.md)**
 
-![Elapsed time for goosew versus upstream C++ Goose on log scales. The example builds, self-host check and compile, and Blot2 runs all fall below the equal-time line.](bench/results/2026-11-28/wtime-aot-and-codegen/readme_overview.svg)
+![Median build time across eight Goose examples at -O2 was 3.4 ms with goosew Direct Wasm and 79.3 ms with upstream native builds.](bench/results/2026-11-28/wtime-aot-and-codegen/readme_overview.svg)
 
 <details><summary>Summary numbers (text table)</summary>
 

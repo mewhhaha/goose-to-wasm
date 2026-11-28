@@ -6,11 +6,12 @@ Reads pinned measurements from ./results.json and writes:
   2. runtime_comparison.svg        — Suite A: Wasmtime, wtime-aot x64 (Base vs Cand), and Native Clang -O2
   3. large_wasm64_comparison.svg   — Suite B: selfhost (57.5k LOC) & blot2 (79.0k LOC) sizes and build/self-compile times
   4. blot2_hosted_engines.svg      — Suite B: 84-import blot2 hosted execution (Winch vs goose-wtime-aot)
-  5. readme_overview.svg          — Root README elapsed-time comparison against upstream Goose
+  5. readme_overview.svg          — Root README comparison of median example build times
 """
 from __future__ import annotations
 
 import json
+from statistics import median
 from pathlib import Path
 
 import matplotlib
@@ -322,68 +323,30 @@ save(fig, "blot2_hosted_engines")
 
 
 # =============================================================================
-# 5. readme_overview.svg — Elapsed-time comparison against upstream Goose
+# 5. readme_overview.svg — Typical build time on the eight release examples
 # =============================================================================
-v4_ref = json.loads((ROOT / "bench/results/2026-11-25/release-v2026.4-4/results.json").read_text())
-fl_ref = json.loads((ROOT / "bench/results/2026-11-27/four-levers-campaign/results.json").read_text())
+release = json.loads((ROOT / "bench/results/2026-11-25/release-v2026.4-4/results.json").read_text())
+examples = release["suite2_examples_build"].values()
+goosew_ms = 1000 * median(row["g2w_wasm_o2"]["median_wall_s"] for row in examples)
+upstream_ms = 1000 * median(row["upstream_build_o2"]["median_wall_s"] for row in examples)
 
-examples = v4_ref["suite2_examples_build"]
-workloads = ("squares", "sieve", "sudoku", "vm", "life", "tour", "maze", "sorting")
-upstream_examples_s = [examples[name]["upstream_build_o2"]["median_wall_s"] for name in workloads]
-goosew_examples_s = [examples[name]["g2w_wasm_o2"]["median_wall_s"] for name in workloads]
+fig, ax = plt.subplots(figsize=(6.1, 2.85))
+fig.subplots_adjust(left=0.04, right=0.98, top=0.72, bottom=0.12)
+fig.text(0.04, 0.95, f"{upstream_ms / goosew_ms:.0f}× faster builds on eight Goose examples",
+         fontsize=16, color=INK, weight="bold", va="top")
+fig.text(0.04, 0.81, "Median build time at -O2", fontsize=11, color=SLATE, va="top")
 
-upstream_selfhost = v4_ref["suite1_selfcompile"]
-unprofiled = fl_ref["paired_unprofiled_j8"]
-upstream_selfhost_s = [upstream_selfhost[key]["median_wall_s"] for key in ("upstream_check", "upstream_emit_c")]
-goosew_selfhost_s = [unprofiled[key]["lever4"]["median_ms"] / 1000 for key in ("selfhost_check", "selfhost_o0_wasm64")]
+for y, label, elapsed, color in [
+    (1, "goosew v2026.4-4 · Direct Wasm", goosew_ms, TEAL),
+    (0, "Upstream Goose · native", upstream_ms, SLATE),
+]:
+    ax.text(0, y + 0.22, label, fontsize=12, color=INK, va="bottom")
+    ax.barh(y, elapsed, height=0.29, color=color)
+    ax.annotate(f"{elapsed:.1f} ms", (elapsed, y), xytext=(6, 0), textcoords="offset points",
+                va="center", fontsize=12, color=color, weight="bold")
 
-winch_ms = fl_ref["blot2_jit_and_run"]["cold_l4_o0_winch_fib"]["median_ms"]
-edited = fl_ref["blot2_incremental_and_edits"]["lever4_unprofiled"]["edited_file_life_hits"]
-blot_cold_s = (unprofiled["blot2_o0_wasm64"]["lever4"]["median_ms"] + winch_ms) / 1000
-blot_edited_s = (edited["compile_goose_o0_scalar_if_let"]["median_ms"] + winch_ms) / 1000
-# Upstream full rebuilds reported in the November 27 campaign.
-blot_upstream_s = [30.64, 98.831]
-
-fig, ax = plt.subplots(figsize=(6.7, 4.8))
-fig.subplots_adjust(left=0.15, right=0.98, bottom=0.15, top=0.82)
-fig.text(0.15, 0.965, "Goose build and turnaround times", va="top", fontsize=16, weight="bold", color=INK)
-fig.text(0.15, 0.91, "Below the equal-time line, goosew is faster.", va="top", fontsize=10.5, color=SLATE)
-
-ax.set(xscale="log", yscale="log", xlim=(0.032, 180), ylim=(0.001, 180))
-ax.set_xticks([0.1, 1, 10, 100], ["100 ms", "1 s", "10 s", "100 s"])
-ax.set_yticks([0.001, 0.01, 0.1, 1, 10, 100], ["1 ms", "10 ms", "100 ms", "1 s", "10 s", "100 s"])
-ax.tick_params(which="minor", bottom=False, left=False)
-ax.set_xlabel("Upstream C++ Goose elapsed time", color=INK, labelpad=9)
-ax.set_ylabel("goosew elapsed time", color=INK, labelpad=9)
-clean_ax(ax, "both")
-
-for speedup in (1, 10, 100):
-    upstream = ax.get_xlim()
-    ax.plot(upstream, [seconds / speedup for seconds in upstream], linestyle="--",
-            linewidth=1, color=SLATE if speedup == 1 else BASE_MUTED, zorder=1)
-
-for upstream, speedup, label in [(13, 1, "Equal time"), (0.65, 10, "10× faster"), (6, 100, "100× faster")]:
-    ax.annotate(label, (upstream, upstream / speedup), xytext=(0, 5), textcoords="offset points",
-                fontsize=8.5, color=SLATE, ha="center")
-
-ax.scatter(upstream_examples_s, goosew_examples_s, s=30, color=TEAL, edgecolors="white", linewidths=0.6, zorder=4)
-ax.text(0.055, 0.014, "Everyday builds\n8 examples · -O2", fontsize=10, color=TEAL, weight="bold")
-
-ax.scatter(upstream_selfhost_s, goosew_selfhost_s, s=44, marker="D", color=BLUE,
-           edgecolors="white", linewidths=0.6, zorder=4)
-ax.annotate("Self-host check / compile", (min(upstream_selfhost_s), min(goosew_selfhost_s)),
-            xytext=(-9, 0), textcoords="offset points", ha="right", va="center",
-            fontsize=9.5, color=BLUE, weight="bold")
-
-for seconds, label, marker in [(blot_cold_s, "Blot2 cold build + run", "s"),
-                               (blot_edited_s, "Blot2 edited build + run", "^")]:
-    ax.plot(blot_upstream_s, [seconds, seconds], color=PURPLE, alpha=0.45, linewidth=1)
-    ax.scatter(blot_upstream_s, [seconds, seconds], s=48, marker=marker, color=PURPLE, zorder=4)
-    ax.annotate(label, (blot_upstream_s[0], seconds), xytext=(-7, 0), textcoords="offset points",
-                ha="right", va="center", fontsize=9.5, color=PURPLE, weight="bold")
-
-for seconds, label in zip(blot_upstream_s, ("Clang -O0", "Clang -O2")):
-    ax.annotate(label, (seconds, blot_cold_s), xytext=(0, 8), textcoords="offset points",
-                ha="center", fontsize=8.5, color=SLATE)
-
+ax.set(xlim=(0, 99), ylim=(-0.45, 1.6), yticks=[])
+ax.set_xticks([0, 20, 40, 60, 80], ["0", "20 ms", "40 ms", "60 ms", "80 ms"])
+ax.tick_params(axis="x", labelsize=9, colors=SLATE)
+clean_ax(ax, "x")
 save(fig, "readme_overview")
