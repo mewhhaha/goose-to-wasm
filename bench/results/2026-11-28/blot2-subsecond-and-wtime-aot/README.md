@@ -26,6 +26,8 @@ Paired alternating evaluation of **Track 1** (`.life` certificate warning fix & 
 
 ![Blot2 79.0k LOC: breaking 1 second from Goose edit to O2 native x64 execution](blot2_subsecond_turnaround.svg)
 
+![Edited 8.08 MiB Blot2 hosted compile and run across engines](blot2_hosted_engines.svg)
+
 Every edited round mutates a live function body (`compileWithStaged` in `compile.goose` or `checkedAstList` in the 932 KB `check/check.goose`) with a unique round constant so both the `goosew` whole-artifact cache and `wtime-aot`'s per-function content hashes detect a genuine edit.
 
 ### `goosew` emit & `--check` (`--jobs 8`, 5 alternating rounds)
@@ -91,4 +93,4 @@ Single-core CPU 7 reference (3 alternating rounds, edited `compile.goose`):
 python3 bench/results/2026-11-28/blot2-subsecond-and-wtime-aot/plot.py < /dev/null
 ```
 
-Raw data: [`results.json`](results.json). Charts: [`blot2_subsecond_turnaround.svg`](blot2_subsecond_turnaround.svg), [`runtime_wtime_aot_v2026_4_7.svg`](runtime_wtime_aot_v2026_4_7.svg).
+Raw data: [`results.json`](results.json). Charts: [`blot2_subsecond_turnaround.svg`](blot2_subsecond_turnaround.svg), [`blot2_hosted_engines.svg`](blot2_hosted_engines.svg), [`runtime_wtime_aot_v2026_4_7.svg`](runtime_wtime_aot_v2026_4_7.svg).

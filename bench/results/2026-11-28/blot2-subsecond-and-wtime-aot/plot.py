@@ -2,8 +2,9 @@
 """Generate deterministic SVG comparison charts for the 2026-11-28 v2026.4-7 report.
 
 Reads pinned measurements from ./results.json and writes:
-  1. blot2_subsecond_turnaround.svg  — Blot2 79.0k LOC sub-second edit -> native x64 turnaround & hosted engine breakdown
-  2. runtime_wtime_aot_v2026_4_7.svg — 6 runtime benchmarks: Prior vs New wtime-aot x64, Wasmtime 50.0.1, Native Clang -O2
+  1. blot2_subsecond_turnaround.svg  — Blot2 79.0k LOC sub-second edit -> native x64 turnaround
+  2. blot2_hosted_engines.svg        — Edited 8.08 MiB Blot2 hosted compile + run across engines
+  3. runtime_wtime_aot_v2026_4_7.svg — 6 runtime benchmarks: Prior vs New wtime-aot x64, Wasmtime 50.0.1, Native Clang -O2
 """
 from __future__ import annotations
 
@@ -91,16 +92,14 @@ rows = [
     ("Edited compile.goose + --inc-cache\n(.life + per-fn O2 x64, PGO*)", cp_emit, c_fib_inc, EMERALD, PURPLE),
 ]
 
-fig, (ax1, ax2) = plt.subplots(
-    1, 2, figsize=(15.4, 5.2), gridspec_kw={"width_ratios": [1.35, 1.0]}, layout="constrained"
-)
+fig, ax1 = plt.subplots(figsize=(8.8, 4.7), layout="constrained")
 fig.suptitle(
-    "Blot2 (79.0k LOC, 7,961 fns, 84 imports): breaking 1 second from Goose edit to O2 native x64 execution",
-    x=0.01, ha="left", fontsize=12.4, weight="bold", color=INK,
+    "Blot2 (79.0k LOC): breaking 1 second from Goose edit to O2 native x64 run",
+    x=0.01, ha="left", fontsize=12.0, weight="bold", color=INK,
 )
 
 y = [i * 1.15 for i in range(len(rows))]
-bh = 0.54
+bh = 0.56
 for idx, (lbl, em, run, c_em, c_run) in enumerate(rows):
     yi = y[idx]
     ax1.barh(yi, em, height=bh, color=c_em, label="goosew -O0 Wasm64 emit" if idx == 1 else ("goosew -O0 emit (PGO*)" if idx == 4 else None))
@@ -109,22 +108,27 @@ for idx, (lbl, em, run, c_em, c_run) in enumerate(rows):
     ax1.annotate(
         f"{tot:.3f} s  ({em*1000:.0f} + {run*1000:.0f} ms)",
         (tot, yi), xytext=(6, 0), textcoords="offset points",
-        va="center", fontsize=8.6, weight="bold" if tot < 1.0 else "normal",
+        va="center", fontsize=9.1, weight="bold" if tot < 1.0 else "normal",
         color=EMERALD if tot < 0.80 else INK,
         bbox=HALO,
     )
 
-ax1.axvline(1.0, color=RED, linestyle="--", linewidth=1.2, alpha=0.8)
-ax1.text(1.02, -0.36, "1.0 s", color=RED, fontsize=8.6, weight="bold", va="bottom", bbox=HALO)
-ax1.set_title("End-to-end edit -> compile -> run fibonacci.blot (seconds, 8 cores, median of 5 alt. rounds)", fontsize=9.8, loc="left", color=INK, pad=12)
-ax1.set_xlabel("Seconds (upstream C++ Goose: 30.6 s Clang -O0 · 98.8 s Clang -O2 · bit-exact sha e60d8276…)", fontsize=8.3, color=SLATE)
-ax1.set_yticks(y, labels=[r[0] for r in rows], fontsize=8.7, color=INK)
-ax1.invert_yaxis()
-ax1.set_xlim(0, max(r[1] + r[2] for r in rows) * 1.46)
-ax1.legend(frameon=True, facecolor="#ffffff", edgecolor="#e2e8f0", fontsize=8.1, loc="lower right", ncol=1)
+ax1.axvline(1.0, color=RED, linestyle="--", linewidth=1.25, alpha=0.8)
+ax1.text(1.03, -0.44, "1.0 s", color=RED, fontsize=9.1, weight="bold", va="bottom", bbox=HALO)
+ax1.set_title("End-to-end edit -> compile -> run fibonacci.blot (seconds, 8 cores, median of 5 alt. rounds)", fontsize=9.6, loc="left", color=SLATE, pad=12)
+ax1.set_xlabel("Seconds (upstream C++ Goose: 30.6 s Clang -O0 · 98.8 s Clang -O2 · bit-exact sha e60d8276…)", fontsize=8.8, color=SLATE)
+ax1.set_yticks(y, labels=[r[0] for r in rows], fontsize=9.1, color=INK)
+ax1.set_ylim(y[-1] + 0.65, -0.78)
+ax1.set_xlim(0, max(r[1] + r[2] for r in rows) * 1.48)
+ax1.legend(frameon=True, facecolor="#ffffff", edgecolor="#e2e8f0", fontsize=8.7, loc="lower right", ncol=1)
 clean_ax(ax1, "x")
 
-# Right panel: Hosted engine comparison on edited compile.goose (8 cores, fib + matrix_multiply)
+save(fig, "blot2_subsecond_turnaround")
+
+
+# =============================================================================
+# 2. blot2_hosted_engines.svg
+# =============================================================================
 h_fib = ed_comp["hosted_8c"]["fibonacci"]
 h_mat = ed_comp["hosted_8c"]["matrix_multiply"]
 eng_rows = [
@@ -139,21 +143,27 @@ ew = 0.40
 fv = [h_fib[k]["median_wall_s"] * 1000.0 for _, k in eng_rows]
 mv = [h_mat[k]["median_wall_s"] * 1000.0 for _, k in eng_rows]
 
+fig, ax2 = plt.subplots(figsize=(8.0, 4.6), layout="constrained")
+fig.suptitle(
+    "Blot2 (8.08 MiB Wasm64, 7,961 fns, 84 imports): hosted compile + run",
+    x=0.01, ha="left", fontsize=12.0, weight="bold", color=INK,
+)
+
 b1 = ax2.bar([i - ew / 2 for i in ex], fv, width=ew * 0.90, color=TEAL, label="fibonacci.blot")
 b2 = ax2.bar([i + ew / 2 for i in ex], mv, width=ew * 0.90, color=NAVY, label="matrix_multiply.blot")
-ax2.bar_label(b1, labels=[f"{v:.0f}" for v in fv], padding=3, fontsize=8.1, weight="bold", color=TEAL)
-ax2.bar_label(b2, labels=[f"{v:.0f}" for v in mv], padding=3, fontsize=8.1, weight="bold", color=NAVY)
+ax2.bar_label(b1, labels=[f"{v:.0f}" for v in fv], padding=3, fontsize=9.0, weight="bold", color=TEAL)
+ax2.bar_label(b2, labels=[f"{v:.0f}" for v in mv], padding=3, fontsize=9.0, weight="bold", color=NAVY)
 
 inc_comp_ms = statistics.median([e["compile_ms"] for e in h_fib["wtime_aot_o2_inc_cache_8c"]["extras"]])
-ax2.set_title("Edited 8.08 MiB Blot2 hosted compile + run (ms, 8 cores)", fontsize=9.8, loc="left", color=INK, pad=26)
-ax2.set_ylabel("Milliseconds (median of 5 alt. rounds)", color=SLATE)
-ax2.set_xlabel(f"--inc-cache compiles 1 edited fn in {inc_comp_ms:.0f} ms (3.7 KB .delta) + runs full O2 x64", fontsize=8.2, color=SLATE)
-ax2.set_xticks(ex, labels=[lbl for lbl, _ in eng_rows], fontsize=8.2, color=INK)
+ax2.set_title("Edited compile.goose across engines (ms, 8 cores, median of 5 alternating rounds)", fontsize=9.6, loc="left", color=SLATE, pad=12)
+ax2.set_ylabel("Milliseconds (lower is faster)", fontsize=9.4, color=SLATE)
+ax2.set_xlabel(f"--inc-cache compiles 1 edited fn in {inc_comp_ms:.0f} ms (3.7 KB .delta) + runs full O2 x64", fontsize=8.9, color=SLATE)
+ax2.set_xticks(ex, labels=[lbl for lbl, _ in eng_rows], fontsize=9.2, color=INK)
 ax2.set_ylim(0, max(max(fv), max(mv)) * 1.24)
-ax2.legend(frameon=False, fontsize=8.5, loc="upper right")
+ax2.legend(frameon=False, fontsize=9.3, loc="upper right")
 clean_ax(ax2, "y")
 
-save(fig, "blot2_subsecond_turnaround")
+save(fig, "blot2_hosted_engines")
 
 
 # =============================================================================

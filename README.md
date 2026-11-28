@@ -111,6 +111,8 @@ Combining `--jobs`, `--cache-dir` (whole-build + `.life` lifetime certificates),
 
 ![Blot2 79.0k LOC: breaking 1 second from Goose edit to O2 native x64 execution](bench/results/2026-11-28/blot2-subsecond-and-wtime-aot/blot2_subsecond_turnaround.svg)
 
+![Edited 8.08 MiB Blot2 hosted compile and run across engines](bench/results/2026-11-28/blot2-subsecond-and-wtime-aot/blot2_hosted_engines.svg)
+
 | Codebase & scenario (`--jobs 8`, Ryzen 7 7800X3D) | Unprofiled | Fresh PGO\* | vs Upstream C++ |
 |---|---:|---:|---|
 | **`selfhost/`** (`47.4k LOC`) — `--check` / `-O0` Wasm64 | **`0.26 / 0.28 s`** | **`0.23 / 0.26 s`** | **16.9×–19.4×** vs `4.38–4.71 s` |
