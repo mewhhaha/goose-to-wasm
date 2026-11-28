@@ -8,9 +8,9 @@
         "/usr/bin/clang-23",
         "--version"
       ],
-      "cwd": "/home/mewhhaha/src/goose-to-wasm/build/snapshot75/boot-from-74",
+      "cwd": "/home/mewhhaha/src/goose-to-wasm/build/snapshot76/boot-from-75",
       "exit_code": 0,
-      "seconds": 0.017163112002890557,
+      "seconds": 0.022361795010510832,
       "stdout_sha256": "443315ff8f756f0e82092cde683b296d9c3270decb7cdc477a5fcc1cc1a5e770",
       "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
     },
@@ -20,9 +20,9 @@
         "/usr/bin/clang-23",
         "-dumpmachine"
       ],
-      "cwd": "/home/mewhhaha/src/goose-to-wasm/build/snapshot75/boot-from-74",
+      "cwd": "/home/mewhhaha/src/goose-to-wasm/build/snapshot76/boot-from-75",
       "exit_code": 0,
-      "seconds": 0.01551531202858314,
+      "seconds": 0.02223800600040704,
       "stdout_sha256": "1c7da408e283702561a445e700b61c0f55a082230a3cfe323208841221274a6a",
       "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
     },
@@ -37,22 +37,22 @@
         "-ldl",
         "-pthread",
         "-o",
-        "/home/mewhhaha/src/goose-to-wasm/build/snapshot75/boot-from-74/seed",
+        "/home/mewhhaha/src/goose-to-wasm/build/snapshot76/boot-from-75/seed",
         "-fprofile-instr-use=/home/mewhhaha/src/goose-to-wasm/bootstrap/profile.profdata",
         "-Werror=profile-instr-out-of-date",
         "-Werror=profile-instr-missing",
         "-Werror=profile-instr-unprofiled"
       ],
-      "cwd": "/home/mewhhaha/src/goose-to-wasm/build/snapshot75/boot-from-74/cc-build-seed",
+      "cwd": "/home/mewhhaha/src/goose-to-wasm/build/snapshot76/boot-from-75/cc-build-seed",
       "exit_code": 0,
-      "seconds": 55.274837735982146,
+      "seconds": 60.43554707005387,
       "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
       "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
     },
     {
       "name": "compile-goose",
       "command": [
-        "/home/mewhhaha/src/goose-to-wasm/build/snapshot75/boot-from-74/seed",
+        "/home/mewhhaha/src/goose-to-wasm/build/snapshot76/boot-from-75/seed",
         "sources/main.goose",
         "--stdlib",
         "stdlib",
@@ -60,11 +60,11 @@
         "native",
         "-O2",
         "-o",
-        "/home/mewhhaha/src/goose-to-wasm/build/snapshot75/boot-from-74/compiler.c"
+        "/home/mewhhaha/src/goose-to-wasm/build/snapshot76/boot-from-75/compiler.c"
       ],
-      "cwd": "/home/mewhhaha/src/goose-to-wasm/build/snapshot75/boot-from-74",
+      "cwd": "/home/mewhhaha/src/goose-to-wasm/build/snapshot76/boot-from-75",
       "exit_code": 0,
-      "seconds": 0.6139680480118841,
+      "seconds": 0.5475664279656485,
       "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
       "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
     },
@@ -79,18 +79,18 @@
         "-ldl",
         "-pthread",
         "-o",
-        "/home/mewhhaha/src/goose-to-wasm/build/snapshot75/boot-from-74/goosew"
+        "/home/mewhhaha/src/goose-to-wasm/build/snapshot76/boot-from-75/goosew"
       ],
-      "cwd": "/home/mewhhaha/src/goose-to-wasm/build/snapshot75/boot-from-74/cc-build-goose",
+      "cwd": "/home/mewhhaha/src/goose-to-wasm/build/snapshot76/boot-from-75/cc-build-goose",
       "exit_code": 0,
-      "seconds": 55.63272157497704,
+      "seconds": 49.168561821978074,
       "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
       "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
     },
     {
       "name": "verify-selfhost",
       "command": [
-        "/home/mewhhaha/src/goose-to-wasm/build/snapshot75/boot-from-74/goosew",
+        "/home/mewhhaha/src/goose-to-wasm/build/snapshot76/boot-from-75/goosew",
         "sources/main.goose",
         "--stdlib",
         "stdlib",
@@ -98,11 +98,11 @@
         "native",
         "-O2",
         "-o",
-        "/home/mewhhaha/src/goose-to-wasm/build/snapshot75/boot-from-74/next-generation.c"
+        "/home/mewhhaha/src/goose-to-wasm/build/snapshot76/boot-from-75/next-generation.c"
       ],
-      "cwd": "/home/mewhhaha/src/goose-to-wasm/build/snapshot75/boot-from-74",
+      "cwd": "/home/mewhhaha/src/goose-to-wasm/build/snapshot76/boot-from-75",
       "exit_code": 0,
-      "seconds": 0.6555042790132575,
+      "seconds": 1.0694326999946497,
       "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
       "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
     },
@@ -117,18 +117,18 @@
         "-ldl",
         "-pthread",
         "-o",
-        "/home/mewhhaha/src/goose-to-wasm/build/snapshot75/boot-from-74/next-generation"
+        "/home/mewhhaha/src/goose-to-wasm/build/snapshot76/boot-from-75/next-generation"
       ],
-      "cwd": "/home/mewhhaha/src/goose-to-wasm/build/snapshot75/boot-from-74/cc-build-next-generation",
+      "cwd": "/home/mewhhaha/src/goose-to-wasm/build/snapshot76/boot-from-75/cc-build-next-generation",
       "exit_code": 0,
-      "seconds": 53.253706857038196,
+      "seconds": 49.24766144802561,
       "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
       "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
     },
     {
       "name": "verify-next-generation",
       "command": [
-        "/home/mewhhaha/src/goose-to-wasm/build/snapshot75/boot-from-74/next-generation",
+        "/home/mewhhaha/src/goose-to-wasm/build/snapshot76/boot-from-75/next-generation",
         "sources/main.goose",
         "--stdlib",
         "stdlib",
@@ -136,53 +136,54 @@
         "native",
         "-O2",
         "-o",
-        "/home/mewhhaha/src/goose-to-wasm/build/snapshot75/boot-from-74/third-generation.c"
+        "/home/mewhhaha/src/goose-to-wasm/build/snapshot76/boot-from-75/third-generation.c"
       ],
-      "cwd": "/home/mewhhaha/src/goose-to-wasm/build/snapshot75/boot-from-74",
+      "cwd": "/home/mewhhaha/src/goose-to-wasm/build/snapshot76/boot-from-75",
       "exit_code": 0,
-      "seconds": 0.7029808270162903,
+      "seconds": 0.6114032170153223,
       "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
       "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
     }
   ],
   "goose_optimization": 2,
   "requested_goose_optimization": 2,
-  "seed_c_sha256": "3d8886f91bbaae7314f13cfc32735eef689c3888c5409732ee78a35279e3a136",
+  "seed_c_sha256": "98d7e8174bc8ea50dd9315bfd7d19ecd088c4038e550f30b35b0a223f65dd881",
   "cc": "/usr/bin/clang-23",
   "cc_sha256": "366a962a13c952377adc2eabd9fdad82ba5b88890424b0022ae38cca8031bf79",
   "bootstrap_source_sha256": {
     "cache.goose": "25c601ad709333f80173ca67e330abe1ac406cc45d4d60e62d9b0ddf6988698d",
-    "checker.goose": "8e0696f9e9fb209811239fdbf7b7b8562ffd5f6b27cc740d1a860a33d3a021ba",
+    "checker.goose": "2249aebbd63a6644269acea183ceccd1b4aa6ae5b8c4032156f2f9277d9ba4d0",
     "checker_lifetimes.goose": "da5142889beee9938f20b24eadfcdb54e812bafebcb03d17d9dccd2f830c1cd5",
     "checker_operations.goose": "24e0ab4dda400f9d46bcfa23d9ca09d118934c82a8f55b1e6330198017403f37",
     "checker_rendering.goose": "9302c1bafcb47c431961158800754d823a5f5e8547983f484d1c2126dde0120a",
-    "checker_validation.goose": "e4b1aa1853b380782a25d5b718c1c3e2c6b323b41a90f82f8a7d1ee7c77795b0",
-    "codegen.goose": "79bbfaeb469dc958a9a29cdfe00b60f543af3b8879395d1fb626fe60559b8125",
-    "codegen_c.goose": "24313bcfdcef0690357bd374984f66c59d4cc2a715280e716c9a3fc06479e023",
+    "checker_validation.goose": "4964351dc08e0c4813f096377dd1ce41a0e2c0ae887d32ff5141a3fb2594de12",
+    "codegen.goose": "e2d65b8b2ce3540b5e99e61d53c9e954ac65cfd778b219b1fa63ea088923dedb",
+    "codegen_c.goose": "dd06bbdf7005844f5dc440fb3ae220281a1e5749b027a9a60989a96301c9ff8c",
     "codegen_c_images.goose": "dac4842710a22858b5559bbbd582399b71554422d84a46cd93db205fc314ee3e",
     "codegen_c_storage.goose": "586996021f95c0193262d8bb148b24decf6612e6e4f71d3c5e078896c3334e28",
     "codegen_c_threads.goose": "a0ed4a054a9dd39807a375de2b90a9d58e4e5479adf554948f2a7ebfe2357ace",
-    "driver.goose": "a5221cb9fccaba5980dae2167067dfd76812fbb03accfe34fb3e153bf00388d1",
+    "driver.goose": "91164ba5248a80d0b9ac9f3088dbae944307d39b3cb2416306b09b242200edea",
     "expansion_bind.goose": "e90b85468f1b32362c93b0b19e877194eb4b1c63e11363975c2c3b6894757fea",
+    "guide.goose": "03acb767ace902e675b9ca58be6ca92239f45a939aa1562075545ff2cb7f8dcb",
     "lexer.goose": "408979dd88d0afeb689c347b8d13d992556705ac90535b3dccef49224d6f4eef",
     "main.goose": "aedbadf2bb4536fc059812d4eeec6151d57de2bf25c1005fa6f5d4470aa45d1e",
-    "model.goose": "c77a9fb1115c10fe502076c12c3dfa5cffebe28b12c23c93042fcd8cfef638f1",
-    "optimizer.goose": "b01e04c6617150b9e0b59c835f4b2fa23e4f2683c3239675a3bd81c9f706ca83",
+    "model.goose": "728c6e34b8e909b9a5bc9db078d97a43d2d3f83a579e11abe4452abfe2a24829",
+    "optimizer.goose": "0c4b9998d48128e2db8cf561ae1cf1d8a2844744bf1236bcf9f2e88df10293ec",
     "parallel.goose": "b62a2b330a96e29ff954562246ff55cd2bd619c9630fcb7ca0cd2a7eb644f218",
-    "parser.goose": "7f8c0edc6e10b8d24a33b21f697355b41ec7e953f244295a444271a0c035c254",
+    "parser.goose": "a182a37378b8b22e1a13acc678d756b8623a6a5b300d106dbc78be3961686a6b",
     "region_plan.goose": "0ae8d2ada8ecff6ca17b10185897ef31828a0f9e54a3a05210435e8be0816a75",
-    "sources.goose": "626335834fcb71b14ebfcbe19054e3cb469ff4e580317b97a63e68e6322bbebf",
+    "sources.goose": "c17d17f961a65ed96f604cca364e067f354f50a0495ad8c6b77940f1422cd567",
     "thread_plan.goose": "73e2ed70ce4c83ae7469b0e818c7b7d2df51035286537f84959cd3272dfbe594",
     "wasm.goose": "524d6da62aa6ff3faeeffa34ad59ad6759f25ef8f3371093b59dc28d34174487"
   },
   "input_sha256": {
     "/home/mewhhaha/src/goose-to-wasm/selfhost/bootstrap.py": "d1b092fff2b09af490c6eeaa56cf37145d1f6ca01f7f2fb74768221766b71306",
-    "/home/mewhhaha/src/goose-to-wasm/bootstrap/seed.json": "02ef72d536ba0d5efb2dfb1de10daf6d96ff2ea54090c3c4fb8885bfa131b4c5",
-    "/home/mewhhaha/src/goose-to-wasm/bootstrap/seed.c.gz": "b222e89e956949b57a0f490382a549d5b1486b57226f47e25a4e85052722fb13",
-    "/home/mewhhaha/src/goose-to-wasm/bootstrap/sources.tar.gz": "8b8253656c96d0a429baa9e1dc25d95edaca16d7eedc594963187c90b0aaa01a",
+    "/home/mewhhaha/src/goose-to-wasm/bootstrap/seed.json": "7a4575987ad990c553eb15114cdebed9a5dbc2ab96268f0b1cc340994e361206",
+    "/home/mewhhaha/src/goose-to-wasm/bootstrap/seed.c.gz": "61617101820672d5177c66f74a4f879329f1cda3f37743d019e2297309627e52",
+    "/home/mewhhaha/src/goose-to-wasm/bootstrap/sources.tar.gz": "9b5fb52abad247038a8dd1b47b4cdbf297a8e89610af3e9375bf01e2c8263d98",
     "/usr/bin/clang-23": "366a962a13c952377adc2eabd9fdad82ba5b88890424b0022ae38cca8031bf79",
-    "/home/mewhhaha/src/goose-to-wasm/bootstrap/profile.json": "58baf102e1d543c2afcf26768bf78dee974015b76358a26bdd28330442832bfe",
-    "/home/mewhhaha/src/goose-to-wasm/bootstrap/profile.profdata": "388e3f14817213903a4705f7650bda183eced296da0ce40b60112156b1ad7243",
+    "/home/mewhhaha/src/goose-to-wasm/bootstrap/profile.json": "a2d8ab3d72a2c79a5f3ce8fb98339e01d24713b24234ea1bda234a1f8eb50f0b",
+    "/home/mewhhaha/src/goose-to-wasm/bootstrap/profile.profdata": "2b1711b311b762f44bf752e7f3b001714952fd9ecdb2d78feb511053df20829b",
     "/home/mewhhaha/src/goose-to-wasm/native/runtime/runtime.h": "5ac9487568c78c7cdf6e141d90d644da50436b1b7188047e6bfca09c7b801132",
     "/home/mewhhaha/src/goose-to-wasm/native/runtime/runtime_impl.h": "717f6d243575fa7e5de8229799cf86c22934dc202a4e6880c699db339b596bf1",
     "/home/mewhhaha/src/goose-to-wasm/native/runtime/runtime_threads.h": "b6a2a8f5ecde191093af1c6bde1939d172ef275156bd60e2e9e725d67f0a4285",
@@ -213,20 +214,20 @@
   },
   "builds": {
     "build-seed": {
-      "c_sha256": "3d8886f91bbaae7314f13cfc32735eef689c3888c5409732ee78a35279e3a136",
+      "c_sha256": "98d7e8174bc8ea50dd9315bfd7d19ecd088c4038e550f30b35b0a223f65dd881",
       "goose_optimization": 2,
       "profile_used": true,
       "profile_reason": "exact profile identity matched",
-      "profile_sha256": "388e3f14817213903a4705f7650bda183eced296da0ce40b60112156b1ad7243"
+      "profile_sha256": "2b1711b311b762f44bf752e7f3b001714952fd9ecdb2d78feb511053df20829b"
     },
     "build-goose": {
-      "c_sha256": "1af7746e7ed830736fa71971eef1e8f03cc2b864eb8c8c07b00a6a7bac31dcaf",
+      "c_sha256": "bfd2633f61ddbc110cb5839f5e4bb04becdc4ef2f02187e7512f7401a72d1ff6",
       "goose_optimization": 2,
       "profile_used": false,
       "profile_reason": "profile identity differs: c_sha256"
     },
     "build-next-generation": {
-      "c_sha256": "98d7e8174bc8ea50dd9315bfd7d19ecd088c4038e550f30b35b0a223f65dd881",
+      "c_sha256": "c58238e3b83131e9ea0638da7d026e1644b2ae5ab0d53cb2ed9ee3be14be0f90",
       "goose_optimization": 2,
       "profile_used": false,
       "profile_reason": "profile identity differs: c_sha256"
@@ -236,28 +237,28 @@
   "source_sha256": {
     "cache.goose": "25c601ad709333f80173ca67e330abe1ac406cc45d4d60e62d9b0ddf6988698d",
     "checker.goose": "2249aebbd63a6644269acea183ceccd1b4aa6ae5b8c4032156f2f9277d9ba4d0",
-    "checker_lifetimes.goose": "da5142889beee9938f20b24eadfcdb54e812bafebcb03d17d9dccd2f830c1cd5",
+    "checker_lifetimes.goose": "d770a7d79f02ff246154b0d9dd236b4ebc8697065def0cbf139b9cd349c66b72",
     "checker_operations.goose": "24e0ab4dda400f9d46bcfa23d9ca09d118934c82a8f55b1e6330198017403f37",
     "checker_rendering.goose": "9302c1bafcb47c431961158800754d823a5f5e8547983f484d1c2126dde0120a",
     "checker_validation.goose": "4964351dc08e0c4813f096377dd1ce41a0e2c0ae887d32ff5141a3fb2594de12",
-    "codegen.goose": "e2d65b8b2ce3540b5e99e61d53c9e954ac65cfd778b219b1fa63ea088923dedb",
+    "codegen.goose": "16e96b17ffb5b58a53dc05572e84c7c1311d79801b34fae534d814889505fbe8",
     "codegen_c.goose": "dd06bbdf7005844f5dc440fb3ae220281a1e5749b027a9a60989a96301c9ff8c",
     "codegen_c_images.goose": "dac4842710a22858b5559bbbd582399b71554422d84a46cd93db205fc314ee3e",
     "codegen_c_storage.goose": "586996021f95c0193262d8bb148b24decf6612e6e4f71d3c5e078896c3334e28",
     "codegen_c_threads.goose": "a0ed4a054a9dd39807a375de2b90a9d58e4e5479adf554948f2a7ebfe2357ace",
-    "driver.goose": "91164ba5248a80d0b9ac9f3088dbae944307d39b3cb2416306b09b242200edea",
+    "driver.goose": "6e030bc851ce8fe79226fd8f45c71932cc8c168545a35ac6a1a75ed89f6d5f90",
     "expansion_bind.goose": "e90b85468f1b32362c93b0b19e877194eb4b1c63e11363975c2c3b6894757fea",
-    "guide.goose": "03acb767ace902e675b9ca58be6ca92239f45a939aa1562075545ff2cb7f8dcb",
+    "guide.goose": "23f05c753b1d4d3e8b29d14eb19f8a3a378f46c543857ddfd50e4a79b8d57e82",
     "lexer.goose": "408979dd88d0afeb689c347b8d13d992556705ac90535b3dccef49224d6f4eef",
     "main.goose": "aedbadf2bb4536fc059812d4eeec6151d57de2bf25c1005fa6f5d4470aa45d1e",
     "model.goose": "728c6e34b8e909b9a5bc9db078d97a43d2d3f83a579e11abe4452abfe2a24829",
-    "optimizer.goose": "0c4b9998d48128e2db8cf561ae1cf1d8a2844744bf1236bcf9f2e88df10293ec",
+    "optimizer.goose": "4f8b68448ffc82341073e9d10902cbb9d93e5c92af9edf5d8319f0256aa2b634",
     "parallel.goose": "b62a2b330a96e29ff954562246ff55cd2bd619c9630fcb7ca0cd2a7eb644f218",
     "parser.goose": "a182a37378b8b22e1a13acc678d756b8623a6a5b300d106dbc78be3961686a6b",
     "region_plan.goose": "0ae8d2ada8ecff6ca17b10185897ef31828a0f9e54a3a05210435e8be0816a75",
     "sources.goose": "c17d17f961a65ed96f604cca364e067f354f50a0495ad8c6b77940f1422cd567",
     "thread_plan.goose": "73e2ed70ce4c83ae7469b0e818c7b7d2df51035286537f84959cd3272dfbe594",
-    "wasm.goose": "524d6da62aa6ff3faeeffa34ad59ad6759f25ef8f3371093b59dc28d34174487"
+    "wasm.goose": "d8dce82586e401b0d8dd1c86c0aa6f8fb36aeb78779d211ebfb4c09dff869878"
   },
   "asset_sha256": {
     "native/runtime/runtime.h": "5ac9487568c78c7cdf6e141d90d644da50436b1b7188047e6bfca09c7b801132",
@@ -281,7 +282,7 @@
     "dictionary.goose": "fb39f896731faf3799e81727f7261849a62bdfbdc92d5fdbc36405a85830f322",
     "exception.goose": "093863eda5433176750182b597aa6760a93808d86b0c9b713681443d2fb29160",
     "ffi.goose": "e092b245fbe13ee2fdc71599b7b8eb44198e5261cad9600b7681e13ad75a6c2e",
-    "json.goose": "0e58291ed9051e4ecb8da1ad420290549d723336516507aed33cf7ced89dc29b",
+    "json.goose": "6311cac1fc926a26d6f02549ea7aaa86283e50aef1c920eee22d47e77eaa02a2",
     "math.goose": "816a79770b767c2777af0e5f2ba67b1c47eb03bd84aba6614f5cb7b71db156e2",
     "os.goose": "1ebd3f3508aa07545128eaf4d3cf9aadb286ae566cda9b14995482a0b6950178",
     "regex.goose": "9fb86509727e18997ea0c14d49f39e08243983b62de047738ca1cb516c4627d4",
@@ -293,13 +294,13 @@
     "mat.goose": "25223d15e91b4171316ef372b5914ba99617de363d4ca47223d462c35b36e25a",
     "quat.goose": "8f9bd5dfcc4490590f5a649140c48d44a42d3bf4241f77844fd9298787634f95"
   },
-  "generated_c_sha256": "1af7746e7ed830736fa71971eef1e8f03cc2b864eb8c8c07b00a6a7bac31dcaf",
-  "executable_c_sha256": "98d7e8174bc8ea50dd9315bfd7d19ecd088c4038e550f30b35b0a223f65dd881",
-  "next_generation_c_sha256": "98d7e8174bc8ea50dd9315bfd7d19ecd088c4038e550f30b35b0a223f65dd881",
-  "third_generation_c_sha256": "98d7e8174bc8ea50dd9315bfd7d19ecd088c4038e550f30b35b0a223f65dd881",
+  "generated_c_sha256": "bfd2633f61ddbc110cb5839f5e4bb04becdc4ef2f02187e7512f7401a72d1ff6",
+  "executable_c_sha256": "c58238e3b83131e9ea0638da7d026e1644b2ae5ab0d53cb2ed9ee3be14be0f90",
+  "next_generation_c_sha256": "c58238e3b83131e9ea0638da7d026e1644b2ae5ab0d53cb2ed9ee3be14be0f90",
+  "third_generation_c_sha256": "c58238e3b83131e9ea0638da7d026e1644b2ae5ab0d53cb2ed9ee3be14be0f90",
   "fixed_point": true,
   "executable_build": {
-    "c_sha256": "98d7e8174bc8ea50dd9315bfd7d19ecd088c4038e550f30b35b0a223f65dd881",
+    "c_sha256": "c58238e3b83131e9ea0638da7d026e1644b2ae5ab0d53cb2ed9ee3be14be0f90",
     "goose_optimization": 2,
     "profile_used": false,
     "profile_reason": "profile identity differs: c_sha256"
@@ -307,12 +308,12 @@
   "profile_used": false,
   "input_sha256_after": {
     "/home/mewhhaha/src/goose-to-wasm/selfhost/bootstrap.py": "d1b092fff2b09af490c6eeaa56cf37145d1f6ca01f7f2fb74768221766b71306",
-    "/home/mewhhaha/src/goose-to-wasm/bootstrap/seed.json": "02ef72d536ba0d5efb2dfb1de10daf6d96ff2ea54090c3c4fb8885bfa131b4c5",
-    "/home/mewhhaha/src/goose-to-wasm/bootstrap/seed.c.gz": "b222e89e956949b57a0f490382a549d5b1486b57226f47e25a4e85052722fb13",
-    "/home/mewhhaha/src/goose-to-wasm/bootstrap/sources.tar.gz": "8b8253656c96d0a429baa9e1dc25d95edaca16d7eedc594963187c90b0aaa01a",
+    "/home/mewhhaha/src/goose-to-wasm/bootstrap/seed.json": "7a4575987ad990c553eb15114cdebed9a5dbc2ab96268f0b1cc340994e361206",
+    "/home/mewhhaha/src/goose-to-wasm/bootstrap/seed.c.gz": "61617101820672d5177c66f74a4f879329f1cda3f37743d019e2297309627e52",
+    "/home/mewhhaha/src/goose-to-wasm/bootstrap/sources.tar.gz": "9b5fb52abad247038a8dd1b47b4cdbf297a8e89610af3e9375bf01e2c8263d98",
     "/usr/bin/clang-23": "366a962a13c952377adc2eabd9fdad82ba5b88890424b0022ae38cca8031bf79",
-    "/home/mewhhaha/src/goose-to-wasm/bootstrap/profile.json": "58baf102e1d543c2afcf26768bf78dee974015b76358a26bdd28330442832bfe",
-    "/home/mewhhaha/src/goose-to-wasm/bootstrap/profile.profdata": "388e3f14817213903a4705f7650bda183eced296da0ce40b60112156b1ad7243",
+    "/home/mewhhaha/src/goose-to-wasm/bootstrap/profile.json": "a2d8ab3d72a2c79a5f3ce8fb98339e01d24713b24234ea1bda234a1f8eb50f0b",
+    "/home/mewhhaha/src/goose-to-wasm/bootstrap/profile.profdata": "2b1711b311b762f44bf752e7f3b001714952fd9ecdb2d78feb511053df20829b",
     "/home/mewhhaha/src/goose-to-wasm/native/runtime/runtime.h": "5ac9487568c78c7cdf6e141d90d644da50436b1b7188047e6bfca09c7b801132",
     "/home/mewhhaha/src/goose-to-wasm/native/runtime/runtime_impl.h": "717f6d243575fa7e5de8229799cf86c22934dc202a4e6880c699db339b596bf1",
     "/home/mewhhaha/src/goose-to-wasm/native/runtime/runtime_threads.h": "b6a2a8f5ecde191093af1c6bde1939d172ef275156bd60e2e9e725d67f0a4285",
@@ -327,6 +328,6 @@
     "/home/mewhhaha/src/goose-to-wasm/native/units.h": "23b0395c15dc4ea9a7fc3545560a49427007d1d1f0019a9a46a920b3de5d5560",
     "/home/mewhhaha/src/goose-to-wasm/native/runtime_unit.h": "e11a0d180a048b95a8dd827d7e2664526a3ad3e368dc602a78d363f34bc13a58"
   },
-  "executable": "/home/mewhhaha/src/goose-to-wasm/build/snapshot75/boot-from-74/goosew",
-  "executable_sha256": "ed907022b67e689417058ba709bca1245e4ed1c749597c86b66d9e7919bf7d5e"
+  "executable": "/home/mewhhaha/src/goose-to-wasm/build/snapshot76/boot-from-75/goosew",
+  "executable_sha256": "2f45ad7bc9e733e1e8acc80649e578fde293525d0cdb872596dcdca1ab2c82fc"
 }

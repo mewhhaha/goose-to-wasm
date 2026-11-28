@@ -15,11 +15,12 @@ The binary is `host/wtime-aot/target/release/goose-wtime-aot`.
 ## Usage
 
 ```sh
-goose-wtime-aot module.wasm [--entry NAME] [--fast] [--cache PATH]
+goose-wtime-aot module.wasm [--entry NAME] [--fast] [--cache PATH] [--inc-cache DIR]
                 [--timing-json PATH] [-- program arguments...]
 ```
 
 - `--entry NAME`: invoke exported function `NAME` after `_start` (for example `--entry blot_goose_main` for Blot2 compiled with `--library --reachable-program`).
 - `--fast`: disable Stage 2 AOT optimizations (`OptLevel::None`) for faster cold compilation.
 - `--cache PATH`: serialize the compiled native `StoreCdylib` ELF `.so` beside a SHA-256 stamp (`PATH.stamp`) and reuse it when the `.wasm` bytes and optimization mode match.
+- `--inc-cache DIR`: enable per-function content-addressed x86-64 incremental caching (`DIR/x64-inc`) so edited modules recompile only modified Wasm functions (`~60–81 ms` on 7,961-function Blot2) and relink unchanged functions directly into full O2 native machine code. Automatically passed as `<cache-dir>/wtime-aot-inc` when running `goosew --cache-dir DIR --runner wtime-aot --run`.
 - `--timing-json PATH`: write engine timings (`compile_ns`, `instantiate_ns`, `run_ns`, `compile_instantiate_ns`, `start_function_ns`, `engine_total_ns`).
